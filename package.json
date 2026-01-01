@@ -1,0 +1,28 @@
+{
+  "name": "lumen-browser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite",
+    "dev:electron": "electron electron/main.cjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron": "electron electron/main.cjs"
+  },
+  "dependencies": {
+    "kubo": "^0.37.0",
+    "lucide-vue-next": "^0.540.0",
+    "vue": "^3.4.27"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "concurrently": "^9.0.0",
+    "electron": "^31.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  }
+}

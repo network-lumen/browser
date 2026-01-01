@@ -1,0 +1,4 @@
+# Default peer endpoints
+# Format: rpc rest [grpc]
+# Lines beginning with # are ignored.
+http://142.132.201.187:26657 http://142.132.201.187:1317 http://142.132.201.187:9190

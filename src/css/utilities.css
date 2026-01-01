@@ -1,0 +1,164 @@
+/* ------------------------ PADDINGS ------------------------ */ 
+.padding-0 { padding: 0 }
+.padding-25 { padding: .25rem }
+.padding-50 { padding: .5rem }
+.padding-100{ padding: 1rem }
+.padding-left-50 { padding-left: .5rem; }     /* left */
+.padding-left-150 { padding-left: 1.5rem; }     
+.padding-right-50 { padding-right: .5rem; }     /* right */
+.padding-right-150 { padding-right: 1.5rem; }     /* right */
+.padding-top-50 { padding-top: .5rem; }           /* top */
+/* ------------------------ MARGINS ------------------------ */ 
+.margin-0 { margin: 0; }
+.margin-top-25 { margin-top: .25rem }
+.margin-top-50 { margin-top: .5rem }
+.margin-bottom-25 { margin-bottom: .25rem }     /* bottom */
+.margin-bottom-50 { margin-bottom: .5rem }
+.margin-left-auto { margin-left: auto; }        /* left */
+.margin-left-25 { margin-left: .25rem; }
+/* ------------------------ DIMENSIONS ------------------------ */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+/* ------------------------ TEXTS ------------------------ */
+.text-center { text-align: center; }
+/* ------------------------------- BORDERS ------------------------------- */
+.border-none { border: none; }
+.border-1px-solid { border: 1px solid; }
+/* border color */
+.border-color-default { border-color: var(--border); }
+/* focus border color */
+/* 
+  specific border color like top/bottom... comes AFTER others border: XX
+*/
+.border-bottom-1px-solid { border-bottom: 1px solid; }
+.border-bottom-color-default { border-bottom-color: var(--border); }
+/* border radius */
+.border-radius-circle { border-radius: 50%; }
+.border-radius-10px { border-radius: 10px; }
+.border-radius-top-left-top-right-10px { border-radius: 10px 10px 0 0; }
+/* ------------------------------- BACKGROUNDS ------------------------------- */
+.bg-transparent { background-color: transparent; }
+.bg-white { background-color: var(--white); }
+.bg-white-a45 { background-color: var(--white-a45); }
+.bg-white-blue { background-color: var(--white-blue); }
+.bg-white-blue-light { background-color: var(--white-blue-light); }
+.bg-white-blue-dark { background-color: var(--white-blue-dark); }
+.bg-blue { background-color: var(--blue); }
+.bg-blue-sky { background-color: var(--blue-sky); }
+/* .bg-primary-a10 removed (unused) */
+@media (hover: hover) {
+  /* .hover-bg-white removed (unused) */
+  .hover-bg-white-blue-light:where(:hover, :focus-visible) { background: var(--white-blue-light); }
+  .hover-bg-black-a10:where(:hover, :focus-visible) { background: var(--black-a10); }
+}
+/* .focus-bg-blue removed (unused) */
+/* ------------------------------- COLORS ------------------------------- */
+/* .color-white-blue-dark removed (unused) */
+.color-gray-blue { color: var(--gray-blue) }
+.color-gray-blue-dark { color: var(--gray-blue-dark) }
+.color-gray-blue-light { color: var(--gray-blue-light) }
+.color-blue { color: var(--blue); }
+.color-red-base { color: var(--red-base); }
+.hover-underline { text-decoration: none; }
+@media (hover: hover) {
+    .hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
+}
+/* ---------------------------- OVERFLOWS ---------------------------- */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+/* ---------------------------- FONTS ----------------------------*/
+.txt-xs  { font-size: var(--fs-xs); line-height: 1.2; }
+.txt-sm  { font-size: var(--fs-sm); line-height: 1.2; }
+.txt-md  { font-size: var(--fs-md); line-height: 1.2; }
+.txt-2xl { font-size: var(--fs-2xl); line-height: 1.2; }
+/* weight */
+.txt-weight-strong { font-weight: 800; }
+/* family */
+
+.txt-letter-spacing-00125 { letter-spacing: 0.0125rem; }
+
+@media (hover: hover) {
+}
+/* ---------------------------- POINTERS ----------------------------*/
+.cursor-pointer { cursor: pointer; }
+.cursor-events-none { pointer-events: none; }
+.cursor-select-none { user-select: none; }
+.cursor-not-allowed { cursor: not-allowed!important; }
+/* ---------------------------- BUTTONS ---------------------------- */
+.button:disabled { cursor: not-allowed; opacity: .7; }
+/* ---------------------------- GAPS ---------------------------- */
+.gap-25  { gap: 0.25rem; }
+.gap-50  { gap: 0.5rem; }
+/* ---------------------------- OTHERS ---------------------------- */
+.opacity-70 { opacity: .7; }
+.nowrap { white-space: nowrap; }
+.flex-1-1-auto { flex: 1 1 auto; }
+.flex-0-0-auto { flex: 0 0 auto; }
+.flex-1 { flex: 1; }
+/* Flexbox centering equivalent to grid place-items:center */
+/* Prefer using .flex-align-justify-center from flex.css in markup */
+.outline-none { outline: none; }
+.list-style-none { list-style: none; }
+.txt-overflow-ellipsis { text-overflow: ellipsis; }
+.box-shadow-default { box-shadow: 0 6px 20px var(--black-a06) }
+/* app-region helpers */
+.appregion-drag { -webkit-app-region: drag; }
+.appregion-no-drag { -webkit-app-region: no-drag; }
+/* object-fit */
+/* top helpers */
+.top-full { top: 100%; }
+/* ---------------------------- FLEX GRID HELPERS ---------------------------- */
+/* Container classes to emulate common auto-fit grid patterns using flexbox */
+/* Strict tokens for column minimums */
+
+/* ---------------------------- FLEX BASICS ---------------------------- */
+.flex-1-1-0 { flex: 1 1 0; }
+/* Strict flex-basis tokens (rem) */
+
+/* ---------------------------- DIMENSION UTILS ---------------------------- */
+.min-w-0 { min-width: 0; }
+/* viewport max-height */
+.max-h-50vh { max-height: 50vh; }
+/* min-width tokens (rem) */
+.min-w-1500{ min-width: 15rem; }
+
+.max-w-3000{ max-width: 30rem; }
+/* Strict width/height tokens (rem) */
+.w-25  { width: .25rem; }
+.h-50  { height: .5rem; }
+.h-200 { height: 2rem; }
+.size-100 { width:1rem;  height:1rem;  }
+.size-200 { width:1.6rem;  height:1.6rem;  }
+
+/* ---------------------------- WIDTH HELPERS ---------------------------- */
+
+/* ---------------------------- EFFECTS / BACKDROP / TRANSITIONS ---------------------------- */
+.transition-ui { transition: background .12s ease, transform .05s ease, box-shadow .12s ease; }
+
+/* ---------------------------- MISC ---------------------------- */
+
+/* positions */
+.absolute { position: absolute; }
+.relative { position: relative; }
+/* display  */
+.hidden { display: none; }
+.block { display: block; }
+/* Removed generic grid display; prefer flex utilities */
+/* position absolute placement */
+.top-25 { top: .25rem; }
+.right-0 { right: 0; }
+.right-50 { right: .5rem; }
+.bottom-0 { bottom: 0; }
+.left-25 { left: .25rem; }
+/* z-index */
+.z-1 { z-index: 1; }
+.z-2 { z-index: 2; }
+/* animations */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes pulse{
+  0% { box-shadow:0 0 0 0 var(--primary-a45) }
+  70%{ box-shadow:0 0 0 8px var(--primary-a00) }
+  100%{ box-shadow:0 0 0 0 var(--primary-a00) }
+}
+/* Semantic helpers */

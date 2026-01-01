@@ -1,0 +1,53 @@
+:root {
+    /* colors */
+    --white: #fff;
+    --white-rgb: 255, 255, 255;
+
+    --green-mint: #37bb8d;
+    --green-mint-rgb: 55, 187, 141;
+
+    --red-base:   #ea3e3e;
+    --red-wash: #fecaca;
+    --red-base-rgb: 234, 62, 62;
+
+    --orange-bright: #f59e0b;
+    --orange-bright-rgb: 245, 158, 11;
+
+    --gray-blue:       #64748b;
+    --gray-blue-dark:  #334155;
+    --gray-blue-light: #94a3b8;
+    
+    --white-blue-light: #f8fbff;
+    --white-blue:      #dbeafe;
+    --white-blue-dark: #bfdbfe;
+
+    --amber:       #fcd34d;
+    --amber-soft:  #fde68a;
+
+    --blue-rgb: var(--primary-rgb);
+    --blue:     rgb(var(--blue-rgb));
+
+    --blue-strong: #2563eb;
+
+    --blue-sky:      #0ea5e9;
+
+    --border: #e6eaf1;
+        
+    --black-rgb: 0, 0, 0;
+    --primary-rgb: 59, 130, 246;
+    /* rgba black with opacity */
+    --black-a06: rgba(var(--black-rgb), .06);
+    --black-a10: rgba(var(--black-rgb), .10);
+    /* rgba white with opacity */
+    --white-a25: rgba(var(--white-rgb), .25);
+    --white-a45: rgba(var(--white-rgb), .45);
+    /* rgba primary with opacity */
+    --primary-a00: rgba(var(--primary-rgb), .00);
+    --primary-a25: rgba(var(--primary-rgb), .25);
+    --primary-a45: rgba(var(--primary-rgb), .45);
+    /* font size */
+    --fs-xs: 0.8125rem; /* 13px */
+    --fs-sm: 0.875rem;  /* 14px */
+    --fs-md: 1rem;      /* 16px (base body) */
+    --fs-2xl: 1.625rem; /* 26px */
+}

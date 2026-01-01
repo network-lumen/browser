@@ -1,0 +1,6 @@
+﻿@import "./flex.css";
+@import "./utilities.css";
+@import "./theme.css";
+
+* { font-family: system-ui; }
+html,body{ overflow: hidden; margin: 0 }
