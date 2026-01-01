@@ -1,12 +1,6 @@
 Lumen Open‑Source Browser
 ================================
 
-This folder contains a minimal Electron + Vue shell for the Lumen browser. It includes:
-
-- a startup screen that checks a local Kubo daemon on `127.0.0.1:5001`
-- a placeholder main screen
-- shared CSS tokens copied from the main Lumen UI
-
 ## Prerequisites
 
 - Node.js 18+
