@@ -5,7 +5,6 @@ Lumen Browser
 
 - Node.js 18+
 - npm
-- `kubo` npm package is installed locally (it is included in `package.json` and provides the IPFS binary used by Electron)
 
 By default, this shell stores its IPFS repo under the Electron user data directory (for example on Windows: `%APPDATA%/lumen-browser/ipfs`), not in the global `~/.ipfs` folder.
 
