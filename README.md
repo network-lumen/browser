@@ -1,4 +1,4 @@
-Lumen Open‑Source Browser
+Lumen Browser
 ================================
 
 ## Prerequisites
