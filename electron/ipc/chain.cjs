@@ -14,11 +14,22 @@ function ensureHttp(u) {
 
 function resolvePeersFilePath() {
   const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
-  const file = path.join(appPath, 'resources', 'peers.txt');
-
-  try {
-    if (fs.existsSync(file)) return file;
-  } catch {}
+  
+  // Try multiple possible locations for peers.txt
+  const candidates = [
+    path.join(appPath, 'resources', 'peers.txt'),
+    path.join(appPath, '..', 'resources', 'peers.txt'),  // dev mode: electron/../resources
+    path.join(process.cwd(), 'resources', 'peers.txt'),
+  ];
+  
+  for (const file of candidates) {
+    try {
+      if (fs.existsSync(file)) {
+        console.log('[rpc] found peers file at:', file);
+        return file;
+      }
+    } catch {}
+  }
 
   return null;
 }
