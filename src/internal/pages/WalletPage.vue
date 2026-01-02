@@ -9,6 +9,16 @@
         <span class="logo-text">Wallet</span>
       </div>
 
+      <!-- Wallet Status -->
+      <div
+        class="wallet-status"
+        :class="{ connected: isConnected }"
+        @click="isConnected ? disconnectWallet() : connectWallet()"
+      >
+        <div class="status-dot"></div>
+        <span>{{ isConnected ? 'Connected' : 'Not Connected' }}</span>
+      </div>
+
       <nav class="sidebar-nav">
         <div class="nav-section">
           <span class="nav-label">Assets</span>
@@ -42,16 +52,6 @@
           </button>
         </div>
       </nav>
-
-      <!-- Wallet Status -->
-      <div
-        class="wallet-status"
-        :class="{ connected: isConnected }"
-        @click="isConnected ? disconnectWallet() : connectWallet()"
-      >
-        <div class="status-dot"></div>
-        <span>{{ isConnected ? 'Connected' : 'Not Connected' }}</span>
-      </div>
     </aside>
 
     <!-- Main Content -->
@@ -211,86 +211,157 @@
         </div>
 
         <div v-else class="activities-list">
+          <div class="table-header">
+            <div class="col-type">Type</div>
+            <div class="col-amount">Amount</div>
+            <div class="col-from">From</div>
+            <div class="col-to">To</div>
+            <div class="col-hash">Hash</div>
+            <div class="col-status">Status</div>
+            <div class="col-time">Time</div>
+          </div>
+
           <div
-            v-for="tx in activities"
+            v-for="tx in enhancedActivities"
             :key="tx.id"
-            class="activity-item"
+            class="activity-row"
           >
-            <div class="activity-main">
-              <div class="activity-type">
-                <ArrowUpRight v-if="tx.type === 'send'" :size="16" />
-                <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="16" />
-                <ArrowLeftRight v-else :size="16" />
-                <span class="activity-type-label">
-                  <template v-if="tx.amounts && tx.amounts.length">
-                    <template v-if="tx.type === 'send'">
-                      Send -{{ (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} LMN
-                    </template>
-                    <template v-else-if="tx.type === 'receive'">
-                      Receive +{{ (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} LMN
-                    </template>
-                    <template v-else>
-                      Activity {{ (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} LMN
-                    </template>
-                  </template>
-                  <template v-else>
-                    {{ tx.type === 'send' ? 'Send' : tx.type === 'receive' ? 'Receive' : 'Activity' }}
-                  </template>
-                </span>
+            <div class="col-type">
+              <div class="type-badge" :class="tx.type">
+                <ArrowUpRight v-if="tx.type === 'send'" :size="14" />
+                <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
+                <ArrowLeftRight v-else :size="14" />
+                <span>{{ tx.type === 'send' ? 'Send' : 'Receive' }}</span>
               </div>
-              <div class="activity-meta">
-                <span class="activity-hash" :title="tx.txhash">
-                  {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
-                </span>
-                <span class="activity-time">
-                  {{ new Date(tx.timestamp).toLocaleString() }}
-                </span>
-              </div>
-              </div>
+            </div>
+
+            <div class="col-amount">
+              <span class="amount-value" :class="tx.type">
+                <template v-if="tx.amounts && tx.amounts.length">
+                  {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} LMN
+                </template>
+                <template v-else>-</template>
+              </span>
+            </div>
+
+            <div class="col-from">
+              <span class="address-value" :title="tx.from || address">
+                {{ (tx.from || address || '').slice(0, 8) }}…{{ (tx.from || address || '').slice(-6) }}
+              </span>
+            </div>
+
+            <div class="col-to">
+              <span class="address-value" :title="tx.to || '-'">
+                {{ tx.to ? tx.to.slice(0, 8) + '…' + tx.to.slice(-6) : '-' }}
+              </span>
+            </div>
+
+            <div class="col-hash">
+              <span class="hash-value" :title="tx.txhash">
+                {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
+              </span>
+              <button class="action-icon copy-btn" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash">
+                <Copy :size="14" />
+              </button>
+            </div>
+
+            <div class="col-status">
+              <span class="status-badge" :class="(tx.code === undefined || tx.code === 0) ? 'success' : 'failed'">
+                {{ (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed' }}
+              </span>
+            </div>
+
+            <div class="col-time">
+              <span class="time-value">
+                {{ new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
+                <span class="time-hour">{{ new Date(tx.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
     </main>
 
-    <!-- Send Modal (preview only) -->
+    <!-- Toast Notification -->
+    <Transition name="toast">
+      <div v-if="toastVisible" class="toast-notification" :class="toastType">
+        <div class="toast-icon">
+          <Check v-if="toastType === 'success'" :size="18" />
+          <AlertCircle v-else :size="18" />
+        </div>
+        <span class="toast-message">{{ toastMessage }}</span>
+      </div>
+    </Transition>
+
+    <!-- Send Modal -->
     <Transition name="fade">
       <div v-if="showSendModal" class="modal-overlay" @click="closeSendModal">
-        <div class="modal-content" @click.stop>
+        <div class="modal-content send-modal" @click.stop>
           <div class="modal-header">
-            <h3>Send LMN (preview)</h3>
+            <div class="modal-title-wrapper">
+              <div class="modal-icon">
+                <Send :size="20" />
+              </div>
+              <h3>Send LMN</h3>
+            </div>
             <button class="modal-close" @click="closeSendModal">
-              <X :size="16" />
+              <X :size="18" />
             </button>
           </div>
           <div class="modal-body">
-            <p class="modal-desc">
-              This is a preview-only send flow. Use the full Lumen browser to actually submit transfers.
-            </p>
+            <div class="info-banner">
+              <span>💡 This is a preview-only send flow. Use the full Lumen browser to actually submit transfers.</span>
+            </div>
 
             <div class="form-group">
               <label>From</label>
-              <input class="form-input" type="text" :value="address" readonly />
+              <div class="input-wrapper readonly">
+                <input class="form-input" type="text" :value="address" readonly />
+              </div>
             </div>
 
             <div class="form-group">
-              <label>To</label>
-              <input class="form-input" type="text" v-model="sendForm.recipient" placeholder="lmn1..." />
+              <label>To <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input 
+                  class="form-input" 
+                  type="text" 
+                  v-model="sendForm.recipient" 
+                  placeholder="Enter recipient address (lmn1...)" 
+                />
+              </div>
             </div>
 
             <div class="form-group">
-              <label>Amount (LMN)</label>
-              <input class="form-input" type="number" min="0" step="0.000001" v-model="sendForm.amount" />
+              <label>Amount (LMN) <span class="required">*</span></label>
+              <div class="input-wrapper amount-input">
+                <input 
+                  class="form-input" 
+                  type="number" 
+                  min="0" 
+                  step="0.000001" 
+                  v-model="sendForm.amount"
+                  placeholder="0.000000"
+                />
+                <span class="input-suffix">LMN</span>
+              </div>
+              <div class="balance-hint" v-if="balanceLmn !== null">
+                Available: {{ balanceLmnDisplay }} LMN
+              </div>
             </div>
 
             <div class="tx-summary">
+              <div class="summary-header">
+                <span>Transaction Summary</span>
+              </div>
               <div class="summary-row">
                 <span>Amount debited</span>
                 <span class="summary-value">{{ sendSummary.amount }} LMN</span>
               </div>
               <div class="summary-row">
                 <span>Tax</span>
-                <span class="summary-value">{{ sendSummary.taxLabel }}</span>
+                <span class="summary-value tax">{{ sendSummary.taxLabel }}</span>
               </div>
               <div class="summary-row total">
                 <span>Receiver net</span>
@@ -298,9 +369,10 @@
               </div>
             </div>
 
-            <button class="btn-modal-primary" @click="confirmSendPreview" :disabled="!canSend">
-              <Send :size="16" />
-              <span>Preview send</span>
+            <button class="btn-modal-primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
+              <Send :size="18" v-if="!sendingTransaction" />
+              <span class="spinner" v-else></span>
+              <span>{{ sendingTransaction ? 'Sending...' : 'Preview Send' }}</span>
             </button>
           </div>
         </div>
@@ -310,24 +382,43 @@
     <!-- Receive Modal -->
     <Transition name="fade">
       <div v-if="showReceiveModal" class="modal-overlay" @click="closeReceiveModal">
-        <div class="modal-content" @click.stop>
+        <div class="modal-content receive-modal" @click.stop>
           <div class="modal-header">
-            <h3>Receive LMN</h3>
+            <div class="modal-title-wrapper">
+              <div class="modal-icon receive">
+                <ArrowDownLeft :size="20" />
+              </div>
+              <h3>Receive LMN</h3>
+            </div>
             <button class="modal-close" @click="closeReceiveModal">
-              <X :size="16" />
+              <X :size="18" />
             </button>
           </div>
           <div class="modal-body">
-            <p class="modal-desc">
-              Share your wallet address to receive LMN from another wallet or from an exchange that supports Lumen.
-            </p>
+            <div class="info-banner">
+              <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
+            </div>
+
+            <div class="qr-section">
+              <div class="qr-wrapper">
+                <img 
+                  v-if="address" 
+                  :src="`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(address)}&bgcolor=f8fafc&color=0f172a&margin=10`"
+                  alt="QR Code"
+                  class="qr-image"
+                />
+                <div v-else class="qr-placeholder">
+                  No address available
+                </div>
+              </div>
+            </div>
 
             <div class="address-box">
-              <div class="address-label">Your address</div>
+              <div class="address-label">Your Wallet Address</div>
               <div class="address-value">{{ address || '-' }}</div>
-              <button class="btn-copy-address" type="button" @click="copyAddress" :disabled="!address">
-                <Copy :size="14" />
-                <span>Copy address</span>
+              <button class="btn-copy-address" type="button" @click="copyAddressWithToast" :disabled="!address">
+                <Copy :size="16" />
+                <span>Copy Address</span>
               </button>
             </div>
           </div>
@@ -355,10 +446,13 @@ import {
   CreditCard,
   Plus,
   X,
-  Copy
+  Copy,
+  ExternalLink,
+  Check,
+  AlertCircle
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
-import { fetchActivities, type Activity } from '../services/activities';
+import { fetchActivities, type Activity, type ActivityType } from '../services/activities';
 
 const currentView = ref<'overview' | 'tokens' | 'transactions'>('overview');
 const isConnected = ref(false);
@@ -381,6 +475,7 @@ const balanceError = ref('');
 // Modal states
 const showSendModal = ref(false);
 const showReceiveModal = ref(false);
+const sendingTransaction = ref(false);
 
 // Activities
 const activities = ref<Activity[]>([]);
@@ -396,6 +491,12 @@ const sendForm = ref({
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
+// Toast notification
+const toastVisible = ref(false);
+const toastMessage = ref('');
+const toastType = ref<'success' | 'error'>('success');
+let toastTimeout: any = null;
+
 const balanceLabel = computed(() => {
   if (!isConnected.value) return 'Not connected';
   if (balanceLoading.value) return 'Loading...';
@@ -407,6 +508,52 @@ const balanceLabel = computed(() => {
 const balanceLmnDisplay = computed(() => {
   if (balanceLmn.value == null) return '0.000000';
   return balanceLmn.value.toFixed(6);
+});
+
+// Enhance activities with proper send/receive detection
+const enhancedActivities = computed(() => {
+  const userAddr = address.value?.toLowerCase();
+  if (!userAddr) return activities.value;
+  
+  return activities.value.map(tx => {
+    // Get from and to with proper fallback
+    const fromAddr = tx.from || tx.sender;
+    const toAddr = tx.to || tx.recipient;
+    
+    const from = fromAddr?.toLowerCase();
+    const to = toAddr?.toLowerCase();
+    
+    // Always determine type based on addresses, ignore the original type field
+    let actualType: ActivityType = tx.type || 'unknown';
+    
+    if (from && to) {
+      if (to === userAddr) {
+        // If money is coming TO our address, it's a receive
+        actualType = 'receive';
+      } else if (from === userAddr) {
+        // If money is coming FROM our address, it's a send
+        actualType = 'send';
+      }
+    }
+    
+    const enhanced = { 
+      ...tx, 
+      type: actualType, 
+      from: fromAddr, 
+      to: toAddr 
+    };
+    
+    console.log('[WalletPage] Enhanced tx:', {
+      type: enhanced.type,
+      from: enhanced.from,
+      to: enhanced.to,
+      amount: enhanced.amounts?.[0]?.amount,
+      code: enhanced.code,
+      hash: enhanced.txhash
+    });
+    
+    return enhanced;
+  });
 });
 
 function getViewTitle(): string {
@@ -436,6 +583,7 @@ async function refreshActivities() {
       return;
     }
     const list = await fetchActivities({ walletId: address.value, limit: 20, offset: 0 });
+    console.log('[WalletPage] Raw activities:', list);
     activities.value = list;
   } catch (e: any) {
     activitiesError.value = String(e?.message || e || 'Failed to load activities');
@@ -521,6 +669,31 @@ function closeSendModal() {
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
 }
 
+function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(message, 'success');
+  }).catch((err) => {
+    console.error('Failed to copy:', err);
+    showToast('Failed to copy', 'error');
+  });
+}
+
+function showToast(message: string, type: 'success' | 'error' = 'success') {
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastMessage.value = message;
+  toastType.value = type;
+  toastVisible.value = true;
+  toastTimeout = setTimeout(() => {
+    toastVisible.value = false;
+  }, 2500);
+}
+
+function openExplorer(txHash: string) {
+  // Open transaction in explorer - adjust URL based on your blockchain explorer
+  const explorerUrl = `https://explorer.lumen.network/tx/${txHash}`;
+  window.open(explorerUrl, '_blank');
+}
+
 const canSend = computed(() => {
   if (!address.value) return false;
   const amount = Number(sendForm.value.amount || '0');
@@ -548,31 +721,54 @@ const sendSummary = computed(() => {
 });
 
 async function confirmSendPreview() {
+  if (sendingTransaction.value) return;
+  
   if (!address.value) {
-    window.alert('No sender address available.');
+    showToast('No sender address available', 'error');
     return;
   }
   const from = address.value;
   const to = String(sendForm.value.recipient || '').trim();
   const amountNum = Number(sendForm.value.amount || '0');
-  if (!to || !(amountNum > 0)) {
-    window.alert('Please enter a valid recipient and amount.');
+  
+  if (!to) {
+    showToast('Please enter recipient address', 'error');
+    return;
+  }
+  
+  if (!(amountNum > 0)) {
+    showToast('Please enter a valid amount', 'error');
+    return;
+  }
+
+  if (balanceLmn.value !== null && amountNum > balanceLmn.value) {
+    showToast('Insufficient balance', 'error');
     return;
   }
 
   const anyWindow = window as any;
   const walletApi = anyWindow?.lumen?.wallet;
   if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-    window.alert('Wallet send bridge not available.');
+    showToast('Wallet send bridge not available', 'error');
     return;
   }
 
   const activeId = activeProfileId.value;
   if (!activeId) {
-    window.alert('No active profile selected.');
+    showToast('No active profile selected', 'error');
     return;
   }
 
+  sendingTransaction.value = true;
+  
+  // Add timeout to prevent infinite hang
+  const timeoutId = setTimeout(() => {
+    if (sendingTransaction.value) {
+      sendingTransaction.value = false;
+      showToast('Request timeout - please try again', 'error');
+    }
+  }, 30000); // 30 second timeout
+  
   try {
     const res = await walletApi.sendTokens({
       profileId: activeId,
@@ -582,17 +778,23 @@ async function confirmSendPreview() {
       denom: 'ulmn',
       memo: ''
     });
+    
+    clearTimeout(timeoutId);
+    
     if (!res || res.ok === false) {
-      window.alert(`Send failed: ${res?.error || 'unknown error'}`);
+      showToast(`Send failed: ${res?.error || 'unknown error'}`, 'error');
       return;
     }
-    window.alert(`Send successful! Tx hash: ${res.txhash || ''}`);
+    showToast(`Send successful! Tx: ${(res.txhash || '').slice(0, 12)}...`, 'success');
     closeSendModal();
     await refreshWallet();
     await refreshActivities();
   } catch (e) {
+    clearTimeout(timeoutId);
     console.error('[wallet] sendTokens error', e);
-    window.alert('Unexpected error while sending transaction.');
+    showToast('Unexpected error while sending transaction', 'error');
+  } finally {
+    sendingTransaction.value = false;
   }
 }
 
@@ -602,6 +804,17 @@ function openReceiveModal() {
 
 function closeReceiveModal() {
   showReceiveModal.value = false;
+}
+
+async function copyAddressWithToast() {
+  if (!address.value) return;
+  try {
+    await navigator.clipboard.writeText(address.value);
+    showToast('Address copied to clipboard!', 'success');
+  } catch (err) {
+    console.error('Failed to copy:', err);
+    showToast('Failed to copy address', 'error');
+  }
 }
 
 async function copyAddress() {
@@ -626,8 +839,9 @@ watchEffect(() => {
 <style scoped>
 .wallet-page {
   display: flex;
-  height: 100%;
-  background: #f0f2f5;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--bg-tertiary, #f0f2f5);
   overflow: hidden;
 }
 
@@ -635,12 +849,15 @@ watchEffect(() => {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #ffffff;
+  height: 100vh;
+  background: var(--sidebar-bg, #ffffff);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: #1a1a2e;
-  border-right: 1px solid #e5e7eb;
+  color: var(--text-primary, #1a1a2e);
+  border-right: 2px solid var(--border-color, #e5e7eb);
+  position: relative;
+  overflow: hidden;
 }
 
 .sidebar-header {
@@ -665,92 +882,114 @@ watchEffect(() => {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  flex: 1;
   gap: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .nav-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .nav-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #94a3b8;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
 }
 
 .nav-item {
-  width: 100%;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
   border: none;
   background: transparent;
-  color: #64748b;
-  font-size: 0.9rem;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #64748b);
+  transition: all 0.2s ease;
 }
 
-.nav-item svg {
-  color: #94a3b8;
+.nav-item:hover {
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .nav-item.active {
-  background: #e0f2fe;
-  color: #0f172a;
-}
-
-.nav-item.active svg {
-  color: #2563eb;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
 .wallet-status {
-  margin-top: auto;
-  padding: 0.75rem 1rem;
-  border-radius: 999px;
-  background: #f1f5f9;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #64748b;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: #dc2626;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.wallet-status:hover {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.3);
 }
 
 .wallet-status.connected {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.wallet-status.connected:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .status-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: #e5e7eb;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc2626;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
 }
 
 .wallet-status.connected .status-dot {
-  background: #22c55e;
+  background: #16a34a;
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
 }
 
 .main-content {
   flex: 1;
-  padding: 1.75rem 2.25rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+  padding: 2rem 2.5rem;
+  background: var(--bg-primary, #fff);
+  margin: 0;
+  border-radius: 0;
 }
 
 .content-header {
@@ -764,13 +1003,13 @@ watchEffect(() => {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 }
 
 .content-header p {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-secondary, #6b7280);
 }
 
 .header-actions {
@@ -781,24 +1020,37 @@ watchEffect(() => {
 .action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.85rem;
+  gap: 0.625rem;
+  border-radius: 10px;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .action-btn.secondary {
-  background: #f9fafb;
-  color: #374151;
-  border-color: #e5e7eb;
+  background: var(--card-bg, white);
+  color: var(--text-secondary, #64748b);
+  border-color: var(--border-color, #e2e8f0);
+}
+
+.action-btn.secondary:hover {
+  background: var(--bg-secondary, #f8fafc);
+  border-color: #3498db;
+  color: #3498db;
 }
 
 .action-btn.primary {
-  background: #2563eb;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: #ffffff;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.25);
+}
+
+.action-btn.primary:hover {
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.35);
+  transform: translateY(-1px);
 }
 
 .overview-section {
@@ -808,120 +1060,160 @@ watchEffect(() => {
 }
 
 .balance-card {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
-  border-radius: 1.25rem;
-  padding: 1.75rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 16px;
+  padding: 2rem;
   color: white;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.4);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25), 0 2px 8px rgba(52, 152, 219, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.balance-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .balance-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .balance-label {
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: rgba(148, 163, 184, 0.9);
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
 }
 
 .eye-btn {
   border: none;
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 999px;
-  width: 30px;
-  height: 30px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e5e7eb;
+  color: white;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.eye-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
 }
 
 .balance-amount {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
-  margin-bottom: 0.6rem;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .currency {
-  font-size: 1rem;
-  font-weight: 500;
-  color: rgba(148, 163, 184, 0.9);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .amount {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .balance-change {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  color: rgba(209, 250, 229, 0.9);
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
 }
 
 .quick-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 1rem;
 }
 
 .quick-btn {
-  flex: 1;
-  border-radius: 1rem;
-  border: none;
-  background: #ffffff;
-  padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
   cursor: pointer;
-  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.875rem;
+  font-weight: 500;
   color: #0f172a;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
 }
 
-.quick-btn[disabled] {
-  opacity: 0.6;
-  cursor: default;
+.quick-btn:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15), 0 0 0 1px rgba(52, 152, 219, 0.2);
+  border-color: rgba(52, 152, 219, 0.3);
+  background: rgba(255, 255, 255, 1);
+}
+
+.quick-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .quick-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2), 0 0 0 4px rgba(52, 152, 219, 0.08);
+  transition: all 0.3s ease;
 }
 
 .quick-icon.send {
-  background: #4ade80;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
 }
 
 .quick-icon.receive {
-  background: #38bdf8;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
 }
 
 .quick-icon.swap {
-  background: #facc15;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
 }
 
 .quick-icon.buy {
-  background: #f97316;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
 }
 
 .quick-icon.disabled {
-  filter: grayscale(0.6);
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  color: white;
+  opacity: 0.6;
 }
 
 .info-section {
@@ -933,23 +1225,23 @@ watchEffect(() => {
 .info-card {
   flex: 1;
   min-width: 260px;
-  background: #ffffff;
+  background: var(--card-bg, #ffffff);
   border-radius: 1rem;
   padding: 1rem 1.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color, #e5e7eb);
 }
 
 .info-label {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   margin-bottom: 0.25rem;
 }
 
 .info-value {
   font-size: 0.9rem;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 }
 
 .info-value.mono {
@@ -973,15 +1265,15 @@ watchEffect(() => {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 }
 
 .empty-state {
   margin-top: 2rem;
   padding: 2rem;
   border-radius: 1rem;
-  background: #f9fafb;
-  border: 1px dashed #e5e7eb;
+  background: var(--bg-secondary, #f9fafb);
+  border: 1px dashed var(--border-color, #e5e7eb);
   text-align: center;
 }
 
@@ -993,7 +1285,7 @@ watchEffect(() => {
   height: 48px;
   margin: 0 auto 1rem;
   border-radius: 999px;
-  background: #e0f2fe;
+  background: var(--bg-secondary, #e0f2fe);
   color: #2563eb;
 }
 
@@ -1034,8 +1326,8 @@ watchEffect(() => {
   justify-content: space-between;
   padding: 0.85rem 1rem;
   border-radius: 0.9rem;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
 }
 
 .asset-icon {
@@ -1064,24 +1356,188 @@ watchEffect(() => {
 .asset-name {
   font-size: 0.9rem;
   font-weight: 500;
+  color: var(--text-primary, #0f172a);
 }
 
 .asset-symbol {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-tertiary, #6b7280);
 }
 
 .asset-balance {
   text-align: right;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
+}
+
+/* Transaction List */
+.activities-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, white);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 100px 140px 200px 200px 200px 90px 140px;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%));
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.activity-row {
+  display: grid;
+  grid-template-columns: 100px 140px 200px 200px 200px 90px 140px;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light, #f1f5f9);
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.activity-row:hover {
+  background: var(--hover-bg, #f8fafc);
+  border-left: 3px solid #3498db;
+  padding-left: calc(1.25rem - 3px);
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.type-badge.send {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.type-badge.receive {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.amount-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+.amount-value.send {
+  color: #dc2626;
+}
+
+.amount-value.receive {
+  color: #16a34a;
+}
+
+.address-value,
+.hash-value {
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.hash-value {
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #475569);
+}
+
+.col-hash {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-value {
+  font-size: 0.8125rem;
+  color: var(--text-primary, #0f172a);
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.time-hour {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #94a3b8);
+  font-weight: 400;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.action-icon {
+  padding: 0.375rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #ffffff);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.action-icon:hover {
+  background: var(--hover-bg, #f8fafc);
+  transform: scale(1.05);
+}
+
+.action-icon.copy-btn:hover {
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.action-icon.explorer-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1090,43 +1546,104 @@ watchEffect(() => {
 }
 
 .modal-content {
-  background: #ffffff;
-  border-radius: 1rem;
+  background: var(--bg-primary, #ffffff);
+  border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(15, 23, 42, 0.05);
 }
 
 .modal-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
+.modal-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.modal-close {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  border: none;
-  background: #f1f5f9;
+.modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.modal-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #ffffff);
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--hover-bg, #f8fafc);
+  border-color: var(--border-color, #cbd5e1);
+  color: var(--text-secondary, #334155);
 }
 
 .modal-body {
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 1.5rem;
+}
+
+.info-banner {
+  background: var(--bg-secondary, #eff6ff);
+  border: 1px solid var(--border-color, #bfdbfe);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary, #1e40af);
+  line-height: 1.5;
 }
 
 .modal-desc {
@@ -1136,103 +1653,273 @@ watchEffect(() => {
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #4b5563;
-  margin-bottom: 0.35rem;
+  color: var(--text-primary, #334155);
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper.readonly {
+  opacity: 0.7;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.6rem 0.7rem;
-  border-radius: 0.6rem;
-  border: 1px solid #e5e7eb;
-  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 2px solid var(--border-color, #e2e8f0);
+  font-size: 0.9375rem;
+  color: var(--text-primary, #0f172a);
+  background: var(--card-bg, #ffffff);
+  transition: all 0.2s ease;
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.form-input:read-only {
+  background: var(--bg-secondary, #f8fafc);
+  cursor: not-allowed;
+}
+
+.amount-input .form-input {
+  padding-right: 4rem;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.balance-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: #64748b;
 }
 
 .tx-summary {
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  padding: 0.75rem 0.9rem;
-  background: #f9fafb;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  padding: 0;
+  background: var(--bg-secondary, #f8fafc);
+  overflow: hidden;
+}
+
+.summary-header {
+  padding: 0.875rem 1rem;
+  background: var(--hover-bg, #f1f5f9);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-secondary, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.85rem;
-  padding: 0.3rem 0;
+  font-size: 0.9375rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  color: var(--text-secondary, #334155);
+}
+
+.summary-row:last-child {
+  border-bottom: none;
 }
 
 .summary-row.total {
-  border-top: 1px solid #e5e7eb;
-  margin-top: 0.25rem;
-  padding-top: 0.4rem;
-  font-weight: 600;
+  background: var(--bg-secondary, #f8fafc);
+  border-top: 2px solid var(--border-color, #e2e8f0);
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
 }
 
 .summary-value {
-  font-weight: 500;
+  font-weight: 600;
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-primary, #0f172a);
+}
+
+.summary-value.tax {
+  color: #f59e0b;
 }
 
 .btn-modal-primary {
   width: 100%;
   border: none;
-  border-radius: 0.8rem;
-  padding: 0.7rem 0.9rem;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-radius: 12px;
+  padding: 0.875rem 1.25rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+}
+
+.btn-modal-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-modal-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.qr-section {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.qr-wrapper {
+  padding: 1.25rem;
+  background: var(--card-bg, #ffffff);
+  border: 2px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.qr-image {
+  width: 240px;
+  height: 240px;
+  display: block;
+  border-radius: 8px;
+}
+
+.qr-placeholder {
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.address-box {
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  padding: 1.25rem;
+  background: #f8fafc;
+  margin-bottom: 0;
+}
+
+.address-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.address-value {
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9375rem;
+  word-break: break-all;
+  margin-bottom: 1rem;
+  padding: 0.875rem;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  color: var(--text-primary, #0f172a);
+  line-height: 1.6;
+}
+
+.btn-copy-address {
+  width: 100%;
+  border-radius: 10px;
+  border: 2px solid #3498db;
+  background: var(--card-bg, #ffffff);
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #3498db;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.address-box {
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  padding: 0.9rem 1rem;
-  background: #f9fafb;
-  margin-bottom: 1rem;
+.btn-copy-address:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #2980b9;
+  color: #2980b9;
 }
 
-.address-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 0.4rem;
-}
-
-.address-value {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  font-size: 0.9rem;
-  word-break: break-all;
-  margin-bottom: 0.7rem;
-}
-
-.btn-copy-address {
-  width: 100%;
-  border-radius: 0.6rem;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  padding: 0.55rem;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  cursor: pointer;
+.btn-copy-address:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .fade-enter-active,
@@ -1242,6 +1929,66 @@ watchEffect(() => {
 
 .fade-enter-from,
 .fade-leave-to {
+  opacity: 0;
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-width: 280px;
+}
+
+.toast-notification.success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-enter-active {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast-leave-active {
+  transition: all 0.2s ease;
+}
+
+.toast-enter-from {
+  transform: translateY(100px) scale(0.8);
+  opacity: 0;
+}
+
+.toast-leave-to {
+  transform: translateX(50px);
   opacity: 0;
 }
 </style>

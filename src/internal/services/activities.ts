@@ -17,10 +17,13 @@ export interface Activity {
   type: ActivityType;
   timestamp: string;
   height?: number;
+  code?: number;
   amounts?: { denom: string; amount: string }[];
   from?: string;
   to?: string;
   memo?: string;
+  sender?: string;
+  recipient?: string;
 }
 
 type ListActivitiesParams = { walletId: string; limit?: number; offset?: number };
@@ -100,15 +103,22 @@ function normalizeFromIndexer(item: any): Activity {
         .filter((a) => a.denom || a.amount)
     : undefined;
 
+  const code = typeof item?.code === 'number' ? item.code : undefined;
+  const sender = from;
+  const recipient = to;
+
   return {
     id: String(id),
     txhash: String(txhash || id),
     type,
     timestamp: String(timestamp || ''),
     height: Number.isFinite(height as number) ? (height as number) : undefined,
+    code,
     amounts,
     from: from ? String(from) : undefined,
     to: to ? String(to) : undefined,
+    sender: sender ? String(sender) : undefined,
+    recipient: recipient ? String(recipient) : undefined,
     memo: memo ? String(memo) : undefined
   };
 }
@@ -162,6 +172,7 @@ export async function fetchActivities(params: ListActivitiesParams): Promise<Act
       timestamp: item.timestamp,
       height: item.height,
       type: item.type,
+      code: item.code,
       amounts: item.amounts,
       from: item.from,
       to: item.to,

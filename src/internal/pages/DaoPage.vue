@@ -403,8 +403,9 @@ function castVote() {
 <style scoped>
 .dao-page {
   display: flex;
-  height: 100%;
-  background: #f0f2f5;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--bg-tertiary, #f0f2f5);
   overflow: hidden;
 }
 
@@ -413,12 +414,12 @@ function castVote() {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #ffffff;
+  background: var(--bg-primary, #ffffff);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   color: #1a1a2e;
-  border-right: 1px solid #e5e7eb;
+  border-right: 2px solid var(--border-color, #e5e7eb);
   flex-shrink: 0;
 }
 
@@ -444,7 +445,7 @@ function castVote() {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {
@@ -463,7 +464,7 @@ function castVote() {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -480,13 +481,13 @@ function castVote() {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .nav-item.active {
@@ -503,9 +504,9 @@ function castVote() {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: #fff;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  border-radius: 16px;
+  background: var(--bg-primary, #fff);
+  margin: 0;
+  border-radius: 0;
 }
 
 .content-header {
@@ -518,13 +519,13 @@ function castVote() {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0.25rem 0 0 0;
 }
 
@@ -550,18 +551,18 @@ function castVote() {
 
 .btn-secondary {
   padding: 0.5rem 1rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--hover-bg, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--border-color, #e2e8f0);
+  color: var(--text-primary, #1e293b);
 }
 
 /* Stats Grid */
@@ -577,7 +578,7 @@ function castVote() {
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, var(--bg-secondary, #f8fafc) 0%, var(--hover-bg, #f1f5f9) 100%);
   border-radius: 12px;
 }
 
@@ -600,12 +601,12 @@ function castVote() {
 .stat-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 /* Content Area */
@@ -623,8 +624,8 @@ function castVote() {
 
 .proposal-card {
   padding: 1.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-primary, white);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
 }
 
@@ -637,7 +638,7 @@ function castVote() {
 
 .proposal-id {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .proposal-status {
@@ -660,13 +661,13 @@ function castVote() {
 .proposal-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0 0 0.5rem 0;
 }
 
 .proposal-desc {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0 0 1rem 0;
 }
 
@@ -693,7 +694,7 @@ function castVote() {
 /* Info Card */
 .info-card {
   padding: 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: var(--card-bg, #f8fafc);
   border-radius: 16px;
   text-align: center;
 }
@@ -701,20 +702,20 @@ function castVote() {
 .info-card h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0 0 0.5rem 0;
 }
 
 .voting-power {
   font-size: 2rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0 0 0.5rem 0;
 }
 
 .voting-desc {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 }
 
@@ -730,8 +731,8 @@ function castVote() {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-primary, white);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
 }
 
@@ -744,18 +745,18 @@ function castVote() {
 .asset-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .asset-value {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .asset-usd {
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 /* Members */
@@ -770,8 +771,8 @@ function castVote() {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-primary, white);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
 }
 
@@ -795,12 +796,12 @@ function castVote() {
 .member-address {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .member-power {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 /* Responsive */
@@ -870,7 +871,7 @@ function castVote() {
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-primary, white);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
@@ -888,14 +889,14 @@ function castVote() {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .modal-close {
@@ -903,8 +904,8 @@ function castVote() {
   height: 32px;
   border-radius: 8px;
   border: none;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -913,8 +914,8 @@ function castVote() {
 }
 
 .modal-close:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--border-color, #e2e8f0);
+  color: var(--text-primary, #1e293b);
 }
 
 .modal-body {
@@ -922,7 +923,7 @@ function castVote() {
 }
 
 .modal-desc {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
 }
@@ -935,18 +936,18 @@ function castVote() {
   display: block;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-primary, #475569);
   margin-bottom: 0.5rem;
 }
 
 .form-input {
   width: 100%;
   padding: 0.875rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   font-size: 0.875rem;
-  color: #1e293b;
-  background: white;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary, white);
   transition: all 0.2s ease;
 }
 
@@ -959,11 +960,11 @@ function castVote() {
 .form-textarea {
   width: 100%;
   padding: 0.875rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   font-size: 0.875rem;
-  color: #1e293b;
-  background: white;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary, white);
   transition: all 0.2s ease;
   resize: vertical;
   font-family: inherit;
@@ -978,11 +979,11 @@ function castVote() {
 .form-select {
   width: 100%;
   padding: 0.875rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   font-size: 0.875rem;
-  color: #1e293b;
-  background: white;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary, white);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -998,7 +999,7 @@ function castVote() {
 }
 
 .proposal-requirements {
-  background: #f0f9ff;
+  background: var(--card-bg, #f0f9ff);
   border: 1px solid #bae6fd;
   border-radius: 10px;
   padding: 1rem;
@@ -1011,7 +1012,7 @@ function castVote() {
   gap: 0.75rem;
   padding: 0.5rem 0;
   font-size: 0.8125rem;
-  color: #0369a1;
+  color: var(--text-secondary, #0369a1);
 }
 
 .requirement-item svg {
@@ -1093,18 +1094,18 @@ function castVote() {
   padding: 1rem;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
-  background: white;
+  background: var(--card-bg, #ffffff);
   transition: all 0.2s ease;
 }
 
 .vote-option:hover .vote-option-content {
   border-color: #cbd5e1;
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
 }
 
 .vote-option.selected .vote-option-content {
   border-color: #3498db;
-  background: #f0f9ff;
+  background: var(--card-bg, #f0f9ff);
 }
 
 .vote-icon {
@@ -1123,25 +1124,25 @@ function castVote() {
 }
 
 .vote-icon.against {
-  background: #fee2e2;
+  background: var(--card-bg, #fee2e2);
   color: #dc2626;
 }
 
 .vote-icon.abstain {
-  background: #f3f4f6;
+  background: var(--card-bg, #f3f4f6);
   color: #6b7280;
 }
 
 .vote-label {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin-bottom: 0.25rem;
 }
 
 .vote-desc {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .voting-power {
@@ -1149,21 +1150,21 @@ function castVote() {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   margin-bottom: 1.5rem;
 }
 
 .power-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .power-value {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .fade-enter-active,

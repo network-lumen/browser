@@ -236,8 +236,9 @@ function getRouteIcon(key: string) {
 <style scoped>
 .home-page {
   display: flex;
-  height: 100%;
-  background: #f0f2f5;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--bg-tertiary, #f0f2f5);
   overflow: hidden;
 }
 
@@ -246,12 +247,12 @@ function getRouteIcon(key: string) {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #ffffff;
+  background: var(--bg-primary, #ffffff);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   color: #1a1a2e;
-  border-right: 1px solid #e5e7eb;
+  border-right: 2px solid var(--border-color, #e5e7eb);
   flex-shrink: 0;
 }
 
@@ -277,7 +278,7 @@ function getRouteIcon(key: string) {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {
@@ -299,7 +300,7 @@ function getRouteIcon(key: string) {
   justify-content: space-between;
   padding: 0.75rem 1rem;
   background: rgba(15, 23, 42, 0.04);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -314,18 +315,18 @@ function getRouteIcon(key: string) {
 .dropdown-label {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .dropdown-icon {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: transform 0.2s ease;
 }
 
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -342,13 +343,13 @@ function getRouteIcon(key: string) {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .nav-item.active {
@@ -393,7 +394,7 @@ function getRouteIcon(key: string) {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
@@ -413,18 +414,18 @@ function getRouteIcon(key: string) {
   gap: 0.625rem;
   padding: 0.625rem 1rem;
   margin: 0.5rem 0;
-  border: 1px solid #e2e8f0;
-  background: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, white);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s ease;
   font-weight: 500;
 }
 
 .toggle-pages:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
   border-color: #3498db;
   color: #3498db;
 }
@@ -434,10 +435,10 @@ function getRouteIcon(key: string) {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
   border-radius: 12px;
   margin-bottom: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .avatar {
@@ -459,7 +460,7 @@ function getRouteIcon(key: string) {
 
 .profile-label {
   font-size: 0.65rem;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -467,14 +468,14 @@ function getRouteIcon(key: string) {
 .profile-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .version-info {
   padding: 0.75rem 1rem;
   text-align: center;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
 }
 
 /* Main Content */
@@ -485,20 +486,20 @@ function getRouteIcon(key: string) {
   flex-direction: column;
   overflow-y: auto;
   padding: 2rem 2.5rem;
-  background: #fff;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  border-radius: 16px;
+  background: var(--bg-primary, #fff);
+  margin: 0;
+  border-radius: 0;
 }
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.08) 100%);
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.15) 100%);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(52, 152, 219, 0.1);
-  box-shadow: 0 8px 32px rgba(52, 152, 219, 0.08);
+  border: 1px solid rgba(52, 152, 219, 0.2);
+  box-shadow: 0 8px 32px rgba(52, 152, 219, 0.12);
   position: relative;
   overflow: hidden;
 }
@@ -524,7 +525,7 @@ function getRouteIcon(key: string) {
 .hero-title {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin-bottom: 0.375rem;
   text-align: center;
   letter-spacing: -0.02em;
@@ -532,7 +533,7 @@ function getRouteIcon(key: string) {
 
 .hero-subtitle {
   font-size: 0.9375rem;
-  color: #475569;
+  color: var(--text-primary, #475569);
   text-align: center;
   margin-bottom: 0.875rem;
   font-weight: 500;
@@ -541,7 +542,7 @@ function getRouteIcon(key: string) {
 
 .hero-intro {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   line-height: 1.6;
   text-align: center;
   margin-bottom: 1rem;
@@ -569,11 +570,11 @@ function getRouteIcon(key: string) {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--card-bg, #ffffff);
   backdrop-filter: blur(10px);
   padding: 0.875rem;
   border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-color, #e2e8f0);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -582,7 +583,7 @@ function getRouteIcon(key: string) {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15), 0 0 0 1px rgba(52, 152, 219, 0.2);
   border-color: rgba(52, 152, 219, 0.3);
-  background: rgba(255, 255, 255, 1);
+  background: var(--hover-bg, #f8fafc);
 }
 
 .point-icon {
@@ -618,13 +619,13 @@ function getRouteIcon(key: string) {
 .point-text {
   flex: 1;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   line-height: 1.5;
 }
 
 .point-text strong {
   display: block;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin-bottom: 0.25rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -648,7 +649,7 @@ function getRouteIcon(key: string) {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.6);
+  border: 1px solid var(--border-color, rgba(226, 232, 240, 0.6));
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
@@ -679,13 +680,13 @@ function getRouteIcon(key: string) {
 .stat-value {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   letter-spacing: -0.01em;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-weight: 500;
 }
 
@@ -693,11 +694,11 @@ function getRouteIcon(key: string) {
 .section-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   margin-bottom: 1rem;
   padding-bottom: 0.625rem;
   border-bottom: 2px solid transparent;
-  background: linear-gradient(to right, #e2e8f0 0%, transparent 100%) no-repeat bottom;
+  background: linear-gradient(to right, var(--border-color, #e2e8f0) 0%, transparent 100%) no-repeat bottom;
   background-size: 100% 2px;
   letter-spacing: -0.01em;
   display: flex;
@@ -708,8 +709,8 @@ function getRouteIcon(key: string) {
 .pages-count {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #94a3b8;
-  background: #f1f5f9;
+  color: var(--text-tertiary, #94a3b8);
+  background: var(--hover-bg, #f1f5f9);
   padding: 0.25rem 0.625rem;
   border-radius: 6px;
 }
@@ -730,9 +731,9 @@ function getRouteIcon(key: string) {
   align-items: center;
   gap: 0.875rem;
   padding: 1rem 1.125rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--card-bg, #ffffff);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -741,10 +742,10 @@ function getRouteIcon(key: string) {
 }
 
 .action-card:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(52, 152, 219, 0.3);
+  background: var(--hover-bg, #f8fafc);
+  border-color: rgba(52, 152, 219, 0.5);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.12), 0 0 0 1px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2), 0 0 0 1px rgba(52, 152, 219, 0.2);
 }
 
 .action-icon {
@@ -806,18 +807,18 @@ function getRouteIcon(key: string) {
 .action-title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   letter-spacing: -0.01em;
 }
 
 .action-desc {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   line-height: 1.4;
 }
 
 .action-arrow {
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   transition: all 0.2s;
 }
 
@@ -844,13 +845,13 @@ function getRouteIcon(key: string) {
   padding: 0.625rem 0.875rem;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #475569;
+  color: var(--text-primary, #475569);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 

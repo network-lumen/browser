@@ -130,8 +130,9 @@ function performSearch() {
 <style scoped>
 .search-page {
   display: flex;
-  height: 100%;
-  background: #f0f2f5;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--bg-tertiary, #f0f2f5);
   overflow: hidden;
 }
 
@@ -140,12 +141,12 @@ function performSearch() {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #ffffff;
+  background: var(--card-bg, #ffffff);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   color: #1a1a2e;
-  border-right: 1px solid #e5e7eb;
+  border-right: 2px solid #e5e7eb;
   flex-shrink: 0;
 }
 
@@ -171,7 +172,7 @@ function performSearch() {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {
@@ -190,7 +191,7 @@ function performSearch() {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -207,13 +208,13 @@ function performSearch() {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .nav-item.active {
@@ -230,9 +231,9 @@ function performSearch() {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: #fff;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  border-radius: 16px;
+  background: var(--card-bg, #ffffff);
+  margin: 0;
+  border-radius: 0;
 }
 
 .content-header {
@@ -242,13 +243,13 @@ function performSearch() {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0.25rem 0 0 0;
 }
 
@@ -258,7 +259,7 @@ function performSearch() {
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1.25rem;
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   margin-bottom: 1.5rem;
@@ -269,12 +270,12 @@ function performSearch() {
   border: none;
   background: transparent;
   font-size: 0.95rem;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   outline: none;
 }
 
 .search-box input::placeholder {
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
 }
 
 .search-btn {
@@ -290,18 +291,18 @@ function performSearch() {
 
 .btn-secondary {
   padding: 0.5rem 1rem;
-  background: #f1f5f9;
+  background: var(--hover-bg, #f1f5f9);
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-secondary:hover {
   background: #e2e8f0;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 /* Content Area */
@@ -323,25 +324,25 @@ function performSearch() {
 .empty-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: var(--hover-bg, #f1f5f9);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   margin-bottom: 1.5rem;
 }
 
 .empty-state h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0 0 0.5rem 0;
 }
 
 .empty-state p {
   font-size: 0.9rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 }
 
@@ -354,14 +355,14 @@ function performSearch() {
 
 .results-info {
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 }
 
 .result-group h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0 0 1rem 0;
 }
 
@@ -376,7 +377,7 @@ function performSearch() {
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: white;
+  background: var(--card-bg, #ffffff);
   border: 1px solid #e2e8f0;
   border-radius: 12px;
 }
@@ -384,12 +385,12 @@ function performSearch() {
 .result-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: var(--hover-bg, #f1f5f9);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   flex-shrink: 0;
 }
 
@@ -403,12 +404,12 @@ function performSearch() {
 .result-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .result-desc {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 /* Responsive */
