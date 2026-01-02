@@ -311,7 +311,9 @@
           </div>
           <div class="modal-body">
             <div class="info-banner">
-              <span>💡 This is a preview-only send flow. Use the full Lumen browser to actually submit transfers.</span>
+              <span>
+                💡 Your first transaction may take up to 60 seconds. <br>
+                After that, transactions are confirmed within ~6 seconds.</span>
             </div>
 
             <div class="form-group">
@@ -760,15 +762,7 @@ async function confirmSendPreview() {
   }
 
   sendingTransaction.value = true;
-  
-  // Add timeout to prevent infinite hang
-  const timeoutId = setTimeout(() => {
-    if (sendingTransaction.value) {
-      sendingTransaction.value = false;
-      showToast('Request timeout - please try again', 'error');
-    }
-  }, 30000); // 30 second timeout
-  
+
   try {
     const res = await walletApi.sendTokens({
       profileId: activeId,
@@ -778,19 +772,16 @@ async function confirmSendPreview() {
       denom: 'ulmn',
       memo: ''
     });
-    
-    clearTimeout(timeoutId);
-    
+
     if (!res || res.ok === false) {
       showToast(`Send failed: ${res?.error || 'unknown error'}`, 'error');
       return;
     }
-    showToast(`Send successful! Tx: ${(res.txhash || '').slice(0, 12)}...`, 'success');
+    showToast(`Send successful!`, 'success');
     closeSendModal();
     await refreshWallet();
     await refreshActivities();
   } catch (e) {
-    clearTimeout(timeoutId);
     console.error('[wallet] sendTokens error', e);
     showToast('Unexpected error while sending transaction', 'error');
   } finally {
