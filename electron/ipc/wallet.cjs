@@ -7,6 +7,12 @@ const { Buffer } = require('buffer');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal } = require('../utils/crypto.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
+let pqcWorker = null;
+try {
+  pqcWorker = require('../utils/pqc-worker.cjs');
+} catch {
+  pqcWorker = null;
+}
 
 let bridge = null;
 
@@ -53,14 +59,9 @@ function loadMnemonic(profileId) {
 
 function resolvePqcHome() {
   if (process.env.LUMEN_PQC_HOME) return process.env.LUMEN_PQC_HOME;
-  const home = typeof os.homedir === 'function' ? os.homedir() : null;
-  if (home) return path.join(home, '.lumen');
-  try {
-    const h = app && typeof app.getPath === 'function' ? app.getPath('home') : process.cwd();
-    return path.join(h, '.lumen');
-  } catch {
-    return path.join(process.cwd(), '.lumen');
-  }
+  // Store PQC data alongside other app metadata in the app's userData folder.
+  // PqcKeyStore itself will create/use a "pqc_keys" subdirectory inside this base path.
+  return userDataPath();
 }
 
 function getRestBaseUrl() {
@@ -192,6 +193,10 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
   if (!address) return undefined;
   const pqc = bridgeMod && bridgeMod.pqc;
   if (!pqc || !pqc.PqcKeyStore) throw new Error('PQC helpers unavailable');
+  const createInWorker =
+    pqcWorker && typeof pqcWorker.createPqcKeyPairInWorker === 'function'
+      ? pqcWorker.createPqcKeyPairInWorker
+      : null;
 
   const store = await pqc.PqcKeyStore.open(resolvePqcHome());
   const existingLink = store.getLink(address);
@@ -270,7 +275,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
       keyName = preferred;
       record = store.getKey(keyName);
       if (!record) {
-        const pair = await pqc.createKeyPair();
+        const pair = createInWorker ? await createInWorker() : await pqc.createKeyPair();
         record = {
           name: keyName,
           scheme: pqc.DEFAULT_SCHEME || 'dilithium3',
@@ -328,12 +333,18 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
   }
   const powBitsRaw = params.powDifficultyBits || params.pow_difficulty_bits || 0;
   const powBits = Number(powBitsRaw) || 0;
-  const powNonce =
-    bridgeMod &&
-    bridgeMod.pqc &&
-    typeof bridgeMod.pqc.computePowNonce === 'function'
-      ? bridgeMod.pqc.computePowNonce(record.publicKey, powBits)
-      : new Uint8Array([0]);
+  let powNonce = new Uint8Array([0]);
+  const computePowInWorker =
+    pqcWorker && typeof pqcWorker.computePowNonceInWorker === 'function'
+      ? pqcWorker.computePowNonceInWorker
+      : null;
+  if (powBits > 0) {
+    if (computePowInWorker) {
+      powNonce = await computePowInWorker(record.publicKey, powBits);
+    } else if (bridgeMod && bridgeMod.pqc && typeof bridgeMod.pqc.computePowNonce === 'function') {
+      powNonce = bridgeMod.pqc.computePowNonce(record.publicKey, powBits);
+    }
+  }
   const zeroFee =
     (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
     (() => ({ amount: [], gas: '250000' }));
