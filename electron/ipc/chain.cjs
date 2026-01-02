@@ -14,14 +14,14 @@ function ensureHttp(u) {
 
 function resolvePeersFilePath() {
   const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
-  
+
   // Try multiple possible locations for peers.txt
   const candidates = [
     path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'),  // dev mode: electron/../resources
+    path.join(appPath, '..', 'resources', 'peers.txt'), // dev mode: electron/../resources
     path.join(process.cwd(), 'resources', 'peers.txt'),
   ];
-  
+
   for (const file of candidates) {
     try {
       if (fs.existsSync(file)) {
@@ -41,7 +41,9 @@ function parsePeerLine(line) {
   if (!parts.length) return null;
   const rpc = parts[0];
   if (!rpc) return null;
-  return { rpc };
+  const rest = parts[1] || null;
+  const grpc = parts[2] || null;
+  return { rpc, rest, grpc };
 }
 
 function loadPeersFromFile(filePath) {
@@ -86,13 +88,54 @@ function getRpcBaseUrl() {
   return base;
 }
 
+function getRestBaseUrl() {
+  const peersFile = resolvePeersFilePath();
+  if (!peersFile) {
+    console.warn('[dns] peers file not found');
+    return null;
+  }
+
+  const peers = loadPeersFromFile(peersFile);
+  if (!peers.length) {
+    console.warn('[dns] no valid peers found in', peersFile);
+    return null;
+  }
+
+  const first = peers[0];
+  if (!first) return null;
+
+  let rest = first.rest || '';
+  if (rest) {
+    const base = ensureHttp(rest);
+    console.log('[dns] using REST endpoint from peers file:', base);
+    return base;
+  }
+
+  // Derive REST from RPC as a fallback (e.g. 26657 -> 1317)
+  if (!first.rpc) return null;
+  const rpcBase = ensureHttp(first.rpc);
+  try {
+    const u = new URL(rpcBase);
+    const port = Number(u.port || '');
+    if (port === 26657) {
+      u.port = '1317';
+    }
+    const derived = trimSlash(u.toString());
+    console.log('[dns] derived REST endpoint from RPC:', derived);
+    return derived;
+  } catch {
+    console.warn('[dns] failed to derive REST endpoint from RPC, falling back to RPC base');
+    return rpcBase;
+  }
+}
+
 const chainState = {
   rpcBase: null,
   height: null,
   status: 'idle',
   error: null,
   lastUpdated: 0,
-  polling: false
+  polling: false,
 };
 
 let chainPollTimer = null;
@@ -166,7 +209,7 @@ function broadcastChainState() {
     status: chainState.status,
     error: chainState.error,
     lastUpdated: chainState.lastUpdated,
-    rpcBase: chainState.rpcBase
+    rpcBase: chainState.rpcBase,
   };
   try {
     const all = BrowserWindow.getAllWindows();
@@ -198,6 +241,279 @@ function stopChainPoller() {
   }
 }
 
+async function walletGetBalance(input) {
+  const address = String(input && input.address ? input.address : '').trim();
+  if (!address) {
+    return { ok: false, error: 'missing address' };
+  }
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const denom = String((input && input.denom) || 'ulmn');
+  const base = trimSlash(restBase);
+  const byDenomUrl = `${base}/cosmos/bank/v1beta1/balances/${encodeURIComponent(
+    address
+  )}/by_denom?denom=${encodeURIComponent(denom)}`;
+  const listUrl = `${base}/cosmos/bank/v1beta1/balances/${encodeURIComponent(address)}`;
+
+  try {
+    let coin = null;
+    const r1 = await httpGet(byDenomUrl, { timeout: 5000 });
+    if (r1.ok && r1.json && r1.json.balance) {
+      coin = r1.json.balance;
+    } else if (r1.status === 404) {
+      const r2 = await httpGet(listUrl, { timeout: 5000 });
+      if (!r2.ok) {
+        return { ok: false, status: r2.status, error: 'balance query failed' };
+      }
+      const coins = Array.isArray(r2.json && r2.json.balances ? r2.json.balances : [])
+        ? r2.json.balances
+        : [];
+      coin = coins.find((c) => String(c && c.denom) === denom) || null;
+    } else if (!r1.ok) {
+      return { ok: false, status: r1.status, error: 'balance query failed' };
+    }
+    return { ok: true, balance: coin || { denom, amount: '0' } };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+}
+
+async function walletListSendTxs(input) {
+  const address = String(input && input.address ? input.address : '').trim();
+  if (!address) {
+    return { ok: false, error: 'missing address' };
+  }
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const base = trimSlash(restBase);
+  const limit = Number(input && input.limit ? input.limit : 50) || 50;
+
+  const filters = [
+    { key: 'sent', filter: `message.sender='${address}'`, type: 'send' },
+    { key: 'signed', filter: `message.signer='${address}'`, type: 'send' },
+    { key: 'received', filter: `transfer.recipient='${address}'`, type: 'receive' },
+    { key: 'dns_to', filter: `dns_transfer.to='${address}'`, type: 'receive' },
+    { key: 'dns_owner', filter: `dns_register.owner='${address}'`, type: 'receive' }
+  ];
+
+  const byHash = new Map();
+
+  for (const entry of filters) {
+    let txs = [];
+    try {
+      // Try LCD tx search via events (Cosmos 0.47+ style)
+      const u1 = new URL('/cosmos/tx/v1beta1/txs', base);
+      u1.searchParams.set('events', entry.filter);
+      u1.searchParams.set('order_by', 'ORDER_BY_DESC');
+      u1.searchParams.set('page', '1');
+      u1.searchParams.set('limit', String(Math.min(100, Math.max(1, limit | 0))));
+      const res1 = await httpGet(u1.toString(), { timeout: 15000 });
+      if (res1 && res1.ok) {
+        const data = res1.json || {};
+        txs = Array.isArray(data.tx_responses) ? data.tx_responses : [];
+      } else {
+        // Fallback: legacy LCD "query" parameter
+        const u2 = new URL('/cosmos/tx/v1beta1/txs', base);
+        u2.searchParams.set('query', entry.filter);
+        u2.searchParams.set('order_by', 'ORDER_BY_DESC');
+        u2.searchParams.set('page', '1');
+        u2.searchParams.set('limit', String(Math.min(100, Math.max(1, limit | 0))));
+        const res2 = await httpGet(u2.toString(), { timeout: 15000 });
+        if (!res2 || !res2.ok) {
+          console.warn(
+            '[wallet] listSendTxs lcdTxSearch error',
+            entry.filter,
+            res1 && res1.status,
+            res2 && res2.status,
+            res1 && res1.error,
+            res2 && res2.error
+          );
+          continue;
+        }
+        const data2 = res2.json || {};
+        txs = Array.isArray(data2.tx_responses) ? data2.tx_responses : [];
+      }
+    } catch (e) {
+      console.warn('[wallet] listSendTxs lcdTxSearch exception', entry.filter, e && e.message ? e.message : e);
+      continue;
+    }
+
+    for (const tx of txs) {
+      if (!tx) continue;
+      const txhash = String(tx.txhash || tx.tx?.hash || '');
+      if (!txhash) continue;
+      if (!byHash.has(txhash)) {
+        byHash.set(txhash, { tx, primaryType: entry.type });
+      } else {
+        const existing = byHash.get(txhash);
+        if (existing && existing.primaryType !== 'send' && entry.type === 'send') {
+          existing.primaryType = 'send';
+        }
+      }
+    }
+  }
+
+  const out = [];
+  for (const { tx, primaryType } of byHash.values()) {
+    const txhash = String(tx.txhash || '');
+    const timestamp = String(tx.timestamp || '');
+    const heightRaw = tx.height;
+    const height =
+      typeof heightRaw === 'number'
+        ? heightRaw
+        : typeof heightRaw === 'string'
+          ? Number.parseInt(heightRaw, 10)
+          : undefined;
+
+    let from = '';
+    let to = '';
+    let outAmount = 0n;
+    let inAmount = 0n;
+    let outDenom = '';
+    let inDenom = '';
+
+    const logs = Array.isArray(tx.logs) ? tx.logs : [];
+    for (const log of logs) {
+      const events = Array.isArray(log && log.events ? log.events : []) ? log.events : [];
+      for (const ev of events) {
+        if (!ev || ev.type !== 'transfer') continue;
+        const attrs = Array.isArray(ev.attributes) ? ev.attributes : [];
+        let sender = '';
+        let recipient = '';
+        let amountRaw = '';
+        for (const a of attrs) {
+          const key = String(a && a.key ? a.key : '').toLowerCase();
+          const val = String(a && a.value ? a.value : '');
+          if (key === 'sender') sender = val;
+          else if (key === 'recipient') recipient = val;
+          else if (key === 'amount') amountRaw = val;
+        }
+        if (!amountRaw) continue;
+        const first = String(amountRaw.split(',')[0] || '').trim();
+        const m = first.match(/^(\d+)([a-zA-Z0-9/]+)$/);
+        if (!m) continue;
+        const amt = BigInt(m[1]);
+        const denom = m[2];
+
+        if (sender === address) {
+          from = sender;
+          to = recipient || to;
+          outAmount += amt;
+          if (!outDenom) outDenom = denom;
+        } else if (recipient === address) {
+          from = from || sender;
+          to = recipient;
+          inAmount += amt;
+          if (!inDenom) inDenom = denom;
+        }
+      }
+    }
+
+    const type = primaryType || (outAmount > 0n ? 'send' : inAmount > 0n ? 'receive' : 'unknown');
+
+    const amounts = [];
+    if (outAmount > 0n && outDenom) {
+      amounts.push({ amount: outAmount.toString(), denom: outDenom });
+    } else if (inAmount > 0n && inDenom) {
+      amounts.push({ amount: inAmount.toString(), denom: inDenom });
+    }
+
+    const memo =
+      tx.tx && tx.tx.body && typeof tx.tx.body.memo === 'string' ? tx.tx.body.memo : '';
+
+    const id = txhash || `${timestamp || ''}-${height || 0}`;
+    out.push({
+      id,
+      txhash,
+      type,
+      timestamp,
+      height,
+      amounts,
+      from,
+      to,
+      memo
+    });
+  }
+
+  out.sort((a, b) => {
+    const ta = new Date(a.timestamp || '').getTime() || 0;
+    const tb = new Date(b.timestamp || '').getTime() || 0;
+    return tb - ta;
+  });
+
+  return { ok: true, items: out };
+}
+
+async function dnsGetParams() {
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const url = `${trimSlash(restBase)}/lumen/dns/v1/params`;
+  const res = await httpGet(url, { timeout: 7000 });
+  if (!res.ok) {
+    return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
+  }
+  return { ok: true, data: res.json || null };
+}
+
+async function dnsGetDomainInfo(nameInput) {
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const name = String(nameInput || '').trim();
+  if (!name) return { ok: false, error: 'missing_name' };
+  const url = `${trimSlash(restBase)}/lumen/dns/v1/domain/${encodeURIComponent(name)}`;
+  const res = await httpGet(url, { timeout: 7000 });
+  if (!res.ok) {
+    return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
+  }
+  const data = res.json && (res.json.domain || res.json) ? res.json : null;
+  return { ok: true, data };
+}
+
+async function dnsListByOwnerDetailed(ownerInput) {
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const owner = String(ownerInput || '').trim();
+  if (!owner) return { ok: false, error: 'missing_owner' };
+
+  const byOwnerUrl = `${trimSlash(restBase)}/lumen/dns/v1/domains_by_owner/${encodeURIComponent(owner)}`;
+  const listRes = await httpGet(byOwnerUrl, { timeout: 7000 });
+  if (!listRes.ok) {
+    return { ok: false, status: listRes.status, error: listRes.error || `http_${listRes.status}` };
+  }
+  const names = Array.isArray(listRes.json?.domains)
+    ? listRes.json.domains
+    : Array.isArray(listRes.json)
+      ? listRes.json
+      : [];
+  if (!names.length) return { ok: true, data: [] };
+
+  const out = [];
+  for (const rawName of names) {
+    const name = String(rawName || '').trim();
+    if (!name) continue;
+    try {
+      const u = `${trimSlash(restBase)}/lumen/dns/v1/domain/${encodeURIComponent(name)}`;
+      const d = await httpGet(u, { timeout: 7000 });
+      if (!d.ok) continue;
+      const dom = (d.json && (d.json.domain || d.json)) || {};
+      out.push(dom);
+    } catch {
+      // ignore per-domain errors
+    }
+  }
+  return { ok: true, data: out };
+}
+
 function registerChainIpc() {
   ipcMain.handle('rpc:getHeight', async () => {
     if (!chainState.lastUpdated && !chainState.polling) {
@@ -210,13 +526,70 @@ function registerChainIpc() {
       status: chainState.status,
       error: chainState.error,
       lastUpdated: chainState.lastUpdated,
-      rpcBase: chainState.rpcBase
+      rpcBase: chainState.rpcBase,
     };
+  });
+
+  ipcMain.handle('dns:getParams', async () => {
+    try {
+      return await dnsGetParams();
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('dns:getDomainInfo', async (_evt, name) => {
+    try {
+      return await dnsGetDomainInfo(name);
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('dns:listByOwnerDetailed', async (_evt, owner) => {
+    try {
+      return await dnsListByOwnerDetailed(owner);
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('chain:getTokenomicsParams', async () => {
+    try {
+      const restBase = getRestBaseUrl();
+      if (!restBase) {
+        return { ok: false, error: 'rest_base_missing' };
+      }
+      const url = `${trimSlash(restBase)}/lumen/tokenomics/v1/params`;
+      const res = await httpGet(url, { timeout: 7000 });
+      if (!res.ok) {
+        return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
+      }
+      return { ok: true, data: res.json || null };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getBalance', async (_evt, input) => {
+    try {
+      return await walletGetBalance(input || {});
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:listSendTxs', async (_evt, input) => {
+    try {
+      return await walletListSendTxs(input || {});
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
   });
 }
 
 module.exports = {
   registerChainIpc,
   startChainPoller,
-  stopChainPoller
+  stopChainPoller,
 };

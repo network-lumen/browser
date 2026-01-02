@@ -69,28 +69,64 @@
       <!-- Search Box -->
       <div class="search-box" v-if="currentView === 'register' || currentView === 'marketplace'">
         <Search :size="20" />
-        <input type="text" placeholder="Search for a domain name..." v-model="searchQuery" />
-        <button class="search-btn">Search</button>
+        <input
+          type="text"
+          placeholder="Search for a domain name..."
+          v-model="searchQuery"
+          @keyup.enter="runSearch"
+        />
+        <button class="search-btn" @click="runSearch">
+          {{ searchBusy ? 'Searching...' : 'Search' }}
+        </button>
       </div>
 
       <!-- My Domains View -->
       <div v-if="currentView === 'my-domains'" class="content-area">
-        <div class="empty-state" v-if="domains.length === 0">
+        <div class="domains-toolbar">
+          <div class="owner-input">
+            <label class="owner-label">Owner address (Lumen)</label>
+            <input
+              type="text"
+              class="form-input"
+              v-model="ownerAddress"
+              placeholder="lmn1..."
+            />
+          </div>
+          <button class="btn-primary small" @click="loadMyDomains" :disabled="domainsLoading || !ownerAddress">
+            <span v-if="domainsLoading">Loading...</span>
+            <span v-else>Load domains</span>
+          </button>
+        </div>
+
+        <p v-if="domainsError" class="error-text">{{ domainsError }}</p>
+
+        <div class="empty-state" v-if="!domainsLoading && domains.length === 0">
           <div class="empty-icon">
             <Globe :size="48" />
           </div>
-          <h3>No domains yet</h3>
-          <p>Register your first Web3 domain</p>
+          <h3>No domains found</h3>
+          <p>Load domains for your Lumen address or register a new one.</p>
           <button class="btn-primary" @click="openRegisterModal">Register Domain</button>
+        </div>
+        <div v-else-if="domainsLoading" class="empty-state">
+          <div class="empty-icon">
+            <Globe :size="48" />
+          </div>
+          <h3>Loading domains...</h3>
+          <p>Please wait while we query the network.</p>
         </div>
         <div v-else class="domains-grid">
           <div class="domain-card" v-for="domain in domains" :key="domain.name">
             <div class="domain-info">
               <span class="domain-name">{{ domain.name }}</span>
-              <span class="domain-expires">Expires {{ domain.expires }}</span>
+              <span class="domain-expires">
+                {{ domain.expiryLabel }}
+              </span>
             </div>
             <div class="domain-actions">
-              <button class="btn-icon"><ExternalLink :size="16" /></button>
+              <button class="btn-icon" :title="'Open lumen://' + domain.name">
+                <ExternalLink :size="16" />
+              </button>
               <button class="btn-icon" @click="openSettingsModal(domain)"><Settings :size="16" /></button>
             </div>
           </div>
@@ -100,24 +136,23 @@
       <!-- Register View -->
       <div v-else-if="currentView === 'register'" class="content-area">
         <div class="register-results" v-if="searchQuery">
-          <div class="result-item available">
+          <div class="result-item" :class="{ available: searchResult?.available === true }">
             <div class="result-info">
-              <span class="result-name">{{ searchQuery }}.eth</span>
-              <span class="result-status">Available</span>
+              <span class="result-name">{{ fullSearchName }}</span>
+              <span class="result-status">
+                <span v-if="searchBusy">Checking...</span>
+                <span v-else-if="searchResult?.available === true">Available</span>
+                <span v-else-if="searchResult?.available === false">Already taken</span>
+                <span v-else>Unknown</span>
+              </span>
             </div>
             <div class="result-action">
-              <span class="result-price">0.005 ETH/year</span>
-              <button class="btn-primary">Register</button>
-            </div>
-          </div>
-          <div class="result-item">
-            <div class="result-info">
-              <span class="result-name">{{ searchQuery }}.crypto</span>
-              <span class="result-status">Available</span>
-            </div>
-            <div class="result-action">
-              <span class="result-price">$40/year</span>
-              <button class="btn-primary">Register</button>
+              <span class="result-price" v-if="searchResult && searchResult.priceLabel">
+                {{ searchResult.priceLabel }}
+              </span>
+              <button class="btn-primary" @click="openRegisterModal" :disabled="!searchResult?.available">
+                Register
+              </button>
             </div>
           </div>
         </div>
@@ -170,8 +205,14 @@
             <div class="form-group">
               <label>Domain Name</label>
               <div class="domain-input-wrapper">
-                <input type="text" class="form-input" v-model="registerForm.domainName" placeholder="myname" />
-                <span class="domain-suffix">.eth</span>
+                <input
+                  type="text"
+                  class="form-input"
+                  v-model="registerForm.domainName"
+                  placeholder="myname"
+                  @blur="refreshAvailability"
+                />
+                <span class="domain-suffix">.lumen</span>
               </div>
               <div v-if="registerForm.domainName" class="domain-availability" :class="{ available: domainAvailable }">
                 <svg v-if="domainAvailable" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -186,34 +227,36 @@
             
             <div class="form-group">
               <label>Registration Period</label>
-              <select class="form-select" v-model="registerForm.years">
+              <select class="form-select" v-model="registerForm.years" @change="refreshPrice">
                 <option value="1">1 Year</option>
                 <option value="2">2 Years</option>
                 <option value="3">3 Years</option>
-                <option value="5">5 Years</option>
-                <option value="10">10 Years</option>
               </select>
             </div>
             
             <div class="price-summary">
               <div class="price-row">
                 <span>Registration Fee:</span>
-                <span class="price-value">{{ calculateRegistrationFee() }} ETH</span>
+                <span class="price-value">{{ registrationFeeLabel }}</span>
               </div>
               <div class="price-row">
                 <span>Gas Fee (Est.):</span>
-                <span class="price-value">~0.005 ETH</span>
+                <span class="price-value">~0.0005 LMN</span>
               </div>
               <div class="price-row total">
                 <span>Total:</span>
-                <span class="price-value">{{ calculateTotalFee() }} ETH</span>
+                <span class="price-value">{{ totalFeeLabel }}</span>
               </div>
             </div>
             
             <button class="btn-modal-primary" @click="confirmRegister" :disabled="!canRegister()">
               <Plus :size="18" />
-              Register Domain
+              Register (preview only)
             </button>
+            <p class="modal-desc" style="margin-top: 0.75rem; font-size: 0.78rem; color: #6b7280;">
+              This open-source shell currently supports read-only DNS. Use the full Lumen browser to submit on-chain
+              registration transactions.
+            </p>
           </div>
         </div>
       </div>
@@ -235,32 +278,15 @@
             <p class="modal-desc">Manage your domain settings and records</p>
             
             <div class="domain-info-card">
-              <div class="domain-name-large">{{ selectedDomain?.name || 'mydomain.eth' }}</div>
-              <div class="domain-expiry">Expires: {{ selectedDomain?.expires || 'Jan 2, 2027' }}</div>
+              <div class="domain-name-large">{{ selectedDomain?.name || 'mydomain.lumen' }}</div>
+              <div class="domain-expiry">{{ selectedDomain?.expires || 'Expires: unknown' }}</div>
             </div>
             
             <div class="settings-section">
-              <div class="section-title">Resolver</div>
+              <div class="section-title">Resolver (preview only)</div>
               <div class="form-group">
-                <label>ETH Address</label>
-                <input type="text" class="form-input" v-model="settingsForm.ethAddress" placeholder="0x..." />
-              </div>
-              
-              <div class="form-group">
-                <label>IPFS Content Hash</label>
-                <input type="text" class="form-input" v-model="settingsForm.ipfsHash" placeholder="ipfs://..." />
-              </div>
-              
-              <div class="form-group">
-                <label>Text Records</label>
-                <div class="text-record">
-                  <input type="text" class="form-input small" placeholder="Key" value="url" readonly />
-                  <input type="text" class="form-input" v-model="settingsForm.url" placeholder="https://..." />
-                </div>
-                <div class="text-record">
-                  <input type="form-input small" placeholder="Key" value="email" readonly />
-                  <input type="text" class="form-input" v-model="settingsForm.email" placeholder="your@email.com" />
-                </div>
+                <label>IPFS CID</label>
+                <input type="text" class="form-input" v-model="settingsForm.ipfsHash" placeholder="Qm..." />
               </div>
             </div>
             
@@ -268,7 +294,7 @@
               <button class="btn-modal-secondary" @click="closeSettingsModal">Cancel</button>
               <button class="btn-modal-primary" @click="saveSettings">
                 <Settings :size="18" />
-                Save Settings
+                Save (preview)
               </button>
             </div>
           </div>
@@ -278,110 +304,281 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import { 
-  Globe,
-  List,
-  Plus,
-  ShoppingBag,
-  Star,
-  Search,
-  ExternalLink,
-  Settings,
-  X
-} from 'lucide-vue-next';
-
-const currentView = ref<'my-domains' | 'register' | 'marketplace' | 'favorites'>('my-domains');
-const searchQuery = ref('');
-const domains = ref<{ name: string; expires: string }[]>([]);
-
-// Modal states
-const showRegisterModal = ref(false);
-const showSettingsModal = ref(false);
-const selectedDomain = ref<{ name: string; expires: string } | null>(null);
-const domainAvailable = ref(true);
-
-// Register form
-const registerForm = ref({
-  domainName: '',
-  years: '1'
-});
-
-// Settings form
-const settingsForm = ref({
-  ethAddress: '',
-  ipfsHash: '',
-  url: '',
-  email: ''
-});
-
-function getViewTitle(): string {
-  const titles: Record<string, string> = {
-    'my-domains': 'My Domains',
-    register: 'Register Domain',
-    marketplace: 'Marketplace',
-    favorites: 'Favorites'
+  <script setup lang="ts">
+  import { ref, computed } from 'vue';
+  import { 
+    Globe,
+    List,
+    Plus,
+    ShoppingBag,
+    Star,
+    Search,
+    ExternalLink,
+    Settings,
+    X
+  } from 'lucide-vue-next';
+  
+  type DomainRow = {
+    name: string;
+    expiryLabel: string;
   };
-  return titles[currentView.value] || 'Domains';
-}
-
-function getViewDescription(): string {
-  const descs: Record<string, string> = {
-    'my-domains': 'Manage your Web3 domains',
-    register: 'Search and register new domains',
-    marketplace: 'Browse domains for sale',
-    favorites: 'Your saved domains'
+  
+  type SearchResult = {
+    available: boolean | null;
+    priceUlmn: number | null;
+    priceLabel: string | null;
   };
-  return descs[currentView.value] || '';
-}
-
-// Register Modal
-function openRegisterModal() {
-  showRegisterModal.value = true;
-}
-
-function closeRegisterModal() {
-  showRegisterModal.value = false;
-  registerForm.value = { domainName: '', years: '1' };
-}
-
-function calculateRegistrationFee(): string {
-  const years = parseInt(registerForm.value.years);
-  return (0.008 * years).toFixed(4);
-}
-
-function calculateTotalFee(): string {
-  const regFee = parseFloat(calculateRegistrationFee());
-  const gasFee = 0.005;
-  return (regFee + gasFee).toFixed(4);
-}
-
-function canRegister(): boolean {
-  return registerForm.value.domainName.length > 0 && domainAvailable.value;
-}
-
-function confirmRegister() {
-  console.log('Registering domain:', registerForm.value);
-  closeRegisterModal();
-}
-
-// Settings Modal
-function openSettingsModal(domain?: { name: string; expires: string }) {
-  selectedDomain.value = domain || null;
-  showSettingsModal.value = true;
-}
-
-function closeSettingsModal() {
-  showSettingsModal.value = false;
-  selectedDomain.value = null;
-}
-
-function saveSettings() {
-  console.log('Saving settings:', settingsForm.value);
-  closeSettingsModal();
-}
-</script>
+  
+  const currentView = ref<'my-domains' | 'register' | 'marketplace' | 'favorites'>('my-domains');
+  const searchQuery = ref('');
+  const searchBusy = ref(false);
+  const searchResult = ref<SearchResult | null>(null);
+  
+  const ownerAddress = ref('');
+  const domains = ref<DomainRow[]>([]);
+  const domainsLoading = ref(false);
+  const domainsError = ref('');
+  
+  // Modal states
+  const showRegisterModal = ref(false);
+  const showSettingsModal = ref(false);
+  const selectedDomain = ref<DomainRow | null>(null);
+  const domainAvailable = ref(true);
+  
+  // Register form
+  const registerForm = ref({
+    domainName: '',
+    years: '1'
+  });
+  
+  // Settings form (preview only)
+  const settingsForm = ref({
+    ipfsHash: ''
+  });
+  
+  const fullSearchName = computed(() => {
+    const base = searchQuery.value.trim();
+    return base ? `${base}.lumen` : '';
+  });
+  
+  function getViewTitle(): string {
+    const titles: Record<string, string> = {
+      'my-domains': 'My Domains',
+      register: 'Register Domain',
+      marketplace: 'Marketplace',
+      favorites: 'Favorites'
+    };
+    return titles[currentView.value] || 'Domains';
+  }
+  
+  function getViewDescription(): string {
+    const descs: Record<string, string> = {
+      'my-domains': 'Manage your Lumen DNS domains (read-only)',
+      register: 'Search and estimate registration for new domains',
+      marketplace: 'Browse example domains',
+      favorites: 'Your saved domains'
+    };
+    return descs[currentView.value] || '';
+  }
+  
+  function prettyExpiry(expireAtSeconds: number | null | undefined): string {
+    if (!expireAtSeconds || !Number.isFinite(expireAtSeconds)) return 'Expires: unknown';
+    const ms = expireAtSeconds * 1000;
+    try {
+      const d = new Date(ms);
+      const formatted = new Intl.DateTimeFormat(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit'
+      }).format(d);
+      return `Expires ${formatted}`;
+    } catch {
+      return 'Expires: unknown';
+    }
+  }
+  
+  async function loadMyDomains() {
+    domainsError.value = '';
+    domainsLoading.value = true;
+    domains.value = [];
+    try {
+      const addr = ownerAddress.value.trim();
+      const anyWindow = window as any;
+      const dnsApi = anyWindow?.lumen?.dns;
+      if (!dnsApi || typeof dnsApi.listByOwnerDetailed !== 'function') {
+        domainsError.value = 'DNS bridge not available.';
+        return;
+      }
+      const res = await dnsApi.listByOwnerDetailed(addr);
+      if (!res || res.ok === false) {
+        domainsError.value = res?.error || 'Unable to load domains.';
+        return;
+      }
+      const list = Array.isArray(res.data) ? res.data : [];
+      domains.value = list
+        .map((dom: any) => {
+          const name = String(dom?.name || dom?.index || '').trim();
+          const expireAt = dom?.expire_at ?? dom?.expireAt;
+          const expireNum = typeof expireAt === 'string' ? parseInt(expireAt, 10) : Number(expireAt);
+          return name
+            ? {
+                name,
+                expiryLabel: prettyExpiry(Number.isFinite(expireNum) ? expireNum : undefined)
+              }
+            : null;
+        })
+        .filter((d: DomainRow | null): d is DomainRow => !!d);
+    } catch (e) {
+      console.error('[domains] loadMyDomains error', e);
+      domainsError.value = 'Unexpected error while loading domains.';
+    } finally {
+      domainsLoading.value = false;
+    }
+  }
+  
+  async function runSearch() {
+    if (!fullSearchName.value) return;
+    searchBusy.value = true;
+    searchResult.value = null;
+    try {
+      const anyWindow = window as any;
+      const dnsApi = anyWindow?.lumen?.dns;
+      if (!dnsApi || typeof dnsApi.getDomainInfo !== 'function') {
+        searchResult.value = { available: null, priceUlmn: null, priceLabel: null };
+        return;
+      }
+      const res = await dnsApi.getDomainInfo(fullSearchName.value);
+      if (!res || res.ok === false) {
+        const status = res?.status ?? 0;
+        if (status === 404) {
+          domainAvailable.value = true;
+          searchResult.value = { available: true, priceUlmn: null, priceLabel: null };
+        } else {
+          domainAvailable.value = true;
+          searchResult.value = { available: null, priceUlmn: null, priceLabel: null };
+        }
+        return;
+      }
+      const dom = res.data?.domain || res.data || {};
+      const owner = String(dom?.owner || '').trim();
+      const status = String(dom?.status || '').toLowerCase();
+      const taken = !!owner && status !== 'free';
+      domainAvailable.value = !taken;
+      searchResult.value = {
+        available: !taken,
+        priceUlmn: null,
+        priceLabel: null
+      };
+    } catch (e) {
+      console.error('[domains] runSearch error', e);
+      domainAvailable.value = true;
+      searchResult.value = { available: null, priceUlmn: null, priceLabel: null };
+    } finally {
+      searchBusy.value = false;
+    }
+  }
+  
+  function openRegisterModal() {
+    showRegisterModal.value = true;
+    if (!registerForm.value.domainName && searchQuery.value) {
+      registerForm.value.domainName = searchQuery.value.trim();
+    }
+    void refreshAvailability();
+  }
+  
+  function closeRegisterModal() {
+    showRegisterModal.value = false;
+    registerForm.value = { domainName: '', years: '1' };
+  }
+  
+  async function refreshAvailability() {
+    const name = registerForm.value.domainName.trim();
+    if (!name) {
+      domainAvailable.value = true;
+      return;
+    }
+    const fqdn = `${name}.lumen`;
+    try {
+      const anyWindow = window as any;
+      const dnsApi = anyWindow?.lumen?.dns;
+      if (!dnsApi || typeof dnsApi.getDomainInfo !== 'function') {
+        domainAvailable.value = true;
+        return;
+      }
+      const res = await dnsApi.getDomainInfo(fqdn);
+      if (!res || res.ok === false) {
+        const status = res?.status ?? 0;
+        domainAvailable.value = status === 404;
+        return;
+      }
+      const dom = res.data?.domain || res.data || {};
+      const owner = String(dom?.owner || '').trim();
+      const status = String(dom?.status || '').toLowerCase();
+      const taken = !!owner && status !== 'free';
+      domainAvailable.value = !taken;
+    } catch (e) {
+      console.error('[domains] refreshAvailability error', e);
+      domainAvailable.value = true;
+    }
+  }
+  
+  function estimateRegistrationUlmn(): number {
+    const years = parseInt(registerForm.value.years, 10) || 1;
+    const days = years * 365;
+    const months = days <= 0 ? 1 : Math.max(1, Math.round(days / 30));
+    const minPricePerMonthUlmn = 2_000_000;
+    return minPricePerMonthUlmn * months;
+  }
+  
+  const registrationFeeLabel = computed(() => {
+    if (!registerForm.value.domainName) return '—';
+    const ulmn = estimateRegistrationUlmn();
+    const lmn = ulmn / 1_000_000;
+    return `${lmn.toFixed(3)} LMN`;
+  });
+  
+  const totalFeeLabel = computed(() => {
+    if (!registerForm.value.domainName) return '—';
+    const base = estimateRegistrationUlmn() / 1_000_000;
+    const gas = 0.0005;
+    return `${(base + gas).toFixed(3)} LMN`;
+  });
+  
+  function refreshPrice() {
+    void registrationFeeLabel.value;
+  }
+  
+  function canRegister(): boolean {
+    return registerForm.value.domainName.length > 0 && domainAvailable.value;
+  }
+  
+  function confirmRegister() {
+    console.log('[domains] register preview:', {
+      fqdn: `${registerForm.value.domainName.trim()}.lumen`,
+      years: registerForm.value.years
+    });
+    closeRegisterModal();
+  }
+  
+  // Settings Modal
+  function openSettingsModal(domain?: DomainRow) {
+    selectedDomain.value = domain || null;
+    showSettingsModal.value = true;
+  }
+  
+  function closeSettingsModal() {
+    showSettingsModal.value = false;
+    selectedDomain.value = null;
+  }
+  
+  function saveSettings() {
+    console.log('[domains] settings preview (no on-chain update):', {
+      domain: selectedDomain.value?.name,
+      ipfsCid: settingsForm.value.ipfsHash
+    });
+    closeSettingsModal();
+  }
+  </script>
 
 <style scoped>
 .domain-page {

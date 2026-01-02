@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('lumen', {
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),
+  http: {
+    get: (url, options) => ipcRenderer.invoke('http:get', url, options || {})
+  },
   profiles: {
     list: () => ipcRenderer.invoke('profiles:list'),
     getActive: () => ipcRenderer.invoke('profiles:getActive'),
@@ -39,6 +42,17 @@ contextBridge.exposeInMainWorld('lumen', {
         ipcRenderer.removeListener('rpc:heightChanged', handler);
       };
     }
+  },
+  dns: {
+    getParams: () => ipcRenderer.invoke('dns:getParams'),
+    getDomainInfo: (name) => ipcRenderer.invoke('dns:getDomainInfo', name),
+    listByOwnerDetailed: (owner) => ipcRenderer.invoke('dns:listByOwnerDetailed', owner)
+  },
+  wallet: {
+    getBalance: (address, opts) => ipcRenderer.invoke('wallet:getBalance', { address, ...(opts || {}) }),
+    getTokenomicsParams: () => ipcRenderer.invoke('chain:getTokenomicsParams'),
+    sendTokens: (payload) => ipcRenderer.invoke('wallet:sendTokens', payload),
+    listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) })
   }
 });
 

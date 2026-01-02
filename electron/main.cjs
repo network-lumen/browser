@@ -5,10 +5,12 @@ const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
 const { registerProfilesIpc } = require('./ipc/profiles.cjs');
+const { registerWalletIpc } = require('./ipc/wallet.cjs');
 
 registerChainIpc();
 registerProfilesIpc();
 registerHttpIpc();
+registerWalletIpc();
 
 function isDevtoolsToggle(input) {
   const key = String(input && input.key ? input.key : '').toUpperCase();
