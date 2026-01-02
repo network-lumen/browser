@@ -2,5 +2,23 @@
 @import "./utilities.css";
 @import "./theme.css";
 
-* { font-family: system-ui; }
-html,body{ overflow: hidden; margin: 0 }
+* { 
+  font-family: system-ui;
+  box-sizing: border-box;
+}
+
+html, body { 
+  overflow: hidden; 
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-tertiary);
+}

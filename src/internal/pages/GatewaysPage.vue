@@ -138,8 +138,9 @@ function getViewDescription(): string {
 <style scoped>
 .gateways-page {
   display: flex;
-  height: 100%;
-  background: #f0f2f5;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--bg-tertiary, #f0f2f5);
   overflow: hidden;
 }
 
@@ -147,12 +148,12 @@ function getViewDescription(): string {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #ffffff;
+  background: var(--bg-primary, #ffffff);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   color: #1a1a2e;
-  border-right: 1px solid #e5e7eb;
+  border-right: 2px solid var(--border-color, #e5e7eb);
   flex-shrink: 0;
 }
 
@@ -178,7 +179,7 @@ function getViewDescription(): string {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {
@@ -197,7 +198,7 @@ function getViewDescription(): string {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -214,13 +215,13 @@ function getViewDescription(): string {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .nav-item.active {
@@ -236,9 +237,9 @@ function getViewDescription(): string {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: #fff;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  border-radius: 16px;
+  background: var(--bg-primary, #ffffff);
+  margin: 0;
+  border-radius: 0;
 }
 
 .content-header {
@@ -251,13 +252,13 @@ function getViewDescription(): string {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0.25rem 0 0 0;
 }
 
@@ -283,18 +284,18 @@ function getViewDescription(): string {
 
 .btn-secondary {
   padding: 0.5rem 1rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--hover-bg, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--border-color, #e2e8f0);
+  color: var(--text-primary, #1e293b);
 }
 
 .content-area {
@@ -313,21 +314,21 @@ function getViewDescription(): string {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
 }
 
 .gateway-card.default {
   border-color: #3498db;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: var(--card-bg, #f8fafc);
 }
 
 .gateway-status {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #94a3b8;
+  background: var(--text-tertiary, #94a3b8);
 }
 
 .gateway-status.online {
@@ -350,7 +351,7 @@ function getViewDescription(): string {
 .gateway-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .gateway-badge {
@@ -364,7 +365,7 @@ function getViewDescription(): string {
 
 .gateway-url {
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-family: monospace;
 }
 
@@ -375,7 +376,7 @@ function getViewDescription(): string {
 
 .stat {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .add-form {
@@ -390,24 +391,24 @@ function getViewDescription(): string {
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin-bottom: 0.5rem;
 }
 
 .form-group input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   font-size: 0.9rem;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #3498db;
-  background: white;
+  background: var(--card-bg, #ffffff);
 }
 
 .form-actions {

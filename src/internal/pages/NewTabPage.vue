@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-column w-full h-full padding-100">
-    <div class="bg-white border-radius-20px box-shadow-default padding-100 max-w-800 w-full margin-bottom-50">
-      <h2 class="txt-md txt-weight-strong margin-bottom-25">New tab</h2>
-      <p class="txt-xs color-gray-blue margin-bottom-25">
+    <div class="bg-white border-radius-20px box-shadow-default padding-100 max-w-800 w-full margin-bottom-50" style="background: var(--bg-primary, white); border: 1px solid var(--border-color, #e5e7eb)">
+      <h2 class="txt-md txt-weight-strong margin-bottom-25" style="color: var(--text-primary, #1e293b)">New tab</h2>
+      <p class="txt-xs margin-bottom-25" style="color: var(--text-secondary, #64748b)">
         Internal page <code>lumen://newtab</code>.
       </p>
-      <p class="txt-xs txt-weight-strong margin-bottom-10">Available internal routes</p>
+      <p class="txt-xs txt-weight-strong margin-bottom-10" style="color: var(--text-primary, #475569)">Available internal routes</p>
       <ul class="txt-xs">
         <li v-for="key in topRouteKeys" :key="key" class="margin-bottom-10">
           <button

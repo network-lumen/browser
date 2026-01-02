@@ -2,7 +2,8 @@
   <section class="main-shell flex flex-column w-full h-full">
     <div class="app overflow-hidden">
       <div
-        class="tabs-header  h-200 padding-right-150 txt-xs overflow-hidden bg-white-blue relative flex-align-center text-center"
+        class="tabs-header  h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center"
+        :style="{ background: 'var(--bg-primary, white)', borderBottom: '1px solid var(--border-color, #e5e7eb)' }"
         ref="hdr"
       >
         <div
@@ -103,8 +104,7 @@ const GAP = 1;
 
 function tabClasses(t: Tab) {
   return {
-    'bg-white': t.id === activeId.value,
-    'bg-white-blue': t.id !== activeId.value,
+    'active': t.id === activeId.value,
     'dragging z-2 cursor-events-none': draggingId.value === t.id
   };
 }
