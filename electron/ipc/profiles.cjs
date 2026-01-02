@@ -1,8 +1,8 @@
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');
-const { encryptMnemonicLocal } = require('../utils/crypto.cjs');
+const { encryptMnemonicLocal, decryptMnemonicLocal } = require('../utils/crypto.cjs');
 
 // Lazy loader for @lumen-chain/sdk.createWallet (ESM-friendly)
 let createWalletFn = null;
@@ -42,6 +42,14 @@ function keystorePath(id) {
 
 function profileJsonPath(id) {
   return path.join(profileDir(id), 'profile.json');
+}
+
+function pqcKeysDir() {
+  return userDataPath('pqc_keys');
+}
+
+function secretFilePath() {
+  return userDataPath('secret.bin');
 }
 
 function loadProfilesFile() {
@@ -244,6 +252,83 @@ function registerProfilesIpc() {
     return JSON.stringify(p, null, 2);
   });
 
+  ipcMain.handle('profiles:exportBackup', async (_evt, id) => {
+    const { profiles } = loadProfilesFile();
+    const p = profiles.find((x) => x.id === id);
+    if (!p) return { ok: false, error: 'profile_not_found' };
+
+    try {
+      const res = await dialog.showOpenDialog({
+        title: 'Select destination folder for backup',
+        properties: ['openDirectory', 'createDirectory']
+      });
+      if (res.canceled || !res.filePaths || !res.filePaths.length) {
+        return { ok: false, error: 'canceled' };
+      }
+      const baseDir = res.filePaths[0];
+      ensureDir(baseDir);
+
+      const srcProfileDir = profileDir(p.id);
+      const srcPqcDir = pqcKeysDir();
+
+      // Decrypt mnemonic from local keystore
+      let mnemonicPlain = '';
+      try {
+        const ksSrc = path.join(srcProfileDir, 'keystore.json');
+        if (fs.existsSync(ksSrc)) {
+          const ks = readJson(ksSrc, null);
+          if (ks && ks.crypto) {
+            mnemonicPlain = decryptMnemonicLocal(ks);
+          }
+        }
+      } catch {}
+
+      // Load PQC key for this profile (if any)
+      let pqcKey = null;
+      try {
+        const addr = String(p.walletAddress || p.address || '').trim();
+        const keysFile = path.join(srcPqcDir, 'keys.json');
+        const linksFile = path.join(srcPqcDir, 'links.json');
+        if (addr && fs.existsSync(keysFile) && fs.existsSync(linksFile)) {
+          const linksRaw = readJson(linksFile, {});
+          const keysRaw = readJson(keysFile, {});
+          if (linksRaw && typeof linksRaw === 'object' && keysRaw && typeof keysRaw === 'object') {
+            const keyName = typeof linksRaw[addr] === 'string' ? String(linksRaw[addr]) : '';
+            const rec = keyName ? keysRaw[keyName] : null;
+            if (rec && typeof rec === 'object') {
+              pqcKey = {
+                name: rec.name || keyName,
+                scheme: rec.scheme || rec.Scheme || 'dilithium3',
+                publicKey: rec.publicKey || rec.public_key,
+                privateKey: rec.privateKey || rec.private_key,
+                createdAt: rec.createdAt || rec.created_at || null
+              };
+            }
+          }
+        }
+      } catch {}
+
+      const backup = {
+        version: 1,
+        id: p.id,
+        name: p.name,
+        colorIndex: p.colorIndex,
+        role: p.role || 'user',
+        walletAddress: p.walletAddress || p.address || null,
+        createdAt: Date.now(),
+        mnemonic: mnemonicPlain || null,
+        pqc: pqcKey
+      };
+
+      const backupPath = path.join(baseDir, 'profile.json');
+      fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+
+      return { ok: true, path: backupPath };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('profiles:import', async (_evt, json) => {
     try {
       const parsed = JSON.parse(String(json || ''));
@@ -282,6 +367,127 @@ function registerProfilesIpc() {
       return profile;
     } catch {
       return null;
+    }
+  });
+
+  ipcMain.handle('profiles:importBackup', async () => {
+    try {
+      const res = await dialog.showOpenDialog({
+        title: 'Select Lumen profile backup',
+        properties: ['openFile'],
+        filters: [{ name: 'Profile backup', extensions: ['json'] }]
+      });
+      if (res.canceled || !res.filePaths || !res.filePaths.length) {
+        return { ok: false, error: 'canceled' };
+      }
+      const selectedPath = res.filePaths[0];
+
+      let profileFile = selectedPath;
+      try {
+        const st = fs.statSync(selectedPath);
+        if (st.isDirectory()) {
+          profileFile = path.join(selectedPath, 'profile.json');
+        }
+      } catch {}
+
+      if (!fs.existsSync(profileFile)) {
+        return { ok: false, error: 'profile_json_missing' };
+      }
+
+      const imported = readJson(profileFile, null);
+      if (!imported || typeof imported !== 'object') {
+        return { ok: false, error: 'invalid_profile_backup' };
+      }
+
+      const name = String(imported.name || '').trim();
+      if (!name) {
+        return { ok: false, error: 'missing_profile_name' };
+      }
+
+      const all = loadProfilesFile();
+      let profiles = all.profiles.slice();
+      let activeId = all.activeId;
+
+      // Resolve id, avoid conflicts
+      const rawId = String(imported.id || '').trim();
+      const baseId = rawId || makeProfileId(name);
+      let id = baseId;
+      while (profiles.some((p) => p.id === id)) {
+        id = makeProfileId(name);
+      }
+
+      const colorIndex = Number.isFinite(imported.colorIndex)
+        ? Number(imported.colorIndex)
+        : colorIndexForName(name);
+      const role = imported.role === 'guest' ? 'guest' : 'user';
+      const walletAddress = String(imported.walletAddress || imported.address || '').trim() || null;
+
+      const profile = {
+        id,
+        name,
+        colorIndex,
+        role,
+        walletAddress
+      };
+
+      profiles.push(profile);
+
+      // Rebuild keystore from plaintext mnemonic
+      try {
+        const m = String(imported.mnemonic || '').trim();
+        if (m) {
+          const ks = encryptMnemonicLocal(m);
+          const dstDir = profileDir(id);
+          ensureDir(dstDir);
+          fs.writeFileSync(keystorePath(id), JSON.stringify(ks, null, 2), 'utf8');
+
+          const meta = {
+            id,
+            name,
+            address: walletAddress,
+            createdAt: imported.createdAt || Date.now()
+          };
+          fs.writeFileSync(
+            path.join(dstDir, 'profile.json'),
+            JSON.stringify(meta, null, 2),
+            'utf8'
+          );
+        }
+      } catch {}
+
+      // Merge PQC key if present
+      try {
+        const pqc = imported.pqc;
+        if (pqc && pqc.publicKey && pqc.privateKey && walletAddress) {
+          const keysFile = path.join(pqcKeysDir(), 'keys.json');
+          const linksFile = path.join(pqcKeysDir(), 'links.json');
+          let keys = {};
+          let links = {};
+          if (fs.existsSync(keysFile)) keys = readJson(keysFile, {}) || {};
+          if (fs.existsSync(linksFile)) links = readJson(linksFile, {}) || {};
+
+          const keyName = String(pqc.name || `profile:${id}`);
+          keys[keyName] = {
+            name: keyName,
+            scheme: pqc.scheme || 'dilithium3',
+            publicKey: pqc.publicKey,
+            privateKey: pqc.privateKey,
+            createdAt: pqc.createdAt || new Date().toISOString()
+          };
+          links[walletAddress] = keyName;
+
+          ensureDir(pqcKeysDir());
+          fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2), 'utf8');
+          fs.writeFileSync(linksFile, JSON.stringify(links, null, 2), 'utf8');
+        }
+      } catch {}
+
+      activeId = id;
+      saveProfilesFile({ profiles, activeId });
+
+      return { ok: true, selectedId: activeId };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
 

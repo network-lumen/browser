@@ -18,7 +18,9 @@ declare global {
         select: (id: string) => Promise<string>;
         create: (name: string) => Promise<Profile | null>;
         export: (id: string) => Promise<string | null>;
+        exportBackup?: (id: string) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
         import: (json: string) => Promise<Profile | null>;
+        importBackup?: () => Promise<{ ok: boolean; selectedId?: string; error?: string } | null>;
         delete: (id: string) => Promise<{ profiles: Profile[]; activeId: string }>;
       };
     };
@@ -100,5 +102,33 @@ export async function deleteProfile(id: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+export async function exportProfileBackup(id: string): Promise<{ ok: boolean; path?: string; error?: string }> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.exportBackup !== 'function') {
+      return { ok: false, error: 'backup_api_unavailable' };
+    }
+    const res = await api.exportBackup(id);
+    if (!res) return { ok: false, error: 'backup_failed' };
+    return res;
+  } catch {
+    return { ok: false, error: 'backup_failed' };
+  }
+}
+
+export async function importProfileFromBackup(): Promise<Profile | null> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.importBackup !== 'function') return null;
+    const res = await api.importBackup();
+    if (!res || res.ok === false) return null;
+    await initProfiles();
+    const id = res.selectedId || activeProfileId.value || profilesState.value[0]?.id || '';
+    return profilesState.value.find((p) => p.id === id) || null;
+  } catch {
+    return null;
   }
 }

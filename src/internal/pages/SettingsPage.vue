@@ -36,6 +36,14 @@
             <Globe :size="18" />
             <span>Network</span>
           </button>
+          <button 
+            class="nav-item"
+            :class="{ active: currentView === 'profiles' }"
+            @click="currentView = 'profiles'"
+          >
+            <User :size="18" />
+            <span>Profiles</span>
+          </button>
         </div>
 
         <div class="nav-section">
@@ -149,6 +157,41 @@
         </div>
       </div>
 
+      <!-- Profiles View -->
+      <div v-else-if="currentView === 'profiles'" class="settings-section">
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Profile backups</span>
+              <span class="setting-desc">
+                Export or import full backup folders (profiles + PQC keys).
+              </span>
+            </div>
+            <div class="setting-control profile-backup-actions">
+              <button
+                class="btn-secondary"
+                type="button"
+                @click="onExportBackup"
+                :disabled="!hasActiveProfile || exportingBackup"
+              >
+                Export active profile backup
+              </button>
+              <button
+                class="btn-secondary"
+                type="button"
+                @click="onImportBackup"
+                :disabled="importingBackup"
+              >
+                Import from backup folder
+              </button>
+            </div>
+          </div>
+          <p class="setting-hint">
+            Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys).
+          </p>
+        </div>
+      </div>
+
       <!-- IPFS View -->
       <div v-else-if="currentView === 'ipfs'" class="settings-section">
         <div class="setting-group">
@@ -196,7 +239,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { 
   Settings,
   Palette,
@@ -204,14 +247,20 @@ import {
   Globe,
   Database,
   Info,
-  Hexagon
+  Hexagon,
+  User
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
+import { activeProfileId } from '../profilesStore';
+import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
 
-const currentView = ref<'appearance' | 'privacy' | 'network' | 'ipfs' | 'about'>('appearance');
+const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
 const { theme, setTheme } = useTheme();
 const fontSize = ref('medium');
 const blockTrackers = ref(true);
+const exportingBackup = ref(false);
+const importingBackup = ref(false);
+const hasActiveProfile = computed(() => !!activeProfileId.value);
 
 // Watch theme changes and apply
 watch(theme, (newTheme) => {
@@ -223,6 +272,7 @@ function getViewTitle(): string {
     appearance: 'Appearance',
     privacy: 'Privacy & Security',
     network: 'Network Settings',
+    profiles: 'Profiles & backups',
     ipfs: 'IPFS Configuration',
     about: 'About Lumen'
   };
@@ -234,10 +284,35 @@ function getViewDescription(): string {
     appearance: 'Customize the look and feel',
     privacy: 'Manage your privacy settings',
     network: 'Configure network preferences',
+    profiles: 'Backup or restore profiles and PQC keys',
     ipfs: 'IPFS node settings',
     about: 'Information about Lumen'
   };
   return descs[currentView.value] || '';
+}
+
+async function onExportBackup() {
+  if (!activeProfileId.value || exportingBackup.value) return;
+  exportingBackup.value = true;
+  try {
+    await exportProfileBackup(activeProfileId.value);
+  } catch {
+    // ignore errors
+  } finally {
+    exportingBackup.value = false;
+  }
+}
+
+async function onImportBackup() {
+  if (importingBackup.value) return;
+  importingBackup.value = true;
+  try {
+    await importProfileFromBackup();
+  } catch {
+    // ignore
+  } finally {
+    importingBackup.value = false;
+  }
 }
 </script>
 
@@ -422,6 +497,16 @@ function getViewDescription(): string {
 .setting-control {
   display: flex;
   align-items: center;
+}
+
+.profile-backup-actions {
+  gap: 0.5rem;
+}
+
+.setting-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #64748b);
 }
 
 .select-control {

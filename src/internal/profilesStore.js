@@ -83,3 +83,34 @@ export async function deleteProfile(id) {
         return false;
     }
 }
+export async function exportProfileBackup(id) {
+    try {
+        const api = getApi();
+        if (!api || typeof api.exportBackup !== 'function') {
+            return { ok: false, error: 'backup_api_unavailable' };
+        }
+        const res = await api.exportBackup(id);
+        if (!res)
+            return { ok: false, error: 'backup_failed' };
+        return res;
+    }
+    catch {
+        return { ok: false, error: 'backup_failed' };
+    }
+}
+export async function importProfileFromBackup() {
+    try {
+        const api = getApi();
+        if (!api || typeof api.importBackup !== 'function')
+            return null;
+        const res = await api.importBackup();
+        if (!res || res.ok === false)
+            return null;
+        await initProfiles();
+        const id = res.selectedId || activeProfileId.value || profilesState.value[0]?.id || '';
+        return profilesState.value.find((p) => p.id === id) || null;
+    }
+    catch {
+        return null;
+    }
+}

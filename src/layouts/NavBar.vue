@@ -177,24 +177,6 @@
               </div>
             </div>
 
-            <div v-if="showImportArea" class="flex flex-column gap-25 padding-top-25">
-              <textarea
-                v-model="importJson"
-                rows="4"
-                class="outline-none w-full txt-xs border-radius-8px"
-                :style="{ padding: '0.625rem', border: '1px solid var(--border-color, #e2e8f0)', background: 'var(--bg-primary, white)', color: 'var(--text-primary, #1e293b)' }"
-                placeholder="Paste profile JSON here"
-              />
-              <div class="flex gap-25">
-                <UiButton size="sm" variant="primary" @click="confirmImportProfile">
-                  Import
-                </UiButton>
-                <UiButton size="sm" variant="ghost" @click="cancelImportProfile">
-                  Cancel
-                </UiButton>
-              </div>
-            </div>
-
             <div v-if="profileMessage" class="txt-xs" :style="{ paddingTop: '0.625rem', color: 'var(--text-secondary, #64748b)' }">
               {{ profileMessage }}
             </div>
@@ -218,7 +200,9 @@ import {
   exportProfile,
   importProfile,
   deleteProfile,
-  initProfiles
+  initProfiles,
+  exportProfileBackup,
+  importProfileFromBackup
 } from '../internal/profilesStore';
 
 type TabHistoryEntry = { url: string; title?: string };
@@ -384,34 +368,38 @@ function onCreateProfileClick() {
   newProfileName.value = '';
 }
 
-function onExportProfile() {
+async function onExportProfile() {
   const id = activeProfileId.value;
   if (!id) return;
-  exportProfile(id).then((json) => {
-    if (!json) {
-      profileMessage.value = 'Export failed.';
+  try {
+    const res = await exportProfileBackup(id);
+    if (!res || res.ok === false) {
+      profileMessage.value = 'Backup export failed.';
       return;
     }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(json)
-        .then(() => {
-          profileMessage.value = 'Profile JSON copied to clipboard.';
-        })
-        .catch(() => {
-          profileMessage.value = 'Copy to clipboard failed.';
-        });
-    } else {
-      profileMessage.value = json;
-    }
-  });
+    profileMessage.value = res.path
+      ? `Backup folder created at: ${res.path}`
+      : 'Backup folder created for this profile.';
+  } catch {
+    profileMessage.value = 'Backup export failed.';
+  }
 }
 
 function onImportProfileClick() {
-  showImportArea.value = true;
-  creatingProfile.value = false;
-  importJson.value = '';
-  profileMessage.value = '';
+  // Use backup import flow instead of raw JSON.
+  importProfileFromBackup()
+    .then((imported) => {
+      if (imported) {
+        profileMessage.value = 'Profile imported from backup.';
+        showProfileMenu.value = false;
+        resetProfileUi();
+      } else {
+        profileMessage.value = 'Backup import canceled or failed.';
+      }
+    })
+    .catch(() => {
+      profileMessage.value = 'Backup import failed.';
+    });
 }
 
 async function confirmCreateProfile() {
