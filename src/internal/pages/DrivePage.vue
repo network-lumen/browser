@@ -112,7 +112,7 @@
       <!-- Upload Progress -->
       <div v-if="uploading" class="upload-progress">
         <div class="progress-content">
-          <UiSpinner :size="20" />
+          <UiSpinner size="sm" />
           <div class="progress-info">
             <span class="txt-sm txt-weight-strong">Uploading {{ uploadingFile }}</span>
             <span class="txt-xs color-gray-blue">Adding to IPFS network...</span>
@@ -140,7 +140,7 @@
             />
             <button class="fetch-btn" @click="fetchFromCid" :disabled="!fetchCid || fetching">
               <Download :size="18" v-if="!fetching" />
-              <UiSpinner :size="18" v-else />
+              <UiSpinner size="sm" v-else />
               <span>{{ fetching ? 'Fetching...' : 'Fetch' }}</span>
             </button>
           </div>
@@ -506,7 +506,7 @@
             </div>
 
             <div v-else-if="permalinkCreating" class="permalink-loading">
-              <UiSpinner :size="32" />
+              <UiSpinner size="md" />
               <p>Creating permalink...</p>
             </div>
 
@@ -988,8 +988,9 @@ function copyPermalinkGateway() {
 <style scoped>
 .drive-page {
   display: flex;
-  height: 100%;
-  background: #f0f2f5;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--bg-tertiary, #f0f2f5);
   overflow: hidden;
 }
 
@@ -998,13 +999,15 @@ function copyPermalinkGateway() {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #ffffff;
+  background: var(--bg-primary, #fff);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: #1a1a2e;
-  border-right: 1px solid #e5e7eb;
+  color: var(--text-primary, #1a1a2e);
+  border-right: 2px solid var(--border-color, #e5e7eb);
   flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-header {
@@ -1012,7 +1015,7 @@ function copyPermalinkGateway() {
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .logo-icon {
@@ -1029,13 +1032,14 @@ function copyPermalinkGateway() {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .nav-section {
@@ -1047,7 +1051,7 @@ function copyPermalinkGateway() {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -1064,13 +1068,13 @@ function copyPermalinkGateway() {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .nav-item.active {
@@ -1095,10 +1099,11 @@ function copyPermalinkGateway() {
 
 .storage-stats {
   padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+  background: var(--card-bg, #f8fafc);
   border-radius: 12px;
+  margin-top: 1rem;
   margin-bottom: 0.75rem;
-  border: 1px solid #e0f2fe;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .stats-header {
@@ -1106,7 +1111,7 @@ function copyPermalinkGateway() {
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1114,7 +1119,7 @@ function copyPermalinkGateway() {
 
 .stats-bar {
   height: 6px;
-  background: #e2e8f0;
+  background: var(--border-color, #e2e8f0);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -1130,7 +1135,7 @@ function copyPermalinkGateway() {
 .stats-value {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .ipfs-status {
@@ -1139,7 +1144,7 @@ function copyPermalinkGateway() {
   gap: 0.75rem;
   padding: 0.875rem 1rem;
   border-radius: 10px;
-  background: #fef2f2;
+  background: var(--card-bg, #fef2f2);
   border: 1px solid #fecaca;
   color: #dc2626;
   font-size: 0.8rem;
@@ -1147,7 +1152,7 @@ function copyPermalinkGateway() {
 }
 
 .ipfs-status.connected {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  background: var(--card-bg, #f0fdf4);
   border-color: #bbf7d0;
   color: #16a34a;
 }
@@ -1172,9 +1177,9 @@ function copyPermalinkGateway() {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: #fff;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  border-radius: 16px;
+  background: var(--bg-primary, #fff);
+  margin: 0;
+  border-radius: 0;
 }
 
 .content-header {
@@ -1189,13 +1194,13 @@ function copyPermalinkGateway() {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0.25rem 0 0 0;
 }
 
@@ -1238,7 +1243,7 @@ function copyPermalinkGateway() {
 
 /* Upload Progress */
 .upload-progress {
-  background: #f5f5f7;
+  background: var(--bg-secondary, #f5f5f7);
   border-radius: 10px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
@@ -1265,13 +1270,13 @@ function copyPermalinkGateway() {
 }
 
 .fetch-card {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, var(--bg-secondary, #f8fafc) 0%, var(--hover-bg, #f1f5f9) 100%);
   border-radius: 20px;
   padding: 3rem;
   text-align: center;
   max-width: 480px;
   width: 100%;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .fetch-icon {
@@ -1296,11 +1301,12 @@ function copyPermalinkGateway() {
 .fetch-input {
   flex: 1;
   padding: 0.875rem 1rem;
-  border: 1px solid #d2d2d7;
+  border: 1px solid var(--border-color, #d2d2d7);
   border-radius: 8px;
   font-size: 0.875rem;
   font-family: 'SF Mono', 'Consolas', monospace;
-  background: white;
+  background: var(--card-bg, #ffffff);
+  color: var(--text-primary, #0f172a);
 }
 
 .fetch-input:focus {
@@ -1351,18 +1357,18 @@ function copyPermalinkGateway() {
 }
 
 .file-card {
-  background: white;
+  background: var(--bg-primary, #fff);
   border-radius: 10px;
   padding: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   height: fit-content;
 }
 
 .file-card:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
   border-color: #cbd5e1;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
@@ -1380,11 +1386,11 @@ function copyPermalinkGateway() {
   justify-content: center;
   border-radius: 8px;
   margin-bottom: 0.5rem;
-  background: #f8fafc;
-  color: #94a3b8;
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-tertiary, #94a3b8);
   overflow: hidden;
   position: relative;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .file-preview .preview-image {
@@ -1401,12 +1407,12 @@ function copyPermalinkGateway() {
   border-radius: 8px;
 }
 
-.file-preview.type-image { color: #ff9500; background: #fff8f0; }
-.file-preview.type-video { color: #ff2d55; background: #fff0f3; }
-.file-preview.type-audio { color: #af52de; background: #f8f0ff; }
-.file-preview.type-archive { color: #34c759; background: #f0fff4; }
-.file-preview.type-document { color: #0071e3; background: #f0f7ff; }
-.file-preview.type-file { color: #86868b; background: #f8fafc; }
+.file-preview.type-image { color: #ff9500; background: var(--card-bg, #fff8f0); }
+.file-preview.type-video { color: #ff2d55; background: var(--card-bg, #fff0f3); }
+.file-preview.type-audio { color: #af52de; background: var(--card-bg, #f8f0ff); }
+.file-preview.type-archive { color: #34c759; background: var(--card-bg, #f0fff4); }
+.file-preview.type-document { color: #0071e3; background: var(--card-bg, #f0f7ff); }
+.file-preview.type-file { color: #86868b; background: var(--card-bg, #f8fafc); }
 
 .file-info {
   margin-bottom: 0.25rem;
@@ -1418,12 +1424,12 @@ function copyPermalinkGateway() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .file-meta {
   font-size: 0.65rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin-top: 0.1rem;
 }
 
@@ -1433,16 +1439,16 @@ function copyPermalinkGateway() {
   justify-content: flex-start;
   margin-top: 0.35rem;
   padding-top: 0.35rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color, #e2e8f0);
 }
 
 .action-btn {
   padding: 0.25rem;
   border: none;
-  background: #f1f5f9;
+  background: var(--hover-bg, #f1f5f9);
   border-radius: 4px;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   transition: all 0.15s;
 }
 
@@ -1468,12 +1474,12 @@ function copyPermalinkGateway() {
 .empty-icon {
   width: 80px;
   height: 80px;
-  background: #f5f5f7;
+  background: var(--bg-secondary, #f5f5f7);
   border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #86868b;
+  color: var(--text-tertiary, #86868b);
   margin-bottom: 1rem;
 }
 
@@ -1482,14 +1488,14 @@ function copyPermalinkGateway() {
   width: 280px;
   min-width: 280px;
   max-width: 280px;
-  background: white;
+  background: var(--bg-primary, #fff);
   display: flex;
   flex-direction: column;
   padding: 1.25rem;
   margin: 0.5rem 0.5rem 0.5rem 0;
   border-radius: 16px;
   flex-shrink: 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .detail-header {
@@ -1508,7 +1514,7 @@ function copyPermalinkGateway() {
   border: none;
   background: #e8e8ed;
   cursor: pointer;
-  color: #86868b;
+  color: var(--text-tertiary, #86868b);
   border-radius: 6px;
 }
 
@@ -1524,8 +1530,8 @@ function copyPermalinkGateway() {
   justify-content: center;
   border-radius: 12px;
   margin-bottom: 1.25rem;
-  background: #f8fafc;
-  color: #86868b;
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-tertiary, #86868b);
   overflow: hidden;
 }
 
@@ -1558,14 +1564,14 @@ function copyPermalinkGateway() {
 
 .info-label {
   font-size: 0.65rem;
-  color: #86868b;
+  color: var(--text-tertiary, #86868b);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .info-value {
   font-size: 0.8rem;
-  color: #1d1d1f;
+  color: var(--text-primary, #1d1d1f);
   font-weight: 500;
 }
 
@@ -1573,7 +1579,7 @@ function copyPermalinkGateway() {
   font-family: 'SF Mono', 'Consolas', monospace;
   font-size: 0.7rem;
   word-break: break-all;
-  background: white;
+  background: var(--bg-primary, #fff);
   padding: 0.5rem;
   border-radius: 6px;
   color: #0071e3;
@@ -1591,19 +1597,19 @@ function copyPermalinkGateway() {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  background: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #fff);
   border-radius: 10px;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .detail-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
 }
 
 .detail-btn.primary {
@@ -1669,10 +1675,10 @@ function copyPermalinkGateway() {
 /* View Switcher */
 .view-switcher {
   display: flex;
-  background: #f1f5f9;
+  background: var(--hover-bg, #f1f5f9);
   border-radius: 10px;
   padding: 4px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .view-btn {
@@ -1684,16 +1690,16 @@ function copyPermalinkGateway() {
   background: transparent;
   border-radius: 8px;
   cursor: pointer;
-  color: #94a3b8;
+  color: var(--text-tertiary, #94a3b8);
   transition: all 0.2s;
 }
 
 .view-btn:hover {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .view-btn.active {
-  background: white;
+  background: var(--bg-primary, #fff);
   color: #3498db;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
@@ -1704,9 +1710,9 @@ function copyPermalinkGateway() {
   flex-direction: column;
   overflow-y: auto;
   flex: 1;
-  background: white;
+  background: var(--bg-primary, #fff);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 }
 
 .list-header {
@@ -1714,13 +1720,13 @@ function copyPermalinkGateway() {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: #f1f5f9;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--hover-bg, #f1f5f9);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -1760,7 +1766,7 @@ function copyPermalinkGateway() {
   padding: 0.625rem 1rem;
   cursor: pointer;
   transition: all 0.1s;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--hover-bg, #f1f5f9);
 }
 
 .list-item:last-child {
@@ -1768,7 +1774,7 @@ function copyPermalinkGateway() {
 }
 
 .list-item:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
 }
 
 .list-item.selected {
@@ -1783,7 +1789,7 @@ function copyPermalinkGateway() {
   justify-content: center;
   border-radius: 6px;
   background: transparent;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   flex-shrink: 0;
 }
 
@@ -1802,12 +1808,12 @@ function copyPermalinkGateway() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .list-size {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   width: 80px;
   min-width: 80px;
   text-align: right;
@@ -1816,7 +1822,7 @@ function copyPermalinkGateway() {
 
 .list-date {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   width: 140px;
   min-width: 140px;
   text-align: right;
@@ -1839,9 +1845,9 @@ function copyPermalinkGateway() {
 .files-table-wrapper {
   flex: 1;
   overflow: auto;
-  background: white;
+  background: var(--bg-primary, #fff);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   min-height: 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
@@ -1857,7 +1863,7 @@ function copyPermalinkGateway() {
 .files-table thead {
   position: sticky;
   top: 0;
-  background: #f1f5f9;
+  background: var(--hover-bg, #f1f5f9);
   z-index: 1;
 }
 
@@ -1868,14 +1874,14 @@ function copyPermalinkGateway() {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--text-secondary, #64748b);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
 }
 
 .files-table td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: #1d1d1f;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-primary, #1d1d1f);
 }
 
 .files-table tbody tr {
@@ -1884,7 +1890,7 @@ function copyPermalinkGateway() {
 }
 
 .files-table tbody tr:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
 }
 
 .files-table tbody tr.selected {
@@ -1899,7 +1905,8 @@ function copyPermalinkGateway() {
 }
 
 .th-name {
-  width: auto;
+  width: 35%;
+  min-width: 200px;
 }
 
 .td-name span {
@@ -1917,8 +1924,8 @@ function copyPermalinkGateway() {
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  background: #f8fafc;
-  color: #64748b;
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-secondary, #64748b);
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -1931,26 +1938,28 @@ function copyPermalinkGateway() {
 }
 
 .td-size, .th-size {
-  width: 80px;
-  min-width: 80px;
+  width: 100px;
+  min-width: 100px;
+  text-align: right;
 }
 
 .td-size {
-  color: #86868b;
+  color: var(--text-tertiary, #86868b);
 }
 
 .td-cid, .th-cid {
-  width: 180px;
-  min-width: 180px;
+  width: 220px;
+  min-width: 220px;
 }
 
 .td-date, .th-date {
-  width: 150px;
-  min-width: 150px;
+  width: 160px;
+  min-width: 160px;
+  text-align: right;
 }
 
 .td-date {
-  color: #86868b;
+  color: var(--text-tertiary, #86868b);
   font-size: 0.75rem;
 }
 
@@ -1973,7 +1982,7 @@ function copyPermalinkGateway() {
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #86868b;
+  color: var(--text-tertiary, #86868b);
   opacity: 0;
 }
 
@@ -1986,8 +1995,9 @@ function copyPermalinkGateway() {
 }
 
 .td-actions, .th-actions {
-  width: 100px;
-  min-width: 100px;
+  width: 120px;
+  min-width: 120px;
+  text-align: center;
 }
 
 .td-actions {
@@ -1995,8 +2005,8 @@ function copyPermalinkGateway() {
 }
 
 .td-actions .action-btn {
-  background: #e2e8f0;
-  color: #64748b;
+  background: var(--border-color, #e2e8f0);
+  color: var(--text-secondary, #64748b);
   margin-right: 0.25rem;
 }
 
@@ -2138,7 +2148,7 @@ function copyPermalinkGateway() {
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-primary, #fff);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
@@ -2152,14 +2162,14 @@ function copyPermalinkGateway() {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
 }
 
 .modal-close {
@@ -2167,8 +2177,8 @@ function copyPermalinkGateway() {
   height: 32px;
   border-radius: 8px;
   border: none;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2177,8 +2187,8 @@ function copyPermalinkGateway() {
 }
 
 .modal-close:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--border-color, #e2e8f0);
+  color: var(--text-primary, #1e293b);
 }
 
 .modal-body {
@@ -2186,7 +2196,7 @@ function copyPermalinkGateway() {
 }
 
 .modal-desc {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
 }
@@ -2215,11 +2225,11 @@ function copyPermalinkGateway() {
 .share-input {
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   font-size: 0.875rem;
-  color: #1e293b;
-  background: #f8fafc;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-secondary, #f8fafc);
   font-family: 'Courier New', monospace;
 }
 
@@ -2262,11 +2272,11 @@ function copyPermalinkGateway() {
 .form-select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   font-size: 0.875rem;
-  color: #1e293b;
-  background: white;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary, #fff);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -2311,7 +2321,7 @@ function copyPermalinkGateway() {
 
 .permalink-help {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin-top: 0.75rem;
   line-height: 1.5;
 }
@@ -2336,7 +2346,7 @@ function copyPermalinkGateway() {
 }
 
 .permalink-loading p {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.875rem;
 }
 
@@ -2361,19 +2371,19 @@ function copyPermalinkGateway() {
 .success-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin-bottom: 0.5rem;
 }
 
 .permalink-success p {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
 }
 
 .permalink-result-box {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -2382,7 +2392,7 @@ function copyPermalinkGateway() {
 .result-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.5rem;
@@ -2396,11 +2406,11 @@ function copyPermalinkGateway() {
 .result-input {
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
   font-size: 0.8125rem;
-  color: #1e293b;
-  background: white;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary, #fff);
   font-family: 'Courier New', monospace;
 }
 
@@ -2425,10 +2435,10 @@ function copyPermalinkGateway() {
 .btn-modal-secondary {
   width: 100%;
   padding: 0.875rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 10px;
-  background: white;
-  color: #64748b;
+  background: var(--bg-primary, #fff);
+  color: var(--text-secondary, #64748b);
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
@@ -2436,7 +2446,7 @@ function copyPermalinkGateway() {
 }
 
 .btn-modal-secondary:hover {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
   border-color: #cbd5e1;
 }
 

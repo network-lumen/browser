@@ -12,8 +12,13 @@
 import { ref, onMounted, watch } from 'vue';
 import StartupScreen from './components/StartupScreen.vue';
 import MainScreen from './components/MainScreen.vue';
+import { useTheme } from './composables/useTheme';
 
 type Stage = 'startup' | 'main';
+
+// Initialize theme
+const { initTheme } = useTheme();
+initTheme();
 
 const params = new URLSearchParams(window.location.search);
 const isSplashWindow = params.get('splash') === '1';

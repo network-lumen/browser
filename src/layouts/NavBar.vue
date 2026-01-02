@@ -1,11 +1,13 @@
 ﻿<template>
   <header
-    class="navbar border-bottom-1px-solid border-bottom-color-default padding-25 flex-align-center gap-50 txt-2xl bg-white"
+    class="navbar flex-align-center gap-50 txt-2xl"
+    :style="{ background: 'var(--bg-primary, white)', borderBottom: '1px solid var(--border-color, #e5e7eb)', padding: '0.625rem' }"
   >
     <!-- history / refresh -->
     <UiButton
       variant="none"
-      class="cursor-pointer border-none bg-white border-radius-circle color-gray-blue hover-bg-black-a10 padding-50"
+      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+      :style="{ background: 'var(--bg-primary, white)', color: 'var(--text-secondary, #64748b)', padding: '0.5rem' }"
       :disabled="!canGoBack"
       title="Back"
       @click="previous"
@@ -40,7 +42,8 @@
       <input
         v-model="urlField"
         type="text"
-        class="outline-none padding-25 padding-left-150 w-full txt-xs border-radius-10px border-1px-solid border-color-default"
+        class="outline-none w-full txt-xs border-radius-10px"
+        :style="{ padding: '0.625rem 0.625rem 0.625rem 3rem', border: '1px solid var(--border-color, #e2e8f0)', background: 'var(--bg-primary, white)', color: 'var(--text-primary, #1e293b)' }"
         placeholder="Search or paste a Lumen link (lumen://home, lumen://search…)"
         @keydown.enter="onEnter"
       />
@@ -91,10 +94,11 @@
 
         <div
           v-if="showProfileMenu"
-          class="menu z-1 box-shadow-default padding-25 border-radius-10px bg-white border-1px-solid border-color-default flex flex-column absolute right-0 top-full margin-top-50 min-w-1500"
+          class="menu z-1 box-shadow-default border-radius-10px flex flex-column absolute right-0 top-full margin-top-50 min-w-1500"
+          :style="{ background: 'var(--bg-primary, white)', border: '1px solid var(--border-color, #e2e8f0)', padding: '0.625rem' }"
           role="menu"
         >
-          <div class="menu-head padding-50 txt-weight-strong txt-xs color-gray-blue-dark">
+          <div class="menu-head txt-weight-strong txt-xs" :style="{ padding: '0.5rem', color: 'var(--text-primary, #64748b)' }">
             {{ isGuestOnly ? '' : 'Profiles' }}
           </div>
 
@@ -105,8 +109,9 @@
             <li
               v-for="p in profiles"
               :key="p.id"
-              class="profile-item padding-50 gap-50 border-radius-10px hover-bg-white-blue-light flex-align-center"
-              :class="{ 'active bg-white-blue-light border-1px-solid border-color-default': p.id === activeProfileId }"
+              class="profile-item gap-50 border-radius-10px flex-align-center"
+              :style="{ padding: '0.5rem', background: p.id === activeProfileId ? 'var(--bg-secondary, #f8fafc)' : 'transparent', border: p.id === activeProfileId ? '1px solid var(--border-color, #e2e8f0)' : 'none' }"
+              :class="{ 'active': p.id === activeProfileId }"
               role="menuitem"
             >
               <button
@@ -115,12 +120,13 @@
                 @click.stop="selectProfile(p.id)"
               >
                 <span
-                  class="profile-avatar txt-weight-strong txt-xs overflow-hidden border-radius-circle border-1px-solid border-color-default flex-align-justify-center size-100"
+                  class="profile-avatar txt-weight-strong txt-xs overflow-hidden border-radius-circle flex-align-justify-center size-100"
+                  :style="{ border: '1px solid var(--border-color, #e2e8f0)' }"
                   :class="avatarHueClass(p.name || p.id)"
                 >
                   {{ (p.name || p.id).trim().charAt(0).toUpperCase() }}
                 </span>
-                <span class="txt-xs color-gray-blue-dark">
+                <span class="txt-xs" :style="{ color: 'var(--text-primary, #64748b)' }">
                   {{ p.name || p.id }}
                 </span>
               </button>
@@ -136,7 +142,7 @@
             </li>
           </ul>
 
-          <div v-else class="padding-50 txt-xs color-gray-blue">
+          <div v-else class="txt-xs" :style="{ padding: '0.5rem', color: 'var(--text-secondary, #64748b)' }">
             {{ isGuestOnly
               ? 'Guest mode active no local profiles created or imported yet.'
               : 'No profiles yet.' }}
@@ -157,7 +163,8 @@
               <input
                 v-model="newProfileName"
                 type="text"
-                class="outline-none flex-1 padding-50 txt-xs border-radius-10px border-1px-solid border-color-default"
+                class="outline-none flex-1 txt-xs border-radius-10px"
+                :style="{ padding: '0.5rem', border: '1px solid var(--border-color, #e2e8f0)', background: 'var(--bg-primary, white)', color: 'var(--text-primary, #1e293b)' }"
                 placeholder="Profile name"
               />
               <div class="flex gap-25">
@@ -174,7 +181,8 @@
               <textarea
                 v-model="importJson"
                 rows="4"
-                class="outline-none padding-25 w-full txt-xs border-radius-8px border-1px-solid border-color-default"
+                class="outline-none w-full txt-xs border-radius-8px"
+                :style="{ padding: '0.625rem', border: '1px solid var(--border-color, #e2e8f0)', background: 'var(--bg-primary, white)', color: 'var(--text-primary, #1e293b)' }"
                 placeholder="Paste profile JSON here"
               />
               <div class="flex gap-25">
@@ -187,7 +195,7 @@
               </div>
             </div>
 
-            <div v-if="profileMessage" class="padding-top-25 txt-xs color-gray-blue">
+            <div v-if="profileMessage" class="txt-xs" :style="{ paddingTop: '0.625rem', color: 'var(--text-secondary, #64748b)' }">
               {{ profileMessage }}
             </div>
           </div>
