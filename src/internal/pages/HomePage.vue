@@ -67,71 +67,39 @@
       <section class="hero-section">
         <div class="hero-content">
           <h1 class="hero-title">Welcome to <span class="gradient-text">Lumen</span></h1>
-          <p class="hero-subtitle">Your Gateway to the Decentralized Web</p>
-          <p class="hero-intro">Lumen is a next-generation Web3 browser that empowers you to explore the decentralized internet with complete freedom and privacy. Built on cutting-edge technologies like IPFS, blockchain, and Web3 protocols.</p>
+          <p class="hero-subtitle">Make your content universally accessible — uncensorable by design</p>
+          <p class="hero-intro">Lumen lets you publish and access content without relying on centralized platforms.</p>
         </div>
         
         <div class="description-features">
               <div class="feature-point">
                 <div class="point-icon">🌐</div>
                 <div class="point-text">
-                  <strong>Decentralized Storage:</strong> Store and share files using IPFS (InterPlanetary File System) with permanent addressing and peer-to-peer distribution.
+                  <strong>Decentralized Storage:</strong> Store and share your public content without central servers, using decentralized networks
                 </div>
               </div>
               <div class="feature-point">
                 <div class="point-icon">🔐</div>
                 <div class="point-text">
-                  <strong>Web3 Integration:</strong> Manage cryptocurrency wallets, interact with smart contracts, register ENS domains, and participate in DAO governance.
+                  <strong>All-in-One Control</strong> Manage domains, digital assets, and network interactions in one interface
                 </div>
               </div>
               <div class="feature-point">
                 <div class="point-icon">⚡</div>
                 <div class="point-text">
-                  <strong>Privacy First:</strong> Built with end-to-end encryption, local-first architecture, and no data tracking or centralized servers.
-                </div>
-              </div>
-              <div class="feature-point">
-                <div class="point-icon">🚀</div>
-                <div class="point-text">
-                  <strong>Modern Experience:</strong> Fast performance, intuitive interface, and seamless navigation between Web2 and Web3 content.
+                  <strong>Secure by Design:</strong> Encrypted connections, local-first data, and no built-in tracking
                 </div>
               </div>
             </div>
         
         <div class="hero-stats">
-          <div class="stat-item">
-            <div class="stat-icon">
-              <Shield :size="20" />
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">Secure</span>
-              <span class="stat-label">End-to-end encrypted</span>
-            </div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-icon">
-              <Database :size="20" />
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">Decentralized</span>
-              <span class="stat-label">IPFS powered storage</span>
-            </div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-icon">
-              <Zap :size="20" />
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">Fast</span>
-              <span class="stat-label">Optimized performance</span>
-            </div>
-          </div>
+
         </div>
       </section>
 
       <!-- Quick Actions -->
       <section class="quick-actions">
-        <h2 class="section-title">Quick Actions</h2>
+        <h2 class="section-title">My Space</h2>
         <div class="actions-grid">
           <button class="action-card" @click="openRoute('drive')">
             <div class="action-icon drive">
@@ -139,7 +107,18 @@
             </div>
             <div class="action-info">
               <span class="action-title">Drive</span>
-              <span class="action-desc">Store & share files on IPFS</span>
+              <span class="action-desc">Store & share files</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+
+          <button class="action-card" @click="openRoute('domain')">
+            <div class="action-icon domain">
+              <AtSign :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Domains</span>
+              <span class="action-desc">Manage your domains</span>
             </div>
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
@@ -154,8 +133,25 @@
             </div>
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
-          
-          <button class="action-card" @click="openRoute('explorer')">
+
+          <button class="action-card" @click="openRoute('settings')">
+            <div class="action-icon settings">
+              <Settings :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Settings</span>
+              <span class="action-desc">Configure preferences</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+
+        </div>
+      </section>
+
+      <section class="quick-actions">
+        <h2 class="section-title">Lumen</h2>
+        <div class="actions-grid">
+                    <button class="action-card" @click="openRoute('explorer')">
             <div class="action-icon explorer">
               <Globe :size="24" />
             </div>
@@ -177,27 +173,9 @@
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
           
-          <button class="action-card" @click="openRoute('domain')">
-            <div class="action-icon domain">
-              <AtSign :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Domains</span>
-              <span class="action-desc">Manage web3 domains</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
+
           
-          <button class="action-card" @click="openRoute('settings')">
-            <div class="action-icon settings">
-              <Settings :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Settings</span>
-              <span class="action-desc">Configure preferences</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
+
         </div>
       </section>
 
