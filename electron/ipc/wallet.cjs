@@ -4,6 +4,8 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const { Buffer } = require('buffer');
+const Long = require('long');
+const { httpGet } = require('./http.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal } = require('../utils/crypto.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
@@ -139,6 +141,49 @@ function getRpcBaseUrl() {
 
 function hashHex(data) {
   return crypto.createHash('sha256').update(Buffer.from(data)).digest('hex');
+}
+
+function leadingZeroBits(buf) {
+  let bits = 0;
+  for (let i = 0; i < buf.length; i++) {
+    const b = buf[i];
+    if (b === 0) {
+      bits += 8;
+      continue;
+    }
+    for (let j = 7; j >= 0; j--) {
+      if (((b >> j) & 1) === 0) bits++;
+      else return bits;
+    }
+  }
+  return bits;
+}
+
+function sha256Bytes(s) {
+  return crypto.createHash('sha256').update(String(s || '')).digest();
+}
+
+async function mineUpdatePowNonce(identifier, creator, bits, budgetMs = 2500) {
+  identifier = String(identifier || '');
+  creator = String(creator || '');
+  const end = Date.now() + Math.max(200, budgetMs | 0);
+  let nonce = Long.fromNumber(0, true);
+
+  if (!bits || bits <= 0) {
+    const payload = `${identifier}|${creator}|${nonce.toString()}`;
+    const h = sha256Bytes(payload);
+    return { nonce, hashHex: Buffer.from(h).toString('hex') };
+  }
+
+  while (Date.now() < end) {
+    const payload = `${identifier}|${creator}|${nonce.toString()}`;
+    const h = sha256Bytes(payload);
+    if (leadingZeroBits(h) >= bits) {
+      return { nonce, hashHex: Buffer.from(h).toString('hex') };
+    }
+    nonce = nonce.add(1);
+  }
+  return null;
 }
 
 function normalizeHashString(input) {
@@ -432,6 +477,300 @@ function registerWalletIpc() {
       const res = await client.signAndBroadcast(from, [msg], zeroFee(), memo);
       if (res.code !== 0) {
         throw new Error(res.rawLog || `broadcast failed (code ${res.code})`);
+      }
+      const txhash = res.transactionHash || res.hash || '';
+      return { ok: true, txhash };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('dns:createDomain', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const nameRaw =
+        (input && (input.fqdn || input.name)) ? (input.fqdn || input.name) : '';
+      const name = String(nameRaw || '').trim();
+      const owner = String(input && input.owner ? input.owner : '').trim();
+      const durationDaysRaw =
+        Number(
+          input && (input.duration_days ?? input.durationDays ?? input.days)
+        ) || 0;
+      const durationDays =
+        Number.isFinite(durationDaysRaw) && durationDaysRaw > 0
+          ? durationDaysRaw
+          : 365;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!name) return { ok: false, error: 'missing_name' };
+      if (!owner) return { ok: false, error: 'missing_owner' };
+
+      const mnemonic = loadMnemonic(profileId);
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = owner.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const rpcBase = getRpcBaseUrl();
+      const restBase = getRestBaseUrl();
+      if (!rpcBase) {
+        return { ok: false, error: 'rpc_base_missing' };
+      }
+
+      const endpoints = {
+        rpc: rpcBase,
+        rest: restBase || rpcBase,
+        rpcEndpoint: rpcBase,
+        restEndpoint: restBase || rpcBase
+      };
+
+      const client = await mod.LumenSigningClient.connectWithSigner(
+        signer,
+        endpoints,
+        undefined,
+        {
+          pqc: {
+            homeDir: resolvePqcHome()
+          }
+        }
+      );
+
+      try {
+        const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, owner);
+        if (pqcLocal && pqcLocal.record) {
+          await ensureOnChainPqcLink(mod, client, owner, pqcLocal.record);
+        }
+      } catch (err) {
+        console.warn(
+          '[dns] ensure PQC link failed',
+          err && err.message ? err.message : err
+        );
+      }
+
+      const dnsMod =
+        typeof client.dns === 'function' ? client.dns() : client.dns;
+      if (!dnsMod || typeof dnsMod.msgRegister !== 'function') {
+        return { ok: false, error: 'dns_module_unavailable' };
+      }
+
+      let domain = '';
+      let ext = '';
+      const m = name.match(/^([^\.]+)\.([^\.]+)$/);
+      if (m) {
+        domain = m[1];
+        ext = m[2];
+      } else {
+        domain = name;
+        ext = 'lumen';
+      }
+
+      const msg = await dnsMod.msgRegister(owner, {
+        domain,
+        ext,
+        cid: input && input.cid ? String(input.cid) : '',
+        ipns: input && input.ipns ? String(input.ipns) : '',
+        records: Array.isArray(input && input.records ? input.records : [])
+          ? input.records
+          : [],
+        duration_days: durationDays
+      });
+
+      const zeroFee =
+        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+        (mod.utils && mod.utils.zeroFee) ||
+        (() => ({ amount: [], gas: '250000' }));
+
+      const memo = String((input && input.memo) || 'dns:register');
+      const res = await client.signAndBroadcast(owner, [msg], zeroFee(), memo);
+      if (res.code !== 0) {
+        return {
+          ok: false,
+          error: res.rawLog || `broadcast failed (code ${res.code})`
+        };
+      }
+      const txhash = res.transactionHash || res.hash || '';
+      return { ok: true, txhash };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('dns:updateDomain', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const nameRaw =
+        (input && (input.fqdn || input.name)) ? (input.fqdn || input.name) : '';
+      const name = String(nameRaw || '').trim();
+      const owner = String(input && (input.owner || input.address) ? (input.owner || input.address) : '').trim();
+      const recordsRaw = Array.isArray(input && input.records ? input.records : [])
+        ? input.records
+        : [];
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!name) return { ok: false, error: 'missing_name' };
+      if (!owner) return { ok: false, error: 'missing_owner' };
+
+      const records = recordsRaw
+        .map((r) => ({
+          key: String(r && r.key ? r.key : '').trim(),
+          value: String(r && r.value ? r.value : '').trim()
+        }))
+        .filter((r) => r.key || r.value);
+      if (!records.length) {
+        return { ok: false, error: 'missing_records' };
+      }
+
+      const mnemonic = loadMnemonic(profileId);
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = owner.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const rpcBase = getRpcBaseUrl();
+      const restBase = getRestBaseUrl();
+      if (!rpcBase) {
+        return { ok: false, error: 'rpc_base_missing' };
+      }
+
+      const endpoints = {
+        rpc: rpcBase,
+        rest: restBase || rpcBase,
+        rpcEndpoint: rpcBase,
+        restEndpoint: restBase || rpcBase
+      };
+
+      const client = await mod.LumenSigningClient.connectWithSigner(
+        signer,
+        endpoints,
+        undefined,
+        {
+          pqc: {
+            homeDir: resolvePqcHome()
+          }
+        }
+      );
+
+      try {
+        const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, owner);
+        if (pqcLocal && pqcLocal.record) {
+          await ensureOnChainPqcLink(mod, client, owner, pqcLocal.record);
+        }
+      } catch (err) {
+        console.warn(
+          '[dns] ensure PQC link (update) failed',
+          err && err.message ? err.message : err
+        );
+      }
+
+      const dnsMod =
+        typeof client.dns === 'function' ? client.dns() : client.dns;
+      if (!dnsMod || typeof dnsMod.msgUpdate !== 'function') {
+        return { ok: false, error: 'dns_module_unavailable' };
+      }
+
+      let domain = '';
+      let ext = '';
+      const m = name.match(/^([^\.]+)\.([^\.]+)$/);
+      if (m) {
+        domain = m[1];
+        ext = m[2];
+      } else {
+        domain = name;
+        ext = 'lumen';
+      }
+
+      const identifier = `${String(domain || '').toLowerCase()}.${String(
+        ext || ''
+      ).toLowerCase()}`;
+
+      let powBits = 0;
+      try {
+        const rest = restBase || rpcBase;
+        const url = `${String(rest).replace(/\/+$/, '')}/lumen/dns/v1/params`;
+        const prs = await httpGet(url, { timeout: 5000 });
+        if (prs && prs.ok && prs.json) {
+          const raw = prs.json;
+          const params =
+            (raw && (raw.params || raw.data?.params)) || raw.data || raw || {};
+          const fromRest = Number(
+            params.update_pow_difficulty ??
+              params.updatePowDifficulty ??
+              params.pow_difficulty ??
+              params.powDifficulty ??
+              0
+          );
+          if (Number.isFinite(fromRest) && fromRest > 0) {
+            powBits = fromRest;
+          }
+        }
+      } catch (e) {
+        console.warn(
+          '[dns] updateDomain: failed to load dns params for pow',
+          e && e.message ? e.message : e
+        );
+      }
+
+      const budgetMsRaw =
+        Number(
+          input &&
+            (input.powBudgetMs ?? input.pow_budget_ms ?? input.pow_budget_ms)
+        ) || 0;
+      const budgetMs =
+        Number.isFinite(budgetMsRaw) && budgetMsRaw > 0 ? budgetMsRaw : 2500;
+
+      const mined = await mineUpdatePowNonce(identifier, owner, powBits, budgetMs);
+      if (!mined) {
+        return {
+          ok: false,
+          error: 'pow_budget_exceeded',
+          detail: { bits: powBits, budgetMs }
+        };
+      }
+      const powNonce = mined.nonce;
+
+      const cidEntry = records.find((r) => r.key === 'cid');
+      const ipnsEntry = records.find((r) => r.key === 'ipns');
+      const cid = cidEntry ? cidEntry.value : String(input && input.cid ? input.cid : '');
+      const ipns = ipnsEntry ? ipnsEntry.value : String(input && input.ipns ? input.ipns : '');
+
+      const msg = await dnsMod.msgUpdate(owner, {
+        domain,
+        ext,
+        cid,
+        ipns,
+        records,
+        powNonce
+      });
+
+      if (msg && msg.value) {
+        msg.value.powNonce = powNonce;
+        msg.value.pow_nonce = powNonce;
+      }
+
+      const zeroFee =
+        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+        (mod.utils && mod.utils.zeroFee) ||
+        (() => ({ amount: [], gas: '250000' }));
+
+      const memo = String((input && input.memo) || 'dns:update');
+      const res = await client.signAndBroadcast(owner, [msg], zeroFee(), memo);
+      if (res.code !== 0) {
+        return {
+          ok: false,
+          error: res.rawLog || `broadcast failed (code ${res.code})`
+        };
       }
       const txhash = res.transactionHash || res.hash || '';
       return { ok: true, txhash };

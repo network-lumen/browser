@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('lumen', {
   http: {
     get: (url, options) => ipcRenderer.invoke('http:get', url, options || {})
   },
+  pqc: {
+    getParams: () => ipcRenderer.invoke('pqc:getParams')
+  },
   profiles: {
     list: () => ipcRenderer.invoke('profiles:list'),
     getActive: () => ipcRenderer.invoke('profiles:getActive'),
@@ -46,7 +49,10 @@ contextBridge.exposeInMainWorld('lumen', {
   dns: {
     getParams: () => ipcRenderer.invoke('dns:getParams'),
     getDomainInfo: (name) => ipcRenderer.invoke('dns:getDomainInfo', name),
-    listByOwnerDetailed: (owner) => ipcRenderer.invoke('dns:listByOwnerDetailed', owner)
+    listByOwnerDetailed: (owner) => ipcRenderer.invoke('dns:listByOwnerDetailed', owner),
+    estimateRegisterPrice: (input) => ipcRenderer.invoke('dns:estimateRegisterPrice', input || {}),
+    createDomain: (input) => ipcRenderer.invoke('dns:createDomain', input || {}),
+    updateDomain: (input) => ipcRenderer.invoke('dns:updateDomain', input || {})
   },
   wallet: {
     getBalance: (address, opts) => ipcRenderer.invoke('wallet:getBalance', { address, ...(opts || {}) }),

@@ -448,6 +448,91 @@ async function walletListSendTxs(input) {
   return { ok: true, items: out };
 }
 
+// ---------------- DNS helpers (pricing) ----------------
+const TIER_BPS_DENOM = 10_000n;
+const SDK_DEC_PRECISION = 1_000_000_000_000_000_000n; // 1e18
+
+function parseLengthTiers(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((entry) => {
+      if (!entry) return null;
+      const maxLen = Number(entry.max_len ?? entry.maxLen ?? 0);
+      const multiplier = Number(
+        entry.multiplier_bps ?? entry.multiplierBps ?? entry.multiplier ?? 0
+      );
+      if (!Number.isFinite(multiplier) || multiplier <= 0) return null;
+      if (!Number.isFinite(maxLen) || maxLen < 0) {
+        return { maxLen: 0, multiplierBps: multiplier };
+      }
+      return { maxLen, multiplierBps: multiplier };
+    })
+    .filter((x) => !!x);
+}
+
+function pickTier(length, tiers) {
+  if (!Array.isArray(tiers) || !tiers.length) {
+    return { multiplier: Number(TIER_BPS_DENOM) };
+  }
+  for (const tier of tiers) {
+    if (!tier) continue;
+    if (tier.maxLen === 0 || length <= tier.maxLen) {
+      return { multiplier: tier.multiplierBps, tier };
+    }
+  }
+  const last = tiers[tiers.length - 1];
+  return {
+    multiplier: last && Number.isFinite(last.multiplierBps)
+      ? last.multiplierBps
+      : Number(TIER_BPS_DENOM),
+    tier: last || null
+  };
+}
+
+function monthsFromDays(durationDays) {
+  if (!Number.isFinite(durationDays) || durationDays <= 0) return 1;
+  const days = Math.floor(durationDays);
+  const months = Math.floor((days + 29) / 30);
+  return months > 0 ? months : 1;
+}
+
+function applyBps(amount, multiplierBps) {
+  if (amount === 0n) return amount;
+  const bps = BigInt(Math.max(0, multiplierBps));
+  if (bps === 0n) return 0n;
+  const num = amount * bps;
+  const div = num / TIER_BPS_DENOM;
+  return num % TIER_BPS_DENOM === 0n ? div : div + 1n;
+}
+
+function parsePositiveBigInt(value, label) {
+  try {
+    const asBig = BigInt(String(value ?? '0'));
+    if (asBig <= 0n) throw new Error(`${label} must be > 0`);
+    return asBig;
+  } catch {
+    throw new Error(`invalid ${label}`);
+  }
+}
+
+function parseSdkDec(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) throw new Error('base_fee_dns missing');
+  if (!/^\d+(\.\d+)?$/.test(raw)) throw new Error('invalid base_fee_dns');
+  const parts = raw.split('.');
+  const intPart = parts[0] || '0';
+  const fracPart = parts[1] || '';
+  const frac = (fracPart + '000000000000000000').slice(0, 18);
+  return BigInt(intPart) * SDK_DEC_PRECISION + BigInt(frac || '0');
+}
+
+function mulDec(amount, dec) {
+  if (amount === 0n || dec === 0n) return 0n;
+  const num = amount * dec;
+  const div = num / SDK_DEC_PRECISION;
+  return num % SDK_DEC_PRECISION === 0n ? div : div + 1n;
+}
+
 async function dnsGetParams() {
   const restBase = getRestBaseUrl();
   if (!restBase) {
@@ -459,6 +544,21 @@ async function dnsGetParams() {
     return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
   }
   return { ok: true, data: res.json || null };
+}
+
+async function pqcGetParams() {
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const url = `${trimSlash(restBase)}/lumen/pqc/v1/params`;
+  const res = await httpGet(url, { timeout: 7000 });
+  if (!res.ok) {
+    return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
+  }
+  const data = res.json || null;
+  const params = (data && (data.params || data)) || data || null;
+  return { ok: true, data: { params } };
 }
 
 async function dnsGetDomainInfo(nameInput) {
@@ -475,6 +575,104 @@ async function dnsGetDomainInfo(nameInput) {
   }
   const data = res.json && (res.json.domain || res.json) ? res.json : null;
   return { ok: true, data };
+}
+
+async function dnsEstimateRegisterPrice(input) {
+  try {
+    let domain = String(input && input.domain ? input.domain : '').trim();
+    let ext = String(input && input.ext ? input.ext : '').trim();
+    const fqdn = String(input && input.name ? input.name : '').trim();
+
+    if ((!domain || !ext) && fqdn) {
+      const m = fqdn.match(/^([^\.]+)\.([^\.]+)$/);
+      if (m) {
+        domain = m[1];
+        ext = m[2];
+      }
+    }
+
+    if (!domain || !ext) {
+      return { ok: false, error: 'missing domain/ext' };
+    }
+
+    const paramsRes = await dnsGetParams();
+    if (!paramsRes || paramsRes.ok === false) {
+      return {
+        ok: false,
+        error: (paramsRes && paramsRes.error) || 'dns_params_unavailable'
+      };
+    }
+
+    const params =
+      (paramsRes.data && (paramsRes.data.params || paramsRes.data)) ||
+      paramsRes.data ||
+      {};
+
+    const minPriceRaw =
+      params.min_price_ulmn_per_month ?? params.minPriceUlmnPerMonth;
+    const baseFeeRaw = params.base_fee_dns ?? params.baseFeeDns ?? '1';
+    const domainTiersRaw = params.domain_tiers ?? params.domainTiers ?? [];
+    const extTiersRaw = params.ext_tiers ?? params.extTiers ?? [];
+
+    const durationDaysRaw =
+      Number(
+        input && (input.duration_days ?? input.durationDays ?? input.days)
+      ) || 0;
+    const durationDays =
+      Number.isFinite(durationDaysRaw) && durationDaysRaw > 0
+        ? durationDaysRaw
+        : 365;
+    const months = monthsFromDays(durationDays);
+
+    const minPrice = parsePositiveBigInt(
+      minPriceRaw,
+      'min_price_ulmn_per_month'
+    );
+    let quoted = minPrice * BigInt(months);
+
+    const domainTiers = parseLengthTiers(domainTiersRaw);
+    const extTiers = parseLengthTiers(extTiersRaw);
+    const domainTier = pickTier(domain.length, domainTiers);
+    const extTier = pickTier(ext.length, extTiers);
+
+    quoted = applyBps(quoted, domainTier.multiplier);
+    quoted = applyBps(quoted, extTier.multiplier);
+    const baseAfterTiers = quoted;
+
+    const multiplierDec = parseSdkDec(baseFeeRaw);
+    const amountBig = mulDec(baseAfterTiers, multiplierDec);
+    const amountStr = amountBig.toString();
+    const amountNumber =
+      amountBig <= BigInt(Number.MAX_SAFE_INTEGER)
+        ? Number(amountBig)
+        : null;
+    const amountLMN =
+      amountNumber == null ? null : amountNumber / 1_000_000;
+
+    return {
+      ok: true,
+      denom: 'ulmn',
+      amount: amountStr,
+      amountNumber,
+      amountLMN,
+      detail: {
+        months,
+        durationDays,
+        minPriceUlmnPerMonth: minPrice.toString(),
+        baseFeeDns: String(baseFeeRaw),
+        domainTier: domainTier.tier || null,
+        extTier: extTier.tier || null,
+        domainMultiplierBps: domainTier.multiplier,
+        extMultiplierBps: extTier.multiplier,
+        baseAfterTiersUlmn: baseAfterTiers.toString()
+      }
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      error: String(e && e.message ? e.message : e)
+    };
+  }
 }
 
 async function dnsListByOwnerDetailed(ownerInput) {
@@ -546,6 +744,10 @@ function registerChainIpc() {
     }
   });
 
+  ipcMain.handle('dns:estimateRegisterPrice', async (_evt, input) => {
+    return await dnsEstimateRegisterPrice(input || {});
+  });
+
   ipcMain.handle('dns:listByOwnerDetailed', async (_evt, owner) => {
     try {
       return await dnsListByOwnerDetailed(owner);
@@ -566,6 +768,14 @@ function registerChainIpc() {
         return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
       }
       return { ok: true, data: res.json || null };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('pqc:getParams', async () => {
+    try {
+      return await pqcGetParams();
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
