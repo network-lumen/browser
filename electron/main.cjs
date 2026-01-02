@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsGet, ipfsPinList, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen } = require('./ipfs.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -20,6 +20,49 @@ function isDevtoolsToggle(input) {
 ipcMain.handle('ipfs:status', async () => {
   console.log('[electron][ipc] ipfs:status requested');
   return checkIpfsStatus();
+});
+
+ipcMain.handle('ipfs:add', async (_evt, data, filename) => {
+  console.log('[electron][ipc] ipfs:add requested:', filename);
+  return ipfsAdd(data, filename);
+});
+
+ipcMain.handle('ipfs:get', async (_evt, cid) => {
+  console.log('[electron][ipc] ipfs:get requested:', cid);
+  return ipfsGet(cid);
+});
+
+ipcMain.handle('ipfs:pinList', async () => {
+  return ipfsPinList();
+});
+
+ipcMain.handle('ipfs:unpin', async (_evt, cid) => {
+  console.log('[electron][ipc] ipfs:unpin requested:', cid);
+  return ipfsUnpin(cid);
+});
+
+ipcMain.handle('ipfs:stats', async () => {
+  return ipfsStats();
+});
+
+ipcMain.handle('ipfs:publishToIPNS', async (_evt, cid, key) => {
+  console.log('[electron][ipc] ipfs:publishToIPNS requested:', cid, 'key:', key);
+  return ipfsPublishToIPNS(cid, key);
+});
+
+ipcMain.handle('ipfs:resolveIPNS', async (_evt, name) => {
+  console.log('[electron][ipc] ipfs:resolveIPNS requested:', name);
+  return ipfsResolveIPNS(name);
+});
+
+ipcMain.handle('ipfs:keyList', async () => {
+  console.log('[electron][ipc] ipfs:keyList requested');
+  return ipfsKeyList();
+});
+
+ipcMain.handle('ipfs:keyGen', async (_evt, name) => {
+  console.log('[electron][ipc] ipfs:keyGen requested:', name);
+  return ipfsKeyGen(name);
 });
 
 ipcMain.on('window:mode', (_evt, mode) => {
