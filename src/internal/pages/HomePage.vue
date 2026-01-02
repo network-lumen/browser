@@ -1,62 +1,226 @@
 <template>
-  <div class="flex flex-column w-full h-full padding-100">
-    <div class="bg-white border-radius-20px box-shadow-default padding-100 max-w-800 w-full margin-bottom-50">
-      <h2 class="txt-md txt-weight-strong margin-bottom-25">Home</h2>
-      <p v-if="activeProfileDisplay" class="txt-xs margin-bottom-25">
-        Active profile: <span class="txt-weight-strong">{{ activeProfileDisplay }}</span>
-      </p>
-      <p class="txt-xs color-gray-blue margin-bottom-25">
-        Internal page <code>lumen://home</code>.
-      </p>
-      <p class="txt-xs txt-weight-strong margin-bottom-10">Available internal routes</p>
-      <ul class="txt-xs">
-        <li v-for="key in topRouteKeys" :key="key" class="margin-bottom-10">
-          <button
-            class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
+  <div class="home-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">
+          <Hexagon :size="28" />
+        </div>
+        <span class="logo-text">Lumen</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-label">Menu</span>
+          <button 
+            v-for="key in mainRoutes" 
+            :key="key"
+            class="nav-item"
+            :class="{ active: key === 'home' }"
             @click="openRoute(key)"
           >
-            <code>lumen://{{ key }}</code>
+            <component :is="getRouteIcon(key)" :size="18" />
+            <span>{{ formatRouteName(key) }}</span>
           </button>
-          <ul v-if="key === 'home'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in homeChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-          <ul v-if="key === 'network'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in networkChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+        </div>
+        
+        <div class="nav-section">
+          <button class="dropdown-selector" @click="showAllPages = !showAllPages">
+            <span class="dropdown-label">All Pages</span>
+            <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" class="dropdown-icon" />
+          </button>
+          
+          <div v-if="showAllPages" class="all-pages-list">
+            <button 
+              v-for="key in allRoutes" 
+              :key="key"
+              class="page-item"
+              @click="openRoute(key)"
+            >
+              <component :is="getRouteIcon(key)" :size="14" />
+              <span>{{ formatRouteName(key) }}</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Profile Info -->
+      <div class="profile-card" v-if="activeProfile">
+        <div class="avatar">
+          <User :size="18" />
+        </div>
+        <div class="profile-info">
+          <span class="profile-label">Active Profile</span>
+          <span class="profile-name">{{ activeProfileDisplay }}</span>
+        </div>
+      </div>
+
+      <!-- Version -->
+      <div class="version-info">
+        <span>Lumen v1.0.0</span>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">Welcome to <span class="gradient-text">Lumen</span></h1>
+          <p class="hero-subtitle">Your Gateway to the Decentralized Web</p>
+          <p class="hero-intro">Lumen is a next-generation Web3 browser that empowers you to explore the decentralized internet with complete freedom and privacy. Built on cutting-edge technologies like IPFS, blockchain, and Web3 protocols.</p>
+        </div>
+        
+        <div class="description-features">
+              <div class="feature-point">
+                <div class="point-icon">🌐</div>
+                <div class="point-text">
+                  <strong>Decentralized Storage:</strong> Store and share files using IPFS (InterPlanetary File System) with permanent addressing and peer-to-peer distribution.
+                </div>
+              </div>
+              <div class="feature-point">
+                <div class="point-icon">🔐</div>
+                <div class="point-text">
+                  <strong>Web3 Integration:</strong> Manage cryptocurrency wallets, interact with smart contracts, register ENS domains, and participate in DAO governance.
+                </div>
+              </div>
+              <div class="feature-point">
+                <div class="point-icon">⚡</div>
+                <div class="point-text">
+                  <strong>Privacy First:</strong> Built with end-to-end encryption, local-first architecture, and no data tracking or centralized servers.
+                </div>
+              </div>
+              <div class="feature-point">
+                <div class="point-icon">🚀</div>
+                <div class="point-text">
+                  <strong>Modern Experience:</strong> Fast performance, intuitive interface, and seamless navigation between Web2 and Web3 content.
+                </div>
+              </div>
+            </div>
+        
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <Shield :size="20" />
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">Secure</span>
+              <span class="stat-label">End-to-end encrypted</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <Database :size="20" />
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">Decentralized</span>
+              <span class="stat-label">IPFS powered storage</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <Zap :size="20" />
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">Fast</span>
+              <span class="stat-label">Optimized performance</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions-grid">
+          <button class="action-card" @click="openRoute('drive')">
+            <div class="action-icon drive">
+              <HardDrive :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Drive</span>
+              <span class="action-desc">Store & share files on IPFS</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+          
+          <button class="action-card" @click="openRoute('wallet')">
+            <div class="action-icon wallet">
+              <Wallet :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Wallet</span>
+              <span class="action-desc">Manage crypto assets</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+          
+          <button class="action-card" @click="openRoute('explorer')">
+            <div class="action-icon explorer">
+              <Globe :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Explorer</span>
+              <span class="action-desc">Browse the blockchain</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+          
+          <button class="action-card" @click="openRoute('network')">
+            <div class="action-icon network">
+              <Network :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Network</span>
+              <span class="action-desc">View network status</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+          
+          <button class="action-card" @click="openRoute('domain')">
+            <div class="action-icon domain">
+              <AtSign :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Domains</span>
+              <span class="action-desc">Manage web3 domains</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+          
+          <button class="action-card" @click="openRoute('settings')">
+            <div class="action-icon settings">
+              <Settings :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Settings</span>
+              <span class="action-desc">Configure preferences</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+        </div>
+      </section>
+
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, computed } from 'vue';
+import { inject, computed, ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS } from '../routes';
 import { profilesState, activeProfileId } from '../profilesStore';
+import { 
+  Home, User, HardDrive, Wallet, Globe, Settings, 
+  ArrowUpRight, Zap, Network, FileText, Hexagon,
+  Shield, Database, Vote, Package, AtSign, Search,
+  HelpCircle, Layers, ChevronDown, ChevronUp
+} from 'lucide-vue-next';
 
-const homeChildren = ['drive', 'wallet', 'domain'];
-const networkChildren = ['explorer', 'dao', 'release'];
-
-const topRouteKeys = computed(() =>
-  INTERNAL_ROUTE_KEYS.filter((k) => !homeChildren.includes(k) && !networkChildren.includes(k))
-);
+const mainRoutes = ['home', 'drive', 'wallet', 'network', 'settings'];
+const allRoutes = computed(() => INTERNAL_ROUTE_KEYS);
+const showAllPages = ref(true);
 
 const profiles = profilesState;
-
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 
@@ -66,4 +230,748 @@ function openRoute(key: string) {
   const url = `lumen://${key}`;
   openInNewTab?.(url);
 }
+
+function formatRouteName(key: string): string {
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+function getRouteIcon(key: string) {
+  const icons: Record<string, any> = {
+    home: Home,
+    drive: HardDrive,
+    wallet: Wallet,
+    network: Network,
+    settings: Settings,
+    explorer: Globe,
+    domain: AtSign,
+    dao: Vote,
+    release: Package,
+    newtab: Layers,
+    search: Search,
+    gateways: Globe,
+    help: HelpCircle
+  };
+  return icons[key] || FileText;
+}
 </script>
+
+<style scoped>
+.home-page {
+  display: flex;
+  height: 100%;
+  background: #f0f2f5;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  color: #1a1a2e;
+  border-right: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dropdown-selector {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.dropdown-selector:hover {
+  background: rgba(52, 152, 219, 0.08);
+  border-color: #3498db;
+}
+
+.dropdown-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.dropdown-icon {
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.nav-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.all-pages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.all-pages-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.all-pages-list::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.3);
+  border-radius: 4px;
+}
+
+.all-pages-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+.all-pages-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.page-item {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.page-item:hover {
+  background: rgba(52, 152, 219, 0.08);
+  color: #3498db;
+  transform: translateX(4px);
+}
+
+.toggle-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem;
+  margin: 0.5rem 0;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.toggle-pages:hover {
+  background: #f8fafc;
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-label {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.version-info {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  background: #fff;
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  border-radius: 16px;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.08) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(52, 152, 219, 0.1);
+  box-shadow: 0 8px 32px rgba(52, 152, 219, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(52, 152, 219, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-content {
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.375rem;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 0.9375rem;
+  color: #475569;
+  text-align: center;
+  margin-bottom: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.hero-intro {
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 1rem;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.3));
+}
+
+.description-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.feature-point {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 0.875rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.feature-point:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15), 0 0 0 1px rgba(52, 152, 219, 0.2);
+  border-color: rgba(52, 152, 219, 0.3);
+  background: rgba(255, 255, 255, 1);
+}
+
+.point-icon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25), 0 0 0 4px rgba(52, 152, 219, 0.1);
+  position: relative;
+}
+
+.point-icon::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.4), rgba(41, 128, 185, 0.4));
+  border-radius: 12px;
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.feature-point:hover .point-icon::after {
+  opacity: 1;
+}
+
+.point-text {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.point-text strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 0.875rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.12);
+  border-color: rgba(52, 152, 219, 0.3);
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Sections */
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 2px solid transparent;
+  background: linear-gradient(to right, #e2e8f0 0%, transparent 100%) no-repeat bottom;
+  background-size: 100% 2px;
+  letter-spacing: -0.01em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pages-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 1.5rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.875rem;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.action-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(52, 152, 219, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.12), 0 0 0 1px rgba(52, 152, 219, 0.1);
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.action-card:hover .action-icon {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.action-icon.drive {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  color: #0284c7;
+}
+
+.action-icon.wallet {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+}
+
+.action-icon.explorer {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #059669;
+}
+
+.action-icon.network {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #db2777;
+}
+
+.action-icon.domain {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #6366f1;
+}
+
+.action-icon.settings {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  color: #9333ea;
+}
+
+.action-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.action-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.action-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.action-arrow {
+  color: #94a3b8;
+  transition: all 0.2s;
+}
+
+.action-card:hover .action-arrow {
+  color: #3498db;
+  transform: translate(2px, -2px);
+}
+
+/* Routes Section */
+.routes-section {
+  margin-bottom: 1.5rem;
+}
+
+.routes-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.route-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #475569;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.route-chip:hover {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .hero-stats {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+    padding: 1rem;
+  }
+  
+  .logo-text {
+    font-size: 1.1rem;
+  }
+  
+  .main-content {
+    padding: 1.5rem;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-stats {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 700px) {
+  .sidebar {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    padding: 0.75rem;
+  }
+  
+  .logo-text,
+  .nav-label,
+  .nav-item span,
+  .profile-card,
+  .version-info {
+    display: none;
+  }
+  
+  .sidebar-header {
+    justify-content: center;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  
+  .nav-item {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .hero-content h1 {
+    font-size: 1.35rem;
+  }
+  
+  .hero-content p {
+    font-size: 0.85rem;
+  }
+  
+  .action-card {
+    padding: 1rem;
+  }
+  
+  .action-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+</style>

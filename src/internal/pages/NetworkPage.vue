@@ -1,72 +1,705 @@
 <template>
-  <div class="flex flex-column w-full h-full padding-100">
-    <div class="bg-white border-radius-20px box-shadow-default padding-100 max-w-800 w-full margin-bottom-50">
-      <h2 class="txt-md txt-weight-strong margin-bottom-25">Network</h2>
-      <p v-if="latestHeight != null" class="txt-xs color-gray-blue margin-bottom-25">
-        Latest block height: <span class="txt-weight-strong">{{ latestHeight }}</span>
-      </p>
-      <p class="txt-xs color-gray-blue margin-bottom-25">
-        Internal page <code>lumen://network</code>.
-      </p>
-      <p class="txt-xs txt-weight-strong margin-bottom-10">Available internal routes</p>
-      <ul class="txt-xs">
-        <li v-for="key in topRouteKeys" :key="key" class="margin-bottom-10">
-          <button
-            class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-            @click="openRoute(key)"
+  <div class="network-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">
+          <Network :size="24" />
+        </div>
+        <span class="logo-text">Network</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-label">Overview</span>
+          <button 
+            class="nav-item"
+            :class="{ active: currentView === 'status' }"
+            @click="currentView = 'status'"
           >
-            <code>lumen://{{ key }}</code>
+            <Activity :size="18" />
+            <span>Status</span>
           </button>
-          <ul v-if="key === 'home'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in homeChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-          <ul v-if="key === 'network'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in networkChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+          <button 
+            class="nav-item"
+            :class="{ active: currentView === 'peers' }"
+            @click="currentView = 'peers'"
+          >
+            <Users :size="18" />
+            <span>Peers</span>
+          </button>
+        </div>
+
+        <div class="nav-section">
+          <span class="nav-label">Nodes</span>
+          <button 
+            class="nav-item"
+            :class="{ active: currentView === 'validators' }"
+            @click="currentView = 'validators'"
+          >
+            <Server :size="18" />
+            <span>Validators</span>
+          </button>
+          <button 
+            class="nav-item"
+            :class="{ active: currentView === 'ipfs' }"
+            @click="currentView = 'ipfs'"
+          >
+            <Database :size="18" />
+            <span>IPFS Node</span>
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="content-header">
+        <div>
+          <h1>{{ getViewTitle() }}</h1>
+          <p>{{ getViewDescription() }}</p>
+        </div>
+        <button class="btn-refresh" @click="refreshData">
+          <RefreshCw :size="18" />
+          Refresh
+        </button>
+      </header>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <Box :size="20" />
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ latestHeight ?? '...' }}</span>
+            <span class="stat-label">Block Height</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon connected">
+            <Wifi :size="20" />
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">Connected</span>
+            <span class="stat-label">Network Status</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <Users :size="20" />
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Active Peers</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <Clock :size="20" />
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">2.1s</span>
+            <span class="stat-label">Avg Block Time</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status View -->
+      <div v-if="currentView === 'status'" class="content-area">
+        <div class="info-section">
+          <h3>Network Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Network ID</span>
+              <span class="info-value">lumen-mainnet-1</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Chain ID</span>
+              <span class="info-value">lumen_1-1</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">RPC Endpoint</span>
+              <span class="info-value">http://localhost:26657</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">IPFS Gateway</span>
+              <span class="info-value">http://localhost:8088</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Peers View -->
+      <div v-else-if="currentView === 'peers'" class="content-area">
+        <div class="peers-list">
+          <div class="peer-item" v-for="i in 5" :key="i">
+            <div class="peer-status online"></div>
+            <div class="peer-info">
+              <span class="peer-id">peer{{ i }}@192.168.1.{{ 100 + i }}:26656</span>
+              <span class="peer-location">Node {{ i }}</span>
+            </div>
+            <div class="peer-stats">
+              <span>↓ 1.2 MB/s</span>
+              <span>↑ 0.8 MB/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validators View -->
+      <div v-else-if="currentView === 'validators'" class="content-area">
+        <div class="validators-list">
+          <div class="validator-item" v-for="i in 4" :key="i">
+            <div class="validator-rank">{{ i }}</div>
+            <div class="validator-info">
+              <span class="validator-name">Validator {{ i }}</span>
+              <span class="validator-address">lumenvaloper1...{{ i }}xyz</span>
+            </div>
+            <div class="validator-stats">
+              <span class="validator-stake">{{ 1000000 - i * 100000 }} LMN</span>
+              <span class="validator-commission">{{ i + 4 }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IPFS View -->
+      <div v-else-if="currentView === 'ipfs'" class="content-area">
+        <div class="ipfs-status">
+          <div class="status-card connected">
+            <div class="status-icon">
+              <CheckCircle :size="32" />
+            </div>
+            <h3>IPFS Node Running</h3>
+            <p>Connected to local IPFS daemon</p>
+          </div>
+          <div class="ipfs-info">
+            <div class="info-item">
+              <span class="info-label">API Port</span>
+              <span class="info-value">5001</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Gateway Port</span>
+              <span class="info-value">8088</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Peer ID</span>
+              <span class="info-value">QmX...abc</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, computed, onMounted, onActivated } from 'vue';
-import { INTERNAL_ROUTE_KEYS } from '../routes';
+import { ref, onMounted, onActivated } from 'vue';
+import { 
+  Network,
+  Activity,
+  Users,
+  Server,
+  Database,
+  RefreshCw,
+  Box,
+  Wifi,
+  Clock,
+  CheckCircle
+} from 'lucide-vue-next';
 import { blockHeight, refreshBlockHeight } from '../chainBus';
 
-const homeChildren = ['drive', 'wallet', 'domain'];
-const networkChildren = ['explorer', 'dao', 'release'];
-
-const topRouteKeys = computed(() =>
-  INTERNAL_ROUTE_KEYS.filter((k) => !homeChildren.includes(k) && !networkChildren.includes(k))
-);
-
-const openInNewTab = inject<(url: string) => void>('openInNewTab');
+const currentView = ref<'status' | 'peers' | 'validators' | 'ipfs'>('status');
 const latestHeight = blockHeight;
 
-function openRoute(key: string) {
-  const url = `lumen://${key}`;
-  openInNewTab?.(url);
+function getViewTitle(): string {
+  const titles: Record<string, string> = {
+    status: 'Network Status',
+    peers: 'Connected Peers',
+    validators: 'Validators',
+    ipfs: 'IPFS Node'
+  };
+  return titles[currentView.value] || 'Network';
 }
 
-function ensureHeight() {
-  void refreshBlockHeight();
+function getViewDescription(): string {
+  const descs: Record<string, string> = {
+    status: 'Overview of network health',
+    peers: 'Active peer connections',
+    validators: 'Network validators list',
+    ipfs: 'Local IPFS node status'
+  };
+  return descs[currentView.value] || '';
 }
 
-onMounted(ensureHeight);
-onActivated(ensureHeight);
+function refreshData() {
+  refreshBlockHeight();
+}
+
+onMounted(() => {
+  refreshBlockHeight();
+});
+
+onActivated(() => {
+  refreshBlockHeight();
+});
 </script>
+
+<style scoped>
+.network-page {
+  display: flex;
+  height: 100%;
+  background: #f0f2f5;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  color: #1a1a2e;
+  border-right: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1.5rem;
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 2rem 2.5rem;
+  background: #fff;
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  border-radius: 16px;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.content-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.content-header p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0.25rem 0 0 0;
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-refresh:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-icon.connected {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Content Area */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Info Section */
+.info-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.info-value {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+/* Peers */
+.peers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.peer-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.peer-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.peer-status.online {
+  background: #22c55e;
+}
+
+.peer-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.peer-id {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+  font-family: monospace;
+}
+
+.peer-location {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.peer-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Validators */
+.validators-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.validator-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.validator-rank {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.validator-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.validator-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.validator-address {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.validator-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.validator-stake {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.validator-commission {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* IPFS */
+.ipfs-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.status-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+}
+
+.status-card.connected {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.status-card.connected .status-icon {
+  color: #22c55e;
+}
+
+.status-icon {
+  margin-bottom: 1rem;
+}
+
+.status-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.status-card p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.ipfs-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 700px) {
+  .network-page {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    flex-direction: row;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  
+  .sidebar-header {
+    margin-bottom: 0;
+    margin-right: 1rem;
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  .nav-section {
+    flex-direction: row;
+  }
+  
+  .nav-label {
+    display: none;
+  }
+  
+  .nav-item span {
+    display: none;
+  }
+  
+  .main-content {
+    margin: 0 0.5rem 0.5rem 0.5rem;
+    padding: 1.5rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
