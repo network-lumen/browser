@@ -66,101 +66,144 @@
         </button>
       </header>
 
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <FileText :size="20" />
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">12</span>
-            <span class="stat-label">Active Proposals</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <Users :size="20" />
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">1,284</span>
-            <span class="stat-label">Members</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <Wallet :size="20" />
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">145.8 ETH</span>
-            <span class="stat-label">Treasury</span>
-          </div>
-        </div>
+      <!-- Loading State -->
+      <div v-if="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading governance data...</p>
       </div>
 
-      <!-- Proposals View -->
-      <div v-if="currentView === 'proposals'" class="content-area">
-        <div class="proposals-list">
-          <div class="proposal-card" v-for="i in 3" :key="i">
-            <div class="proposal-header">
-              <span class="proposal-id">#{{ 100 + i }}</span>
-              <span class="proposal-status" :class="i === 1 ? 'active' : 'passed'">
-                {{ i === 1 ? 'Active' : 'Passed' }}
-              </span>
+      <template v-else>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <FileText :size="20" />
             </div>
-            <h3 class="proposal-title">Proposal Title {{ i }}</h3>
-            <p class="proposal-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            <div class="proposal-footer">
-              <div class="proposal-votes">
-                <span class="vote-for">85% For</span>
-                <span class="vote-against">15% Against</span>
+            <div class="stat-info">
+              <span class="stat-value">{{ activeProposalsCount }}</span>
+              <span class="stat-label">Active Proposals</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <Users :size="20" />
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{ totalMembers }}</span>
+              <span class="stat-label">Validators</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <Wallet :size="20" />
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{ treasuryBalance }} LUM</span>
+              <span class="stat-label">Community Pool</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proposals View -->
+        <div v-if="currentView === 'proposals'" class="content-area">
+          <div v-if="proposals.length === 0" class="empty-state">
+            <FileText :size="48" />
+            <p>No proposals found</p>
+          </div>
+          <div v-else class="proposals-list">
+            <div class="proposal-card" v-for="proposal in proposals" :key="proposal.id">
+              <div class="proposal-header">
+                <span class="proposal-id">#{{ proposal.id }}</span>
+                <span class="proposal-status" :class="getProposalStatusClass(proposal.status)">
+                  {{ getProposalStatusText(proposal.status) }}
+                </span>
               </div>
-              <button class="btn-secondary">View Details</button>
+              <h3 class="proposal-title">{{ proposal.title }}</h3>
+              <p class="proposal-desc">{{ proposal.description.substring(0, 150) }}{{ proposal.description.length > 150 ? '...' : '' }}</p>
+              <div class="proposal-footer">
+                <div class="proposal-votes">
+                  <span class="vote-for">{{ calculateVotePercentage(proposal, 'yes').toFixed(0) }}% Yes</span>
+                  <span class="vote-against">{{ calculateVotePercentage(proposal, 'no').toFixed(0) }}% No</span>
+                </div>
+                <button class="btn-secondary" @click="openVoteModal(proposal)">
+                  {{ proposal.status === 'PROPOSAL_STATUS_VOTING_PERIOD' ? 'Vote' : 'View Details' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Voting View -->
-      <div v-else-if="currentView === 'voting'" class="content-area">
-        <div class="info-card">
-          <h3>Your Voting Power</h3>
-          <p class="voting-power">1,000 LMN</p>
-          <p class="voting-desc">Based on your token holdings</p>
+        <!-- Voting View -->
+        <div v-else-if="currentView === 'voting'" class="content-area">
+          <div class="info-card">
+            <h3>Active Voting Proposals</h3>
+            <p class="voting-desc">Select a proposal from the Proposals tab to vote</p>
+          </div>
+          <div class="proposals-list" style="margin-top: 1rem;">
+            <div 
+              class="proposal-card" 
+              v-for="proposal in proposals.filter(p => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD')" 
+              :key="proposal.id"
+            >
+              <div class="proposal-header">
+                <span class="proposal-id">#{{ proposal.id }}</span>
+                <span class="proposal-status active">Voting</span>
+              </div>
+              <h3 class="proposal-title">{{ proposal.title }}</h3>
+              <div class="proposal-footer">
+                <div class="vote-progress">
+                  <div class="progress-bar-container">
+                    <div class="progress-yes" :style="{ width: calculateVotePercentage(proposal, 'yes') + '%' }"></div>
+                  </div>
+                  <span class="progress-label">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>
+                </div>
+                <button class="btn-primary" @click="openVoteModal(proposal)">
+                  <Vote :size="16" />
+                  Vote Now
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Treasury View -->
-      <div v-else-if="currentView === 'treasury'" class="content-area">
-        <div class="treasury-list">
-          <div class="treasury-item">
-            <div class="asset-info">
-              <span class="asset-name">Ethereum (ETH)</span>
-              <span class="asset-value">145.8 ETH</span>
-            </div>
-            <span class="asset-usd">$420,000</span>
+        <!-- Treasury View -->
+        <div v-else-if="currentView === 'treasury'" class="content-area">
+          <div v-if="treasuryAssets.length === 0" class="empty-state">
+            <Wallet :size="48" />
+            <p>No treasury assets found</p>
           </div>
-          <div class="treasury-item">
-            <div class="asset-info">
-              <span class="asset-name">Lumen Token (LMN)</span>
-              <span class="asset-value">1,000,000 LMN</span>
+          <div v-else class="treasury-list">
+            <div class="treasury-item" v-for="asset in treasuryAssets" :key="asset.denom">
+              <div class="asset-info">
+                <span class="asset-name">{{ asset.displayName }}</span>
+                <span class="asset-value">{{ formatAmount(asset.amount) }} {{ asset.denom === 'ulumen' ? 'LUM' : asset.denom }}</span>
+              </div>
             </div>
-            <span class="asset-usd">$50,000</span>
           </div>
         </div>
-      </div>
 
-      <!-- Members View -->
-      <div v-else-if="currentView === 'members'" class="content-area">
-        <div class="members-list">
-          <div class="member-item" v-for="i in 5" :key="i">
-            <div class="member-avatar">{{ i }}</div>
-            <div class="member-info">
-              <span class="member-address">0x1234...abcd</span>
-              <span class="member-power">{{ 10000 - i * 1000 }} LMN</span>
+        <!-- Members View -->
+        <div v-else-if="currentView === 'members'" class="content-area">
+          <div v-if="members.length === 0" class="empty-state">
+            <Users :size="48" />
+            <p>No validators found</p>
+          </div>
+          <div v-else class="members-list">
+            <div class="member-item" v-for="(member, index) in members" :key="member.address">
+              <div class="member-rank">{{ index + 1 }}</div>
+              <div class="member-avatar" :class="{ 'has-image': member.avatar }">
+                <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" />
+                <span v-else>{{ member.moniker.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div class="member-info">
+                <span class="member-name">{{ member.moniker }}</span>
+                <span class="member-address">{{ shortenAddress(member.address) }}</span>
+              </div>
+              <div class="member-power">{{ formatTokens(member.tokens) }} LUM</div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </main>
 
     <!-- Create Proposal Modal -->
@@ -316,7 +359,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { 
   Users,
   FileText,
@@ -326,21 +369,67 @@ import {
   X
 } from 'lucide-vue-next';
 
+const lumen = (window as any).lumen;
+
 const currentView = ref<'proposals' | 'voting' | 'treasury' | 'members'>('proposals');
 
-// Modal states
 const showCreateProposalModal = ref(false);
 const showVoteModal = ref(false);
-const selectedProposal = ref<{ title: string } | null>(null);
+const selectedProposal = ref<any>(null);
 const voteChoice = ref('');
 
-// Proposal form
 const proposalForm = ref({
   title: '',
   description: '',
   category: 'governance',
   duration: '7'
 });
+
+const isLoading = ref(true);
+const rpcBase = ref('http://142.132.201.187:26657');
+const restBase = ref('http://142.132.201.187:1317');
+
+const activeProposalsCount = ref(0);
+const totalMembers = ref(0);
+const treasuryBalance = ref('0');
+
+interface Proposal {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  submitTime: string;
+  depositEndTime: string;
+  votingStartTime: string;
+  votingEndTime: string;
+  totalDeposit: string;
+  yesVotes: string;
+  noVotes: string;
+  abstainVotes: string;
+  noWithVetoVotes: string;
+  proposer: string;
+}
+
+const proposals = ref<Proposal[]>([]);
+
+interface Member {
+  address: string;
+  moniker: string;
+  tokens: string;
+  avatar?: string;
+  keybaseId?: string;
+}
+
+const members = ref<Member[]>([]);
+const avatarCache = ref<Record<string, string>>({});
+
+interface TreasuryAsset {
+  denom: string;
+  amount: string;
+  displayName: string;
+}
+
+const treasuryAssets = ref<TreasuryAsset[]>([]);
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
@@ -362,7 +451,6 @@ function getViewDescription(): string {
   return descs[currentView.value] || '';
 }
 
-// Create Proposal Modal
 function openCreateProposalModal() {
   showCreateProposalModal.value = true;
 }
@@ -381,8 +469,7 @@ function submitProposal() {
   closeCreateProposalModal();
 }
 
-// Vote Modal
-function openVoteModal(proposal?: { title: string }) {
+function openVoteModal(proposal: any) {
   selectedProposal.value = proposal || null;
   voteChoice.value = '';
   showVoteModal.value = true;
@@ -398,6 +485,219 @@ function castVote() {
   console.log('Casting vote:', voteChoice.value);
   closeVoteModal();
 }
+
+function formatAmount(amount: string, denom: string = 'ulumen'): string {
+  if (!amount) return '0';
+  const num = parseInt(amount) / 1e6;
+  if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
+  if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
+  if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`;
+  return num.toFixed(2);
+}
+
+function formatNumber(num: number): string {
+  return new Intl.NumberFormat().format(num);
+}
+
+function getProposalStatusClass(status: string): string {
+  switch (status) {
+    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'active';
+    case 'PROPOSAL_STATUS_PASSED': return 'passed';
+    case 'PROPOSAL_STATUS_REJECTED': return 'rejected';
+    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'deposit';
+    default: return 'unknown';
+  }
+}
+
+function getProposalStatusText(status: string): string {
+  switch (status) {
+    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'Voting';
+    case 'PROPOSAL_STATUS_PASSED': return 'Passed';
+    case 'PROPOSAL_STATUS_REJECTED': return 'Rejected';
+    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'Deposit';
+    case 'PROPOSAL_STATUS_FAILED': return 'Failed';
+    default: return 'Unknown';
+  }
+}
+
+function calculateVotePercentage(proposal: Proposal, voteType: 'yes' | 'no' | 'abstain' | 'noWithVeto'): number {
+  const yes = parseInt(proposal.yesVotes) || 0;
+  const no = parseInt(proposal.noVotes) || 0;
+  const abstain = parseInt(proposal.abstainVotes) || 0;
+  const veto = parseInt(proposal.noWithVetoVotes) || 0;
+  const total = yes + no + abstain + veto;
+  
+  if (total === 0) return 0;
+  
+  switch (voteType) {
+    case 'yes': return (yes / total) * 100;
+    case 'no': return (no / total) * 100;
+    case 'abstain': return (abstain / total) * 100;
+    case 'noWithVeto': return (veto / total) * 100;
+    default: return 0;
+  }
+}
+
+function shortenAddress(address: string): string {
+  if (!address) return '';
+  if (address.length <= 16) return address;
+  return `${address.substring(0, 10)}...${address.substring(address.length - 6)}`;
+}
+
+function formatTokens(tokens: string): string {
+  if (!tokens) return '0';
+  const num = parseInt(tokens) / 1e6;
+  if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+  if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+  return num.toFixed(0);
+}
+
+async function fetchProposals() {
+  if (!lumen?.http?.get) return;
+  
+  try {
+    const res = await lumen.http.get(`${restBase.value}/cosmos/gov/v1beta1/proposals`);
+    
+    if (res.ok && res.json?.proposals) {
+      const rawProposals = res.json.proposals;
+      
+      proposals.value = rawProposals.map((p: any) => ({
+        id: p.proposal_id,
+        title: p.content?.title || `Proposal #${p.proposal_id}`,
+        description: p.content?.description || '',
+        status: p.status,
+        submitTime: p.submit_time,
+        depositEndTime: p.deposit_end_time,
+        votingStartTime: p.voting_start_time,
+        votingEndTime: p.voting_end_time,
+        totalDeposit: p.total_deposit?.[0]?.amount || '0',
+        yesVotes: p.final_tally_result?.yes || '0',
+        noVotes: p.final_tally_result?.no || '0',
+        abstainVotes: p.final_tally_result?.abstain || '0',
+        noWithVetoVotes: p.final_tally_result?.no_with_veto || '0',
+        proposer: p.proposer || ''
+      })).reverse(); // Newest first
+      
+      activeProposalsCount.value = proposals.value.filter(
+        p => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD' || p.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD'
+      ).length;
+    }
+  } catch (e) {
+    console.error('Failed to fetch proposals:', e);
+  }
+}
+
+async function fetchMembers() {
+  if (!lumen?.http?.get) return;
+  
+  try {
+    const res = await lumen.http.get(
+      `${restBase.value}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
+    );
+    
+    if (res.ok && res.json?.validators) {
+      const validators = res.json.validators;
+      
+      members.value = validators
+        .sort((a: any, b: any) => {
+          const tokensA = BigInt(a.tokens || '0');
+          const tokensB = BigInt(b.tokens || '0');
+          return tokensB > tokensA ? 1 : tokensB < tokensA ? -1 : 0;
+        })
+        .map((v: any) => ({
+          address: v.operator_address,
+          moniker: v.description?.moniker || 'Unknown',
+          tokens: v.tokens || '0',
+          avatar: avatarCache.value[v.description?.identity] || null,
+          keybaseId: v.description?.identity || null
+        }));
+      
+      totalMembers.value = validators.length;
+      
+      fetchKeybaseAvatars();
+    }
+  } catch (e) {
+    console.error('Failed to fetch members:', e);
+  }
+}
+
+async function fetchKeybaseAvatars() {
+  const membersWithKeybase = members.value.filter(m => m.keybaseId && !avatarCache.value[m.keybaseId]);
+  
+  for (const member of membersWithKeybase) {
+    if (!member.keybaseId) continue;
+    
+    try {
+      const response = await fetch(
+        `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${member.keybaseId}`
+      );
+      const data = await response.json();
+      
+      if (data?.them?.[0]?.pictures?.primary?.url) {
+        const avatarUrl = data.them[0].pictures.primary.url;
+        avatarCache.value[member.keybaseId] = avatarUrl;
+        
+        const memberIndex = members.value.findIndex(m => m.keybaseId === member.keybaseId);
+        if (memberIndex !== -1) {
+          members.value[memberIndex].avatar = avatarUrl;
+        }
+      }
+    } catch (e) {
+      console.log(`Failed to fetch Keybase avatar for ${member.moniker}`);
+    }
+  }
+}
+
+async function fetchTreasury() {
+  if (!lumen?.http?.get) return;
+  
+  try {
+    const res = await lumen.http.get(`${restBase.value}/cosmos/distribution/v1beta1/community_pool`);
+    
+    if (res.ok && res.json?.pool) {
+      treasuryAssets.value = res.json.pool.map((asset: any) => ({
+        denom: asset.denom,
+        amount: asset.amount?.split('.')[0] || '0', // Remove decimals
+        displayName: asset.denom === 'ulumen' ? 'Lumen (LUM)' : asset.denom
+      }));
+      
+      const lumAsset = treasuryAssets.value.find(a => a.denom === 'ulumen');
+      if (lumAsset) {
+        treasuryBalance.value = formatAmount(lumAsset.amount);
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch treasury:', e);
+  }
+}
+
+async function fetchAllData() {
+  isLoading.value = true;
+  
+  try {
+    await Promise.all([
+      fetchProposals(),
+      fetchMembers(),
+      fetchTreasury()
+    ]);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+onMounted(() => {
+  fetchAllData();
+  
+  refreshInterval = setInterval(fetchAllData, 30000);
+});
+
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
 </script>
 
 <style scoped>
@@ -565,6 +865,46 @@ function castVote() {
   color: var(--text-primary, #1e293b);
 }
 
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.loading-state .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color, #e2e8f0);
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-tertiary, #94a3b8);
+  text-align: center;
+}
+
+.empty-state svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
 /* Stats Grid */
 .stats-grid {
   display: grid;
@@ -656,6 +996,21 @@ function castVote() {
 .proposal-status.passed {
   background: #dcfce7;
   color: #16a34a;
+}
+
+.proposal-status.rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.proposal-status.deposit {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.proposal-status.unknown {
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-secondary, #64748b);
 }
 
 .proposal-title {
@@ -774,11 +1129,30 @@ function castVote() {
   background: var(--bg-primary, white);
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.member-item:hover {
+  background: var(--hover-bg, #f1f5f9);
+}
+
+.member-rank {
+  min-width: 24px;
+  height: 24px;
+  background: var(--bg-tertiary, #f0f2f5);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
 }
 
 .member-avatar {
   width: 40px;
   height: 40px;
+  min-width: 40px;
   background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   border-radius: 50%;
   display: flex;
@@ -786,21 +1160,69 @@ function castVote() {
   justify-content: center;
   color: white;
   font-weight: 600;
+  overflow: hidden;
+}
+
+.member-avatar.has-image {
+  background: transparent;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .member-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
-.member-address {
+.member-name {
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary, #1e293b);
 }
 
+.member-address {
+  font-size: 0.75rem;
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: var(--text-tertiary, #94a3b8);
+}
+
 .member-power {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3498db;
+  white-space: nowrap;
+}
+
+/* Vote Progress */
+.vote-progress {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.progress-bar-container {
+  height: 6px;
+  background: var(--border-color, #e2e8f0);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-yes {
+  height: 100%;
+  background: linear-gradient(90deg, #25bb8d, #10b981);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-size: 0.75rem;
   color: var(--text-secondary, #64748b);
 }
 
