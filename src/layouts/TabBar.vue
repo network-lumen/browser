@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, provide } from 'vue';
 import NavBar from './NavBar.vue';
 import { resolveInternalComponent, getInternalTitle } from '../internal/routes';
 
@@ -54,6 +54,9 @@ function currentUrl(): string {
   const t = activeTab.value;
   return t?.url || 'lumen://home';
 }
+
+// Provide current URL to child components
+provide('currentTabUrl', computed(() => currentUrl()));
 
 function normalizeInternalUrl(raw: string): string {
   const v = String(raw || '').trim();

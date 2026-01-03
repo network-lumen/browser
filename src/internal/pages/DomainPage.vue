@@ -339,19 +339,16 @@
   const domainsLoading = ref(false);
   const domainsError = ref('');
   
-  // Modal states
   const showRegisterModal = ref(false);
   const showSettingsModal = ref(false);
   const selectedDomain = ref<DomainRow | null>(null);
   const domainAvailable = ref(true);
   
-  // Register form
   const registerForm = ref({
     domainName: '',
     years: '1'
   });
   
-  // Settings form (preview only)
   const settingsForm = ref({
     ipfsHash: ''
   });
@@ -560,7 +557,6 @@
     closeRegisterModal();
   }
   
-  // Settings Modal
   function openSettingsModal(domain?: DomainRow) {
     selectedDomain.value = domain || null;
     showSettingsModal.value = true;

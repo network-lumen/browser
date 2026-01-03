@@ -601,7 +601,6 @@ const isDragging = ref(false);
 const toast = ref('');
 const toastType = ref<'success' | 'error'>('success');
 
-// Modal states
 const showShareModal = ref(false);
 const shareFile = ref<DriveFile | null>(null);
 const showPermalinkModal = ref(false);
@@ -897,7 +896,6 @@ function showToast(msg: string, type: 'success' | 'error' = 'success') {
   }, 2500);
 }
 
-// Modal functions
 function openShareModal(file: DriveFile) {
   shareFile.value = file;
   showShareModal.value = true;
@@ -919,7 +917,6 @@ async function openPermalinkModal(file: DriveFile) {
   permalinkResult.value = null;
   selectedPermalinkKey.value = 'self';
   
-  // Load IPNS keys
   try {
     const anyWindow: any = window;
     const result = await anyWindow.lumen?.ipfsKeyList();

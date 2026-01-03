@@ -6,6 +6,7 @@ import GatewaysPage from './pages/GatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
 import ExplorerPage from './pages/ExplorerPage.vue';
+import BlockDetailPage from './pages/BlockDetailPage.vue';
 import DaoPage from './pages/DaoPage.vue';
 import ReleasePage from './pages/ReleasePage.vue';
 import WalletPage from './pages/WalletPage.vue';
@@ -28,6 +29,7 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
   explorer: { component: ExplorerPage, title: 'Explorer' },
+  block: { component: BlockDetailPage, title: 'Block Details' },
   dao: { component: DaoPage, title: 'DAO' },
   release: { component: ReleasePage, title: 'Release' },
   help: { component: HelpPage, title: 'Help' }

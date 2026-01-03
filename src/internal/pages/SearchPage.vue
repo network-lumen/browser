@@ -113,16 +113,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { Search, Globe, FileText, Hash } from 'lucide-vue-next';
 
 const currentFilter = ref<'all' | 'files' | 'domains'>('all');
 const searchQuery = ref('');
 const hasSearched = ref(false);
 
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+
 function performSearch() {
-  if (searchQuery.value.trim()) {
+  const query = searchQuery.value.trim();
+  if (!query) return;
+  
+  hasSearched.value = true;
+  
+  if (/^\d+$/.test(query)) {
+    const height = parseInt(query);
+    navigateToBlock(height);
+  }
+  else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
+    navigateToTransaction(query.toUpperCase());
+  }
+  else if (/^lmn1[a-z0-9]{38,}$/.test(query)) {
+    navigateToAddress(query);
+  }
+  else {
     hasSearched.value = true;
+  }
+}
+
+function navigateToBlock(height: number) {
+  if (openInNewTab) {
+    openInNewTab(`lumen://explorer/block/${height}`);
+  } else {
+    window.location.href = `lumen://explorer/block/${height}`;
+  }
+}
+
+function navigateToTransaction(hash: string) {
+  if (openInNewTab) {
+    openInNewTab(`lumen://explorer/tx/${hash}`);
+  } else {
+    window.location.href = `lumen://explorer/tx/${hash}`;
+  }
+}
+
+function navigateToAddress(address: string) {
+  if (openInNewTab) {
+    openInNewTab(`lumen://explorer/address/${address}`);
+  } else {
+    window.location.href = `lumen://explorer/address/${address}`;
   }
 }
 </script>

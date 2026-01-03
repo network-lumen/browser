@@ -213,7 +213,6 @@ const { theme, setTheme } = useTheme();
 const fontSize = ref('medium');
 const blockTrackers = ref(true);
 
-// Watch theme changes and apply
 watch(theme, (newTheme) => {
   setTheme(newTheme);
 });
