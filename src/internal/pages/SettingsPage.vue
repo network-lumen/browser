@@ -262,7 +262,6 @@ const exportingBackup = ref(false);
 const importingBackup = ref(false);
 const hasActiveProfile = computed(() => !!activeProfileId.value);
 
-// Watch theme changes and apply
 watch(theme, (newTheme) => {
   setTheme(newTheme);
 });

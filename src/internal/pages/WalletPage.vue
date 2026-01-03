@@ -460,11 +460,9 @@ const currentView = ref<'overview' | 'tokens' | 'transactions'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
 
-// Profiles / wallet
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 
-// Prefer explicit address (browser/browser semantics), fall back to walletAddress for older entries.
 const address = computed(() => {
   const p: any = activeProfile.value as any;
   return (p && (p.address || p.walletAddress)) || '';
@@ -474,17 +472,14 @@ const balanceLmn = ref<number | null>(null);
 const balanceLoading = ref(false);
 const balanceError = ref('');
 
-// Modal states
 const showSendModal = ref(false);
 const showReceiveModal = ref(false);
 const sendingTransaction = ref(false);
 
-// Activities
 const activities = ref<Activity[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref('');
 
-// Send form (preview)
 const sendForm = ref({
   recipient: '',
   amount: '',
@@ -493,7 +488,6 @@ const sendForm = ref({
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
-// Toast notification
 const toastVisible = ref(false);
 const toastMessage = ref('');
 const toastType = ref<'success' | 'error'>('success');
@@ -512,28 +506,23 @@ const balanceLmnDisplay = computed(() => {
   return balanceLmn.value.toFixed(6);
 });
 
-// Enhance activities with proper send/receive detection
 const enhancedActivities = computed(() => {
   const userAddr = address.value?.toLowerCase();
   if (!userAddr) return activities.value;
   
   return activities.value.map(tx => {
-    // Get from and to with proper fallback
     const fromAddr = tx.from || tx.sender;
     const toAddr = tx.to || tx.recipient;
     
     const from = fromAddr?.toLowerCase();
     const to = toAddr?.toLowerCase();
     
-    // Always determine type based on addresses, ignore the original type field
     let actualType: ActivityType = tx.type || 'unknown';
     
     if (from && to) {
       if (to === userAddr) {
-        // If money is coming TO our address, it's a receive
         actualType = 'receive';
       } else if (from === userAddr) {
-        // If money is coming FROM our address, it's a send
         actualType = 'send';
       }
     }
@@ -596,8 +585,6 @@ async function refreshActivities() {
 }
 
 function connectWallet() {
-  // In this shell, the wallet address is attached to the active profile.
-  // If a profile exists and has a walletAddress, we treat the wallet as connected.
   if (!address.value) {
     window.alert('Create or select a profile first in the top navigation.');
     return;
@@ -635,7 +622,6 @@ async function refreshWallet() {
     const amt = Number(res.balance?.amount ?? '0') || 0;
     balanceLmn.value = amt / 1_000_000;
 
-    // Refresh tokenomics params (including tx_tax_rate) at the same time.
     try {
       if (typeof walletApi.getTokenomicsParams === 'function') {
         const tRes = await walletApi.getTokenomicsParams();
@@ -646,7 +632,6 @@ async function refreshWallet() {
         }
       }
     } catch {
-      // Ignore tokenomics errors; fee preview will fall back to 0.
     }
   } catch (e) {
     console.error('[wallet] refreshWallet error', e);
@@ -691,7 +676,6 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
 }
 
 function openExplorer(txHash: string) {
-  // Open transaction in explorer - adjust URL based on your blockchain explorer
   const explorerUrl = `https://explorer.lumen.network/tx/${txHash}`;
   window.open(explorerUrl, '_blank');
 }
@@ -813,11 +797,9 @@ async function copyAddress() {
   try {
     await navigator.clipboard.writeText(address.value);
   } catch {
-    // ignore copy errors
   }
 }
 
-// Auto-mark wallet as connected if profile already has an attached address
 watchEffect(() => {
   if (address.value && !isConnected.value) {
     isConnected.value = true;
