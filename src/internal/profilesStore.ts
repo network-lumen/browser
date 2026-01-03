@@ -5,6 +5,8 @@ export type Profile = {
   name: string;
   colorIndex: number;
   role?: 'guest' | 'user';
+  walletAddress?: string;
+  address?: string;
 };
 
 declare global {
