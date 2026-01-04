@@ -33,6 +33,10 @@ type CacheEntry = { data: Activity[]; expiresAt: number };
 const ACTIVITIES_TTL_MS = 30_000;
 const activitiesCache = new Map<string, CacheEntry>();
 
+export function clearActivitiesCache() {
+  activitiesCache.clear();
+}
+
 function toActivityType(t: any): ActivityType {
   const s = String(t ?? '').toLowerCase();
   const known: ActivityType[] = [

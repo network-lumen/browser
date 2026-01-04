@@ -23,6 +23,16 @@ declare global {
         importBackup?: () => Promise<{ ok: boolean; selectedId?: string; error?: string } | null>;
         delete: (id: string) => Promise<{ profiles: Profile[]; activeId: string }>;
       };
+      staking?: {
+        getDelegations: (profileId: string) => Promise<any>;
+        getValidators: (profileId: string) => Promise<any>;
+        getBalance: (profileId: string) => Promise<any>;
+        delegate: (profileId: string, validatorAddress: string, amount: string) => Promise<any>;
+        undelegate: (profileId: string, validatorAddress: string, amount: string) => Promise<any>;
+        claimRewards: (profileId: string, validatorAddress: string) => Promise<any>;
+        claimAllRewards: (profileId: string) => Promise<any>;
+        redelegate: (profileId: string, fromValidator: string, toValidator: string, amount: string) => Promise<any>;
+      };
     };
   }
 }
@@ -33,6 +43,11 @@ function getApi() {
 
 export const profilesState = ref<Profile[]>([]);
 export const activeProfileId = ref<string>('');
+
+export function getActiveProfile(): Profile | null {
+  if (!activeProfileId.value) return null;
+  return profilesState.value.find((p) => p.id === activeProfileId.value) || null;
+}
 
 export async function initProfiles() {
   try {

@@ -63,21 +63,52 @@
     --card-bg: #ffffff;
     --sidebar-bg: #ffffff;
     --hover-bg: #f1f5f9;
+    
+    /* Accent colors - same for both themes */
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Dark mode */
+/* Dark mode - Modern blockchain explorer style */
 :root.dark {
-    --bg-primary: #1e293b;
-    --bg-secondary: #0f172a;
-    --bg-tertiary: #0a0f1a;
-    --text-primary: #f1f5f9;
-    --text-secondary: #e2e8f0;
-    --text-tertiary: #cbd5e1;
-    --border-color: #475569;
-    --border-light: #334155;
-    --card-bg: #1e293b;
-    --sidebar-bg: #1e293b;
-    --hover-bg: #334155;
+    /* Main backgrounds - deep navy/black */
+    --bg-primary: #0f1419;
+    --bg-secondary: #1a1f2e;
+    --bg-tertiary: #0a0e1a;
+    
+    /* Text colors */
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --text-tertiary: #64748b;
+    
+    /* Borders - subtle dark */
+    --border-color: #1e2532;
+    --border-light: #1a1f2e;
+    
+    /* Cards and panels */
+    --card-bg: #1a1f2e;
+    --sidebar-bg: #0f1419;
+    
+    /* Hover states */
+    --hover-bg: #252b3b;
+    
+    /* Accent colors */
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --success-green: #10b981;
+    --warning-orange: #f59e0b;
+    
+    /* Shadows for depth */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 /* Force body and html to use theme colors */
@@ -89,4 +120,165 @@ html, body {
 #app {
     background-color: var(--bg-tertiary);
     min-height: 100vh;
+}
+
+/* Utility Classes for Modern UI Components */
+
+/* Badge Styles */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.badge-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-orange);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--accent-blue);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Circular Progress */
+.progress-circle {
+    position: relative;
+    width: 48px;
+    height: 48px;
+}
+
+.progress-circle svg {
+    transform: rotate(-90deg);
+}
+
+.progress-circle circle {
+    fill: none;
+    stroke-width: 4;
+}
+
+.progress-circle .progress-bg {
+    stroke: var(--border-color);
+}
+
+.progress-circle .progress-bar {
+    stroke: var(--accent-blue);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s ease;
+}
+
+/* Card with hover effect */
+.card-hover {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--accent-blue);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Score badges like in the image */
+.score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--warning-orange) 0%, #ea580c 100%);
+    color: white;
+}
+
+.score-badge.high {
+    background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+}
+
+/* Stats display */
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.stat-change.positive {
+    color: var(--success-green);
+}
+
+.stat-change.negative {
+    color: var(--red-base);
+}
+
+/* Search input dark style */
+.search-input-dark {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.search-input-dark:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input-dark::placeholder {
+    color: var(--text-tertiary);
+}
+
+/* Button variants */
+.btn-primary-dark {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary-dark:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Table row hover effect */
+.table-row-hover {
+    transition: background-color 0.15s ease;
+}
+
+.table-row-hover:hover {
+    background-color: var(--hover-bg);
 }

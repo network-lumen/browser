@@ -12,6 +12,8 @@ import ReleasePage from './pages/ReleasePage.vue';
 import WalletPage from './pages/WalletPage.vue';
 import DomainPage from './pages/DomainPage.vue';
 import NewTabPage from './pages/NewTabPage.vue';
+import TransactionDetailPage from './pages/TransactionDetailPage.vue';
+import AddressDetailPage from './pages/AddressDetailPage.vue';
 
 type InternalRoute = {
   component: any;
@@ -30,6 +32,9 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   gateways: { component: GatewaysPage, title: 'Gateways' },
   explorer: { component: ExplorerPage, title: 'Explorer' },
   block: { component: BlockDetailPage, title: 'Block Details' },
+  transaction: { component: TransactionDetailPage, title: 'Transaction Details' },
+  tx: { component: TransactionDetailPage, title: 'Transaction Details' },
+  address: { component: AddressDetailPage, title: 'Address Details' },
   dao: { component: DaoPage, title: 'DAO' },
   release: { component: ReleasePage, title: 'Release' },
   help: { component: HelpPage, title: 'Help' }
@@ -47,6 +52,25 @@ function parseInternalKey(rawUrl: string): string {
 }
 
 export const INTERNAL_ROUTE_KEYS = Object.keys(INTERNAL_ROUTES);
+
+export const ALL_COMPONENTS = [
+  HomePage,
+  SearchPage,
+  SettingsPage,
+  DrivePage,
+  GatewaysPage,
+  HelpPage,
+  NetworkPage,
+  ExplorerPage,
+  BlockDetailPage,
+  TransactionDetailPage,
+  AddressDetailPage,
+  DaoPage,
+  ReleasePage,
+  WalletPage,
+  DomainPage,
+  NewTabPage
+];
 
 export function resolveInternalComponent(rawUrl: string) {
   const key = parseInternalKey(rawUrl);

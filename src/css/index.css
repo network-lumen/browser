@@ -17,6 +17,24 @@ html, body {
   color: var(--text-primary);
 }
 
+/* Font Size Settings */
+:root[data-font-size="small"] {
+  font-size: 14px;
+}
+
+:root[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+:root[data-font-size="large"] {
+  font-size: 18px;
+}
+
+/* Default font size */
+:root {
+  font-size: 16px;
+}
+
 #app {
   width: 100%;
   height: 100%;
