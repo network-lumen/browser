@@ -57,6 +57,10 @@ function currentUrl(): string {
 
 // Provide current URL to child components
 provide('currentTabUrl', computed(() => currentUrl()));
+// Provide in-tab navigation to internal pages
+provide('navigate', (url: string, opts?: { push?: boolean }) => {
+  navigateInternal(url, opts || {});
+});
 
 function normalizeInternalUrl(raw: string): string {
   const v = String(raw || '').trim();

@@ -131,8 +131,6 @@ async function checkIpfsStatus(retries = 3, delay = 1000) {
 async function ipfsAdd(data, filename) {
   try {
     console.log('[electron][ipfs] adding file:', filename, 'size:', data?.length || 0);
-    const FormData = (await import('node:buffer')).Blob ? global.FormData : require('form-data');
-    
     // Create multipart form data
     const boundary = '----LumenIPFS' + Date.now();
     const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename || 'file'}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
@@ -166,12 +164,107 @@ async function ipfsAdd(data, filename) {
   }
 }
 
+function sanitizeDirectoryName(name) {
+  const raw = String(name ?? '').trim();
+  const cleaned = raw
+    .replace(/^[\\\/]+/, '')
+    .replace(/[\\\/]+$/, '')
+    .replace(/[:*?"<>|]/g, '_')
+    .replace(/\s+/g, ' ')
+    .slice(0, 80);
+  return cleaned || 'folder';
+}
+
+function sanitizeRelativePath(p) {
+  const raw = String(p ?? '').trim().replace(/\\/g, '/');
+  const cleaned = raw.replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!cleaned) throw new Error('Empty file path');
+  if (cleaned.length > 500) throw new Error('File path too long');
+  const segments = cleaned.split('/').filter(Boolean);
+  if (segments.some((s) => s === '.' || s === '..')) throw new Error('Invalid path');
+  return segments.map((seg) => seg.replace(/[:*?"<>|]/g, '_')).join('/');
+}
+
+async function ipfsAddDirectory(payload) {
+  try {
+    const rootName = sanitizeDirectoryName(payload?.rootName);
+    const filesRaw = Array.isArray(payload?.files) ? payload.files : [];
+    if (!filesRaw.length) return { ok: false, error: 'no_files' };
+
+    const boundary = '----LumenIPFS' + Date.now();
+    const parts = [];
+    let totalBytes = 0;
+
+    for (const f of filesRaw) {
+      const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
+      const fullName = `${rootName}/${rel}`;
+      const dataArr = Array.isArray(f?.data) ? f.data : null;
+      if (!dataArr) throw new Error('Missing file data');
+
+      const dataBuf = Buffer.from(Uint8Array.from(dataArr));
+      totalBytes += dataBuf.length;
+      if (totalBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
+
+      const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
+      const footer = `\r\n`;
+      parts.push(Buffer.from(header, 'utf8'));
+      parts.push(dataBuf);
+      parts.push(Buffer.from(footer, 'utf8'));
+    }
+
+    parts.push(Buffer.from(`--${boundary}--\r\n`, 'utf8'));
+    const body = Buffer.concat(parts);
+
+    const url = new URL('http://127.0.0.1:5001/api/v0/add');
+    url.searchParams.set('pin', 'true');
+    url.searchParams.set('wrap-with-directory', 'true');
+
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` },
+      body
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn('[electron][ipfs] add directory failed:', res.status, errText);
+      return { ok: false, error: 'http_' + res.status };
+    }
+
+    const text = await res.text().catch(() => '');
+    const lines = String(text)
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    const entries = [];
+    for (const line of lines) {
+      try {
+        const j = JSON.parse(line);
+        if (j && j.Hash) entries.push({ cid: j.Hash, name: j.Name, size: j.Size });
+      } catch {
+        // ignore bad lines
+      }
+    }
+
+    const last = entries[entries.length - 1] || null;
+    const rootCid = last?.cid ? String(last.cid) : '';
+    if (!rootCid) return { ok: false, error: 'no_root_cid' };
+
+    console.log('[electron][ipfs] add directory success:', rootCid, 'name:', rootName, 'files:', filesRaw.length);
+    return { ok: true, cid: rootCid, name: rootName, entries };
+  } catch (e) {
+    console.error('[electron][ipfs] add directory error:', e);
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
 async function ipfsGet(cid) {
   try {
     console.log('[electron][ipfs] getting file:', cid);
-    const res = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${cid}`, {
-      method: 'POST'
-    });
+    const url = new URL('http://127.0.0.1:5001/api/v0/cat');
+    url.searchParams.set('arg', String(cid ?? ''));
+    const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {
       console.warn('[electron][ipfs] get failed:', res.status);
@@ -207,12 +300,78 @@ async function ipfsPinList() {
   }
 }
 
+async function ipfsPinAdd(cidOrPath) {
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    console.log('[electron][ipfs] pin add:', arg);
+    const url = new URL('http://127.0.0.1:5001/api/v0/pin/add');
+    url.searchParams.set('arg', arg);
+    url.searchParams.set('recursive', 'true');
+    const res = await fetch(url.toString(), { method: 'POST' });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn('[electron][ipfs] pin add failed:', res.status, errText);
+      return { ok: false, error: 'http_' + res.status };
+    }
+
+    await res.text().catch(() => '');
+    return { ok: true };
+  } catch (e) {
+    console.error('[electron][ipfs] pin add error:', e);
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+function sanitizeCidOrPath(input) {
+  const s = String(input ?? '').trim();
+  if (!s) throw new Error('Empty CID or path');
+  if (/^\/ipfs\//i.test(s) || /^\/ipns\//i.test(s)) return s;
+  if (/^ipfs\//i.test(s) || /^ipns\//i.test(s)) return '/' + s;
+  if (s.length > 1024) throw new Error('CID/path too long');
+  return s;
+}
+
+function mapLsObject(obj) {
+  const type = obj?.Type === 1 ? 'dir' : obj?.Type === 2 ? 'file' : 'unknown';
+  return {
+    cid: String(obj?.Hash ?? ''),
+    name: String(obj?.Name ?? ''),
+    size: typeof obj?.Size === 'number' ? obj.Size : null,
+    type,
+  };
+}
+
+async function ipfsLs(cidOrPath) {
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    const url = new URL('http://127.0.0.1:5001/api/v0/ls');
+    url.searchParams.set('arg', arg);
+    url.searchParams.set('resolve-type', 'true');
+    const res = await fetch(url.toString(), { method: 'POST' });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(text || `http_${res.status}`);
+    }
+    const data = await res.json().catch(() => null);
+    const list =
+      Array.isArray(data?.Objects) && data.Objects.length
+        ? (data.Objects[0]?.Links ?? []).map(mapLsObject)
+        : Array.isArray(data?.Links)
+          ? data.Links.map(mapLsObject)
+          : [];
+    return { ok: true, entries: list };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
 async function ipfsUnpin(cid) {
   try {
     console.log('[electron][ipfs] unpinning:', cid);
-    const res = await fetch(`http://127.0.0.1:5001/api/v0/pin/rm?arg=${cid}`, {
-      method: 'POST'
-    });
+    const url = new URL('http://127.0.0.1:5001/api/v0/pin/rm');
+    url.searchParams.set('arg', String(cid ?? ''));
+    const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {
       console.warn('[electron][ipfs] unpin failed:', res.status);
@@ -252,9 +411,10 @@ async function ipfsStats() {
 async function ipfsPublishToIPNS(cid, key = 'self') {
   try {
     console.log('[electron][ipfs] publishing to IPNS:', cid, 'key:', key);
-    const res = await fetch(`http://127.0.0.1:5001/api/v0/name/publish?arg=/ipfs/${cid}&key=${key}`, {
-      method: 'POST'
-    });
+    const url = new URL('http://127.0.0.1:5001/api/v0/name/publish');
+    url.searchParams.set('arg', `/ipfs/${String(cid ?? '')}`);
+    url.searchParams.set('key', String(key ?? 'self'));
+    const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
@@ -274,9 +434,9 @@ async function ipfsPublishToIPNS(cid, key = 'self') {
 async function ipfsResolveIPNS(name) {
   try {
     console.log('[electron][ipfs] resolving IPNS:', name);
-    const res = await fetch(`http://127.0.0.1:5001/api/v0/name/resolve?arg=${name}`, {
-      method: 'POST'
-    });
+    const url = new URL('http://127.0.0.1:5001/api/v0/name/resolve');
+    url.searchParams.set('arg', String(name ?? ''));
+    const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
@@ -315,9 +475,11 @@ async function ipfsKeyList() {
 async function ipfsKeyGen(name) {
   try {
     console.log('[electron][ipfs] generating key:', name);
-    const res = await fetch(`http://127.0.0.1:5001/api/v0/key/gen?arg=${name}&type=rsa&size=2048`, {
-      method: 'POST'
-    });
+    const url = new URL('http://127.0.0.1:5001/api/v0/key/gen');
+    url.searchParams.set('arg', String(name ?? ''));
+    url.searchParams.set('type', 'rsa');
+    url.searchParams.set('size', '2048');
+    const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
@@ -334,6 +496,24 @@ async function ipfsKeyGen(name) {
   }
 }
 
+async function ipfsSwarmPeers() {
+  try {
+    const res = await fetch('http://127.0.0.1:5001/api/v0/swarm/peers?enc=json', {
+      method: 'POST'
+    });
+
+    if (!res.ok) {
+      return { ok: false, error: 'http_' + res.status };
+    }
+
+    const json = await res.json();
+    const peers = Array.isArray(json.Peers) ? json.Peers : [];
+    return { ok: true, peers };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
 function stopIpfsDaemon() {
   if (ipfsProcess && !ipfsProcess.killed) {
     try { ipfsProcess.kill(); } catch {}
@@ -345,13 +525,16 @@ module.exports = {
   checkIpfsStatus,
   stopIpfsDaemon,
   ipfsAdd,
+  ipfsAddDirectory,
   ipfsGet,
+  ipfsLs,
   ipfsPinList,
+  ipfsPinAdd,
   ipfsUnpin,
   ipfsStats,
   ipfsPublishToIPNS,
   ipfsResolveIPNS,
   ipfsKeyList,
-  ipfsKeyGen
+  ipfsKeyGen,
+  ipfsSwarmPeers
 };
-

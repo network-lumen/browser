@@ -3,17 +3,22 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('lumen', {
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
+  ipfsAddDirectory: (payload) => ipcRenderer.invoke('ipfs:addDirectory', payload || {}),
   ipfsGet: (cid) => ipcRenderer.invoke('ipfs:get', cid),
+  ipfsLs: (cidOrPath) => ipcRenderer.invoke('ipfs:ls', cidOrPath),
   ipfsPinList: () => ipcRenderer.invoke('ipfs:pinList'),
+  ipfsPinAdd: (cidOrPath) => ipcRenderer.invoke('ipfs:pinAdd', cidOrPath),
   ipfsUnpin: (cid) => ipcRenderer.invoke('ipfs:unpin', cid),
   ipfsStats: () => ipcRenderer.invoke('ipfs:stats'),
   ipfsPublishToIPNS: (cid, key) => ipcRenderer.invoke('ipfs:publishToIPNS', cid, key),
   ipfsResolveIPNS: (name) => ipcRenderer.invoke('ipfs:resolveIPNS', name),
   ipfsKeyList: () => ipcRenderer.invoke('ipfs:keyList'),
   ipfsKeyGen: (name) => ipcRenderer.invoke('ipfs:keyGen', name),
+  ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),
+  httpHead: (url, options) => ipcRenderer.invoke('http:head', url, options || {}),
   http: {
     get: (url, options) => ipcRenderer.invoke('http:get', url, options || {})
   },
@@ -62,11 +67,19 @@ contextBridge.exposeInMainWorld('lumen', {
     sendTokens: (payload) => ipcRenderer.invoke('wallet:sendTokens', payload),
     listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) })
   },
-  addressBook: {
-    list: () => ipcRenderer.invoke('addressbook:list'),
-    add: (contact) => ipcRenderer.invoke('addressbook:add', contact),
-    update: (id, updates) => ipcRenderer.invoke('addressbook:update', id, updates),
-    delete: (id) => ipcRenderer.invoke('addressbook:delete', id)
+  gateway: {
+    getWalletUsage: (profileId, baseUrl) =>
+      ipcRenderer.invoke('gateway:getWalletUsage', { profileId, baseUrl }),
+    getWalletPinnedCids: (profileId, baseUrl, page) =>
+      ipcRenderer.invoke('gateway:getWalletPinnedCids', { profileId, baseUrl, page }),
+    getBaseUrl: (profileId, baseUrl) =>
+      ipcRenderer.invoke('gateway:getBaseUrl', { profileId, baseUrl }),
+    getPlansOverview: (profileId, options) =>
+      ipcRenderer.invoke('gateway:getPlansOverview', { profileId, ...(options || {}) }),
+    searchPq: (payload) => ipcRenderer.invoke('gateway:searchPq', payload || {}),
+    pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
+    subscribePlan: (payload) =>
+      ipcRenderer.invoke('gateway:subscribePlan', payload || {})
   }
 });
 

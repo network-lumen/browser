@@ -1,18 +1,18 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsGet, ipfsPinList, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
 const { registerProfilesIpc } = require('./ipc/profiles.cjs');
 const { registerWalletIpc } = require('./ipc/wallet.cjs');
-const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.cjs');
+const { registerGatewayIpc } = require('./ipc/gateway.cjs');
 
 registerChainIpc();
 registerProfilesIpc();
 registerHttpIpc();
 registerWalletIpc();
-registerAddressBookIpc();
+registerGatewayIpc();
 
 function isDevtoolsToggle(input) {
   const key = String(input && input.key ? input.key : '').toUpperCase();
@@ -31,13 +31,28 @@ ipcMain.handle('ipfs:add', async (_evt, data, filename) => {
   return ipfsAdd(data, filename);
 });
 
+ipcMain.handle('ipfs:addDirectory', async (_evt, payload) => {
+  console.log('[electron][ipc] ipfs:addDirectory requested');
+  return ipfsAddDirectory(payload);
+});
+
 ipcMain.handle('ipfs:get', async (_evt, cid) => {
   console.log('[electron][ipc] ipfs:get requested:', cid);
   return ipfsGet(cid);
 });
 
+ipcMain.handle('ipfs:ls', async (_evt, cidOrPath) => {
+  console.log('[electron][ipc] ipfs:ls requested:', cidOrPath);
+  return ipfsLs(cidOrPath);
+});
+
 ipcMain.handle('ipfs:pinList', async () => {
   return ipfsPinList();
+});
+
+ipcMain.handle('ipfs:pinAdd', async (_evt, cidOrPath) => {
+  console.log('[electron][ipc] ipfs:pinAdd requested:', cidOrPath);
+  return ipfsPinAdd(cidOrPath);
 });
 
 ipcMain.handle('ipfs:unpin', async (_evt, cid) => {
@@ -67,6 +82,10 @@ ipcMain.handle('ipfs:keyList', async () => {
 ipcMain.handle('ipfs:keyGen', async (_evt, name) => {
   console.log('[electron][ipc] ipfs:keyGen requested:', name);
   return ipfsKeyGen(name);
+});
+
+ipcMain.handle('ipfs:swarmPeers', async () => {
+  return ipfsSwarmPeers();
 });
 
 ipcMain.on('window:mode', (_evt, mode) => {

@@ -2,6 +2,8 @@ import HomePage from './pages/HomePage.vue';
 import SearchPage from './pages/SearchPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
 import DrivePage from './pages/DrivePage.vue';
+import IpfsPage from './pages/IpfsPage.vue';
+import SitePage from './pages/SitePage.vue';
 import GatewaysPage from './pages/GatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
@@ -21,11 +23,12 @@ type InternalRoute = {
 };
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
-  newtab: { component: HomePage, title: 'Home' },
+  newtab: { component: NewTabPage, title: 'New tab' },
   home: { component: HomePage, title: 'Home' },
   search: { component: SearchPage, title: 'Search' },
   settings: { component: SettingsPage, title: 'Settings' },
   drive: { component: DrivePage, title: 'Drive' },
+  ipfs: { component: IpfsPage, title: 'IPFS' },
   wallet: { component: WalletPage, title: 'Wallet' },
   domain: { component: DomainPage, title: 'Domain' },
   network: { component: NetworkPage, title: 'Network' },
@@ -39,6 +42,15 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   release: { component: ReleasePage, title: 'Release' },
   help: { component: HelpPage, title: 'Help' }
 };
+
+function isLikelyDomainHost(host: string): boolean {
+  const h = String(host || '').trim().toLowerCase();
+  if (!h) return false;
+  if (INTERNAL_ROUTES[h]) return false;
+  if (h === 'ipfs') return false;
+  // keep it simple: anything with a dot behaves like a domain
+  return h.includes('.');
+}
 
 function parseInternalKey(rawUrl: string): string {
   const s = String(rawUrl || '').trim();
@@ -74,12 +86,16 @@ export const ALL_COMPONENTS = [
 
 export function resolveInternalComponent(rawUrl: string) {
   const key = parseInternalKey(rawUrl);
-  const route = INTERNAL_ROUTES[key] || INTERNAL_ROUTES.search;
-  return route.component;
+  const route = INTERNAL_ROUTES[key];
+  if (route) return route.component;
+  if (isLikelyDomainHost(key)) return SitePage;
+  return INTERNAL_ROUTES.search.component;
 }
 
 export function getInternalTitle(rawUrl: string): string {
   const key = parseInternalKey(rawUrl);
-  const route = INTERNAL_ROUTES[key] || INTERNAL_ROUTES.search;
-  return route.title;
+  const route = INTERNAL_ROUTES[key];
+  if (route) return route.title;
+  if (isLikelyDomainHost(key)) return key;
+  return INTERNAL_ROUTES.search.title;
 }

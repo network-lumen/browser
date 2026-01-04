@@ -8,54 +8,60 @@
         </div>
         <span class="logo-text">Drive</span>
       </div>
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Storage</span>
-          <button 
-            class="nav-item" 
-            :class="{ active: currentView === 'files' }"
-            @click="currentView = 'files'"
-          >
-            <FolderOpen :size="18" />
-            <span>My Files</span>
-            <span class="badge" v-if="files.length">{{ files.length }}</span>
-          </button>
-          <button 
-            class="nav-item" 
-            :class="{ active: currentView === 'pinned' }"
-            @click="currentView = 'pinned'; loadPinnedFiles()"
-          >
-            <Pin :size="18" />
-            <span>Pinned</span>
-          </button>
-          <button 
-            class="nav-item" 
-            :class="{ active: currentView === 'fetch' }"
-            @click="currentView = 'fetch'"
-          >
-            <Download :size="18" />
-            <span>Fetch CID</span>
-          </button>
-        </div>
-      </nav>
 
-      <!-- Storage Stats -->
-      <div class="storage-stats" v-if="stats">
+      <!-- Hosting -->
+      <div class="hosting-panel">
         <div class="stats-header">
           <Database :size="14" />
-          <span>Storage Used</span>
+          <span>Storage</span>
         </div>
-        <div class="stats-bar">
-          <div class="stats-fill" :style="{ width: storagePercent + '%' }"></div>
-        </div>
-        <p class="stats-value">{{ formatSize(stats.repoSize) }}</p>
-      </div>
 
-      <!-- IPFS Status -->
-      <div class="ipfs-status" :class="{ connected: ipfsConnected }">
-        <div class="status-dot"></div>
-        <span>{{ ipfsConnected ? 'IPFS Online' : 'IPFS Offline' }}</span>
+        <div class="hosting-row" :class="{ active: hosting.kind === 'local' }">
+          <button class="hosting-main" type="button" @click="selectHosting('local')">
+            <span class="hosting-dot" :class="ipfsConnected ? 'ok' : 'off'"></span>
+            <span class="hosting-title">Local</span>
+            <span class="hosting-meta">{{ ipfsConnected ? 'Online' : 'Offline' }}</span>
+          </button>
+          <button class="hosting-details" type="button" @click.stop="openLocalDetails" title="Local details">
+            <TableProperties :size="16" />
+          </button>
+        </div>
+
+        <div class="hosting-divider"></div>
+
+        <div class="hosting-subheader">
+          <span class="hosting-subheader-title">Subscriptions</span>
+          <button class="hosting-subheader-action" type="button" @click="openPlansModal">
+            Cloud
+          </button>
+        </div>
+
+        <div v-if="!subscriptionRows.length" class="hosting-empty">
+          No active subscriptions yet.
+        </div>
+
+        <div
+          v-for="sub in subscriptionRows"
+          :key="sub.gatewayId"
+          class="hosting-row"
+          :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId }"
+        >
+          <button class="hosting-main" type="button" @click="selectGateway(sub.gatewayId)">
+            <span class="hosting-dot" :class="sub.statusDot"></span>
+            <span class="hosting-title" :title="sub.hoverTitle">{{ sub.label }}</span>
+            <span class="hosting-meta" v-if="false">
+              <template v-if="sub.region">{{ sub.region }}</template>
+              <template v-else>—</template>
+            </span>
+            <span class="hosting-meta">{{ sub.region || '-' }}</span>
+            <span class="hosting-tags" v-if="sub.planTags.length">
+              <span v-for="p in sub.planTags" :key="p" class="hosting-tag">{{ p }}</span>
+            </span>
+          </button>
+          <button class="hosting-details" type="button" @click.stop="openGatewayDetails(sub.gatewayId)" title="Subscription details">
+            <TableProperties :size="16" />
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -65,49 +71,97 @@
       <header class="content-header">
         <div>
           <h1 class="txt-lg txt-weight-strong">
-            {{ currentView === 'files' ? 'My Files' : currentView === 'pinned' ? 'Pinned Content' : 'Fetch from IPFS' }}
+            {{ headerTitle }}
           </h1>
           <p class="txt-xs color-gray-blue margin-top-10">
-            {{ currentView === 'files' ? 'Upload and manage your decentralized files' : currentView === 'pinned' ? 'Content pinned to your local node' : 'Download content from the IPFS network' }}
+            {{ headerSubtitle }}
           </p>
         </div>
         
-        <div class="header-actions" v-if="currentView !== 'fetch'">
-          <!-- View Switcher -->
-          <div class="view-switcher">
-            <button 
-              class="view-btn" 
-              :class="{ active: viewMode === 'grid' }"
-              @click="viewMode = 'grid'"
-              title="Grid View"
-            >
-              <LayoutGrid :size="18" />
-            </button>
-            <button 
-              class="view-btn" 
-              :class="{ active: viewMode === 'list' }"
-              @click="viewMode = 'list'"
-              title="List View"
-            >
-              <List :size="18" />
-            </button>
-            <button 
-              class="view-btn" 
-              :class="{ active: viewMode === 'details' }"
-              @click="viewMode = 'details'"
-              title="Details View"
-            >
-              <TableProperties :size="18" />
-            </button>
-          </div>
+          <div class="header-actions">
+            <!-- View Switcher -->
+            <div class="view-switcher">
+              <button 
+                class="view-btn" 
+                :class="{ active: viewMode === 'grid' }"
+                @click="viewMode = 'grid'"
+                title="Grid View"
+              >
+                <LayoutGrid :size="18" />
+              </button>
+              <button 
+                class="view-btn" 
+                :class="{ active: viewMode === 'list' }"
+                @click="viewMode = 'list'"
+                title="List View"
+              >
+                <List :size="18" />
+              </button>
+              <button 
+                class="view-btn" 
+                :class="{ active: viewMode === 'details' }"
+                @click="viewMode = 'details'"
+                title="Details View"
+              >
+                <TableProperties :size="18" />
+              </button>
+            </div>
 
-          <label class="upload-btn" v-if="currentView === 'files'">
-            <Plus :size="18" />
-            <span>Upload</span>
-            <input type="file" multiple @change="handleFileUpload" />
-          </label>
+            <button class="plans-btn" type="button" @click="openPlansModal">
+              <Database :size="16" />
+              <span>Cloud</span>
+            </button>
+
+            <div class="upload-menu" @click.stop>
+              <button class="upload-btn" type="button" @click="toggleUploadMenu">
+                <Plus :size="18" />
+                <span>Upload</span>
+              </button>
+              <div v-if="showUploadMenu" class="upload-dropdown" @click.stop>
+                <label class="upload-dropdown-item">
+                  Upload files
+                  <input type="file" multiple @change="handleFileUpload" />
+                </label>
+                <label class="upload-dropdown-item">
+                  Upload folder
+                  <input type="file" multiple webkitdirectory directory @change="handleFolderUpload" />
+                </label>
+              </div>
+            </div>
         </div>
       </header>
+
+      <!-- Breadcrumb (folders) -->
+      <div v-if="isBrowsing" class="browse-bar">
+        <button class="btn-ghost" type="button" @click="exitBrowse">
+          Back
+        </button>
+        <div class="browse-crumbs">
+          <button class="crumb" type="button" @click="openBrowseAt('')">
+            {{ browseRootName }}
+          </button>
+          <template v-for="c in browseCrumbs" :key="c.path">
+            <span class="sep">/</span>
+            <button class="crumb" type="button" @click="openBrowseAt(c.path)">
+              {{ c.label }}
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <div v-if="browseLoading" class="upload-progress">
+        <div class="progress-content">
+          <UiSpinner size="sm" />
+          <div class="progress-info">
+            <span class="txt-sm txt-weight-strong">Loading folder</span>
+            <span class="txt-xs color-gray-blue">Fetching directory entries...</span>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="browseError" class="fetch-error txt-xs margin-top-25">
+        {{ browseError }}
+      </div>
 
       <!-- Upload Progress -->
       <div v-if="uploading" class="upload-progress">
@@ -120,38 +174,8 @@
         </div>
       </div>
 
-      <!-- Fetch CID View -->
-      <div v-if="currentView === 'fetch'" class="fetch-section">
-        <div class="fetch-card">
-          <div class="fetch-icon">
-            <CloudDownload :size="48" stroke-width="1.5" />
-          </div>
-          <h3 class="txt-md txt-weight-strong margin-top-50">Fetch Content by CID</h3>
-          <p class="txt-xs color-gray-blue margin-top-25 margin-bottom-50">
-            Enter a Content Identifier (CID) to download from the IPFS network
-          </p>
-          <div class="fetch-input-group">
-            <input 
-              v-model="fetchCid" 
-              type="text" 
-              placeholder="QmXxx... or bafyxxx..."
-              class="fetch-input"
-              @keyup.enter="fetchFromCid"
-            />
-            <button class="fetch-btn" @click="fetchFromCid" :disabled="!fetchCid || fetching">
-              <Download :size="18" v-if="!fetching" />
-              <UiSpinner size="sm" v-else />
-              <span>{{ fetching ? 'Fetching...' : 'Fetch' }}</span>
-            </button>
-          </div>
-          <div v-if="fetchError" class="fetch-error txt-xs margin-top-25">
-            {{ fetchError }}
-          </div>
-        </div>
-      </div>
-
       <!-- Files Grid View -->
-      <div v-else-if="displayFiles.length > 0 && viewMode === 'grid'" class="files-grid">
+      <div v-if="displayFiles.length > 0 && viewMode === 'grid'" class="files-grid">
         <div 
           v-for="file in displayFiles" 
           :key="file.cid" 
@@ -161,22 +185,22 @@
         >
           <div class="file-preview" :class="getFileTypeClass(file.name)">
             <!-- Show actual image preview -->
-            <img 
-              v-if="isImageFile(file.name)" 
-              :src="getGatewayUrl(file.cid)" 
-              :alt="file.name"
-              class="preview-image"
-              @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
-            />
+              <img 
+                v-if="isImageFile(file.name)" 
+                :src="getImageSrc(file)" 
+                :alt="file.name"
+                class="preview-image"
+                @error="() => onImageError(file)"
+              />
             <!-- Show video preview -->
-            <video 
-              v-else-if="isVideoFile(file.name)" 
-              :src="getGatewayUrl(file.cid)"
-              class="preview-video"
-              muted
-              @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
-              @mouseleave="(e) => { (e.target as HTMLVideoElement).pause(); (e.target as HTMLVideoElement).currentTime = 0; }"
-            ></video>
+              <video 
+                v-else-if="isVideoFile(file.name)" 
+                :src="getGatewayUrl(contentTargetFor(file))"
+                class="preview-video"
+                muted
+                @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
+                @mouseleave="(e) => { (e.target as HTMLVideoElement).pause(); (e.target as HTMLVideoElement).currentTime = 0; }"
+              ></video>
             <!-- Show icon for other files -->
             <component v-else :is="getFileIcon(file.name)" :size="32" stroke-width="1.5" />
           </div>
@@ -188,13 +212,13 @@
             <button class="action-btn" title="Download" @click.stop="downloadFile(file)">
               <Download :size="16" />
             </button>
-            <button class="action-btn" title="Copy CID" @click.stop="copyCid(file.cid)">
-              <Copy :size="16" />
+            <button class="action-btn" title="Share" @click.stop="copyLumenLinkFor(file)">
+              <Share2 :size="16" />
             </button>
-            <button class="action-btn" title="Open in Gateway" @click.stop="openInGateway(file.cid)">
+            <button class="action-btn" title="Open" @click.stop="openInIpfs(file)">
               <ExternalLink :size="16" />
             </button>
-            <button class="action-btn danger" title="Remove" @click.stop="deleteFile(file.cid)">
+            <button class="action-btn danger" title="Remove" @click.stop="removeFile(file)">
               <Trash2 :size="16" />
             </button>
           </div>
@@ -223,9 +247,10 @@
             <!-- Show small thumbnail for images -->
             <img 
               v-if="isImageFile(file.name)" 
-              :src="getGatewayUrl(file.cid)" 
+              :src="getImageSrc(file)" 
               :alt="file.name"
               class="list-thumbnail"
+              @error="() => onImageError(file)"
             />
             <component v-else :is="getFileIcon(file.name)" :size="20" stroke-width="1.5" />
           </div>
@@ -236,10 +261,10 @@
             <button class="action-btn" title="Download" @click.stop="downloadFile(file)">
               <Download :size="14" />
             </button>
-            <button class="action-btn" title="Copy CID" @click.stop="copyCid(file.cid)">
-              <Copy :size="14" />
+            <button class="action-btn" title="Share" @click.stop="copyLumenLinkFor(file)">
+              <Share2 :size="14" />
             </button>
-            <button class="action-btn danger" title="Remove" @click.stop="deleteFile(file.cid)">
+            <button class="action-btn danger" title="Remove" @click.stop="removeFile(file)">
               <Trash2 :size="14" />
             </button>
           </div>
@@ -253,7 +278,6 @@
             <tr>
               <th class="th-name">Name</th>
               <th class="th-size">Size</th>
-              <th class="th-cid">CID</th>
               <th class="th-date">Date Added</th>
               <th class="th-actions">Actions</th>
             </tr>
@@ -269,30 +293,25 @@
                 <div class="table-icon" :class="getFileTypeClass(file.name)">
                   <img 
                     v-if="isImageFile(file.name)" 
-                    :src="getGatewayUrl(file.cid)" 
+                    :src="getImageSrc(file)" 
                     :alt="file.name"
                     class="table-thumbnail"
+                    @error="() => onImageError(file)"
                   />
                   <component v-else :is="getFileIcon(file.name)" :size="16" stroke-width="1.5" />
                 </div>
                 <span>{{ file.name }}</span>
               </td>
               <td class="td-size">{{ formatSize(file.size) }}</td>
-              <td class="td-cid">
-                <code>{{ file.cid.slice(0, 20) }}...</code>
-                <button class="copy-inline" @click.stop="copyCid(file.cid)" title="Copy CID">
-                  <Copy :size="12" />
-                </button>
-              </td>
-              <td class="td-date">{{ file.uploadedAt ? formatDate(file.uploadedAt) : '—' }}</td>
+              <td class="td-date">{{ file.uploadedAt ? formatDate(file.uploadedAt) : '-' }}</td>
               <td class="td-actions">
                 <button class="action-btn" title="Download" @click.stop="downloadFile(file)">
                   <Download :size="14" />
                 </button>
-                <button class="action-btn" title="Open Gateway" @click.stop="openInGateway(file.cid)">
+                <button class="action-btn" title="Open" @click.stop="openInIpfs(file)">
                   <ExternalLink :size="14" />
                 </button>
-                <button class="action-btn danger" title="Remove" @click.stop="deleteFile(file.cid)">
+                <button class="action-btn danger" title="Remove" @click.stop="removeFile(file)">
                   <Trash2 :size="14" />
                 </button>
               </td>
@@ -304,15 +323,15 @@
       <!-- Empty State -->
       <div v-else class="empty-state">
         <div class="empty-icon">
-          <component :is="currentView === 'pinned' ? Pin : FolderOpen" :size="64" stroke-width="1" />
+          <HardDrive :size="64" stroke-width="1" />
         </div>
         <h3 class="txt-md txt-weight-strong margin-top-50">
-          {{ currentView === 'pinned' ? 'No pinned content' : 'No files yet' }}
+          {{ isBrowsing ? 'Empty folder' : 'No saved content' }}
         </h3>
         <p class="txt-sm color-gray-blue margin-top-25">
-          {{ currentView === 'pinned' ? 'Content you pin will appear here' : 'Drag and drop files or click Upload to add files' }}
+          {{ isBrowsing ? 'This folder has no entries.' : 'Drag and drop files or click Upload to add files' }}
         </p>
-        <label v-if="currentView === 'files'" class="upload-btn-large margin-top-50">
+        <label class="upload-btn-large margin-top-50">
           <Upload :size="20" />
           <span>Choose files to upload</span>
           <input type="file" multiple @change="handleFileUpload" />
@@ -333,14 +352,15 @@
         <!-- Show actual image preview in detail panel -->
         <img 
           v-if="isImageFile(selectedFile.name)" 
-          :src="getGatewayUrl(selectedFile.cid)" 
+          :src="getImageSrc(selectedFile)" 
           :alt="selectedFile.name"
           class="detail-preview-image"
+          @error="() => onImageError(selectedFile)"
         />
         <!-- Show video preview in detail panel -->
         <video 
           v-else-if="isVideoFile(selectedFile.name)" 
-          :src="getGatewayUrl(selectedFile.cid)"
+          :src="getGatewayUrl(contentTargetFor(selectedFile))"
           class="detail-preview-video"
           controls
           muted
@@ -352,15 +372,18 @@
       <div class="detail-info">
         <div class="info-row">
           <span class="info-label">Name</span>
-          <span class="info-value">{{ selectedFile.name }}</span>
+          <input
+            class="info-value name-input"
+            v-model.trim="renameDraft"
+            type="text"
+            placeholder="Unknown"
+            @keyup.enter="saveSelectedName"
+            @blur="saveSelectedName"
+          />
         </div>
         <div class="info-row">
           <span class="info-label">Size</span>
           <span class="info-value">{{ formatSize(selectedFile.size) }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">CID</span>
-          <span class="info-value cid">{{ selectedFile.cid }}</span>
         </div>
         <div class="info-row" v-if="selectedFile.uploadedAt">
           <span class="info-label">Added</span>
@@ -373,21 +396,13 @@
           <Download :size="16" />
           Download
         </button>
-        <button class="detail-btn" @click="openShareModal(selectedFile)">
+        <button class="detail-btn" @click="copyLumenLinkFor(selectedFile)">
           <Share2 :size="16" />
           Share
         </button>
-        <button class="detail-btn" @click="openPermalinkModal(selectedFile)">
-          <Link2 :size="16" />
-          Permalink
-        </button>
-        <button class="detail-btn" @click="copyCid(selectedFile.cid)">
-          <Copy :size="16" />
-          Copy CID
-        </button>
-        <button class="detail-btn" @click="openInGateway(selectedFile.cid)">
+        <button class="detail-btn" @click="openInIpfs(selectedFile)">
           <ExternalLink :size="16" />
-          Open Gateway
+          Open
         </button>
       </div>
     </aside>
@@ -408,158 +423,475 @@
       </div>
     </div>
 
-    <!-- Share Modal -->
-    <Transition name="modal">
-      <div v-if="showShareModal" class="modal-overlay" @click="closeShareModal">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h3>Share File</h3>
-            <button class="modal-close" @click="closeShareModal">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="modal-body">
-            <p class="modal-desc">Share this file using the links below</p>
-            
-            <div class="share-option">
-              <span class="share-label">Gateway URL</span>
-              <div class="share-input-group">
-                <input 
-                  :value="`${GATEWAY_URL}/ipfs/${shareFile?.cid}`" 
-                  readonly 
-                  class="share-input"
-                  ref="gatewayUrlInput"
-                />
-                <button class="share-copy-btn" @click="copyGatewayUrl(shareFile?.cid || '')">
-                  <Copy :size="16" />
-                </button>
-              </div>
+      <!-- Local Details Modal -->
+      <Transition name="modal">
+        <div v-if="showLocalDetails" class="modal-overlay" @click="closeLocalDetails">
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h3>Local node</h3>
+              <button class="modal-close" @click="closeLocalDetails">
+                <X :size="20" />
+              </button>
             </div>
+            <div class="modal-body">
+              <p class="modal-desc">Your local IPFS node status and saved content.</p>
 
-            <div class="share-option">
-              <span class="share-label">IPFS CID</span>
-              <div class="share-input-group">
-                <input 
-                  :value="shareFile?.cid" 
-                  readonly 
-                  class="share-input"
-                />
-                <button class="share-copy-btn" @click="copyCid(shareFile?.cid || '')">
-                  <Copy :size="16" />
-                </button>
-              </div>
-            </div>
-
-            <div class="share-option">
-              <span class="share-label">Public Gateway</span>
-              <div class="share-input-group">
-                <input 
-                  :value="`https://ipfs.io/ipfs/${shareFile?.cid}`" 
-                  readonly 
-                  class="share-input"
-                />
-                <button class="share-copy-btn" @click="copyPublicGatewayUrl(shareFile?.cid || '')">
-                  <Copy :size="16" />
-                </button>
+              <div class="details-grid">
+                <div class="details-row">
+                  <span class="details-label">Status</span>
+                  <span class="details-value" :class="ipfsConnected ? 'ok' : 'off'">
+                    {{ ipfsConnected ? 'Online' : 'Offline' }}
+                  </span>
+                </div>
+                <div class="details-row" v-if="stats">
+                  <span class="details-label">Used</span>
+                  <span class="details-value">{{ formatSize(stats.repoSize) }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Saved</span>
+                  <span class="details-value">{{ localSavedCount }}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
 
-    <!-- Permalink (IPNS) Modal -->
-    <Transition name="modal">
-      <div v-if="showPermalinkModal" class="modal-overlay" @click="closePermalinkModal">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h3>Create Permalink</h3>
-            <button class="modal-close" @click="closePermalinkModal">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="modal-body">
-            <p class="modal-desc">
-              Create a permanent IPNS link that always points to this content
-            </p>
-
-            <div v-if="!permalinkCreating && !permalinkResult" class="permalink-options">
-              <div class="form-group">
-                <label>Select IPNS Key</label>
-                <select v-model="selectedPermalinkKey" class="form-select">
-                  <option value="self">Default (self)</option>
-                  <option v-for="key in ipnsKeys" :key="key.Id" :value="key.Name">
-                    {{ key.Name }}
-                  </option>
-                </select>
-              </div>
-
-              <button class="btn-modal-primary" @click="createPermalink">
-                <Link2 :size="18" />
-                Create Permalink
+      <!-- Subscription Details Modal -->
+      <Transition name="modal">
+        <div v-if="showGatewayDetails" class="modal-overlay" @click="closeGatewayDetails">
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h3>Subscription details</h3>
+              <button class="modal-close" @click="closeGatewayDetails">
+                <X :size="20" />
               </button>
-
-              <div class="permalink-help">
-                <AlertCircle :size="16" />
-                <span>IPNS links are permanent addresses that can be updated to point to new content</span>
-              </div>
             </div>
+            <div class="modal-body">
+              <p class="modal-desc">Usage summary for the selected gateway.</p>
 
-            <div v-else-if="permalinkCreating" class="permalink-loading">
-              <UiSpinner size="md" />
-              <p>Creating permalink...</p>
-            </div>
-
-            <div v-else-if="permalinkResult" class="permalink-success">
-              <div class="success-icon">
-                <CheckCircle :size="48" />
-              </div>
-              <p class="success-title">Permalink Created!</p>
-              
-              <div class="permalink-result-box">
-                <span class="result-label">IPNS Address</span>
-                <div class="result-input-group">
-                  <input 
-                    :value="permalinkResult.name" 
-                    readonly 
-                    class="result-input"
-                  />
-                  <button class="result-copy-btn" @click="copyPermalink(permalinkResult.name)">
-                    <Copy :size="16" />
-                  </button>
+              <div class="details-grid">
+                <div class="details-row">
+                  <span class="details-label">Gateway</span>
+                  <span class="details-value">{{ activeGatewayLabel }}</span>
+                </div>
+                <div class="details-row" v-if="false">
+                  <span class="details-label">Base URL</span>
+                  <span class="details-value mono">{{ gatewayBase || '—' }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Status</span>
+                  <span class="details-value" :class="activeSubscriptionStatusClass">
+                    {{ activeSubscriptionStatusLabel }}
+                  </span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Saved</span>
+                  <span class="details-value">{{ gatewayPinned.length }}</span>
                 </div>
               </div>
 
-              <div class="permalink-result-box">
-                <span class="result-label">Gateway URL</span>
-                <div class="result-input-group">
-                  <input 
-                    :value="`${GATEWAY_URL}/ipns/${permalinkResult.name}`" 
-                    readonly 
-                    class="result-input"
-                  />
-                  <button class="result-copy-btn" @click="copyPermalinkGateway">
-                    <Copy :size="16" />
+              <div class="details-section">
+                <div class="details-section-header">
+                  <h4>Usage</h4>
+                  <button class="btn-ghost" type="button" @click="refreshActiveGatewayData" :disabled="gatewayUsageLoading">
+                    Refresh
                   </button>
                 </div>
+                <div v-if="gatewayUsageLoading" class="plans-empty-muted">Loading…</div>
+                <div v-else-if="gatewayUsageError" class="plans-error">{{ gatewayUsageError }}</div>
+                <div v-else-if="gatewayUsage" class="details-grid">
+                  <div class="details-row">
+                    <span class="details-label">Quota</span>
+                    <span class="details-value">
+                      {{
+                        gatewayUsage.plan?.quota_bytes_total != null || gatewayUsage.plan?.quotaBytesTotal != null
+                          ? formatSize((gatewayUsage.plan.quota_bytes_total ?? gatewayUsage.plan.quotaBytesTotal) as number)
+                          : '—'
+                      }}
+                    </span>
+                  </div>
+                  <div class="details-row">
+                    <span class="details-label">Used</span>
+                    <span class="details-value">
+                      {{
+                        gatewayUsage.plan?.quota_bytes_used != null || gatewayUsage.plan?.quotaBytesUsed != null
+                          ? formatSize((gatewayUsage.plan.quota_bytes_used ?? gatewayUsage.plan.quotaBytesUsed) as number)
+                          : '-'
+                      }}
+                    </span>
+                  </div>
+                  <div class="details-row">
+                    <span class="details-label">Bandwidth</span>
+                    <span class="details-value">{{ gatewayBandwidthUsed }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="details-label">Roots</span>
+                    <span class="details-value">{{ gatewayUsage.usage?.roots_total ?? gatewayUsage.usage?.rootsTotal ?? '-' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
+      <!-- Plans Modal -->
+      <Transition name="modal">
+        <div v-if="showPlansModal" class="modal-overlay" @click="closePlansModal">
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h3>Cloud plans</h3>
+              <button class="modal-close" @click="closePlansModal">
+                <X :size="20" />
+              </button>
+            </div>
+            <div class="modal-body">
+              <p class="modal-desc">
+                View on-chain storage plans published by gateways.
+              </p>
+
+        <div v-if="plansLoading" class="permalink-loading">
+          <UiSpinner size="md" />
+          <p>Loading plans...</p>
+        </div>
+
+              <div v-else-if="plansError" class="permalink-success">
+                <p>{{ plansError }}</p>
               </div>
 
-              <button class="btn-modal-secondary" @click="closePermalinkModal">
-                Done
+              <div v-else-if="!plans.length" class="permalink-success">
+                <p>No plans available at the moment.</p>
+              </div>
+
+              <div v-else class="plans-list">
+                <div v-if="false">
+                <div
+                  v-for="plan in plans"
+                  :key="plan.id"
+                  class="plan-row"
+                >
+                  <div class="plan-main">
+                    <div class="plan-title-row">
+                      <span class="plan-name">{{ planDisplayName(plan) }}</span>
+                      <span
+                        class="plan-status-badge"
+                        :class="{
+                          active: planStatus(plan) === 'active',
+                          pending: planStatus(plan) === 'pending'
+                        }"
+                      >
+                        {{ planStatusLabel(plan) }}
+                      </span>
+                    </div>
+                    <div class="plan-gw">
+                      {{ plan.gatewayName }}
+                      <template v-if="plan.gatewayEndpoint">
+                        · {{ plan.gatewayEndpoint }}
+                      </template>
+                    </div>
+                  </div>
+                  <div class="plan-meta">
+                    <div class="plan-meta-line">
+                      <span class="label">Storage</span>
+                      <span class="value">
+                        {{
+                          plan.storageGbPerMonth
+                            ? `${plan.storageGbPerMonth} GB / month`
+                            : 'Not specified'
+                        }}
+                      </span>
+                    </div>
+                    <div class="plan-meta-line">
+                      <span class="label">Egress</span>
+                      <span class="value">
+                        {{
+                          plan.networkGbPerMonth
+                            ? `${plan.networkGbPerMonth} GB / month`
+                            : 'Fair usage'
+                        }}
+                      </span>
+                    </div>
+                    <div class="plan-meta-line">
+                      <span class="label">Price</span>
+                      <span class="value">
+                        {{ formatPlanPrice(plan.priceUlmn) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="plans-controls">
+                  <div class="plans-search-group">
+                    <div class="plans-search-input">
+                      <input
+                        v-model.trim="planFilter"
+                        type="search"
+                        placeholder="Search gateways or plans"
+                        class="plans-filter-input"
+                        @keydown.stop
+                        aria-label="Search gateways"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="!planGroups.length" class="plans-empty">
+                  <h4>No gateways match your filters</h4>
+                  <p class="plans-empty-muted">
+                    Try clearing filters or search.
+                  </p>
+                  <div class="plans-empty-actions">
+                    <button
+                      v-if="planFilter"
+                      type="button"
+                      class="btn-ghost"
+                      @click="planFilter = ''"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Grouped by gateway -->
+                <div v-if="planGroups.length" class="plans-grid">
+                  <article
+                    v-for="group in planGroups"
+                    :key="group.gateway.id"
+                    class="gateway-card"
+                    :class="{ offline: !group.gateway.active }"
+                  >
+                    <header class="gateway-card-header">
+                      <div class="gateway-title">
+                        <span
+                          class="gateway-status-dot"
+                          :class="group.gateway.active ? 'ok' : 'off'"
+                        ></span>
+                        <span
+                          class="gateway-name"
+                          :title="planGatewayLabel(group.gateway)"
+                        >
+                          {{ planGatewayLabel(group.gateway) }}
+                        </span>
+                      </div>
+                      <div class="gateway-meta">
+                        <span v-if="group.gateway.regions.length" class="gateway-meta-item">
+                          {{ group.gateway.regions.join(', ') }}
+                        </span>
+                        <span class="gateway-plan-chips">
+                          <span
+                            v-for="plan in group.plans"
+                            :key="plan.id + '-chip'"
+                            class="plan-chip"
+                          >
+                            <span class="plan-chip-price">
+                              {{ formatPlanPriceShort(plan.priceUlmn) }}
+                            </span>
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          class="gateway-expand-btn"
+                          @click.stop="toggleGatewayExpanded(group.gateway.id)"
+                        >
+                          {{ isGatewayExpanded(group.gateway.id) ? 'Hide details' : 'Show details' }}
+                        </button>
+                      </div>
+                    </header>
+
+                    <div class="gateway-plans">
+                      <div
+                        v-if="isGatewayExpanded(group.gateway.id)"
+                        class="gateway-plan-details"
+                      >
+                        <div
+                          v-for="plan in group.plans"
+                          :key="plan.id"
+                          class="plan-row"
+                        >
+                        <div class="plan-main">
+                          <div class="plan-title-row">
+                            <span class="plan-name">{{ planDisplayName(plan) }}</span>
+                          </div>
+                          <div class="plan-gw">
+                            {{ plan.gatewayName }}
+                            <template v-if="plan.gatewayEndpoint">
+                              · {{ plan.gatewayEndpoint }}
+                            </template>
+                          </div>
+                        </div>
+                        <div class="plan-meta">
+                          <div class="plan-meta-line">
+                            <span class="label">Storage</span>
+                            <span class="value">
+                              {{
+                                plan.storageGbPerMonth
+                                  ? `${plan.storageGbPerMonth} GB / month`
+                                  : 'Not specified'
+                              }}
+                            </span>
+                          </div>
+                          <div class="plan-meta-line">
+                            <span class="label">Egress</span>
+                            <span class="value">
+                              {{
+                                plan.networkGbPerMonth
+                                  ? `${plan.networkGbPerMonth} GB / month`
+                                  : 'Fair usage'
+                              }}
+                            </span>
+                          </div>
+                          <div class="plan-meta-line">
+                            <span class="label">Price</span>
+                            <span class="value">
+                              {{ formatPlanPrice(plan.priceUlmn) }}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="plan-footer">
+                          <button
+                            v-if="planStatus(plan) === 'none'"
+                            type="button"
+                            class="plan-status-badge"
+                            @click.stop="openSubscribeModal(plan)"
+                          >
+                            {{ planStatusLabel(plan) }}
+                          </button>
+                          <span
+                            v-else
+                            class="plan-status-badge"
+                            :class="{
+                              active: planStatus(plan) === 'active',
+                              pending: planStatus(plan) === 'pending'
+                            }"
+                          >
+                            {{ planStatusLabel(plan) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
+      <!-- Subscribe Plan Modal -->
+      <Transition name="modal">
+        <div v-if="showSubscribeModal && subscribePlan" class="modal-overlay" @click="closeSubscribeModal">
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h3>Confirm subscription "{{ planDisplayName(subscribePlan) }}"</h3>
+              <button class="modal-close" @click="closeSubscribeModal">
+                <X :size="20" />
+              </button>
+            </div>
+            <div class="modal-body">
+              <p class="modal-desc">
+                Review the plan details and confirm your subscription.
+              </p>
+
+              <div class="permalink-result-box" v-if="subscribePlan">
+                <div class="plan-meta-line">
+                  <span class="label">Gateway</span>
+                  <span class="value">
+                    {{ subscribePlan.gatewayName }}
+                    <template v-if="subscribePlan.gatewayEndpoint">
+                      · {{ subscribePlan.gatewayEndpoint }}
+                    </template>
+                  </span>
+                </div>
+                <div class="plan-meta-line">
+                  <span class="label">Price / month</span>
+                  <span class="value">
+                    {{ formatPlanPrice(subscribePlan.priceUlmn) }}
+                  </span>
+                </div>
+                <div class="plan-meta-line">
+                  <span class="label">Storage</span>
+                  <span class="value">
+                    {{
+                      subscribePlan.storageGbPerMonth
+                        ? `${subscribePlan.storageGbPerMonth} GB / month`
+                        : 'Not specified'
+                    }}
+                  </span>
+                </div>
+                <div class="plan-meta-line">
+                  <span class="label">Egress</span>
+                  <span class="value">
+                    {{
+                      subscribePlan.networkGbPerMonth
+                        ? `${subscribePlan.networkGbPerMonth} GB / month`
+                        : 'Fair usage'
+                    }}
+                  </span>
+                </div>
+                <div class="plan-meta-line">
+                  <span class="label">Duration</span>
+                  <span class="value">
+                    {{ subscribeMonths }} month{{ subscribeMonths > 1 ? 's' : '' }}
+                  </span>
+                </div>
+                <div class="plan-meta-line">
+                  <span class="label">Total</span>
+                  <span class="value">
+                    {{ subscribeTotalPrice.toFixed(subscribeTotalPrice >= 10 ? 0 : 2) }} LMN
+                  </span>
+                </div>
+                <div class="plan-meta-line">
+                  <span class="label">Balance</span>
+                  <span class="value">
+                    <template v-if="subscribeBalance !== null">
+                      {{ subscribeBalance.toFixed(subscribeBalance >= 10 ? 0 : 2) }} LMN
+                    </template>
+                    <template v-else-if="subscribeBalanceLoading">
+                      Loading...
+                    </template>
+                    <template v-else>
+                      —
+                    </template>
+                  </span>
+                </div>
+                <p v-if="hasInsufficientFunds" class="txt-xs color-red-base" style="margin-top: 0.5rem;">
+                  You can't subscribe because your wallet balance is too low.
+                </p>
+              </div>
+
+              <div v-if="subscribeError" class="fetch-error txt-xs margin-top-25">
+                {{ subscribeError }}
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-modal-secondary" type="button" @click="closeSubscribeModal" :disabled="subscribeBusy">
+                Cancel
+              </button>
+              <button
+                class="btn-modal-primary"
+                type="button"
+                @click="confirmSubscribe"
+                :disabled="subscribeBusy || hasInsufficientFunds || !subscribePlan"
+              >
+                <UiSpinner v-if="subscribeBusy" size="sm" />
+                <span v-else>Confirm</span>
               </button>
             </div>
           </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import { 
-  HardDrive, FolderOpen, Pin, Download, Database, Plus, Upload,
-  CloudDownload, Copy, ExternalLink, Trash2, X, Link, Link2, Share2,
+  HardDrive, Download, Database, Plus, Upload,
+  ExternalLink, Trash2, X, Share2,
   FileText, FileImage, FileVideo, FileAudio, FileArchive, File,
   CheckCircle, AlertCircle, LayoutGrid, List, TableProperties
 } from 'lucide-vue-next';
@@ -570,6 +902,9 @@ interface DriveFile {
   name: string;
   size: number;
   uploadedAt?: number;
+  type?: 'file' | 'dir';
+  rootCid?: string;
+  relPath?: string;
 }
 
 interface IpfsStats {
@@ -578,72 +913,420 @@ interface IpfsStats {
   numObjects: number;
 }
 
-interface IpnsKey {
-  Name: string;
-  Id: string;
-}
+type HostingKind = 'local' | 'gateway';
+type HostingState = { kind: HostingKind; gatewayId: string };
 
-const currentView = ref<'files' | 'pinned' | 'fetch'>('files');
 const viewMode = ref<'grid' | 'list' | 'details'>('details');
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
 const selectedFile = ref<DriveFile | null>(null);
 const ipfsConnected = ref(false);
 const stats = ref<IpfsStats | null>(null);
+const hosting = ref<HostingState>({ kind: 'local', gatewayId: '' });
 
 const uploading = ref(false);
 const uploadingFile = ref('');
-const fetching = ref(false);
-const fetchCid = ref('');
-const fetchError = ref('');
 const isDragging = ref(false);
+const showUploadMenu = ref(false);
 
 const toast = ref('');
 const toastType = ref<'success' | 'error'>('success');
 
-const showShareModal = ref(false);
-const shareFile = ref<DriveFile | null>(null);
-const showPermalinkModal = ref(false);
-const permalinkFile = ref<DriveFile | null>(null);
-const permalinkCreating = ref(false);
-const permalinkResult = ref<{ name: string; value: string } | null>(null);
-const selectedPermalinkKey = ref('self');
-const ipnsKeys = ref<IpnsKey[]>([]);
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
-const STORAGE_KEY = 'lumen_drive_files';
-const GATEWAY_URL = 'http://127.0.0.1:8088';
+  const STORAGE_KEY = 'lumen_drive_files';
+  const LOCAL_NAMES_KEY = 'lumen_drive_saved_names';
+  const localNames = ref<Record<string, string>>({});
+  const renameDraft = ref('');
+  const imagePreviewUrls = ref<Record<string, string>>({});
+  const imagePreviewTried = ref<Record<string, boolean>>({});
+  const imagePreviewInFlight = new Set<string>();
+  
+  // Gateway / PQC usage (DrivePanel-style)
+  const gatewayUsage = ref<any | null>(null);
+  const gatewayUsageError = ref('');
+  const gatewayUsageLoading = ref(false);
+  const gatewayPinned = ref<string[]>([]);
+  const gatewayPinnedError = ref('');
+  const gatewayPinnedLoading = ref(false);
+  const gatewayBase = ref<string | null>(null);
 
-const displayFiles = computed(() => {
-  if (currentView.value === 'pinned') {
-    return pinnedFiles.value.map(cid => {
-      const existing = files.value.find(f => f.cid === cid);
-      return existing || { cid, name: cid.slice(0, 12) + '...', size: 0 };
-    });
+  // Gateway plans (DrivePanel-style "Plans" entry)
+  type PlanView = {
+    id: string;
+    planId: string;
+    gatewayId: string;
+    gatewayName: string;
+    gatewayEndpoint?: string;
+    priceUlmn: number;
+    storageGbPerMonth?: number;
+    networkGbPerMonth?: number;
+    monthsTotal: number;
+    description?: string;
+  };
+
+  type SubscriptionView = {
+    id: string;
+    gatewayId: string;
+    status: string;
+    metadata?: Record<string, any>;
+  };
+
+  type GatewayView = {
+    id: string;
+    endpoint: string;
+    operator: string;
+    regions: string[];
+    active: boolean;
+    score?: number;
+  };
+
+  const showPlansModal = ref(false);
+  const plans = ref<PlanView[]>([]);
+  const planSubscriptionsRaw = ref<SubscriptionView[]>([]);
+  const gateways = ref<GatewayView[]>([]);
+  const plansLoading = ref(false);
+  const plansError = ref('');
+  const planFilter = ref('');
+  const planRegion = ref('');
+  const planOnlineOnly = ref(false);
+  const planSortBy = ref<'score-desc' | 'name-asc' | 'name-desc'>('score-desc');
+
+  // Local details
+  const showLocalDetails = ref(false);
+
+  // Subscription details
+  const showGatewayDetails = ref(false);
+
+  const planRegions = computed(() => {
+    const set = new Set<string>();
+    for (const gw of gateways.value) {
+      (gw.regions || []).forEach((r) => set.add(r));
+    }
+    return Array.from(set).sort();
+  });
+
+  const hasPlanFilters = computed(() => {
+    return (
+      !!planRegion.value ||
+      !!planOnlineOnly.value ||
+      !!planFilter.value.trim()
+    );
+  });
+
+  function resetPlanFilters() {
+    planFilter.value = '';
+    planRegion.value = '';
+    planOnlineOnly.value = false;
+    planSortBy.value = 'score-desc';
   }
-  return files.value;
+
+  function planGatewayDisplay(gw: GatewayView): string {
+    if (gw.endpoint) return gw.endpoint;
+    if (gw.operator) return `Gateway · ${gw.operator}`;
+    return `Gateway ${gw.id}`;
+  }
+
+  function planGatewayLabel(gw: GatewayView): string {
+    return planGatewayDisplay(gw);
+  }
+
+  const expandedGatewayIds = ref<Set<string>>(new Set());
+
+  function toggleGatewayExpanded(id: string) {
+    const key = String(id || '').trim();
+    if (!key) return;
+    const next = new Set(expandedGatewayIds.value);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    expandedGatewayIds.value = next;
+  }
+
+  function isGatewayExpanded(id: string): boolean {
+    const key = String(id || '').trim();
+    return expandedGatewayIds.value.has(key);
+  }
+
+  const planGroups = computed(() => {
+    const query = planFilter.value.trim().toLowerCase();
+    const region = planRegion.value;
+    const onlyOnline = planOnlineOnly.value;
+
+    let gwList = gateways.value.slice();
+
+    gwList = gwList.filter((gw) => {
+      if (onlyOnline && !gw.active) return false;
+      if (region && !(gw.regions || []).includes(region)) return false;
+
+      if (!query) return true;
+
+      const haystack = `${planGatewayLabel(gw)} ${gw.operator}`.toLowerCase();
+      if (haystack.includes(query)) return true;
+
+      const plansForGw = plans.value.filter((p) => p.gatewayId === gw.id);
+      return plansForGw.some((p) => {
+        const name = planDisplayName(p).toLowerCase();
+        const ep = String(p.gatewayEndpoint || '').toLowerCase();
+        return name.includes(query) || ep.includes(query);
+      });
+    });
+
+    if (planSortBy.value === 'score-desc') {
+      gwList.sort(
+        (a, b) =>
+          (b.score ?? 0) - (a.score ?? 0) ||
+          planGatewayLabel(a).localeCompare(planGatewayLabel(b)),
+      );
+    } else if (planSortBy.value === 'name-asc') {
+      gwList.sort((a, b) =>
+        planGatewayLabel(a).localeCompare(planGatewayLabel(b)),
+      );
+    } else if (planSortBy.value === 'name-desc') {
+      gwList.sort((a, b) =>
+        planGatewayLabel(b).localeCompare(planGatewayLabel(a)),
+      );
+    }
+
+    const groups = gwList
+      .map((gw) => {
+        const gwPlans = plans.value.filter((p) => p.gatewayId === gw.id);
+        if (!gwPlans.length) return null;
+        return { gateway: gw, plans: gwPlans };
+      })
+      .filter(Boolean) as { gateway: GatewayView; plans: PlanView[] }[];
+
+    return groups;
+  });
+
+const activeSavedCids = computed(() => {
+  return hosting.value.kind === 'gateway' ? gatewayPinned.value : pinnedFiles.value;
 });
 
-const storagePercent = computed(() => {
-  if (!stats.value || !stats.value.storageMax) return 0;
-  return Math.min(100, (stats.value.repoSize / stats.value.storageMax) * 100);
+const localSavedCount = computed(() => pinnedFiles.value.length);
+
+const entryTypeCache = ref<Record<string, 'file' | 'dir'>>({});
+
+const browseRootCid = ref('');
+const browseRelPath = ref('');
+const browseEntries = ref<DriveFile[]>([]);
+const browseLoading = ref(false);
+const browseError = ref('');
+
+const isBrowsing = computed(() => !!browseRootCid.value);
+
+function encodeIpfsTarget(target: string): string {
+  const cleaned = String(target || '').replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!cleaned) return '';
+  const parts = cleaned.split('/').filter(Boolean);
+  const cid = parts[0] || '';
+  const rest = parts.slice(1).map((s) => encodeURIComponent(s)).join('/');
+  return rest ? `${cid}/${rest}` : cid;
+}
+
+function contentTargetFor(file: DriveFile): string {
+  const root = String(file?.rootCid || '').trim();
+  const rel = String(file?.relPath || '').replace(/^\/+/, '').replace(/\/+$/, '');
+  if (root) return rel ? `${root}/${rel}` : root;
+  return String(file?.cid || '').trim();
+}
+
+const rootSavedEntries = computed<DriveFile[]>(() => {
+  return activeSavedCids.value.map((cid) => {
+    const existing = files.value.find((f) => f.cid === cid);
+    const cachedType = entryTypeCache.value[String(cid)] || undefined;
+    return {
+      cid,
+      name: getSavedName(cid),
+      size: existing?.size ?? 0,
+      uploadedAt: existing?.uploadedAt,
+      type: cachedType,
+      rootCid: cid,
+      relPath: '',
+    };
+  });
+});
+
+const displayFiles = computed<DriveFile[]>(() => {
+  return isBrowsing.value ? browseEntries.value : rootSavedEntries.value;
+});
+
+const sidebarFilesCount = computed(() => {
+  return activeSavedCids.value.length;
+});
+
+const activeGateway = computed(() => {
+  const id = String(hosting.value.gatewayId || '').trim();
+  if (!id) return null;
+  return gateways.value.find((g) => String(g.id) === id) || null;
+});
+
+const activeGatewayHint = computed(() => {
+  const gw = activeGateway.value;
+  if (gw?.endpoint) return String(gw.endpoint).trim();
+  const gid = String(hosting.value.gatewayId || '').trim();
+  if (!gid) return '';
+  const sub = planSubscriptionsRaw.value.find((s) => String(s.gatewayId) === gid);
+  const metaEndpoint = sub?.metadata?.endpoint ?? sub?.metadata?.baseUrl ?? sub?.metadata?.url;
+  if (typeof metaEndpoint === 'string' && metaEndpoint.trim()) return metaEndpoint.trim();
+  const plan = plans.value.find((p) => String(p.gatewayId) === gid);
+  const planEndpoint = plan?.gatewayEndpoint;
+  return typeof planEndpoint === 'string' ? planEndpoint.trim() : '';
+});
+
+const activeGatewayLabel = computed(() => {
+  const gw = activeGateway.value;
+  if (!gw) return '—';
+  return gw.endpoint || `Gateway ${gw.id}`;
+});
+
+const hostingLabel = computed(() => {
+  if (hosting.value.kind === 'gateway') return activeGatewayLabel.value || 'Gateway';
+  return 'Local';
+});
+
+const headerTitle = computed(() => {
+  return hosting.value.kind === 'gateway' ? hostingLabel.value : 'Local';
+});
+
+const browseRootName = computed(() => {
+  const cid = String(browseRootCid.value || '').trim();
+  if (!cid) return '';
+  const name = getSavedName(cid);
+  return name && name !== 'Unknown' ? name : cid;
+});
+
+const browseCrumbs = computed(() => {
+  const p = String(browseRelPath.value || '').replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!p) return [] as { label: string; path: string }[];
+  const parts = p.split('/').filter(Boolean);
+  return parts.map((label, idx) => ({ label, path: parts.slice(0, idx + 1).join('/') }));
+});
+
+const headerSubtitle = computed(() => {
+  if (isBrowsing.value) {
+    const suffix = browseRelPath.value ? `/${browseRelPath.value}` : '/';
+    return `Browsing: ${browseRootName.value}${suffix}`;
+  }
+  return hosting.value.kind === 'gateway'
+     ? 'Saved files on your cloud plan'
+     : 'Saved files on your local node';
+});
+
+function deriveGatewayStatus(subs: SubscriptionView[]): 'active' | 'pending' | 'off' {
+  const normalized = subs.map((s) => String(s.status || '').toLowerCase());
+  if (normalized.some((s) => s.includes('active'))) return 'active';
+  if (normalized.some((s) => s.includes('pending'))) return 'pending';
+  return 'off';
+}
+
+const subscriptionRows = computed(() => {
+  const byGateway = new Map<string, SubscriptionView[]>();
+  for (const sub of planSubscriptionsRaw.value) {
+    const gid = String(sub.gatewayId || '').trim();
+    if (!gid) continue;
+    if (!byGateway.has(gid)) byGateway.set(gid, []);
+    byGateway.get(gid)!.push(sub);
+  }
+
+  const rows = Array.from(byGateway.entries()).map(([gatewayId, subs]) => {
+    const gw = gateways.value.find((g) => String(g.id) === gatewayId) || null;
+    const status = deriveGatewayStatus(subs);
+    const statusDot = status === 'active' ? 'ok' : status === 'pending' ? 'pending' : 'off';
+    const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : '';
+    const labelBase = endpoint || (gw?.operator ? `Gateway ${gw.operator}` : `Gateway ${gatewayId}`);
+    const label = labelBase.replace(/^gtw\./i, '');
+    const hoverTitle = endpoint || labelBase;
+    const region = gw?.regions?.[0] || '';
+    const planTags = Array.from(
+      new Set(
+        subs
+          .map((s) => String(s?.metadata?.planId ?? s?.metadata?.plan_id ?? '').trim())
+          .filter(Boolean)
+          .map((planId) => {
+            const plan =
+              plans.value.find((p) => p.gatewayId === gatewayId && p.planId === planId) ||
+              plans.value.find((p) => p.gatewayId === gatewayId && p.id === planId) ||
+              null;
+            return plan ? planDisplayName(plan) : planId;
+          })
+      )
+    ).slice(0, 4);
+
+    return { gatewayId, label, hoverTitle, region, status, statusDot, planTags };
+  });
+
+  rows.sort((a, b) => a.label.localeCompare(b.label));
+  return rows;
+});
+
+const activeSubscriptionRow = computed(() => {
+  if (hosting.value.kind !== 'gateway') return null;
+  return subscriptionRows.value.find((r) => r.gatewayId === hosting.value.gatewayId) || null;
+});
+
+const activeSubscriptionStatusLabel = computed(() => {
+  const row = activeSubscriptionRow.value;
+  if (!row) return '—';
+  if (row.status === 'active') return 'Active';
+  if (row.status === 'pending') return 'Pending';
+  return 'Off';
+});
+
+const activeSubscriptionStatusClass = computed(() => {
+  const row = activeSubscriptionRow.value;
+  if (!row) return 'off';
+  return row.status === 'active' ? 'ok' : row.status === 'pending' ? 'pending' : 'off';
+});
+
+const gatewayBandwidthUsed = computed(() => {
+  const u = gatewayUsage.value?.usage || {};
+  const raw =
+    u?.netMonth?.bytes ??
+    u?.net_month?.bytes ??
+    u?.net_month_bytes ??
+    u?.netMonthBytes ??
+    u?.bandwidthMonth?.bytes ??
+    u?.bandwidth_month?.bytes ??
+    u?.bandwidth_month_bytes ??
+    null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? formatSize(n) : '-';
 });
 
 const toastIcon = computed(() => toastType.value === 'success' ? CheckCircle : AlertCircle);
 
-onMounted(async () => {
-  await checkIpfsStatus();
-  loadFiles();
-  loadStats();
-  
-  document.addEventListener('dragover', handleDragOver);
-  document.addEventListener('dragleave', handleDragLeave);
-  document.addEventListener('drop', handleDrop);
-});
+  onMounted(async () => {
+    await checkIpfsStatus();
+    loadFiles();
+    loadLocalNames();
+    loadStats();
+    void loadPinnedFiles();
+
+    void refreshGatewayOverview();
+    
+    document.addEventListener('dragover', handleDragOver);
+    document.addEventListener('dragleave', handleDragLeave);
+    document.addEventListener('drop', handleDrop);
+    document.addEventListener('click', handleDocumentClick);
+  });
 
 onUnmounted(() => {
   document.removeEventListener('dragover', handleDragOver);
   document.removeEventListener('dragleave', handleDragLeave);
   document.removeEventListener('drop', handleDrop);
+  document.removeEventListener('click', handleDocumentClick);
+
+  for (const url of Object.values(imagePreviewUrls.value)) {
+    if (typeof url === 'string' && url.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        // ignore
+      }
+    }
+  }
+  imagePreviewUrls.value = {};
+  imagePreviewTried.value = {};
 });
 
 function handleDragOver(e: DragEvent) {
@@ -657,11 +1340,98 @@ function handleDragLeave(e: DragEvent) {
   }
 }
 
+function handleDocumentClick() {
+  showUploadMenu.value = false;
+}
+
+function toggleUploadMenu() {
+  showUploadMenu.value = !showUploadMenu.value;
+}
+
 async function handleDrop(e: DragEvent) {
   e.preventDefault();
   isDragging.value = false;
-  
-  const droppedFiles = e.dataTransfer?.files;
+
+  if (!ipfsConnected.value) {
+    showToast('IPFS not connected', 'error');
+    return;
+  }
+
+  const dt = e.dataTransfer;
+  if (!dt) return;
+
+  const items = Array.from(dt.items || []);
+  const supportsEntries = items.some((it: any) => typeof it?.webkitGetAsEntry === 'function');
+
+  if (supportsEntries) {
+    const rootFiles: File[] = [];
+    const folderGroups = new Map<string, { path: string; file: File }[]>();
+
+    async function readAllDirEntries(dirEntry: any): Promise<any[]> {
+      const reader = dirEntry.createReader();
+      const out: any[] = [];
+      while (true) {
+        const batch: any[] = await new Promise((resolve) => reader.readEntries(resolve));
+        if (!batch || batch.length === 0) break;
+        out.push(...batch);
+      }
+      return out;
+    }
+
+    async function collectEntryFiles(entry: any, basePath: string): Promise<{ path: string; file: File }[]> {
+      if (!entry) return [];
+      if (entry.isFile) {
+        const f: File = await new Promise((resolve, reject) => entry.file(resolve, reject));
+        const name = String(f?.name || entry.name || 'file');
+        const path = basePath ? `${basePath}/${name}` : name;
+        return [{ path, file: f }];
+      }
+      if (entry.isDirectory) {
+        const dirName = String(entry.name || '').trim();
+        const nextBase = basePath ? `${basePath}/${dirName}` : dirName;
+        const children = await readAllDirEntries(entry);
+        const all: { path: string; file: File }[] = [];
+        for (const c of children) {
+          all.push(...(await collectEntryFiles(c, nextBase)));
+        }
+        return all;
+      }
+      return [];
+    }
+
+    for (const it of items) {
+      const entry = (it as any)?.webkitGetAsEntry?.();
+      if (!entry) continue;
+      if (entry.isFile) {
+        const f = it.getAsFile();
+        if (f) rootFiles.push(f);
+        continue;
+      }
+      if (entry.isDirectory) {
+        const rootName = String(entry.name || 'folder');
+        const all = await collectEntryFiles(entry, rootName);
+        const rel = all
+          .map(({ path, file }) => {
+            const normalized = String(path).replace(/\\/g, '/').replace(/^\/+/, '');
+            const prefix = `${rootName}/`;
+            const relPath = normalized.startsWith(prefix) ? normalized.slice(prefix.length) : normalized;
+            return { path: relPath, file };
+          })
+          .filter((x) => x.path && x.file);
+        folderGroups.set(rootName, rel);
+      }
+    }
+
+    for (const f of rootFiles) {
+      await uploadFile(f);
+    }
+    for (const [rootName, files] of folderGroups.entries()) {
+      await uploadDirectory(rootName, files);
+    }
+    return;
+  }
+
+  const droppedFiles = dt.files;
   if (droppedFiles?.length) {
     for (const file of Array.from(droppedFiles)) {
       await uploadFile(file);
@@ -669,14 +1439,467 @@ async function handleDrop(e: DragEvent) {
   }
 }
 
-async function checkIpfsStatus() {
-  try {
-    const result = await (window as any).lumen?.ipfsStatus?.();
-    ipfsConnected.value = result?.ok === true;
-  } catch {
-    ipfsConnected.value = false;
+  async function checkIpfsStatus() {
+    try {
+      const result = await (window as any).lumen?.ipfsStatus?.();
+      ipfsConnected.value = result?.ok === true;
+    } catch {
+      ipfsConnected.value = false;
+    }
   }
-}
+
+  function selectHosting(kind: HostingKind) {
+    if (kind === hosting.value.kind) return;
+    if (kind === 'gateway') return;
+    hosting.value = { kind, gatewayId: '' };
+    gatewayBase.value = null;
+    void checkIpfsStatus();
+    void loadStats();
+    void loadPinnedFiles();
+  }
+
+  function selectGateway(gatewayId: string) {
+    const gid = String(gatewayId || '').trim();
+    if (!gid) return;
+    hosting.value = { kind: 'gateway', gatewayId: gid };
+    void refreshActiveGatewayData();
+  }
+
+  function openLocalDetails() {
+    showLocalDetails.value = true;
+    void checkIpfsStatus();
+    void loadStats();
+    void loadPinnedFiles();
+  }
+
+  function closeLocalDetails() {
+    showLocalDetails.value = false;
+  }
+
+  function openGatewayDetails(gatewayId: string) {
+    selectGateway(gatewayId);
+    showGatewayDetails.value = true;
+  }
+
+  function closeGatewayDetails() {
+    showGatewayDetails.value = false;
+  }
+
+  async function refreshActiveGatewayData() {
+    if (hosting.value.kind !== 'gateway') return;
+    const hint = activeGatewayHint.value;
+    await refreshGatewayBase(hint);
+    await refreshGatewayUsage(hint);
+    await refreshGatewayPinned(hint);
+  }
+
+  async function refreshActiveGatewayPinned() {
+    if (hosting.value.kind !== 'gateway') return;
+    await refreshGatewayPinned(activeGatewayHint.value);
+  }
+
+  async function refreshGatewayOverview() {
+    try {
+      const api: any = (window as any).lumen;
+      const profilesApi = api?.profiles;
+      const gwApi = api?.gateway;
+      if (!profilesApi || !gwApi || !gwApi.getPlansOverview) return;
+
+      const active = await profilesApi.getActive?.().catch(() => null);
+      const profileId = active?.id;
+      if (!profileId) return;
+
+      const res = await gwApi.getPlansOverview(profileId).catch(() => null);
+      if (!res || res.ok === false) return;
+
+      const list = Array.isArray(res.plans) ? res.plans : [];
+      plans.value = list
+        .map((p: any) => ({
+          id: String(p?.id ?? ''),
+          planId: String(p?.planId ?? p?.id ?? ''),
+          gatewayId: String(p?.gatewayId ?? ''),
+          gatewayName: String(p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ''}`),
+          gatewayEndpoint: p?.gatewayEndpoint,
+          priceUlmn: Number(p?.priceUlmn ?? 0),
+          storageGbPerMonth: p?.storageGbPerMonth != null ? Number(p.storageGbPerMonth) : undefined,
+          networkGbPerMonth: p?.networkGbPerMonth != null ? Number(p.networkGbPerMonth) : undefined,
+          monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
+          description: p?.description ?? '',
+        }))
+        .filter((p: PlanView) => p.planId && p.gatewayId);
+
+      const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
+      const gwMap = new Map<string, GatewayView>();
+      for (const g of gwRaw) {
+        const id = String(g?.id ?? g?.gatewayId ?? '').trim();
+        if (!id) continue;
+        if (gwMap.has(id)) continue;
+        const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim();
+        const regions = Array.isArray(g?.regions)
+          ? g.regions.map((r: any) => String(r || '')).filter(Boolean)
+          : [];
+        const active =
+          typeof g?.active === 'boolean'
+            ? g.active
+            : !!(g?.Active ?? g?.isActive ?? true);
+        const score =
+          g?.score != null
+            ? Number(g.score)
+            : g?.metadata && g.metadata.score != null
+            ? Number(g.metadata.score)
+            : undefined;
+        gwMap.set(id, {
+          id,
+          endpoint,
+          operator: String(g?.operator ?? ''),
+          regions,
+          active,
+          score,
+        });
+      }
+      gateways.value = Array.from(gwMap.values());
+
+      const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
+      planSubscriptionsRaw.value = subsRaw.map((s: any) => ({
+        id: String(s?.id ?? ''),
+        gatewayId: String(s?.gatewayId ?? s?.gateway_id ?? ''),
+        status: String(s?.status ?? '').toLowerCase(),
+        metadata: typeof s?.metadata === 'object' ? s.metadata : undefined,
+      }));
+    } catch {
+      // ignore background refresh errors
+    }
+  }
+
+  async function refreshGatewayBase(baseUrlHint?: string) {
+    try {
+      const api: any = (window as any).lumen;
+      const profilesApi = api?.profiles;
+      const gwApi = api?.gateway;
+      if (!profilesApi || !gwApi || !gwApi.getBaseUrl) return;
+
+      const active = await profilesApi.getActive?.().catch(() => null);
+      const profileId = active?.id;
+      if (!profileId) return;
+
+      const res = await gwApi.getBaseUrl(profileId, baseUrlHint).catch(() => null);
+      if (!res || res.ok === false) {
+        gatewayBase.value = null;
+        return;
+      }
+      gatewayBase.value =
+        typeof res.baseUrl === 'string' ? String(res.baseUrl) : null;
+      } catch {
+        gatewayBase.value = null;
+      }
+    }
+
+  async function openPlansModal() {
+    try {
+      const api: any = (window as any).lumen;
+      const profilesApi = api?.profiles;
+      const gwApi = api?.gateway;
+      if (!profilesApi || !gwApi || !gwApi.getPlansOverview) return;
+
+      showPlansModal.value = true;
+      plansLoading.value = true;
+      plansError.value = '';
+      plans.value = [];
+      planSubscriptionsRaw.value = [];
+
+      const active = await profilesApi.getActive?.().catch(() => null);
+      const profileId = active?.id;
+      if (!profileId) {
+        plansError.value = 'No active profile';
+        plansLoading.value = false;
+        return;
+      }
+
+      const res = await gwApi.getPlansOverview(profileId).catch(() => null);
+      if (!res || res.ok === false) {
+        plansError.value = String(res?.error || 'Unable to load plans.');
+        plansLoading.value = false;
+        return;
+      }
+
+      const list = Array.isArray(res.plans) ? res.plans : [];
+      plans.value = list
+        .map((p: any) => ({
+          id: String(p?.id ?? ''),
+          planId: String(p?.planId ?? p?.id ?? ''),
+          gatewayId: String(p?.gatewayId ?? ''),
+          gatewayName: String(
+            p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ''}`
+          ),
+          gatewayEndpoint: p?.gatewayEndpoint,
+          priceUlmn: Number(p?.priceUlmn ?? 0),
+          storageGbPerMonth:
+            p?.storageGbPerMonth != null
+              ? Number(p.storageGbPerMonth)
+              : undefined,
+          networkGbPerMonth:
+            p?.networkGbPerMonth != null
+              ? Number(p.networkGbPerMonth)
+              : undefined,
+          monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
+          description: p?.description ?? '',
+        }))
+        .filter((p: PlanView) => p.planId && p.gatewayId);
+
+      const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
+      const gwMap = new Map<string, GatewayView>();
+      for (const g of gwRaw) {
+        const id = String(g?.id ?? g?.gatewayId ?? '').trim();
+        if (!id) continue;
+        const existing = gwMap.get(id);
+        if (existing) continue;
+        const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim();
+        const regions = Array.isArray(g?.regions)
+          ? g.regions.map((r: any) => String(r || '')).filter(Boolean)
+          : [];
+        const active =
+          typeof g?.active === 'boolean'
+            ? g.active
+            : !!(g?.Active ?? g?.isActive ?? true);
+        const score =
+          g?.score != null
+            ? Number(g.score)
+            : g?.metadata && g.metadata.score != null
+            ? Number(g.metadata.score)
+            : undefined;
+        gwMap.set(id, {
+          id,
+          endpoint,
+          operator: String(g?.operator ?? ''),
+          regions,
+          active,
+          score,
+        });
+      }
+      gateways.value = Array.from(gwMap.values());
+
+      const subsRaw = Array.isArray(res.subscriptions)
+        ? res.subscriptions
+        : [];
+      planSubscriptionsRaw.value = subsRaw.map((s: any) => ({
+        id: String(s?.id ?? ''),
+        gatewayId: String(s?.gatewayId ?? s?.gateway_id ?? ''),
+        status: String(s?.status ?? '').toLowerCase(),
+        metadata:
+          typeof s?.metadata === 'object'
+            ? s.metadata
+            : undefined,
+      }));
+    } catch (e: any) {
+      plansError.value = String(e?.message || 'Unable to load plans.');
+    } finally {
+      plansLoading.value = false;
+    }
+  }
+
+  function closePlansModal() {
+    showPlansModal.value = false;
+  }
+
+  function planKey(plan: PlanView): string {
+    return `${plan.gatewayId}:${plan.planId}`.toLowerCase();
+  }
+
+  function buildSubscriptionMap() {
+    const map = new Map<string, SubscriptionView[]>();
+    for (const sub of planSubscriptionsRaw.value) {
+      const metaPlanId = String(sub.metadata?.planId ?? '').toLowerCase();
+      const key = metaPlanId
+        ? `${sub.gatewayId}:${metaPlanId}`.toLowerCase()
+        : `${sub.gatewayId}`.toLowerCase();
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(sub);
+    }
+    return map;
+  }
+
+  const planSubscriptions = computed(() => buildSubscriptionMap());
+
+  function planStatus(plan: PlanView): string {
+    const key = planKey(plan);
+    const candidates = planSubscriptions.value.get(key);
+    if (candidates && candidates.length) {
+      const active = candidates.find((s) => s.status === 'active');
+      if (active) return 'active';
+      const pending = candidates.find((s) => s.status === 'pending');
+      if (pending) return 'pending';
+      return candidates[0].status || 'unknown';
+    }
+    const fallback = planSubscriptions.value.get(
+      plan.gatewayId.toLowerCase()
+    );
+    if (fallback && fallback.length) return fallback[0].status || 'unknown';
+    return 'none';
+  }
+
+  function planStatusLabel(plan: PlanView): string {
+    const status = planStatus(plan);
+    switch (status) {
+      case 'active':
+        return 'Subscribed';
+      case 'pending':
+        return 'Pending';
+      case 'cancelled':
+      case 'canceled':
+        return 'Cancelled';
+      case 'completed':
+        return 'Completed';
+      default:
+        return 'Subscribe';
+    }
+  }
+
+  function planDisplayName(plan: PlanView): string {
+    return plan.planId?.split(':').pop() || 'Plan';
+  }
+
+  function formatPlanPrice(ulmn: number): string {
+    const lmn = ulmn / 1_000_000;
+    if (!ulmn) return 'Free';
+    return `${lmn.toFixed(lmn >= 10 ? 0 : 2)} LMN / mo`;
+  }
+
+  function formatPlanPriceShort(ulmn: number): string {
+    const lmn = ulmn / 1_000_000;
+    if (!ulmn) return 'Free';
+    return lmn >= 10 ? `${lmn.toFixed(0)} LMN` : `${lmn.toFixed(2)} LMN`;
+  }
+
+  const showSubscribeModal = ref(false);
+  const subscribePlan = ref<PlanView | null>(null);
+  const subscribeMonths = ref(1);
+  const subscribeBusy = ref(false);
+  const subscribeError = ref('');
+  const subscribeBalance = ref<number | null>(null);
+  const subscribeBalanceLoading = ref(false);
+
+  function normalizeSubscribeError(raw: string): string {
+    const msg = String(raw || '').trim();
+    if (!msg) return 'Subscription failed';
+    if (/insufficient funds/i.test(msg) || /spendable balance/i.test(msg)) {
+      return 'Insufficient funds.';
+    }
+    return msg;
+  }
+
+  function openSubscribeModal(plan: PlanView) {
+    subscribePlan.value = plan;
+    subscribeMonths.value = Math.max(1, plan.monthsTotal || 1);
+    subscribeError.value = '';
+    showSubscribeModal.value = true;
+    void loadSubscribeBalance();
+  }
+
+  function closeSubscribeModal() {
+    if (subscribeBusy.value) return;
+    showSubscribeModal.value = false;
+    subscribePlan.value = null;
+    subscribeError.value = '';
+    subscribeBalance.value = null;
+    subscribeBalanceLoading.value = false;
+  }
+
+  async function loadSubscribeBalance() {
+    subscribeBalanceLoading.value = true;
+    try {
+      const api: any = (window as any).lumen;
+      const profilesApi = api?.profiles;
+      const walletApi = api?.wallet;
+      if (!profilesApi || !walletApi) return;
+      const active = await profilesApi.getActive?.().catch(() => null);
+      const address = active?.walletAddress || active?.address;
+      if (!address) return;
+      const res = await walletApi.getBalance(address).catch(() => null);
+      const amount =
+        res?.balance?.amount ??
+        res?.amount ??
+        res?.amount_ulmn ??
+        res?.balance ??
+        res?.data?.balance?.amount ??
+        res?.data?.amount;
+      const lmn =
+        typeof amount === 'number'
+          ? amount / 1_000_000
+          : typeof amount === 'string'
+          ? Number(amount) / 1_000_000
+          : null;
+      if (lmn !== null && Number.isFinite(lmn)) {
+        subscribeBalance.value = Math.max(0, lmn);
+      }
+    } catch {
+      subscribeBalance.value = null;
+    } finally {
+      subscribeBalanceLoading.value = false;
+    }
+  }
+
+  const subscribeTotalPrice = computed(() => {
+    const plan = subscribePlan.value;
+    if (!plan) return 0;
+    return (plan.priceUlmn * subscribeMonths.value) / 1_000_000;
+  });
+
+  const hasInsufficientFunds = computed(() => {
+    if (subscribeBalance.value === null) return false;
+    return subscribeTotalPrice.value > subscribeBalance.value + 1e-8;
+  });
+
+  async function confirmSubscribe() {
+    const plan = subscribePlan.value;
+    if (!plan || subscribeBusy.value || hasInsufficientFunds.value) return;
+
+    try {
+      subscribeBusy.value = true;
+      subscribeError.value = '';
+
+      const api: any = (window as any).lumen;
+      const profilesApi = api?.profiles;
+      const gwApi = api?.gateway;
+      if (!profilesApi || !gwApi || !gwApi.subscribePlan) {
+        subscribeError.value = 'Subscription API unavailable';
+        return;
+      }
+
+      const active = await profilesApi.getActive?.().catch(() => null);
+      const profileId = active?.id;
+      if (!profileId) {
+        subscribeError.value = 'No active profile';
+        return;
+      }
+
+      const res = await gwApi
+        .subscribePlan({
+          profileId,
+          planId: plan.planId,
+          gatewayId: plan.gatewayId,
+          priceUlmn: plan.priceUlmn,
+          storageGbPerMonth: plan.storageGbPerMonth,
+          networkGbPerMonth: plan.networkGbPerMonth,
+          months: subscribeMonths.value,
+        })
+        .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+
+      if (!res || res.ok === false) {
+        subscribeError.value = normalizeSubscribeError(res?.error);
+        return;
+      }
+
+      showSubscribeModal.value = false;
+      subscribePlan.value = null;
+      subscribeError.value = '';
+      subscribeBalance.value = null;
+      void openPlansModal();
+    } catch (e: any) {
+      subscribeError.value = normalizeSubscribeError(e?.message || e);
+    } finally {
+      subscribeBusy.value = false;
+    }
+  }
 
 async function loadStats() {
   try {
@@ -689,11 +1912,94 @@ async function loadStats() {
 
 async function loadPinnedFiles() {
   try {
-    const result = await (window as any).lumen?.ipfsPinList?.();
+    const anyWin: any = window;
+    if (hosting.value.kind === 'gateway') {
+      await refreshGatewayPinned(activeGatewayHint.value);
+      return;
+    }
+
+    const result = await anyWin.lumen?.ipfsPinList?.();
     if (result?.ok) {
       pinnedFiles.value = result.pins || [];
     }
   } catch {}
+}
+
+async function refreshGatewayUsage(baseUrlHint?: string) {
+  try {
+    const api: any = (window as any).lumen;
+    const profilesApi = api?.profiles;
+    const gwApi = api?.gateway;
+    if (!profilesApi || !gwApi) return;
+
+    const active = await profilesApi.getActive?.().catch(() => null);
+    const profileId = active?.id;
+    if (!profileId) return;
+
+      gatewayUsageLoading.value = true;
+      gatewayUsageError.value = '';
+
+      const res = await gwApi.getWalletUsage(profileId, baseUrlHint).catch(() => null);
+    if (!res || res.ok === false) {
+      const code = String(res?.error || '').trim();
+      // If the gateway doesn't expose a Kyber pubkey, just treat it as "no plan"
+      if (code === 'kyber_pubkey_http_unavailable') {
+        gatewayUsage.value = null;
+        gatewayUsageError.value = '';
+        return;
+      }
+      gatewayUsage.value = null;
+      gatewayUsageError.value = code || 'Usage fetch failed';
+      return;
+    }
+
+    gatewayUsage.value = res.data ?? null;
+  } catch (e: any) {
+    gatewayUsage.value = null;
+    const msg = String(e?.message || 'Usage fetch failed');
+    gatewayUsageError.value = msg === 'Error: kyber_pubkey_http_unavailable' ? '' : msg;
+  } finally {
+    gatewayUsageLoading.value = false;
+  }
+}
+
+async function refreshGatewayPinned(baseUrlHint?: string) {
+  try {
+    const api: any = (window as any).lumen;
+    const profilesApi = api?.profiles;
+    const gwApi = api?.gateway;
+    if (!profilesApi || !gwApi) return;
+
+    const active = await profilesApi.getActive?.().catch(() => null);
+    const profileId = active?.id;
+    if (!profileId) return;
+
+    gatewayPinnedLoading.value = true;
+    gatewayPinnedError.value = '';
+
+      const res = await gwApi.getWalletPinnedCids(profileId, baseUrlHint, 1).catch(() => null);
+    if (!res || res.ok === false) {
+      const code = String(res?.error || '').trim();
+      if (code === 'kyber_pubkey_http_unavailable') {
+        gatewayPinned.value = [];
+        gatewayPinnedError.value = '';
+        return;
+      }
+      gatewayPinned.value = [];
+      gatewayPinnedError.value = code || 'Pinned CIDs fetch failed';
+      return;
+    }
+
+    const data = res.data ?? null;
+    const cids = Array.isArray(data?.cids) ? data.cids.map((x: any) => String(x)) : [];
+    gatewayPinned.value = cids;
+  } catch (e: any) {
+    gatewayPinned.value = [];
+    const msg = String(e?.message || 'Pinned CIDs fetch failed');
+    gatewayPinnedError.value = msg === 'Error: kyber_pubkey_http_unavailable' ? '' : msg;
+  } finally {
+    gatewayPinnedLoading.value = false;
+  }
 }
 
 function loadFiles() {
@@ -711,7 +2017,56 @@ function saveFiles() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(files.value));
 }
 
+function loadLocalNames() {
+  try {
+    const stored = localStorage.getItem(LOCAL_NAMES_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === 'object') {
+        localNames.value = parsed as Record<string, string>;
+      }
+    }
+  } catch {
+    localNames.value = {};
+  }
+}
+
+function saveLocalNames() {
+  try {
+    localStorage.setItem(LOCAL_NAMES_KEY, JSON.stringify(localNames.value));
+  } catch {
+    // ignore
+  }
+}
+
+function normalizeCidKey(cid: string): string {
+  return String(cid || '').trim();
+}
+
+function getSavedName(cid: string): string {
+  const key = normalizeCidKey(cid);
+  if (!key) return 'Unknown';
+  const value = localNames.value[key];
+  const name = typeof value === 'string' ? value.trim() : '';
+  return name || 'Unknown';
+}
+
+function setSavedName(cid: string, name: string) {
+  const key = normalizeCidKey(cid);
+  if (!key) return;
+  const nextName = String(name || '').trim();
+  const next = { ...localNames.value };
+  if (!nextName || nextName.toLowerCase() === 'unknown') {
+    delete next[key];
+  } else {
+    next[key] = nextName;
+  }
+  localNames.value = next;
+  saveLocalNames();
+}
+
 async function handleFileUpload(e: Event) {
+  showUploadMenu.value = false;
   const input = e.target as HTMLInputElement;
   if (!input.files?.length) return;
 
@@ -726,6 +2081,146 @@ async function handleFileUpload(e: Event) {
   input.value = '';
 }
 
+async function handleFolderUpload(e: Event) {
+  showUploadMenu.value = false;
+  const input = e.target as HTMLInputElement;
+  if (!input.files?.length) return;
+
+  if (!ipfsConnected.value) {
+    showToast('IPFS not connected', 'error');
+    return;
+  }
+
+  const filesList = Array.from(input.files);
+  const groups = new Map<string, { path: string; file: File }[]>();
+
+  for (const f of filesList) {
+    const rel = String((f as any).webkitRelativePath || '').replace(/\\/g, '/');
+    const parts = rel ? rel.split('/').filter(Boolean) : [f.name];
+    const rootName = parts[0] || 'folder';
+    const relPath = parts.length > 1 ? parts.slice(1).join('/') : f.name;
+    if (!groups.has(rootName)) groups.set(rootName, []);
+    groups.get(rootName)!.push({ path: relPath, file: f });
+  }
+
+  for (const [rootName, list] of groups.entries()) {
+    await uploadDirectory(rootName, list);
+  }
+
+  input.value = '';
+}
+
+function upsertFileMetadata(next: DriveFile) {
+  const cid = String(next?.cid || '').trim();
+  if (!cid) return;
+  const filtered = files.value.filter((f) => String(f?.cid || '').trim() !== cid);
+  files.value = [{ ...next, cid }, ...filtered].slice(0, 500);
+  saveFiles();
+}
+
+async function pinCidToActiveGateway(cid: string) {
+  if (hosting.value.kind !== 'gateway') return { ok: true as const };
+
+  const api: any = (window as any).lumen;
+  const profilesApi = api?.profiles;
+  const gwApi = api?.gateway;
+  if (!profilesApi || !gwApi || !gwApi.pinCid) {
+    return { ok: false as const, error: 'Gateway upload unavailable' };
+  }
+
+  const active = await profilesApi.getActive?.().catch(() => null);
+  const profileId = active?.id;
+  if (!profileId) {
+    return { ok: false as const, error: 'No active profile' };
+  }
+
+  const gid = hosting.value.gatewayId;
+  const sub =
+    planSubscriptionsRaw.value.find(
+      (s) => String(s.gatewayId) === String(gid) && String(s.status).includes('active'),
+    ) || planSubscriptionsRaw.value.find((s) => String(s.gatewayId) === String(gid));
+  const planId = sub?.metadata?.planId ?? sub?.metadata?.plan_id ?? null;
+
+  const res = await gwApi
+    .pinCid({
+      profileId,
+      cid,
+      baseUrl: activeGatewayHint.value,
+      planId,
+    })
+    .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+
+  if (!res || res.ok === false) {
+    return { ok: false as const, error: String(res?.error || 'Gateway pin failed') };
+  }
+
+  await refreshActiveGatewayPinned();
+  await refreshGatewayBase(activeGatewayHint.value);
+  return { ok: true as const };
+}
+
+async function uploadDirectory(rootName: string, list: { path: string; file: File }[]) {
+  const name = String(rootName || '').trim() || 'folder';
+  if (!list.length) return;
+
+  uploading.value = true;
+  uploadingFile.value = name;
+
+  try {
+    const payloadFiles: { path: string; data: number[] }[] = [];
+    let totalBytes = 0;
+
+    for (const it of list) {
+      const rel = String(it.path || it.file?.name || 'file').replace(/^\/+/, '').replace(/\\/g, '/');
+      const buf = await it.file.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      totalBytes += bytes.byteLength;
+      payloadFiles.push({ path: rel, data: Array.from(bytes) });
+    }
+
+    const result = await (window as any).lumen?.ipfsAddDirectory?.({
+      rootName: name,
+      files: payloadFiles
+    });
+
+    if (!result?.ok || !result?.cid) {
+      showToast(`Failed to upload folder: ${name}`, 'error');
+      return;
+    }
+
+    const cid = String(result.cid);
+    entryTypeCache.value = { ...entryTypeCache.value, [cid]: 'dir' };
+    setSavedName(cid, name);
+
+    upsertFileMetadata({
+      cid,
+      name,
+      size: totalBytes,
+      uploadedAt: Date.now(),
+      type: 'dir'
+    });
+
+    if (hosting.value.kind === 'gateway') {
+      const pinned = await pinCidToActiveGateway(cid);
+      if (!pinned.ok) {
+        showToast(pinned.error, 'error');
+        return;
+      }
+      showToast(`Uploaded folder to gateway: ${name}`, 'success');
+    } else {
+      loadStats();
+      await loadPinnedFiles();
+      showToast(`Uploaded folder: ${name}`, 'success');
+    }
+  } catch (err) {
+    console.error('Folder upload error:', err);
+    showToast(`Error uploading folder: ${name}`, 'error');
+  } finally {
+    uploading.value = false;
+    uploadingFile.value = '';
+  }
+}
+
 async function uploadFile(file: File) {
   uploading.value = true;
   uploadingFile.value = file.name;
@@ -737,15 +2232,29 @@ async function uploadFile(file: File) {
     const result = await (window as any).lumen?.ipfsAdd?.(Array.from(bytes), file.name);
 
     if (result?.cid) {
-      files.value.unshift({
-        cid: result.cid,
+      const cid = String(result.cid);
+      setSavedName(cid, file.name);
+      entryTypeCache.value = { ...entryTypeCache.value, [cid]: 'file' };
+      upsertFileMetadata({
+        cid,
         name: file.name,
         size: file.size,
-        uploadedAt: Date.now()
+        uploadedAt: Date.now(),
+        type: 'file',
       });
-      saveFiles();
-      loadStats();
-      showToast(`Uploaded: ${file.name}`, 'success');
+
+      if (hosting.value.kind === 'gateway') {
+        const pinned = await pinCidToActiveGateway(cid);
+        if (!pinned.ok) {
+          showToast(pinned.error, 'error');
+          return;
+        }
+        showToast(`Uploaded to gateway: ${file.name}`, 'success');
+      } else {
+        loadStats();
+        await loadPinnedFiles();
+        showToast(`Uploaded: ${file.name}`, 'success');
+      }
     } else {
       showToast(`Failed to upload: ${file.name}`, 'error');
     }
@@ -758,37 +2267,10 @@ async function uploadFile(file: File) {
   }
 }
 
-async function fetchFromCid() {
-  if (!fetchCid.value) return;
-  
-  fetching.value = true;
-  fetchError.value = '';
-
-  try {
-    const result = await (window as any).lumen?.ipfsGet?.(fetchCid.value);
-    
-    if (result?.ok && result.data) {
-      const blob = new Blob([new Uint8Array(result.data)]);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fetchCid.value;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('File downloaded!', 'success');
-    } else {
-      fetchError.value = result?.error || 'Failed to fetch content';
-    }
-  } catch (err) {
-    fetchError.value = 'Network error';
-  } finally {
-    fetching.value = false;
-  }
-}
-
 async function downloadFile(file: DriveFile) {
   try {
-    const result = await (window as any).lumen?.ipfsGet?.(file.cid);
+    const target = contentTargetFor(file);
+    const result = await (window as any).lumen?.ipfsGet?.(target);
     
     if (result?.ok && result.data) {
       const blob = new Blob([new Uint8Array(result.data)]);
@@ -807,33 +2289,185 @@ async function downloadFile(file: DriveFile) {
   }
 }
 
-function copyCid(cid: string) {
-  navigator.clipboard.writeText(cid);
-  showToast('CID copied!', 'success');
+function lumenLinkFor(file: DriveFile): string {
+  const target = contentTargetFor(file);
+  const encoded = encodeIpfsTarget(target);
+  const isDir = String((file as any)?.type || '') === 'dir';
+  return `lumen://ipfs/${encoded}${isDir ? '/' : ''}`;
 }
 
-function copyGatewayUrl(cid: string) {
-  const url = `${GATEWAY_URL}/ipfs/${cid}`;
-  navigator.clipboard.writeText(url);
-  showToast('URL copied!', 'success');
+async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    // ignore
+  }
 }
 
-function openInGateway(cid: string) {
-  const url = `${GATEWAY_URL}/ipfs/${cid}`;
-  window.open(url, '_blank');
+async function copyLumenLinkFor(file: DriveFile) {
+  const url = lumenLinkFor(file);
+  await copyText(url);
+  showToast('Link copied!', 'success');
+}
+
+function openInIpfs(file: DriveFile) {
+  if (String((file as any)?.type || '') === 'dir') {
+    void openDirectory(file);
+    return;
+  }
+  const url = lumenLinkFor(file);
+  if (openInNewTab) {
+    openInNewTab(url);
+    return;
+  }
+  try {
+    window.open(url, '_blank');
+  } catch {
+    // ignore
+  }
+}
+
+async function loadBrowseEntries() {
+  const cid = String(browseRootCid.value || '').trim();
+  if (!cid) return;
+  browseLoading.value = true;
+  browseError.value = '';
+  try {
+    const target = browseRelPath.value ? `${cid}/${browseRelPath.value}` : cid;
+    const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
+    if (!res || res.ok === false) {
+      browseEntries.value = [];
+      browseError.value = String(res?.error || 'Failed to list folder');
+      return;
+    }
+    const list = Array.isArray(res.entries) ? res.entries : [];
+    const mapped = list
+      .filter((it: any) => it && it.name && it.cid)
+      .map((it: any) => {
+        const name = String(it.name);
+        const rel = browseRelPath.value ? `${browseRelPath.value}/${name}` : name;
+        return {
+          cid: String(it.cid),
+          name,
+          size: typeof it.size === 'number' ? it.size : 0,
+          type: String(it.type) === 'dir' ? 'dir' : 'file',
+          rootCid: cid,
+          relPath: rel,
+        } as DriveFile;
+      })
+      .sort((a: any, b: any) => {
+        if (a.type === b.type) return String(a.name).localeCompare(String(b.name));
+        return a.type === 'dir' ? -1 : 1;
+      });
+    browseEntries.value = mapped;
+  } catch (e: any) {
+    browseEntries.value = [];
+    browseError.value = String(e?.message || 'Failed to list folder');
+  } finally {
+    browseLoading.value = false;
+  }
+}
+
+function exitBrowse() {
+  browseRootCid.value = '';
+  browseRelPath.value = '';
+  browseEntries.value = [];
+  browseError.value = '';
+  selectedFile.value = null;
+  renameDraft.value = '';
+}
+
+async function openBrowseAt(path: string) {
+  browseRelPath.value = String(path || '').replace(/^\/+/, '').replace(/\/+$/, '');
+  selectedFile.value = null;
+  renameDraft.value = '';
+  await loadBrowseEntries();
+}
+
+async function openDirectory(file: DriveFile) {
+  const root = String(file?.rootCid || file?.cid || '').trim();
+  if (!root) return;
+  browseRootCid.value = root;
+  await openBrowseAt(String(file?.relPath || '').replace(/^\/+/, '').replace(/\/+$/, ''));
+}
+
+async function handleEntryClick(file: DriveFile) {
+  if (browseLoading.value) return;
+  if (String((file as any)?.type) === 'dir') {
+    await openDirectory(file);
+    return;
+  }
+  if (String((file as any)?.type) === 'file') {
+    selectedFile.value = file;
+    return;
+  }
+
+  // Unknown (root saved entry): best-effort detect if it's a directory.
+  const cid = String(file?.cid || '').trim();
+  if (!cid) return;
+  const res = await (window as any).lumen?.ipfsLs?.(cid).catch(() => null);
+  const linksRaw = Array.isArray(res?.entries) ? res.entries : [];
+  const links = linksRaw.filter((it: any) => it && String(it.name || '').trim() && String(it.cid || '').trim());
+  const isDirDetected = links.length > 0;
+  entryTypeCache.value = { ...entryTypeCache.value, [cid]: isDirDetected ? 'dir' : 'file' };
+
+  if (isDirDetected) {
+    await openDirectory({ ...file, type: 'dir', rootCid: cid, relPath: '' });
+  } else {
+    selectedFile.value = { ...file, type: 'file' };
+  }
 }
 
 function selectFile(file: DriveFile) {
-  selectedFile.value = file;
+  void handleEntryClick(file);
 }
 
-function deleteFile(cid: string) {
-  files.value = files.value.filter(f => f.cid !== cid);
-  saveFiles();
-  if (selectedFile.value?.cid === cid) {
-    selectedFile.value = null;
+watch(
+  selectedFile,
+  (f) => {
+    if (!f) {
+      renameDraft.value = '';
+      return;
+    }
+    renameDraft.value = getSavedName(f.cid);
+  },
+  { immediate: true }
+);
+
+function saveSelectedName() {
+  const f = selectedFile.value;
+  if (!f) return;
+  setSavedName(f.cid, renameDraft.value);
+  selectedFile.value = { ...f, name: getSavedName(f.cid) };
+}
+
+async function removeFile(file: DriveFile) {
+  const cid = String(file?.cid || '').trim();
+  if (!cid) return;
+
+  if (hosting.value.kind === 'local') {
+    try {
+      const res = await (window as any).lumen?.ipfsUnpin?.(cid);
+      if (!res || res.ok === false) {
+        showToast(String(res?.error || 'Unpin failed'), 'error');
+        return;
+      }
+      setSavedName(cid, '');
+      await loadPinnedFiles();
+      void loadStats();
+      if (selectedFile.value?.cid === cid) {
+        selectedFile.value = null;
+        renameDraft.value = '';
+      }
+      showToast('Removed', 'success');
+      return;
+    } catch (e: any) {
+      showToast(String(e?.message || 'Unpin failed'), 'error');
+      return;
+    }
   }
-  showToast('File removed', 'success');
+
+  showToast('Remove from gateway is not available yet', 'error');
 }
 
 function getFileTypeClass(name: string): string {
@@ -857,7 +2491,67 @@ function isVideoFile(name: string): boolean {
 }
 
 function getGatewayUrl(cid: string): string {
-  return `${GATEWAY_URL}/ipfs/${cid}`;
+  const localBase = 'http://127.0.0.1:8080';
+  const publicBase = 'https://ipfs.io';
+  const base =
+    hosting.value.kind === 'gateway'
+      ? gatewayBase.value || publicBase
+      : ipfsConnected.value
+        ? localBase
+        : publicBase;
+  if (!base) return '';
+  const encoded = encodeIpfsTarget(cid);
+  return `${String(base).replace(/\/+$/, '')}/ipfs/${encoded}`;
+}
+
+function imageMimeFromName(name: string): string {
+  const ext = String(name || '').split('.').pop()?.toLowerCase() || '';
+  if (ext === 'png') return 'image/png';
+  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
+  if (ext === 'gif') return 'image/gif';
+  if (ext === 'webp') return 'image/webp';
+  if (ext === 'svg') return 'image/svg+xml';
+  if (ext === 'bmp') return 'image/bmp';
+  return 'application/octet-stream';
+}
+
+function getImageSrc(file: DriveFile): string {
+  const key = contentTargetFor(file);
+  const cached = imagePreviewUrls.value[key];
+  return cached || getGatewayUrl(key);
+}
+
+async function onImageError(file: DriveFile) {
+  if (!file || !isImageFile(file.name)) return;
+  const key = contentTargetFor(file);
+  if (!key) return;
+  if (imagePreviewInFlight.has(key)) return;
+  if (imagePreviewTried.value[key]) return;
+
+  imagePreviewInFlight.add(key);
+  imagePreviewTried.value = { ...imagePreviewTried.value, [key]: true };
+  try {
+    const got = await (window as any).lumen?.ipfsGet?.(key).catch(() => null);
+    if (!got?.ok || !Array.isArray(got.data)) return;
+    const bytes = new Uint8Array(got.data);
+    if (bytes.byteLength <= 0 || bytes.byteLength > 15_000_000) return;
+
+    const blob = new Blob([bytes], { type: imageMimeFromName(file.name) });
+    const url = URL.createObjectURL(blob);
+
+    const prev = imagePreviewUrls.value[key];
+    if (typeof prev === 'string' && prev.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(prev);
+      } catch {
+        // ignore
+      }
+    }
+
+    imagePreviewUrls.value = { ...imagePreviewUrls.value, [key]: url };
+  } finally {
+    imagePreviewInFlight.delete(key);
+  }
 }
 
 function getFileIcon(name: string) {
@@ -894,91 +2588,6 @@ function showToast(msg: string, type: 'success' | 'error' = 'success') {
   setTimeout(() => {
     toast.value = '';
   }, 2500);
-}
-
-function openShareModal(file: DriveFile) {
-  shareFile.value = file;
-  showShareModal.value = true;
-}
-
-function closeShareModal() {
-  showShareModal.value = false;
-  shareFile.value = null;
-}
-
-function copyPublicGatewayUrl(cid: string) {
-  const url = `https://ipfs.io/ipfs/${cid}`;
-  navigator.clipboard.writeText(url);
-  showToast('Public URL copied!', 'success');
-}
-
-async function openPermalinkModal(file: DriveFile) {
-  permalinkFile.value = file;
-  permalinkResult.value = null;
-  selectedPermalinkKey.value = 'self';
-  
-  try {
-    const anyWindow: any = window;
-    const result = await anyWindow.lumen?.ipfsKeyList();
-    if (result?.ok && result.keys) {
-      ipnsKeys.value = result.keys.filter((k: IpnsKey) => k.Name !== 'self');
-    }
-  } catch (e) {
-    console.warn('Failed to load IPNS keys:', e);
-  }
-  
-  showPermalinkModal.value = true;
-}
-
-function closePermalinkModal() {
-  showPermalinkModal.value = false;
-  permalinkFile.value = null;
-  permalinkResult.value = null;
-  permalinkCreating.value = false;
-}
-
-async function createPermalink() {
-  if (!permalinkFile.value) return;
-  
-  permalinkCreating.value = true;
-  
-  try {
-    const anyWindow: any = window;
-    const result = await anyWindow.lumen?.ipfsPublishToIPNS(
-      permalinkFile.value.cid,
-      selectedPermalinkKey.value
-    );
-    
-    if (result?.ok && result.name) {
-      permalinkResult.value = {
-        name: result.name,
-        value: result.value
-      };
-      showToast('Permalink created!', 'success');
-    } else {
-      showToast('Failed to create permalink', 'error');
-      closePermalinkModal();
-    }
-  } catch (e) {
-    console.error('Error creating permalink:', e);
-    showToast('Error creating permalink', 'error');
-    closePermalinkModal();
-  } finally {
-    permalinkCreating.value = false;
-  }
-}
-
-function copyPermalink(name: string) {
-  navigator.clipboard.writeText(name);
-  showToast('IPNS address copied!', 'success');
-}
-
-function copyPermalinkGateway() {
-  if (permalinkResult.value) {
-    const url = `${GATEWAY_URL}/ipns/${permalinkResult.value.name}`;
-    navigator.clipboard.writeText(url);
-    showToast('Permalink URL copied!', 'success');
-  }
 }
 </script>
 
@@ -1094,13 +2703,168 @@ function copyPermalinkGateway() {
   color: white;
 }
 
-.storage-stats {
+.storage-stats,
+.storage-sources {
   padding: 1rem;
   background: var(--card-bg, #f8fafc);
   border-radius: 12px;
   margin-top: 1rem;
   margin-bottom: 0.75rem;
   border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.hosting-panel {
+  padding: 1rem;
+  background: var(--card-bg, #f8fafc);
+  border-radius: 12px;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.hosting-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+.hosting-row.active {
+  background: rgba(52, 152, 219, 0.08);
+  border-color: rgba(52, 152, 219, 0.25);
+}
+
+.hosting-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.7rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  color: var(--text-secondary, #64748b);
+  text-align: left;
+}
+
+.hosting-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+}
+
+.hosting-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-tertiary, #94a3b8);
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.hosting-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 rgba(239, 68, 68, 0.0);
+}
+
+.hosting-dot.ok {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.35);
+}
+
+.hosting-dot.pending {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+}
+
+.hosting-dot.off {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+}
+
+.hosting-details {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #fff);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+}
+
+.hosting-details:hover {
+  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #1e293b);
+}
+
+.hosting-divider {
+  margin: 0.85rem 0.25rem 0.5rem;
+  height: 1px;
+  background: var(--border-color, #e2e8f0);
+}
+
+.hosting-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+}
+
+.hosting-subheader-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-tertiary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hosting-subheader-action {
+  border: none;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2563eb;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: 8px;
+}
+
+.hosting-subheader-action:hover {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.hosting-empty {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.hosting-tags {
+  display: inline-flex;
+  gap: 0.35rem;
+  margin-left: 0.6rem;
+  justify-self: end;
+}
+
+.hosting-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(52, 152, 219, 0.12);
+  color: #2563eb;
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
 .stats-header {
@@ -1135,6 +2899,93 @@ function copyPermalinkGateway() {
   color: var(--text-primary, #1e293b);
 }
 
+.source-card {
+  margin-top: 0.5rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #ffffff);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.source-card.local {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.06), rgba(148, 163, 184, 0.02));
+}
+
+.source-card.gateway {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.06), rgba(52, 152, 219, 0.02));
+}
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.source-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+}
+
+.source-pill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--bg-secondary, #f1f5f9);
+  color: var(--text-secondary, #64748b);
+}
+
+.source-pill.accent {
+  background: rgba(52, 152, 219, 0.12);
+  color: #2563eb;
+}
+
+.source-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.source-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.source-row span:last-child {
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+}
+
+.source-row.muted {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.source-row.error {
+  color: #dc2626;
+}
+
+.source-bar {
+  height: 5px;
+  background: var(--border-color, #e2e8f0);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+.source-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
 .ipfs-status {
   display: flex;
   align-items: center;
@@ -1164,6 +3015,102 @@ function copyPermalinkGateway() {
   height: 8px;
   border-radius: 50%;
   background: #ef4444;
+}
+
+/* Details modals */
+.details-grid {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: var(--bg-secondary, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.details-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.details-label {
+  font-weight: 700;
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.details-value {
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+}
+
+.details-value.ok {
+  color: #16a34a;
+}
+
+.details-value.pending {
+  color: #d97706;
+}
+
+.details-value.off {
+  color: #dc2626;
+}
+
+.details-section {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #fff);
+}
+
+.details-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.details-section-header h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary, #1e293b);
+}
+
+.details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.details-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: var(--bg-secondary, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.details-muted {
+  color: var(--text-tertiary, #94a3b8);
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.details-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 /* Main Content */
@@ -1202,11 +3149,359 @@ function copyPermalinkGateway() {
 }
 
 .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .plans-filter {
+    margin-bottom: 1rem;
+  }
+
+  .plans-filter-input {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    font-size: 0.875rem;
+    color: var(--text-primary, #1e293b);
+    background: var(--bg-secondary, #f8fafc);
+  }
+
+  .plans-filter-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+    background: var(--bg-primary, #ffffff);
+  }
+
+  .plans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .plan-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, #f8fafc);
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-body {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .plan-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .plan-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .plan-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary, #1e293b);
+  }
+
+  .plan-status-badge {
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--bg-primary, #ffffff);
+    color: var(--text-secondary, #64748b);
+    border: 1px solid var(--border-color, #e2e8f0);
+  }
+
+  .plan-status-badge.active {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+
+  .plan-status-badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+    border-color: #fde68a;
+  }
+
+  .plan-gw {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #64748b);
+  }
+
+  .plan-meta {
+    min-width: 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .plan-meta-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+  }
+
+  .plan-meta-line .label {
+    color: var(--text-secondary, #64748b);
+  }
+
+  .plan-meta-line .value {
+    font-weight: 500;
+    color: var(--text-primary, #1e293b);
+  }
+
+  .plan-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+  }
+
+  /* Gateway plans modal */
+  .plans-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+  }
+
+  .plans-search-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .plans-search-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, #f8fafc);
+    min-width: 220px;
+  }
+
+  .plans-filter-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.875rem;
+    color: var(--text-primary, #1e293b);
+    min-width: 140px;
+  }
+
+  .plans-empty {
+    text-align: center;
+    padding: 1rem 0.5rem 0.5rem;
+  }
+
+  .plans-empty h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary, #0f172a);
+    margin-bottom: 0.25rem;
+  }
+
+  .plans-empty-muted {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #64748b);
+  }
+
+  .plans-empty-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .gateway-card {
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-primary, #ffffff);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .gateway-card.offline {
+    opacity: 0.7;
+  }
+
+  .gateway-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .gateway-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .gateway-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #22c55e;
+  }
+
+  .gateway-status-dot.off {
+    background: #ef4444;
+  }
+
+  .gateway-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary, #1e293b);
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gateway-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    justify-content: flex-end;
+  }
+
+  .gateway-meta-item {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #64748b);
+  }
+
+  .gateway-plans {
+    border-top: 1px solid var(--border-color, #e2e8f0);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .gateway-plan-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .plan-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, #f8fafc);
+    font-size: 0.75rem;
+    color: var(--text-secondary, #64748b);
+  }
+
+  .plan-chip.active {
+    border-color: #22c55e;
+    background: #ecfdf5;
+    color: #15803d;
+  }
+
+  .plan-chip-name {
+    font-weight: 500;
+  }
+
+  .plan-chip-price {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+
+  .gateway-expand-btn {
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.75rem;
+    background: var(--bg-primary, #ffffff);
+    color: var(--text-secondary, #64748b);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .gateway-expand-btn:hover {
+    background: var(--bg-secondary, #f8fafc);
+    border-color: #cbd5e1;
+    color: var(--text-primary, #1e293b);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    background: var(--bg-primary, #ffffff);
+    color: var(--text-secondary, #64748b);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-ghost:hover {
+    background: var(--bg-secondary, #f8fafc);
+    border-color: #cbd5e1;
+    color: var(--text-primary, #1e293b);
+  }
+
+  .plans-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, #f8fafc);
+    font-size: 0.8rem;
+    color: var(--text-secondary, #64748b);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .plans-btn:hover {
+    background: var(--bg-primary, #ffffff);
+    border-color: #cbd5e1;
+    color: var(--text-primary, #1e293b);
+  }
 
 .upload-btn, .upload-btn-large {
   display: inline-flex;
@@ -1234,6 +3529,45 @@ function copyPermalinkGateway() {
   display: none;
 }
 
+.upload-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.upload-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 190px;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  padding: 0.35rem;
+  z-index: 50;
+}
+
+.upload-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-primary, #1e293b);
+  user-select: none;
+}
+
+.upload-dropdown-item:hover {
+  background: var(--bg-secondary, #f8fafc);
+}
+
+.upload-dropdown-item input {
+  display: none;
+}
+
 .upload-btn-large {
   padding: 1rem 1.75rem;
 }
@@ -1244,6 +3578,44 @@ function copyPermalinkGateway() {
   border-radius: 10px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
+}
+
+/* Folder breadcrumb */
+.browse-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.75rem;
+}
+
+.browse-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.browse-crumbs .crumb {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-primary, #1e293b);
+  font-size: 0.85rem;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browse-crumbs .crumb:hover {
+  color: #3498db;
+}
+
+.browse-crumbs .sep {
+  color: var(--text-secondary, #64748b);
 }
 
 .progress-content {
