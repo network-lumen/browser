@@ -847,7 +847,7 @@ void loadDomains();
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-primary);
   padding: 1.5rem;
   border-right: 2px solid var(--border-color, #e5e7eb);
   display: flex;
@@ -912,10 +912,10 @@ void loadDomains();
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
+  background: var(--bg-secondary);
   border-radius: 12px;
   margin-top: 0.75rem;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
 }
 
 .avatar {
@@ -946,7 +946,7 @@ void loadDomains();
 .profile-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -1001,8 +1001,14 @@ void loadDomains();
   width: 100%;
   padding: 0.6rem 0.75rem;
   border-radius: 10px;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
   font-size: 0.85rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .form-input:focus {
@@ -1014,7 +1020,7 @@ void loadDomains();
 .main-content {
   flex: 1;
   padding: 2rem 2.5rem;
-  background: var(--bg-primary, #f8fafc);
+  background: var(--bg-primary);
   overflow-y: auto;
 }
 
@@ -1029,13 +1035,13 @@ void loadDomains();
   margin: 0;
   font-size: 1.6rem;
   font-weight: 650;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .content-header p {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary);
 }
 
 .header-actions {
@@ -1061,15 +1067,15 @@ void loadDomains();
 }
 
 .btn.primary.ghost {
-  background: #ffffff;
-  border-color: var(--border-color, #e2e8f0);
-  color: #475569;
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
 }
 
 .btn.secondary {
-  background: #ffffff;
-  color: #64748b;
-  border-color: var(--border-color, #e2e8f0);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
 }
 
 .btn.full {
@@ -1078,11 +1084,11 @@ void loadDomains();
 }
 
 .card {
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 16px;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
   padding: 1.25rem 1.5rem 1.5rem;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .card-head {
@@ -1091,20 +1097,20 @@ void loadDomains();
   justify-content: space-between;
   gap: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .card-head h2 {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .card-head p {
   margin: 0.35rem 0 0;
   font-size: 0.8rem;
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary);
 }
 
 .count-pill {
@@ -1163,14 +1169,14 @@ void loadDomains();
   justify-content: space-between;
   padding: 0.65rem 0.8rem;
   border-radius: 10px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: #ffffff;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .domain-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .domain-right {
@@ -1183,13 +1189,13 @@ void loadDomains();
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .pill {
@@ -1213,15 +1219,15 @@ void loadDomains();
 
 .pill-soon,
 .pill-warn {
-  background: #fffbeb;
-  border-color: #fed7aa;
-  color: #92400e;
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
 }
 
 .pill-ok {
-  background: #ecfdf5;
-  border-color: #bbf7d0;
-  color: #15803d;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
 }
 
 .spinner {
@@ -1229,7 +1235,7 @@ void loadDomains();
   height: 18px;
   border-radius: 999px;
   border: 2px solid rgba(148, 163, 184, 0.3);
-  border-top-color: #1f2937;
+  border-top-color: var(--accent-color);
   animation: spin 0.7s linear infinite;
 }
 
@@ -1250,14 +1256,14 @@ void loadDomains();
 }
 
 .modal {
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 14px;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.45);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .modal-header {
@@ -1345,9 +1351,9 @@ void loadDomains();
 .price-box {
   margin: 0.5rem 0 1.1rem;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   padding: 0.55rem 0.75rem;
-  background: #f8fafc;
+  background: var(--bg-secondary);
 }
 
 .price-row {
@@ -1356,10 +1362,11 @@ void loadDomains();
   justify-content: space-between;
   font-size: 0.8rem;
   padding: 0.25rem 0;
+  color: var(--text-primary);
 }
 
 .price-row.total {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color);
   margin-top: 0.3rem;
   padding-top: 0.4rem;
   font-weight: 600;

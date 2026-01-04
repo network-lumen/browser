@@ -61,6 +61,12 @@ contextBridge.exposeInMainWorld('lumen', {
     getTokenomicsParams: () => ipcRenderer.invoke('chain:getTokenomicsParams'),
     sendTokens: (payload) => ipcRenderer.invoke('wallet:sendTokens', payload),
     listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) })
+  },
+  addressBook: {
+    list: () => ipcRenderer.invoke('addressbook:list'),
+    add: (contact) => ipcRenderer.invoke('addressbook:add', contact),
+    update: (id, updates) => ipcRenderer.invoke('addressbook:update', id, updates),
+    delete: (id) => ipcRenderer.invoke('addressbook:delete', id)
   }
 });
 

@@ -173,7 +173,7 @@ function navigateToAddress(address: string) {
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-primary);
   overflow: hidden;
 }
 
@@ -182,12 +182,12 @@ function navigateToAddress(address: string) {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--card-bg, #ffffff);
+  background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: #1a1a2e;
-  border-right: 2px solid #e5e7eb;
+  color: var(--text-primary);
+  border-right: 2px solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -213,7 +213,7 @@ function navigateToAddress(address: string) {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -232,7 +232,7 @@ function navigateToAddress(address: string) {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -249,13 +249,13 @@ function navigateToAddress(address: string) {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: var(--hover-bg, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
@@ -272,7 +272,7 @@ function navigateToAddress(address: string) {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: var(--card-bg, #ffffff);
+  background: var(--bg-primary);
   margin: 0;
   border-radius: 0;
 }
@@ -284,13 +284,13 @@ function navigateToAddress(address: string) {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
 
@@ -300,8 +300,8 @@ function navigateToAddress(address: string) {
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1.25rem;
-  background: var(--bg-secondary, #f8fafc);
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   margin-bottom: 1.5rem;
 }
@@ -311,12 +311,12 @@ function navigateToAddress(address: string) {
   border: none;
   background: transparent;
   font-size: 0.95rem;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   outline: none;
 }
 
 .search-box input::placeholder {
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 
 .search-btn {
