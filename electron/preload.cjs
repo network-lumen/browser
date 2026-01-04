@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('lumen', {
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),
+  httpHead: (url, options) => ipcRenderer.invoke('http:head', url, options || {}),
   http: {
     get: (url, options) => ipcRenderer.invoke('http:get', url, options || {})
   },
