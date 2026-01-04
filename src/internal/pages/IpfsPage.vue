@@ -2,13 +2,6 @@
   <div class="ipfs-page">
     <main class="main-content">
       <header class="content-header">
-        <div>
-          <h1 class="txt-lg txt-weight-strong">IPFS</h1>
-          <p class="txt-xs color-gray-blue margin-top-10">
-            <span class="mono">{{ displayLumenUrl }}</span>
-          </p>
-        </div>
-
         <div class="header-actions">
           <button
             v-if="isDir && indexHtmlEntry"
@@ -18,6 +11,18 @@
             :disabled="!openInNewTab"
           >
             <span>Open website</span>
+          </button>
+          <button
+            class="plans-btn"
+            type="button"
+            @click="saveToDrive"
+            :class="{ 'save-active': saved }"
+            :disabled="!rootCid || loading || saving || saved"
+            :title="saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'"
+          >
+            <Check v-if="saved" :size="16" />
+            <Save v-else :size="16" />
+            <span>{{ saved ? 'Saved' : saving ? 'Saving...' : 'Save' }}</span>
           </button>
           <button class="plans-btn" type="button" @click="copyLink" :disabled="!rootCid">
             <Copy :size="16" />
@@ -128,7 +133,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from 'vue';
-import { Copy, Download, File, Folder } from 'lucide-vue-next';
+import { Check, Copy, Download, File, Folder, Save } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
 
 type Entry = {
@@ -154,8 +159,12 @@ const mediaErrored = ref(false);
 const rootCid = ref('');
 const relPath = ref('');
 const wantsDir = ref(false);
+const saving = ref(false);
+const saved = ref(false);
+const savedCid = ref('');
 
 const LOCAL_GATEWAY_BASE = 'http://127.0.0.1:8080';
+const LOCAL_NAMES_KEY = 'lumen_drive_saved_names';
 
 function stripQueryHash(url: string): string {
   return String(url || '').split(/[?#]/, 1)[0] || '';
@@ -281,6 +290,8 @@ async function load() {
   viewKind.value = 'unknown';
   textContent.value = '';
   mediaErrored.value = false;
+  saved.value = false;
+  savedCid.value = '';
 
   if (!rootCid.value) {
     error.value = 'Missing CID.';
@@ -330,6 +341,7 @@ async function load() {
     error.value = String(e?.message || e);
   } finally {
     loading.value = false;
+    void refreshSavedState();
   }
 }
 
@@ -372,6 +384,78 @@ async function copyLink() {
 async function copyLinkFor(it: Entry) {
   const suffix = it.type === 'dir' ? '/' : '';
   await copyText(`lumen://ipfs/${rootCid.value}/${encodePath(it.relPath)}${suffix}`);
+}
+
+function setDriveSavedName(cid: string, name: string) {
+  const key = String(cid || '').trim();
+  const nextName = String(name || '').trim();
+  if (!key || !nextName) return;
+  try {
+    const stored = localStorage.getItem(LOCAL_NAMES_KEY);
+    const parsed = stored ? JSON.parse(stored) : {};
+    const base = parsed && typeof parsed === 'object' ? parsed : {};
+    const next = { ...base, [key]: nextName };
+    localStorage.setItem(LOCAL_NAMES_KEY, JSON.stringify(next));
+  } catch {
+    // ignore
+  }
+}
+
+function inferDefaultName(): string {
+  const p = String(relPath.value || '').replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!p) return '';
+  const seg = p.split('/').filter(Boolean).slice(-1)[0] || '';
+  return seg;
+}
+
+async function resolveCurrentItemCid(): Promise<string> {
+  if (!rootCid.value) throw new Error('Missing CID.');
+  const p = String(relPath.value || '').replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!p) return rootCid.value;
+
+  const parts = p.split('/').filter(Boolean);
+  const name = parts[parts.length - 1] || '';
+  const parent = parts.slice(0, -1).join('/');
+  const parentTarget = parent ? `${rootCid.value}/${parent}` : rootCid.value;
+
+  const res = await (window as any).lumen?.ipfsLs?.(parentTarget).catch(() => null);
+  const list = Array.isArray(res?.entries) ? res.entries : [];
+  const hit = list.find((it: any) => String(it?.name || '') === name);
+  const cid = String(hit?.cid || '').trim();
+  return cid || rootCid.value;
+}
+
+async function saveToDrive() {
+  if (!rootCid.value || saving.value) return;
+  saving.value = true;
+  try {
+    const cid = await resolveCurrentItemCid();
+    const ok = await (window as any).lumen?.ipfsPinAdd?.(cid).catch(() => null);
+    if (!ok?.ok) throw new Error(String(ok?.error || 'save_failed'));
+    const name = inferDefaultName();
+    if (name) setDriveSavedName(cid, name);
+    savedCid.value = cid;
+    saved.value = true;
+  } catch (e: any) {
+    error.value = String(e?.message || e);
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function refreshSavedState() {
+  try {
+    saved.value = false;
+    savedCid.value = '';
+    if (!rootCid.value) return;
+    const cid = await resolveCurrentItemCid();
+    savedCid.value = cid;
+    const res = await (window as any).lumen?.ipfsPinList?.().catch(() => null);
+    const pins = res?.ok && Array.isArray(res.pins) ? res.pins.map((x: any) => String(x)) : [];
+    saved.value = pins.includes(cid);
+  } catch {
+    saved.value = false;
+  }
 }
 
 function formatSize(bytes: number): string {
@@ -428,7 +512,7 @@ watch(
 
 .content-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -456,6 +540,17 @@ watch(
 .plans-btn:hover:not(:disabled) {
   background: var(--bg-primary, #ffffff);
   border-color: #3498db;
+}
+
+.plans-btn.save-active {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.38);
+  color: #166534;
+}
+
+.plans-btn.save-active:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 
 .plans-btn:disabled {

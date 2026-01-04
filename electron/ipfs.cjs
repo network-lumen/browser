@@ -300,6 +300,29 @@ async function ipfsPinList() {
   }
 }
 
+async function ipfsPinAdd(cidOrPath) {
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    console.log('[electron][ipfs] pin add:', arg);
+    const url = new URL('http://127.0.0.1:5001/api/v0/pin/add');
+    url.searchParams.set('arg', arg);
+    url.searchParams.set('recursive', 'true');
+    const res = await fetch(url.toString(), { method: 'POST' });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn('[electron][ipfs] pin add failed:', res.status, errText);
+      return { ok: false, error: 'http_' + res.status };
+    }
+
+    await res.text().catch(() => '');
+    return { ok: true };
+  } catch (e) {
+    console.error('[electron][ipfs] pin add error:', e);
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
 function sanitizeCidOrPath(input) {
   const s = String(input ?? '').trim();
   if (!s) throw new Error('Empty CID or path');
@@ -506,6 +529,7 @@ module.exports = {
   ipfsGet,
   ipfsLs,
   ipfsPinList,
+  ipfsPinAdd,
   ipfsUnpin,
   ipfsStats,
   ipfsPublishToIPNS,

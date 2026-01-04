@@ -1590,6 +1590,94 @@ function registerGatewayIpc() {
     }
   });
 
+  ipcMain.handle('gateway:searchPq', async (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      const query = String(input?.query || '').trim();
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!query) return { ok: false, error: 'missing_query' };
+
+      const endpoint =
+        typeof input?.endpoint === 'string'
+          ? String(input.endpoint).trim()
+          : typeof input?.gatewayEndpoint === 'string'
+          ? String(input.gatewayEndpoint).trim()
+          : '';
+
+      const baseHint =
+        typeof input?.baseUrl === 'string'
+          ? String(input.baseUrl).trim()
+          : endpoint;
+
+      const baseUrl = baseHint
+        ? (await resolveGatewayBaseFromEndpoint(baseHint).catch(() => null)) || baseHint
+        : await resolveGatewayBaseUrlFromPlans(profileId, defaultGatewayBase());
+      if (!baseUrl) return { ok: false, error: 'missing_baseUrl' };
+
+      const wallet = getWalletAddressForProfile(profileId);
+      if (!wallet) return { ok: false, error: 'wallet_unavailable' };
+      const mnemonic = loadMnemonic(profileId);
+
+      const lang =
+        typeof input?.lang === 'string' && input.lang.trim()
+          ? String(input.lang).trim()
+          : 'en';
+      const limitRaw = input?.limit != null ? Number(input.limit) : 10;
+      const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 50) : 10;
+      const offsetRaw = input?.offset != null ? Number(input.offset) : 0;
+      const offset = Number.isFinite(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
+      const mode = typeof input?.mode === 'string' ? String(input.mode) : '';
+      const type = typeof input?.type === 'string' ? String(input.type) : '';
+
+      console.log('[gateway] searchPq', {
+        profileId,
+        endpoint: endpoint || undefined,
+        baseUrl: trimSlash(baseUrl),
+        q: query,
+        type: type || undefined,
+        limit,
+        offset,
+      });
+
+      const { status, data } = await sendGatewayAuthPq({
+        baseUrl,
+        path: '/pq/search',
+        method: 'POST',
+        wallet,
+        mnemonic,
+        payload: {
+          q: query,
+          lang,
+          limit,
+          offset,
+          mode,
+          type,
+        },
+      });
+
+      if (status < 200 || status >= 300) {
+        console.warn('[gateway] searchPq bad_status', {
+          status,
+          error: (data && data.error) || 'search_failed',
+        });
+        return {
+          ok: false,
+          status,
+          error: (data && data.error) || 'search_failed',
+        };
+      }
+
+      console.log('[gateway] searchPq ok', {
+        status,
+        hits: Array.isArray(data?.hits) ? data.hits.length : undefined,
+      });
+      return { ok: true, status, data, baseUrl: trimSlash(baseUrl) };
+    } catch (e) {
+      console.warn('[gateway] searchPq error', e && e.message ? e.message : e);
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('gateway:getPlansOverview', async (_e, input) => {
     try {
       const profileId = String(input?.profileId || '').trim();

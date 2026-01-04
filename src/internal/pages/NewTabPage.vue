@@ -1,63 +1,151 @@
 <template>
-  <div class="flex flex-column w-full h-full padding-100">
-    <div class="bg-white border-radius-20px box-shadow-default padding-100 max-w-800 w-full margin-bottom-50" style="background: var(--bg-primary, white); border: 1px solid var(--border-color, #e5e7eb)">
-      <h2 class="txt-md txt-weight-strong margin-bottom-25" style="color: var(--text-primary, #1e293b)">New tab</h2>
-      <p class="txt-xs margin-bottom-25" style="color: var(--text-secondary, #64748b)">
-        Internal page <code>lumen://newtab</code>.
-      </p>
-      <p class="txt-xs txt-weight-strong margin-bottom-10" style="color: var(--text-primary, #475569)">Available internal routes</p>
-      <ul class="txt-xs">
-        <li v-for="key in topRouteKeys" :key="key" class="margin-bottom-10">
-          <button
-            class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-            @click="openRoute(key)"
-          >
-            <code>lumen://{{ key }}</code>
-          </button>
-          <ul v-if="key === 'home'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in homeChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-          <ul v-if="key === 'network'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in networkChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-        </li>
-      </ul>
+  <div class="newtab-page">
+    <div class="cards">
+      <button class="card explore" type="button" @click="goExplore">
+        <div class="icon">
+          <Telescope :size="26" />
+        </div>
+        <div class="copy">
+          <h2>Explore the Lumen network</h2>
+          <p>Discover content that can't be taken down.</p>
+          <span class="cta">Start exploring</span>
+        </div>
+      </button>
+
+      <button
+        class="card share"
+        type="button"
+        @click="goHome"
+        :disabled="!hasProfiles"
+      >
+        <div class="icon">
+          <MonitorUp :size="26" />
+        </div>
+        <div class="copy">
+          <h2>My space</h2>
+          <p>Access Drive, domains, wallet, and your personal tools.</p>
+          <span class="cta">{{ hasProfiles ? 'Open' : 'Create a profile to unlock' }}</span>
+        </div>
+      </button>
+
+      <div v-if="!hasProfiles" class="hint">
+        No profile yet. Create one using the top-right profile button.
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, computed } from 'vue';
-import { INTERNAL_ROUTE_KEYS } from '../routes';
+import { computed, inject } from 'vue';
+import { MonitorUp, Telescope } from 'lucide-vue-next';
+import { profilesState } from '../profilesStore';
 
-const homeChildren = ['drive', 'wallet', 'domain'];
-const networkChildren = ['explorer', 'dao', 'release'];
-const HIDDEN_KEYS = ['newtab'];
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
-const topRouteKeys = computed(() =>
-  INTERNAL_ROUTE_KEYS.filter(
-    (k) => !homeChildren.includes(k) && !networkChildren.includes(k) && !HIDDEN_KEYS.includes(k)
-  )
-);
+const hasProfiles = computed(() => profilesState.value.length > 0);
 
-const openInNewTab = inject<(url: string) => void>('openInNewTab');
-
-function openRoute(key: string) {
-  const url = `lumen://${key}`;
+function goto(url: string) {
+  if (navigate) {
+    navigate(url, { push: true });
+    return;
+  }
   openInNewTab?.(url);
 }
+
+function goExplore() {
+  goto('lumen://search');
+}
+
+function goHome() {
+  if (!hasProfiles.value) return;
+  goto('lumen://home');
+}
 </script>
+
+<style scoped>
+.newtab-page {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary, #f0f2f5);
+}
+
+.cards {
+  width: min(720px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.25rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.card:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(52, 152, 219, 0.5);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.10);
+}
+
+.card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary, #f8fafc);
+  color: #1d4ed8;
+  flex: 0 0 auto;
+}
+
+.copy h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--text-primary, #1e293b);
+}
+
+.copy p {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.hint {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+</style>
