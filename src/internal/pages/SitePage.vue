@@ -1,20 +1,9 @@
 <template>
   <div class="site-page">
     <main class="main-content">
-      <header class="content-header">
-        <div>
-          <h1 class="txt-lg txt-weight-strong">{{ title }}</h1>
-          <p class="txt-xs color-gray-blue margin-top-10">
-            <span class="mono">{{ displayUrl }}</span>
-          </p>
-        </div>
-
+      <header v-if="error" class="content-header">
         <div class="header-actions">
-          <button class="plans-btn" type="button" @click="copyLink" :disabled="!displayUrl">
-            <Copy :size="16" />
-            <span>Copy link</span>
-          </button>
-          <button class="plans-btn" type="button" @click="retry" :disabled="loading">
+          <button v-if="error" class="plans-btn" type="button" @click="retry" :disabled="loading">
             <RefreshCw :size="16" />
             <span>Retry</span>
           </button>
@@ -34,9 +23,6 @@
       </div>
 
       <div v-else class="viewer">
-        <div v-if="activeSourceLabel" class="source-pill txt-xs">
-          Source: {{ activeSourceLabel }}
-        </div>
         <iframe
           v-if="resolvedHttpUrl"
           class="site-frame"
@@ -50,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref, watch } from 'vue';
-import { Copy, RefreshCw } from 'lucide-vue-next';
+import { inject, ref, watch } from 'vue';
+import { RefreshCw } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
 
 const currentTabUrl = inject<any>('currentTabUrl', null);
@@ -311,22 +297,6 @@ async function resolveAndLoad() {
   }
 }
 
-const displayUrl = computed(() => String(currentTabUrl?.value || window.location.href || '').trim());
-
-const title = computed(() => {
-  const raw = displayUrl.value;
-  const host = parseLumenUrl(raw).host;
-  return host || 'Site';
-});
-
-async function copyLink() {
-  try {
-    await navigator.clipboard.writeText(displayUrl.value);
-  } catch {
-    // ignore
-  }
-}
-
 function retry() {
   void resolveAndLoad();
 }
@@ -342,7 +312,8 @@ watch(
 .site-page {
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  min-height: 100vh;
   background: var(--bg-primary, #ffffff);
 }
 
@@ -350,16 +321,17 @@ watch(
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 0;
   overflow: hidden;
+  min-height: 0;
 }
 
 .content-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1rem;
+  padding: 1rem 1rem 0;
 }
 
 .header-actions {
@@ -419,23 +391,7 @@ watch(
   position: relative;
   flex: 1;
   min-height: 0;
-  border-radius: 14px;
   overflow: hidden;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-secondary, #f8fafc);
-}
-
-.source-pill {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  padding: 0.35rem 0.6rem;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  color: var(--text-secondary, #334155);
-  backdrop-filter: blur(6px);
 }
 
 .site-frame {

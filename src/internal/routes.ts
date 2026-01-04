@@ -21,7 +21,7 @@ type InternalRoute = {
 };
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
-  newtab: { component: HomePage, title: 'Home' },
+  newtab: { component: NewTabPage, title: 'New tab' },
   home: { component: HomePage, title: 'Home' },
   search: { component: SearchPage, title: 'Search' },
   settings: { component: SettingsPage, title: 'Settings' },

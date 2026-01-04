@@ -12,8 +12,9 @@ import DaoPage from './pages/DaoPage.vue';
 import ReleasePage from './pages/ReleasePage.vue';
 import WalletPage from './pages/WalletPage.vue';
 import DomainPage from './pages/DomainPage.vue';
+import NewTabPage from './pages/NewTabPage.vue';
 const INTERNAL_ROUTES = {
-    newtab: { component: HomePage, title: 'Home' },
+    newtab: { component: NewTabPage, title: 'New tab' },
     home: { component: HomePage, title: 'Home' },
     search: { component: SearchPage, title: 'Search' },
     settings: { component: SettingsPage, title: 'Settings' },

@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -48,6 +48,11 @@ ipcMain.handle('ipfs:ls', async (_evt, cidOrPath) => {
 
 ipcMain.handle('ipfs:pinList', async () => {
   return ipfsPinList();
+});
+
+ipcMain.handle('ipfs:pinAdd', async (_evt, cidOrPath) => {
+  console.log('[electron][ipc] ipfs:pinAdd requested:', cidOrPath);
+  return ipfsPinAdd(cidOrPath);
 });
 
 ipcMain.handle('ipfs:unpin', async (_evt, cid) => {

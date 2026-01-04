@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsGet: (cid) => ipcRenderer.invoke('ipfs:get', cid),
   ipfsLs: (cidOrPath) => ipcRenderer.invoke('ipfs:ls', cidOrPath),
   ipfsPinList: () => ipcRenderer.invoke('ipfs:pinList'),
+  ipfsPinAdd: (cidOrPath) => ipcRenderer.invoke('ipfs:pinAdd', cidOrPath),
   ipfsUnpin: (cid) => ipcRenderer.invoke('ipfs:unpin', cid),
   ipfsStats: () => ipcRenderer.invoke('ipfs:stats'),
   ipfsPublishToIPNS: (cid, key) => ipcRenderer.invoke('ipfs:publishToIPNS', cid, key),
@@ -75,6 +76,7 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.invoke('gateway:getBaseUrl', { profileId, baseUrl }),
     getPlansOverview: (profileId, options) =>
       ipcRenderer.invoke('gateway:getPlansOverview', { profileId, ...(options || {}) }),
+    searchPq: (payload) => ipcRenderer.invoke('gateway:searchPq', payload || {}),
     pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
     subscribePlan: (payload) =>
       ipcRenderer.invoke('gateway:subscribePlan', payload || {})

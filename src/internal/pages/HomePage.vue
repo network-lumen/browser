@@ -63,6 +63,10 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <div v-if="!hasProfiles" class="no-profile-banner">
+        <div class="no-profile-title">Vous n'avez pas de profile actuellement</div>
+        <div class="no-profile-sub">Créez-en un via le bouton en haut à droite.</div>
+      </div>
       <!-- Hero Section -->
       <section class="hero-section">
         <div class="hero-content">
@@ -101,7 +105,7 @@
       <section class="quick-actions">
         <h2 class="section-title">My Space</h2>
         <div class="actions-grid">
-          <button class="action-card" @click="openRoute('drive')">
+          <button class="action-card" @click="openRoute('drive')" :disabled="!hasProfiles">
             <div class="action-icon drive">
               <HardDrive :size="24" />
             </div>
@@ -112,7 +116,7 @@
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
 
-          <button class="action-card" @click="openRoute('domain')">
+          <button class="action-card" @click="openRoute('domain')" :disabled="!hasProfiles">
             <div class="action-icon domain">
               <AtSign :size="24" />
             </div>
@@ -123,7 +127,7 @@
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
           
-          <button class="action-card" @click="openRoute('wallet')">
+          <button class="action-card" @click="openRoute('wallet')" :disabled="!hasProfiles">
             <div class="action-icon wallet">
               <Wallet :size="24" />
             </div>
@@ -201,6 +205,7 @@ const showAllPages = ref(true);
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
+const hasProfiles = computed(() => profiles.value.length > 0);
 
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
@@ -489,6 +494,31 @@ function getRouteIcon(key: string) {
   background: var(--bg-primary, #fff);
   margin: 0;
   border-radius: 0;
+}
+
+.no-profile-banner {
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  margin-bottom: 1.25rem;
+}
+
+.no-profile-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.no-profile-sub {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+.action-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* Hero Section */

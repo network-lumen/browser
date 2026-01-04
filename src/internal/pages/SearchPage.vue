@@ -1,506 +1,1083 @@
 <template>
-  <div class="search-page">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Search :size="24" />
-        </div>
-        <span class="logo-text">Search</span>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Filter</span>
-          <button 
-            class="nav-item"
-            :class="{ active: currentFilter === 'all' }"
-            @click="currentFilter = 'all'"
-          >
-            <Globe :size="18" />
-            <span>All Results</span>
-          </button>
-          <button 
-            class="nav-item"
-            :class="{ active: currentFilter === 'files' }"
-            @click="currentFilter = 'files'"
-          >
-            <FileText :size="18" />
-            <span>Files</span>
-          </button>
-          <button 
-            class="nav-item"
-            :class="{ active: currentFilter === 'domains' }"
-            @click="currentFilter = 'domains'"
-          >
-            <Hash :size="18" />
-            <span>Domains</span>
-          </button>
-        </div>
-      </nav>
-    </aside>
+  <main class="search-page" @keydown.slash.prevent="focusInput">
+    <section class="hero">
+      <div class="brand">Lumen</div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Header -->
-      <header class="content-header">
-        <div>
-          <h1>Search</h1>
-          <p>Search across IPFS content and domains</p>
+      <div class="search-row">
+        <div class="search-box">
+          <Search :size="18" class="search-icon" />
+          <input
+            ref="inputEl"
+            v-model="q"
+            type="text"
+            class="search-input"
+            placeholder="Search the network"
+            @keydown.enter.prevent="submit"
+          />
+          <button class="search-btn" type="button" @click="submit" :disabled="loading || !q.trim()">
+            Search
+          </button>
         </div>
-      </header>
-
-      <!-- Search Box -->
-      <div class="search-box">
-        <Search :size="20" />
-        <input 
-          type="text" 
-          placeholder="Search for files, domains, or content..." 
-          v-model="searchQuery"
-          @keyup.enter="performSearch"
-        />
-        <button class="search-btn" @click="performSearch">Search</button>
       </div>
 
-      <!-- Results -->
-      <div class="content-area">
-        <div v-if="!hasSearched" class="empty-state">
-          <div class="empty-icon">
-            <Search :size="48" />
+      <div class="tabs">
+        <button
+          class="pill"
+          type="button"
+          :class="{ active: selectedType === 'site' }"
+          @click="setType('site')"
+        >
+          <Globe :size="16" />
+          Sites
+        </button>
+        <button
+          class="pill"
+          type="button"
+          :class="{ active: selectedType === 'video' }"
+          @click="setType('video')"
+        >
+          <Film :size="16" />
+          Videos
+        </button>
+        <button
+          class="pill"
+          type="button"
+          :class="{ active: selectedType === 'image' }"
+          @click="setType('image')"
+        >
+          <Image :size="16" />
+          Images
+        </button>
+        <button
+          class="pill"
+          type="button"
+          :class="{ active: selectedType === '' }"
+          @click="setType('')"
+        >
+          <Compass :size="16" />
+          Explore everything
+        </button>
+      </div>
+    </section>
+
+    <section v-if="touched" class="results">
+      <div class="meta">
+        <div class="txt-xs color-gray-blue">
+          <span v-if="!loading && results.length">About {{ results.length }} results</span>
+          <span v-else-if="!loading && !results.length">No results</span>
+        </div>
+        <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
+      </div>
+
+      <ul v-if="loading" class="skeleton-list">
+        <li v-for="i in 5" :key="i" class="skeleton-item">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-url"></div>
+          <div class="skeleton-desc"></div>
+        </li>
+      </ul>
+
+      <div v-else-if="!results.length" class="empty">
+        <div class="empty-title">No results</div>
+        <div class="empty-subtitle">
+          Try different keywords or remove filters.
+        </div>
+      </div>
+
+      <div v-else-if="selectedType === 'image'" class="image-grid">
+        <button
+          v-for="r in imageResults"
+          :key="r.id"
+          type="button"
+          class="image-card"
+          @click="openResult(r)"
+          :title="r.url"
+        >
+          <img v-if="r.thumbUrl" class="image-thumb" :src="r.thumbUrl" alt="" loading="lazy" />
+          <div v-else class="image-fallback">
+            <Image :size="18" />
           </div>
-          <h3>Start searching</h3>
-          <p>Enter a query to find files, domains, and content</p>
-        </div>
+        </button>
+      </div>
 
-        <div v-else-if="searchQuery && hasSearched" class="results-section">
-          <p class="results-info">Showing results for "{{ searchQuery }}"</p>
-          
-          <div v-if="currentFilter === 'all' || currentFilter === 'files'" class="result-group">
-            <h3>Files</h3>
-            <div class="result-list">
-              <div class="result-item" v-for="i in 3" :key="'file-' + i">
-                <div class="result-icon">
-                  <FileText :size="20" />
-                </div>
-                <div class="result-info">
-                  <span class="result-title">Document {{ i }}.pdf</span>
-                  <span class="result-desc">QmX{{ i }}abc...def • 2.5 MB</span>
-                </div>
-                <button class="btn-secondary">Open</button>
+      <ul v-else class="result-list">
+        <li v-for="r in results" :key="r.id" class="result-item">
+          <button class="result-card" type="button" @click="openResult(r)">
+            <div class="result-icon">
+              <img v-if="r.thumbUrl" class="thumb" :src="r.thumbUrl" alt="" />
+              <component v-else :is="iconFor(r.kind)" :size="18" />
+            </div>
+            <div class="result-body">
+              <div v-if="r.title" class="result-title">{{ r.title }}</div>
+              <div class="result-url mono">{{ r.url }}</div>
+              <div v-if="r.description" class="result-desc">{{ r.description }}</div>
+              <div v-if="r.badges?.length" class="badges">
+                <span v-for="b in r.badges" :key="b" class="badge">{{ b }}</span>
               </div>
             </div>
-          </div>
-
-          <div v-if="currentFilter === 'all' || currentFilter === 'domains'" class="result-group">
-            <h3>Domains</h3>
-            <div class="result-list">
-              <div class="result-item" v-for="i in 2" :key="'domain-' + i">
-                <div class="result-icon">
-                  <Hash :size="20" />
-                </div>
-                <div class="result-info">
-                  <span class="result-title">example{{ i }}.eth</span>
-                  <span class="result-desc">Web3 domain</span>
-                </div>
-                <button class="btn-secondary">View</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
+            <ArrowUpRight :size="18" class="result-open" />
+          </button>
+        </li>
+      </ul>
+    </section>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from 'vue';
-import { Search, Globe, FileText, Hash } from 'lucide-vue-next';
+import { computed, inject, onMounted, ref, watch } from 'vue';
+import { ArrowUpRight, Compass, Film, Globe, Hash, Image, Layers, Search, Wallet } from 'lucide-vue-next';
 
-const currentFilter = ref<'all' | 'files' | 'domains'>('all');
-const searchQuery = ref('');
-const hasSearched = ref(false);
+type SearchType = 'site' | 'video' | 'image' | '';
+type ResultKind = 'site' | 'ipfs' | 'tx' | 'block' | 'address' | 'link';
+type ResultItem = {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  kind: ResultKind;
+  badges?: string[];
+  thumbUrl?: string;
+};
 
+type GatewayView = {
+  id: string;
+  endpoint: string;
+  regions?: string[];
+};
+
+const currentTabUrl = inject<any>('currentTabUrl', null);
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
-function performSearch() {
-  const query = searchQuery.value.trim();
-  if (!query) return;
-  
-  hasSearched.value = true;
-  
-  if (/^\d+$/.test(query)) {
-    const height = parseInt(query);
-    navigateToBlock(height);
-  }
-  else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
-    navigateToTransaction(query.toUpperCase());
-  }
-  else if (/^lmn1[a-z0-9]{38,}$/.test(query)) {
-    navigateToAddress(query);
-  }
-  else {
-    hasSearched.value = true;
+const q = ref('');
+const selectedType = ref<SearchType>('site');
+const touched = ref(false);
+const loading = ref(false);
+const errorMsg = ref('');
+const results = ref<ResultItem[]>([]);
+const inputEl = ref<HTMLInputElement | null>(null);
+
+const lastRunKey = ref('');
+let searchSeq = 0;
+
+const gatewaysCache = ref<{ at: number; items: GatewayView[] }>({ at: 0, items: [] });
+
+function focusInput() {
+  inputEl.value?.focus();
+}
+
+onMounted(() => {
+  setTimeout(focusInput, 60);
+});
+
+function iconFor(kind: ResultKind) {
+  switch (kind) {
+    case 'site':
+      return Globe;
+    case 'ipfs':
+      return Layers;
+    case 'tx':
+      return Hash;
+    case 'block':
+      return Layers;
+    case 'address':
+      return Wallet;
+    case 'link':
+    default:
+      return Search;
   }
 }
 
-function navigateToBlock(height: number) {
-  if (openInNewTab) {
-    openInNewTab(`lumen://explorer/block/${height}`);
-  } else {
-    window.location.href = `lumen://explorer/block/${height}`;
+function goto(url: string, opts?: { push?: boolean }) {
+  if (navigate) {
+    navigate(url, opts);
+    return;
+  }
+  openInNewTab?.(url);
+}
+
+function parseSearchUrl(raw: string): { q: string; type: SearchType } {
+  const value = String(raw || '').trim();
+  if (!value) return { q: '', type: 'site' };
+  try {
+    const u = new URL(value);
+    const qs = u.searchParams.get('q') || '';
+    const type = (u.searchParams.get('type') || '') as SearchType;
+    const t: SearchType = type === 'site' || type === 'video' || type === 'image' || type === '' ? type : 'site';
+    return { q: qs, type: t };
+  } catch {
+    return { q: '', type: 'site' };
   }
 }
 
-function navigateToTransaction(hash: string) {
-  if (openInNewTab) {
-    openInNewTab(`lumen://explorer/tx/${hash}`);
-  } else {
-    window.location.href = `lumen://explorer/tx/${hash}`;
+function makeSearchUrl(query: string, type: SearchType): string {
+  const s = String(query || '').trim();
+  const u = new URL('lumen://search');
+  if (s) u.searchParams.set('q', s);
+  if (type) u.searchParams.set('type', type);
+  return u.toString();
+}
+
+function setType(t: SearchType) {
+  selectedType.value = t;
+  const s = q.value.trim();
+  if (!s) return;
+  goto(makeSearchUrl(s, t), { push: false });
+}
+
+function submit() {
+  const s = q.value.trim();
+  if (!s) return;
+  touched.value = true;
+  errorMsg.value = '';
+  results.value = [];
+  loading.value = true;
+  goto(makeSearchUrl(s, selectedType.value), { push: true });
+}
+
+function openResult(r: ResultItem) {
+  goto(r.url, { push: true });
+}
+
+function isCidLike(v: string): boolean {
+  const s = String(v || '').trim();
+  if (!s) return false;
+  if (/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(s)) return true;
+  if (/^bafy[a-z0-9]{20,}$/i.test(s)) return true;
+  return false;
+}
+
+function isTxHash(v: string): boolean {
+  return /^[0-9a-f]{64}$/i.test(String(v || '').trim());
+}
+
+function isAddress(v: string): boolean {
+  return /^lmn1[0-9a-z]{20,}$/i.test(String(v || '').trim());
+}
+
+function isBlockHeight(v: string): boolean {
+  const s = String(v || '').trim();
+  return /^\d{1,10}$/.test(s);
+}
+
+function buildDomainCandidates(query: string): string[] {
+  const value = String(query || '').toLowerCase().trim();
+  if (!value) return [];
+
+  const tokens = value
+    .replace(/[^a-z0-9.\s]/g, ' ')
+    .split(/\s+/)
+    .filter((t) => t.length >= 2);
+
+  const cands = new Set<string>();
+
+  if (!value.includes(' ') && value.includes('.')) {
+    cands.add(value);
+  }
+
+  for (const t of tokens) {
+    if (t.includes('.')) cands.add(t);
+  }
+
+  if (tokens.length === 1 && !tokens[0].includes('.')) {
+    cands.add(`${tokens[0]}.lmn`);
+  }
+
+  if (tokens.length >= 2) {
+    const last = tokens[tokens.length - 1];
+    const label = tokens.slice(0, -1).join('');
+    if (label && last) cands.add(`${label}.${last}`);
+  }
+
+  return Array.from(cands);
+}
+
+function scoreDomainMatch(query: string, domainName: string): number {
+  const qTokens = String(query || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .split(/\s+/)
+    .filter((t) => t.length >= 2);
+
+  const d = String(domainName || '').toLowerCase().trim();
+  if (!qTokens.length || !d) return 0;
+
+  if (qTokens.length === 1 && qTokens[0] === d) return 1;
+
+  const lastDot = d.lastIndexOf('.');
+  if (lastDot <= 0 || lastDot === d.length - 1) return 0;
+
+  const label = d.slice(0, lastDot);
+  const ext = d.slice(lastDot + 1);
+  if (!label || !ext) return 0;
+
+  const wLabel = 0.8;
+  const wExt = 0.2;
+
+  let extensionScore = 0;
+  for (const tok of qTokens) {
+    if (tok === ext) {
+      extensionScore = 1;
+      break;
+    }
+  }
+
+  let labelAccum = 0;
+  for (const tok of qTokens) {
+    if (label.includes(tok)) labelAccum += tok.length / label.length;
+  }
+  const labelScore = Math.min(labelAccum, 1);
+
+  const score = wLabel * labelScore + wExt * extensionScore;
+  if (score <= 0) return 0;
+  return score > 1 ? 1 : score;
+}
+
+function findCidFromDomainInfo(info: any): string | null {
+  const direct = String(info?.cid || '').trim();
+  if (direct && isCidLike(direct)) return direct;
+
+  const records = Array.isArray(info?.records) ? info.records : [];
+  const rec = records.find((r: any) => String(r?.key || '').toLowerCase() === 'cid');
+  const value = String(rec?.value ?? '').trim();
+  if (!value) return null;
+
+  const lower = value.toLowerCase();
+  if (lower.startsWith('ipfs://')) {
+    const id = value.slice('ipfs://'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
+    return id && isCidLike(id) ? id : null;
+  }
+  if (lower.startsWith('lumen://ipfs/')) {
+    const id = value.slice('lumen://ipfs/'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
+    return id && isCidLike(id) ? id : null;
+  }
+
+  return isCidLike(value) ? value : null;
+}
+
+async function resolveDomainForQuery(query: string): Promise<{ name: string; cid: string | null; score: number } | null> {
+  const dnsApi = (window as any).lumen?.dns;
+  if (!dnsApi || typeof dnsApi.getDomainInfo !== 'function') return null;
+
+  const cands = buildDomainCandidates(query);
+  if (!cands.length) return null;
+
+  let best: { name: string; cid: string | null; score: number } | null = null;
+
+  for (const name of cands) {
+    let infoRes: any;
+    try {
+      infoRes = await dnsApi.getDomainInfo(name);
+    } catch {
+      continue;
+    }
+
+    if (!infoRes) continue;
+    if (infoRes.ok === false) continue;
+    const info = infoRes?.data?.domain || infoRes?.data || infoRes?.domain || infoRes;
+    if (!info) continue;
+
+    const cid = findCidFromDomainInfo(info);
+    const score = Math.max(scoreDomainMatch(query, name), String(query || '').toLowerCase().trim() === name ? 1 : 0);
+
+    if (!best || score > best.score || (score === best.score && !!cid && !best.cid)) {
+      best = { name, cid, score };
+    }
+  }
+
+  return best;
+}
+
+function normalizeGatewayType(t: SearchType): string {
+  if (t === 'site' || t === 'video' || t === 'image') return t;
+  return '';
+}
+
+async function getActiveProfileId(): Promise<string | null> {
+  const profilesApi = (window as any).lumen?.profiles;
+  if (!profilesApi || typeof profilesApi.getActive !== 'function') return null;
+  const active = await profilesApi.getActive().catch(() => null);
+  const id = String(active?.id || '').trim();
+  return id || null;
+}
+
+async function loadGatewaysForSearch(profileId: string): Promise<GatewayView[]> {
+  const now = Date.now();
+  const cached = gatewaysCache.value;
+  if (cached.items.length && now - cached.at < 60_000) return cached.items;
+
+  const gwApi = (window as any).lumen?.gateway;
+  if (!gwApi || typeof gwApi.getPlansOverview !== 'function') return [];
+
+  const res = await gwApi.getPlansOverview(profileId, { limit: 50, timeoutMs: 2500 }).catch(() => null);
+  if (!res || res.ok === false) return [];
+  const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
+
+  const items: GatewayView[] = [];
+  const seen = new Set<string>();
+  for (const g of gwRaw) {
+    const id = String(g?.id ?? g?.gatewayId ?? '').trim();
+    if (!id || seen.has(id)) continue;
+    const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim();
+    if (!endpoint) continue;
+    const regions = Array.isArray(g?.regions)
+      ? g.regions.map((r: any) => String(r || '')).filter(Boolean)
+      : [];
+    items.push({ id, endpoint, regions });
+    seen.add(id);
+  }
+
+  gatewaysCache.value = { at: now, items };
+  return items;
+}
+
+type GatewaySearchHit = {
+  cid?: string;
+  path?: string;
+  title?: string;
+  mime?: string;
+  resourceType?: string;
+  tags_json?: any;
+  topics?: any;
+  snippet?: string;
+};
+
+const LOCAL_IPFS_GATEWAY = 'http://127.0.0.1:8080';
+
+function safePathSuffix(pathValue: any): string {
+  const p = String(pathValue ?? '').trim();
+  if (!p) return '';
+  if (p.startsWith('/')) return p;
+  return `/${p}`;
+}
+
+function mapGatewayHitToResult(hit: GatewaySearchHit, gateway: GatewayView): ResultItem | null {
+  const cid = String(hit?.cid || '').trim();
+  if (!cid) return null;
+  const path = safePathSuffix(hit?.path);
+  const mime = String(hit?.mime || '').trim();
+  const rType = String(hit?.resourceType || '').trim();
+
+  const extractedTags = extractSearchTags(hit);
+
+  const isImage = rType.toLowerCase() === 'image' || mime.toLowerCase().startsWith('image/');
+  const thumbUrl = isImage ? `${LOCAL_IPFS_GATEWAY}/ipfs/${cid}${path}` : undefined;
+
+  const title =
+    (hit?.title != null && String(hit.title).trim()) ||
+    (path ? path.split('/').filter(Boolean).slice(-1)[0] : '') ||
+    (isImage ? '' : `CID ${cid.slice(0, 10)}…`);
+
+  const badges: string[] = [];
+  // Prefer "intelligent tags" from gateway search; keep it raw for now.
+  for (const t of extractedTags) {
+    if (badges.length >= 6) break;
+    badges.push(t);
+  }
+  // Fallback: show MIME when we don't have tags (and not in image mode).
+  if (!badges.length && mime && !isImage) badges.push(mime);
+
+  return {
+    id: `gw:${gateway.id}:${cid}:${path || ''}`,
+    title,
+    url: `lumen://ipfs/${cid}${path}`,
+    kind: 'ipfs',
+    badges,
+    thumbUrl,
+  };
+}
+
+function extractSearchTags(hit: any): string[] {
+  const topics = Array.isArray(hit?.tags_json?.topics)
+    ? hit.tags_json.topics
+    : Array.isArray(hit?.topics)
+      ? hit.topics
+      : [];
+  const tokensObj =
+    hit?.tags_json && hit.tags_json.tokens && typeof hit.tags_json.tokens === 'object'
+      ? hit.tags_json.tokens
+      : null;
+
+  const out: string[] = [];
+  for (const t of topics) {
+    const v = String(t || '').trim();
+    if (v) out.push(v);
+  }
+
+  if (tokensObj) {
+    try {
+      const keys = Object.keys(tokensObj)
+        .map((k) => String(k || '').trim())
+        .filter(Boolean)
+        .slice(0, 10);
+      for (const k of keys) {
+        if (!out.includes(k)) out.push(k);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return out;
+}
+
+async function searchGateways(profileId: string, query: string, type: SearchType, seq: number): Promise<ResultItem[]> {
+  const gwApi = (window as any).lumen?.gateway;
+  if (!gwApi || typeof gwApi.searchPq !== 'function') return [];
+
+  const gateways = await loadGatewaysForSearch(profileId);
+  if (seq !== searchSeq) return [];
+  if (!gateways.length) return [];
+
+  const wantedType = normalizeGatewayType(type);
+  const tasks = gateways.map(async (g) => {
+    const resp = await gwApi
+      .searchPq({
+        profileId,
+        endpoint: g.endpoint,
+        query,
+        lang: 'en',
+        limit: 12,
+        offset: 0,
+        type: wantedType,
+      })
+      .catch(() => null);
+    if (!resp || resp.ok === false) return [];
+    const data = resp.data || {};
+    const hits = Array.isArray(data.hits) ? data.hits : Array.isArray(data.results) ? data.results : [];
+    const out: ResultItem[] = [];
+    for (const h of hits) {
+      const mapped = mapGatewayHitToResult(h, g);
+      if (mapped) out.push(mapped);
+    }
+    return out;
+  });
+
+  const lists = await Promise.all(tasks);
+  if (seq !== searchSeq) return [];
+  const flat = lists.flat();
+
+  const seen = new Set<string>();
+  const unique: ResultItem[] = [];
+  for (const r of flat) {
+    const key = r.url;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(r);
+  }
+  return unique;
+}
+
+async function fetchTagsForCid(profileId: string, cid: string, seq: number): Promise<string[]> {
+  const gwApi = (window as any).lumen?.gateway;
+  if (!gwApi || typeof gwApi.searchPq !== 'function') return [];
+  const gateways = await loadGatewaysForSearch(profileId);
+  if (seq !== searchSeq) return [];
+  for (const g of gateways) {
+    const resp = await gwApi
+      .searchPq({
+        profileId,
+        endpoint: g.endpoint,
+        query: cid,
+        lang: 'en',
+        limit: 1,
+        offset: 0,
+        type: '',
+      })
+      .catch(() => null);
+    if (!resp || resp.ok === false) continue;
+    const data = resp.data || {};
+    const hits = Array.isArray(data.hits) ? data.hits : Array.isArray(data.results) ? data.results : [];
+    const first = hits[0];
+    if (!first) continue;
+    const tags = extractSearchTags(first);
+    if (tags.length) return tags;
+  }
+  return [];
+}
+
+function buildFastResults(query: string): ResultItem[] {
+  const s = String(query || '').trim();
+  if (!s) return [];
+
+  const list: ResultItem[] = [];
+
+  if (/^lumen:\/\//i.test(s)) {
+    list.push({
+      id: `link:${s}`,
+      title: 'Open Lumen link',
+      url: s,
+      description: s,
+      kind: 'link'
+    });
+  }
+
+  if (isCidLike(s)) {
+    list.push({
+      id: `ipfs:${s}`,
+      title: 'IPFS content',
+      url: `lumen://ipfs/${s}`,
+      description: 'Open content by CID',
+      kind: 'ipfs',
+      badges: ['IPFS']
+    });
+  }
+
+  if (isTxHash(s)) {
+    list.push({
+      id: `tx:${s}`,
+      title: 'Transaction',
+      url: `lumen://explorer/tx/${s}`,
+      description: 'View transaction details',
+      kind: 'tx',
+      badges: ['Explorer']
+    });
+  }
+
+  if (isAddress(s)) {
+    list.push({
+      id: `addr:${s}`,
+      title: 'Wallet address',
+      url: `lumen://explorer/address/${s}`,
+      description: 'View address activity',
+      kind: 'address',
+      badges: ['Explorer']
+    });
+  }
+
+  if (isBlockHeight(s)) {
+    list.push({
+      id: `block:${s}`,
+      title: 'Block',
+      url: `lumen://explorer/block/${s}`,
+      description: 'View block details',
+      kind: 'block',
+      badges: ['Explorer']
+    });
+  }
+
+  return list;
+}
+
+async function runSearch(query: string, type: SearchType) {
+  const seq = ++searchSeq;
+  const clean = String(query || '').trim();
+  const runKey = `${type}::${clean}`;
+  if (!clean) {
+    touched.value = false;
+    loading.value = false;
+    errorMsg.value = '';
+    results.value = [];
+    lastRunKey.value = '';
+    return;
+  }
+  if (runKey === lastRunKey.value && results.value.length) return;
+  lastRunKey.value = runKey;
+
+  touched.value = true;
+  loading.value = true;
+  errorMsg.value = '';
+  results.value = [];
+
+  try {
+    const base = buildFastResults(clean);
+
+    const profileId = await getActiveProfileId();
+
+    const domainPromise =
+      type === 'site' || type === '' ? resolveDomainForQuery(clean) : Promise.resolve(null);
+    const gatewayPromise =
+      profileId ? searchGateways(profileId, clean, type, seq) : Promise.resolve([]);
+
+    const [bestDomain, gwResults] = await Promise.all([domainPromise, gatewayPromise]);
+    if (seq !== searchSeq) return;
+
+    let domainTags: string[] = [];
+    if (bestDomain?.cid && profileId) {
+      domainTags = await fetchTagsForCid(profileId, bestDomain.cid, seq);
+    }
+    if (seq !== searchSeq) return;
+
+    if (bestDomain?.name) {
+      const url = `lumen://${bestDomain.name}`;
+      base.push({
+        id: `site:${bestDomain.name}`,
+        title: bestDomain.name,
+        url,
+        badges: domainTags.length ? domainTags.slice(0, 6) : [],
+        kind: 'site',
+      });
+    }
+
+    if (!profileId && (type === 'video' || type === 'image' || type === '')) {
+      base.push({
+        id: `hint:profile`,
+        title: 'Create a profile to enable gateway search',
+        url: 'lumen://home',
+        description: 'Gateway search requires a profile (wallet + signer).',
+        kind: 'link'
+      });
+    }
+
+    const merged = [...base, ...gwResults];
+    results.value = merged;
+  } catch (e: any) {
+    if (seq !== searchSeq) return;
+    errorMsg.value = String(e?.message || e || 'search_failed');
+    results.value = [];
+  } finally {
+    if (seq !== searchSeq) return;
+    loading.value = false;
   }
 }
 
-function navigateToAddress(address: string) {
-  if (openInNewTab) {
-    openInNewTab(`lumen://explorer/address/${address}`);
-  } else {
-    window.location.href = `lumen://explorer/address/${address}`;
-  }
-}
+watch(
+  () => currentTabUrl?.value,
+  (next) => {
+    const url = String(next || '').trim();
+    if (!url) return;
+    const { q: qs, type } = parseSearchUrl(url);
+    if (type !== selectedType.value) selectedType.value = type;
+    if (qs !== q.value) q.value = qs;
+    runSearch(qs, type);
+  },
+  { immediate: true }
+);
+
+const imageResults = computed(() => results.value.filter((r) => !!r.thumbUrl));
 </script>
 
 <style scoped>
 .search-page {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-primary);
-  overflow: hidden;
+  overflow: auto;
+  background: var(--bg-tertiary, #f0f2f5);
+  padding: 1.75rem 1.25rem 2.5rem;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
+.hero {
+  margin-top: 18vh;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: 2px solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 1.5rem;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border: none;
-  background: transparent;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-
-.nav-item:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
-.nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 2rem 2.5rem;
-  background: var(--bg-primary);
-  margin: 0;
-  border-radius: 0;
-}
-
-.content-header {
-  margin-bottom: 1.5rem;
-}
-
-.content-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.content-header p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0 0 0;
-}
-
-/* Search Box */
-.search-box {
-  display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
-.search-box input {
-  flex: 1;
+.brand {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1d4ed8;
+}
+
+.search-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.search-box {
+  width: min(820px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem 0.65rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+}
+
+.search-icon {
+  color: var(--text-secondary, #64748b);
+  flex: 0 0 auto;
+}
+
+.search-input {
+  flex: 1 1 auto;
+  min-width: 0;
   border: none;
-  background: transparent;
-  font-size: 0.95rem;
-  color: var(--text-primary);
   outline: none;
-}
-
-.search-box input::placeholder {
-  color: var(--text-tertiary);
+  background: transparent;
+  font-size: 1rem;
+  color: var(--text-primary, #1e293b);
 }
 
 .search-btn {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  background: var(--hover-bg, #f1f5f9);
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  color: var(--text-secondary, #64748b);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  color: var(--text-primary, #1e293b);
-}
-
-/* Content Area */
-.content-area {
-  flex: 1;
-  overflow-y: auto;
-}
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 4rem 2rem;
-}
-
-.empty-icon {
-  width: 80px;
-  height: 80px;
-  background: var(--hover-bg, #f1f5f9);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-tertiary, #94a3b8);
-  margin-bottom: 1.5rem;
-}
-
-.empty-state h3 {
-  font-size: 1.25rem;
+  background: #1d4ed8;
+  color: #ffffff;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
-  margin: 0 0 0.5rem 0;
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease;
 }
 
-.empty-state p {
-  font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
-  margin: 0;
+.search-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-/* Results */
-.results-section {
+.search-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.tabs {
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.results-info {
-  font-size: 0.85rem;
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
   color: var(--text-secondary, #64748b);
-  margin: 0;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.result-group h3 {
-  font-size: 1rem;
-  font-weight: 600;
+.pill:hover {
+  border-color: rgba(29, 78, 216, 0.5);
   color: var(--text-primary, #1e293b);
-  margin: 0 0 1rem 0;
 }
 
-.result-list {
+.pill.active {
+  background: rgba(29, 78, 216, 0.12);
+  border-color: rgba(29, 78, 216, 0.5);
+  color: #1d4ed8;
+}
+
+.results {
+  width: min(920px, 100%);
+  margin: 2.25rem auto 0;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.result-list,
+.skeleton-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.result-item {
+.result-card {
+  width: 100%;
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--card-bg, #ffffff);
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.result-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(29, 78, 216, 0.45);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
 }
 
 .result-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--hover-bg, #f1f5f9);
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary, #f8fafc);
+  color: #1d4ed8;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.65rem;
+}
+
+.image-card {
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.image-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(29, 78, 216, 0.45);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
+}
+
+.image-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-secondary, #f8fafc);
+}
+
+.image-fallback {
+  width: 100%;
+  aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary, #64748b);
-  flex-shrink: 0;
+  background: var(--bg-secondary, #f8fafc);
 }
 
-.result-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.result-body {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .result-title {
-  font-size: 0.9rem;
-  font-weight: 600;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
   color: var(--text-primary, #1e293b);
 }
 
+.result-url {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: #15803d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .result-desc {
-  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
   color: var(--text-secondary, #64748b);
+  line-height: 1.35;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
-  }
+.result-open {
+  color: var(--text-secondary, #64748b);
+  margin-top: 0.15rem;
+  flex: 0 0 auto;
 }
 
-@media (max-width: 700px) {
-  .search-page {
-    flex-direction: column;
+.badges {
+  margin-top: 0.55rem;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(29, 78, 216, 0.08);
+  color: #1d4ed8;
+  border: 1px solid rgba(29, 78, 216, 0.18);
+}
+
+.empty {
+  padding: 1.2rem 1rem;
+  border-radius: 14px;
+  border: 1px dashed var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  text-align: center;
+}
+
+.empty-title {
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+}
+
+.empty-subtitle {
+  margin-top: 0.35rem;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.9rem;
+}
+
+.skeleton-item {
+  border-radius: 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  padding: 0.95rem 1rem;
+}
+
+.skeleton-title,
+.skeleton-url,
+.skeleton-desc {
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.22);
+}
+
+.skeleton-title {
+  height: 1.05rem;
+  width: 55%;
+}
+
+.skeleton-url {
+  height: 0.8rem;
+  width: 38%;
+  margin-top: 0.55rem;
+}
+
+.skeleton-desc {
+  height: 2.1rem;
+  width: 75%;
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    margin-top: 12vh;
   }
-  
-  .sidebar {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    flex-direction: row;
-    padding: 1rem;
-    overflow-x: auto;
+  .brand {
+    font-size: 2.1rem;
   }
-  
-  .sidebar-header {
-    margin-bottom: 0;
-    margin-right: 1rem;
-  }
-  
-  .sidebar-nav {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-  
-  .nav-section {
-    flex-direction: row;
-  }
-  
-  .nav-label {
+  .search-btn {
     display: none;
-  }
-  
-  .nav-item span {
-    display: none;
-  }
-  
-  .main-content {
-    margin: 0 0.5rem 0.5rem 0.5rem;
-    padding: 1.5rem;
   }
 }
 </style>
