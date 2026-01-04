@@ -2,6 +2,7 @@ import HomePage from './pages/HomePage.vue';
 import SearchPage from './pages/SearchPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
 import DrivePage from './pages/DrivePage.vue';
+import IpfsPage from './pages/IpfsPage.vue';
 import GatewaysPage from './pages/GatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
@@ -24,6 +25,7 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   search: { component: SearchPage, title: 'Search' },
   settings: { component: SettingsPage, title: 'Settings' },
   drive: { component: DrivePage, title: 'Drive' },
+  ipfs: { component: IpfsPage, title: 'IPFS' },
   wallet: { component: WalletPage, title: 'Wallet' },
   domain: { component: DomainPage, title: 'Domain' },
   network: { component: NetworkPage, title: 'Network' },

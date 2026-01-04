@@ -386,9 +386,17 @@ const totalTransactions = ref(0);
 const transactions24h = ref(0);
 const mempoolSize = ref(0);
 
+const tokenomicsTaxRate = ref<number | null>(null);
 const avgGasPrice = ref('0.025 LUM');
 const baseGasPrice = ref('0.01 LUM');
 const maxGasLimit = ref(30000000);
+const fixedFeeLabel = computed(() => {
+  const rate = tokenomicsTaxRate.value;
+  if (rate == null || !Number.isFinite(rate as any)) return '—';
+  const pct = (rate as number) * 100;
+  const label = pct.toFixed(2).replace(/\.?0+$/, '');
+  return `${label}% per transaction`;
+});
 
 const recentBlocks = ref<{
   height: number;
@@ -726,6 +734,25 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
 onMounted(async () => {
   await fetchNetworkData();
+
+  try {
+    const walletApi = (window as any).lumen?.wallet;
+    if (walletApi && typeof walletApi.getTokenomicsParams === 'function') {
+      const res = await walletApi.getTokenomicsParams();
+      if (res && res.ok !== false) {
+        const raw =
+          res.data?.params?.tx_tax_rate ??
+          res.data?.params?.txTaxRate ??
+          null;
+        const n = Number(raw);
+        if (Number.isFinite(n)) {
+          tokenomicsTaxRate.value = n;
+        }
+      }
+    }
+  } catch {
+    // ignore tokenomics errors for now
+  }
   refreshInterval = setInterval(fetchNetworkData, 8000);
   
   if (lumen?.rpc?.onHeightChanged) {
@@ -2086,3 +2113,4 @@ onBeforeUnmount(() => {
   background: rgba(15, 23, 42, 0.3);
 }
 </style>
+
