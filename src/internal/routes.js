@@ -3,6 +3,7 @@ import SearchPage from './pages/SearchPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
 import DrivePage from './pages/DrivePage.vue';
 import IpfsPage from './pages/IpfsPage.vue';
+import SitePage from './pages/SitePage.vue';
 import GatewaysPage from './pages/GatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
@@ -27,6 +28,16 @@ const INTERNAL_ROUTES = {
     release: { component: ReleasePage, title: 'Release' },
     help: { component: HelpPage, title: 'Help' }
 };
+function isLikelyDomainHost(host) {
+    const h = String(host || '').trim().toLowerCase();
+    if (!h)
+        return false;
+    if (INTERNAL_ROUTES[h])
+        return false;
+    if (h === 'ipfs')
+        return false;
+    return h.includes('.');
+}
 function parseInternalKey(rawUrl) {
     const s = String(rawUrl || '').trim();
     if (!s)
@@ -40,11 +51,19 @@ function parseInternalKey(rawUrl) {
 export const INTERNAL_ROUTE_KEYS = Object.keys(INTERNAL_ROUTES);
 export function resolveInternalComponent(rawUrl) {
     const key = parseInternalKey(rawUrl);
-    const route = INTERNAL_ROUTES[key] || INTERNAL_ROUTES.search;
-    return route.component;
+    const route = INTERNAL_ROUTES[key];
+    if (route)
+        return route.component;
+    if (isLikelyDomainHost(key))
+        return SitePage;
+    return INTERNAL_ROUTES.search.component;
 }
 export function getInternalTitle(rawUrl) {
     const key = parseInternalKey(rawUrl);
-    const route = INTERNAL_ROUTES[key] || INTERNAL_ROUTES.search;
-    return route.title;
+    const route = INTERNAL_ROUTES[key];
+    if (route)
+        return route.title;
+    if (isLikelyDomainHost(key))
+        return key;
+    return INTERNAL_ROUTES.search.title;
 }

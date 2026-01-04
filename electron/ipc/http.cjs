@@ -53,13 +53,56 @@ async function httpGet(url, options = {}) {
   }
 }
 
+async function httpHead(url, options = {}) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return { ok: false, status: 0, error: 'unsupported_scheme' };
+    }
+  } catch (_e) {
+    return { ok: false, status: 0, error: 'invalid_url' };
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutMs =
+      typeof options.timeout === 'number' && options.timeout > 0
+        ? options.timeout
+        : 5000;
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url, {
+      method: 'HEAD',
+      headers: options.headers || {},
+      signal: controller.signal
+    });
+    clearTimeout(t);
+
+    return {
+      ok: res.ok,
+      status: res.status,
+      headers: Object.fromEntries(res.headers.entries())
+    };
+  } catch (e) {
+    console.warn('[electron][http:head] error', e);
+    return {
+      ok: false,
+      status: 0,
+      error: String(e && e.message ? e.message : e)
+    };
+  }
+}
+
 function registerHttpIpc() {
   ipcMain.handle('http:get', async (_evt, url, options) => {
     return httpGet(String(url || ''), options || {});
+  });
+  ipcMain.handle('http:head', async (_evt, url, options) => {
+    return httpHead(String(url || ''), options || {});
   });
 }
 
 module.exports = {
   httpGet,
+  httpHead,
   registerHttpIpc
 };
