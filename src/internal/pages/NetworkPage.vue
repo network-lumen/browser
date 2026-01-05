@@ -184,8 +184,8 @@
           <div class="activity-chart">
             <div class="chart-container">
               <svg v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
-                <path :d="blockChartLinePath" stroke="#0284c7" stroke-width="2" fill="none" />
-                <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="#0284c7" />
+                <path :d="blockChartLinePath" stroke="var(--accent-primary)" stroke-width="2" fill="none" />
+                <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--accent-primary)" />
               </svg>
               <svg v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <rect v-for="(point, i) in txChartPoints" :key="i" :x="point.x - 8" :y="point.y" width="16" :height="120 - point.y" fill="#6366f1" opacity="0.8" rx="2" />
@@ -1057,7 +1057,7 @@ onMounted(() => {
 }
 
 .tab-btn:hover {
-  border-color: #3b82f6;
+  border-color: var(--accent-primary);
   color: var(--text-primary);
 }
 

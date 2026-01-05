@@ -142,7 +142,7 @@ onMounted(async () => {
   height: 36px;
   border-radius: 999px;
   border: 3px solid rgba(15, 23, 42, 0.1);
-  border-top-color: #2563eb;
+  border-top-color: var(--accent-secondary);
   animation: spin 0.9s linear infinite;
 }
 
@@ -187,8 +187,8 @@ onMounted(async () => {
 }
 
 .btn.primary {
-  border-color: #2563eb;
-  background: #2563eb;
+  border-color: var(--accent-secondary);
+  background: var(--accent-secondary);
   color: #ffffff;
 }
 

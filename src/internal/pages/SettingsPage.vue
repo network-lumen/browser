@@ -295,20 +295,19 @@ import { activeProfileId } from '../profilesStore';
 import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
 
 const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
-const { theme, effectiveTheme, setTheme } = useTheme();
+const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const blockTrackers = ref(true);
 const exportingBackup = ref(false);
 const importingBackup = ref(false);
 const hasActiveProfile = computed(() => !!activeProfileId.value);
 
+// Initialize theme on mount
+initTheme();
+
 function toggleDarkMode() {
   setTheme(theme.value === 'dark' ? 'light' : 'dark');
 }
-
-watch(theme, (newTheme) => {
-  setTheme(newTheme);
-});
 
 watch(fontSize, (newSize) => {
   localStorage.setItem('lumen-font-size', newSize);
@@ -401,7 +400,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -464,9 +463,9 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .version-info {
@@ -622,13 +621,13 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .theme-option:hover {
-  background: var(--hover-bg, rgba(52, 152, 219, 0.1));
+  background: var(--hover-bg, var(--primary-a10));
   color: var(--text-primary, #1e293b);
 }
 
 .theme-option.active {
   background: var(--card-bg, white);
-  color: #3498db;
+  color: var(--accent-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -669,7 +668,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .toggle input:checked + .toggle-slider {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
 }
 
 .toggle input:checked + .toggle-slider:before {
@@ -729,7 +728,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .about-link {
-  color: #3498db;
+  color: var(--accent-primary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;

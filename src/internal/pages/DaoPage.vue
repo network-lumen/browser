@@ -734,7 +734,7 @@ onUnmounted(() => {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -791,9 +791,9 @@ onUnmounted(() => {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 /* Main Content */
@@ -834,7 +834,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border: none;
   border-radius: 10px;
   color: white;
@@ -846,7 +846,7 @@ onUnmounted(() => {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.35);
+  box-shadow: 0 6px 20px var(--primary-a30);
 }
 
 .btn-secondary {
@@ -879,7 +879,7 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color, #e2e8f0);
-  border-top-color: #3498db;
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -925,7 +925,7 @@ onUnmounted(() => {
 .stat-icon {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -990,7 +990,7 @@ onUnmounted(() => {
 
 .proposal-status.active {
   background: #dbeafe;
-  color: #2563eb;
+  color: var(--accent-secondary);
 }
 
 .proposal-status.passed {
@@ -1153,7 +1153,7 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   min-width: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1195,7 +1195,7 @@ onUnmounted(() => {
 .member-power {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #3498db;
+  color: var(--accent-primary);
   white-space: nowrap;
 }
 
@@ -1375,8 +1375,8 @@ onUnmounted(() => {
 
 .form-input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .form-textarea {
@@ -1394,8 +1394,8 @@ onUnmounted(() => {
 
 .form-textarea:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .form-select {
@@ -1416,8 +1416,8 @@ onUnmounted(() => {
 
 .form-select:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .proposal-requirements {
@@ -1439,7 +1439,7 @@ onUnmounted(() => {
 
 .requirement-item svg {
   flex-shrink: 0;
-  color: #0284c7;
+  color: var(--accent-primary);
 }
 
 .btn-modal-primary {
@@ -1447,7 +1447,7 @@ onUnmounted(() => {
   padding: 0.875rem;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -1461,7 +1461,7 @@ onUnmounted(() => {
 
 .btn-modal-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .btn-modal-primary:disabled {
@@ -1471,7 +1471,7 @@ onUnmounted(() => {
 }
 
 .proposal-title-card {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -1526,7 +1526,7 @@ onUnmounted(() => {
 }
 
 .vote-option.selected .vote-option-content {
-  border-color: #3498db;
+  border-color: var(--accent-primary);
   background: var(--card-bg, #f0f9ff);
 }
 

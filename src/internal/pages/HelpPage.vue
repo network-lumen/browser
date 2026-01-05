@@ -249,7 +249,7 @@ function getViewDescription(): string {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -306,9 +306,9 @@ function getViewDescription(): string {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .main-content {
@@ -372,7 +372,7 @@ function getViewDescription(): string {
 .step-number {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -436,7 +436,7 @@ function getViewDescription(): string {
 .doc-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -460,7 +460,7 @@ function getViewDescription(): string {
 
 .doc-link {
   font-size: 0.85rem;
-  color: #3498db;
+  color: var(--accent-primary);
   text-decoration: none;
   font-weight: 500;
 }

@@ -865,7 +865,7 @@ void loadDomains();
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -926,7 +926,7 @@ void loadDomains();
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0284c7;
+  color: var(--accent-primary);
 }
 
 .profile-info {
@@ -975,7 +975,7 @@ void loadDomains();
   padding: 0.7rem 0.9rem;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
   font-size: 0.85rem;
 }
@@ -1013,8 +1013,8 @@ void loadDomains();
 
 .form-input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--primary-a15);
 }
 
 .main-content {
@@ -1062,7 +1062,7 @@ void loadDomains();
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
 }
 
@@ -1379,7 +1379,7 @@ void loadDomains();
 .info-card {
   border-radius: 10px;
   padding: 0.8rem 0.9rem;
-  background: linear-gradient(135deg, #3498db 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
   margin-bottom: 1rem;
 }

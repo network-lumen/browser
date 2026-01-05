@@ -98,7 +98,7 @@ function goHome() {
 
 .card:hover:not(:disabled) {
   transform: translateY(-1px);
-  border-color: rgba(52, 152, 219, 0.5);
+  border-color: var(--primary-a50);
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.10);
 }
 
@@ -115,7 +115,7 @@ function goHome() {
   align-items: center;
   justify-content: center;
   background: var(--bg-secondary, #f8fafc);
-  color: #1d4ed8;
+  color: var(--accent-primary);
   flex: 0 0 auto;
 }
 
@@ -136,7 +136,7 @@ function goHome() {
   display: inline-block;
   margin-top: 0.75rem;
   font-size: 0.9rem;
-  color: #1d4ed8;
+  color: var(--accent-primary);
   text-decoration: underline;
 }
 

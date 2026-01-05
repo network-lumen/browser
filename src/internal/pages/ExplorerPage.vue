@@ -561,7 +561,7 @@
                       <circle 
                         cx="25" cy="25" r="20" 
                         fill="none" 
-                        stroke="#3b82f6" 
+                        stroke="var(--accent-primary)" 
                         stroke-width="4"
                         :stroke-dasharray="`${getCumulativeProgress(index)} 100`"
                         transform="rotate(-90 25 25)"
@@ -1097,7 +1097,7 @@ function getVotingPowerColor(index: number): string {
   const colors = [
     'linear-gradient(135deg, #ec4899, #f472b6)',
     'linear-gradient(135deg, #8b5cf6, #a78bfa)',
-    'linear-gradient(135deg, #3b82f6, #60a5fa)',
+    'var(--gradient-brand)',
     'linear-gradient(135deg, #06b6d4, #22d3ee)',
     'linear-gradient(135deg, #10b981, #34d399)'
   ];
@@ -1247,7 +1247,7 @@ function initializeCharts() {
         ctx.clearRect(0, 0, 120, 120);
         
         let currentAngle = -Math.PI / 2;
-        const colors = ['#ec4899', '#8b5cf6', '#3b82f6', '#06b6d4', '#10b981'];
+        const colors = ['#ec4899', '#8b5cf6', 'var(--accent-primary)', '#06b6d4', '#10b981'];
         
         topValidatorsPower.value.slice(0, 5).forEach((vp, idx) => {
           const percentage = parseFloat(vp.percentage);
@@ -1354,7 +1354,7 @@ watch(txTimeFilter, () => {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -1410,7 +1410,7 @@ watch(txTimeFilter, () => {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
 }
 
@@ -1434,12 +1434,12 @@ watch(txTimeFilter, () => {
 }
 
 .main-content::-webkit-scrollbar-thumb {
-  background: rgba(52, 152, 219, 0.3);
+  background: var(--primary-a30);
   border-radius: 4px;
 }
 
 .main-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(52, 152, 219, 0.5);
+  background: var(--primary-a50);
 }
 
 /* Search Section */
@@ -1460,8 +1460,8 @@ watch(txTimeFilter, () => {
 }
 
 .search-container:focus-within {
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .search-icon {
@@ -1483,7 +1483,7 @@ watch(txTimeFilter, () => {
 
 .search-btn {
   padding: 0.5rem 1.25rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -1494,7 +1494,7 @@ watch(txTimeFilter, () => {
 
 .search-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .search-btn:disabled {
@@ -1530,7 +1530,7 @@ watch(txTimeFilter, () => {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
-  background: linear-gradient(135deg, #3498db, var(--text-primary));
+  background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1550,7 +1550,7 @@ watch(txTimeFilter, () => {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
-  border-top-color: #3498db;
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -1738,14 +1738,14 @@ watch(txTimeFilter, () => {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  color: #3498db;
+  color: var(--accent-primary);
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .height-link:hover {
-  color: #2980b9;
+  color: var(--accent-secondary);
   text-decoration: underline;
 }
 
@@ -1772,7 +1772,7 @@ watch(txTimeFilter, () => {
   height: 24px;
   min-width: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1831,14 +1831,14 @@ watch(txTimeFilter, () => {
 }
 
 .hash-container.clickable:hover .hash-code {
-  background: rgba(52, 152, 219, 0.1);
-  color: #3498db;
+  background: var(--primary-a10);
+  color: var(--accent-primary);
   text-decoration: underline;
 }
 
 .hash-container:hover .hash-code {
-  background: rgba(52, 152, 219, 0.1);
-  color: #3498db;
+  background: var(--primary-a10);
+  color: var(--accent-primary);
 }
 
 .copy-icon,
@@ -1852,7 +1852,7 @@ watch(txTimeFilter, () => {
 .hash-container:hover .copy-icon,
 .hash-container:hover .link-icon {
   opacity: 1;
-  color: #3498db;
+  color: var(--accent-primary);
 }
 
 .clickable {
@@ -1860,7 +1860,7 @@ watch(txTimeFilter, () => {
 }
 
 .clickable:hover {
-  color: #3498db;
+  color: var(--accent-primary);
 }
 
 .block-link.clickable:hover {
@@ -1868,7 +1868,7 @@ watch(txTimeFilter, () => {
 }
 
 .validator-address.clickable:hover code {
-  color: #3498db;
+  color: var(--accent-primary);
   text-decoration: underline;
 }
 
@@ -1921,7 +1921,7 @@ watch(txTimeFilter, () => {
 .tx-type-badge {
   padding: 0.25rem 0.75rem;
   background: #dbeafe;
-  color: #2563eb;
+  color: var(--accent-secondary);
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -1953,7 +1953,7 @@ watch(txTimeFilter, () => {
 }
 
 .block-link {
-  color: #3498db;
+  color: var(--accent-primary);
   font-weight: 600;
   font-size: 0.8125rem;
   cursor: pointer;
@@ -1961,7 +1961,7 @@ watch(txTimeFilter, () => {
 }
 
 .block-link:hover {
-  color: #2980b9;
+  color: var(--accent-secondary);
   text-decoration: underline;
 }
 
@@ -2001,7 +2001,7 @@ watch(txTimeFilter, () => {
 
 .copy-icon-btn:hover {
   background: #f3f4f6;
-  color: #3b82f6;
+  color: var(--accent-primary);
 }
 
 /* Blocks View - Compact Layout */
@@ -2078,15 +2078,15 @@ watch(txTimeFilter, () => {
 .filter-select:hover,
 .height-filter-input:hover,
 .hash-filter-input:hover {
-  border-color: var(--primary, #3498db);
+  border-color: var(--primary, var(--accent-primary));
 }
 
 .filter-select:focus,
 .height-filter-input:focus,
 .hash-filter-input:focus {
   outline: none;
-  border-color: var(--primary, #3498db);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--primary, var(--accent-primary));
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .height-filter-input::placeholder,
@@ -2207,7 +2207,7 @@ watch(txTimeFilter, () => {
 .validator-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
 }
 
 .validator-rank {
@@ -2230,7 +2230,7 @@ watch(txTimeFilter, () => {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2336,16 +2336,16 @@ watch(txTimeFilter, () => {
 }
 
 .stat-card:hover {
-  border-color: #3498db;
+  border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+  box-shadow: 0 8px 24px var(--primary-a15);
 }
 
 .stat-icon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2423,13 +2423,13 @@ watch(txTimeFilter, () => {
 
 .time-filter-btn:hover {
   background: var(--hover-bg);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
   color: var(--text-primary);
 }
 
 .time-filter-btn.active {
-  background: #3498db;
-  border-color: #3498db;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
   color: white;
 }
 
@@ -2515,7 +2515,7 @@ watch(txTimeFilter, () => {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2523,7 +2523,7 @@ watch(txTimeFilter, () => {
   font-size: 1.5rem;
   font-weight: 700;
   flex-shrink: 0;
-  border: 2px solid rgba(52, 152, 219, 0.3);
+  border: 2px solid var(--primary-a30);
 }
 
 .proposer-avatar img {
@@ -2638,7 +2638,7 @@ watch(txTimeFilter, () => {
 .view-all-btn {
   background: transparent;
   border: none;
-  color: #3498db;
+  color: var(--accent-primary);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -2666,18 +2666,18 @@ watch(txTimeFilter, () => {
 }
 
 .activity-item:hover {
-  background: rgba(52, 152, 219, 0.05);
+  background: var(--primary-a08);
 }
 
 .activity-icon {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(52, 152, 219, 0.1);
+  background: var(--primary-a10);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3498db;
+  color: var(--accent-primary);
   flex-shrink: 0;
 }
 
@@ -2711,7 +2711,7 @@ watch(txTimeFilter, () => {
 .tx-type-mini {
   padding: 0.125rem 0.5rem;
   background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  color: var(--accent-primary);
   border-radius: 4px;
   font-size: 0.625rem;
   font-weight: 600;
@@ -3022,7 +3022,7 @@ watch(txTimeFilter, () => {
 
 .copy-icon-btn:hover {
   background: var(--hover-bg);
-  color: #3b82f6;
+  color: var(--accent-primary);
 }
 
 .copy-notification {

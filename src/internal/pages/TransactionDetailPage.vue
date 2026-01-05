@@ -288,7 +288,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -301,7 +301,7 @@ onMounted(() => {
 
 .back-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .tx-detail-header h1 {
@@ -325,7 +325,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 4px solid var(--border-color, #e2e8f0);
-  border-top-color: #3498db;
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -404,13 +404,13 @@ onMounted(() => {
 }
 
 .value.clickable {
-  color: #3498db;
+  color: var(--accent-primary);
   cursor: pointer;
   text-decoration: underline;
 }
 
 .value.clickable:hover {
-  color: #2980b9;
+  color: var(--accent-secondary);
 }
 
 .hash-value {
@@ -446,8 +446,8 @@ onMounted(() => {
 
 .copy-btn:hover,
 .copy-btn-small:hover {
-  background: #3498db;
-  border-color: #3498db;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
 }
 
 .copy-btn:hover svg,

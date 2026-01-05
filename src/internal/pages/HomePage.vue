@@ -313,12 +313,12 @@ function getRouteIcon(key: string) {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--lime-bright);
 }
 
 .logo-text {
@@ -354,8 +354,8 @@ function getRouteIcon(key: string) {
 }
 
 .dropdown-selector:hover {
-  background: rgba(52, 152, 219, 0.08);
-  border-color: #3498db;
+  background: var(--primary-a08);
+  border-color: var(--accent-primary);
 }
 
 .dropdown-label {
@@ -399,9 +399,9 @@ function getRouteIcon(key: string) {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  background: var(--gradient-primary);
+  color: var(--lime-bright);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .all-pages-list {
@@ -449,8 +449,8 @@ function getRouteIcon(key: string) {
 }
 
 .page-item:hover {
-  background: rgba(52, 152, 219, 0.08);
-  color: #3498db;
+  background: var(--primary-a08);
+  color: var(--accent-primary);
   transform: translateX(4px);
 }
 
@@ -472,8 +472,8 @@ function getRouteIcon(key: string) {
 
 .toggle-pages:hover {
   background: var(--bg-secondary, #f8fafc);
-  border-color: #3498db;
-  color: #3498db;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .profile-card {
@@ -490,12 +490,12 @@ function getRouteIcon(key: string) {
 .avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0284c7;
+  color: var(--accent-primary);
 }
 
 .profile-info {
@@ -564,13 +564,13 @@ function getRouteIcon(key: string) {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.15) 100%);
+  background: linear-gradient(135deg, var(--primary-a10) 0%, var(--primary-a15) 100%);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(52, 152, 219, 0.2);
-  box-shadow: 0 8px 32px rgba(52, 152, 219, 0.12);
+  border: 1px solid var(--primary-a20);
+  box-shadow: 0 8px 32px var(--primary-a15);
   position: relative;
   overflow: hidden;
 }
@@ -582,7 +582,7 @@ function getRouteIcon(key: string) {
   right: -20%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(52, 152, 219, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--lime-a15) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -623,11 +623,11 @@ function getRouteIcon(key: string) {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.3));
+  filter: drop-shadow(0 0 20px var(--primary-a30));
 }
 
 .description-features {
@@ -652,8 +652,8 @@ function getRouteIcon(key: string) {
 
 .feature-point:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15), 0 0 0 1px rgba(52, 152, 219, 0.2);
-  border-color: rgba(52, 152, 219, 0.3);
+  box-shadow: 0 12px 24px var(--primary-a15), 0 0 0 1px var(--primary-a20);
+  border-color: var(--primary-a30);
   background: var(--hover-bg, #f8fafc);
 }
 
@@ -665,9 +665,9 @@ function getRouteIcon(key: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25), 0 0 0 4px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 4px 12px var(--primary-a25), 0 0 0 4px var(--lime-a10);
   position: relative;
 }
 
@@ -675,7 +675,7 @@ function getRouteIcon(key: string) {
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.4), rgba(41, 128, 185, 0.4));
+  background: linear-gradient(135deg, var(--primary-a40), var(--primary-a40));
   border-radius: 12px;
   filter: blur(8px);
   opacity: 0;
@@ -727,20 +727,20 @@ function getRouteIcon(key: string) {
 
 .stat-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.12);
-  border-color: rgba(52, 152, 219, 0.3);
+  box-shadow: 0 8px 20px var(--primary-a15);
+  border-color: var(--primary-a30);
 }
 
 .stat-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  color: var(--lime-bright);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .stat-info {
@@ -814,9 +814,9 @@ function getRouteIcon(key: string) {
 
 .action-card:hover {
   background: var(--hover-bg, #f8fafc);
-  border-color: rgba(52, 152, 219, 0.5);
+  border-color: var(--primary-a50);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2), 0 0 0 1px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 8px 20px var(--primary-a20), 0 0 0 1px var(--primary-a20);
 }
 
 .action-icon {
@@ -838,8 +838,8 @@ function getRouteIcon(key: string) {
 }
 
 .action-icon.drive {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  color: #0284c7;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: var(--accent-primary);
 }
 
 .action-icon.wallet {
@@ -873,13 +873,13 @@ function getRouteIcon(key: string) {
 }
 
 .action-icon.gateways {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #2563eb;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #059669;
 }
 
 .action-icon.search {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  color: #0891b2;
+  background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
+  color: #65a30d;
 }
 
 .action-icon.help {
@@ -919,7 +919,7 @@ function getRouteIcon(key: string) {
 }
 
 .action-card:hover .action-arrow {
-  color: #3498db;
+  color: var(--accent-primary);
   transform: translate(2px, -2px);
 }
 
@@ -952,11 +952,11 @@ function getRouteIcon(key: string) {
 }
 
 .route-chip:hover {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-color: transparent;
-  color: white;
+  color: var(--lime-bright);
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.25);
+  box-shadow: 0 6px 16px var(--primary-a25);
 }
 
 /* Responsive */

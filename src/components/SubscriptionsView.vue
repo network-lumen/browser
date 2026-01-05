@@ -612,7 +612,7 @@ defineExpose({
 
 .stat-icon.total {
   background: #dbeafe;
-  color: #2563eb;
+  color: var(--accent-secondary);
 }
 
 .stat-value {
@@ -701,7 +701,7 @@ defineExpose({
 }
 
 .payment-card:hover {
-  border-color: #3b82f6;
+  border-color: var(--accent-primary);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
@@ -853,12 +853,12 @@ defineExpose({
 }
 
 .btn.primary {
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
 }
 
 .btn.primary:hover {
-  background: #2563eb;
+  background: var(--accent-secondary);
 }
 
 .modal-overlay {
