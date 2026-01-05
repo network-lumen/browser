@@ -321,21 +321,19 @@ async function ipfsGet(cidOrPath, options = {}) {
         : 12000;
 
     const extraGateways = Array.isArray(options?.gateways) ? options.gateways : [];
-    const gatewayBases = Array.from(
-      new Set(
-        [...extraGateways, ...defaultGateways]
-          .map((x) => String(x || '').trim().replace(/\/+$/, ''))
-          .filter(Boolean)
-      )
+    const extraBases = Array.from(
+      new Set(extraGateways.map((x) => String(x || '').trim().replace(/\/+$/, '')).filter(Boolean))
+    );
+    const publicBases = Array.from(
+      new Set(defaultGateways.map((x) => String(x || '').trim().replace(/\/+$/, '')).filter(Boolean))
     );
 
     const localGatewayUrl = buildGatewayUrl('http://127.0.0.1:8080', arg);
 
-    const tasks = [];
     const controllers = [];
     const timers = [];
 
-    function addTask(name, fn) {
+    function makeTask(name, fn) {
       const controller = new AbortController();
       const t = setTimeout(() => {
         try {
@@ -348,8 +346,8 @@ async function ipfsGet(cidOrPath, options = {}) {
       controllers.push(controller);
       timers.push(t);
 
-      const p = fn(controller.signal)
-        .then((buffer) => ({ name, buffer }))
+      const promise = fn(controller.signal)
+        .then((buffer) => ({ name, buffer, controller }))
         .finally(() => {
           try {
             clearTimeout(t);
@@ -357,33 +355,54 @@ async function ipfsGet(cidOrPath, options = {}) {
             // ignore
           }
         });
-      tasks.push(p);
+
+      return { name, controller, promise };
     }
 
-    addTask('kubo_cat', (signal) => fetchBytesFromKuboCat(arg, { signal }));
-    addTask('local_gateway', (signal) => fetchBytesFromUrl(localGatewayUrl, { signal }));
-    for (const base of gatewayBases) {
-      const url = buildGatewayUrl(base, arg);
-      addTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal }));
-    }
-
-    function abortLosers(winnerIndex) {
-      for (let i = 0; i < controllers.length; i++) {
-        if (i === winnerIndex) continue;
+    function abortAllExcept(winnerController) {
+      for (const c of controllers) {
+        if (c === winnerController) continue;
         try {
-          controllers[i].abort();
+          c.abort();
         } catch {
           // ignore
         }
       }
     }
 
-    const wrapped = tasks.map((p, winnerIndex) => p.then((res) => (abortLosers(winnerIndex), res)));
+    async function raceTasks(taskObjs) {
+      const wrapped = taskObjs.map((t) =>
+        t.promise.then((res) => {
+          abortAllExcept(t.controller);
+          return res;
+        })
+      );
+      return await Promise.any(wrapped);
+    }
 
-    console.log('[electron][ipfs] getting file:', arg, 'sources:', wrapped.length);
+    const stage1 = [];
+    stage1.push(makeTask('kubo_cat', (signal) => fetchBytesFromKuboCat(arg, { signal })));
+    stage1.push(makeTask('local_gateway', (signal) => fetchBytesFromUrl(localGatewayUrl, { signal })));
+    for (const base of extraBases) {
+      const url = buildGatewayUrl(base, arg);
+      stage1.push(makeTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal })));
+    }
+
+    console.log('[electron][ipfs] getting file:', arg, 'sources:', stage1.length + publicBases.length);
     let winner;
     try {
-      winner = await Promise.any(wrapped);
+      try {
+        winner = await raceTasks(stage1);
+      } catch (_stage1Err) {
+        // Last-resort fallbacks: public gateways are slower and less private, so only use them
+        // once local/Kubo/whitelisted sources have all failed.
+        const stage2 = [];
+        for (const base of publicBases) {
+          const url = buildGatewayUrl(base, arg);
+          stage2.push(makeTask(`public_gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal })));
+        }
+        winner = await raceTasks(stage2);
+      }
     } finally {
       for (const t of timers) {
         try {
