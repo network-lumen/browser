@@ -45,7 +45,19 @@
       </div>
 
       <template v-else>
-        <div v-if="isDir" class="dir-wrap">
+        <div v-if="!rootCid" class="welcome-wrap">
+          <div class="welcome-content">
+            <h2>IPFS Content Viewer</h2>
+            <p>View and download content from IPFS using CIDs.</p>
+            <div class="welcome-example">
+              <p class="example-label">Example:</p>
+              <code>lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code>
+            </div>
+            <p class="welcome-hint">Enter an IPFS CID in the address bar to view content.</p>
+          </div>
+        </div>
+        
+        <div v-else-if="isDir" class="dir-wrap">
           <div class="breadcrumb">
             <button class="crumb" type="button" @click="openDirRoot" :disabled="!openInNewTab">
               {{ rootDisplayName }}
@@ -294,7 +306,8 @@ async function load() {
   savedCid.value = '';
 
   if (!rootCid.value) {
-    error.value = 'Missing CID.';
+    // Show welcome page when no CID is provided
+    isDir.value = true;
     loading.value = false;
     return;
   }
@@ -671,6 +684,63 @@ watch(
   border: 1px solid var(--border-color, #e2e8f0);
   background: var(--bg-secondary, #f8fafc);
   color: var(--text-secondary, #64748b);
+}
+
+.welcome-wrap {
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.welcome-content h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 0.75rem;
+}
+
+.welcome-content > p {
+  color: var(--text-secondary, #64748b);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.welcome-example {
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.example-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #64748b);
+  margin-bottom: 0.75rem;
+}
+
+.welcome-example code {
+  display: block;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #3498db;
+  word-break: break-all;
+}
+
+.welcome-hint {
+  font-size: 0.875rem;
+  color: var(--text-tertiary, #94a3b8);
 }
 
 .viewer {
