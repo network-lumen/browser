@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
+const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -131,6 +132,7 @@ app.whenReady().then(() => {
 
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
+  startIpfsSeedBootstrapper();
   createSplashWindow();
   startChainPoller();
 

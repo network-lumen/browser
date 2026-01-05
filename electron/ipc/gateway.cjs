@@ -479,14 +479,22 @@ function getRestBaseUrl() {
   }
 }
 
-async function resolveGatewayBaseFromEndpoint(endpoint) {
+async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
+  let msArg = timeoutMs;
+  let opts = options;
+  if (msArg && typeof msArg === 'object' && !opts) {
+    opts = msArg;
+    msArg = undefined;
+  }
+  const quiet = !!opts?.quiet;
+
   const ep = String(endpoint || '').trim();
   if (!ep) return null;
 
   // If it's already an HTTP(s) URL, use as-is
   if (/^https?:\/\//i.test(ep)) {
     const out = trimSlash(ep);
-    console.log('[gateway] resolveGatewayBaseFromEndpoint http', ep, '->', out);
+    if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint http', ep, '->', out);
     return out;
   }
 
@@ -504,8 +512,19 @@ async function resolveGatewayBaseFromEndpoint(endpoint) {
   try {
     const rest = trimSlash(restBase);
     const url = `${rest}/lumen/dns/v1/domain/${encodeURIComponent(domain)}`;
-    console.log('[gateway] resolveGatewayBaseFromEndpoint dns query', domain, 'via', rest);
-    const res = await fetch(url, { method: 'GET' });
+    if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint dns query', domain, 'via', rest);
+    const ms =
+      typeof msArg === 'number' && Number.isFinite(msArg) && msArg > 0
+        ? msArg
+        : 2500;
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), ms);
+    let res;
+    try {
+      res = await fetch(url, { method: 'GET', signal: controller.signal });
+    } finally {
+      try { clearTimeout(t); } catch {}
+    }
     if (!res.ok) return null;
     const json = await res.json().catch(() => null);
     const dom = (json && (json.domain || json)) || {};
@@ -523,7 +542,7 @@ async function resolveGatewayBaseFromEndpoint(endpoint) {
     }
 
       if (!value) {
-        console.warn('[gateway] resolveGatewayBaseFromEndpoint: no record value for', ep);
+        if (!quiet) console.warn('[gateway] resolveGatewayBaseFromEndpoint: no record value for', ep);
         return null;
       }
 
@@ -533,14 +552,14 @@ async function resolveGatewayBaseFromEndpoint(endpoint) {
         : String(value?.baseUrl || value?.endpoint || value?.url || '').trim();
 
       if (!base) {
-        console.warn('[gateway] resolveGatewayBaseFromEndpoint: empty base for', ep);
+        if (!quiet) console.warn('[gateway] resolveGatewayBaseFromEndpoint: empty base for', ep);
         return null;
       }
       if (!/^https?:\/\//i.test(base)) {
         base = `https://${base}`;
       }
       const out = trimSlash(base);
-      console.log('[gateway] resolveGatewayBaseFromEndpoint resolved', ep, '->', out);
+      if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint resolved', ep, '->', out);
       return out;
   } catch {
     return null;
@@ -1023,7 +1042,18 @@ async function fetchGatewaysFromRest(limit, timeoutMs) {
 
   let lastErr = null;
   try {
-    const res = await fetch(url.toString(), { method: 'GET' });
+    const ms =
+      typeof timeoutMs === 'number' && Number.isFinite(timeoutMs) && timeoutMs > 0
+        ? timeoutMs
+        : 6000;
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), ms);
+    let res;
+    try {
+      res = await fetch(url.toString(), { method: 'GET', signal: controller.signal });
+    } finally {
+      try { clearTimeout(t); } catch {}
+    }
     const status = res.status;
     if (!res.ok) {
       const text = (await res.text().catch(() => '')).trim();
@@ -1852,4 +1882,7 @@ function registerGatewayIpc() {
 
 module.exports = {
   registerGatewayIpc,
+  fetchGatewaysFromRest,
+  resolveGatewayBaseFromEndpoint,
+  getRestBaseUrl,
 };

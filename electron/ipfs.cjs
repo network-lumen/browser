@@ -2,6 +2,7 @@ const { app } = require('electron');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
+const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./ipfs_seed.cjs');
 
 let ipfsProcess = null;
 
@@ -394,10 +395,14 @@ async function ipfsGet(cidOrPath, options = {}) {
     }
     const bytes = new Uint8Array(winner.buffer);
     console.log('[electron][ipfs] get success from', winner.name, 'size:', bytes.byteLength);
+    try { recordCidResolutionSuccess(); } catch {}
     return { ok: true, data: Array.from(bytes), source: winner.name };
   } catch (e) {
     const msg = String(e?.message || e);
     console.error('[electron][ipfs] get error:', msg);
+    if (!/^(Empty CID or path|CID\/path too long)\b/i.test(msg)) {
+      try { recordCidResolutionFailure(); } catch {}
+    }
     return { ok: false, error: msg };
   }
 }
