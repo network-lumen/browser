@@ -56,6 +56,14 @@
             <span class="metric-label">Throughput</span>
             <span class="metric-value">{{ tps.toFixed(1) }} tx/s</span>
           </div>
+          <div class="metric-item">
+            <span class="metric-label">Blocks/Hour</span>
+            <span class="metric-value">{{ blocksPerHour }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">24h Volume</span>
+            <span class="metric-value">{{ formatNumber(txVolume24h) }}</span>
+          </div>
         </div>
 
         <div class="nav-section">
@@ -307,6 +315,19 @@ const blockTimeStatus = computed(() => {
   if (avg < 5) return 'fast';
   if (avg <= 6) return 'normal';
   return 'slow';
+});
+
+const blocksPerHour = computed(() => {
+  if (blockTime.value <= 0) return 0;
+  return Math.floor(3600 / blockTime.value);
+});
+
+const txVolume24h = computed(() => {
+  const blocksIn24h = Math.floor(86400 / (blockTime.value || 6));
+  const avgTxPerBlock = txHistory.value.length 
+    ? txHistory.value.reduce((a, b) => a + b, 0) / txHistory.value.length 
+    : 5;
+  return Math.floor(blocksIn24h * avgTxPerBlock);
 });
 
 // Chart computations

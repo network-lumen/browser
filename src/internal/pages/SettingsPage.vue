@@ -88,15 +88,52 @@
         <div class="setting-group">
           <div class="setting-item">
             <div class="setting-info">
-              <span class="setting-label">Theme</span>
+              <span class="setting-label">Dark Mode</span>
+              <span class="setting-desc">{{ effectiveTheme === 'dark' ? 'Dark mode is enabled' : 'Light mode is enabled' }}</span>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input 
+                  type="checkbox" 
+                  :checked="theme === 'dark'"
+                  @change="toggleDarkMode"
+                />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Theme Preference</span>
               <span class="setting-desc">Choose your preferred color scheme</span>
             </div>
             <div class="setting-control">
-              <select class="select-control" v-model="theme">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="system">System</option>
-              </select>
+              <div class="theme-selector">
+                <button 
+                  class="theme-option"
+                  :class="{ active: theme === 'light' }"
+                  @click="setTheme('light')"
+                >
+                  <Sun :size="18" />
+                  <span>Light</span>
+                </button>
+                <button 
+                  class="theme-option"
+                  :class="{ active: theme === 'dark' }"
+                  @click="setTheme('dark')"
+                >
+                  <Moon :size="18" />
+                  <span>Dark</span>
+                </button>
+                <button 
+                  class="theme-option"
+                  :class="{ active: theme === 'system' }"
+                  @click="setTheme('system')"
+                >
+                  <Monitor :size="18" />
+                  <span>System</span>
+                </button>
+              </div>
             </div>
           </div>
           <div class="setting-item">
@@ -248,22 +285,34 @@ import {
   Database,
   Info,
   Hexagon,
-  User
+  User,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { activeProfileId } from '../profilesStore';
 import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
 
 const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
-const { theme, setTheme } = useTheme();
-const fontSize = ref('medium');
+const { theme, effectiveTheme, setTheme } = useTheme();
+const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const blockTrackers = ref(true);
 const exportingBackup = ref(false);
 const importingBackup = ref(false);
 const hasActiveProfile = computed(() => !!activeProfileId.value);
 
+function toggleDarkMode() {
+  setTheme(theme.value === 'dark' ? 'light' : 'dark');
+}
+
 watch(theme, (newTheme) => {
   setTheme(newTheme);
+});
+
+watch(fontSize, (newSize) => {
+  localStorage.setItem('lumen-font-size', newSize);
+  document.documentElement.setAttribute('data-font-size', newSize);
 });
 
 function getViewTitle(): string {
@@ -313,6 +362,9 @@ async function onImportBackup() {
     importingBackup.value = false;
   }
 }
+
+// Initialize font size on mount
+document.documentElement.setAttribute('data-font-size', fontSize.value);
 </script>
 
 <style scoped>
@@ -542,6 +594,42 @@ async function onImportBackup() {
 .btn-secondary:hover {
   background: var(--border-color, #e2e8f0);
   color: var(--text-primary, #1e293b);
+}
+
+/* Theme Selector */
+.theme-selector {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--bg-secondary, #f1f5f9);
+  padding: 0.375rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-option:hover {
+  background: var(--hover-bg, rgba(52, 152, 219, 0.1));
+  color: var(--text-primary, #1e293b);
+}
+
+.theme-option.active {
+  background: var(--card-bg, white);
+  color: #3498db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 /* Toggle */
