@@ -9,6 +9,16 @@
         <span class="logo-text">Drive</span>
       </div>
 
+      <div class="profile-card" v-if="activeProfile">
+        <div class="avatar">
+          <User :size="18" />
+        </div>
+        <div class="profile-info">
+          <span class="profile-label">Active Profile</span>
+          <span class="profile-name">{{ activeProfileDisplay }}</span>
+        </div>
+      </div>
+
       <!-- Hosting -->
       <div class="hosting-panel">
         <div class="stats-header">
@@ -893,10 +903,11 @@ import {
   HardDrive, Download, Database, Plus, Upload,
   ExternalLink, Trash2, X, Share2,
   FileText, FileImage, FileVideo, FileAudio, FileArchive, File,
-  CheckCircle, AlertCircle, LayoutGrid, List, TableProperties
+  CheckCircle, AlertCircle, LayoutGrid, List, TableProperties, User
 } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import { LOCAL_IPFS_GATEWAY_BASE, loadWhitelistedGatewayBases } from '../services/contentResolver';
+import { profilesState, activeProfileId } from '../profilesStore';
 
 interface DriveFile {
   cid: string;
@@ -934,6 +945,10 @@ const toast = ref('');
 const toastType = ref<'success' | 'error'>('success');
 
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+
+const profiles = profilesState;
+const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
+const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 
   const STORAGE_KEY = 'lumen_drive_files';
   const LOCAL_NAMES_KEY = 'lumen_drive_saved_names';
@@ -2641,6 +2656,47 @@ function showToast(msg: string, type: 'success' | 'error' = 'success') {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
+  color: var(--text-primary, #1e293b);
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-secondary, #f8fafc);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-label {
+  font-size: 0.65rem;
+  color: var(--text-tertiary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-primary, #1e293b);
 }
 

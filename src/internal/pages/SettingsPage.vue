@@ -8,6 +8,16 @@
         </div>
         <span class="logo-text">Settings</span>
       </div>
+
+      <div class="profile-card" v-if="activeProfile">
+        <div class="avatar">
+          <User :size="18" />
+        </div>
+        <div class="profile-info">
+          <span class="profile-label">Active Profile</span>
+          <span class="profile-name">{{ activeProfileDisplay }}</span>
+        </div>
+      </div>
       
       <nav class="sidebar-nav">
         <div class="nav-section">
@@ -291,7 +301,7 @@ import {
   Monitor
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
-import { activeProfileId } from '../profilesStore';
+import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
 
 const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
@@ -301,6 +311,9 @@ const blockTrackers = ref(true);
 const exportingBackup = ref(false);
 const importingBackup = ref(false);
 const hasActiveProfile = computed(() => !!activeProfileId.value);
+const profiles = profilesState;
+const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
+const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 
 // Initialize theme on mount
 initTheme();
@@ -417,6 +430,47 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
+  color: var(--text-primary, #1e293b);
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-secondary, #f8fafc);
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-label {
+  font-size: 0.65rem;
+  color: var(--text-tertiary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-primary, #1e293b);
 }
 
