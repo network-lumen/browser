@@ -454,7 +454,7 @@ defineExpose({
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -490,8 +490,8 @@ textarea.form-input {
 }
 
 .input-btn:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
   color: white;
 }
 
@@ -596,12 +596,12 @@ textarea.form-input {
 }
 
 .btn.primary {
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--accent-secondary);
 }
 
 .btn.secondary {

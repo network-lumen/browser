@@ -407,7 +407,7 @@ onMounted(async () => {
   width: 36px;
   height: 36px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -462,9 +462,9 @@ onMounted(async () => {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .main-content {
@@ -502,7 +502,7 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border: none;
   border-radius: 10px;
   color: white;
@@ -519,7 +519,7 @@ onMounted(async () => {
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.35);
+  box-shadow: 0 6px 20px var(--primary-a30);
 }
 
 .btn-secondary {
@@ -560,7 +560,7 @@ onMounted(async () => {
 }
 
 .gateway-card.default {
-  border-color: #3498db;
+  border-color: var(--accent-primary);
   background: var(--card-bg, #f8fafc);
 }
 
@@ -656,7 +656,7 @@ onMounted(async () => {
   height: 36px;
   border-radius: 50%;
   border: 3px solid var(--border-color, #e2e8f0);
-  border-top-color: #3498db;
+  border-top-color: var(--accent-primary);
   margin: 0 auto 1rem;
   animation: spin 0.8s linear infinite;
 }

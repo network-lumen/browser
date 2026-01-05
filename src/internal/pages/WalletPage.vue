@@ -1483,7 +1483,7 @@ function exportTransactions() {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -1542,7 +1542,7 @@ function exportTransactions() {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: white;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
@@ -1650,12 +1650,12 @@ function exportTransactions() {
 
 .action-btn.secondary:hover {
   background: var(--bg-secondary);
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
@@ -1672,7 +1672,7 @@ function exportTransactions() {
 }
 
 .balance-card {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   border-radius: 20px;
   padding: 2rem;
   color: white;
@@ -1834,22 +1834,22 @@ function exportTransactions() {
 }
 
 .quick-icon.send {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: white;
 }
 
 .quick-icon.receive {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: white;
 }
 
 .quick-icon.swap {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: white;
 }
 
 .quick-icon.buy {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--gradient-primary);
   color: white;
 }
 
@@ -1943,13 +1943,13 @@ function exportTransactions() {
 }
 
 .filter-select:hover {
-  border-color: var(--primary, #3498db);
+  border-color: var(--primary, var(--accent-primary));
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: var(--primary, #3498db);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--primary, var(--accent-primary));
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .search-input {
@@ -1964,13 +1964,13 @@ function exportTransactions() {
 }
 
 .search-input:hover {
-  border-color: var(--primary, #3498db);
+  border-color: var(--primary, var(--accent-primary));
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary, #3498db);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--primary, var(--accent-primary));
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .search-input::placeholder {
@@ -1995,7 +1995,7 @@ function exportTransactions() {
   margin: 0 auto 1rem;
   border-radius: 999px;
   background: var(--bg-secondary, #e0f2fe);
-  color: #2563eb;
+  color: var(--accent-secondary);
 }
 
 .empty-state h3 {
@@ -2016,7 +2016,7 @@ function exportTransactions() {
   padding: 0.6rem 1rem;
   border-radius: 999px;
   border: none;
-  background: #2563eb;
+  background: var(--accent-secondary);
   color: white;
   font-size: 0.85rem;
   cursor: pointer;
@@ -2052,7 +2052,7 @@ function exportTransactions() {
 }
 
 .asset-icon.lmn {
-  background: #2563eb;
+  background: var(--accent-secondary);
 }
 
 .asset-info {
@@ -2116,7 +2116,7 @@ function exportTransactions() {
 
 .activity-row:hover {
   background: var(--hover-bg, #f8fafc);
-  border-left: 3px solid #3498db;
+  border-left: 3px solid var(--accent-primary);
   padding-left: calc(1.25rem - 3px);
 }
 
@@ -2233,8 +2233,8 @@ function exportTransactions() {
 }
 
 .action-icon.copy-btn:hover {
-  border-color: #3498db;
-  color: #3498db;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .action-icon.explorer-btn:hover {
@@ -2282,7 +2282,7 @@ function exportTransactions() {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   display: flex;
   align-items: center;
@@ -2306,7 +2306,7 @@ function exportTransactions() {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   display: flex;
   align-items: center;
@@ -2345,13 +2345,13 @@ function exportTransactions() {
 }
 
 .info-banner {
-  background: var(--bg-secondary, #eff6ff);
-  border: 1px solid var(--border-color, #bfdbfe);
+  background: var(--bg-secondary, #d1fae5);
+  border: 1px solid var(--border-color, #a7f3d0);
   border-radius: 10px;
   padding: 0.875rem 1rem;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
-  color: var(--text-primary, #1e40af);
+  color: var(--text-primary, var(--accent-primary));
   line-height: 1.5;
 }
 
@@ -2403,8 +2403,8 @@ function exportTransactions() {
 
 .form-input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
 .form-input::placeholder {
@@ -2494,7 +2494,7 @@ function exportTransactions() {
   border: none;
   border-radius: 12px;
   padding: 0.875rem 1.25rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -2504,12 +2504,12 @@ function exportTransactions() {
   gap: 0.625rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+  box-shadow: 0 4px 12px var(--primary-a25);
 }
 
 .btn-modal-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
-  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.35);
+  background: var(--gradient-primary-hover);
+  box-shadow: 0 6px 16px var(--primary-a30);
   transform: translateY(-1px);
 }
 
@@ -2627,12 +2627,12 @@ function exportTransactions() {
 .btn-copy-address {
   width: 100%;
   border-radius: 10px;
-  border: 2px solid #3b82f6;
+  border: 2px solid var(--accent-primary);
   background: var(--card-bg);
   padding: 0.75rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2643,8 +2643,8 @@ function exportTransactions() {
 
 .btn-copy-address:hover:not(:disabled) {
   background: var(--hover-bg);
-  border-color: #2563eb;
-  color: #2980b9;
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary);
 }
 
 .btn-copy-address:disabled {
@@ -2739,8 +2739,8 @@ function exportTransactions() {
 }
 
 .contact-card:hover {
-  border-color: #3498db;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 12px var(--primary-a15);
 }
 
 .contact-header {
@@ -2754,7 +2754,7 @@ function exportTransactions() {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   display: flex;
   align-items: center;
@@ -2818,18 +2818,18 @@ function exportTransactions() {
 
 .contact-btn:hover {
   background: var(--hover-bg);
-  border-color: #3498db;
-  color: #3498db;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .contact-btn.send {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   border-color: transparent;
 }
 
 .contact-btn.send:hover {
-  background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+  background: var(--gradient-primary-hover);
   color: white;
 }
 
@@ -2871,7 +2871,7 @@ function exportTransactions() {
 }
 
 .input-action-btn:hover {
-  background: #3498db;
+  background: var(--accent-primary);
   color: white;
 }
 
@@ -2949,7 +2949,7 @@ function exportTransactions() {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   display: flex;
   align-items: center;

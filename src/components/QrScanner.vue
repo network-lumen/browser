@@ -321,7 +321,7 @@ function cleanup() {
   position: absolute;
   width: 30px;
   height: 30px;
-  border: 3px solid #3b82f6;
+  border: 3px solid var(--accent-primary);
 }
 
 .corner.top-left {
@@ -405,7 +405,7 @@ function cleanup() {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -416,7 +416,7 @@ function cleanup() {
 }
 
 .retry-btn:hover {
-  background: #2563eb;
+  background: var(--accent-secondary);
 }
 
 .scanned-data {
@@ -485,12 +485,12 @@ function cleanup() {
 }
 
 .btn.primary {
-  background: #3b82f6;
+  background: var(--accent-primary);
   color: white;
 }
 
 .btn.primary:hover {
-  background: #2563eb;
+  background: var(--accent-secondary);
 }
 
 .btn.secondary {

@@ -1,108 +1,218 @@
 :root {
-    /* colors */
+    /* ========== BASE COLORS ========== */
     --white: #fff;
     --white-rgb: 255, 255, 255;
+    --black-rgb: 0, 0, 0;
+
+    /* Primary Palette - Dark Green + Lime */
+    --green-dark: #2D5F4F;
+    --green-dark-rgb: 45, 95, 79;
+    --green-teal: #1e4d3f;
+    --green-teal-rgb: 30, 77, 63;
+    --green-deep: #1a4533;
+    
+    --lime-bright: #C5FF41;
+    --lime-bright-rgb: 197, 255, 65;
+    --lime-soft: #D4FF00;
+    --lime-soft-rgb: 212, 255, 0;
 
     --green-mint: #37bb8d;
     --green-mint-rgb: 55, 187, 141;
 
-    --red-base:   #ea3e3e;
+    /* Secondary Colors */
+    --red-base: #ea3e3e;
     --red-wash: #fecaca;
     --red-base-rgb: 234, 62, 62;
 
     --orange-bright: #f59e0b;
     --orange-bright-rgb: 245, 158, 11;
 
-    --gray-blue:       #64748b;
-    --gray-blue-dark:  #334155;
+    --gray-blue: #64748b;
+    --gray-blue-dark: #334155;
     --gray-blue-light: #94a3b8;
     
-    --white-blue-light: #f8fbff;
-    --white-blue:      #dbeafe;
-    --white-blue-dark: #bfdbfe;
+    --green-tint-light: #f0fdf4;
+    --green-tint: #d1fae5;
+    --green-tint-dark: #a7f3d0;
 
-    --amber:       #fcd34d;
-    --amber-soft:  #fde68a;
-
-    --blue-rgb: var(--primary-rgb);
-    --blue:     rgb(var(--blue-rgb));
-
-    --blue-strong: #2563eb;
-
-    --blue-sky:      #0ea5e9;
+    --amber: #fcd34d;
+    --amber-soft: #fde68a;
 
     --border: #e6eaf1;
-        
-    --black-rgb: 0, 0, 0;
-    --primary-rgb: 59, 130, 246;
-    /* rgba black with opacity */
+    --primary-rgb: 45, 95, 79;
+
+    /* ========== OPACITY VARIANTS ========== */
     --black-a06: rgba(var(--black-rgb), .06);
     --black-a10: rgba(var(--black-rgb), .10);
-    /* rgba white with opacity */
     --white-a25: rgba(var(--white-rgb), .25);
     --white-a45: rgba(var(--white-rgb), .45);
-    /* rgba primary with opacity */
     --primary-a00: rgba(var(--primary-rgb), .00);
+    --primary-a08: rgba(var(--primary-rgb), .08);
+    --primary-a10: rgba(var(--primary-rgb), .10);
+    --primary-a15: rgba(var(--primary-rgb), .15);
+    --primary-a20: rgba(var(--primary-rgb), .20);
     --primary-a25: rgba(var(--primary-rgb), .25);
+    --primary-a30: rgba(var(--primary-rgb), .30);
+    --primary-a40: rgba(var(--primary-rgb), .40);
     --primary-a45: rgba(var(--primary-rgb), .45);
-    /* font size */
+    --primary-a50: rgba(var(--primary-rgb), .50);
+    
+    --lime-a10: rgba(var(--lime-bright-rgb), .10);
+    --lime-a15: rgba(var(--lime-bright-rgb), .15);
+    --lime-a20: rgba(var(--lime-bright-rgb), .20);
+    --lime-a30: rgba(var(--lime-bright-rgb), .30);
+
+    /* ========== FONT SIZES ========== */
     --fs-xs: 0.8125rem; /* 13px */
     --fs-sm: 0.875rem;  /* 14px */
-    --fs-md: 1rem;      /* 16px (base body) */
+    --fs-md: 1rem;      /* 16px */
+    --fs-lg: 1.125rem;  /* 18px */
+    --fs-xl: 1.25rem;   /* 20px */
     --fs-2xl: 1.625rem; /* 26px */
+    --fs-3xl: 2rem;     /* 32px */
+    --fs-4xl: 2.5rem;   /* 40px */
     
-    /* Theme colors - Light mode (default) */
+    /* ========== THEME COLORS - LIGHT MODE ========== */
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
-    --bg-tertiary: #f0f2f5;
+    --bg-tertiary: #f0f4f8;
+    --bg-gradient: linear-gradient(180deg, #f8fafb 0%, #f0f4f8 100%);
+    
     --text-primary: #0f172a;
     --text-secondary: #64748b;
     --text-tertiary: #94a3b8;
+    
     --border-color: #e2e8f0;
     --border-light: #f1f5f9;
+    
     --card-bg: #ffffff;
     --sidebar-bg: #ffffff;
     --hover-bg: #f1f5f9;
     
-    /* Accent colors - same for both themes */
-    --accent-blue: #3b82f6;
-    --accent-cyan: #06b6d4;
-    --success-green: #10b981;
+    /* ========== ACCENT COLORS ========== */
+    --accent-primary: var(--green-dark);
+    --accent-secondary: var(--lime-bright);
+    --success-green: var(--green-mint);
     --warning-orange: #f59e0b;
     
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    /* Backward compatibility */
+    --accent-blue: var(--green-dark);
+    --accent-cyan: var(--lime-bright);
+    --blue-rgb: var(--primary-rgb);
+    --blue: rgb(var(--blue-rgb));
+    --blue-strong: var(--green-dark);
+    --blue-sky: var(--lime-bright);
+    
+    /* ========== GRADIENTS ========== */
+    --gradient-primary: linear-gradient(135deg, var(--green-dark) 0%, var(--green-teal) 100%);
+    --gradient-primary-hover: linear-gradient(135deg, var(--green-dark) 0%, var(--green-deep) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--lime-bright) 0%, var(--lime-soft) 100%);
+    --gradient-primary-soft: linear-gradient(135deg, var(--primary-a15) 0%, var(--primary-a10) 100%);
+    --gradient-brand: linear-gradient(135deg, var(--green-dark) 0%, var(--green-teal) 100%);
+    --gradient-glow: radial-gradient(circle, var(--primary-a08) 0%, transparent 70%);
+    
+    /* ========== SHADOWS ========== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 12px 28px rgba(0, 0, 0, 0.15);
+    --shadow-2xl: 0 16px 32px rgba(0, 0, 0, 0.18);
+    
+    --shadow-primary: 0 4px 12px var(--primary-a25);
+    --shadow-primary-lg: 0 8px 20px var(--primary-a30);
+    --shadow-primary-xl: 0 12px 28px var(--primary-a25);
+    
+    --shadow-glow: 0 0 0 4px var(--lime-a10);
+    --shadow-focus: 0 0 0 3px var(--lime-a15);
+    
+    /* ========== BORDERS ========== */
+    --border-width: 1.5px;
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 20px;
+    --border-radius-full: 999px;
+    
+    /* ========== TRANSITIONS ========== */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Dark mode - Modern blockchain explorer style */
+/* System mode - Original Blue Theme */
+:root.system {
+    /* Blue Theme Colors */
+    --accent-primary: #3498db !important;
+    --accent-secondary: #2980b9 !important;
+    --primary-rgb: 52, 152, 219;
+    
+    /* Override gradients for blue */
+    --gradient-primary: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    --gradient-primary-hover: linear-gradient(135deg, #2980b9 0%, #21618c 100%) !important;
+    --gradient-brand: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    --gradient-primary-soft: linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(52, 152, 219, 0.1) 100%) !important;
+    
+    /* Blue accent overrides */
+    --accent-blue: #3498db !important;
+    --accent-cyan: #06b6d4 !important;
+    --blue-strong: #2563eb !important;
+    --blue-sky: #0ea5e9 !important;
+    
+    /* Success stays green */
+    --success-green: #10b981 !important;
+    
+    /* Blue opacity variants */
+    --primary-a08: rgba(52, 152, 219, 0.08) !important;
+    --primary-a10: rgba(52, 152, 219, 0.10) !important;
+    --primary-a15: rgba(52, 152, 219, 0.15) !important;
+    --primary-a20: rgba(52, 152, 219, 0.20) !important;
+    --primary-a25: rgba(52, 152, 219, 0.25) !important;
+    --primary-a30: rgba(52, 152, 219, 0.30) !important;
+    --primary-a40: rgba(52, 152, 219, 0.40) !important;
+    --primary-a50: rgba(52, 152, 219, 0.50) !important;
+    
+    /* Blue shadows */
+    --shadow-primary: 0 4px 12px rgba(52, 152, 219, 0.25) !important;
+    --shadow-primary-lg: 0 8px 20px rgba(52, 152, 219, 0.30) !important;
+    --shadow-primary-xl: 0 12px 28px rgba(52, 152, 219, 0.25) !important;
+    
+    /* Blue tint backgrounds */
+    --green-tint-light: #f8fbff !important;
+    --green-tint: #dbeafe !important;
+    --green-tint-dark: #bfdbfe !important;
+}
+
+/* Dark mode - Modern blockchain explorer style with Dark Green + Lime */
 :root.dark {
-    /* Main backgrounds - deep navy/black */
-    --bg-primary: #0f1419;
-    --bg-secondary: #1a1f2e;
-    --bg-tertiary: #0a0e1a;
+    /* Main backgrounds - deep teal/green */
+    --bg-primary: #0a1612;
+    --bg-secondary: #1a2d27;
+    --bg-tertiary: #051008;
     
     /* Text colors */
     --text-primary: #ffffff;
     --text-secondary: #94a3b8;
     --text-tertiary: #64748b;
     
-    /* Borders - subtle dark */
-    --border-color: #1e2532;
-    --border-light: #1a1f2e;
+    /* Borders - subtle dark green */
+    --border-color: #1e3329;
+    --border-light: #1a2d27;
     
-    /* Cards and panels */
-    --card-bg: #1a1f2e;
-    --sidebar-bg: #0f1419;
+    /* Cards and panels - dark teal */
+    --card-bg: #1a2d27;
+    --sidebar-bg: #0a1612;
     
-    /* Hover states */
-    --hover-bg: #252b3b;
+    /* Hover states - with lime accent */
+    --hover-bg: #253b31;
     
-    /* Accent colors */
-    --accent-blue: #3b82f6;
+    /* Accent colors - Lime bright on dark */
+    --accent-primary: var(--green-dark);
+    --accent-secondary: var(--lime-bright);
+    --accent-blue: var(--lime-bright);
     --accent-cyan: #06b6d4;
-    --success-green: #10b981;
+    --success-green: var(--lime-bright);
     --warning-orange: #f59e0b;
     
     /* Shadows for depth */
@@ -136,9 +246,9 @@ html, body {
 }
 
 .badge-success {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: var(--success-green);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    background-color: rgba(197, 255, 65, 0.15);
+    color: var(--lime-bright);
+    border: 1px solid rgba(197, 255, 65, 0.3);
 }
 
 .badge-warning {
@@ -148,9 +258,9 @@ html, body {
 }
 
 .badge-info {
-    background-color: rgba(59, 130, 246, 0.1);
-    color: var(--accent-blue);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background-color: rgba(45, 95, 79, 0.15);
+    color: var(--green-dark);
+    border: 1px solid rgba(45, 95, 79, 0.3);
 }
 
 /* Circular Progress */
@@ -174,7 +284,7 @@ html, body {
 }
 
 .progress-circle .progress-bar {
-    stroke: var(--accent-blue);
+    stroke: var(--lime-bright);
     stroke-linecap: round;
     transition: stroke-dashoffset 0.3s ease;
 }
@@ -187,7 +297,7 @@ html, body {
 
 .card-hover:hover {
     background-color: var(--hover-bg);
-    border-color: var(--accent-blue);
+    border-color: var(--green-dark);
     box-shadow: var(--shadow-lg);
 }
 
@@ -201,12 +311,13 @@ html, body {
     border-radius: 0.375rem;
     font-size: 0.75rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--warning-orange) 0%, #ea580c 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--lime-bright) 0%, var(--lime-soft) 100%);
+    color: #0a1612;
 }
 
 .score-badge.high {
-    background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+    background: linear-gradient(135deg, var(--lime-bright) 0%, #A8E63D 100%);
+    color: #0a1612;
 }
 
 /* Stats display */
@@ -249,8 +360,8 @@ html, body {
 
 .search-input-dark:focus {
     outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--lime-bright);
+    box-shadow: 0 0 0 3px rgba(197, 255, 65, 0.15);
 }
 
 .search-input-dark::placeholder {
@@ -259,8 +370,8 @@ html, body {
 
 /* Button variants */
 .btn-primary-dark {
-    background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-teal) 100%);
+    color: var(--lime-bright);
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -271,7 +382,8 @@ html, body {
 
 .btn-primary-dark:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(197, 255, 65, 0.3);
+    background: linear-gradient(135deg, #2D5F4F 0%, #1a4533 100%);
 }
 
 /* Table row hover effect */
@@ -281,4 +393,264 @@ html, body {
 
 .table-row-hover:hover {
     background-color: var(--hover-bg);
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+    background: var(--gradient-primary);
+}
+
+.bg-gradient-primary-soft {
+    background: var(--gradient-primary-soft);
+}
+
+.bg-gradient-brand {
+    background: var(--gradient-brand);
+}
+
+/* Gradient Text */
+.text-gradient-primary {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-full);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    border: none;
+    outline: none;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: var(--lime-bright);
+    box-shadow: var(--shadow-primary);
+}
+
+.btn-primary:hover {
+    background: var(--gradient-primary-hover);
+    box-shadow: var(--shadow-primary-lg);
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: var(--border-width) solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--accent-primary);
+    border: var(--border-width) solid var(--accent-primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary-a08);
+    transform: translateY(-2px);
+}
+
+/* Card Styles */
+.card {
+    background: var(--card-bg);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-smooth);
+}
+
+.card-hover:hover {
+    border-color: var(--primary-a30);
+    box-shadow: var(--shadow-primary-lg);
+    transform: translateY(-4px);
+}
+
+.card-interactive {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-interactive::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.card-interactive:hover::before {
+    opacity: 1;
+}
+
+/* Input Styles */
+.input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: var(--fs-md);
+    transition: var(--transition-base);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.input::placeholder {
+    color: var(--text-tertiary);
+}
+
+/* Badge Variants */
+.badge-primary {
+    background: var(--gradient-primary-soft);
+    color: var(--accent-primary);
+    border: 1px solid var(--primary-a20);
+}
+
+.badge-lime {
+    background: var(--lime-a10);
+    color: var(--green-dark);
+    border: 1px solid var(--lime-a20);
+}
+
+/* Icon Containers */
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary-soft);
+    color: var(--accent-primary);
+    border: 1px solid var(--primary-a15);
+    transition: var(--transition-smooth);
+}
+
+.icon-box-hover:hover {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: var(--shadow-primary);
+}
+
+/* Pill/Tab Styles */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.125rem;
+    border-radius: var(--border-radius-full);
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-sm);
+}
+
+.pill:hover {
+    border-color: var(--primary-a40);
+    color: var(--text-primary);
+    background: var(--primary-a08);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+}
+
+.pill-active {
+    background: var(--gradient-primary-soft);
+    border-color: var(--primary-a50);
+    color: var(--accent-primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-primary), inset 0 1px 2px var(--lime-a20);
+}
+
+/* Glow Effects */
+.glow-primary {
+    box-shadow: 0 0 20px var(--primary-a20);
+}
+
+.glow-lime {
+    box-shadow: 0 0 20px var(--lime-a30);
+}
+
+/* Background Patterns */
+.bg-pattern-radial {
+    position: relative;
+}
+
+.bg-pattern-radial::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: var(--gradient-glow);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Hover Lift */
+.hover-lift {
+    transition: var(--transition-smooth);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Focus Ring */
+.focus-ring:focus {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+    transition: var(--transition-smooth);
+}
+
+.transition-fast {
+    transition: var(--transition-fast);
+}
+
+.transition-bounce {
+    transition: var(--transition-bounce);
 }
