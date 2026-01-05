@@ -25,7 +25,12 @@ const {
 let mlKemModule = null;
 async function getMlKem() {
   if (mlKemModule) return mlKemModule;
-  const mod = await import('@noble/post-quantum/ml-kem.js');
+  let mod = null;
+  try {
+    mod = await import('@noble/post-quantum/ml-kem.js');
+  } catch {
+    mod = await import('@noble/post-quantum/ml-kem');
+  }
   mlKemModule = mod.ml_kem768 || mod.default?.ml_kem768 || mod;
   return mlKemModule;
 }
