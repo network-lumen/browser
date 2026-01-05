@@ -896,6 +896,7 @@ import {
   CheckCircle, AlertCircle, LayoutGrid, List, TableProperties
 } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import { LOCAL_IPFS_GATEWAY_BASE, loadWhitelistedGatewayBases } from '../services/contentResolver';
 
 interface DriveFile {
   cid: string;
@@ -2270,7 +2271,8 @@ async function uploadFile(file: File) {
 async function downloadFile(file: DriveFile) {
   try {
     const target = contentTargetFor(file);
-    const result = await (window as any).lumen?.ipfsGet?.(target);
+    const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+    const result = await (window as any).lumen?.ipfsGet?.(target, { gateways });
     
     if (result?.ok && result.data) {
       const blob = new Blob([new Uint8Array(result.data)]);
@@ -2491,7 +2493,7 @@ function isVideoFile(name: string): boolean {
 }
 
 function getGatewayUrl(cid: string): string {
-  const localBase = 'http://127.0.0.1:8080';
+  const localBase = LOCAL_IPFS_GATEWAY_BASE;
   const publicBase = 'https://ipfs.io';
   const base =
     hosting.value.kind === 'gateway'
@@ -2531,7 +2533,8 @@ async function onImageError(file: DriveFile) {
   imagePreviewInFlight.add(key);
   imagePreviewTried.value = { ...imagePreviewTried.value, [key]: true };
   try {
-    const got = await (window as any).lumen?.ipfsGet?.(key).catch(() => null);
+    const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+    const got = await (window as any).lumen?.ipfsGet?.(key, { gateways }).catch(() => null);
     if (!got?.ok || !Array.isArray(got.data)) return;
     const bytes = new Uint8Array(got.data);
     if (bytes.byteLength <= 0 || bytes.byteLength > 15_000_000) return;

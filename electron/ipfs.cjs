@@ -259,24 +259,146 @@ async function ipfsAddDirectory(payload) {
   }
 }
 
-async function ipfsGet(cid) {
-  try {
-    console.log('[electron][ipfs] getting file:', cid);
-    const url = new URL('http://127.0.0.1:5001/api/v0/cat');
-    url.searchParams.set('arg', String(cid ?? ''));
-    const res = await fetch(url.toString(), { method: 'POST' });
+function encodeUrlPathSegments(pathname) {
+  const parts = String(pathname || '')
+    .split('/')
+    .filter((p) => p.length > 0)
+    .map((p) => encodeURIComponent(p));
+  return '/' + parts.join('/');
+}
 
-    if (!res.ok) {
-      console.warn('[electron][ipfs] get failed:', res.status);
-      return { ok: false, error: 'http_' + res.status };
+function normalizeGatewayTarget(input) {
+  const s = String(input ?? '').trim();
+  if (!s) throw new Error('Empty CID or path');
+  if (/^\/ipfs\//i.test(s) || /^\/ipns\//i.test(s)) return s;
+  if (/^ipfs\//i.test(s) || /^ipns\//i.test(s)) return '/' + s;
+  return '/ipfs/' + s.replace(/^\/+/, '');
+}
+
+function buildGatewayUrl(base, cidOrPath) {
+  const b = String(base || '').replace(/\/+$/, '');
+  if (!b) throw new Error('gateway_base_missing');
+  const target = normalizeGatewayTarget(cidOrPath);
+  return `${b}${encodeUrlPathSegments(target)}`;
+}
+
+async function fetchBytesFromUrl(url, opts) {
+  const signal = opts?.signal;
+  const res = await fetch(url, { method: 'GET', signal });
+  if (!res.ok && res.status !== 206) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`http_${res.status}${text ? ':' + text.slice(0, 160) : ''}`);
+  }
+  return await res.arrayBuffer();
+}
+
+async function fetchBytesFromKuboCat(arg, opts) {
+  const signal = opts?.signal;
+  const url = new URL('http://127.0.0.1:5001/api/v0/cat');
+  url.searchParams.set('arg', String(arg ?? ''));
+  const res = await fetch(url.toString(), { method: 'POST', signal });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`kubo_http_${res.status}${text ? ':' + text.slice(0, 160) : ''}`);
+  }
+  return await res.arrayBuffer();
+}
+
+async function ipfsGet(cidOrPath, options = {}) {
+  const defaultGateways = [
+    // conservative, well-known public fallbacks
+    'https://ipfs.io',
+    'https://dweb.link',
+    'https://cloudflare-ipfs.com',
+  ];
+
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    const timeoutMs =
+      typeof options?.timeoutMs === 'number' && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
+        ? options.timeoutMs
+        : 12000;
+
+    const extraGateways = Array.isArray(options?.gateways) ? options.gateways : [];
+    const gatewayBases = Array.from(
+      new Set(
+        [...extraGateways, ...defaultGateways]
+          .map((x) => String(x || '').trim().replace(/\/+$/, ''))
+          .filter(Boolean)
+      )
+    );
+
+    const localGatewayUrl = buildGatewayUrl('http://127.0.0.1:8080', arg);
+
+    const tasks = [];
+    const controllers = [];
+    const timers = [];
+
+    function addTask(name, fn) {
+      const controller = new AbortController();
+      const t = setTimeout(() => {
+        try {
+          controller.abort();
+        } catch {
+          // ignore
+        }
+      }, timeoutMs);
+
+      controllers.push(controller);
+      timers.push(t);
+
+      const p = fn(controller.signal)
+        .then((buffer) => ({ name, buffer }))
+        .finally(() => {
+          try {
+            clearTimeout(t);
+          } catch {
+            // ignore
+          }
+        });
+      tasks.push(p);
     }
 
-    const buffer = await res.arrayBuffer();
-    console.log('[electron][ipfs] get success, size:', buffer.byteLength);
-    return { ok: true, data: Array.from(new Uint8Array(buffer)) };
+    addTask('kubo_cat', (signal) => fetchBytesFromKuboCat(arg, { signal }));
+    addTask('local_gateway', (signal) => fetchBytesFromUrl(localGatewayUrl, { signal }));
+    for (const base of gatewayBases) {
+      const url = buildGatewayUrl(base, arg);
+      addTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal }));
+    }
+
+    function abortLosers(winnerIndex) {
+      for (let i = 0; i < controllers.length; i++) {
+        if (i === winnerIndex) continue;
+        try {
+          controllers[i].abort();
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    const wrapped = tasks.map((p, winnerIndex) => p.then((res) => (abortLosers(winnerIndex), res)));
+
+    console.log('[electron][ipfs] getting file:', arg, 'sources:', wrapped.length);
+    let winner;
+    try {
+      winner = await Promise.any(wrapped);
+    } finally {
+      for (const t of timers) {
+        try {
+          clearTimeout(t);
+        } catch {
+          // ignore
+        }
+      }
+    }
+    const bytes = new Uint8Array(winner.buffer);
+    console.log('[electron][ipfs] get success from', winner.name, 'size:', bytes.byteLength);
+    return { ok: true, data: Array.from(bytes), source: winner.name };
   } catch (e) {
-    console.error('[electron][ipfs] get error:', e);
-    return { ok: false, error: String(e?.message || e) };
+    const msg = String(e?.message || e);
+    console.error('[electron][ipfs] get error:', msg);
+    return { ok: false, error: msg };
   }
 }
 

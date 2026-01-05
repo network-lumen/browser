@@ -126,6 +126,7 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from 'vue';
 import { ArrowUpRight, Compass, Film, Globe, Hash, Image, Layers, Search, Wallet } from 'lucide-vue-next';
+import { LOCAL_IPFS_GATEWAY_BASE } from '../services/contentResolver';
 
 type SearchType = 'site' | 'video' | 'image' | '';
 type ResultKind = 'site' | 'ipfs' | 'tx' | 'block' | 'address' | 'link';
@@ -442,7 +443,6 @@ type GatewaySearchHit = {
   snippet?: string;
 };
 
-const LOCAL_IPFS_GATEWAY = 'http://127.0.0.1:8080';
 
 function safePathSuffix(pathValue: any): string {
   const p = String(pathValue ?? '').trim();
@@ -461,7 +461,7 @@ function mapGatewayHitToResult(hit: GatewaySearchHit, gateway: GatewayView): Res
   const extractedTags = extractSearchTags(hit);
 
   const isImage = rType.toLowerCase() === 'image' || mime.toLowerCase().startsWith('image/');
-  const thumbUrl = isImage ? `${LOCAL_IPFS_GATEWAY}/ipfs/${cid}${path}` : undefined;
+  const thumbUrl = isImage ? `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${cid}${path}` : undefined;
 
   const title =
     (hit?.title != null && String(hit.title).trim()) ||

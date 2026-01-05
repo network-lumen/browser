@@ -36,9 +36,9 @@ ipcMain.handle('ipfs:addDirectory', async (_evt, payload) => {
   return ipfsAddDirectory(payload);
 });
 
-ipcMain.handle('ipfs:get', async (_evt, cid) => {
+ipcMain.handle('ipfs:get', async (_evt, cid, options) => {
   console.log('[electron][ipc] ipfs:get requested:', cid);
-  return ipfsGet(cid);
+  return ipfsGet(cid, options || {});
 });
 
 ipcMain.handle('ipfs:ls', async (_evt, cidOrPath) => {

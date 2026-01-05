@@ -4,7 +4,7 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
   ipfsAddDirectory: (payload) => ipcRenderer.invoke('ipfs:addDirectory', payload || {}),
-  ipfsGet: (cid) => ipcRenderer.invoke('ipfs:get', cid),
+  ipfsGet: (cid, options) => ipcRenderer.invoke('ipfs:get', cid, options || {}),
   ipfsLs: (cidOrPath) => ipcRenderer.invoke('ipfs:ls', cidOrPath),
   ipfsPinList: () => ipcRenderer.invoke('ipfs:pinList'),
   ipfsPinAdd: (cidOrPath) => ipcRenderer.invoke('ipfs:pinAdd', cidOrPath),

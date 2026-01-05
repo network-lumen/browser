@@ -135,6 +135,7 @@
 import { computed, inject, onMounted, ref, watch } from 'vue';
 import { Check, Copy, Download, File, Folder, Save } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import { LOCAL_IPFS_GATEWAY_BASE, loadWhitelistedGatewayBases } from '../services/contentResolver';
 
 type Entry = {
   key: string;
@@ -163,7 +164,6 @@ const saving = ref(false);
 const saved = ref(false);
 const savedCid = ref('');
 
-const LOCAL_GATEWAY_BASE = 'http://127.0.0.1:8080';
 const LOCAL_NAMES_KEY = 'lumen_drive_saved_names';
 
 function stripQueryHash(url: string): string {
@@ -211,7 +211,7 @@ const displayLumenUrl = computed(() => {
 const contentUrl = computed(() => {
   if (!rootCid.value) return '';
   const p = relPath.value ? `/${encodePath(relPath.value)}` : '';
-  return `${LOCAL_GATEWAY_BASE}/ipfs/${rootCid.value}${p}`;
+  return `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${rootCid.value}${p}`;
 });
 
 const rootDisplayName = computed(() => rootCid.value ? rootCid.value.slice(0, 10) + '…' : 'Root');
@@ -324,7 +324,8 @@ async function load() {
         if (sniffed !== 'unknown') viewKind.value = sniffed;
       }
       if (viewKind.value === 'text') {
-        const got = await (window as any).lumen?.ipfsGet?.(target).catch(() => null);
+        const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+        const got = await (window as any).lumen?.ipfsGet?.(target, { gateways }).catch(() => null);
         if (got?.ok && Array.isArray(got.data)) {
           const bytes = new Uint8Array(got.data);
           if (bytes.byteLength > 2_000_000) {
@@ -469,7 +470,8 @@ function formatSize(bytes: number): string {
 async function download() {
   if (!canDownload.value) return;
   const target = relPath.value ? `${rootCid.value}/${relPath.value}` : rootCid.value;
-  const got = await (window as any).lumen?.ipfsGet?.(target).catch(() => null);
+  const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+  const got = await (window as any).lumen?.ipfsGet?.(target, { gateways }).catch(() => null);
   if (!got?.ok || !Array.isArray(got.data)) return;
   const bytes = new Uint8Array(got.data);
   const blob = new Blob([bytes]);
