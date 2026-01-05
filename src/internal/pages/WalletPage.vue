@@ -52,6 +52,14 @@
           </button>
           <button
             class="nav-item"
+            :class="{ active: currentView === 'recurring' }"
+            @click="currentView = 'recurring'"
+          >
+            <Calendar :size="18" />
+            <span>Recurring</span>
+          </button>
+          <button
+            class="nav-item"
             :class="{ active: currentView === 'addressbook' }"
             @click="currentView = 'addressbook'"
           >
@@ -383,6 +391,15 @@
         </div>
       </div>
 
+      <!-- Recurring Payments View -->
+      <div v-else-if="currentView === 'recurring'" class="content-section recurring-section">
+        <SubscriptionsView 
+          ref="subscriptionsRef"
+          @execute-payment="executeRecurringPayment"
+          @toast="showToast"
+        />
+      </div>
+
     </main>
 
     <!-- Toast Notification -->
@@ -436,10 +453,19 @@
                     placeholder="Enter recipient address (lmn1...)" 
                   />
                   <button 
+                    class="input-action-btn" 
+                    @click="openQrScanner"
+                    type="button"
+                    title="Scan QR Code"
+                  >
+                    <QrCode :size="16" />
+                  </button>
+                  <button 
                     v-if="contacts.length > 0" 
                     class="input-action-btn" 
                     @click="showContactPicker = !showContactPicker"
                     type="button"
+                    title="Select from contacts"
                   >
                     <Users :size="16" />
                   </button>
@@ -628,6 +654,14 @@
         </div>
       </div>
     </Transition>
+
+    <!-- QR Scanner Modal -->
+    <QrScanner 
+      v-if="showQrScanner" 
+      @close="closeQrScanner"
+      @scan="handleQrScan"
+      :title="qrScannerTitle"
+    />
   </div>
 </template>
 
@@ -656,13 +690,19 @@ import {
   Users,
   Edit,
   Trash2,
-  Download
+  Download,
+  QrCode,
+  Calendar
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
 import QRCode from 'qrcode';
+import QrScanner from '../../components/QrScanner.vue';
+import SubscriptionsView from '../../components/SubscriptionsView.vue';
+import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
+import { getRecurringPaymentsService, type RecurringPayment } from '../services/recurringPayments';
 
-const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook'>('overview');
+const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
 
@@ -729,6 +769,14 @@ const sendForm = ref({
   amount: '',
   gasFee: 'medium'
 });
+
+// QR Scanner
+const showQrScanner = ref(false);
+const qrScannerTitle = ref('Scan QR Code');
+
+// Recurring Payments
+const subscriptionsRef = ref<any>(null);
+const recurringPaymentsService = getRecurringPaymentsService();
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
@@ -817,7 +865,8 @@ function getViewTitle(): string {
     overview: 'Wallet Overview',
     tokens: 'Token Balances',
     transactions: 'Transactions',
-    addressbook: 'Address Book'
+    addressbook: 'Address Book',
+    recurring: 'Recurring Payments'
   };
   return titles[currentView.value] || 'Wallet';
 }
@@ -827,7 +876,8 @@ function getViewDescription(): string {
     overview: 'Manage your Lumen address and on-chain balance (read-only).',
     tokens: 'View your LMN balance.',
     transactions: 'Recent on-chain transactions for this wallet.',
-    addressbook: 'Save frequently used addresses for quick access.'
+    addressbook: 'Save frequently used addresses for quick access.',
+    recurring: 'Schedule and manage automatic payments and subscriptions.'
   };
   return descs[currentView.value] || '';
 }
@@ -922,6 +972,160 @@ function closeSendModal() {
   showSendModal.value = false;
   showContactPicker.value = false;
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
+}
+
+// QR Scanner functions
+function openQrScanner() {
+  qrScannerTitle.value = 'Scan Wallet Address or Payment';
+  showQrScanner.value = true;
+}
+
+function closeQrScanner() {
+  showQrScanner.value = false;
+}
+
+function handleQrScan(data: { type: string; content: string; raw: string }) {
+  closeQrScanner();
+  
+  const { type, content, raw } = data;
+  
+  // Handle WalletConnect
+  if (type === 'walletconnect' || raw.startsWith('wc:')) {
+    handleWalletConnectUri(raw);
+    return;
+  }
+  
+  // Handle payment requests
+  if (type === 'paymentrequest' || raw.includes('amount=')) {
+    try {
+      // Parse payment request format: lumen:address?amount=1.5&memo=test
+      const url = new URL(raw.startsWith('lumen:') ? raw : `lumen:${raw}`);
+      const address = url.pathname.replace('//', '');
+      const amount = url.searchParams.get('amount');
+      const memo = url.searchParams.get('memo');
+      
+      if (address) {
+        sendForm.value.recipient = address;
+      }
+      if (amount) {
+        sendForm.value.amount = amount;
+      }
+      
+      if (!showSendModal.value) {
+        showSendModal.value = true;
+      }
+      
+      showToast('Payment request scanned successfully', 'success');
+    } catch (e) {
+      // If not a valid URL, treat as simple address
+      sendForm.value.recipient = content;
+      if (!showSendModal.value) {
+        showSendModal.value = true;
+      }
+      showToast('Address scanned successfully', 'success');
+    }
+    return;
+  }
+  
+  // Handle regular wallet address
+  if (type === 'walletaddress' || type === 'unknown') {
+    sendForm.value.recipient = content;
+    if (!showSendModal.value) {
+      showSendModal.value = true;
+    }
+    showToast('Wallet address scanned successfully', 'success');
+    return;
+  }
+  
+  // Handle URL (maybe for WalletConnect or other integrations)
+  if (type === 'url') {
+    showToast('URL scanned. Feature integration coming soon.', 'success');
+    return;
+  }
+  
+  showToast('QR code scanned', 'success');
+}
+
+async function handleWalletConnectUri(uri: string) {
+  try {
+    const parsedUri = parseWalletConnectUri(uri);
+    if (!parsedUri) {
+      showToast('Invalid WalletConnect URI', 'error');
+      return;
+    }
+
+    showToast(`WalletConnect v${parsedUri.version} detected`, 'success');
+    
+    // TODO: Show WalletConnect connection dialog
+    // const wcService = getWalletConnectService();
+    // await wcService.connect(uri);
+    
+    showToast('WalletConnect integration coming soon!', 'success');
+  } catch (error: any) {
+    console.error('WalletConnect error:', error);
+    showToast(error.message || 'Failed to connect via WalletConnect', 'error');
+  }
+}
+
+// Recurring Payments
+async function executeRecurringPayment(paymentId: string) {
+  const payment = recurringPaymentsService.getRecurringPayment(paymentId);
+  if (!payment) {
+    showToast('Payment not found', 'error');
+    return;
+  }
+
+  const executeFunction = async (p: RecurringPayment) => {
+    try {
+      const anyWindow = window as any;
+      const walletApi = anyWindow?.lumen?.wallet;
+      
+      if (!walletApi || typeof walletApi.sendTokens !== 'function') {
+        return { success: false, error: 'Wallet bridge not available' };
+      }
+
+      const activeId = activeProfileId.value;
+      if (!activeId) {
+        return { success: false, error: 'No active profile selected' };
+      }
+
+      if (!address.value) {
+        return { success: false, error: 'No sender address available' };
+      }
+
+      const res = await walletApi.sendTokens({
+        profileId: activeId,
+        from: address.value,
+        to: p.recipient,
+        amount: p.amount,
+        denom: 'ulmn',
+        memo: `Recurring: ${p.name}`
+      });
+
+      if (!res || res.ok === false) {
+        return { success: false, error: res?.error || 'Transaction failed' };
+      }
+
+      return { success: true, txHash: res.txhash };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Unexpected error' };
+    }
+  };
+
+  const success = await recurringPaymentsService.executePayment(paymentId, executeFunction);
+  
+  if (success) {
+    showToast('Recurring payment executed successfully', 'success');
+    await refreshWallet();
+    if (subscriptionsRef.value?.loadData) {
+      subscriptionsRef.value.loadData();
+    }
+  } else {
+    showToast('Failed to execute recurring payment', 'error');
+    if (subscriptionsRef.value?.loadData) {
+      subscriptionsRef.value.loadData();
+    }
+  }
 }
 
 function validateAmountInput(event: Event) {
@@ -1692,6 +1896,11 @@ function exportTransactions() {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.recurring-section {
+  padding: 0;
+  gap: 0;
 }
 
 .section-header {
@@ -2655,6 +2864,10 @@ function exportTransactions() {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+}
+
+.input-action-btn + .input-action-btn {
+  right: 3.5rem;
 }
 
 .input-action-btn:hover {
