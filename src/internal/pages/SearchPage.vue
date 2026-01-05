@@ -443,6 +443,7 @@ type GatewaySearchHit = {
   snippet?: string;
 };
 
+const LOCAL_IPFS_GATEWAY = 'http://127.0.0.1:8088';
 
 function safePathSuffix(pathValue: any): string {
   const p = String(pathValue ?? '').trim();

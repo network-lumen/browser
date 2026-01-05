@@ -50,6 +50,22 @@
             <ArrowLeftRight :size="18" />
             <span>Transactions</span>
           </button>
+          <button
+            class="nav-item"
+            :class="{ active: currentView === 'recurring' }"
+            @click="currentView = 'recurring'"
+          >
+            <Calendar :size="18" />
+            <span>Recurring</span>
+          </button>
+          <button
+            class="nav-item"
+            :class="{ active: currentView === 'addressbook' }"
+            @click="currentView = 'addressbook'"
+          >
+            <Users :size="18" />
+            <span>Address Book</span>
+          </button>
         </div>
       </nav>
     </aside>
@@ -178,6 +194,35 @@
         <!-- Transactions View -->
         <div v-else-if="currentView === 'transactions'" class="content-section">
 
+        <div class="section-header" v-if="activities.length > 0">
+          <h3>Recent Transactions</h3>
+          <div class="header-actions-group">
+            <div class="filter-group">
+              <select v-model="txFilterType" class="filter-select">
+                <option value="all">All Types</option>
+                <option value="send">Send</option>
+                <option value="receive">Receive</option>
+              </select>
+              <select v-model="txFilterStatus" class="filter-select">
+                <option value="all">All Status</option>
+                <option value="success">Success</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+              </select>
+              <input
+                v-model="txSearchQuery"
+                type="text"
+                placeholder="Search hash or address..."
+                class="search-input"
+              />
+            </div>
+            <button class="action-btn secondary" @click="exportTransactions">
+              <Download :size="16" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
         <div class="empty-state" v-if="!isConnected || !address">
           <div class="empty-icon">
             <ArrowLeftRight :size="32" />
@@ -281,6 +326,80 @@
         </div>
       </div>
 
+      <!-- Address Book View -->
+      <div v-else-if="currentView === 'addressbook'" class="content-section">
+        <div class="section-header">
+          <h3>Saved Addresses</h3>
+          <button class="action-btn primary" @click="openAddContactModal">
+            <Plus :size="16" />
+            <span>Add Contact</span>
+          </button>
+        </div>
+
+        <div class="empty-state" v-if="!contacts.length && !contactsLoading">
+          <div class="empty-icon">
+            <Users :size="32" />
+          </div>
+          <h3>No Contacts Yet</h3>
+          <p>Add addresses you frequently send to for quick access.</p>
+          <button class="connect-btn" @click="openAddContactModal">
+            <Plus :size="16" />
+            <span>Add First Contact</span>
+          </button>
+        </div>
+
+        <div v-else-if="contactsLoading" class="empty-state">
+          <div class="empty-icon">
+            <Users :size="32" />
+          </div>
+          <h3>Loading contacts…</h3>
+        </div>
+
+        <div v-else class="contacts-grid">
+          <div v-for="contact in contacts" :key="contact.id" class="contact-card">
+            <div class="contact-header">
+              <div class="contact-avatar">
+                {{ contact.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="contact-info">
+                <h4>{{ contact.name }}</h4>
+                <p class="contact-address" :title="contact.address">
+                  {{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}
+                </p>
+              </div>
+            </div>
+            <p class="contact-note" v-if="contact.note">{{ contact.note }}</p>
+            <div class="contact-actions">
+              <button class="contact-btn send" @click="sendToContact(contact)">
+                <Send :size="14" />
+                <span>Send</span>
+              </button>
+              <button class="contact-btn copy" @click="copyToClipboard(contact.address, 'Address copied!')">
+                <Copy :size="14" />
+                <span>Copy</span>
+              </button>
+              <button class="contact-btn edit" @click="editContact(contact)">
+                <Edit :size="14" />
+                <span>Edit</span>
+              </button>
+              <button class="contact-btn delete" @click="deleteContact(contact)">
+                <Trash2 :size="14" />
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recurring Payments View -->
+      <div v-else-if="currentView === 'recurring'" class="content-section recurring-section">
+        <SubscriptionsView 
+          ref="subscriptionsRef"
+          @execute-payment="executeRecurringPayment"
+          @toast="showToast"
+        />
+      </div>
+
     </main>
 
     <!-- Toast Notification -->
@@ -325,13 +444,54 @@
 
             <div class="form-group">
               <label>To <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <input 
-                  class="form-input" 
-                  type="text" 
-                  v-model="sendForm.recipient" 
-                  placeholder="Enter recipient address (lmn1...)" 
-                />
+              <div class="input-wrapper-relative">
+                <div class="input-wrapper">
+                  <input 
+                    class="form-input" 
+                    type="text" 
+                    v-model="sendForm.recipient" 
+                    placeholder="Enter recipient address (lmn1...)" 
+                  />
+                  <button 
+                    class="input-action-btn" 
+                    @click="openQrScanner"
+                    type="button"
+                    title="Scan QR Code"
+                  >
+                    <QrCode :size="16" />
+                  </button>
+                  <button 
+                    v-if="contacts.length > 0" 
+                    class="input-action-btn" 
+                    @click="showContactPicker = !showContactPicker"
+                    type="button"
+                    title="Select from contacts"
+                  >
+                    <Users :size="16" />
+                  </button>
+                </div>
+                <div v-if="showContactPicker" class="contact-picker">
+                  <div class="picker-header">
+                    <span>Select Contact</span>
+                    <button class="picker-close" @click="showContactPicker = false">
+                      <X :size="14" />
+                    </button>
+                  </div>
+                  <div class="picker-list">
+                    <button 
+                      v-for="contact in contacts" 
+                      :key="contact.id"
+                      class="picker-item"
+                      @click="selectContactForSend(contact)"
+                    >
+                      <div class="picker-avatar">{{ contact.name.charAt(0).toUpperCase() }}</div>
+                      <div class="picker-info">
+                        <span class="picker-name">{{ contact.name }}</span>
+                        <span class="picker-address">{{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -340,11 +500,11 @@
               <div class="input-wrapper amount-input">
                 <input 
                   class="form-input" 
-                  type="number" 
-                  min="0" 
-                  step="0.000001" 
+                  type="text" 
+                  inputmode="decimal"
                   v-model="sendForm.amount"
                   placeholder="0.000000"
+                  @input="validateAmountInput"
                 />
                 <span class="input-suffix">LMN</span>
               </div>
@@ -404,13 +564,13 @@
             <div class="qr-section">
               <div class="qr-wrapper">
                 <img 
-                  v-if="address" 
-                  :src="`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(address)}&bgcolor=f8fafc&color=0f172a&margin=10`"
+                  v-if="qrCodeDataUrl" 
+                  :src="qrCodeDataUrl"
                   alt="QR Code"
                   class="qr-image"
                 />
                 <div v-else class="qr-placeholder">
-                  No address available
+                  <div class="qr-loading">Generating QR Code...</div>
                 </div>
               </div>
             </div>
@@ -427,11 +587,86 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Add/Edit Contact Modal -->
+    <Transition name="fade">
+      <div v-if="showContactModal" class="modal-overlay" @click="closeContactModal">
+        <div class="modal-content contact-modal" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title-wrapper">
+              <div class="modal-icon">
+                <Users :size="20" />
+              </div>
+              <h3>{{ editingContact ? 'Edit Contact' : 'Add Contact' }}</h3>
+            </div>
+            <button class="modal-close" @click="closeContactModal">
+              <X :size="18" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Name <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input 
+                  class="form-input" 
+                  type="text" 
+                  v-model="contactForm.name" 
+                  placeholder="Enter contact name" 
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Address <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input 
+                  class="form-input" 
+                  type="text" 
+                  v-model="contactForm.address" 
+                  placeholder="lmn1..." 
+                  :readonly="!!editingContact"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Note (optional)</label>
+              <div class="input-wrapper">
+                <textarea 
+                  class="form-input form-textarea" 
+                  v-model="contactForm.note" 
+                  placeholder="Add a note about this contact"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <button 
+              class="btn-modal-primary" 
+              @click="saveContact" 
+              :disabled="!contactForm.name || !contactForm.address || savingContact"
+            >
+              <Check :size="18" v-if="!savingContact" />
+              <span class="spinner" v-else></span>
+              <span>{{ savingContact ? 'Saving...' : (editingContact ? 'Update Contact' : 'Add Contact') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- QR Scanner Modal -->
+    <QrScanner 
+      v-if="showQrScanner" 
+      @close="closeQrScanner"
+      @scan="handleQrScan"
+      :title="qrScannerTitle"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect, onMounted } from 'vue';
+import { computed, ref, watch, watchEffect, onMounted } from 'vue';
 import {
   Wallet,
   LayoutDashboard,
@@ -451,12 +686,23 @@ import {
   Copy,
   ExternalLink,
   Check,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Edit,
+  Trash2,
+  Download,
+  QrCode,
+  Calendar
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
-import { fetchActivities, type Activity, type ActivityType } from '../services/activities';
+import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
+import QRCode from 'qrcode';
+import QrScanner from '../../components/QrScanner.vue';
+import SubscriptionsView from '../../components/SubscriptionsView.vue';
+import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
+import { getRecurringPaymentsService, type RecurringPayment } from '../services/recurringPayments';
 
-const currentView = ref<'overview' | 'tokens' | 'transactions'>('overview');
+const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
 
@@ -475,10 +721,48 @@ const balanceError = ref('');
 const showSendModal = ref(false);
 const showReceiveModal = ref(false);
 const sendingTransaction = ref(false);
+const qrCodeDataUrl = ref<string>('');
+
+// Generate QR Code when address changes
+watch([address, showReceiveModal], async ([newAddress, isModalOpen]) => {
+  if (isModalOpen && newAddress) {
+    try {
+      qrCodeDataUrl.value = await QRCode.toDataURL(newAddress, {
+        width: 240,
+        margin: 2,
+        color: {
+          dark: '#0f172a',
+          light: '#f8fafc'
+        }
+      });
+    } catch (err) {
+      console.error('Failed to generate QR code:', err);
+      qrCodeDataUrl.value = '';
+    }
+  }
+});
+
+// Address Book
+const contacts = ref<any[]>([]);
+const contactsLoading = ref(false);
+const showContactModal = ref(false);
+const showContactPicker = ref(false);
+const editingContact = ref<any>(null);
+const savingContact = ref(false);
+const contactForm = ref({
+  name: '',
+  address: '',
+  note: ''
+});
 
 const activities = ref<Activity[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref('');
+
+// Transaction Filters
+const txFilterType = ref<'all' | 'send' | 'receive'>('all');
+const txFilterStatus = ref<'all' | 'success' | 'pending' | 'failed'>('all');
+const txSearchQuery = ref('');
 
 const sendForm = ref({
   recipient: '',
@@ -486,12 +770,24 @@ const sendForm = ref({
   gasFee: 'medium'
 });
 
+// QR Scanner
+const showQrScanner = ref(false);
+const qrScannerTitle = ref('Scan QR Code');
+
+// Recurring Payments
+const subscriptionsRef = ref<any>(null);
+const recurringPaymentsService = getRecurringPaymentsService();
+
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
 const toastVisible = ref(false);
 const toastMessage = ref('');
 const toastType = ref<'success' | 'error'>('success');
 let toastTimeout: any = null;
+
+onMounted(() => {
+  loadContacts();
+});
 
 const balanceLabel = computed(() => {
   if (!isConnected.value) return 'Not connected';
@@ -510,7 +806,7 @@ const enhancedActivities = computed(() => {
   const userAddr = address.value?.toLowerCase();
   if (!userAddr) return activities.value;
   
-  return activities.value.map(tx => {
+  let filtered = activities.value.map(tx => {
     const fromAddr = tx.from || tx.sender;
     const toAddr = tx.to || tx.recipient;
     
@@ -527,31 +823,50 @@ const enhancedActivities = computed(() => {
       }
     }
     
-    const enhanced = { 
+    return { 
       ...tx, 
       type: actualType, 
       from: fromAddr, 
       to: toAddr 
     };
-    
-    console.log('[WalletPage] Enhanced tx:', {
-      type: enhanced.type,
-      from: enhanced.from,
-      to: enhanced.to,
-      amount: enhanced.amounts?.[0]?.amount,
-      code: enhanced.code,
-      hash: enhanced.txhash
-    });
-    
-    return enhanced;
   });
+
+  // Apply type filter
+  if (txFilterType.value !== 'all') {
+    filtered = filtered.filter(tx => tx.type === txFilterType.value);
+  }
+
+  // Apply status filter
+  if (txFilterStatus.value !== 'all') {
+    filtered = filtered.filter(tx => {
+      const isSuccess = tx.code === undefined || tx.code === 0;
+      if (txFilterStatus.value === 'success') return isSuccess;
+      if (txFilterStatus.value === 'failed') return !isSuccess;
+      return true;
+    });
+  }
+
+  // Apply search query
+  if (txSearchQuery.value.trim()) {
+    const query = txSearchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter(tx => {
+      const hash = (tx.txhash || '').toLowerCase();
+      const from = (tx.from || '').toLowerCase();
+      const to = (tx.to || '').toLowerCase();
+      return hash.includes(query) || from.includes(query) || to.includes(query);
+    });
+  }
+
+  return filtered;
 });
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     overview: 'Wallet Overview',
     tokens: 'Token Balances',
-    transactions: 'Transactions'
+    transactions: 'Transactions',
+    addressbook: 'Address Book',
+    recurring: 'Recurring Payments'
   };
   return titles[currentView.value] || 'Wallet';
 }
@@ -560,7 +875,9 @@ function getViewDescription(): string {
   const descs: Record<string, string> = {
     overview: 'Manage your Lumen address and on-chain balance (read-only).',
     tokens: 'View your LMN balance.',
-    transactions: 'Recent on-chain transactions for this wallet.'
+    transactions: 'Recent on-chain transactions for this wallet.',
+    addressbook: 'Save frequently used addresses for quick access.',
+    recurring: 'Schedule and manage automatic payments and subscriptions.'
   };
   return descs[currentView.value] || '';
 }
@@ -574,7 +891,6 @@ async function refreshActivities() {
       return;
     }
     const list = await fetchActivities({ walletId: address.value, limit: 20, offset: 0 });
-    console.log('[WalletPage] Raw activities:', list);
     activities.value = list;
   } catch (e: any) {
     activitiesError.value = String(e?.message || e || 'Failed to load activities');
@@ -648,12 +964,190 @@ function sendTransaction() {
     return;
   }
   void refreshActivities();
+  showContactPicker.value = false;
   showSendModal.value = true;
 }
 
 function closeSendModal() {
   showSendModal.value = false;
+  showContactPicker.value = false;
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
+}
+
+// QR Scanner functions
+function openQrScanner() {
+  qrScannerTitle.value = 'Scan Wallet Address or Payment';
+  showQrScanner.value = true;
+}
+
+function closeQrScanner() {
+  showQrScanner.value = false;
+}
+
+function handleQrScan(data: { type: string; content: string; raw: string }) {
+  closeQrScanner();
+  
+  const { type, content, raw } = data;
+  
+  // Handle WalletConnect
+  if (type === 'walletconnect' || raw.startsWith('wc:')) {
+    handleWalletConnectUri(raw);
+    return;
+  }
+  
+  // Handle payment requests
+  if (type === 'paymentrequest' || raw.includes('amount=')) {
+    try {
+      // Parse payment request format: lumen:address?amount=1.5&memo=test
+      const url = new URL(raw.startsWith('lumen:') ? raw : `lumen:${raw}`);
+      const address = url.pathname.replace('//', '');
+      const amount = url.searchParams.get('amount');
+      const memo = url.searchParams.get('memo');
+      
+      if (address) {
+        sendForm.value.recipient = address;
+      }
+      if (amount) {
+        sendForm.value.amount = amount;
+      }
+      
+      if (!showSendModal.value) {
+        showSendModal.value = true;
+      }
+      
+      showToast('Payment request scanned successfully', 'success');
+    } catch (e) {
+      // If not a valid URL, treat as simple address
+      sendForm.value.recipient = content;
+      if (!showSendModal.value) {
+        showSendModal.value = true;
+      }
+      showToast('Address scanned successfully', 'success');
+    }
+    return;
+  }
+  
+  // Handle regular wallet address
+  if (type === 'walletaddress' || type === 'unknown') {
+    sendForm.value.recipient = content;
+    if (!showSendModal.value) {
+      showSendModal.value = true;
+    }
+    showToast('Wallet address scanned successfully', 'success');
+    return;
+  }
+  
+  // Handle URL (maybe for WalletConnect or other integrations)
+  if (type === 'url') {
+    showToast('URL scanned. Feature integration coming soon.', 'success');
+    return;
+  }
+  
+  showToast('QR code scanned', 'success');
+}
+
+async function handleWalletConnectUri(uri: string) {
+  try {
+    const parsedUri = parseWalletConnectUri(uri);
+    if (!parsedUri) {
+      showToast('Invalid WalletConnect URI', 'error');
+      return;
+    }
+
+    showToast(`WalletConnect v${parsedUri.version} detected`, 'success');
+    
+    // TODO: Show WalletConnect connection dialog
+    // const wcService = getWalletConnectService();
+    // await wcService.connect(uri);
+    
+    showToast('WalletConnect integration coming soon!', 'success');
+  } catch (error: any) {
+    console.error('WalletConnect error:', error);
+    showToast(error.message || 'Failed to connect via WalletConnect', 'error');
+  }
+}
+
+// Recurring Payments
+async function executeRecurringPayment(paymentId: string) {
+  const payment = recurringPaymentsService.getRecurringPayment(paymentId);
+  if (!payment) {
+    showToast('Payment not found', 'error');
+    return;
+  }
+
+  const executeFunction = async (p: RecurringPayment) => {
+    try {
+      const anyWindow = window as any;
+      const walletApi = anyWindow?.lumen?.wallet;
+      
+      if (!walletApi || typeof walletApi.sendTokens !== 'function') {
+        return { success: false, error: 'Wallet bridge not available' };
+      }
+
+      const activeId = activeProfileId.value;
+      if (!activeId) {
+        return { success: false, error: 'No active profile selected' };
+      }
+
+      if (!address.value) {
+        return { success: false, error: 'No sender address available' };
+      }
+
+      const res = await walletApi.sendTokens({
+        profileId: activeId,
+        from: address.value,
+        to: p.recipient,
+        amount: p.amount,
+        denom: 'ulmn',
+        memo: `Recurring: ${p.name}`
+      });
+
+      if (!res || res.ok === false) {
+        return { success: false, error: res?.error || 'Transaction failed' };
+      }
+
+      return { success: true, txHash: res.txhash };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Unexpected error' };
+    }
+  };
+
+  const success = await recurringPaymentsService.executePayment(paymentId, executeFunction);
+  
+  if (success) {
+    showToast('Recurring payment executed successfully', 'success');
+    await refreshWallet();
+    if (subscriptionsRef.value?.loadData) {
+      subscriptionsRef.value.loadData();
+    }
+  } else {
+    showToast('Failed to execute recurring payment', 'error');
+    if (subscriptionsRef.value?.loadData) {
+      subscriptionsRef.value.loadData();
+    }
+  }
+}
+
+function validateAmountInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
+  
+  // Allow only numbers and single decimal point
+  value = value.replace(/[^0-9.]/g, '');
+  
+  // Ensure only one decimal point
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('');
+  }
+  
+  // Limit to 6 decimal places
+  if (parts.length === 2 && parts[1].length > 6) {
+    value = parts[0] + '.' + parts[1].slice(0, 6);
+  }
+  
+  sendForm.value.amount = value;
+  input.value = value;
 }
 
 function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {
@@ -748,7 +1242,7 @@ async function confirmSendPreview() {
   sendingTransaction.value = true;
 
   try {
-    const res = await walletApi.sendTokens({
+    const sendPromise = walletApi.sendTokens({
       profileId: activeId,
       from,
       to,
@@ -757,17 +1251,27 @@ async function confirmSendPreview() {
       memo: ''
     });
 
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+    );
+
+    const res = await Promise.race([sendPromise, timeoutPromise]);
+
     if (!res || res.ok === false) {
       showToast(`Send failed: ${res?.error || 'unknown error'}`, 'error');
       return;
     }
-    showToast(`Send successful!`, 'success');
+    
+    showToast(`Send successful! TxHash: ${res.txhash || 'N/A'}`, 'success');
     closeSendModal();
+    
+    // Clear cache to force refresh
+    clearActivitiesCache();
+    
     await refreshWallet();
     await refreshActivities();
-  } catch (e) {
-    console.error('[wallet] sendTokens error', e);
-    showToast('Unexpected error while sending transaction', 'error');
+  } catch (e: any) {
+    showToast(e?.message || 'Unexpected error while sending transaction', 'error');
   } finally {
     sendingTransaction.value = false;
   }
@@ -788,25 +1292,160 @@ async function copyAddressWithToast() {
     showToast('Address copied to clipboard!', 'success');
   } catch (err) {
     console.error('Failed to copy:', err);
-    showToast('Failed to copy address', 'error');
+    showToast('Failed to copy', 'error');
   }
 }
 
-async function copyAddress() {
-  if (!address.value || !navigator.clipboard || !navigator.clipboard.writeText) return;
+// Address Book Functions
+async function loadContacts() {
+  contactsLoading.value = true;
   try {
-    await navigator.clipboard.writeText(address.value);
-  } catch {
+    const result = await (window as any).lumen.addressBook.list();
+    if (result.ok) {
+      contacts.value = result.contacts || [];
+    }
+  } catch (err) {
+    console.error('Failed to load contacts:', err);
+  } finally {
+    contactsLoading.value = false;
   }
 }
 
-watchEffect(() => {
-  if (address.value && !isConnected.value) {
-    isConnected.value = true;
-    void refreshWallet();
-    void refreshActivities();
+function openAddContactModal() {
+  editingContact.value = null;
+  contactForm.value = {
+    name: '',
+    address: '',
+    note: ''
+  };
+  showContactModal.value = true;
+}
+
+function closeContactModal() {
+  showContactModal.value = false;
+  editingContact.value = null;
+  contactForm.value = {
+    name: '',
+    address: '',
+    note: ''
+  };
+}
+
+function editContact(contact: any) {
+  editingContact.value = contact;
+  contactForm.value = {
+    name: contact.name,
+    address: contact.address,
+    note: contact.note || ''
+  };
+  showContactModal.value = true;
+}
+
+async function saveContact() {
+  savingContact.value = true;
+  try {
+    const plainContact = {
+      name: contactForm.value.name,
+      address: contactForm.value.address,
+      note: contactForm.value.note
+    };
+
+    if (editingContact.value) {
+      const result = await (window as any).lumen.addressBook.update(
+        editingContact.value.id,
+        plainContact
+      );
+      if (result.ok) {
+        showToast('Contact updated!', 'success');
+        await loadContacts();
+        closeContactModal();
+      } else {
+        showToast(result.error || 'Failed to update contact', 'error');
+      }
+    } else {
+      // Add new contact
+      const result = await (window as any).lumen.addressBook.add(plainContact);
+      if (result.ok) {
+        showToast('Contact added!', 'success');
+        await loadContacts();
+        closeContactModal();
+      } else {
+        showToast(result.error || 'Failed to add contact', 'error');
+      }
+    }
+  } catch (err: any) {
+    showToast(err?.message || 'Failed to save contact', 'error');
+  } finally {
+    savingContact.value = false;
   }
-});
+}
+
+async function deleteContact(contact: any) {
+  if (!confirm(`Delete ${contact.name}?`)) return;
+  
+  try {
+    const result = await (window as any).lumen.addressBook.delete(contact.id);
+    if (result.ok) {
+      showToast('Contact deleted', 'success');
+      await loadContacts();
+    } else {
+      showToast(result.error || 'Failed to delete contact', 'error');
+    }
+  } catch (err: any) {
+    showToast(err?.message || 'Failed to delete contact', 'error');
+  }
+}
+
+function sendToContact(contact: any) {
+  sendForm.value.recipient = contact.address;
+  showSendModal.value = true;
+}
+
+function selectContactForSend(contact: any) {
+  sendForm.value.recipient = contact.address;
+  showContactPicker.value = false;
+}
+
+function exportTransactions() {
+  if (!activities.value.length) return;
+
+  // CSV header
+  const headers = ['Date', 'Time', 'Type', 'From', 'To', 'Amount (LMN)', 'Status', 'Hash'];
+  
+  // CSV rows
+  const rows = enhancedActivities.value.map(tx => {
+    const date = new Date(tx.timestamp);
+    const dateStr = date.toLocaleDateString('en-US');
+    const timeStr = date.toLocaleTimeString('en-US');
+    const type = tx.type === 'send' ? 'Send' : 'Receive';
+    const from = tx.from || address.value || '-';
+    const to = tx.to || '-';
+    const amount = tx.amounts && tx.amounts.length 
+      ? (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6)
+      : '0';
+    const status = (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed';
+    const hash = tx.txhash;
+    
+    return [dateStr, timeStr, type, from, to, amount, status, hash];
+  });
+
+  // Combine
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+  ].join('\n');
+
+  // Download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `lumen-transactions-${address.value.slice(0, 8)}-${Date.now()}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  
+  showToast('Transactions exported!', 'success');
+}
 </script>
 
 <style scoped>
@@ -814,7 +1453,7 @@ watchEffect(() => {
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-primary);
   overflow: hidden;
 }
 
@@ -823,12 +1462,12 @@ watchEffect(() => {
   min-width: 260px;
   max-width: 260px;
   height: 100vh;
-  background: var(--sidebar-bg, #ffffff);
+  background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: var(--text-primary, #1a1a2e);
-  border-right: 2px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary);
+  border-right: 2px solid var(--border-color);
   position: relative;
   overflow: hidden;
 }
@@ -855,7 +1494,7 @@ watchEffect(() => {
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -876,7 +1515,7 @@ watchEffect(() => {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -893,19 +1532,19 @@ watchEffect(() => {
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: var(--hover-bg, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
 .wallet-status {
@@ -1004,26 +1643,26 @@ watchEffect(() => {
 }
 
 .action-btn.secondary {
-  background: var(--card-bg, white);
-  color: var(--text-secondary, #64748b);
-  border-color: var(--border-color, #e2e8f0);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
 }
 
 .action-btn.secondary:hover {
-  background: var(--bg-secondary, #f8fafc);
-  border-color: #3498db;
-  color: #3498db;
+  background: var(--bg-secondary);
+  border-color: #3b82f6;
+  color: #3b82f6;
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.25);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
 .action-btn.primary:hover {
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.35);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
 }
 
 .overview-section {
@@ -1033,13 +1672,14 @@ watchEffect(() => {
 }
 
 .balance-card {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  border-radius: 16px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 20px;
   padding: 2rem;
   color: white;
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25), 0 2px 8px rgba(52, 152, 219, 0.15);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3), 0 5px 15px rgba(59, 130, 246, 0.2);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .balance-card::before {
@@ -1047,9 +1687,21 @@ watchEffect(() => {
   position: absolute;
   top: -50%;
   right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.balance-card::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -1103,9 +1755,10 @@ watchEffect(() => {
 }
 
 .amount {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .balance-change {
@@ -1129,22 +1782,39 @@ watchEffect(() => {
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  border: 2px solid var(--border-color);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
+  font-weight: 600;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.quick-btn:not(:disabled):hover::before {
+  opacity: 1;
 }
 
 .quick-btn:not(:disabled):hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15), 0 0 0 1px rgba(52, 152, 219, 0.2);
-  border-color: rgba(52, 152, 219, 0.3);
-  background: rgba(255, 255, 255, 1);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 .quick-btn:disabled {
@@ -1153,18 +1823,18 @@ watchEffect(() => {
 }
 
 .quick-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2), 0 0 0 4px rgba(52, 152, 219, 0.08);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
   transition: all 0.3s ease;
 }
 
 .quick-icon.send {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
 }
 
@@ -1174,12 +1844,12 @@ watchEffect(() => {
 }
 
 .quick-icon.swap {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
 }
 
 .quick-icon.buy {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
 }
 
@@ -1198,23 +1868,23 @@ watchEffect(() => {
 .info-card {
   flex: 1;
   min-width: 260px;
-  background: var(--card-bg, #ffffff);
+  background: var(--card-bg);
   border-radius: 1rem;
   padding: 1rem 1.25rem;
-  border: 1px solid var(--border-color, #e5e7eb);
+  border: 1px solid var(--border-color);
 }
 
 .info-label {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   margin-bottom: 0.25rem;
 }
 
 .info-value {
   font-size: 0.9rem;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .info-value.mono {
@@ -1228,10 +1898,17 @@ watchEffect(() => {
   gap: 1.5rem;
 }
 
+.recurring-section {
+  padding: 0;
+  gap: 0;
+}
+
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .section-header h3 {
@@ -1239,6 +1916,65 @@ watchEffect(() => {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary, #0f172a);
+}
+
+.header-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--card-bg, #ffffff);
+  color: var(--text-primary, #0f172a);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-select:hover {
+  border-color: var(--primary, #3498db);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary, #3498db);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.search-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--card-bg, #ffffff);
+  color: var(--text-primary, #0f172a);
+  font-size: 0.875rem;
+  min-width: 200px;
+  transition: all 0.2s;
+}
+
+.search-input:hover {
+  border-color: var(--primary, #3498db);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary, #3498db);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-tertiary, #94a3b8);
 }
 
 .empty-state {
@@ -1519,7 +2255,7 @@ watchEffect(() => {
 }
 
 .modal-content {
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-primary);
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
@@ -1530,7 +2266,7 @@ watchEffect(() => {
 
 .modal-header {
   padding: 1.5rem 1.5rem 1.25rem;
-  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1639,6 +2375,10 @@ watchEffect(() => {
 
 .required {
   color: #ef4444;
+}
+
+.input-wrapper-relative {
+  position: relative;
 }
 
 .input-wrapper {
@@ -1799,8 +2539,8 @@ watchEffect(() => {
 
 .qr-wrapper {
   padding: 1.25rem;
-  background: var(--card-bg, #ffffff);
-  border: 2px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
@@ -1818,10 +2558,27 @@ watchEffect(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: var(--bg-secondary);
   border-radius: 8px;
-  color: #64748b;
+  color: var(--text-tertiary);
   font-size: 0.875rem;
+}
+
+.qr-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.qr-loading::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--text-tertiary);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
 }
 
 .spinner {
@@ -1839,16 +2596,16 @@ watchEffect(() => {
 
 .address-box {
   border-radius: 12px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
   padding: 1.25rem;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   margin-bottom: 0;
 }
 
 .address-label {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #475569;
+  color: var(--text-secondary);
   margin-bottom: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1860,22 +2617,22 @@ watchEffect(() => {
   word-break: break-all;
   margin-bottom: 1rem;
   padding: 0.875rem;
-  background: var(--bg-secondary, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   line-height: 1.6;
 }
 
 .btn-copy-address {
   width: 100%;
   border-radius: 10px;
-  border: 2px solid #3498db;
-  background: var(--card-bg, #ffffff);
+  border: 2px solid #3b82f6;
+  background: var(--card-bg);
   padding: 0.75rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #3498db;
+  color: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1885,8 +2642,8 @@ watchEffect(() => {
 }
 
 .btn-copy-address:hover:not(:disabled) {
-  background: #eff6ff;
-  border-color: #2980b9;
+  background: var(--hover-bg);
+  border-color: #2563eb;
   color: #2980b9;
 }
 
@@ -1963,5 +2720,262 @@ watchEffect(() => {
 .toast-leave-to {
   transform: translateX(50px);
   opacity: 0;
+}
+
+/* Address Book Styles */
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.contact-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.contact-card:hover {
+  border-color: #3498db;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+.contact-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.contact-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.contact-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-info h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.contact-address {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-note {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.875rem;
+  line-height: 1.5;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.contact-btn {
+  flex: 1;
+  min-width: 70px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.contact-btn:hover {
+  background: var(--hover-bg);
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.contact-btn.send {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.contact-btn.send:hover {
+  background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+  color: white;
+}
+
+.contact-btn.delete:hover {
+  background: #fee;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.contact-modal {
+  max-width: 480px;
+}
+
+.form-textarea {
+  resize: vertical;
+  font-family: inherit;
+  min-height: 80px;
+}
+
+.input-action-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.5rem;
+  border: none;
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.input-action-btn + .input-action-btn {
+  right: 3.5rem;
+}
+
+.input-action-btn:hover {
+  background: #3498db;
+  color: white;
+}
+
+.contact-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.picker-close {
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.picker-close:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.picker-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.picker-item:last-child {
+  border-bottom: none;
+}
+
+.picker-item:hover {
+  background: var(--hover-bg);
+}
+
+.picker-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.picker-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.picker-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.picker-address {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
 }
 </style>

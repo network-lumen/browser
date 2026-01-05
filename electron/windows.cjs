@@ -18,7 +18,8 @@ function createSplashWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.cjs')
+      preload: path.join(__dirname, 'preload.cjs'),
+      webSecurity: false
     }
   });
 
@@ -71,7 +72,8 @@ function createMainWindow() {
     backgroundColor: '#dbeafe',
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.cjs')
+      preload: path.join(__dirname, 'preload.cjs'),
+      webSecurity: false
     }
   });
 
