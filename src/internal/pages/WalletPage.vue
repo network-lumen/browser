@@ -9,6 +9,16 @@
         <span class="logo-text">Wallet</span>
       </div>
 
+      <div class="profile-card" v-if="activeProfile">
+        <div class="avatar">
+          <User :size="18" />
+        </div>
+        <div class="profile-info">
+          <span class="profile-label">Active Profile</span>
+          <span class="profile-name">{{ activeProfileDisplay }}</span>
+        </div>
+      </div>
+
       <!-- Wallet Status -->
       <div
         class="wallet-status"
@@ -687,6 +697,7 @@ import {
   ExternalLink,
   Check,
   AlertCircle,
+  User,
   Users,
   Edit,
   Trash2,
@@ -705,9 +716,11 @@ import { getRecurringPaymentsService, type RecurringPayment } from '../services/
 const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
+const manualDisconnected = ref(false);
 
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
+const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 
 const address = computed(() => {
   const p: any = activeProfile.value as any;
@@ -905,13 +918,45 @@ function connectWallet() {
     window.alert('Create or select a profile first in the top navigation.');
     return;
   }
+  manualDisconnected.value = false;
   isConnected.value = true;
   void refreshWallet();
 }
 
 function disconnectWallet() {
+  manualDisconnected.value = true;
   isConnected.value = false;
 }
+
+watch(
+  [address, manualDisconnected],
+  ([addr, manual]) => {
+    if (!addr || manual) {
+      isConnected.value = false;
+      balanceLmn.value = null;
+      balanceError.value = '';
+      activities.value = [];
+      return;
+    }
+    isConnected.value = true;
+    void refreshWallet();
+    if (currentView.value === 'transactions') {
+      void refreshActivities();
+    }
+  },
+  { immediate: true }
+);
+
+watch(activeProfileId, () => {
+  // Switching active profiles should re-enable wallet view for that profile.
+  manualDisconnected.value = false;
+});
+
+watch(currentView, (next) => {
+  if (next === 'transactions' && isConnected.value) {
+    void refreshActivities();
+  }
+});
 
 async function refreshWallet() {
   if (!isConnected.value || !address.value) {
@@ -1495,6 +1540,47 @@ function exportTransactions() {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-secondary, #f8fafc);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-label {
+  font-size: 0.65rem;
+  color: var(--text-tertiary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
 }
 
 .sidebar-nav {

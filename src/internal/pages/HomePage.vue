@@ -68,7 +68,10 @@
         <div class="no-profile-sub">Créez-en un via le bouton en haut à droite.</div>
       </div>
       <!-- Hero Section -->
-      <section class="hero-section">
+      <section v-if="showIntroHero" class="hero-section">
+        <button class="hero-close" type="button" title="Hide intro" @click="dismissIntroHero">
+          <X :size="16" />
+        </button>
         <div class="hero-content">
           <h1 class="hero-title">Welcome to <span class="gradient-text">Lumen</span></h1>
           <p class="hero-subtitle">Make your content universally accessible — uncensorable by design</p>
@@ -236,7 +239,7 @@ import {
   Home, User, HardDrive, Wallet, Globe, Settings, 
   ArrowUpRight, Zap, Network, FileText, Hexagon,
   Shield, Database, Vote, Package, AtSign, Search,
-  HelpCircle, Layers, ChevronDown, ChevronUp
+  HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
 const mainRoutes = ['home', 'drive', 'wallet', 'network', 'settings'];
@@ -247,6 +250,16 @@ const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 const hasProfiles = computed(() => profiles.value.length > 0);
+
+const INTRO_HERO_KEY = 'lumen_home_intro_dismissed';
+const showIntroHero = ref(localStorage.getItem(INTRO_HERO_KEY) !== '1');
+
+function dismissIntroHero() {
+  showIntroHero.value = false;
+  try {
+    localStorage.setItem(INTRO_HERO_KEY, '1');
+  } catch {}
+}
 
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
@@ -573,6 +586,30 @@ function getRouteIcon(key: string) {
   box-shadow: 0 8px 32px var(--primary-a15);
   position: relative;
   overflow: hidden;
+}
+
+.hero-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-secondary, #64748b);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.hero-close:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, #1e293b);
+  border-color: var(--accent-primary);
 }
 
 .hero-section::before {
