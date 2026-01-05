@@ -80,6 +80,12 @@ contextBridge.exposeInMainWorld('lumen', {
     pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
     subscribePlan: (payload) =>
       ipcRenderer.invoke('gateway:subscribePlan', payload || {})
+  },
+  addressBook: {
+    list: () => ipcRenderer.invoke('addressbook:list'),
+    add: (contact) => ipcRenderer.invoke('addressbook:add', contact),
+    update: (id, updates) => ipcRenderer.invoke('addressbook:update', id, updates),
+    delete: (id) => ipcRenderer.invoke('addressbook:delete', id)
   }
 });
 

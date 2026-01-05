@@ -16,7 +16,7 @@ async function httpGet(url, options = {}) {
     const timeoutMs =
       typeof options.timeout === 'number' && options.timeout > 0
         ? options.timeout
-        : 10000;
+        : 60000;
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(url, {
       method: 'GET',
@@ -44,11 +44,15 @@ async function httpGet(url, options = {}) {
       json
     };
   } catch (e) {
-    console.warn('[electron][http:get] error', e);
+    const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
+    if (!isTimeout) {
+      console.warn('[electron][http:get] error', e);
+    }
     return {
       ok: false,
       status: 0,
-      error: String(e && e.message ? e.message : e)
+      error: String(e && e.message ? e.message : e),
+      timeout: isTimeout
     };
   }
 }
@@ -68,7 +72,7 @@ async function httpHead(url, options = {}) {
     const timeoutMs =
       typeof options.timeout === 'number' && options.timeout > 0
         ? options.timeout
-        : 5000;
+        : 30000;
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(url, {
       method: 'HEAD',
@@ -83,11 +87,15 @@ async function httpHead(url, options = {}) {
       headers: Object.fromEntries(res.headers.entries())
     };
   } catch (e) {
-    console.warn('[electron][http:head] error', e);
+    const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
+    if (!isTimeout) {
+      console.warn('[electron][http:head] error', e);
+    }
     return {
       ok: false,
       status: 0,
-      error: String(e && e.message ? e.message : e)
+      error: String(e && e.message ? e.message : e),
+      timeout: isTimeout
     };
   }
 }

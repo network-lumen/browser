@@ -45,7 +45,19 @@
       </div>
 
       <template v-else>
-        <div v-if="isDir" class="dir-wrap">
+        <div v-if="!rootCid" class="welcome-wrap">
+          <div class="welcome-content">
+            <h2>IPFS Content Viewer</h2>
+            <p>View and download content from IPFS using CIDs.</p>
+            <div class="welcome-example">
+              <p class="example-label">Example:</p>
+              <code>lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code>
+            </div>
+            <p class="welcome-hint">Enter an IPFS CID in the address bar to view content.</p>
+          </div>
+        </div>
+        
+        <div v-else-if="isDir" class="dir-wrap">
           <div class="breadcrumb">
             <button class="crumb" type="button" @click="openDirRoot" :disabled="!openInNewTab">
               {{ rootDisplayName }}
@@ -123,7 +135,23 @@
           <pre v-else-if="viewKind === 'text'" class="text">{{ textContent }}</pre>
 
           <div v-else class="unsupported">
-            Content not supported.
+            <div class="unsupported-content">
+              <h3>Preview not available</h3>
+              <p>This content type cannot be previewed directly.</p>
+              <div class="unsupported-actions">
+                <button class="btn-download" @click="download">
+                  <Download :size="16" />
+                  <span>Download file</span>
+                </button>
+                <button class="btn-secondary" @click="openInNewWindow">
+                  <span>Open in new window</span>
+                </button>
+              </div>
+              <p class="unsupported-hint">
+                <strong>CID:</strong> {{ rootCid }}<br>
+                <strong>Path:</strong> {{ relPath || '/' }}
+              </p>
+            </div>
           </div>
         </div>
       </template>
@@ -247,12 +275,13 @@ async function sniffViewKindFromHead(url: string): Promise<typeof viewKind.value
 
   try {
     const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 2000);
+    const t = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(target, { method: 'HEAD', signal: controller.signal });
     clearTimeout(t);
     if (!res.ok) return 'unknown';
 
     const ct = String(res.headers.get('content-type') || '').toLowerCase();
+    console.log('[ipfs-page] sniffed content-type:', ct, 'for', url);
     if (!ct) return 'unknown';
     if (ct.startsWith('image/')) return 'image';
     if (ct.startsWith('video/')) return 'video';
@@ -262,7 +291,36 @@ async function sniffViewKindFromHead(url: string): Promise<typeof viewKind.value
     if (ct.startsWith('text/')) return 'text';
     if (ct.includes('application/json') || ct.includes('application/xml')) return 'text';
     return 'unknown';
-  } catch {
+  } catch (err) {
+    console.warn('[ipfs-page] sniff failed:', err);
+    return 'unknown';
+  }
+}
+
+async function detectViaMagicBytes(target: string): Promise<typeof viewKind.value> {
+  try {
+    const got = await (window as any).lumen?.ipfsGet?.(target).catch(() => null);
+    if (!got?.ok || !Array.isArray(got.data)) return 'unknown';
+    
+    const bytes = new Uint8Array(got.data);
+    if (bytes.length < 12) return 'unknown';
+    
+    // Check magic bytes for common formats
+    // JPEG: FF D8 FF
+    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return 'image';
+    // PNG: 89 50 4E 47
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return 'image';
+    // GIF: 47 49 46 38
+    if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return 'image';
+    // WebP: 52 49 46 46 ... 57 45 42 50
+    if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+        bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return 'image';
+    // PDF: 25 50 44 46
+    if (bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) return 'pdf';
+    
+    return 'unknown';
+  } catch (err) {
+    console.warn('[ipfs-page] magic bytes detection failed:', err);
     return 'unknown';
   }
 }
@@ -294,7 +352,8 @@ async function load() {
   savedCid.value = '';
 
   if (!rootCid.value) {
-    error.value = 'Missing CID.';
+    // Show welcome page when no CID is provided
+    isDir.value = true;
     loading.value = false;
     return;
   }
@@ -321,7 +380,13 @@ async function load() {
       viewKind.value = guessViewKind(relPath.value || rootCid.value);
       if (viewKind.value === 'unknown') {
         const sniffed = await sniffViewKindFromHead(contentUrl.value);
-        if (sniffed !== 'unknown') viewKind.value = sniffed;
+        if (sniffed !== 'unknown') {
+          viewKind.value = sniffed;
+        } else {
+          // Fallback: try magic bytes detection for images
+          const magicKind = await detectViaMagicBytes(target);
+          if (magicKind !== 'unknown') viewKind.value = magicKind;
+        }
       }
       if (viewKind.value === 'text') {
         const got = await (window as any).lumen?.ipfsGet?.(target).catch(() => null);
@@ -485,6 +550,11 @@ async function download() {
 function onMediaError() {
   mediaErrored.value = true;
   viewKind.value = 'unknown';
+}
+
+function openInNewWindow() {
+  if (!contentUrl.value) return;
+  window.open(contentUrl.value, '_blank');
 }
 
 onMounted(load);
@@ -673,6 +743,63 @@ watch(
   color: var(--text-secondary, #64748b);
 }
 
+.welcome-wrap {
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.welcome-content h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 0.75rem;
+}
+
+.welcome-content > p {
+  color: var(--text-secondary, #64748b);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.welcome-example {
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.example-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #64748b);
+  margin-bottom: 0.75rem;
+}
+
+.welcome-example code {
+  display: block;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #3498db;
+  word-break: break-all;
+}
+
+.welcome-hint {
+  font-size: 0.875rem;
+  color: var(--text-tertiary, #94a3b8);
+}
+
 .viewer {
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
@@ -714,7 +841,81 @@ watch(
 }
 
 .unsupported {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unsupported-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 2rem;
+}
+
+.unsupported-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 0.75rem;
+}
+
+.unsupported-content > p {
   color: var(--text-secondary, #64748b);
-  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.unsupported-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn-download,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-download {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+}
+
+.btn-download:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-primary, #1e293b);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-primary, #ffffff);
+  border-color: #3498db;
+}
+
+.unsupported-hint {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary, #94a3b8);
+  text-align: left;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
 }
 </style>

@@ -138,6 +138,28 @@
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
 
+          <button class="action-card" @click="openRoute('dao')">
+            <div class="action-icon dao">
+              <Vote :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">DAO</span>
+              <span class="action-desc">Governance & voting</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+
+          <button class="action-card" @click="openRoute('gateways')">
+            <div class="action-icon gateways">
+              <Globe :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Gateways</span>
+              <span class="action-desc">IPFS gateway management</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+
           <button class="action-card" @click="openRoute('settings')">
             <div class="action-icon settings">
               <Settings :size="24" />
@@ -176,9 +198,28 @@
             </div>
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
-          
 
-          
+          <button class="action-card" @click="openRoute('search')">
+            <div class="action-icon search">
+              <Search :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Search</span>
+              <span class="action-desc">Find content quickly</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
+
+          <button class="action-card" @click="openRoute('help')">
+            <div class="action-icon help">
+              <HelpCircle :size="24" />
+            </div>
+            <div class="action-info">
+              <span class="action-title">Help</span>
+              <span class="action-desc">Documentation & support</span>
+            </div>
+            <ArrowUpRight :size="16" class="action-arrow" />
+          </button>
 
         </div>
       </section>
@@ -819,6 +860,31 @@ function getRouteIcon(key: string) {
 .action-icon.domain {
   background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
   color: #6366f1;
+}
+
+.action-icon.staking {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #16a34a;
+}
+
+.action-icon.dao {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+}
+
+.action-icon.gateways {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #2563eb;
+}
+
+.action-icon.search {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  color: #0891b2;
+}
+
+.action-icon.help {
+  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+  color: #ca8a04;
 }
 
 .action-icon.settings {

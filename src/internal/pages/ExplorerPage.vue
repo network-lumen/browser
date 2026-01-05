@@ -329,12 +329,30 @@
         <!-- Blocks View -->
         <div v-else-if="currentView === 'blocks'" class="content-area blocks-view">
           <div class="blocks-header">
-            <h2>Blocks</h2>
-            <p class="blocks-subtitle">View all blocks on the lumen-mainnet</p>
-            <span class="refresh-indicator" :class="{ active: autoRefresh }">
-              <span class="pulse-dot"></span>
-              Live
-            </span>
+            <div class="header-content">
+              <h2>Blocks</h2>
+              <p class="blocks-subtitle">View all blocks on the lumen-mainnet</p>
+            </div>
+            <div class="header-actions">
+              <div class="filter-controls">
+                <select v-model="blockFilter" class="filter-select">
+                  <option value="all">All Blocks</option>
+                  <option value="recent">Recent (Last 100)</option>
+                  <option value="with-txs">With Transactions</option>
+                  <option value="empty">Empty Blocks</option>
+                </select>
+                <input
+                  v-model="blockHeightFilter"
+                  type="number"
+                  placeholder="Filter by height..."
+                  class="height-filter-input"
+                />
+              </div>
+              <span class="refresh-indicator" :class="{ active: autoRefresh }">
+                <span class="pulse-dot"></span>
+                Live
+              </span>
+            </div>
           </div>
 
           <div class="blocks-table">
@@ -347,7 +365,7 @@
             </div>
             
             <div class="table-body">
-              <div v-for="block in blocks" :key="block.height" class="table-row" @click="navigateToBlock(block.height)" style="cursor: pointer;">
+              <div v-for="block in filteredBlocks" :key="block.height" class="table-row" @click="navigateToBlock(block.height)" style="cursor: pointer;">
                 <div class="td td-height">
                   <div class="height-link" @click="navigateToBlock(block.height)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -397,8 +415,30 @@
         <!-- Transactions View -->
         <div v-else-if="currentView === 'transactions'" class="content-area transactions-view">
           <div class="transactions-header">
-            <h2>Transactions</h2>
-            <p class="transactions-subtitle">Latest transactions on the lumen-mainnet</p>
+            <div class="header-content">
+              <h2>Transactions</h2>
+              <p class="transactions-subtitle">Latest transactions on the lumen-mainnet</p>
+            </div>
+            <div class="filter-controls">
+              <select v-model="txTypeFilter" class="filter-select">
+                <option value="all">All Types</option>
+                <option value="send">Send</option>
+                <option value="delegate">Delegate</option>
+                <option value="vote">Vote</option>
+                <option value="other">Other</option>
+              </select>
+              <select v-model="txStatusFilter" class="filter-select">
+                <option value="all">All Status</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed</option>
+              </select>
+              <input
+                v-model="txHashFilter"
+                type="text"
+                placeholder="Filter by hash..."
+                class="hash-filter-input"
+              />
+            </div>
           </div>
 
           <div v-if="transactions.length === 0" class="empty-state">
@@ -420,7 +460,7 @@
             </div>
             
             <div class="table-body">
-              <div v-for="tx in transactions" :key="tx.hash" class="table-row">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="table-row">
                 <div class="td td-hash">
                   <div class="hash-container clickable" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="tx-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -621,6 +661,13 @@ const searchQuery = ref('');
 const isLoading = ref(true);
 const autoRefresh = ref(true);
 
+// Filter states
+const blockFilter = ref<'all' | 'recent' | 'with-txs' | 'empty'>('all');
+const blockHeightFilter = ref('');
+const txTypeFilter = ref<'all' | 'send' | 'delegate' | 'vote' | 'other'>('all');
+const txStatusFilter = ref<'all' | 'success' | 'failed'>('all');
+const txHashFilter = ref('');
+
 const rpcBase = ref('http://142.132.201.187:26657');
 const restBase = ref('http://142.132.201.187:1317');
 
@@ -668,6 +715,63 @@ const unbondedTokens = ref(385240000);
 const totalSupply = ref(500000000);
 const bondedRatio = computed(() => ((bondedTokens.value / totalSupply.value) * 100).toFixed(1));
 const topValidatorsPower = ref<Array<{ moniker: string; percentage: string }>>([]);
+
+// Filtered data computed properties
+const filteredBlocks = computed(() => {
+  let result = [...blocks.value];
+  
+  // Apply block filter
+  if (blockFilter.value === 'recent') {
+    result = result.slice(0, 100);
+  } else if (blockFilter.value === 'with-txs') {
+    result = result.filter(b => b.txCount > 0);
+  } else if (blockFilter.value === 'empty') {
+    result = result.filter(b => b.txCount === 0);
+  }
+  
+  // Apply height filter
+  if (blockHeightFilter.value) {
+    const height = parseInt(blockHeightFilter.value);
+    if (!isNaN(height)) {
+      result = result.filter(b => b.height === height);
+    }
+  }
+  
+  return result;
+});
+
+const filteredTransactions = computed(() => {
+  let result = [...transactions.value];
+  
+  // Apply type filter
+  if (txTypeFilter.value !== 'all') {
+    result = result.filter(tx => {
+      const type = tx.type.toLowerCase();
+      if (txTypeFilter.value === 'send') return type.includes('send') || type.includes('transfer');
+      if (txTypeFilter.value === 'delegate') return type.includes('delegate');
+      if (txTypeFilter.value === 'vote') return type.includes('vote');
+      return !type.includes('send') && !type.includes('transfer') && !type.includes('delegate') && !type.includes('vote');
+    });
+  }
+  
+  // Apply status filter
+  if (txStatusFilter.value !== 'all') {
+    result = result.filter(tx => {
+      if (txStatusFilter.value === 'success') return tx.success;
+      if (txStatusFilter.value === 'failed') return !tx.success;
+      return true;
+    });
+  }
+  
+  // Apply hash filter
+  if (txHashFilter.value.trim()) {
+    const query = txHashFilter.value.toLowerCase().trim();
+    result = result.filter(tx => tx.hash.toLowerCase().includes(query));
+  }
+  
+  return result;
+});
+
 const txHistoryTitle = computed(() => {
   const titles = {
     '1D': 'Transaction History (1 Day)',
@@ -1776,6 +1880,16 @@ watch(txTimeFilter, () => {
 .transactions-header {
   padding: 1.5rem 1.5rem 1rem;
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.transactions-header .header-content {
+  flex: 1;
+  min-width: 200px;
 }
 
 .transactions-header h2 {
@@ -1900,6 +2014,16 @@ watch(txTimeFilter, () => {
   padding: 1rem 1.5rem 0.75rem;
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.blocks-header .header-content {
+  flex: 1;
+  min-width: 200px;
 }
 
 .blocks-header h2 {
@@ -1915,10 +2039,62 @@ watch(txTimeFilter, () => {
   margin: 0;
 }
 
+.blocks-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-select,
+.height-filter-input,
+.hash-filter-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--card-bg, #ffffff);
+  color: var(--text-primary, #0f172a);
+  font-size: 0.8125rem;
+  transition: all 0.2s;
+}
+
+.filter-select {
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.height-filter-input,
+.hash-filter-input {
+  min-width: 150px;
+}
+
+.filter-select:hover,
+.height-filter-input:hover,
+.hash-filter-input:hover {
+  border-color: var(--primary, #3498db);
+}
+
+.filter-select:focus,
+.height-filter-input:focus,
+.hash-filter-input:focus {
+  outline: none;
+  border-color: var(--primary, #3498db);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.height-filter-input::placeholder,
+.hash-filter-input::placeholder {
+  color: var(--text-tertiary, #94a3b8);
+}
+
 .blocks-header .refresh-indicator {
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;

@@ -20,6 +20,10 @@ type Stage = 'startup' | 'main';
 const { initTheme } = useTheme();
 initTheme();
 
+// Initialize font size
+const savedFontSize = localStorage.getItem('lumen-font-size') || 'medium';
+document.documentElement.setAttribute('data-font-size', savedFontSize);
+
 const params = new URLSearchParams(window.location.search);
 const isSplashWindow = params.get('splash') === '1';
 

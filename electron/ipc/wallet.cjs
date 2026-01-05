@@ -416,10 +416,13 @@ function registerWalletIpc() {
       const amount = Number(input && input.amount ? input.amount : 0);
       const memo = String(input && input.memo ? input.memo : '');
       const denom = String(input && input.denom ? input.denom : 'ulmn');
+      
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!from || !to || !(amount > 0)) return { ok: false, error: 'missing_from_to_amount' };
 
       const mnemonic = loadMnemonic(profileId);
+      
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
 
       const mod = await loadBridge();
       if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
@@ -433,9 +436,7 @@ function registerWalletIpc() {
 
       const rpcBase = getRpcBaseUrl();
       const restBase = getRestBaseUrl();
-      if (!rpcBase) {
-        return { ok: false, error: 'rpc_base_missing' };
-      }
+      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
 
       const endpoints = {
         rpc: rpcBase,
@@ -444,11 +445,17 @@ function registerWalletIpc() {
         restEndpoint: restBase || rpcBase
       };
 
-      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+      const connectPromise = mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
         pqc: {
           homeDir: resolvePqcHome()
         }
       });
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout after 15 seconds')), 15000)
+      );
+      
+      const client = await Promise.race([connectPromise, timeoutPromise]);
 
       const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, from);
       if (pqcLocal && pqcLocal.record) {
@@ -457,6 +464,7 @@ function registerWalletIpc() {
 
       const { MsgSend } = await import('cosmjs-types/cosmos/bank/v1beta1/tx.js');
       const micro = Math.round(amount * 1_000_000);
+      
       const msg = {
         typeUrl: '/cosmos.bank.v1beta1.MsgSend',
         value: MsgSend.fromPartial({
@@ -466,15 +474,13 @@ function registerWalletIpc() {
         })
       };
 
-      // Align with SDK helpers: avoid CosmJS "auto" fee mode that requires gasPrice,
-      // and instead use the SDK's zeroFee helper. Taxation on Lumen is handled by
-      // tokenomics (tx_tax_rate), not by per-gas coin fees.
       const zeroFee =
         (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
         (mod.utils && mod.utils.zeroFee) ||
         (() => ({ amount: [], gas: '250000' }));
 
       const res = await client.signAndBroadcast(from, [msg], zeroFee(), memo);
+      
       if (res.code !== 0) {
         throw new Error(res.rawLog || `broadcast failed (code ${res.code})`);
       }

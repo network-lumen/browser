@@ -19,7 +19,19 @@
       </div>
 
       <div v-else-if="error" class="error-wrap">
-        {{ error }}
+        <div class="error-content">
+          <h3>{{ error }}</h3>
+          <div class="error-details">
+            <p>This content may not be available because:</p>
+            <ul>
+              <li>The content hasn't been pinned to any gateway yet</li>
+              <li>The gateway servers are slow or unavailable</li>
+              <li>Your local IPFS node doesn't have this content</li>
+              <li>The domain record doesn't point to valid content</li>
+            </ul>
+            <p class="error-hint">Try again later or check if the content exists on IPFS.</p>
+          </div>
+        </div>
       </div>
 
       <div v-else class="viewer">
@@ -230,7 +242,7 @@ async function pickFastestSource(target: DomainTarget, path: string, suffix: str
   const localBase = 'http://127.0.0.1:8080';
   const localP = (async () => {
     statusLine.value = 'Trying IPFS peer-to-peer…';
-    const ok = await probeUrl(buildCandidateUrl(localBase, target, path, suffix), 2000);
+    const ok = await probeUrl(buildCandidateUrl(localBase, target, path, suffix), 5000);
     if (!ok) throw new Error('local_unavailable');
     return { base: localBase, label: 'Local IPFS' };
   })();
@@ -241,7 +253,7 @@ async function pickFastestSource(target: DomainTarget, path: string, suffix: str
     if (!bases.length) throw new Error('no_gateways');
     const probes = bases.map((b) =>
       (async () => {
-        const ok = await probeUrl(buildCandidateUrl(b, target, path, suffix), 2500);
+        const ok = await probeUrl(buildCandidateUrl(b, target, path, suffix), 10000);
         if (!ok) throw new Error('probe_failed');
         return { base: b, label: b.replace(/^https?:\/\//i, '') };
       })()
@@ -380,11 +392,46 @@ watch(
 }
 
 .error-wrap {
-  padding: 1rem;
+  padding: 2rem;
   border-radius: 12px;
   border: 1px solid #fecaca;
   background: #fef2f2;
   color: #b91c1c;
+}
+
+.error-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #991b1b;
+}
+
+.error-details {
+  color: #7f1d1d;
+}
+
+.error-details p {
+  margin-bottom: 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.error-details ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.error-details li {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #b91c1c;
+}
+
+.error-hint {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #dc2626;
+  margin-top: 1rem;
 }
 
 .viewer {
