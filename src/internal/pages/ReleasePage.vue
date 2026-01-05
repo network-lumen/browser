@@ -152,7 +152,7 @@ function getViewDescription(): string {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -209,9 +209,9 @@ function getViewDescription(): string {
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .main-content {
@@ -258,7 +258,7 @@ function getViewDescription(): string {
 
 .release-card.featured {
   background: var(--card-bg, #f8fafc);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
 }
 
 .release-badge {
@@ -266,7 +266,7 @@ function getViewDescription(): string {
   top: 1.5rem;
   right: 1.5rem;
   padding: 0.35rem 0.75rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -314,7 +314,7 @@ function getViewDescription(): string {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border: none;
   border-radius: 10px;
   color: white;
@@ -326,7 +326,7 @@ function getViewDescription(): string {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.35);
+  box-shadow: 0 6px 20px var(--primary-a30);
 }
 
 .timeline {
@@ -355,7 +355,7 @@ function getViewDescription(): string {
   top: 0.5rem;
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border-radius: 50%;
   border: 3px solid white;
   box-shadow: 0 0 0 2px #e2e8f0;

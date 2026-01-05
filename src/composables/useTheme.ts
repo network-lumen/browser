@@ -15,21 +15,31 @@ function getSystemPreference(): boolean {
 }
 
 function updateEffectiveTheme() {
-  if (theme.value === 'system') {
-    effectiveTheme.value = systemPrefersDark.value ? 'dark' : 'light';
-  } else {
-    effectiveTheme.value = theme.value;
-  }
+  const root = document.documentElement;
   
-  // Apply theme to document
-  if (effectiveTheme.value === 'dark') {
-    document.documentElement.classList.add('dark');
+  // Remove all theme classes first
+  root.classList.remove('dark', 'system');
+  
+  if (theme.value === 'system') {
+    // System mode uses original blue theme
+    root.classList.add('system');
+    effectiveTheme.value = systemPrefersDark.value ? 'dark' : 'light';
+    console.log('[Theme] Applied system mode (blue theme)');
+  } else if (theme.value === 'dark') {
+    // Dark mode uses dark green/lime theme
+    root.classList.add('dark');
+    effectiveTheme.value = 'dark';
+    console.log('[Theme] Applied dark mode (green/lime theme)');
   } else {
-    document.documentElement.classList.remove('dark');
+    // Light mode uses light green/lime theme (no class needed - default)
+    effectiveTheme.value = 'light';
+    console.log('[Theme] Applied light mode (green/lime theme)');
   }
+  console.log('[Theme] Root classes:', root.className);
 }
 
 function setTheme(newTheme: Theme) {
+  console.log('[Theme] Setting theme to:', newTheme);
   theme.value = newTheme;
   localStorage.setItem(STORAGE_KEY, newTheme);
   updateEffectiveTheme();
@@ -59,12 +69,6 @@ function initTheme() {
 }
 
 export function useTheme() {
-  onMounted(() => {
-    if (theme.value === 'light' && !localStorage.getItem(STORAGE_KEY)) {
-      initTheme();
-    }
-  });
-  
   return {
     theme,
     effectiveTheme,

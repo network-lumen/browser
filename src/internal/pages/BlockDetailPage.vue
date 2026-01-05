@@ -407,7 +407,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   border: none;
   border-radius: 8px;
   color: white;
@@ -416,12 +416,12 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 2px 4px var(--primary-a20);
 }
 
 .back-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 8px var(--primary-a30);
 }
 
 .back-btn:active {
@@ -450,7 +450,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color, #e2e8f0);
-  border-top-color: #3498db;
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -573,8 +573,8 @@ onMounted(() => {
 .copy-btn:hover,
 .copy-btn-small:hover {
   background: var(--bg-secondary, #f8fafc);
-  border-color: #3498db;
-  color: #3498db;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .proposer-info {
@@ -628,8 +628,8 @@ onMounted(() => {
 }
 
 .tx-item:hover {
-  border-color: #3498db;
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+  border-color: var(--accent-primary);
+  box-shadow: 0 2px 8px var(--primary-a15);
   transform: translateY(-1px);
 }
 
@@ -638,11 +638,11 @@ onMounted(() => {
   height: 32px;
   min-width: 32px;
   border-radius: 8px;
-  background: rgba(52, 152, 219, 0.1);
+  background: var(--primary-a10);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3498db;
+  color: var(--accent-primary);
 }
 
 .tx-info {

@@ -609,7 +609,7 @@ watch(
 
 .plans-btn:hover:not(:disabled) {
   background: var(--bg-primary, #ffffff);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
 }
 
 .plans-btn.save-active {
@@ -732,7 +732,7 @@ watch(
 
 .btn-ghost:hover {
   background: var(--bg-primary, #ffffff);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
 }
 
 .empty-dir {
@@ -791,7 +791,7 @@ watch(
   padding: 0.75rem 1rem;
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
-  color: #3498db;
+  color: var(--accent-primary);
   word-break: break-all;
 }
 
@@ -886,14 +886,14 @@ watch(
 }
 
 .btn-download {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: var(--gradient-primary);
   color: white;
   border: none;
 }
 
 .btn-download:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
 
 .btn-secondary {
@@ -904,7 +904,7 @@ watch(
 
 .btn-secondary:hover {
   background: var(--bg-primary, #ffffff);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
 }
 
 .unsupported-hint {

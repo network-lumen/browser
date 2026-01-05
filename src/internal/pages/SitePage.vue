@@ -367,7 +367,7 @@ watch(
 
 .plans-btn:hover:not(:disabled) {
   background: var(--bg-primary, #ffffff);
-  border-color: #3498db;
+  border-color: var(--accent-primary);
 }
 
 .plans-btn:disabled {

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <header
     class="navbar flex-align-center gap-50 txt-2xl"
     :style="{ background: 'var(--bg-primary, white)', borderBottom: '1px solid var(--border-color, #e5e7eb)', padding: '0.625rem' }"
