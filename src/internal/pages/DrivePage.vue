@@ -2183,7 +2183,7 @@ async function uploadDirectory(rootName: string, list: { path: string; file: Fil
   uploadingFile.value = name;
 
   try {
-    const payloadFiles: { path: string; data: number[] }[] = [];
+    const payloadFiles: { path: string; data: Uint8Array }[] = [];
     let totalBytes = 0;
 
     for (const it of list) {
@@ -2191,7 +2191,7 @@ async function uploadDirectory(rootName: string, list: { path: string; file: Fil
       const buf = await it.file.arrayBuffer();
       const bytes = new Uint8Array(buf);
       totalBytes += bytes.byteLength;
-      payloadFiles.push({ path: rel, data: Array.from(bytes) });
+      payloadFiles.push({ path: rel, data: bytes });
     }
 
     const result = await (window as any).lumen?.ipfsAddDirectory?.({
@@ -2245,7 +2245,7 @@ async function uploadFile(file: File) {
     const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
 
-    const result = await (window as any).lumen?.ipfsAdd?.(Array.from(bytes), file.name);
+    const result = await (window as any).lumen?.ipfsAdd?.(bytes, file.name);
 
     if (result?.cid) {
       const cid = String(result.cid);

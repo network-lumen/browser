@@ -131,7 +131,8 @@ async function checkIpfsStatus(retries = 3, delay = 1000) {
 
 async function ipfsAdd(data, filename) {
   try {
-    console.log('[electron][ipfs] adding file:', filename, 'size:', data?.length || 0);
+    const dataBuf = toBufferPayload(data);
+    console.log('[electron][ipfs] adding file:', filename, 'size:', dataBuf.length);
     // Create multipart form data
     const boundary = '----LumenIPFS' + Date.now();
     const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename || 'file'}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
@@ -139,7 +140,6 @@ async function ipfsAdd(data, filename) {
     
     const headerBuf = Buffer.from(header, 'utf8');
     const footerBuf = Buffer.from(footer, 'utf8');
-    const dataBuf = Buffer.from(data);
     const body = Buffer.concat([headerBuf, dataBuf, footerBuf]);
 
     const res = await fetch('http://127.0.0.1:5001/api/v0/add?pin=true', {
@@ -163,6 +163,14 @@ async function ipfsAdd(data, filename) {
     console.error('[electron][ipfs] add error:', e);
     return { ok: false, error: String(e?.message || e) };
   }
+}
+
+function toBufferPayload(data) {
+  if (Buffer.isBuffer(data)) return data;
+  if (data instanceof ArrayBuffer) return Buffer.from(data);
+  if (ArrayBuffer.isView(data)) return Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+  if (Array.isArray(data)) return Buffer.from(Uint8Array.from(data));
+  throw new Error('invalid_payload');
 }
 
 function sanitizeDirectoryName(name) {
@@ -199,10 +207,7 @@ async function ipfsAddDirectory(payload) {
     for (const f of filesRaw) {
       const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
       const fullName = `${rootName}/${rel}`;
-      const dataArr = Array.isArray(f?.data) ? f.data : null;
-      if (!dataArr) throw new Error('Missing file data');
-
-      const dataBuf = Buffer.from(Uint8Array.from(dataArr));
+      const dataBuf = toBufferPayload(f?.data);
       totalBytes += dataBuf.length;
       if (totalBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
 

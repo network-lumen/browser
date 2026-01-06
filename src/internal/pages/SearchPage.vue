@@ -97,6 +97,11 @@
           <div v-else class="image-fallback">
             <Image :size="18" />
           </div>
+          <div v-if="r.badges?.length" class="image-meta">
+            <div class="image-tags">
+              <span v-for="b in r.badges" :key="`${r.id}:${b}`" class="image-badge">{{ b }}</span>
+            </div>
+          </div>
         </button>
       </div>
 
@@ -105,7 +110,7 @@
           <button class="result-card" type="button" @click="openResult(r)">
             <div class="result-icon">
               <img v-if="r.thumbUrl" class="thumb" :src="r.thumbUrl" alt="" />
-              <component v-else :is="iconFor(r.kind)" :size="18" />
+              <component v-else :is="iconFor(r.kind, r.media)" :size="18" />
             </div>
             <div class="result-body">
               <div v-if="r.title" class="result-title">{{ r.title }}</div>
@@ -138,6 +143,7 @@ type ResultItem = {
   kind: ResultKind;
   badges?: string[];
   thumbUrl?: string;
+  media?: 'image' | 'video' | 'audio' | 'unknown';
 };
 
 type GatewayView = {
@@ -171,11 +177,13 @@ onMounted(() => {
   setTimeout(focusInput, 60);
 });
 
-function iconFor(kind: ResultKind) {
+function iconFor(kind: ResultKind, media?: ResultItem['media']) {
   switch (kind) {
     case 'site':
       return Globe;
     case 'ipfs':
+      if (media === 'video') return Film;
+      if (media === 'image') return Image;
       return Layers;
     case 'tx':
       return Hash;
@@ -452,7 +460,11 @@ function safePathSuffix(pathValue: any): string {
   return `/${p}`;
 }
 
-function mapGatewayHitToResult(hit: GatewaySearchHit, gateway: GatewayView): ResultItem | null {
+function mapGatewayHitToResult(
+  hit: GatewaySearchHit,
+  gateway: GatewayView,
+  filterType: SearchType
+): ResultItem | null {
   const cid = String(hit?.cid || '').trim();
   if (!cid) return null;
   const path = safePathSuffix(hit?.path);
@@ -462,6 +474,12 @@ function mapGatewayHitToResult(hit: GatewaySearchHit, gateway: GatewayView): Res
   const extractedTags = extractSearchTags(hit);
 
   const isImage = rType.toLowerCase() === 'image' || mime.toLowerCase().startsWith('image/');
+  const isVideo = rType.toLowerCase() === 'video' || mime.toLowerCase().startsWith('video/');
+  const isAudio = rType.toLowerCase() === 'audio' || mime.toLowerCase().startsWith('audio/');
+  const media: ResultItem['media'] = isImage ? 'image' : isVideo ? 'video' : isAudio ? 'audio' : 'unknown';
+
+  if (filterType === 'image' && !isImage) return null;
+  if (filterType === 'video' && !isVideo) return null;
   const thumbUrl = isImage ? `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${cid}${path}` : undefined;
 
   const title =
@@ -469,11 +487,13 @@ function mapGatewayHitToResult(hit: GatewaySearchHit, gateway: GatewayView): Res
     (path ? path.split('/').filter(Boolean).slice(-1)[0] : '') ||
     (isImage ? '' : `CID ${cid.slice(0, 10)}…`);
 
+  const snippet = hit?.snippet != null ? String(hit.snippet).trim() : '';
+
   const badges: string[] = [];
-  // Prefer "intelligent tags" from gateway search; keep it raw for now.
+  const badgeLimit = filterType === 'image' && isImage ? Number.POSITIVE_INFINITY : 6;
   for (const t of extractedTags) {
-    if (badges.length >= 6) break;
-    badges.push(t);
+    if (badges.length >= badgeLimit) break;
+    if (!badges.includes(t)) badges.push(t);
   }
   // Fallback: show MIME when we don't have tags (and not in image mode).
   if (!badges.length && mime && !isImage) badges.push(mime);
@@ -483,8 +503,10 @@ function mapGatewayHitToResult(hit: GatewaySearchHit, gateway: GatewayView): Res
     title,
     url: `lumen://ipfs/${cid}${path}`,
     kind: 'ipfs',
+    description: snippet || undefined,
     badges,
     thumbUrl,
+    media,
   };
 }
 
@@ -548,7 +570,7 @@ async function searchGateways(profileId: string, query: string, type: SearchType
     const hits = Array.isArray(data.hits) ? data.hits : Array.isArray(data.results) ? data.results : [];
     const out: ResultItem[] = [];
     for (const h of hits) {
-      const mapped = mapGatewayHitToResult(h, g);
+      const mapped = mapGatewayHitToResult(h, g, type);
       if (mapped) out.push(mapped);
     }
     return out;
@@ -745,7 +767,7 @@ watch(
   { immediate: true }
 );
 
-const imageResults = computed(() => results.value.filter((r) => !!r.thumbUrl));
+const imageResults = computed(() => results.value.filter((r) => r.media === 'image' || !!r.thumbUrl));
 </script>
 
 <style scoped>
@@ -1074,6 +1096,29 @@ const imageResults = computed(() => results.value.filter((r) => !!r.thumbUrl));
   justify-content: center;
   color: var(--text-secondary, #64748b);
   background: var(--bg-secondary, #f8fafc);
+}
+
+.image-meta {
+  padding: 0.75rem 0.75rem 0.9rem;
+}
+
+.image-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-height: 6.5rem;
+  overflow: auto;
+}
+
+.image-badge {
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(45, 95, 79, 0.08);
+  color: var(--accent-primary);
+  border: 1px solid rgba(45, 95, 79, 0.16);
+  white-space: nowrap;
 }
 
 .result-body {
