@@ -1,5 +1,11 @@
 <template>
-  <div class="flex-1-1-auto flex flex-column">
+  <div
+    class="flex flex-column"
+    :style="{
+      height: `calc(100vh - ${header_height}px)`,
+      minHeight: `calc(100vh - ${header_height}px)`,
+    }"
+  >
     <NavBar
       ref="nav"
       :tabActive="tabActive"
@@ -26,9 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide } from 'vue';
-import NavBar from './NavBar.vue';
-import { resolveInternalComponent, getInternalTitle } from '../internal/routes';
+import { computed, provide } from "vue";
+import NavBar from "./NavBar.vue";
+import { resolveInternalComponent, getInternalTitle } from "../internal/routes";
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -40,31 +46,38 @@ type Tab = {
   loading?: boolean;
 };
 
-const props = defineProps<{ tabActive: string; tabs: Tab[]; header_height: number }>();
+const props = defineProps<{
+  tabActive: string;
+  tabs: Tab[];
+  header_height: number;
+}>();
 const emit = defineEmits<{
-  (e: 'openInNewTab', url: string): void;
-  (e: 'close-tab', payload: { id: string }): void;
+  (e: "openInNewTab", url: string): void;
+  (e: "close-tab", payload: { id: string }): void;
 }>();
 
 const activeTab = computed<Tab | undefined>(() =>
-  props.tabs.find((t) => t.id === props.tabActive)
+  props.tabs.find((t) => t.id === props.tabActive),
 );
 
 function currentUrl(): string {
   const t = activeTab.value;
-  return t?.url || 'lumen://home';
+  return t?.url || "lumen://home";
 }
 
 // Provide current URL to child components
-provide('currentTabUrl', computed(() => currentUrl()));
+provide(
+  "currentTabUrl",
+  computed(() => currentUrl()),
+);
 // Provide in-tab navigation to internal pages
-provide('navigate', (url: string, opts?: { push?: boolean }) => {
+provide("navigate", (url: string, opts?: { push?: boolean }) => {
   navigateInternal(url, opts || {});
 });
 
 function normalizeInternalUrl(raw: string): string {
-  const v = String(raw || '').trim();
-  if (!v) return 'lumen://home';
+  const v = String(raw || "").trim();
+  if (!v) return "lumen://home";
   if (/^lumen:\/\//i.test(v)) return v;
   return `lumen://${v}`;
 }
@@ -105,7 +118,7 @@ function navigateInternal(url: string, opts: { push?: boolean } = {}) {
 function onGotoFromNavbar(url: string) {
   const target = normalizeInternalUrl(url);
   const tab = activeTab.value;
-  const current = tab?.url ? normalizeInternalUrl(tab.url) : 'lumen://home';
+  const current = tab?.url ? normalizeInternalUrl(tab.url) : "lumen://home";
 
   // If the user targets the same route as the current one, do not push history.
   if (current === target) {
@@ -121,7 +134,7 @@ function onRefresh() {
   const history = tab.history || [];
   const pos = tab.history_position ?? history.length - 1;
   const entry = history[pos] || history[history.length - 1];
-  const target = entry?.url || tab.url || 'lumen://home';
+  const target = entry?.url || tab.url || "lumen://home";
   navigateInternal(target, { push: false });
 }
 
@@ -144,11 +157,18 @@ function onHistoryStep(payload: { delta: number }) {
 }
 
 function openSettings() {
-  emit('openInNewTab', 'lumen://settings');
+  emit("openInNewTab", "lumen://settings");
 }
 
 function componentForTab(t: Tab) {
-  const url = t.url || 'lumen://home';
+  const url = t.url || "lumen://home";
   return resolveInternalComponent(url);
 }
 </script>
+
+<style scoped>
+.content-stack {
+  min-height: 0;
+  overflow: hidden;
+}
+</style>

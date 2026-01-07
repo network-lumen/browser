@@ -2,8 +2,8 @@ const { ipcMain } = require('electron');
 const { readFileSync, existsSync } = require('fs');
 const path = require('path');
 const { createHash, randomBytes, hkdfSync, createCipheriv, createDecipheriv } = require('crypto');
-const { userDataPath, readJson } = require('../utils/fs.cjs');
-const { decryptMnemonicLocal } = require('../utils/crypto.cjs');
+const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
+const { decryptMnemonicLocal, encryptMnemonicLocal } = require('../utils/crypto.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
 let pqcWorker = null;
 try {
@@ -18,9 +18,11 @@ const {
   Slip10,
   Slip10Curve,
   Secp256k1,
+  Ripemd160,
   Sha256,
   stringToPath,
 } = require('@cosmjs/crypto');
+const { toBech32 } = require('@cosmjs/encoding');
 
 let mlKemModule = null;
 async function getMlKem() {
@@ -306,6 +308,10 @@ function keystoreFile(profileId) {
   return userDataPath('profiles', profileId, 'keystore.json');
 }
 
+function guestPqWalletFile() {
+  return userDataPath('guest', 'pq', 'wallet.json');
+}
+
 function loadProfilesFile() {
   const file = profilesFilePath();
   const fallback = { profiles: [], activeId: '' };
@@ -331,12 +337,29 @@ function getWalletAddressForProfile(profileId) {
   return addr ? String(addr).trim() : null;
 }
 
+function isGuestProfile(profileId) {
+  const pid = String(profileId || '').trim();
+  if (!pid) return true;
+  const { profiles } = loadProfilesFile();
+  const p = profiles.find((x) => String(x.id || '') === pid);
+  return !!(p && p.role === 'guest');
+}
+
 const GATEWAY_DERIVATION_PATH = "m/44'/118'/0'/0/0";
 
 async function deriveGatewayPrivkey(mnemonic) {
   const seed = await Bip39.mnemonicToSeed(new EnglishMnemonic(mnemonic));
   const { privkey } = Slip10.derivePath(Slip10Curve.Secp256k1, seed, stringToPath(GATEWAY_DERIVATION_PATH));
   return privkey;
+}
+
+async function deriveWalletAddressFromMnemonic(mnemonic, prefix = 'lmn') {
+  const privkey = await deriveGatewayPrivkey(mnemonic);
+  const { pubkey } = await Secp256k1.makeKeypair(privkey);
+  const pubkeyCompressed = Secp256k1.compressPubkey(pubkey);
+  const sha = new Sha256(pubkeyCompressed).digest();
+  const rawAddress = new Ripemd160(sha).digest();
+  return toBech32(prefix, rawAddress);
 }
 
 function sha256Utf8(data) {
@@ -1625,11 +1648,56 @@ function registerGatewayIpc() {
     }
   });
 
+  ipcMain.handle('gateway:unpinCid', async (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      const cid = String(input?.cid || '').trim();
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!cid) return { ok: false, error: 'missing_cid' };
+
+      const baseHint =
+        typeof input?.baseUrl === 'string'
+          ? String(input.baseUrl).trim()
+          : '';
+      const baseUrl = baseHint
+        ? (await resolveGatewayBaseFromEndpoint(baseHint).catch(() => null)) || baseHint
+        : await resolveGatewayBaseUrlFromPlans(profileId, defaultGatewayBase());
+      if (!baseUrl) return { ok: false, error: 'missing_baseUrl' };
+
+      const wallet = getWalletAddressForProfile(profileId);
+      if (!wallet) return { ok: false, error: 'wallet_unavailable' };
+      const mnemonic = loadMnemonic(profileId);
+
+      console.log('[gateway] unpinCid', {
+        profileId,
+        baseUrl: trimSlash(baseUrl),
+        cid,
+      });
+
+      const { status, data } = await sendGatewayAuthPq({
+        baseUrl,
+        path: '/unpin',
+        method: 'POST',
+        wallet,
+        mnemonic,
+        payload: { cid },
+      });
+
+      if (status < 200 || status >= 300) {
+        return { ok: false, status, error: (data && data.error) || 'unpin_failed' };
+      }
+
+      console.log('[gateway] unpinCid ok', { status, cid });
+      return { ok: true, status, data, cid, baseUrl: trimSlash(baseUrl) };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('gateway:searchPq', async (_e, input) => {
     try {
       const profileId = String(input?.profileId || '').trim();
       const query = String(input?.query || '').trim();
-      if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!query) return { ok: false, error: 'missing_query' };
 
       const endpoint =
@@ -1649,9 +1717,49 @@ function registerGatewayIpc() {
         : await resolveGatewayBaseUrlFromPlans(profileId, defaultGatewayBase());
       if (!baseUrl) return { ok: false, error: 'missing_baseUrl' };
 
-      const wallet = getWalletAddressForProfile(profileId);
-      if (!wallet) return { ok: false, error: 'wallet_unavailable' };
-      const mnemonic = loadMnemonic(profileId);
+      const guestTtlMsEnv = Number(process.env.LUMEN_GUEST_PQ_TTL_MS || '');
+      const guestTtlMs = Number.isFinite(guestTtlMsEnv) && guestTtlMsEnv > 0
+        ? guestTtlMsEnv
+        : 24 * 60 * 60 * 1000;
+      const useGuest = !profileId || isGuestProfile(profileId);
+      let wallet = null;
+      let mnemonic = null;
+      if (useGuest) {
+        const file = guestPqWalletFile();
+        const now = Date.now();
+        const current = readJson(file, null);
+        const expiresAt = Number(current?.expiresAt ?? 0);
+        const ks = current?.keystore ?? null;
+        const addrRaw = current?.walletAddress ?? null;
+        const shouldRotate = !expiresAt || !Number.isFinite(expiresAt) || expiresAt <= now;
+        if (!shouldRotate && ks && addrRaw) {
+          try {
+            mnemonic = decryptMnemonicLocal(ks);
+            wallet = String(addrRaw || '').trim();
+          } catch {
+            mnemonic = null;
+            wallet = null;
+          }
+        }
+        if (!mnemonic || !wallet || shouldRotate) {
+          const mnemonicObj = Bip39.encode(randomBytes(32), EnglishMnemonic.wordlist);
+          mnemonic = String(mnemonicObj);
+          wallet = await deriveWalletAddressFromMnemonic(mnemonic, 'lmn');
+          const createdAt = now;
+          const next = {
+            version: 1,
+            createdAt,
+            expiresAt: createdAt + guestTtlMs,
+            walletAddress: wallet,
+            keystore: encryptMnemonicLocal(mnemonic),
+          };
+          writeJson(file, next);
+        }
+      } else {
+        wallet = getWalletAddressForProfile(profileId);
+        if (!wallet) return { ok: false, error: 'wallet_unavailable' };
+        mnemonic = loadMnemonic(profileId);
+      }
 
       const lang =
         typeof input?.lang === 'string' && input.lang.trim()
@@ -1665,7 +1773,7 @@ function registerGatewayIpc() {
       const type = typeof input?.type === 'string' ? String(input.type) : '';
 
       console.log('[gateway] searchPq', {
-        profileId,
+        profileId: profileId || 'guest',
         endpoint: endpoint || undefined,
         baseUrl: trimSlash(baseUrl),
         q: query,
@@ -1728,7 +1836,18 @@ function registerGatewayIpc() {
   });
 
   ipcMain.handle('gateway:subscribePlan', async (_e, input) => {
+    const startedAt = Date.now();
+    const mark = (step, extra) => {
+      try {
+        console.log('[gateway] subscribePlan timing', {
+          step,
+          ms: Date.now() - startedAt,
+          ...(extra || {})
+        });
+      } catch {}
+    };
     try {
+      mark('start');
       const profileId = String(input?.profileId || '').trim();
       if (!profileId) return { ok: false, error: 'missing_profileId' };
 
@@ -1792,10 +1911,13 @@ function registerGatewayIpc() {
         return { ok: false, error: 'bridge_unavailable' };
       }
 
+      mark('walletFromMnemonic.start');
       const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
+      mark('walletFromMnemonic.done');
       const chainId =
         input?.chainId || 'lumen';
 
+      mark('connectWithSigner.start', { rpc: endpoints.rpcEndpoint, rest: endpoints.restEndpoint });
       const client = await bridgeMod.LumenSigningClient.connectWithSigner(
         signer,
         endpoints,
@@ -1805,11 +1927,16 @@ function registerGatewayIpc() {
       if (!client || !client.signAndBroadcast) {
         return { ok: false, error: 'client_not_available' };
       }
+      mark('connectWithSigner.done');
 
       try {
+        const pqcStart = Date.now();
         const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, walletAddr);
         if (pqcLocal && pqcLocal.record) {
+          mark('pqc.ensureLocal.done', { ms: Date.now() - pqcStart });
+          const linkStart = Date.now();
           await ensureOnChainPqcLink(bridgeMod, client, walletAddr, pqcLocal.record);
+          mark('pqc.ensureOnChain.done', { ms: Date.now() - linkStart });
         }
       } catch (err) {
         console.warn(
@@ -1868,8 +1995,10 @@ function registerGatewayIpc() {
         typeUrl: msg?.typeUrl,
       });
 
+      mark('broadcast.start', { typeUrl: msg?.typeUrl, planId, gatewayId });
       const res = await client.signAndBroadcast(walletAddr, [msg], fee, memo);
       if (typeof res?.code === 'number' && res.code !== 0) {
+        mark('broadcast.failed', { code: res.code });
         return {
           ok: false,
           error: String(res?.rawLog || `broadcast failed (code ${res.code})`),
@@ -1877,9 +2006,11 @@ function registerGatewayIpc() {
         };
       }
       const txhash = String(res?.transactionHash || res?.txhash || res?.hash || '');
+      mark('broadcast.ok', { txhash });
 
       return { ok: true, txhash, planId, gatewayId };
     } catch (e) {
+      mark('error', { error: String(e && e.message ? e.message : e) });
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
