@@ -359,7 +359,7 @@ defineExpose({
 }
 
 .recurring-payments-modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   max-width: 600px;
   width: 100%;
@@ -385,14 +385,14 @@ defineExpose({
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--text-secondary);
   padding: 4px;
   border-radius: 6px;
   transition: all 0.2s;
@@ -402,8 +402,8 @@ defineExpose({
 }
 
 .close-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .modal-body {
@@ -422,7 +422,7 @@ defineExpose({
   gap: 8px;
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0 0 16px 0;
 }
 
@@ -434,7 +434,7 @@ defineExpose({
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
@@ -459,7 +459,7 @@ defineExpose({
 }
 
 .form-input::placeholder {
-  color: #9ca3af;
+  color: var(--text-tertiary);
 }
 
 textarea.form-input {
@@ -486,7 +486,7 @@ textarea.form-input {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .input-btn:hover {
@@ -512,7 +512,7 @@ textarea.form-input {
   transform: translateY(-50%);
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-secondary);
   pointer-events: none;
 }
 
@@ -536,7 +536,7 @@ textarea.form-input {
 
 .form-hint {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 6px 0 0 0;
 }
 
@@ -605,13 +605,13 @@ textarea.form-input {
 }
 
 .btn.secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .btn.secondary:hover {
-  background: #e5e7eb;
+  background: var(--card-bg);
 }
 
 @media (max-width: 640px) {

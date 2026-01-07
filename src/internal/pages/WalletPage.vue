@@ -1498,7 +1498,7 @@ function exportTransactions() {
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -1508,11 +1508,13 @@ function exportTransactions() {
   max-width: 260px;
   height: 100vh;
   background: var(--sidebar-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   color: var(--text-primary);
-  border-right: 2px solid var(--border-color);
+  border-right: var(--border-width) solid var(--border-color);
   position: relative;
   overflow: hidden;
 }
@@ -1529,11 +1531,12 @@ function exportTransactions() {
   width: 40px;
   height: 40px;
   background: var(--gradient-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  box-shadow: var(--shadow-primary);
 }
 
 .logo-text {
@@ -1547,21 +1550,22 @@ function exportTransactions() {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
-  border-radius: 12px;
+  background: var(--fill-tertiary);
+  border-radius: var(--border-radius-lg);
   margin-bottom: 1rem;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: var(--border-width) solid var(--border-light);
 }
 
 .avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-radius: 10px;
+  background: var(--gradient-primary);
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-primary);
+  color: white;
+  box-shadow: 0 2px 8px var(--primary-a20);
 }
 
 .profile-info {
@@ -1572,7 +1576,7 @@ function exportTransactions() {
 
 .profile-label {
   font-size: 0.65rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1580,7 +1584,7 @@ function exportTransactions() {
 .profile-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -1612,25 +1616,31 @@ function exportTransactions() {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: none;
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
+  font-size: var(--fs-base);
+  font-weight: 400;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  letter-spacing: -0.022em;
 }
 
 .nav-item:hover {
   background: var(--hover-bg);
-  color: var(--text-primary);
 }
 
 .nav-item.active {
-  background: var(--gradient-primary);
+  background: var(--ios-blue);
   color: white;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  font-weight: 600;
+  box-shadow: var(--shadow-primary);
+}
+
+.nav-item:active {
+  transform: scale(0.98);
 }
 
 .wallet-status {
@@ -1642,7 +1652,7 @@ function exportTransactions() {
   align-items: center;
   gap: 0.625rem;
   font-size: 0.8125rem;
-  color: #dc2626;
+  color: var(--ios-red);
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
@@ -1657,7 +1667,7 @@ function exportTransactions() {
 .wallet-status.connected {
   background: rgba(34, 197, 94, 0.1);
   border-color: rgba(34, 197, 94, 0.2);
-  color: #16a34a;
+  color: var(--ios-green);
 }
 
 .wallet-status.connected:hover {
@@ -1669,12 +1679,12 @@ function exportTransactions() {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #dc2626;
+  background: var(--ios-red);
   box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
 }
 
 .wallet-status.connected .status-dot {
-  background: #16a34a;
+  background: var(--ios-green);
   box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
 }
 
@@ -1685,7 +1695,7 @@ function exportTransactions() {
   flex-direction: column;
   overflow-y: auto;
   padding: 2rem 2.5rem;
-  background: var(--bg-primary, #fff);
+  background: var(--bg-secondary);
   margin: 0;
   border-radius: 0;
 }
@@ -1701,13 +1711,13 @@ function exportTransactions() {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .content-header p {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary);
 }
 
 .header-actions {
@@ -1742,7 +1752,7 @@ function exportTransactions() {
 
 .action-btn.primary {
   background: var(--gradient-primary);
-  color: #ffffff;
+  color: var(--text-primary);
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
@@ -1809,7 +1819,7 @@ function exportTransactions() {
 
 .eye-btn {
   border: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-tertiary);
   backdrop-filter: blur(10px);
   border-radius: 8px;
   width: 32px;
@@ -1823,7 +1833,7 @@ function exportTransactions() {
 }
 
 .eye-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--card-bg);
   transform: scale(1.05);
 }
 
@@ -2001,7 +2011,7 @@ function exportTransactions() {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .header-actions-group {
@@ -2019,10 +2029,10 @@ function exportTransactions() {
 
 .filter-select {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color, #e5e7eb);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  background: var(--card-bg, #ffffff);
-  color: var(--text-primary, #0f172a);
+  background: var(--card-bg);
+  color: var(--text-primary);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -2040,10 +2050,10 @@ function exportTransactions() {
 
 .search-input {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color, #e5e7eb);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  background: var(--card-bg, #ffffff);
-  color: var(--text-primary, #0f172a);
+  background: var(--card-bg);
+  color: var(--text-primary);
   font-size: 0.875rem;
   min-width: 200px;
   transition: all 0.2s;
@@ -2060,15 +2070,15 @@ function exportTransactions() {
 }
 
 .search-input::placeholder {
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 
 .empty-state {
   margin-top: 2rem;
   padding: 2rem;
   border-radius: 1rem;
-  background: var(--bg-secondary, #f9fafb);
-  border: 1px dashed var(--border-color, #e5e7eb);
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
   text-align: center;
 }
 
@@ -2080,7 +2090,7 @@ function exportTransactions() {
   height: 48px;
   margin: 0 auto 1rem;
   border-radius: 999px;
-  background: var(--bg-secondary, #e0f2fe);
+  background: var(--bg-secondary);
   color: var(--accent-secondary);
 }
 
@@ -2092,7 +2102,7 @@ function exportTransactions() {
 .empty-state p {
   margin: 0 0 1rem;
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .connect-btn {
@@ -2121,8 +2131,8 @@ function exportTransactions() {
   justify-content: space-between;
   padding: 0.85rem 1rem;
   border-radius: 0.9rem;
-  background: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e5e7eb);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .asset-icon {
@@ -2151,19 +2161,19 @@ function exportTransactions() {
 .asset-name {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .asset-symbol {
   font-size: 0.8rem;
-  color: var(--text-tertiary, #6b7280);
+  color: var(--text-tertiary);
 }
 
 .asset-balance {
   text-align: right;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 /* Transaction List */
@@ -2171,7 +2181,7 @@ function exportTransactions() {
   display: flex;
   flex-direction: column;
   background: var(--card-bg, white);
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -2181,11 +2191,11 @@ function exportTransactions() {
   grid-template-columns: 100px 140px 200px 200px 200px 90px 140px;
   gap: 1rem;
   padding: 0.875rem 1.25rem;
-  background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%));
-  border-bottom: 2px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -2195,13 +2205,13 @@ function exportTransactions() {
   grid-template-columns: 100px 140px 200px 200px 200px 90px 140px;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-light, #f1f5f9);
+  border-bottom: 1px solid var(--border-light);
   align-items: center;
   transition: all 0.2s ease;
 }
 
 .activity-row:hover {
-  background: var(--hover-bg, #f8fafc);
+  background: var(--hover-bg);
   border-left: 3px solid var(--accent-primary);
   padding-left: calc(1.25rem - 3px);
 }
@@ -2223,12 +2233,12 @@ function exportTransactions() {
 
 .type-badge.send {
   background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  color: var(--ios-red);
 }
 
 .type-badge.receive {
   background: rgba(34, 197, 94, 0.1);
-  color: #16a34a;
+  color: var(--ios-green);
 }
 
 .amount-value {
@@ -2238,24 +2248,24 @@ function exportTransactions() {
 }
 
 .amount-value.send {
-  color: #dc2626;
+  color: var(--ios-red);
 }
 
 .amount-value.receive {
-  color: #16a34a;
+  color: var(--ios-green);
 }
 
 .address-value,
 .hash-value {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8125rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .hash-value {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8125rem;
-  color: var(--text-secondary, #475569);
+  color: var(--text-secondary);
 }
 
 .col-hash {
@@ -2266,7 +2276,7 @@ function exportTransactions() {
 
 .time-value {
   font-size: 0.8125rem;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   font-weight: 500;
   display: flex;
   flex-direction: column;
@@ -2275,7 +2285,7 @@ function exportTransactions() {
 
 .time-hour {
   font-size: 0.75rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   font-weight: 400;
 }
 
@@ -2290,21 +2300,21 @@ function exportTransactions() {
 }
 
 .status-badge.success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .status-badge.failed {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .action-icon {
   padding: 0.375rem;
   border-radius: 6px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--card-bg, #ffffff);
-  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -2314,7 +2324,7 @@ function exportTransactions() {
 }
 
 .action-icon:hover {
-  background: var(--hover-bg, #f8fafc);
+  background: var(--hover-bg);
   transform: scale(1.05);
 }
 
@@ -2324,8 +2334,8 @@ function exportTransactions() {
 }
 
 .action-icon.explorer-btn:hover {
-  border-color: #8b5cf6;
-  color: #8b5cf6;
+  border-color: var(--ios-purple);
+  color: var(--ios-purple);
 }
 
 .modal-overlay {
@@ -2379,7 +2389,7 @@ function exportTransactions() {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .modal-title-wrapper {
@@ -2403,16 +2413,16 @@ function exportTransactions() {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .modal-close {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--card-bg, #ffffff);
-  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2421,9 +2431,9 @@ function exportTransactions() {
 }
 
 .modal-close:hover {
-  background: var(--hover-bg, #f8fafc);
-  border-color: var(--border-color, #cbd5e1);
-  color: var(--text-secondary, #334155);
+  background: var(--hover-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
 }
 
 .modal-body {
@@ -2431,8 +2441,8 @@ function exportTransactions() {
 }
 
 .info-banner {
-  background: var(--bg-secondary, #d1fae5);
-  border: 1px solid var(--border-color, #a7f3d0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.875rem 1rem;
   margin-bottom: 1.5rem;
@@ -2443,7 +2453,7 @@ function exportTransactions() {
 
 .modal-desc {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-tertiary);
   margin-bottom: 1rem;
 }
 
@@ -2455,12 +2465,12 @@ function exportTransactions() {
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary, #334155);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .required {
-  color: #ef4444;
+  color: var(--ios-red);
 }
 
 .input-wrapper-relative {
@@ -2479,10 +2489,10 @@ function exportTransactions() {
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  border: 2px solid var(--border-color, #e2e8f0);
+  border: 2px solid var(--border-color);
   font-size: 0.9375rem;
-  color: var(--text-primary, #0f172a);
-  background: var(--card-bg, #ffffff);
+  color: var(--text-primary);
+  background: var(--card-bg);
   transition: all 0.2s ease;
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
 }
@@ -2494,11 +2504,11 @@ function exportTransactions() {
 }
 
 .form-input::placeholder {
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 
 .form-input:read-only {
-  background: var(--bg-secondary, #f8fafc);
+  background: var(--bg-secondary);
   cursor: not-allowed;
 }
 
@@ -2513,33 +2523,33 @@ function exportTransactions() {
   transform: translateY(-50%);
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-secondary);
   pointer-events: none;
 }
 
 .balance-hint {
   margin-top: 0.5rem;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .tx-summary {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
   border-radius: 12px;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
   padding: 0;
-  background: var(--bg-secondary, #f8fafc);
+  background: var(--bg-secondary);
   overflow: hidden;
 }
 
 .summary-header {
   padding: 0.875rem 1rem;
-  background: var(--hover-bg, #f1f5f9);
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background: var(--hover-bg);
+  border-bottom: 1px solid var(--border-color);
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--text-secondary, #475569);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -2550,8 +2560,8 @@ function exportTransactions() {
   justify-content: space-between;
   font-size: 0.9375rem;
   padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--border-color, #f1f5f9);
-  color: var(--text-secondary, #334155);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
 }
 
 .summary-row:last-child {
@@ -2559,20 +2569,20 @@ function exportTransactions() {
 }
 
 .summary-row.total {
-  background: var(--bg-secondary, #f8fafc);
-  border-top: 2px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border-color);
   font-weight: 700;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .summary-value {
   font-weight: 600;
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
 }
 
 .summary-value.tax {
-  color: #f59e0b;
+  color: var(--ios-orange);
 }
 
 .btn-modal-primary {
@@ -2920,9 +2930,9 @@ function exportTransactions() {
 }
 
 .contact-btn.delete:hover {
-  background: #fee;
-  border-color: #ef4444;
-  color: #ef4444;
+  background: var(--fill-error);
+  border-color: var(--ios-red);
+  color: var(--ios-red);
 }
 
 .contact-modal {

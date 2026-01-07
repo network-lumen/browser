@@ -3,8 +3,10 @@
 @import "./theme.css";
 
 * { 
-  font-family: system-ui;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html, body { 
@@ -13,30 +15,115 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
+  font-size: 17px; /* iOS default */
+  line-height: 1.47059; /* iOS default */
+  letter-spacing: -0.022em; /* iOS default */
 }
 
 /* Font Size Settings */
 :root[data-font-size="small"] {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 :root[data-font-size="medium"] {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 :root[data-font-size="large"] {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 /* Default font size */
 :root {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 #app {
   width: 100%;
   height: 100%;
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
+}
+
+/* iOS-style Glassmorphism Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 0.5px solid rgba(0, 0, 0, 0.04);
+}
+
+.glass-card-dark {
+  background: rgba(30, 30, 30, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+/* iOS-style Buttons */
+.ios-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  background: var(--ios-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ios-button:active {
+  transform: scale(0.97);
+  opacity: 0.8;
+}
+
+.ios-button-secondary {
+  background: var(--fill-primary);
+  color: var(--ios-blue);
+}
+
+/* iOS-style List Items */
+.ios-list-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border-bottom: 0.5px solid var(--separator);
+  transition: background var(--transition-fast);
+}
+
+.ios-list-item:hover {
+  background: var(--hover-bg);
+}
+
+.ios-list-item:active {
+  background: var(--fill-secondary);
+}
+
+/* iOS-style Input Fields */
+.ios-input {
+  padding: 0.625rem 1rem;
+  background: var(--fill-tertiary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--fs-base);
+  color: var(--text-primary);
+  transition: background var(--transition-fast);
+}
+
+.ios-input:focus {
+  outline: none;
+  background: var(--fill-secondary);
+}
+
+.ios-input::placeholder {
+  color: var(--text-tertiary);
 }
