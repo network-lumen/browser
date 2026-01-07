@@ -65,7 +65,12 @@ contextBridge.exposeInMainWorld('lumen', {
     getBalance: (address, opts) => ipcRenderer.invoke('wallet:getBalance', { address, ...(opts || {}) }),
     getTokenomicsParams: () => ipcRenderer.invoke('chain:getTokenomicsParams'),
     sendTokens: (payload) => ipcRenderer.invoke('wallet:sendTokens', payload),
-    listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) })
+    listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) }),
+    getDelegations: (address) => ipcRenderer.invoke('wallet:getDelegations', { address }),
+    delegate: (payload) => ipcRenderer.invoke('wallet:delegate', payload),
+    undelegate: (payload) => ipcRenderer.invoke('wallet:undelegate', payload),
+    redelegate: (payload) => ipcRenderer.invoke('wallet:redelegate', payload),
+    withdrawRewards: (payload) => ipcRenderer.invoke('wallet:withdrawRewards', payload)
   },
   gateway: {
     getWalletUsage: (profileId, baseUrl) =>
