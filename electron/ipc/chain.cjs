@@ -215,10 +215,21 @@ function broadcastChainState() {
     const all = BrowserWindow.getAllWindows();
     for (const win of all) {
       try {
-        win.webContents.send('rpc:heightChanged', payload);
-      } catch {}
+        if (!win || win.isDestroyed?.()) continue;
+        const wc = win.webContents;
+        if (!wc || wc.isDestroyed?.()) continue;
+        const mf = wc.mainFrame;
+        if (!mf || mf.isDestroyed?.()) continue;
+        if (typeof wc.isLoading === 'function' && wc.isLoading()) continue;
+        if (typeof wc.getURL === 'function' && !String(wc.getURL() || '').trim()) continue;
+        wc.send('rpc:heightChanged', payload);
+      } catch {
+        // ignore send failures (renderer reloading / disposed frame)
+      }
     }
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 function scheduleNextChainPoll(delayMs) {

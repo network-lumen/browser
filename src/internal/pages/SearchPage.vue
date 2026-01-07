@@ -14,7 +14,12 @@
             placeholder="Search the network"
             @keydown.enter.prevent="submit"
           />
-          <button class="search-btn" type="button" @click="submit" :disabled="loading || !q.trim()">
+          <button
+            class="search-btn"
+            type="button"
+            @click="submit"
+            :disabled="loading || !q.trim()"
+          >
             Search
           </button>
         </div>
@@ -35,6 +40,8 @@
           type="button"
           :class="{ active: selectedType === 'video' }"
           @click="setType('video')"
+          :disabled="true"
+          title="Coming soon"
         >
           <Film :size="16" />
           Videos
@@ -63,7 +70,9 @@
     <section v-if="touched" class="results">
       <div class="meta">
         <div class="txt-xs color-gray-blue">
-          <span v-if="!loading && results.length">About {{ results.length }} results</span>
+          <span v-if="!loading && results.length"
+            >About {{ results.length }} results</span
+          >
           <span v-else-if="!loading && !results.length">No results</span>
         </div>
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
@@ -93,13 +102,24 @@
           @click="openResult(r)"
           :title="r.url"
         >
-          <img v-if="r.thumbUrl" class="image-thumb" :src="r.thumbUrl" alt="" loading="lazy" />
+          <img
+            v-if="r.thumbUrl"
+            class="image-thumb"
+            :src="r.thumbUrl"
+            alt=""
+            loading="lazy"
+          />
           <div v-else class="image-fallback">
             <Image :size="18" />
           </div>
           <div v-if="r.badges?.length" class="image-meta">
             <div class="image-tags">
-              <span v-for="b in r.badges" :key="`${r.id}:${b}`" class="image-badge">{{ b }}</span>
+              <span
+                v-for="b in r.badges"
+                :key="`${r.id}:${b}`"
+                class="image-badge"
+                >{{ b }}</span
+              >
             </div>
           </div>
         </button>
@@ -109,15 +129,25 @@
         <li v-for="r in results" :key="r.id" class="result-item">
           <button class="result-card" type="button" @click="openResult(r)">
             <div class="result-icon">
-              <img v-if="r.thumbUrl" class="thumb" :src="r.thumbUrl" alt="" />
+              <img
+                v-if="r.thumbUrl && !brokenThumbs[r.id]"
+                class="thumb"
+                :src="r.thumbUrl"
+                alt=""
+                @error="markThumbBroken(r.id)"
+              />
               <component v-else :is="iconFor(r.kind, r.media)" :size="18" />
             </div>
             <div class="result-body">
               <div v-if="r.title" class="result-title">{{ r.title }}</div>
               <div class="result-url mono">{{ r.url }}</div>
-              <div v-if="r.description" class="result-desc">{{ r.description }}</div>
+              <div v-if="r.description" class="result-desc">
+                {{ r.description }}
+              </div>
               <div v-if="r.badges?.length" class="badges">
-                <span v-for="b in r.badges" :key="b" class="badge">{{ b }}</span>
+                <span v-for="b in r.badges" :key="b" class="badge">{{
+                  b
+                }}</span>
               </div>
             </div>
             <ArrowUpRight :size="18" class="result-open" />
@@ -129,12 +159,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, ref, watch } from 'vue';
-import { ArrowUpRight, Compass, Film, Globe, Hash, Image, Layers, Search, Wallet } from 'lucide-vue-next';
-import { LOCAL_IPFS_GATEWAY_BASE } from '../services/contentResolver';
+import { computed, inject, onMounted, ref, watch } from "vue";
+import {
+  ArrowUpRight,
+  Compass,
+  Film,
+  Globe,
+  Hash,
+  Image,
+  Layers,
+  Search,
+  Wallet,
+} from "lucide-vue-next";
+import { LOCAL_IPFS_GATEWAY_BASE } from "../services/contentResolver";
 
-type SearchType = 'site' | 'video' | 'image' | '';
-type ResultKind = 'site' | 'ipfs' | 'tx' | 'block' | 'address' | 'link';
+type SearchType = "site" | "video" | "image" | "";
+type ResultKind = "site" | "ipfs" | "tx" | "block" | "address" | "link";
 type ResultItem = {
   id: string;
   title: string;
@@ -143,7 +183,7 @@ type ResultItem = {
   kind: ResultKind;
   badges?: string[];
   thumbUrl?: string;
-  media?: 'image' | 'video' | 'audio' | 'unknown';
+  media?: "image" | "video" | "audio" | "unknown";
 };
 
 type GatewayView = {
@@ -152,22 +192,30 @@ type GatewayView = {
   regions?: string[];
 };
 
-const currentTabUrl = inject<any>('currentTabUrl', null);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+const currentTabUrl = inject<any>("currentTabUrl", null);
+const navigate = inject<
+  ((url: string, opts?: { push?: boolean }) => void) | null
+>("navigate", null);
+const openInNewTab = inject<((url: string) => void) | null>(
+  "openInNewTab",
+  null,
+);
 
-const q = ref('');
-const selectedType = ref<SearchType>('site');
+const q = ref("");
+const selectedType = ref<SearchType>("site");
 const touched = ref(false);
 const loading = ref(false);
-const errorMsg = ref('');
+const errorMsg = ref("");
 const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
 
-const lastRunKey = ref('');
+const lastRunKey = ref("");
 let searchSeq = 0;
 
-const gatewaysCache = ref<{ at: number; items: GatewayView[] }>({ at: 0, items: [] });
+const gatewaysCache = ref<{ at: number; items: GatewayView[] }>({
+  at: 0,
+  items: [],
+});
 
 function focusInput() {
   inputEl.value?.focus();
@@ -177,21 +225,21 @@ onMounted(() => {
   setTimeout(focusInput, 60);
 });
 
-function iconFor(kind: ResultKind, media?: ResultItem['media']) {
+function iconFor(kind: ResultKind, media?: ResultItem["media"]) {
   switch (kind) {
-    case 'site':
+    case "site":
       return Globe;
-    case 'ipfs':
-      if (media === 'video') return Film;
-      if (media === 'image') return Image;
+    case "ipfs":
+      if (media === "video") return Film;
+      if (media === "image") return Image;
       return Layers;
-    case 'tx':
+    case "tx":
       return Hash;
-    case 'block':
+    case "block":
       return Layers;
-    case 'address':
+    case "address":
       return Wallet;
-    case 'link':
+    case "link":
     default:
       return Search;
   }
@@ -206,28 +254,30 @@ function goto(url: string, opts?: { push?: boolean }) {
 }
 
 function parseSearchUrl(raw: string): { q: string; type: SearchType } {
-  const value = String(raw || '').trim();
-  if (!value) return { q: '', type: 'site' };
+  const value = String(raw || "").trim();
+  if (!value) return { q: "", type: "site" };
   try {
     const u = new URL(value);
-    const qs = u.searchParams.get('q') || '';
-    const type = (u.searchParams.get('type') || '') as SearchType;
-    const t: SearchType = type === 'site' || type === 'video' || type === 'image' || type === '' ? type : 'site';
+    const qs = u.searchParams.get("q") || "";
+    const type = (u.searchParams.get("type") || "") as SearchType;
+    const t: SearchType =
+      type === "site" || type === "image" || type === "" ? type : "site";
     return { q: qs, type: t };
   } catch {
-    return { q: '', type: 'site' };
+    return { q: "", type: "site" };
   }
 }
 
 function makeSearchUrl(query: string, type: SearchType): string {
-  const s = String(query || '').trim();
-  const u = new URL('lumen://search');
-  if (s) u.searchParams.set('q', s);
-  if (type) u.searchParams.set('type', type);
+  const s = String(query || "").trim();
+  const u = new URL("lumen://search");
+  if (s) u.searchParams.set("q", s);
+  if (type) u.searchParams.set("type", type);
   return u.toString();
 }
 
 function setType(t: SearchType) {
+  if (t === "video") return;
   selectedType.value = t;
   const s = q.value.trim();
   if (!s) return;
@@ -238,18 +288,31 @@ function submit() {
   const s = q.value.trim();
   if (!s) return;
   touched.value = true;
-  errorMsg.value = '';
+  errorMsg.value = "";
   results.value = [];
   loading.value = true;
   goto(makeSearchUrl(s, selectedType.value), { push: true });
 }
 
 function openResult(r: ResultItem) {
+  if (selectedType.value === "site" && r.kind === "site") {
+    openInNewTab?.(r.url);
+    return;
+  }
   goto(r.url, { push: true });
 }
 
+const brokenThumbs = ref<Record<string, true>>({});
+
+function markThumbBroken(id: string) {
+  const key = String(id || "").trim();
+  if (!key) return;
+  if (brokenThumbs.value[key]) return;
+  brokenThumbs.value = { ...brokenThumbs.value, [key]: true };
+}
+
 function isCidLike(v: string): boolean {
-  const s = String(v || '').trim();
+  const s = String(v || "").trim();
   if (!s) return false;
   if (/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(s)) return true;
   if (/^bafy[a-z0-9]{20,}$/i.test(s)) return true;
@@ -257,44 +320,52 @@ function isCidLike(v: string): boolean {
 }
 
 function isTxHash(v: string): boolean {
-  return /^[0-9a-f]{64}$/i.test(String(v || '').trim());
+  return /^[0-9a-f]{64}$/i.test(String(v || "").trim());
 }
 
 function isAddress(v: string): boolean {
-  return /^lmn1[0-9a-z]{20,}$/i.test(String(v || '').trim());
+  return /^lmn1[0-9a-z]{20,}$/i.test(String(v || "").trim());
 }
 
 function isBlockHeight(v: string): boolean {
-  const s = String(v || '').trim();
+  const s = String(v || "").trim();
   return /^\d{1,10}$/.test(s);
 }
 
+function faviconUrlForCid(cid: string): string | null {
+  const c = String(cid || "").trim();
+  if (!c) return null;
+  return `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${c}/favicon.ico`;
+}
+
 function buildDomainCandidates(query: string): string[] {
-  const value = String(query || '').toLowerCase().trim();
+  const value = String(query || "")
+    .toLowerCase()
+    .trim();
   if (!value) return [];
 
   const tokens = value
-    .replace(/[^a-z0-9.\s]/g, ' ')
+    .replace(/[^a-z0-9.\s]/g, " ")
     .split(/\s+/)
     .filter((t) => t.length >= 2);
 
   const cands = new Set<string>();
 
-  if (!value.includes(' ') && value.includes('.')) {
+  if (!value.includes(" ") && value.includes(".")) {
     cands.add(value);
   }
 
   for (const t of tokens) {
-    if (t.includes('.')) cands.add(t);
+    if (t.includes(".")) cands.add(t);
   }
 
-  if (tokens.length === 1 && !tokens[0].includes('.')) {
+  if (tokens.length === 1 && !tokens[0].includes(".")) {
     cands.add(`${tokens[0]}.lmn`);
   }
 
   if (tokens.length >= 2) {
     const last = tokens[tokens.length - 1];
-    const label = tokens.slice(0, -1).join('');
+    const label = tokens.slice(0, -1).join("");
     if (label && last) cands.add(`${label}.${last}`);
   }
 
@@ -302,18 +373,20 @@ function buildDomainCandidates(query: string): string[] {
 }
 
 function scoreDomainMatch(query: string, domainName: string): number {
-  const qTokens = String(query || '')
+  const qTokens = String(query || "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/[^a-z0-9]+/g, " ")
     .split(/\s+/)
     .filter((t) => t.length >= 2);
 
-  const d = String(domainName || '').toLowerCase().trim();
+  const d = String(domainName || "")
+    .toLowerCase()
+    .trim();
   if (!qTokens.length || !d) return 0;
 
   if (qTokens.length === 1 && qTokens[0] === d) return 1;
 
-  const lastDot = d.lastIndexOf('.');
+  const lastDot = d.lastIndexOf(".");
   if (lastDot <= 0 || lastDot === d.length - 1) return 0;
 
   const label = d.slice(0, lastDot);
@@ -343,30 +416,40 @@ function scoreDomainMatch(query: string, domainName: string): number {
 }
 
 function findCidFromDomainInfo(info: any): string | null {
-  const direct = String(info?.cid || '').trim();
+  const direct = String(info?.cid || "").trim();
   if (direct && isCidLike(direct)) return direct;
 
   const records = Array.isArray(info?.records) ? info.records : [];
-  const rec = records.find((r: any) => String(r?.key || '').toLowerCase() === 'cid');
-  const value = String(rec?.value ?? '').trim();
+  const rec = records.find(
+    (r: any) => String(r?.key || "").toLowerCase() === "cid",
+  );
+  const value = String(rec?.value ?? "").trim();
   if (!value) return null;
 
   const lower = value.toLowerCase();
-  if (lower.startsWith('ipfs://')) {
-    const id = value.slice('ipfs://'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
+  if (lower.startsWith("ipfs://")) {
+    const id = value
+      .slice("ipfs://".length)
+      .replace(/^\/+/, "")
+      .split(/[/?#]/, 1)[0];
     return id && isCidLike(id) ? id : null;
   }
-  if (lower.startsWith('lumen://ipfs/')) {
-    const id = value.slice('lumen://ipfs/'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
+  if (lower.startsWith("lumen://ipfs/")) {
+    const id = value
+      .slice("lumen://ipfs/".length)
+      .replace(/^\/+/, "")
+      .split(/[/?#]/, 1)[0];
     return id && isCidLike(id) ? id : null;
   }
 
   return isCidLike(value) ? value : null;
 }
 
-async function resolveDomainForQuery(query: string): Promise<{ name: string; cid: string | null; score: number } | null> {
+async function resolveDomainForQuery(
+  query: string,
+): Promise<{ name: string; cid: string | null; score: number } | null> {
   const dnsApi = (window as any).lumen?.dns;
-  if (!dnsApi || typeof dnsApi.getDomainInfo !== 'function') return null;
+  if (!dnsApi || typeof dnsApi.getDomainInfo !== "function") return null;
 
   const cands = buildDomainCandidates(query);
   if (!cands.length) return null;
@@ -383,13 +466,25 @@ async function resolveDomainForQuery(query: string): Promise<{ name: string; cid
 
     if (!infoRes) continue;
     if (infoRes.ok === false) continue;
-    const info = infoRes?.data?.domain || infoRes?.data || infoRes?.domain || infoRes;
+    const info =
+      infoRes?.data?.domain || infoRes?.data || infoRes?.domain || infoRes;
     if (!info) continue;
 
     const cid = findCidFromDomainInfo(info);
-    const score = Math.max(scoreDomainMatch(query, name), String(query || '').toLowerCase().trim() === name ? 1 : 0);
+    const score = Math.max(
+      scoreDomainMatch(query, name),
+      String(query || "")
+        .toLowerCase()
+        .trim() === name
+        ? 1
+        : 0,
+    );
 
-    if (!best || score > best.score || (score === best.score && !!cid && !best.cid)) {
+    if (
+      !best ||
+      score > best.score ||
+      (score === best.score && !!cid && !best.cid)
+    ) {
       best = { name, cid, score };
     }
   }
@@ -398,39 +493,43 @@ async function resolveDomainForQuery(query: string): Promise<{ name: string; cid
 }
 
 function normalizeGatewayType(t: SearchType): string {
-  if (t === 'site' || t === 'video' || t === 'image') return t;
-  return '';
+  if (t === "site" || t === "image") return t;
+  return "";
 }
 
 async function getActiveProfileId(): Promise<string | null> {
   const profilesApi = (window as any).lumen?.profiles;
-  if (!profilesApi || typeof profilesApi.getActive !== 'function') return null;
+  if (!profilesApi || typeof profilesApi.getActive !== "function") return null;
   const active = await profilesApi.getActive().catch(() => null);
-  const id = String(active?.id || '').trim();
+  const id = String(active?.id || "").trim();
   return id || null;
 }
 
-async function loadGatewaysForSearch(profileId: string): Promise<GatewayView[]> {
+async function loadGatewaysForSearch(
+  profileId: string,
+): Promise<GatewayView[]> {
   const now = Date.now();
   const cached = gatewaysCache.value;
   if (cached.items.length && now - cached.at < 60_000) return cached.items;
 
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.getPlansOverview !== 'function') return [];
+  if (!gwApi || typeof gwApi.getPlansOverview !== "function") return [];
 
-  const res = await gwApi.getPlansOverview(profileId, { limit: 50, timeoutMs: 2500 }).catch(() => null);
+  const res = await gwApi
+    .getPlansOverview(profileId, { limit: 50, timeoutMs: 2500 })
+    .catch(() => null);
   if (!res || res.ok === false) return [];
   const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
 
   const items: GatewayView[] = [];
   const seen = new Set<string>();
   for (const g of gwRaw) {
-    const id = String(g?.id ?? g?.gatewayId ?? '').trim();
+    const id = String(g?.id ?? g?.gatewayId ?? "").trim();
     if (!id || seen.has(id)) continue;
-    const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim();
+    const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
     if (!endpoint) continue;
     const regions = Array.isArray(g?.regions)
-      ? g.regions.map((r: any) => String(r || '')).filter(Boolean)
+      ? g.regions.map((r: any) => String(r || "")).filter(Boolean)
       : [];
     items.push({ id, endpoint, regions });
     seen.add(id);
@@ -451,46 +550,58 @@ type GatewaySearchHit = {
   snippet?: string;
 };
 
-const LOCAL_IPFS_GATEWAY = 'http://127.0.0.1:8088';
+const LOCAL_IPFS_GATEWAY = "http://127.0.0.1:8088";
 
 function safePathSuffix(pathValue: any): string {
-  const p = String(pathValue ?? '').trim();
-  if (!p) return '';
-  if (p.startsWith('/')) return p;
+  const p = String(pathValue ?? "").trim();
+  if (!p) return "";
+  if (p.startsWith("/")) return p;
   return `/${p}`;
 }
 
 function mapGatewayHitToResult(
   hit: GatewaySearchHit,
   gateway: GatewayView,
-  filterType: SearchType
+  filterType: SearchType,
 ): ResultItem | null {
-  const cid = String(hit?.cid || '').trim();
+  const cid = String(hit?.cid || "").trim();
   if (!cid) return null;
   const path = safePathSuffix(hit?.path);
-  const mime = String(hit?.mime || '').trim();
-  const rType = String(hit?.resourceType || '').trim();
+  const mime = String(hit?.mime || "").trim();
+  const rType = String(hit?.resourceType || "").trim();
 
   const extractedTags = extractSearchTags(hit);
 
-  const isImage = rType.toLowerCase() === 'image' || mime.toLowerCase().startsWith('image/');
-  const isVideo = rType.toLowerCase() === 'video' || mime.toLowerCase().startsWith('video/');
-  const isAudio = rType.toLowerCase() === 'audio' || mime.toLowerCase().startsWith('audio/');
-  const media: ResultItem['media'] = isImage ? 'image' : isVideo ? 'video' : isAudio ? 'audio' : 'unknown';
+  const isImage =
+    rType.toLowerCase() === "image" || mime.toLowerCase().startsWith("image/");
+  const isVideo =
+    rType.toLowerCase() === "video" || mime.toLowerCase().startsWith("video/");
+  const isAudio =
+    rType.toLowerCase() === "audio" || mime.toLowerCase().startsWith("audio/");
+  const media: ResultItem["media"] = isImage
+    ? "image"
+    : isVideo
+      ? "video"
+      : isAudio
+        ? "audio"
+        : "unknown";
 
-  if (filterType === 'image' && !isImage) return null;
-  if (filterType === 'video' && !isVideo) return null;
-  const thumbUrl = isImage ? `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${cid}${path}` : undefined;
+  if (filterType === "image" && !isImage) return null;
+  if (filterType === "video" && !isVideo) return null;
+  const thumbUrl = isImage
+    ? `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${cid}${path}`
+    : undefined;
 
   const title =
     (hit?.title != null && String(hit.title).trim()) ||
-    (path ? path.split('/').filter(Boolean).slice(-1)[0] : '') ||
-    (isImage ? '' : `CID ${cid.slice(0, 10)}…`);
+    (path ? path.split("/").filter(Boolean).slice(-1)[0] : "") ||
+    (isImage ? "" : `CID ${cid.slice(0, 10)}…`);
 
-  const snippet = hit?.snippet != null ? String(hit.snippet).trim() : '';
+  const snippet = hit?.snippet != null ? String(hit.snippet).trim() : "";
 
   const badges: string[] = [];
-  const badgeLimit = filterType === 'image' && isImage ? Number.POSITIVE_INFINITY : 6;
+  const badgeLimit =
+    filterType === "image" && isImage ? Number.POSITIVE_INFINITY : 6;
   for (const t of extractedTags) {
     if (badges.length >= badgeLimit) break;
     if (!badges.includes(t)) badges.push(t);
@@ -499,10 +610,10 @@ function mapGatewayHitToResult(
   if (!badges.length && mime && !isImage) badges.push(mime);
 
   return {
-    id: `gw:${gateway.id}:${cid}:${path || ''}`,
+    id: `gw:${gateway.id}:${cid}:${path || ""}`,
     title,
     url: `lumen://ipfs/${cid}${path}`,
-    kind: 'ipfs',
+    kind: "ipfs",
     description: snippet || undefined,
     badges,
     thumbUrl,
@@ -517,20 +628,22 @@ function extractSearchTags(hit: any): string[] {
       ? hit.topics
       : [];
   const tokensObj =
-    hit?.tags_json && hit.tags_json.tokens && typeof hit.tags_json.tokens === 'object'
+    hit?.tags_json &&
+    hit.tags_json.tokens &&
+    typeof hit.tags_json.tokens === "object"
       ? hit.tags_json.tokens
       : null;
 
   const out: string[] = [];
   for (const t of topics) {
-    const v = String(t || '').trim();
+    const v = String(t || "").trim();
     if (v) out.push(v);
   }
 
   if (tokensObj) {
     try {
       const keys = Object.keys(tokensObj)
-        .map((k) => String(k || '').trim())
+        .map((k) => String(k || "").trim())
         .filter(Boolean)
         .slice(0, 10);
       for (const k of keys) {
@@ -544,9 +657,14 @@ function extractSearchTags(hit: any): string[] {
   return out;
 }
 
-async function searchGateways(profileId: string, query: string, type: SearchType, seq: number): Promise<ResultItem[]> {
+async function searchGateways(
+  profileId: string,
+  query: string,
+  type: SearchType,
+  seq: number,
+): Promise<ResultItem[]> {
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.searchPq !== 'function') return [];
+  if (!gwApi || typeof gwApi.searchPq !== "function") return [];
 
   const gateways = await loadGatewaysForSearch(profileId);
   if (seq !== searchSeq) return [];
@@ -559,7 +677,7 @@ async function searchGateways(profileId: string, query: string, type: SearchType
         profileId,
         endpoint: g.endpoint,
         query,
-        lang: 'en',
+        lang: "en",
         limit: 12,
         offset: 0,
         type: wantedType,
@@ -567,7 +685,11 @@ async function searchGateways(profileId: string, query: string, type: SearchType
       .catch(() => null);
     if (!resp || resp.ok === false) return [];
     const data = resp.data || {};
-    const hits = Array.isArray(data.hits) ? data.hits : Array.isArray(data.results) ? data.results : [];
+    const hits = Array.isArray(data.hits)
+      ? data.hits
+      : Array.isArray(data.results)
+        ? data.results
+        : [];
     const out: ResultItem[] = [];
     for (const h of hits) {
       const mapped = mapGatewayHitToResult(h, g, type);
@@ -591,9 +713,13 @@ async function searchGateways(profileId: string, query: string, type: SearchType
   return unique;
 }
 
-async function fetchTagsForCid(profileId: string, cid: string, seq: number): Promise<string[]> {
+async function fetchTagsForCid(
+  profileId: string,
+  cid: string,
+  seq: number,
+): Promise<string[]> {
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.searchPq !== 'function') return [];
+  if (!gwApi || typeof gwApi.searchPq !== "function") return [];
   const gateways = await loadGatewaysForSearch(profileId);
   if (seq !== searchSeq) return [];
   for (const g of gateways) {
@@ -602,15 +728,19 @@ async function fetchTagsForCid(profileId: string, cid: string, seq: number): Pro
         profileId,
         endpoint: g.endpoint,
         query: cid,
-        lang: 'en',
+        lang: "en",
         limit: 1,
         offset: 0,
-        type: '',
+        type: "",
       })
       .catch(() => null);
     if (!resp || resp.ok === false) continue;
     const data = resp.data || {};
-    const hits = Array.isArray(data.hits) ? data.hits : Array.isArray(data.results) ? data.results : [];
+    const hits = Array.isArray(data.hits)
+      ? data.hits
+      : Array.isArray(data.results)
+        ? data.results
+        : [];
     const first = hits[0];
     if (!first) continue;
     const tags = extractSearchTags(first);
@@ -620,7 +750,7 @@ async function fetchTagsForCid(profileId: string, cid: string, seq: number): Pro
 }
 
 function buildFastResults(query: string): ResultItem[] {
-  const s = String(query || '').trim();
+  const s = String(query || "").trim();
   if (!s) return [];
 
   const list: ResultItem[] = [];
@@ -628,54 +758,54 @@ function buildFastResults(query: string): ResultItem[] {
   if (/^lumen:\/\//i.test(s)) {
     list.push({
       id: `link:${s}`,
-      title: 'Open Lumen link',
+      title: "Open Lumen link",
       url: s,
       description: s,
-      kind: 'link'
+      kind: "link",
     });
   }
 
   if (isCidLike(s)) {
     list.push({
       id: `ipfs:${s}`,
-      title: 'IPFS content',
+      title: "IPFS content",
       url: `lumen://ipfs/${s}`,
-      description: 'Open content by CID',
-      kind: 'ipfs',
-      badges: ['IPFS']
+      description: "Open content by CID",
+      kind: "ipfs",
+      badges: ["IPFS"],
     });
   }
 
   if (isTxHash(s)) {
     list.push({
       id: `tx:${s}`,
-      title: 'Transaction',
+      title: "Transaction",
       url: `lumen://explorer/tx/${s}`,
-      description: 'View transaction details',
-      kind: 'tx',
-      badges: ['Explorer']
+      description: "View transaction details",
+      kind: "tx",
+      badges: ["Explorer"],
     });
   }
 
   if (isAddress(s)) {
     list.push({
       id: `addr:${s}`,
-      title: 'Wallet address',
+      title: "Wallet address",
       url: `lumen://explorer/address/${s}`,
-      description: 'View address activity',
-      kind: 'address',
-      badges: ['Explorer']
+      description: "View address activity",
+      kind: "address",
+      badges: ["Explorer"],
     });
   }
 
   if (isBlockHeight(s)) {
     list.push({
       id: `block:${s}`,
-      title: 'Block',
+      title: "Block",
       url: `lumen://explorer/block/${s}`,
-      description: 'View block details',
-      kind: 'block',
-      badges: ['Explorer']
+      description: "View block details",
+      kind: "block",
+      badges: ["Explorer"],
     });
   }
 
@@ -684,14 +814,14 @@ function buildFastResults(query: string): ResultItem[] {
 
 async function runSearch(query: string, type: SearchType) {
   const seq = ++searchSeq;
-  const clean = String(query || '').trim();
+  const clean = String(query || "").trim();
   const runKey = `${type}::${clean}`;
   if (!clean) {
     touched.value = false;
     loading.value = false;
-    errorMsg.value = '';
+    errorMsg.value = "";
     results.value = [];
-    lastRunKey.value = '';
+    lastRunKey.value = "";
     return;
   }
   if (runKey === lastRunKey.value && results.value.length) return;
@@ -699,7 +829,7 @@ async function runSearch(query: string, type: SearchType) {
 
   touched.value = true;
   loading.value = true;
-  errorMsg.value = '';
+  errorMsg.value = "";
   results.value = [];
 
   try {
@@ -708,11 +838,17 @@ async function runSearch(query: string, type: SearchType) {
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      type === 'site' || type === '' ? resolveDomainForQuery(clean) : Promise.resolve(null);
-    const gatewayPromise =
-      profileId ? searchGateways(profileId, clean, type, seq) : Promise.resolve([]);
+      type === "site" || type === ""
+        ? resolveDomainForQuery(clean)
+        : Promise.resolve(null);
+    const gatewayPromise = profileId
+      ? searchGateways(profileId, clean, type, seq)
+      : Promise.resolve([]);
 
-    const [bestDomain, gwResults] = await Promise.all([domainPromise, gatewayPromise]);
+    const [bestDomain, gwResults] = await Promise.all([
+      domainPromise,
+      gatewayPromise,
+    ]);
     if (seq !== searchSeq) return;
 
     let domainTags: string[] = [];
@@ -723,22 +859,24 @@ async function runSearch(query: string, type: SearchType) {
 
     if (bestDomain?.name) {
       const url = `lumen://${bestDomain.name}`;
+      const favicon = bestDomain.cid ? faviconUrlForCid(bestDomain.cid) : null;
       base.push({
         id: `site:${bestDomain.name}`,
         title: bestDomain.name,
         url,
+        thumbUrl: favicon || undefined,
         badges: domainTags.length ? domainTags.slice(0, 6) : [],
-        kind: 'site',
+        kind: "site",
       });
     }
 
-    if (!profileId && (type === 'video' || type === 'image' || type === '')) {
+    if (!profileId && (type === "image" || type === "")) {
       base.push({
         id: `hint:profile`,
-        title: 'Create a profile to enable gateway search',
-        url: 'lumen://home',
-        description: 'Gateway search requires a profile (wallet + signer).',
-        kind: 'link'
+        title: "Create a profile to enable gateway search",
+        url: "lumen://home",
+        description: "Gateway search requires a profile (wallet + signer).",
+        kind: "link",
       });
     }
 
@@ -746,7 +884,7 @@ async function runSearch(query: string, type: SearchType) {
     results.value = merged;
   } catch (e: any) {
     if (seq !== searchSeq) return;
-    errorMsg.value = String(e?.message || e || 'search_failed');
+    errorMsg.value = String(e?.message || e || "search_failed");
     results.value = [];
   } finally {
     if (seq !== searchSeq) return;
@@ -757,17 +895,19 @@ async function runSearch(query: string, type: SearchType) {
 watch(
   () => currentTabUrl?.value,
   (next) => {
-    const url = String(next || '').trim();
+    const url = String(next || "").trim();
     if (!url) return;
     const { q: qs, type } = parseSearchUrl(url);
     if (type !== selectedType.value) selectedType.value = type;
     if (qs !== q.value) q.value = qs;
     runSearch(qs, type);
   },
-  { immediate: true }
+  { immediate: true },
 );
 
-const imageResults = computed(() => results.value.filter((r) => r.media === 'image' || !!r.thumbUrl));
+const imageResults = computed(() =>
+  results.value.filter((r) => r.media === "image" || !!r.thumbUrl),
+);
 </script>
 
 <style scoped>
@@ -776,15 +916,17 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
   flex-direction: column;
   align-items: center;
   width: 100%;
-  min-height: 100vh;
-  overflow: auto;
+  height: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: linear-gradient(180deg, #f8fafb 0%, #f0f4f8 100%);
-  padding: 2rem 1.5rem 3rem;
+  padding: 2rem 1.5rem 5rem;
   position: relative;
 }
 
 .search-page::before {
-  content: '';
+  content: "";
   position: fixed;
   top: -50%;
   left: 50%;
@@ -821,7 +963,7 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
 }
 
 .brand::after {
-  content: 'Search';
+  content: "Search";
   position: absolute;
   bottom: -1.5rem;
   left: 50%;
@@ -849,13 +991,17 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
   border-radius: 999px;
   border: 2px solid transparent;
   background: var(--bg-primary, #ffffff);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.6);
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(226, 232, 240, 0.6);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .search-box:focus-within {
   border-color: var(--primary-a30);
-  box-shadow: 0 12px 32px var(--primary-a15), 0 0 0 4px var(--lime-a10);
+  box-shadow:
+    0 12px 32px var(--primary-a15),
+    0 0 0 4px var(--lime-a10);
   transform: translateY(-2px);
 }
 
@@ -890,7 +1036,7 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
 }
 
 .search-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, var(--lime-a20) 0%, transparent 100%);
@@ -940,7 +1086,14 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.pill:hover {
+.pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pill:hover:not(:disabled) {
   border-color: var(--primary-a40);
   color: var(--text-primary, #1e293b);
   background: rgba(45, 95, 79, 0.04);
@@ -949,16 +1102,23 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
 }
 
 .pill.active {
-  background: linear-gradient(135deg, var(--primary-a15) 0%, var(--primary-a10) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-a15) 0%,
+    var(--primary-a10) 100%
+  );
   border-color: var(--primary-a50);
   color: var(--accent-primary);
   font-weight: 600;
-  box-shadow: 0 4px 12px var(--primary-a15), inset 0 1px 2px var(--lime-a20);
+  box-shadow:
+    0 4px 12px var(--primary-a15),
+    inset 0 1px 2px var(--lime-a20);
 }
 
 .results {
   width: min(920px, 100%);
   margin: 3rem auto 0;
+  padding: 0 0.5rem 0.5rem;
   position: relative;
   z-index: 1;
 }
@@ -1009,7 +1169,7 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
 }
 
 .result-card::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -1027,8 +1187,14 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
 .result-card:hover {
   transform: translateY(-4px) translateX(4px);
   border-color: var(--primary-a30);
-  box-shadow: 0 12px 28px var(--primary-a15), 0 0 0 1px var(--lime-a10);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, var(--primary-a08) 100%);
+  box-shadow:
+    0 12px 28px var(--primary-a15),
+    0 0 0 1px var(--lime-a10);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1) 0%,
+    var(--primary-a08) 100%
+  );
 }
 
 .result-icon {
@@ -1038,7 +1204,11 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-a10) 0%, var(--lime-a10) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-a10) 0%,
+    var(--lime-a10) 100%
+  );
   color: var(--accent-primary);
   flex: 0 0 auto;
   overflow: hidden;
@@ -1193,14 +1363,22 @@ const imageResults = computed(() => results.value.filter((r) => r.media === 'ima
   font-weight: 600;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--primary-a10) 0%, var(--lime-a10) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-a10) 0%,
+    var(--lime-a10) 100%
+  );
   color: var(--accent-primary);
   border: 1px solid var(--primary-a20);
   transition: all 0.2s ease;
 }
 
 .result-card:hover .badge {
-  background: linear-gradient(135deg, var(--primary-a15) 0%, var(--lime-a15) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-a15) 0%,
+    var(--lime-a15) 100%
+  );
   border-color: var(--primary-a30);
   transform: translateY(-1px);
 }

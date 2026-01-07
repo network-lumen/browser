@@ -78,6 +78,7 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.invoke('gateway:getPlansOverview', { profileId, ...(options || {}) }),
     searchPq: (payload) => ipcRenderer.invoke('gateway:searchPq', payload || {}),
     pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
+    unpinCid: (payload) => ipcRenderer.invoke('gateway:unpinCid', payload || {}),
     subscribePlan: (payload) =>
       ipcRenderer.invoke('gateway:subscribePlan', payload || {})
   },

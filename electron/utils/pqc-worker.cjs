@@ -1,27 +1,91 @@
 const { Worker, isMainThread, parentPort } = require('worker_threads');
+const { createHash } = require('crypto');
+
+function leadingZeroBits(digest) {
+  let total = 0;
+  for (let i = 0; i < digest.length; i++) {
+    const byte = digest[i];
+    if (byte === 0) {
+      total += 8;
+      continue;
+    }
+    total += Math.clz32(byte) - 24;
+    return total;
+  }
+  return total;
+}
+
+function computePowNonceFast(publicKey, powBits) {
+  const bits = Number(powBits) || 0;
+  if (bits <= 0) return Buffer.from([0]);
+  if (bits > 256) {
+    throw new Error(`pow difficulty too high: ${bits} > 256`);
+  }
+
+  const pubKeyBuf = Buffer.isBuffer(publicKey)
+    ? publicKey
+    : Buffer.from(publicKey.buffer, publicKey.byteOffset, publicKey.byteLength);
+
+  const base = createHash('sha256');
+  base.update(pubKeyBuf);
+
+  const nonce = Buffer.allocUnsafe(8);
+  let hi = 0;
+  let lo = 0;
+
+  for (;;) {
+    nonce.writeUInt32BE(hi, 0);
+    nonce.writeUInt32BE(lo, 4);
+
+    const digest = base.copy().update(nonce).digest();
+    if (leadingZeroBits(digest) >= bits) {
+      return Buffer.from(nonce);
+    }
+
+    lo = (lo + 1) >>> 0;
+    if (lo === 0) {
+      hi = (hi + 1) >>> 0;
+      if (hi === 0) {
+        throw new Error('pow search exhausted');
+      }
+    }
+  }
+}
 
 if (!isMainThread) {
-  const initPromise = (async () => {
-    const mod = await import('@lumen-chain/sdk');
-    const sdk = (mod && (mod.default || mod)) || mod;
-    const pqc = sdk && sdk.pqc;
-    if (!pqc) {
-      throw new Error('PQC helpers unavailable in worker');
+  let pqcPromise = null;
+  async function loadPqc() {
+    if (!pqcPromise) {
+      pqcPromise = (async () => {
+        const mod = await import('@lumen-chain/sdk');
+        const sdk = (mod && (mod.default || mod)) || mod;
+        const pqc = sdk && sdk.pqc;
+        if (!pqc) {
+          throw new Error('PQC helpers unavailable in worker');
+        }
+        return pqc;
+      })();
     }
-    return pqc;
-  })();
+    return pqcPromise;
+  }
 
   parentPort.on('message', async (msg) => {
     const { id, type } = msg || {};
     if (!id) return;
     try {
-      const pqc = await initPromise;
       if (type === 'createKeyPair') {
+        const pqc = await loadPqc();
         const pair = await pqc.createKeyPair();
         parentPort.postMessage({ id, ok: true, pair });
       } else if (type === 'computePowNonce') {
         const { publicKey, powBits } = msg;
-        const powNonce = pqc.computePowNonce(publicKey, Number(powBits) || 0);
+        let powNonce;
+        try {
+          powNonce = computePowNonceFast(publicKey, powBits);
+        } catch (e) {
+          const pqc = await loadPqc();
+          powNonce = pqc.computePowNonce(publicKey, Number(powBits) || 0);
+        }
         parentPort.postMessage({ id, ok: true, powNonce });
       } else {
         parentPort.postMessage({ id, ok: false, error: 'unknown_job_type' });

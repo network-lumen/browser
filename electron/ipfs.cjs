@@ -191,14 +191,14 @@ function sanitizeRelativePath(p) {
   if (cleaned.length > 500) throw new Error('File path too long');
   const segments = cleaned.split('/').filter(Boolean);
   if (segments.some((s) => s === '.' || s === '..')) throw new Error('Invalid path');
-  return segments.map((seg) => seg.replace(/[:*?"<>|]/g, '_')).join('/');
+  return segments.join('/');
 }
 
 async function ipfsAddDirectory(payload) {
   try {
-    const rootName = sanitizeDirectoryName(payload?.rootName);
     const filesRaw = Array.isArray(payload?.files) ? payload.files : [];
     if (!filesRaw.length) return { ok: false, error: 'no_files' };
+    const rootName = String(payload?.rootName ?? '').trim();
 
     const boundary = '----LumenIPFS' + Date.now();
     const parts = [];
@@ -206,7 +206,7 @@ async function ipfsAddDirectory(payload) {
 
     for (const f of filesRaw) {
       const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
-      const fullName = `${rootName}/${rel}`;
+      const fullName = rel;
       const dataBuf = toBufferPayload(f?.data);
       totalBytes += dataBuf.length;
       if (totalBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
@@ -223,7 +223,6 @@ async function ipfsAddDirectory(payload) {
 
     const url = new URL('http://127.0.0.1:5001/api/v0/add');
     url.searchParams.set('pin', 'true');
-    url.searchParams.set('wrap-with-directory', 'true');
 
     const res = await fetch(url.toString(), {
       method: 'POST',
@@ -254,11 +253,21 @@ async function ipfsAddDirectory(payload) {
     }
 
     const last = entries[entries.length - 1] || null;
-    const rootCid = last?.cid ? String(last.cid) : '';
+    const rootNameFromPaths = (() => {
+      const first = filesRaw[0];
+      const rel = sanitizeRelativePath(first?.path ?? first?.name ?? 'file');
+      const seg = rel.split('/').filter(Boolean)[0] || '';
+      return seg;
+    })();
+    const expectedRoot = rootName || rootNameFromPaths;
+    const rootEntry = expectedRoot
+      ? entries.find((e) => String(e?.name || '') === expectedRoot) || null
+      : null;
+    const rootCid = (rootEntry?.cid ? String(rootEntry.cid) : '') || (last?.cid ? String(last.cid) : '');
     if (!rootCid) return { ok: false, error: 'no_root_cid' };
 
-    console.log('[electron][ipfs] add directory success:', rootCid, 'name:', rootName, 'files:', filesRaw.length);
-    return { ok: true, cid: rootCid, name: rootName, entries };
+    console.log('[electron][ipfs] add directory success:', rootCid, 'name:', expectedRoot || '', 'files:', filesRaw.length);
+    return { ok: true, cid: rootCid, name: expectedRoot || '', entries };
   } catch (e) {
     console.error('[electron][ipfs] add directory error:', e);
     return { ok: false, error: String(e?.message || e) };

@@ -19,6 +19,7 @@ function createSplashWindow() {
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),
+      webviewTag: true,
       webSecurity: false
     }
   });
@@ -73,6 +74,7 @@ function createMainWindow() {
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),
+      webviewTag: true,
       webSecurity: false
     }
   });
