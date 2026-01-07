@@ -523,6 +523,7 @@
               <div class="th th-score">SCORE</div>
               <div class="th th-delegators">DELEGATORS %</div>
               <div class="th th-uptime">UPTIME %</div>
+              <div class="th th-actions">ACTIONS</div>
             </div>
             
             <div class="table-body">
@@ -583,6 +584,20 @@
                 <div class="td td-uptime">
                   <span class="uptime-value">100.00%</span>
                 </div>
+                <div class="td td-actions">
+                  <button 
+                    class="action-btn" 
+                    :disabled="!hasActiveProfile"
+                    @click="openStakeModal(validator, 'Delegate')"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="16"/>
+                      <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                    Manage
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -597,6 +612,158 @@
       </svg>
       <span>{{ copiedText }} copied!</span>
     </div>
+
+    <!-- Stake Management Modal -->
+    <div v-if="showStakeModal" class="modal-overlay" @click="closeStakeModal">
+      <div class="stake-modal" @click.stop>
+        <div class="modal-header">
+          <h3>Manage Stake with {{ selectedValidator?.moniker }}</h3>
+          <button class="close-btn" @click="closeStakeModal">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="balance-info">
+            <div class="balance-item">
+              <span class="balance-label">Staked:</span>
+              <span class="balance-value">{{ stakedBalance }} LMN</span>
+            </div>
+            <div class="balance-item">
+              <span class="balance-label">Balance:</span>
+              <span class="balance-value">{{ availableBalance }} LMN</span>
+            </div>
+          </div>
+
+          <div class="action-tabs">
+            <button 
+              v-for="action in stakeActions" 
+              :key="action"
+              class="tab-btn"
+              :class="{ active: currentStakeAction === action }"
+              @click="currentStakeAction = action as 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'"
+            >
+              {{ action }}
+            </button>
+          </div>
+
+          <div class="stake-form">
+            <div class="form-group">
+              <label>Amount to {{ currentStakeAction.toLowerCase() }}</label>
+              <div class="input-wrapper">
+                <input 
+                  type="number" 
+                  v-model="stakeAmount" 
+                  :placeholder="`0.0`"
+                  class="stake-input"
+                  step="0.000001"
+                  min="0"
+                />
+                <span class="input-suffix">LMN</span>
+              </div>
+              <div class="amount-slider">
+                <input 
+                  type="range" 
+                  v-model="stakePercentage" 
+                  min="0" 
+                  max="100" 
+                  class="slider"
+                />
+                <div class="slider-labels">
+                  <span>0%</span>
+                  <span>50%</span>
+                  <span>Max</span>
+                </div>
+              </div>
+              <div class="quick-amounts">
+                <button @click="setStakePercentage(25)" class="quick-btn">25%</button>
+                <button @click="setStakePercentage(50)" class="quick-btn">50%</button>
+                <button @click="setStakePercentage(75)" class="quick-btn">75%</button>
+                <button @click="setStakePercentage(100)" class="quick-btn">Max</button>
+              </div>
+            </div>
+
+            <div v-if="currentStakeAction === 'Redelegate'" class="form-group">
+              <label>Select New Validator</label>
+              <select v-model="targetValidator" class="validator-select">
+                <option value="">Choose validator...</option>
+                <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
+                  {{ val.moniker }}
+                </option>
+              </select>
+            </div>
+
+            <div class="advanced-options" v-if="showAdvancedOptions">
+              <button class="advanced-toggle" @click="showAdvancedOptions = !showAdvancedOptions">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v6m0 6v6"/>
+                </svg>
+                Advanced Options
+              </button>
+            </div>
+
+            <!-- Transaction Status Popup -->
+            <div v-if="txStatus !== 'idle'" class="tx-status-popup" :class="txStatus">
+              <div class="tx-status-content">
+                <!-- Processing -->
+                <div v-if="txStatus === 'processing'" class="tx-processing">
+                  <div class="tx-spinner"></div>
+                  <div class="tx-status-text">
+                    <strong>Processing Transaction</strong>
+                    <p>{{ txMessage }}</p>
+                  </div>
+                </div>
+
+                <!-- Success -->
+                <div v-else-if="txStatus === 'success'" class="tx-success">
+                  <svg class="tx-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#22c55e" stroke-width="2"/>
+                    <path d="M8 12l3 3 5-5" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="tx-status-text">
+                    <strong>Transaction Successful!</strong>
+                    <p>{{ txMessage }}</p>
+                    <div v-if="txHash" class="tx-hash-display">
+                      <small>Transaction Hash:</small>
+                      <button class="tx-hash-link" @click="viewTransaction(txHash)">
+                        <code>{{ txHash }}</code>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                          <polyline points="15 3 21 3 21 9"/>
+                          <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <button class="tx-close-btn" @click="closeStakeModal">Close</button>
+                </div>
+
+                <!-- Error -->
+                <div v-else-if="txStatus === 'error'" class="tx-error">
+                  <svg class="tx-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#ef4444" stroke-width="2"/>
+                    <path d="M12 8v4m0 4h.01" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <div class="tx-status-text">
+                    <strong>Transaction Failed</strong>
+                    <p>{{ txMessage }}</p>
+                  </div>
+                  <button class="tx-retry-btn" @click="txStatus = 'idle'">Try Again</button>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              class="confirm-btn" 
+              @click="confirmStakeAction" 
+              :disabled="!canConfirm || isProcessingTx"
+            >
+              <span v-if="!isProcessingTx">Confirm {{ currentStakeAction }}</span>
+              <span v-else>Processing...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     </template>
   </div>
 </template>
@@ -606,10 +773,17 @@ import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
+import { profilesState, activeProfileId } from '../profilesStore';
 
 const lumen = (window as any).lumen;
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 const currentTabUrl = inject<any>('currentTabUrl', null);
+
+const activeProfile = computed(() => {
+  if (!activeProfileId.value) return null;
+  return profilesState.value.find((p) => p.id === activeProfileId.value) || null;
+});
+const hasActiveProfile = computed(() => !!activeProfile.value && activeProfile.value.role !== 'guest');
 
 const isBlockDetailView = computed(() => {
   const url = currentTabUrl?.value || window.location.href;
@@ -709,6 +883,22 @@ const transactions = ref<Transaction[]>([]);
 const validators = ref<Validator[]>([]);
 const avatarCache = ref<Record<string, string>>({});
 const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
+
+// Stake modal state
+const showStakeModal = ref(false);
+const selectedValidator = ref<Validator | null>(null);
+const currentStakeAction = ref<'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'>('Delegate');
+const stakeActions = ['Delegate', 'Undelegate', 'Redelegate', 'Withdraw'];
+const stakeAmount = ref('0.0');
+const stakePercentage = ref(0);
+const targetValidator = ref('');
+const showAdvancedOptions = ref(false);
+const stakedBalance = ref('0.000 LMN');
+const availableBalance = ref('0.000 LMN');
+const isProcessingTx = ref(false);
+const txMessage = ref('');
+const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
+const txHash = ref('');
 
 const bondedTokens = ref(114760000);
 const unbondedTokens = ref(385240000);
@@ -1134,6 +1324,255 @@ function getScoreClass(index: number): string {
 function manageValidator(validator: Validator) {
   console.log('Manage validator:', validator);
 }
+
+// Stake modal functions
+function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
+  if (!hasActiveProfile.value) {
+    alert('Please create or select a wallet profile first');
+    return;
+  }
+
+  selectedValidator.value = validator;
+  currentStakeAction.value = action;
+  stakeAmount.value = '0.0';
+  stakePercentage.value = 0;
+  targetValidator.value = '';
+  showAdvancedOptions.value = false;
+  showStakeModal.value = true;
+  
+  // Fetch actual balance from profile
+  fetchStakeBalances(validator.address);
+}
+
+async function fetchStakeBalances(validatorAddress: string) {
+  if (!activeProfile.value) {
+    console.log('No active profile');
+    return;
+  }
+
+  const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
+  console.log('Fetching balances for profile:', activeProfile.value);
+  console.log('Profile address:', profileAddress);
+
+  try {
+    const anyWindow = window as any;
+    const walletApi = anyWindow?.lumen?.wallet;
+    
+    if (!walletApi) {
+      console.error('Wallet API not available');
+      availableBalance.value = '0.000000';
+      stakedBalance.value = '0.000000';
+      return;
+    }
+
+    // Fetch available balance using same method as WalletPage
+    if (typeof walletApi.getBalance === 'function' && profileAddress) {
+      try {
+        const res = await walletApi.getBalance(profileAddress, { denom: 'ulmn' });
+        console.log('Balance response:', res);
+        
+        if (res && res.ok !== false) {
+          const amt = Number(res.balance?.amount ?? '0') || 0;
+          availableBalance.value = (amt / 1_000_000).toFixed(6);
+          console.log('Available balance (LMN):', availableBalance.value);
+        } else {
+          console.error('Balance error:', res?.error);
+          availableBalance.value = '0.000000';
+        }
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        availableBalance.value = '0.000000';
+      }
+    } else {
+      availableBalance.value = '0.000000';
+    }
+
+    // Fetch delegations
+    if (typeof walletApi.getDelegations === 'function' && profileAddress) {
+      try {
+        const delegations = await walletApi.getDelegations(profileAddress);
+        console.log('Delegations response:', delegations);
+        
+        if (delegations && delegations.ok !== false && Array.isArray(delegations.delegations)) {
+          const delegation = delegations.delegations.find((d: any) => 
+            d.delegation?.validator_address === validatorAddress
+          );
+          
+          if (delegation?.balance?.amount) {
+            const amt = Number(delegation.balance.amount) || 0;
+            stakedBalance.value = (amt / 1_000_000).toFixed(6);
+            console.log('Staked balance (LMN):', stakedBalance.value);
+          } else {
+            stakedBalance.value = '0.000000';
+          }
+        } else {
+          stakedBalance.value = '0.000000';
+        }
+      } catch (error) {
+        console.error('Error fetching delegations:', error);
+        stakedBalance.value = '0.000000';
+      }
+    } else {
+      stakedBalance.value = '0.000000';
+    }
+    
+  } catch (error) {
+    console.error('Failed to fetch balances:', error);
+    availableBalance.value = '0.000000';
+    stakedBalance.value = '0.000000';
+  }
+}
+
+function closeStakeModal() {
+  showStakeModal.value = false;
+  selectedValidator.value = null;
+  txStatus.value = 'idle';
+  txMessage.value = '';
+  txHash.value = '';
+  isProcessingTx.value = false;
+}
+
+function viewTransaction(hash: string) {
+  if (!hash) return;
+  closeStakeModal();
+  navigateToTransaction(hash);
+}
+
+function setStakePercentage(percentage: number) {
+  stakePercentage.value = percentage;
+  const maxAmount = currentStakeAction.value === 'Delegate' ? parseFloat(availableBalance.value) : parseFloat(stakedBalance.value);
+  const amount = (maxAmount * percentage / 100).toFixed(6);
+  stakeAmount.value = amount;
+}
+
+const canConfirm = computed(() => {
+  if (!stakeAmount.value || parseFloat(stakeAmount.value) <= 0) return false;
+  if (currentStakeAction.value === 'Redelegate' && !targetValidator.value) return false;
+  if (!hasActiveProfile.value) return false;
+  return true;
+});
+
+async function confirmStakeAction() {
+  if (!canConfirm.value || !activeProfile.value || !selectedValidator.value) return;
+  
+  const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
+  const profileId = activeProfile.value.id;
+  
+  if (!profileAddress) {
+    txStatus.value = 'error';
+    txMessage.value = 'No wallet address found';
+    return;
+  }
+  
+  if (!profileId) {
+    txStatus.value = 'error';
+    txMessage.value = 'No profile ID found';
+    return;
+  }
+  
+  const amountInUlmn = Math.floor(parseFloat(stakeAmount.value) * 1_000_000).toString();
+  
+  // Start processing
+  isProcessingTx.value = true;
+  txStatus.value = 'processing';
+  txMessage.value = `Processing ${currentStakeAction.value.toLowerCase()}...`;
+  txHash.value = '';
+  
+  try {
+    const anyWindow = window as any;
+    const walletApi = anyWindow?.lumen?.wallet;
+    
+    if (!walletApi) {
+      throw new Error('Wallet API not available');
+    }
+    
+    let result;
+    
+    console.log(`Executing ${currentStakeAction.value}...`);
+    console.log('Profile ID:', profileId);
+    console.log('Address:', profileAddress);
+    console.log('Validator:', selectedValidator.value.address);
+    console.log('Amount (ulmn):', amountInUlmn);
+    
+    switch (currentStakeAction.value) {
+      case 'Delegate':
+        if (typeof walletApi.delegate === 'function') {
+          result = await walletApi.delegate({
+            profileId: profileId,
+            address: profileAddress,
+            validatorAddress: selectedValidator.value.address,
+            amount: { amount: amountInUlmn, denom: 'ulmn' }
+          });
+        } else {
+          throw new Error('Delegate function not available');
+        }
+        break;
+        
+      case 'Undelegate':
+        if (typeof walletApi.undelegate === 'function') {
+          result = await walletApi.undelegate({
+            profileId: profileId,
+            address: profileAddress,
+            validatorAddress: selectedValidator.value.address,
+            amount: { amount: amountInUlmn, denom: 'ulmn' }
+          });
+        } else {
+          throw new Error('Undelegate function not available');
+        }
+        break;
+        
+      case 'Redelegate':
+        if (typeof walletApi.redelegate === 'function' && targetValidator.value) {
+          result = await walletApi.redelegate({
+            profileId: profileId,
+            address: profileAddress,
+            validatorSrcAddress: selectedValidator.value.address,
+            validatorDstAddress: targetValidator.value,
+            amount: { amount: amountInUlmn, denom: 'ulmn' }
+          });
+        } else {
+          throw new Error('Redelegate function not available');
+        }
+        break;
+        
+      case 'Withdraw':
+        if (typeof walletApi.withdrawRewards === 'function') {
+          result = await walletApi.withdrawRewards({
+            profileId: profileId,
+            address: profileAddress,
+            validatorAddress: selectedValidator.value.address
+          });
+        } else {
+          throw new Error('WithdrawRewards function not available');
+        }
+        break;
+    }
+    
+    console.log('Transaction result:', result);
+    
+    if (result && result.ok !== false) {
+      txStatus.value = 'success';
+      txHash.value = result.txhash || result.txHash || '';
+      txMessage.value = `${currentStakeAction.value} successful!`;
+      
+      // Refresh validators in background
+      fetchValidators();
+    } else {
+      throw new Error(result?.error || 'Transaction failed');
+    }
+  } catch (error: any) {
+    console.error(`${currentStakeAction.value} failed:`, error);
+    txStatus.value = 'error';
+    const errorMsg = error?.message || error?.toString() || 'Unknown error';
+    txMessage.value = errorMsg;
+  } finally {
+    isProcessingTx.value = false;
+  }
+}
+
+watch(stakePercentage, (newVal) => {
+  setStakePercentage(newVal);
+});
 
 function copyToClipboard(text: string, label: string = 'Text') {
   navigator.clipboard.writeText(text).then(() => {
@@ -2792,8 +3231,8 @@ watch(txTimeFilter, () => {
 
 .table-header {
   display: grid;
-  grid-template-columns: 40px 260px 200px 110px 150px 100px 100px 120px 100px;
-  gap: 1.25rem;
+  grid-template-columns: 50px 220px 200px 120px 160px 100px 90px 110px 110px 120px;
+  gap: 1rem;
   padding: 1.25rem 1.75rem;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
@@ -2811,8 +3250,8 @@ watch(txTimeFilter, () => {
 
 .table-row {
   display: grid;
-  grid-template-columns: 40px 260px 200px 110px 150px 100px 100px 120px 100px;
-  gap: 1.25rem;
+  grid-template-columns: 50px 220px 200px 120px 160px 100px 90px 110px 110px 120px;
+  gap: 1rem;
   padding: 1.25rem 1.75rem;
   border-bottom: 1px solid var(--border-color);
   transition: all 0.2s ease;
@@ -2999,6 +3438,42 @@ watch(txTimeFilter, () => {
   font-size: 0.875rem;
 }
 
+.td-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--text-tertiary);
+}
+
+.action-btn svg {
+  flex-shrink: 0;
+}
+
 .copy-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -3052,6 +3527,524 @@ watch(txTimeFilter, () => {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Stake Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.stake-modal {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.balance-info {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.balance-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.balance-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.balance-value {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.action-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.25rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+.stake-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.stake-input {
+  width: 100%;
+  padding: 0.75rem 4rem 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.stake-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a08);
+}
+
+.input-suffix {
+  position: absolute;
+  right: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.amount-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-color);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  cursor: pointer;
+  border: none;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+.quick-amounts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.quick-btn {
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background: var(--primary-a08);
+}
+
+.validator-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.validator-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a08);
+}
+
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advanced-toggle:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Transaction Status Popup */
+.tx-status-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  z-index: 10001;
+  min-width: 400px;
+  max-width: 90vw;
+  animation: popupFadeIn 0.3s ease;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.tx-status-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.tx-processing,
+.tx-success,
+.tx-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.tx-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: txSpin 0.8s linear infinite;
+}
+
+@keyframes txSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tx-icon {
+  flex-shrink: 0;
+  animation: iconBounce 0.5s ease;
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.tx-status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tx-status-text strong {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.tx-status-text p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 320px;
+  word-wrap: break-word;
+}
+
+.tx-hash-display {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.tx-hash-display small {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tx-hash-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.tx-hash-link:hover {
+  background: var(--primary-a08);
+  border-color: var(--accent-primary);
+  transform: translateX(2px);
+}
+
+.tx-hash-link code {
+  flex: 1;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  word-break: break-all;
+  font-weight: 600;
+}
+
+.tx-hash-link svg {
+  flex-shrink: 0;
+  color: var(--accent-primary);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.tx-hash-link:hover svg {
+  opacity: 1;
+}
+
+.tx-close-btn {
+  margin-top: 1rem;
+  padding: 0.625rem 2rem;
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tx-close-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.tx-retry-btn {
+  margin-top: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tx-retry-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.tx-status-popup.processing {
+  border: 2px solid var(--accent-primary);
+}
+
+.tx-status-popup.success {
+  border: 2px solid #22c55e;
+}
+
+.tx-status-popup.error {
+  border: 2px solid #ef4444;
 }
 
 @media (max-width: 768px) {

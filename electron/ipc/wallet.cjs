@@ -784,6 +784,275 @@ function registerWalletIpc() {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
+
+  // Staking operations
+  ipcMain.handle('wallet:delegate', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const validatorAddress = String(input && input.validatorAddress ? input.validatorAddress : '').trim();
+      const amount = input && input.amount ? input.amount : null;
+      
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !validatorAddress || !amount) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+
+      const mnemonic = loadMnemonic(profileId);
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const rpcBase = getRpcBaseUrl();
+      const restBase = getRestBaseUrl();
+      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
+
+      const endpoints = {
+        rpc: rpcBase,
+        rest: restBase || rpcBase,
+        rpcEndpoint: rpcBase,
+        restEndpoint: restBase || rpcBase
+      };
+
+      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      const { MsgDelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+      
+      const msg = {
+        typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+        value: MsgDelegate.fromPartial({
+          delegatorAddress: address,
+          validatorAddress: validatorAddress,
+          amount: amount
+        })
+      };
+
+      const zeroFee =
+        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+        (mod.utils && mod.utils.zeroFee) ||
+        (() => ({ amount: [], gas: '300000' }));
+
+      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+      
+      if (res.code !== 0) {
+        throw new Error(res.rawLog || `delegate failed (code ${res.code})`);
+      }
+      const txhash = res.transactionHash || res.hash || '';
+      return { ok: true, txhash };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:undelegate', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const validatorAddress = String(input && input.validatorAddress ? input.validatorAddress : '').trim();
+      const amount = input && input.amount ? input.amount : null;
+      
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !validatorAddress || !amount) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+
+      const mnemonic = loadMnemonic(profileId);
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const rpcBase = getRpcBaseUrl();
+      const restBase = getRestBaseUrl();
+      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
+
+      const endpoints = {
+        rpc: rpcBase,
+        rest: restBase || rpcBase,
+        rpcEndpoint: rpcBase,
+        restEndpoint: restBase || rpcBase
+      };
+
+      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      const { MsgUndelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+      
+      const msg = {
+        typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
+        value: MsgUndelegate.fromPartial({
+          delegatorAddress: address,
+          validatorAddress: validatorAddress,
+          amount: amount
+        })
+      };
+
+      const zeroFee =
+        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+        (mod.utils && mod.utils.zeroFee) ||
+        (() => ({ amount: [], gas: '300000' }));
+
+      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+      
+      if (res.code !== 0) {
+        throw new Error(res.rawLog || `undelegate failed (code ${res.code})`);
+      }
+      const txhash = res.transactionHash || res.hash || '';
+      return { ok: true, txhash };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:redelegate', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const validatorSrcAddress = String(input && input.validatorSrcAddress ? input.validatorSrcAddress : '').trim();
+      const validatorDstAddress = String(input && input.validatorDstAddress ? input.validatorDstAddress : '').trim();
+      const amount = input && input.amount ? input.amount : null;
+      
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !validatorSrcAddress || !validatorDstAddress || !amount) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+
+      const mnemonic = loadMnemonic(profileId);
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const rpcBase = getRpcBaseUrl();
+      const restBase = getRestBaseUrl();
+      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
+
+      const endpoints = {
+        rpc: rpcBase,
+        rest: restBase || rpcBase,
+        rpcEndpoint: rpcBase,
+        restEndpoint: restBase || rpcBase
+      };
+
+      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      const { MsgBeginRedelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+      
+      const msg = {
+        typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
+        value: MsgBeginRedelegate.fromPartial({
+          delegatorAddress: address,
+          validatorSrcAddress: validatorSrcAddress,
+          validatorDstAddress: validatorDstAddress,
+          amount: amount
+        })
+      };
+
+      const zeroFee =
+        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+        (mod.utils && mod.utils.zeroFee) ||
+        (() => ({ amount: [], gas: '300000' }));
+
+      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+      
+      if (res.code !== 0) {
+        throw new Error(res.rawLog || `redelegate failed (code ${res.code})`);
+      }
+      const txhash = res.transactionHash || res.hash || '';
+      return { ok: true, txhash };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:withdrawRewards', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const validatorAddress = String(input && input.validatorAddress ? input.validatorAddress : '').trim();
+      
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !validatorAddress) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+
+      const mnemonic = loadMnemonic(profileId);
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const rpcBase = getRpcBaseUrl();
+      const restBase = getRestBaseUrl();
+      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
+
+      const endpoints = {
+        rpc: rpcBase,
+        rest: restBase || rpcBase,
+        rpcEndpoint: rpcBase,
+        restEndpoint: restBase || rpcBase
+      };
+
+      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      const { MsgWithdrawDelegatorReward } = await import('cosmjs-types/cosmos/distribution/v1beta1/tx.js');
+      
+      const msg = {
+        typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+        value: MsgWithdrawDelegatorReward.fromPartial({
+          delegatorAddress: address,
+          validatorAddress: validatorAddress
+        })
+      };
+
+      const zeroFee =
+        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+        (mod.utils && mod.utils.zeroFee) ||
+        (() => ({ amount: [], gas: '300000' }));
+
+      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+      
+      if (res.code !== 0) {
+        throw new Error(res.rawLog || `withdraw rewards failed (code ${res.code})`);
+      }
+      const txhash = res.transactionHash || res.hash || '';
+      return { ok: true, txhash };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
 }
 
 module.exports = {

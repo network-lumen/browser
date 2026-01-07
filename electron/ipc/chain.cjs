@@ -459,6 +459,33 @@ async function walletListSendTxs(input) {
   return { ok: true, items: out };
 }
 
+// ---------------- Staking functions ----------------
+async function walletGetDelegations(input) {
+  const address = String(input && input.address ? input.address : '').trim();
+  if (!address) {
+    return { ok: false, error: 'missing address' };
+  }
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const base = trimSlash(restBase);
+  const url = `${base}/cosmos/staking/v1beta1/delegations/${encodeURIComponent(address)}`;
+
+  try {
+    const res = await httpGet(url, { timeout: 10000 });
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: 'delegations query failed' };
+    }
+    const delegations = Array.isArray(res.json && res.json.delegation_responses)
+      ? res.json.delegation_responses
+      : [];
+    return { ok: true, delegations };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+}
+
 // ---------------- DNS helpers (pricing) ----------------
 const TIER_BPS_DENOM = 10_000n;
 const SDK_DEC_PRECISION = 1_000_000_000_000_000_000n; // 1e18
@@ -803,6 +830,14 @@ function registerChainIpc() {
   ipcMain.handle('wallet:listSendTxs', async (_evt, input) => {
     try {
       return await walletListSendTxs(input || {});
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getDelegations', async (_evt, input) => {
+    try {
+      return await walletGetDelegations(input || {});
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
