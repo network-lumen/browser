@@ -75,6 +75,15 @@
           >
           <span v-else-if="!loading && !results.length">No results</span>
         </div>
+        <button
+          class="debug-toggle txt-xs"
+          type="button"
+          @click="toggleDebugMode"
+          :title="debugMode ? 'Disable debug' : 'Enable debug'"
+        >
+          <Bug :size="14" />
+          Debug
+        </button>
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
@@ -150,11 +159,45 @@
                 }}</span>
               </div>
             </div>
+            <span
+              v-if="debugMode && canDebugResult(r)"
+              class="debug-btn"
+              role="button"
+              tabindex="0"
+              title="Show raw JSON"
+              @click.stop.prevent="openDebugForResult(r)"
+              @keydown.enter.stop.prevent="openDebugForResult(r)"
+            >
+              <Bug :size="16" />
+            </span>
             <ArrowUpRight :size="18" class="result-open" />
           </button>
         </li>
       </ul>
     </section>
+
+    <div
+      v-if="debugOpen"
+      class="debug-modal"
+      role="dialog"
+      aria-modal="true"
+      @click.self="closeDebug"
+    >
+      <div class="debug-panel">
+        <div class="debug-head">
+          <div class="debug-title mono">{{ debugTitle }}</div>
+          <div class="debug-actions">
+            <button class="debug-action" type="button" @click="copyDebug">
+              Copy
+            </button>
+            <button class="debug-action" type="button" @click="closeDebug">
+              Close
+            </button>
+          </div>
+        </div>
+        <pre class="debug-pre mono">{{ debugText }}</pre>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -162,6 +205,7 @@
 import { computed, inject, onMounted, ref, watch } from "vue";
 import {
   ArrowUpRight,
+  Bug,
   Compass,
   Film,
   Globe,
@@ -184,6 +228,7 @@ type ResultItem = {
   badges?: string[];
   thumbUrl?: string;
   media?: "image" | "video" | "audio" | "unknown";
+  score?: number;
 };
 
 type GatewayView = {
@@ -209,6 +254,12 @@ const errorMsg = ref("");
 const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
 
+const debugMode = ref(false);
+const debugOpen = ref(false);
+const debugTitle = ref("");
+const debugText = ref("");
+const debugByDomain = ref<Record<string, any>>({});
+
 const lastRunKey = ref("");
 let searchSeq = 0;
 
@@ -223,7 +274,23 @@ function focusInput() {
 
 onMounted(() => {
   setTimeout(focusInput, 60);
+
+  try {
+    const saved = localStorage.getItem("lumen-search-debug") || "";
+    debugMode.value = saved === "1";
+  } catch {
+    debugMode.value = false;
+  }
 });
+
+function toggleDebugMode() {
+  debugMode.value = !debugMode.value;
+  try {
+    localStorage.setItem("lumen-search-debug", debugMode.value ? "1" : "0");
+  } catch {
+    // ignore
+  }
+}
 
 function iconFor(kind: ResultKind, media?: ResultItem["media"]) {
   switch (kind) {
@@ -351,6 +418,15 @@ function buildDomainCandidates(query: string): string[] {
 
   const cands = new Set<string>();
 
+  // Common UX: allow searching for DNS sites with slugs (e.g. "test-domain" -> "test-domain.lmn").
+  if (
+    !value.includes(" ") &&
+    !value.includes(".") &&
+    /^[a-z0-9-]{2,}$/i.test(value)
+  ) {
+    cands.add(`${value}.lmn`);
+  }
+
   if (!value.includes(" ") && value.includes(".")) {
     cands.add(value);
   }
@@ -420,41 +496,66 @@ function findCidFromDomainInfo(info: any): string | null {
   if (direct && isCidLike(direct)) return direct;
 
   const records = Array.isArray(info?.records) ? info.records : [];
-  const rec = records.find(
-    (r: any) => String(r?.key || "").toLowerCase() === "cid",
-  );
-  const value = String(rec?.value ?? "").trim();
-  if (!value) return null;
 
-  const lower = value.toLowerCase();
-  if (lower.startsWith("ipfs://")) {
-    const id = value
-      .slice("ipfs://".length)
-      .replace(/^\/+/, "")
-      .split(/[/?#]/, 1)[0];
-    return id && isCidLike(id) ? id : null;
-  }
-  if (lower.startsWith("lumen://ipfs/")) {
-    const id = value
-      .slice("lumen://ipfs/".length)
-      .replace(/^\/+/, "")
-      .split(/[/?#]/, 1)[0];
-    return id && isCidLike(id) ? id : null;
+  function parseCidFromRecordValue(rawValue: any): string | null {
+    const value = String(rawValue ?? "").trim();
+    if (!value) return null;
+
+    const lower = value.toLowerCase();
+    if (lower.startsWith("ipfs://")) {
+      const id = value
+        .slice("ipfs://".length)
+        .replace(/^\/+/, "")
+        .split(/[/?#]/, 1)[0];
+      return id && isCidLike(id) ? id : null;
+    }
+    if (lower.startsWith("lumen://ipfs/")) {
+      const id = value
+        .slice("lumen://ipfs/".length)
+        .replace(/^\/+/, "")
+        .split(/[/?#]/, 1)[0];
+      return id && isCidLike(id) ? id : null;
+    }
+
+    return isCidLike(value) ? value : null;
   }
 
-  return isCidLike(value) ? value : null;
+  const preferredKeys = ["cid", "site", "root", "ipfs", "website"];
+  for (const key of preferredKeys) {
+    const rec = records.find(
+      (r: any) => String(r?.key || "").toLowerCase() === key,
+    );
+    const cid = rec ? parseCidFromRecordValue(rec.value) : null;
+    if (cid) return cid;
+  }
+
+  return null;
 }
 
 async function resolveDomainForQuery(
   query: string,
-): Promise<{ name: string; cid: string | null; score: number } | null> {
+): Promise<{
+  name: string;
+  cid: string | null;
+  score: number;
+  candidates: string[];
+  infoRes: any;
+} | null> {
   const dnsApi = (window as any).lumen?.dns;
   if (!dnsApi || typeof dnsApi.getDomainInfo !== "function") return null;
 
   const cands = buildDomainCandidates(query);
   if (!cands.length) return null;
 
-  let best: { name: string; cid: string | null; score: number } | null = null;
+  let best:
+    | {
+        name: string;
+        cid: string | null;
+        score: number;
+        candidates: string[];
+        infoRes: any;
+      }
+    | null = null;
 
   for (const name of cands) {
     let infoRes: any;
@@ -485,7 +586,7 @@ async function resolveDomainForQuery(
       score > best.score ||
       (score === best.score && !!cid && !best.cid)
     ) {
-      best = { name, cid, score };
+      best = { name, cid, score, candidates: cands.slice(), infoRes };
     }
   }
 
@@ -548,6 +649,16 @@ type GatewaySearchHit = {
   tags_json?: any;
   topics?: any;
   snippet?: string;
+};
+
+type GatewaySiteSearchResult = {
+  type?: string;
+  domain?: string;
+  rootDomain?: string;
+  cid?: string;
+  wallet?: string;
+  score?: number;
+  tags?: any;
 };
 
 const LOCAL_IPFS_GATEWAY = "http://127.0.0.1:8088";
@@ -657,6 +768,163 @@ function extractSearchTags(hit: any): string[] {
   return out;
 }
 
+function extractSiteTags(site: any): string[] {
+  const tagsRaw = site?.tags;
+  const list = Array.isArray(tagsRaw)
+    ? tagsRaw
+    : typeof tagsRaw === "string"
+      ? tagsRaw.split(/[,;\n]/g)
+      : [];
+
+  const out: string[] = [];
+  for (const t of list) {
+    const v = String(t || "").trim();
+    if (v && !out.includes(v)) out.push(v);
+  }
+  return out;
+}
+
+function domainKeyFromUrl(url: string): string | null {
+  const raw = String(url || "").trim();
+  if (!/^lumen:\/\//i.test(raw)) return null;
+  const without = raw.slice("lumen://".length);
+  const host = (without.split(/[\/?#]/, 1)[0] || "").trim().toLowerCase();
+  if (!host || host === "search") return null;
+  return host;
+}
+
+function canDebugResult(r: ResultItem): boolean {
+  if (!r || r.kind !== "site") return false;
+  const domain = domainKeyFromUrl(r.url);
+  if (!domain) return false;
+  return !!debugByDomain.value[domain];
+}
+
+function openDebugForResult(r: ResultItem) {
+  const domain = domainKeyFromUrl(r.url);
+  const payload = domain ? debugByDomain.value[domain] : null;
+  debugTitle.value = domain || r.url || r.id;
+  try {
+    debugText.value = JSON.stringify(payload ?? null, null, 2);
+  } catch {
+    debugText.value = String(payload ?? "");
+  }
+  debugOpen.value = true;
+}
+
+function closeDebug() {
+  debugOpen.value = false;
+}
+
+async function copyDebug() {
+  try {
+    await navigator.clipboard.writeText(debugText.value || "");
+  } catch {
+    // ignore
+  }
+}
+
+function isExactDomainMatch(query: string, domain: string): boolean {
+  const q = String(query || "").trim().toLowerCase();
+  const d = String(domain || "").trim().toLowerCase();
+  if (!q || !d) return false;
+  if (q === d) return true;
+  if (q + ".lmn" === d) return true;
+  if (d.endsWith(".lmn") && d.slice(0, -".lmn".length) === q) return true;
+  return false;
+}
+
+function clamp01(value: any): number {
+  const v = Number(value);
+  if (!Number.isFinite(v)) return 0;
+  if (v <= 0) return 0;
+  if (v >= 1) return 1;
+  return v;
+}
+
+function mergeBadges(a: string[] = [], b: string[] = [], limit = 20): string[] {
+  const out: string[] = [];
+  for (const list of [a, b]) {
+    for (const t of list || []) {
+      const v = String(t || "").trim();
+      if (!v) continue;
+      if (out.includes(v)) continue;
+      out.push(v);
+      if (out.length >= limit) return out;
+    }
+  }
+  return out;
+}
+
+function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
+  const byDomain = new Map<
+    string,
+    {
+      domain: string;
+      result: ResultItem;
+      gwScore: number;
+    }
+  >();
+
+  for (const r of items) {
+    if (!r || r.kind !== "site") continue;
+    const domain = domainKeyFromUrl(r.url);
+    if (!domain) continue;
+
+    const gwScore = Number.isFinite(Number(r.score)) ? Number(r.score) : 0;
+    const existing = byDomain.get(domain);
+    if (!existing) {
+      byDomain.set(domain, {
+        domain,
+        result: {
+          ...r,
+          title: r.title || domain,
+          url: r.url || `lumen://${domain}`,
+          badges: Array.isArray(r.badges) ? r.badges.slice(0, 20) : [],
+        },
+        gwScore,
+      });
+      continue;
+    }
+
+    existing.gwScore = Math.max(existing.gwScore, gwScore);
+    existing.result.thumbUrl = existing.result.thumbUrl || r.thumbUrl;
+    existing.result.badges = mergeBadges(
+      existing.result.badges || [],
+      r.badges || [],
+      20,
+    );
+  }
+
+  const merged = Array.from(byDomain.values()).map((x) => {
+    const dnsScore = clamp01(scoreDomainMatch(query, x.domain));
+    const exactBoost = isExactDomainMatch(query, x.domain) ? 0.2 : 0;
+    const finalScore = clamp01(0.75 * x.gwScore + 0.25 * dnsScore + exactBoost);
+    x.result.score = finalScore;
+    return x.result;
+  });
+
+  merged.sort((a, b) => {
+    const da = domainKeyFromUrl(a.url) || "";
+    const db = domainKeyFromUrl(b.url) || "";
+    const aExact = isExactDomainMatch(query, da) ? 1 : 0;
+    const bExact = isExactDomainMatch(query, db) ? 1 : 0;
+    if (aExact !== bExact) return bExact - aExact;
+
+    const as = Number.isFinite(Number(a.score)) ? Number(a.score) : 0;
+    const bs = Number.isFinite(Number(b.score)) ? Number(b.score) : 0;
+    if (bs !== as) return bs - as;
+
+    const at = (a.badges || []).length;
+    const bt = (b.badges || []).length;
+    if (bt !== at) return bt - at;
+
+    return da.localeCompare(db);
+  });
+
+  return merged;
+}
+
 async function searchGateways(
   profileId: string,
   query: string,
@@ -685,12 +953,65 @@ async function searchGateways(
       .catch(() => null);
     if (!resp || resp.ok === false) return [];
     const data = resp.data || {};
-    const hits = Array.isArray(data.hits)
+    const out: ResultItem[] = [];
+
+    // Site mode: gateway returns `results` with `{ type: 'site', domain, cid, score, tags? }`.
+    const siteResults: GatewaySiteSearchResult[] = Array.isArray(data.results)
+      ? data.results
+      : [];
+    const sites = siteResults.filter((s) => {
+      const t = String(s?.type || "").trim().toLowerCase();
+      const domain = String(s?.domain || "").trim();
+      return t === "site" && !!domain;
+    });
+
+    if (wantedType === "site" && sites.length > 0) {
+      for (const s of sites) {
+        const domain = String(s.domain || "").trim();
+        if (!domain) continue;
+        const cid = String(s?.cid || "").trim();
+        const tags = extractSiteTags(s);
+
+        const id = `site:${g.id}:${domain}`;
+        out.push({
+          id,
+          title: domain,
+          url: `lumen://${domain}`,
+          kind: "site",
+          badges: tags.length ? tags.slice(0, 20) : [],
+          thumbUrl: cid ? faviconUrlForCid(cid) || undefined : undefined,
+          score: Number.isFinite(Number(s?.score)) ? Number(s.score) : 0,
+        });
+
+        const key = domain.toLowerCase();
+        const prev = debugByDomain.value[key] || { domain: key, sources: [] };
+        const next = {
+          ...prev,
+          sources: [
+            ...(Array.isArray(prev.sources) ? prev.sources : []),
+            {
+              source: "gateway",
+              gateway: { id: g.id, endpoint: g.endpoint, regions: g.regions },
+              response: {
+                ok: true,
+                status: resp?.status,
+                baseUrl: resp?.baseUrl,
+              },
+              site: s,
+            },
+          ],
+        };
+        debugByDomain.value = { ...debugByDomain.value, [key]: next };
+      }
+      return out;
+    }
+
+    const hits: GatewaySearchHit[] = Array.isArray(data.hits)
       ? data.hits
       : Array.isArray(data.results)
         ? data.results
         : [];
-    const out: ResultItem[] = [];
+
     for (const h of hits) {
       const mapped = mapGatewayHitToResult(h, g, type);
       if (mapped) out.push(mapped);
@@ -717,11 +1038,12 @@ async function fetchTagsForCid(
   profileId: string,
   cid: string,
   seq: number,
-): Promise<string[]> {
+): Promise<{ tags: string[]; debug: any }> {
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.searchPq !== "function") return [];
+  if (!gwApi || typeof gwApi.searchPq !== "function") return { tags: [], debug: { error: "gateway_api_missing" } };
   const gateways = await loadGatewaysForSearch(profileId);
-  if (seq !== searchSeq) return [];
+  if (seq !== searchSeq) return { tags: [], debug: { canceled: true } };
+  const attempts: any[] = [];
   for (const g of gateways) {
     const resp = await gwApi
       .searchPq({
@@ -734,6 +1056,16 @@ async function fetchTagsForCid(
         type: "",
       })
       .catch(() => null);
+    attempts.push({
+      gateway: { id: g.id, endpoint: g.endpoint, regions: g.regions },
+      ok: !!resp && resp.ok !== false,
+      status: resp?.status,
+      baseUrl: resp?.baseUrl,
+      hasHits: Array.isArray(resp?.data?.hits) ? resp.data.hits.length : undefined,
+      ui: resp?.data?.ui ?? null,
+      params: resp?.data?.params ?? null,
+      analysis: resp?.data?.analysis ?? null,
+    });
     if (!resp || resp.ok === false) continue;
     const data = resp.data || {};
     const hits = Array.isArray(data.hits)
@@ -744,9 +1076,9 @@ async function fetchTagsForCid(
     const first = hits[0];
     if (!first) continue;
     const tags = extractSearchTags(first);
-    if (tags.length) return tags;
+    if (tags.length) return { tags, debug: { attempts, matched: { gatewayId: g.id, endpoint: g.endpoint } } };
   }
-  return [];
+  return { tags: [], debug: { attempts } };
 }
 
 function buildFastResults(query: string): ResultItem[] {
@@ -831,6 +1163,7 @@ async function runSearch(query: string, type: SearchType) {
   loading.value = true;
   errorMsg.value = "";
   results.value = [];
+  debugByDomain.value = {};
 
   try {
     const base = buildFastResults(clean);
@@ -853,7 +1186,25 @@ async function runSearch(query: string, type: SearchType) {
 
     let domainTags: string[] = [];
     if (bestDomain?.cid && profileId) {
-      domainTags = await fetchTagsForCid(profileId, bestDomain.cid, seq);
+      const tagRes = await fetchTagsForCid(profileId, bestDomain.cid, seq);
+      domainTags = tagRes.tags;
+      const key = String(bestDomain.name || "").trim().toLowerCase();
+      if (key) {
+        const prev = debugByDomain.value[key] || { domain: key, sources: [] };
+        const next = {
+          ...prev,
+          sources: [
+            ...(Array.isArray(prev.sources) ? prev.sources : []),
+            {
+              source: "tags_lookup",
+              cid: bestDomain.cid,
+              profileId,
+              debug: tagRes.debug,
+            },
+          ],
+        };
+        debugByDomain.value = { ...debugByDomain.value, [key]: next };
+      }
     }
     if (seq !== searchSeq) return;
 
@@ -865,9 +1216,28 @@ async function runSearch(query: string, type: SearchType) {
         title: bestDomain.name,
         url,
         thumbUrl: favicon || undefined,
-        badges: domainTags.length ? domainTags.slice(0, 6) : [],
+        badges: domainTags.length ? domainTags.slice(0, 20) : [],
         kind: "site",
       });
+
+      const key = String(bestDomain.name || "").trim().toLowerCase();
+      if (key) {
+        const prev = debugByDomain.value[key] || { domain: key, sources: [] };
+        const next = {
+          ...prev,
+          sources: [
+            ...(Array.isArray(prev.sources) ? prev.sources : []),
+            {
+              source: "dns",
+              query: clean,
+              candidates: bestDomain.candidates || null,
+              picked: { name: bestDomain.name, cid: bestDomain.cid, score: bestDomain.score },
+              infoRes: bestDomain.infoRes || null,
+            },
+          ],
+        };
+        debugByDomain.value = { ...debugByDomain.value, [key]: next };
+      }
     }
 
     if (!profileId && (type === "image" || type === "")) {
@@ -881,7 +1251,14 @@ async function runSearch(query: string, type: SearchType) {
     }
 
     const merged = [...base, ...gwResults];
-    results.value = merged;
+
+    if (type === "site") {
+      const sites = mergeAndRankSites(clean, merged);
+      const nonSites = merged.filter((r) => r.kind !== "site");
+      results.value = [...sites, ...nonSites];
+    } else {
+      results.value = merged;
+    }
   } catch (e: any) {
     if (seq !== searchSeq) return;
     errorMsg.value = String(e?.message || e || "search_failed");
@@ -1137,6 +1514,26 @@ const imageResults = computed(() =>
   font-size: 0.8125rem;
 }
 
+.debug-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.debug-toggle:hover {
+  color: var(--accent-primary);
+  border-color: var(--primary-a30);
+  background: var(--primary-a08);
+}
+
 .error {
   color: #b91c1c;
 }
@@ -1345,6 +1742,29 @@ const imageResults = computed(() =>
   opacity: 0.5;
 }
 
+.debug-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  margin-top: 0.05rem;
+  color: var(--text-secondary, #64748b);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+}
+
+.debug-btn:hover {
+  opacity: 1;
+  color: var(--accent-primary);
+  border-color: var(--primary-a20);
+  background: var(--primary-a08);
+}
+
 .result-card:hover .result-open {
   color: var(--accent-primary);
   transform: translate(4px, -4px) scale(1.1);
@@ -1440,6 +1860,80 @@ const imageResults = computed(() =>
   height: 2.1rem;
   width: 75%;
   margin-top: 0.55rem;
+}
+
+.debug-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.debug-panel {
+  width: min(980px, 96vw);
+  max-height: 80vh;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 50px rgba(2, 6, 23, 0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.debug-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.debug-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.debug-actions {
+  display: inline-flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.debug-action {
+  padding: 0.35rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #334155;
+}
+
+.debug-action:hover {
+  border-color: var(--primary-a30);
+  color: var(--accent-primary);
+  background: var(--primary-a08);
+}
+
+.debug-pre {
+  padding: 0.9rem;
+  margin: 0;
+  overflow: auto;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #0f172a;
 }
 
 @media (max-width: 640px) {
