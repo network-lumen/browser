@@ -239,7 +239,7 @@ function cleanup() {
 }
 
 .qr-scanner-modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   max-width: 500px;
   width: 100%;
@@ -453,13 +453,13 @@ function cleanup() {
 }
 
 .value-box {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 12px;
   font-size: 13px;
   font-family: 'Monaco', 'Courier New', monospace;
-  color: #111827;
+  color: var(--text-primary);
   word-break: break-all;
   max-height: 120px;
   overflow-y: auto;

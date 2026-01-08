@@ -124,7 +124,7 @@ function getViewDescription(): string {
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -132,12 +132,12 @@ function getViewDescription(): string {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: #1a1a2e;
-  border-right: 2px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary);
+  border-right: 2px solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -153,17 +153,18 @@ function getViewDescription(): string {
   width: 40px;
   height: 40px;
   background: var(--gradient-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
+  color: white;
+  box-shadow: var(--shadow-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
 }
 
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -182,7 +183,7 @@ function getViewDescription(): string {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -196,16 +197,16 @@ function getViewDescription(): string {
   padding: 0.75rem 1rem;
   border: none;
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
-  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  transition: all var(--transition-smooth);
 }
 
 .nav-item:hover {
-  background: var(--hover-bg, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
@@ -221,7 +222,7 @@ function getViewDescription(): string {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-secondary);
   margin: 0;
   border-radius: 0;
 }
@@ -233,13 +234,13 @@ function getViewDescription(): string {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
 
@@ -250,15 +251,15 @@ function getViewDescription(): string {
 
 .release-card {
   padding: 2rem;
-  background: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 12px;
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
   position: relative;
 }
 
 .release-card.featured {
-  background: var(--card-bg, #f8fafc);
-  border-color: var(--accent-primary);
+  background: var(--card-bg);
+  border-color: var(--ios-blue);
 }
 
 .release-badge {
@@ -276,20 +277,20 @@ function getViewDescription(): string {
 .release-card h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .release-card h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
 .release-date {
   font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0 0 1.5rem 0;
 }
 
@@ -308,7 +309,7 @@ function getViewDescription(): string {
 
 .release-content li {
   font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -341,7 +342,7 @@ function getViewDescription(): string {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--border-color, #e2e8f0);
+  background: var(--border-color);
 }
 
 .timeline-item {
