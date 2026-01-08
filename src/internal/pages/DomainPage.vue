@@ -839,7 +839,7 @@ void loadDomains();
 .domain-page {
   display: flex;
   height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -847,11 +847,15 @@ void loadDomains();
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--bg-primary);
-  padding: 1.5rem;
-  border-right: 2px solid var(--border-color, #e5e7eb);
+  background: var(--sidebar-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   display: flex;
   flex-direction: column;
+  padding: 1.5rem;
+  color: var(--text-primary);
+  border-right: var(--border-width) solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -864,18 +868,19 @@ void loadDomains();
 .logo-icon {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
   background: var(--gradient-primary);
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: white;
+  box-shadow: var(--shadow-primary);
 }
 
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-body {
@@ -891,8 +896,8 @@ void loadDomains();
   gap: 0.6rem;
   padding: 0.7rem 0.8rem;
   border-radius: 10px;
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--fill-error);
+  color: var(--ios-red);
   font-size: 0.8rem;
 }
 
@@ -904,7 +909,7 @@ void loadDomains();
 }
 
 .status-dot.ok {
-  background: #16a34a;
+  background: var(--ios-green);
 }
 
 .profile-card {
@@ -938,7 +943,7 @@ void loadDomains();
 .profile-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -964,7 +969,7 @@ void loadDomains();
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   margin-bottom: 0.25rem;
 }
 
@@ -976,7 +981,7 @@ void loadDomains();
   border-radius: 10px;
   border: none;
   background: var(--gradient-primary);
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 0.85rem;
 }
 
@@ -994,7 +999,7 @@ void loadDomains();
 .owner-hint {
   margin-top: 0.35rem;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-tertiary);
 }
 
 .form-input {
@@ -1020,7 +1025,7 @@ void loadDomains();
 .main-content {
   flex: 1;
   padding: 2rem 2.5rem;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   overflow-y: auto;
 }
 
@@ -1063,7 +1068,7 @@ void loadDomains();
 
 .btn.primary {
   background: var(--gradient-primary);
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .btn.primary.ghost {
@@ -1119,8 +1124,8 @@ void loadDomains();
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 500;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .empty {
@@ -1134,7 +1139,7 @@ void loadDomains();
 }
 
 .empty.error p {
-  color: #b91c1c;
+  color: var(--ios-red);
 }
 
 .hero-title {
@@ -1146,7 +1151,7 @@ void loadDomains();
 .hero-text {
   margin: 0;
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .mono {
@@ -1206,15 +1211,15 @@ void loadDomains();
 }
 
 .pill-unknown {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-color: #e5e7eb;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .pill-expired {
-  background: #fef2f2;
+  background: var(--fill-error);
   border-color: #fecaca;
-  color: #b91c1c;
+  color: var(--ios-red);
 }
 
 .pill-soon,
@@ -1227,7 +1232,7 @@ void loadDomains();
 .pill-ok {
   background: rgba(16, 185, 129, 0.15);
   border-color: rgba(16, 185, 129, 0.3);
-  color: #10b981;
+  color: var(--ios-green);
 }
 
 .spinner {
@@ -1271,7 +1276,7 @@ void loadDomains();
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-color, #e5e7f0);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
@@ -1285,7 +1290,7 @@ void loadDomains();
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: #f1f5f9;
+  background: var(--bg-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1299,7 +1304,7 @@ void loadDomains();
 .modal-desc {
   margin: 0 0 0.8rem;
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .domain-input-wrapper {
@@ -1319,7 +1324,7 @@ void loadDomains();
 .dot-sep {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .form-group {
@@ -1339,13 +1344,13 @@ void loadDomains();
   padding: 0.4rem 0.55rem;
   border-radius: 8px;
   font-size: 0.8rem;
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .availability.available {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .price-box {
@@ -1380,7 +1385,7 @@ void loadDomains();
   border-radius: 10px;
   padding: 0.8rem 0.9rem;
   background: var(--gradient-primary);
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
@@ -1396,7 +1401,7 @@ void loadDomains();
 
 .records-empty {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--text-tertiary);
   margin-bottom: 0.5rem;
 }
 
@@ -1423,8 +1428,8 @@ void loadDomains();
 
 .icon-btn.danger {
   border-color: #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .modal-actions {
@@ -1452,7 +1457,7 @@ void loadDomains();
     width: 100%;
     max-width: none;
     border-right: none;
-    border-bottom: 2px solid var(--border-color, #e5e7eb);
+    border-bottom: 2px solid var(--border-color);
   }
 
   .main-content {

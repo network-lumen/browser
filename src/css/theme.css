@@ -4,141 +4,164 @@
     --white-rgb: 255, 255, 255;
     --black-rgb: 0, 0, 0;
 
-    /* Primary Palette - Dark Green + Lime */
-    --green-dark: #2D5F4F;
-    --green-dark-rgb: 45, 95, 79;
-    --green-teal: #1e4d3f;
-    --green-teal-rgb: 30, 77, 63;
-    --green-deep: #1a4533;
-    
-    --lime-bright: #C5FF41;
-    --lime-bright-rgb: 197, 255, 65;
-    --lime-soft: #D4FF00;
-    --lime-soft-rgb: 212, 255, 0;
+    /* iOS-inspired Primary Palette */
+    --ios-blue: #007AFF;
+    --ios-blue-rgb: 0, 122, 255;
+    --ios-teal: #5AC8FA;
+    --ios-teal-rgb: 90, 200, 250;
+    --ios-green: #34C759;
+    --ios-green-rgb: 52, 199, 89;
+    --ios-indigo: #5856D6;
+    --ios-indigo-rgb: 88, 86, 214;
+    --ios-purple: #AF52DE;
+    --ios-purple-rgb: 175, 82, 222;
+    --ios-pink: #FF2D55;
+    --ios-pink-rgb: 255, 45, 85;
+    --ios-orange: #FF9500;
+    --ios-orange-rgb: 255, 149, 0;
+    --ios-yellow: #FFCC00;
+    --ios-yellow-rgb: 255, 204, 0;
+    --ios-red: #FF3B30;
+    --ios-red-rgb: 255, 59, 48;
 
-    --green-mint: #37bb8d;
-    --green-mint-rgb: 55, 187, 141;
+    /* Legacy colors for compatibility */
+    --green-dark: #007AFF;
+    --green-dark-rgb: 0, 122, 255;
+    --lime-bright: #34C759;
+    --lime-bright-rgb: 52, 199, 89;
 
-    /* Secondary Colors */
-    --red-base: #ea3e3e;
-    --red-wash: #fecaca;
-    --red-base-rgb: 234, 62, 62;
-
-    --orange-bright: #f59e0b;
-    --orange-bright-rgb: 245, 158, 11;
-
-    --gray-blue: #64748b;
-    --gray-blue-dark: #334155;
-    --gray-blue-light: #94a3b8;
-    
-    --green-tint-light: #f0fdf4;
-    --green-tint: #d1fae5;
-    --green-tint-dark: #a7f3d0;
-
-    --amber: #fcd34d;
-    --amber-soft: #fde68a;
-
-    --border: #e6eaf1;
-    --primary-rgb: 45, 95, 79;
+    /* iOS Gray Scale */
+    --ios-gray-1: #8E8E93;
+    --ios-gray-2: #AEAEB2;
+    --ios-gray-3: #C7C7CC;
+    --ios-gray-4: #D1D1D6;
+    --ios-gray-5: #E5E5EA;
+    --ios-gray-6: #F2F2F7;
 
     /* ========== OPACITY VARIANTS ========== */
+    --black-a02: rgba(var(--black-rgb), .02);
+    --black-a04: rgba(var(--black-rgb), .04);
     --black-a06: rgba(var(--black-rgb), .06);
     --black-a10: rgba(var(--black-rgb), .10);
+    --white-a10: rgba(var(--white-rgb), .10);
     --white-a25: rgba(var(--white-rgb), .25);
     --white-a45: rgba(var(--white-rgb), .45);
-    --primary-a00: rgba(var(--primary-rgb), .00);
-    --primary-a08: rgba(var(--primary-rgb), .08);
-    --primary-a10: rgba(var(--primary-rgb), .10);
-    --primary-a15: rgba(var(--primary-rgb), .15);
-    --primary-a20: rgba(var(--primary-rgb), .20);
-    --primary-a25: rgba(var(--primary-rgb), .25);
-    --primary-a30: rgba(var(--primary-rgb), .30);
-    --primary-a40: rgba(var(--primary-rgb), .40);
-    --primary-a45: rgba(var(--primary-rgb), .45);
-    --primary-a50: rgba(var(--primary-rgb), .50);
-    
-    --lime-a10: rgba(var(--lime-bright-rgb), .10);
-    --lime-a15: rgba(var(--lime-bright-rgb), .15);
-    --lime-a20: rgba(var(--lime-bright-rgb), .20);
-    --lime-a30: rgba(var(--lime-bright-rgb), .30);
+    --white-a70: rgba(var(--white-rgb), .70);
+    --white-a85: rgba(var(--white-rgb), .85);
+    --primary-a00: rgba(var(--ios-blue-rgb), .00);
+    --primary-a05: rgba(var(--ios-blue-rgb), .05);
+    --primary-a08: rgba(var(--ios-blue-rgb), .08);
+    --primary-a10: rgba(var(--ios-blue-rgb), .10);
+    --primary-a15: rgba(var(--ios-blue-rgb), .15);
+    --primary-a20: rgba(var(--ios-blue-rgb), .20);
+    --primary-a25: rgba(var(--ios-blue-rgb), .25);
+    --primary-a30: rgba(var(--ios-blue-rgb), .30);
+    --primary-a40: rgba(var(--ios-blue-rgb), .40);
+    --primary-a45: rgba(var(--ios-blue-rgb), .45);
+    --primary-a50: rgba(var(--ios-blue-rgb), .50);
 
-    /* ========== FONT SIZES ========== */
-    --fs-xs: 0.8125rem; /* 13px */
-    --fs-sm: 0.875rem;  /* 14px */
-    --fs-md: 1rem;      /* 16px */
-    --fs-lg: 1.125rem;  /* 18px */
-    --fs-xl: 1.25rem;   /* 20px */
-    --fs-2xl: 1.625rem; /* 26px */
-    --fs-3xl: 2rem;     /* 32px */
-    --fs-4xl: 2.5rem;   /* 40px */
+    /* ========== FONT SIZES (iOS Scale) ========== */
+    --fs-xs: 0.6875rem;  /* 11px - Caption 2 */
+    --fs-sm: 0.75rem;    /* 12px - Caption 1 */
+    --fs-md: 0.9375rem;  /* 15px - Footnote */
+    --fs-base: 1.0625rem; /* 17px - Body (iOS default) */
+    --fs-lg: 1.25rem;    /* 20px - Title 3 */
+    --fs-xl: 1.375rem;   /* 22px - Title 2 */
+    --fs-2xl: 1.75rem;   /* 28px - Title 1 */
+    --fs-3xl: 2.125rem;  /* 34px - Large Title */
+    --fs-4xl: 2.5rem;    /* 40px */
     
-    /* ========== THEME COLORS - LIGHT MODE ========== */
+    /* ========== THEME COLORS - LIGHT MODE (iOS Style) ========== */
     --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-tertiary: #f0f4f8;
-    --bg-gradient: linear-gradient(180deg, #f8fafb 0%, #f0f4f8 100%);
+    --bg-secondary: #F2F2F7;
+    --bg-tertiary: #FFFFFF;
+    --bg-gradient: linear-gradient(180deg, #ffffff 0%, #F2F2F7 100%);
+    --bg-grouped: #F2F2F7;
     
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --text-tertiary: #94a3b8;
+    --text-primary: #000000;
+    --text-secondary: #3C3C43;
+    --text-tertiary: #3C3C4399;
+    --text-quaternary: #3C3C434D;
+    --text-link: var(--ios-blue);
     
-    --border-color: #e2e8f0;
-    --border-light: #f1f5f9;
+    --border-color: #3C3C4329;
+    --border-light: #3C3C4314;
+    --separator: #3C3C4349;
     
     --card-bg: #ffffff;
-    --sidebar-bg: #ffffff;
-    --hover-bg: #f1f5f9;
+    --sidebar-bg: rgba(255, 255, 255, 0.7);
+    --hover-bg: #0000000A;
+    --fill-primary: #78788033;
+    --fill-secondary: #78788028;
+    --fill-tertiary: #7676801E;
+    --fill-success: rgba(52, 199, 89, 0.15);
+    --fill-error: rgba(255, 59, 48, 0.15);
+    --fill-blue: rgba(0, 122, 255, 0.15);
     
     /* ========== ACCENT COLORS ========== */
-    --accent-primary: var(--green-dark);
-    --accent-secondary: var(--lime-bright);
-    --success-green: var(--green-mint);
-    --warning-orange: #f59e0b;
+    --accent-primary: var(--ios-blue);
+    --accent-secondary: var(--ios-teal);
+    --success-green: var(--ios-green);
+    --warning-orange: var(--ios-orange);
+    --error-red: var(--ios-red);
     
     /* Backward compatibility */
-    --accent-blue: var(--green-dark);
-    --accent-cyan: var(--lime-bright);
-    --blue-rgb: var(--primary-rgb);
-    --blue: rgb(var(--blue-rgb));
-    --blue-strong: var(--green-dark);
-    --blue-sky: var(--lime-bright);
+    --accent-blue: var(--ios-blue);
+    --accent-cyan: var(--ios-teal);
+    --primary-rgb: var(--ios-blue-rgb);
+    /* ========== GRADIENTS (iOS Style) ========== */
+    --gradient-primary: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
+    --gradient-primary-hover: linear-gradient(135deg, #0051D5 0%, var(--ios-blue) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--ios-teal) 0%, var(--ios-blue) 100%);
+    --gradient-primary-soft: linear-gradient(135deg, var(--primary-a10) 0%, var(--primary-a05) 100%);
+    --gradient-brand: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-purple) 100%);
+    --gradient-glow: radial-gradient(circle, var(--primary-a10) 0%, transparent 70%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%);
     
-    /* ========== GRADIENTS ========== */
-    --gradient-primary: linear-gradient(135deg, var(--green-dark) 0%, var(--green-teal) 100%);
-    --gradient-primary-hover: linear-gradient(135deg, var(--green-dark) 0%, var(--green-deep) 100%);
-    --gradient-accent: linear-gradient(135deg, var(--lime-bright) 0%, var(--lime-soft) 100%);
-    --gradient-primary-soft: linear-gradient(135deg, var(--primary-a15) 0%, var(--primary-a10) 100%);
-    --gradient-brand: linear-gradient(135deg, var(--green-dark) 0%, var(--green-teal) 100%);
-    --gradient-glow: radial-gradient(circle, var(--primary-a08) 0%, transparent 70%);
+    /* ========== SHADOWS (iOS Style) ========== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.10);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
     
-    /* ========== SHADOWS ========== */
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.12);
-    --shadow-xl: 0 12px 28px rgba(0, 0, 0, 0.15);
-    --shadow-2xl: 0 16px 32px rgba(0, 0, 0, 0.18);
+    --shadow-primary: 0 4px 12px rgba(0, 122, 255, 0.2);
+    --shadow-primary-lg: 0 8px 20px rgba(0, 122, 255, 0.25);
+    --shadow-primary-xl: 0 12px 28px rgba(0, 122, 255, 0.20);
     
-    --shadow-primary: 0 4px 12px var(--primary-a25);
-    --shadow-primary-lg: 0 8px 20px var(--primary-a30);
-    --shadow-primary-xl: 0 12px 28px var(--primary-a25);
+    --shadow-glow: 0 0 0 4px var(--primary-a10);
+    --shadow-focus: 0 0 0 4px var(--primary-a15);
     
-    --shadow-glow: 0 0 0 4px var(--lime-a10);
-    --shadow-focus: 0 0 0 3px var(--lime-a15);
-    
-    /* ========== BORDERS ========== */
-    --border-width: 1.5px;
-    --border-radius-sm: 8px;
+    /* ========== BORDERS (iOS Rounded) ========== */
+    --border-width: 0.5px;
+    --border-radius-xs: 6px;
+    --border-radius-sm: 10px;
     --border-radius-md: 12px;
     --border-radius-lg: 16px;
     --border-radius-xl: 20px;
-    --border-radius-full: 999px;
+    --border-radius-2xl: 24px;
+    --border-radius-3xl: 28px;
+    --border-radius-full: 9999px;
     
-    /* ========== TRANSITIONS ========== */
-    --transition-fast: 0.15s ease;
-    --transition-base: 0.2s ease;
-    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* ========== TRANSITIONS (iOS Smooth) ========== */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-base: 0.25s ease-in-out;
+    --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-spring: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* ========== BLUR (iOS Glassmorphism) ========== */
+    --blur-sm: blur(8px);
+    --blur-md: blur(12px);
+    --blur-lg: blur(16px);
+    --blur-xl: blur(24px);
+    
+    /* ========== BACKDROP (iOS Frosted Glass) ========== */
+    --backdrop-blur: saturate(180%) blur(20px);
+    --backdrop-light: rgba(255, 255, 255, 0.72);
+    --backdrop-dark: rgba(30, 30, 30, 0.72);
 }
 
 /* System mode - Original Blue Theme */
@@ -184,41 +207,125 @@
     --green-tint-dark: #bfdbfe !important;
 }
 
-/* Dark mode - Modern blockchain explorer style with Dark Green + Lime */
+/* Dark mode - iOS Dark Mode */
 :root.dark {
-    /* Main backgrounds - deep teal/green */
-    --bg-primary: #0a1612;
-    --bg-secondary: #1a2d27;
-    --bg-tertiary: #051008;
+    /* iOS Dark Mode Backgrounds - Pure Black & Elevated */
+    --bg-primary: #1C1C1E;
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #1C1C1E;
+    --bg-gradient: linear-gradient(180deg, #1C1C1E 0%, #1C1C1E 100%);
+    --bg-grouped: #1C1C1E;
     
-    /* Text colors */
-    --text-primary: #ffffff;
-    --text-secondary: #94a3b8;
-    --text-tertiary: #64748b;
+    /* iOS Dark Text Colors - EBEBF5 based */
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(235, 235, 245, 0.6);
+    --text-tertiary: rgba(235, 235, 245, 0.3);
+    --text-quaternary: rgba(235, 235, 245, 0.18);
+    --text-link: #0A84FF;
     
-    /* Borders - subtle dark green */
-    --border-color: #1e3329;
-    --border-light: #1a2d27;
+    /* iOS Dark Borders & Separators */
+    --border-color: rgba(84, 84, 88, 0.65);
+    --border-light: rgba(84, 84, 88, 0.3);
+    --separator: rgba(84, 84, 88, 0.65);
     
-    /* Cards and panels - dark teal */
-    --card-bg: #1a2d27;
-    --sidebar-bg: #0a1612;
+    /* iOS Dark Cards & Surfaces - Elevated backgrounds */
+    --card-bg: #2C2C2E;
+    --sidebar-bg: #1C1C1E;
+    --hover-bg: rgba(255, 255, 255, 0.08);
+    --fill-primary: rgba(120, 120, 128, 0.36);
+    --fill-secondary: rgba(120, 120, 128, 0.32);
+    --fill-tertiary: rgba(118, 118, 128, 0.24);
+    --fill-success: rgba(50, 215, 75, 0.25);
+    --fill-error: rgba(255, 69, 58, 0.25);
+    --fill-blue: rgba(10, 132, 255, 0.25);
     
-    /* Hover states - with lime accent */
-    --hover-bg: #253b31;
+    /* iOS Dark System Colors (brighter for dark mode) */
+    --ios-blue: #0A84FF;
+    --ios-blue-rgb: 10, 132, 255;
+    --ios-teal: #64D2FF;
+    --ios-teal-rgb: 100, 210, 255;
+    --ios-green: #32D74B;
+    --ios-green-rgb: 50, 215, 75;
+    --ios-indigo: #5E5CE6;
+    --ios-indigo-rgb: 94, 92, 230;
+    --ios-purple: #BF5AF2;
+    --ios-purple-rgb: 191, 90, 242;
+    --ios-pink: #FF375F;
+    --ios-pink-rgb: 255, 55, 95;
+    --ios-orange: #FF9F0A;
+    --ios-orange-rgb: 255, 159, 10;
+    --ios-yellow: #FFD60A;
+    --ios-yellow-rgb: 255, 214, 10;
+    --ios-red: #FF453A;
+    --ios-red-rgb: 255, 69, 58;
     
-    /* Accent colors - Lime bright on dark */
-    --accent-primary: var(--green-dark);
-    --accent-secondary: var(--lime-bright);
-    --accent-blue: var(--lime-bright);
-    --accent-cyan: #06b6d4;
-    --success-green: var(--lime-bright);
-    --warning-orange: #f59e0b;
+    /* Semantic Colors */
+    --accent-primary: #0A84FF;
+    --accent-secondary: #64D2FF;
+    --success-green: #30D158;
+    --warning-orange: #FF9F0A;
+    --error-red: #FF453A;
     
-    /* Shadows for depth */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    /* iOS Dark Gray Scale */
+    --ios-gray-1: #8E8E93;
+    --ios-gray-2: #636366;
+    --ios-gray-3: #48484A;
+    --ios-gray-4: #3A3A3C;
+    --ios-gray-5: #2C2C2E;
+    --ios-gray-6: #1C1C1E;
+    
+    /* Dark Mode Opacity Variants */
+    --black-a02: rgba(0, 0, 0, .02);
+    --black-a04: rgba(0, 0, 0, .04);
+    --black-a06: rgba(0, 0, 0, .06);
+    --black-a10: rgba(0, 0, 0, .10);
+    --white-a10: rgba(255, 255, 255, .10);
+    --white-a25: rgba(255, 255, 255, .25);
+    --white-a45: rgba(255, 255, 255, .45);
+    --white-a70: rgba(255, 255, 255, .70);
+    --white-a85: rgba(255, 255, 255, .85);
+    
+    --primary-a00: rgba(10, 132, 255, .00);
+    --primary-a05: rgba(10, 132, 255, .05);
+    --primary-a08: rgba(10, 132, 255, .08);
+    --primary-a10: rgba(10, 132, 255, .10);
+    --primary-a15: rgba(10, 132, 255, .15);
+    --primary-a20: rgba(10, 132, 255, .20);
+    --primary-a25: rgba(10, 132, 255, .25);
+    --primary-a30: rgba(10, 132, 255, .30);
+    --primary-a40: rgba(10, 132, 255, .40);
+    --primary-a45: rgba(10, 132, 255, .45);
+    --primary-a50: rgba(10, 132, 255, .50);
+    
+    /* Dark Mode Gradients */
+    --gradient-primary: linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%);
+    --gradient-primary-hover: linear-gradient(135deg, #0051D5 0%, #0A84FF 100%);
+    --gradient-accent: linear-gradient(135deg, #64D2FF 0%, #0A84FF 100%);
+    --gradient-primary-soft: linear-gradient(135deg, rgba(10, 132, 255, 0.15) 0%, rgba(10, 132, 255, 0.08) 100%);
+    --gradient-brand: linear-gradient(135deg, #0A84FF 0%, #BF5AF2 100%);
+    --gradient-glow: radial-gradient(circle, rgba(10, 132, 255, 0.15) 0%, transparent 70%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    
+    /* Dark Mode Shadows - Subtle but visible */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.85);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+    
+    --shadow-primary: 0 4px 12px rgba(10, 132, 255, 0.4);
+    --shadow-primary-lg: 0 8px 20px rgba(10, 132, 255, 0.45);
+    --shadow-primary-xl: 0 12px 28px rgba(10, 132, 255, 0.4);
+    
+    --shadow-glow: 0 0 0 4px rgba(10, 132, 255, 0.15);
+    --shadow-focus: 0 0 0 4px rgba(10, 132, 255, 0.2);
+    
+    /* Dark Mode Backdrop for glassmorphism */
+    --backdrop-blur: saturate(180%) blur(20px);
+    --backdrop-light: rgba(28, 28, 30, 0.85);
+    --backdrop-dark: rgba(10, 10, 10, 0.9);
 }
 
 /* Force body and html to use theme colors */

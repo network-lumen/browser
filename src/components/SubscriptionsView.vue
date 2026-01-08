@@ -487,13 +487,13 @@ defineExpose({
   margin: 0 0 4px 0;
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .view-header p {
   margin: 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .reminders-section {
@@ -510,7 +510,7 @@ defineExpose({
   margin: 0 0 16px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #92400e;
+  color: var(--text-primary);
 }
 
 .reminders-list {
@@ -523,7 +523,7 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 12px;
-  background: white;
+  background: var(--card-bg);
   padding: 12px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -549,13 +549,13 @@ defineExpose({
   margin: 0 0 4px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .reminder-content p {
   margin: 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .reminder-dismiss {
@@ -564,14 +564,14 @@ defineExpose({
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: #9ca3af;
+  color: var(--text-tertiary);
   border-radius: 4px;
   transition: all 0.2s;
 }
 
 .reminder-dismiss:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .stats-section {
@@ -586,9 +586,9 @@ defineExpose({
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
 }
 
 .stat-icon {
@@ -618,18 +618,18 @@ defineExpose({
 .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .stat-label {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .payments-section {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   padding: 24px;
 }
 
@@ -644,7 +644,7 @@ defineExpose({
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .filters {
@@ -654,10 +654,11 @@ defineExpose({
 
 .filter-select {
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
-  background: white;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
@@ -671,7 +672,7 @@ defineExpose({
 }
 
 .empty-icon {
-  color: #9ca3af;
+  color: var(--text-tertiary);
   margin-bottom: 16px;
 }
 
@@ -679,12 +680,12 @@ defineExpose({
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .empty-state p {
   margin: 0 0 24px 0;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .payments-grid {
@@ -721,17 +722,17 @@ defineExpose({
   margin: 0 0 4px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .payment-category {
   display: inline-block;
   padding: 2px 8px;
-  background: #f3f4f6;
+  background: var(--bg-tertiary);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-secondary);
   text-transform: capitalize;
 }
 
@@ -761,14 +762,14 @@ defineExpose({
 .payment-amount {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
 
 .frequency {
   font-size: 14px;
   font-weight: 400;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-left: 8px;
 }
 
@@ -785,11 +786,11 @@ defineExpose({
 }
 
 .detail-label {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .detail-value {
-  color: #111827;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -873,7 +874,7 @@ defineExpose({
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   max-width: 500px;
   width: 100%;

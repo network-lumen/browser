@@ -290,8 +290,8 @@ onMounted(() => {
 .address-detail-page {
   width: 100%;
   min-height: 100vh;
-  background: var(--bg-primary, #f8fafc);
-  color: var(--text-primary, #1e293b);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   padding: 2rem;
 }
 
@@ -307,12 +307,13 @@ onMounted(() => {
   background: var(--gradient-primary);
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-sm);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-smooth);
   margin-bottom: 1rem;
+  box-shadow: var(--shadow-primary);
 }
 
 .back-btn:hover {
@@ -323,7 +324,7 @@ onMounted(() => {
 .address-detail-header h1 {
   font-size: 1.75rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -340,7 +341,7 @@ onMounted(() => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid var(--border-color, #e2e8f0);
+  border: 4px solid var(--border-color);
   border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -351,7 +352,7 @@ onMounted(() => {
 }
 
 .error-container p {
-  color: #ef4444;
+  color: var(--ios-red);
   font-size: 1rem;
 }
 
@@ -362,8 +363,8 @@ onMounted(() => {
 }
 
 .detail-card {
-  background: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -371,14 +372,14 @@ onMounted(() => {
 
 .card-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-secondary, #f8fafc);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .card-header h2 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: 0.025em;
 }
@@ -392,7 +393,7 @@ onMounted(() => {
   grid-template-columns: 180px 1fr;
   gap: 1rem;
   padding: 0.875rem 0;
-  border-bottom: 1px solid var(--border-light, #f1f5f9);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .detail-row:last-child {
@@ -400,7 +401,7 @@ onMounted(() => {
 }
 
 .detail-row:hover {
-  background: var(--bg-hover, #f8fafc);
+  background: var(--bg-hover);
   margin: 0 -0.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -410,12 +411,12 @@ onMounted(() => {
 .label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .value {
   font-size: 0.875rem;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   word-break: break-all;
 }
 
@@ -428,19 +429,19 @@ onMounted(() => {
 .hash-value code {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  background: var(--bg-secondary, #f1f5f9);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   font-family: 'Courier New', monospace;
   font-size: 0.75rem;
   word-break: break-all;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .copy-btn {
   padding: 0.375rem;
-  background: var(--bg-secondary, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -471,8 +472,8 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
 }
 
@@ -494,12 +495,12 @@ onMounted(() => {
 .balance-amount {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .balance-denom {
   font-size: 0.75rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 
 .delegation-item {
@@ -507,8 +508,8 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
 }
 
@@ -540,19 +541,19 @@ onMounted(() => {
 .validator-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .validator-address {
   font-size: 0.75rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   font-family: 'Courier New', monospace;
 }
 
 .delegation-amount {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .tx-item {
@@ -560,8 +561,8 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   transition: all 0.2s;
 }
@@ -577,9 +578,9 @@ onMounted(() => {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: var(--bg-secondary, #f8fafc);
+  background: var(--bg-secondary);
   border-radius: 50%;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .tx-info {
@@ -605,7 +606,7 @@ onMounted(() => {
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 
 .tx-height {
@@ -634,18 +635,18 @@ onMounted(() => {
 }
 
 .status-badge.success {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .status-badge.failed {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 </style>
