@@ -630,7 +630,7 @@ onMounted(() => {
 .network-page {
   display: flex;
   height: 100vh;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -681,17 +681,17 @@ onMounted(() => {
 }
 
 .network-status.online {
-  color: #10b981;
+  color: var(--ios-green);
   border-color: rgba(16, 185, 129, 0.3);
 }
 
 .network-status.syncing {
-  color: #f59e0b;
+  color: var(--ios-orange);
   border-color: rgba(245, 158, 11, 0.3);
 }
 
 .network-status.offline {
-  color: #ef4444;
+  color: var(--ios-red);
   border-color: rgba(239, 68, 68, 0.3);
 }
 
@@ -703,15 +703,15 @@ onMounted(() => {
 }
 
 .network-status.online .status-dot {
-  background: #10b981;
+  background: var(--ios-green);
 }
 
 .network-status.syncing .status-dot {
-  background: #f59e0b;
+  background: var(--ios-orange);
 }
 
 .network-status.offline .status-dot {
-  background: #ef4444;
+  background: var(--ios-red);
 }
 
 @keyframes pulse {
@@ -844,7 +844,7 @@ onMounted(() => {
 .main-content {
   flex: 1;
   overflow-y: auto;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
 }
 
 /* Header - Hidden as per pattern */
@@ -1005,15 +1005,15 @@ onMounted(() => {
 }
 
 .indicator-fill.excellent {
-  background: #10b981;
+  background: var(--ios-green);
 }
 
 .indicator-fill.good {
-  background: #0ea5e9;
+  background: var(--ios-blue);
 }
 
 .indicator-fill.normal {
-  background: #f59e0b;
+  background: var(--ios-orange);
 }
 
 .indicator-value {
@@ -1063,8 +1063,8 @@ onMounted(() => {
 
 .tab-btn.active {
   background: rgba(99, 102, 241, 0.2);
-  border-color: #6366f1;
-  color: #6366f1;
+  border-color: var(--ios-blue);
+  color: var(--ios-blue);
   font-weight: 600;
 }
 
@@ -1238,8 +1238,8 @@ onMounted(() => {
   min-width: 30px;
   height: 22px;
   padding: 0 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -1249,7 +1249,7 @@ onMounted(() => {
 .meta-value.has-txs {
   background: rgba(16, 185, 129, 0.15);
   border-color: rgba(16, 185, 129, 0.3);
-  color: #10b981;
+  color: var(--ios-green);
 }
 
 .meta-time {

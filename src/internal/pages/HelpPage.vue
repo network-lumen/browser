@@ -221,7 +221,7 @@ function getViewDescription(): string {
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -229,12 +229,14 @@ function getViewDescription(): string {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--bg-primary, #ffffff);
+  background: var(--sidebar-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: var(--text-primary, #1a1a2e);
-  border-right: 2px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary);
+  border-right: var(--border-width) solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -250,17 +252,18 @@ function getViewDescription(): string {
   width: 40px;
   height: 40px;
   background: var(--gradient-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
+  color: white;
+  box-shadow: var(--shadow-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
 }
 
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -279,7 +282,7 @@ function getViewDescription(): string {
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -290,25 +293,37 @@ function getViewDescription(): string {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: none;
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
-  transition: all 0.2s ease;
+  font-size: var(--fs-base);
+  font-weight: 400;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  letter-spacing: -0.022em;
 }
 
 .nav-item:hover {
-  background: var(--hover-bg, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: var(--hover-bg);
+}
+
+.nav-item.active {
+  background: var(--ios-blue);
+  color: white;
+  font-weight: 600;
+  box-shadow: var(--shadow-primary);
+}
+
+.nav-item:active {
+  transform: scale(0.98);
 }
 
 .nav-item.active {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 12px var(--primary-a30);
+  box-shadow: var(--shadow-primary);
 }
 
 .main-content {
@@ -318,7 +333,7 @@ function getViewDescription(): string {
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-secondary);
   margin: 0;
   border-radius: 0;
 }
@@ -330,13 +345,13 @@ function getViewDescription(): string {
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
 
@@ -348,13 +363,13 @@ function getViewDescription(): string {
 .help-section h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.75rem 0;
 }
 
 .help-section p {
   font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0 0 1.5rem 0;
 }
 
@@ -385,13 +400,13 @@ function getViewDescription(): string {
 .step-content h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
 .step-content p {
   font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -403,20 +418,20 @@ function getViewDescription(): string {
 
 .faq-item {
   padding: 1.5rem;
-  background: var(--bg-secondary, #f8fafc);
-  border-radius: 12px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
 }
 
 .faq-item h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .faq-item p {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -428,8 +443,8 @@ function getViewDescription(): string {
 
 .doc-card {
   padding: 1.75rem;
-  background: var(--card-bg, #f8fafc);
-  border-radius: 12px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
   text-align: center;
 }
 
@@ -437,24 +452,25 @@ function getViewDescription(): string {
   width: 56px;
   height: 56px;
   background: var(--gradient-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
+  color: white;
+  box-shadow: var(--shadow-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   margin: 0 auto 1rem;
 }
 
 .doc-card h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .doc-card p {
   font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0 0 1rem 0;
 }
 
@@ -472,13 +488,13 @@ function getViewDescription(): string {
 .contact-section h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .contact-section > p {
   font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0 0 1.5rem 0;
 }
 
@@ -493,20 +509,20 @@ function getViewDescription(): string {
   align-items: flex-start;
   gap: 1rem;
   padding: 1.25rem;
-  background: var(--bg-secondary, #f8fafc);
-  border-radius: 12px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
 }
 
 .contact-item strong {
   display: block;
   font-size: 0.9rem;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .contact-item p {
   font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0;
 }
 

@@ -72,7 +72,7 @@ function goHome() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-tertiary);
 }
 
 .cards {
@@ -87,13 +87,13 @@ function goHome() {
   gap: 1rem;
   width: 100%;
   padding: 1.25rem 1.25rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-primary, #ffffff);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
   text-align: left;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  transition: all var(--transition-smooth);
+  box-shadow: var(--shadow-md);
 }
 
 .card:hover:not(:disabled) {
@@ -110,12 +110,12 @@ function goHome() {
 .icon {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-secondary, #f8fafc);
-  color: var(--accent-primary);
+  background: var(--card-bg);
+  color: var(--ios-blue);
   flex: 0 0 auto;
 }
 
@@ -123,13 +123,13 @@ function goHome() {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 650;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .copy p {
   margin: 0.35rem 0 0;
   font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .cta {
@@ -144,8 +144,8 @@ function goHome() {
   padding: 0.85rem 1rem;
   border-radius: 12px;
   border: 1px solid #fde68a;
-  background: #fffbeb;
-  color: #92400e;
+  background: rgba(255, 204, 0, 0.1);
+  color: var(--ios-orange);
   font-size: 0.85rem;
 }
 </style>

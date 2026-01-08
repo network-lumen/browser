@@ -559,7 +559,7 @@ function stopUrlWatch() {
   width: 100%;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-tertiary);
 }
 
 .main-content {
@@ -589,17 +589,17 @@ function stopUrlWatch() {
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-secondary, #f8fafc);
-  color: var(--text-primary, #1e293b);
-  font-size: 0.85rem;
+  border-radius: var(--border-radius-sm);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-smooth);
 }
 
 .plans-btn:hover:not(:disabled) {
-  background: var(--bg-primary, #ffffff);
+  background: var(--bg-primary);
   border-color: var(--accent-primary);
 }
 
@@ -614,8 +614,8 @@ function stopUrlWatch() {
   gap: 0.75rem;
   padding: 1rem;
   border-radius: 12px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .loading-lines {
@@ -628,19 +628,19 @@ function stopUrlWatch() {
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .error-content h3 {
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #991b1b;
+  color: var(--ios-red);
 }
 
 .error-details {
-  color: #7f1d1d;
+  color: var(--ios-red);
 }
 
 .error-details p {
@@ -657,13 +657,13 @@ function stopUrlWatch() {
 .error-details li {
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: #b91c1c;
+  color: var(--ios-red);
 }
 
 .error-hint {
   font-size: 0.875rem;
   font-style: italic;
-  color: #dc2626;
+  color: var(--ios-red);
   margin-top: 1rem;
 }
 
@@ -678,6 +678,6 @@ function stopUrlWatch() {
   width: 100%;
   height: 100%;
   border: none;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 </style>

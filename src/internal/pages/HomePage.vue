@@ -36,7 +36,17 @@
         </div>
         
         <div class="nav-section">
-          <button class="dropdown-selector" @click="showAllPages = !showAllPages">
+          <button 
+            class="dropdown-selector" 
+            @click="showAllPages = !showAllPages"
+            @mousedown="handleDragStart"
+            @mousemove="handleDragMove"
+            @mouseup="handleDragEnd"
+            @mouseleave="handleDragEnd"
+            @touchstart="handleDragStart"
+            @touchmove="handleDragMove"
+            @touchend="handleDragEnd"
+          >
             <span class="dropdown-label">All Pages</span>
             <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" class="dropdown-icon" />
           </button>
@@ -46,7 +56,15 @@
               v-for="key in allRoutes" 
               :key="key"
               class="page-item"
-              @click="openRoute(key)"
+              :class="{ 'dragging': draggedItem === key, 'drag-over': dragOverItem === key }"
+              draggable="true"
+              @click="onItemClick(key, $event)"
+              @dragstart="onItemDragStart($event, key)"
+              @dragover.prevent="onItemDragOver($event, key)"
+              @dragenter.prevent="onItemDragOver($event, key)"
+              @dragleave="onItemDragLeave"
+              @drop.prevent.stop="onItemDrop($event, key)"
+              @dragend="onItemDragEnd"
             >
               <component :is="getRouteIcon(key)" :size="14" />
               <span>{{ formatRouteName(key) }}</span>
@@ -107,119 +125,73 @@
       <!-- Quick Actions -->
       <section class="quick-actions">
         <h2 class="section-title">My Space</h2>
-        <div class="actions-grid">
-          <button class="action-card" @click="openRoute('drive')" :disabled="!hasProfiles">
-            <div class="action-icon drive">
-              <HardDrive :size="24" />
+        <div 
+          class="actions-grid"
+          @dragover.prevent="onMySpaceDragOver"
+          @drop.prevent="onMySpaceDrop"
+        >
+          <button 
+            v-for="key in mySpaceCards" 
+            :key="key"
+            class="action-card"
+            :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
+            draggable="true"
+            @dragstart="onCardDragStart($event, key, 'myspace')"
+            @dragover.prevent="onCardDragOver($event, key, 'myspace')"
+            @dragleave="onCardDragLeave"
+            @drop.prevent.stop="onCardDrop($event, key, 'myspace')"
+            @dragend="onCardDragEnd"
+            @click="handleCardClick($event, key)" 
+            :disabled="!hasProfiles && ['drive', 'domain', 'wallet'].includes(key)"
+          >
+            <div 
+              class="remove-card-btn" 
+              @click.stop="removeMySpaceCard(key)"
+              title="Remove card"
+            >
+              <X :size="14" />
             </div>
+            <component :is="getCardIcon(key)" :size="24" class="action-icon" :class="key" />
             <div class="action-info">
-              <span class="action-title">Drive</span>
-              <span class="action-desc">Store & share files</span>
+              <span class="action-title">{{ getCardTitle(key) }}</span>
+              <span class="action-desc">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
-
-          <button class="action-card" @click="openRoute('domain')" :disabled="!hasProfiles">
-            <div class="action-icon domain">
-              <AtSign :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Domains</span>
-              <span class="action-desc">Manage your domains</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-          
-          <button class="action-card" @click="openRoute('wallet')" :disabled="!hasProfiles">
-            <div class="action-icon wallet">
-              <Wallet :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Wallet</span>
-              <span class="action-desc">Manage crypto assets</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-
-          <button class="action-card" @click="openRoute('dao')">
-            <div class="action-icon dao">
-              <Vote :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">DAO</span>
-              <span class="action-desc">Governance & voting</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-
-          <button class="action-card" @click="openRoute('gateways')">
-            <div class="action-icon gateways">
-              <Globe :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Gateways</span>
-              <span class="action-desc">IPFS gateway management</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-
-          <button class="action-card" @click="openRoute('settings')">
-            <div class="action-icon settings">
-              <Settings :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Settings</span>
-              <span class="action-desc">Configure preferences</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-
         </div>
       </section>
 
       <section class="quick-actions">
         <h2 class="section-title">Lumen</h2>
-        <div class="actions-grid">
-                    <button class="action-card" @click="openRoute('explorer')">
-            <div class="action-icon explorer">
-              <Globe :size="24" />
+        <div 
+          class="actions-grid"
+          @dragover.prevent="onLumenDragOver"
+          @drop.prevent="onLumenDrop"
+        >
+          <button 
+            v-for="key in lumenCards" 
+            :key="key"
+            class="action-card"
+            :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
+            draggable="true"
+            @dragstart="onCardDragStart($event, key, 'lumen')"
+            @dragover.prevent="onCardDragOver($event, key, 'lumen')"
+            @dragleave="onCardDragLeave"
+            @drop.prevent.stop="onCardDrop($event, key, 'lumen')"
+            @dragend="onCardDragEnd"
+            @click="handleCardClick($event, key)"
+          >
+            <div 
+              class="remove-card-btn" 
+              @click.stop="removeLumenCard(key)"
+              title="Remove card"
+            >
+              <X :size="14" />
             </div>
+            <component :is="getCardIcon(key)" :size="24" class="action-icon" :class="key" />
             <div class="action-info">
-              <span class="action-title">Explorer</span>
-              <span class="action-desc">Browse the blockchain</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-          
-          <button class="action-card" @click="openRoute('network')">
-            <div class="action-icon network">
-              <Network :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Network</span>
-              <span class="action-desc">View network status</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-
-          <button class="action-card" @click="openRoute('search')">
-            <div class="action-icon search">
-              <Search :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Search</span>
-              <span class="action-desc">Find content quickly</span>
-            </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
-          </button>
-
-          <button class="action-card" @click="openRoute('help')">
-            <div class="action-icon help">
-              <HelpCircle :size="24" />
-            </div>
-            <div class="action-info">
-              <span class="action-title">Help</span>
-              <span class="action-desc">Documentation & support</span>
+              <span class="action-title">{{ getCardTitle(key) }}</span>
+              <span class="action-desc">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="action-arrow" />
           </button>
@@ -243,22 +215,357 @@ import {
 } from 'lucide-vue-next';
 
 const mainRoutes = ['home', 'drive', 'wallet', 'network', 'settings'];
-const allRoutes = computed(() => INTERNAL_ROUTE_KEYS);
-const showAllPages = ref(true);
+
+// My Space section cards yang bisa di-customize
+const MY_SPACE_CARDS_KEY = 'my_space_cards_order';
+const savedMySpaceCards = localStorage.getItem(MY_SPACE_CARDS_KEY);
+const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : ['drive', 'domain', 'wallet', 'dao', 'gateways', 'settings']);
+
+// Lumen section cards yang bisa di-customize
+const LUMEN_CARDS_KEY = 'lumen_cards_order';
+const savedLumenCards = localStorage.getItem(LUMEN_CARDS_KEY);
+const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : ['explorer', 'network', 'search', 'help']);
+
+// Custom order untuk All Pages dengan localStorage
+const ORDER_KEY = 'lumen_all_pages_order';
+const savedOrder = localStorage.getItem(ORDER_KEY);
+const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
+
+const allRoutes = computed(() => {
+  const routes = INTERNAL_ROUTE_KEYS;
+  if (customOrder.value.length === 0) return routes;
+  
+  // Sort berdasarkan custom order, items yang tidak ada di custom order di akhir
+  const ordered = [...routes].sort((a, b) => {
+    const indexA = customOrder.value.indexOf(a);
+    const indexB = customOrder.value.indexOf(b);
+    if (indexA === -1 && indexB === -1) return 0;
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+  return ordered;
+});
+
+const showAllPages = ref(false);
+
+// Drag handling untuk All Pages toggle
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+
+function handleDragStart(e: MouseEvent | TouchEvent) {
+  isDragging = true;
+  startY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+}
+
+function handleDragMove(e: MouseEvent | TouchEvent) {
+  if (!isDragging) return;
+  currentY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const diff = currentY - startY;
+  
+  if (diff > 30 && !showAllPages.value) {
+    showAllPages.value = true;
+    isDragging = false;
+  } else if (diff < -30 && showAllPages.value) {
+    showAllPages.value = false;
+    isDragging = false;
+  }
+}
+
+function handleDragEnd() {
+  isDragging = false;
+}
+
+// Drag and drop untuk reorder items
+const draggedItem = ref<string | null>(null);
+const dragOverItem = ref<string | null>(null);
+const dragOverLumen = ref(false);
+const dragOverMySpace = ref(false);
+let wasDragging = false;
+
+function onItemDragStart(e: DragEvent, key: string) {
+  wasDragging = true;
+  draggedItem.value = key;
+  dragSource.value = 'sidebar';
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', key);
+  }
+  console.log('Drag started from sidebar:', key);
+}
+
+function onItemDragOver(e: DragEvent, key: string) {
+  e.preventDefault();
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = 'move';
+  }
+  if (dragOverItem.value !== key) {
+    dragOverItem.value = key;
+    console.log('Drag over:', key);
+  }
+}
+
+function onItemDragLeave(e: DragEvent) {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const x = e.clientX;
+  const y = e.clientY;
+  
+  if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+    dragOverItem.value = null;
+  }
+}
+
+// Drag handlers untuk cards (support both My Space and Lumen)
+const dragSource = ref<'myspace' | 'lumen' | 'sidebar' | null>(null);
+
+function onCardDragStart(e: DragEvent, key: string, source: 'myspace' | 'lumen') {
+  wasDragging = true;
+  draggedItem.value = key;
+  dragSource.value = source;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', key);
+  }
+  console.log('Card drag started:', key, 'from', source);
+}
+
+function onCardDragLeave(e: DragEvent) {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const x = e.clientX;
+  const y = e.clientY;
+  
+  if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+    dragOverLumen.value = false;
+    dragOverMySpace.value = false;
+  }
+}
+
+function onCardDragEnd() {
+  draggedItem.value = null;
+  dragSource.value = null;
+  dragOverLumen.value = false;
+  dragOverMySpace.value = false;
+  setTimeout(() => {
+    wasDragging = false;
+  }, 100);
+}
+
+function handleCardClick(e: MouseEvent, key: string) {
+  if (wasDragging) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+  openRoute(key);
+}
+
+// My Space drag handlers
+function onMySpaceDragOver(e: DragEvent) {
+  e.preventDefault();
+  dragOverMySpace.value = true;
+}
+
+function onMySpaceDrop(e: DragEvent) {
+  e.preventDefault();
+  dragOverMySpace.value = false;
+  
+  if (!draggedItem.value) return;
+  
+  // Add ke akhir My Space cards jika drop di area kosong
+  if (!mySpaceCards.value.includes(draggedItem.value)) {
+    mySpaceCards.value.push(draggedItem.value);
+    localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+    console.log('Added to end of My Space:', draggedItem.value);
+  }
+  
+  draggedItem.value = null;
+  dragSource.value = null;
+  setTimeout(() => {
+    wasDragging = false;
+  }, 100);
+}
+
+function removeMySpaceCard(key: string) {
+  mySpaceCards.value = mySpaceCards.value.filter(k => k !== key);
+  localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+  console.log('Removed from My Space:', key);
+}
+
+// Lumen drag handlers
+function onLumenDragOver(e: DragEvent) {
+  e.preventDefault();
+  dragOverLumen.value = true;
+}
+
+function onCardDragOver(e: DragEvent, key: string, section: 'myspace' | 'lumen') {
+  e.preventDefault();
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen') {
+  e.preventDefault();
+  e.stopPropagation();
+  dragOverLumen.value = false;
+  dragOverMySpace.value = false;
+  
+  console.log('Card drop on:', dropKey, 'in', section, 'Dragged:', draggedItem.value, 'from', dragSource.value);
+  
+  if (!draggedItem.value) return;
+  
+  if (section === 'myspace') {
+    const draggedIndex = mySpaceCards.value.indexOf(draggedItem.value);
+    const dropIndex = mySpaceCards.value.indexOf(dropKey);
+    
+    if (draggedIndex !== -1 && dropIndex !== -1) {
+      // Reorder dalam My Space cards
+      const newCards = [...mySpaceCards.value];
+      newCards.splice(draggedIndex, 1);
+      newCards.splice(dropIndex, 0, draggedItem.value);
+      mySpaceCards.value = newCards;
+      localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(newCards));
+      console.log('Reordered My Space cards:', newCards);
+    } else if (draggedIndex === -1) {
+      // Add from sidebar/other section ke My Space
+      const newCards = [...mySpaceCards.value];
+      // Remove from Lumen if it was there
+      if (dragSource.value === 'lumen') {
+        lumenCards.value = lumenCards.value.filter(k => k !== draggedItem.value);
+        localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+      }
+      newCards.splice(dropIndex, 0, draggedItem.value);
+      mySpaceCards.value = newCards;
+      localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(newCards));
+      console.log('Added to My Space cards:', newCards);
+    }
+  } else if (section === 'lumen') {
+    const draggedIndex = lumenCards.value.indexOf(draggedItem.value);
+    const dropIndex = lumenCards.value.indexOf(dropKey);
+    
+    if (draggedIndex !== -1 && dropIndex !== -1) {
+      // Reorder dalam Lumen cards
+      const newCards = [...lumenCards.value];
+      newCards.splice(draggedIndex, 1);
+      newCards.splice(dropIndex, 0, draggedItem.value);
+      lumenCards.value = newCards;
+      localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(newCards));
+      console.log('Reordered Lumen cards:', newCards);
+    } else if (draggedIndex === -1) {
+      // Add from sidebar/other section ke Lumen
+      const newCards = [...lumenCards.value];
+      // Remove from My Space if it was there
+      if (dragSource.value === 'myspace') {
+        mySpaceCards.value = mySpaceCards.value.filter(k => k !== draggedItem.value);
+        localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+      }
+      newCards.splice(dropIndex, 0, draggedItem.value);
+      lumenCards.value = newCards;
+      localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(newCards));
+      console.log('Added to Lumen cards:', newCards);
+    }
+  }
+  
+  draggedItem.value = null;
+  dragSource.value = null;
+  setTimeout(() => {
+    wasDragging = false;
+  }, 100);
+}
+
+function onLumenDrop(e: DragEvent) {
+  e.preventDefault();
+  dragOverLumen.value = false;
+  
+  if (!draggedItem.value) return;
+  
+  // Add ke akhir Lumen cards jika drop di area kosong
+  if (!lumenCards.value.includes(draggedItem.value)) {
+    // Remove from My Space if it was there
+    if (dragSource.value === 'myspace') {
+      mySpaceCards.value = mySpaceCards.value.filter(k => k !== draggedItem.value);
+      localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+    }
+    lumenCards.value.push(draggedItem.value);
+    localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+    console.log('Added to end of Lumen:', draggedItem.value);
+  }
+  
+  draggedItem.value = null;
+  dragSource.value = null;
+  setTimeout(() => {
+    wasDragging = false;
+  }, 100);
+}
+
+function removeLumenCard(key: string) {
+  lumenCards.value = lumenCards.value.filter(k => k !== key);
+  localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+  console.log('Removed from Lumen:', key);
+}
+
+function onItemDrop(e: DragEvent, dropKey: string) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  console.log('Drop on:', dropKey, 'Dragged:', draggedItem.value);
+  
+  if (!draggedItem.value || draggedItem.value === dropKey) {
+    draggedItem.value = null;
+    dragOverItem.value = null;
+    return;
+  }
+  
+  const currentRoutes = [...allRoutes.value];
+  const draggedIndex = currentRoutes.indexOf(draggedItem.value);
+  const dropIndex = currentRoutes.indexOf(dropKey);
+  
+  console.log('Reordering from', draggedIndex, 'to', dropIndex);
+  
+  currentRoutes.splice(draggedIndex, 1);
+  currentRoutes.splice(dropIndex, 0, draggedItem.value);
+  
+  customOrder.value = currentRoutes;
+  localStorage.setItem(ORDER_KEY, JSON.stringify(currentRoutes));
+  
+  console.log('New order:', currentRoutes);
+  
+  draggedItem.value = null;
+  dragOverItem.value = null;
+  
+  // Prevent click after drag
+  setTimeout(() => {
+    wasDragging = false;
+  }, 100);
+}
+
+function onItemDragEnd() {
+  draggedItem.value = null;
+  dragOverItem.value = null;
+  setTimeout(() => {
+    wasDragging = false;
+  }, 100);
+}
+
+function onItemClick(key: string, e: MouseEvent) {
+  if (wasDragging) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+  openRoute(key);
+}
 
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 const hasProfiles = computed(() => profiles.value.length > 0);
 
-const INTRO_HERO_KEY = 'lumen_home_intro_dismissed';
-const showIntroHero = ref(localStorage.getItem(INTRO_HERO_KEY) !== '1');
+const showIntroHero = ref(true);
 
 function dismissIntroHero() {
   showIntroHero.value = false;
-  try {
-    localStorage.setItem(INTRO_HERO_KEY, '1');
-  } catch {}
 }
 
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
@@ -270,6 +577,68 @@ function openRoute(key: string) {
 
 function formatRouteName(key: string): string {
   return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+function getRouteDescription(key: string): string {
+  const descriptions: Record<string, string> = {
+    explorer: 'Browse the blockchain',
+    network: 'View network status',
+    search: 'Find content quickly',
+    help: 'Documentation & support',
+    drive: 'Store & share files',
+    wallet: 'Manage crypto assets',
+    domain: 'Manage your domains',
+    dao: 'Governance & voting',
+    gateways: 'IPFS gateway management',
+    settings: 'Configure preferences',
+    ipfs: 'IPFS operations',
+    release: 'Release notes',
+    home: 'Back to home'
+  };
+  return descriptions[key] || '';
+}
+
+function getCardTitle(key: string): string {
+  const titles: Record<string, string> = {
+    explorer: 'Explorer',
+    network: 'Network',
+    search: 'Search',
+    help: 'Help',
+    drive: 'Drive',
+    wallet: 'Wallet',
+    domain: 'Domains',
+    dao: 'DAO',
+    gateways: 'Gateways',
+    settings: 'Settings',
+    ipfs: 'IPFS',
+    release: 'Release',
+    home: 'Home'
+  };
+  return titles[key] || formatRouteName(key);
+}
+
+function getCardDescription(key: string): string {
+  return getRouteDescription(key);
+}
+
+function getCardIcon(key: string) {
+  const icons: Record<string, any> = {
+    home: Home,
+    drive: HardDrive,
+    wallet: Wallet,
+    network: Network,
+    settings: Settings,
+    explorer: Globe,
+    domain: AtSign,
+    dao: Vote,
+    release: Package,
+    newtab: Layers,
+    search: Search,
+    gateways: Globe,
+    help: HelpCircle,
+    ipfs: Database
+  };
+  return icons[key] || HelpCircle;
 }
 
 function getRouteIcon(key: string) {
@@ -297,7 +666,7 @@ function getRouteIcon(key: string) {
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -306,12 +675,14 @@ function getRouteIcon(key: string) {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--bg-primary, #ffffff);
+  background: var(--sidebar-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: #1a1a2e;
-  border-right: 2px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary);
+  border-right: var(--border-width) solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -327,17 +698,18 @@ function getRouteIcon(key: string) {
   width: 40px;
   height: 40px;
   background: var(--gradient-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--lime-bright);
+  color: white;
+  box-shadow: var(--shadow-primary);
 }
 
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -358,34 +730,38 @@ function getRouteIcon(key: string) {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 8px;
+  background: var(--fill-tertiary);
+  border: var(--border-width) solid var(--border-light);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
   margin-bottom: 0.5rem;
 }
 
 .dropdown-selector:hover {
-  background: var(--primary-a08);
-  border-color: var(--accent-primary);
+  background: var(--fill-secondary);
+  border-color: var(--ios-blue);
+}
+
+.dropdown-selector:active {
+  transform: scale(0.98);
 }
 
 .dropdown-label {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .dropdown-icon {
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   transition: transform 0.2s ease;
 }
 
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -396,25 +772,31 @@ function getRouteIcon(key: string) {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: none;
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
-  transition: all 0.2s ease;
+  font-size: var(--fs-base);
+  font-weight: 400;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  letter-spacing: -0.022em;
 }
 
 .nav-item:hover {
-  background: var(--hover-bg, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: var(--hover-bg);
 }
 
 .nav-item.active {
-  background: var(--gradient-primary);
-  color: var(--lime-bright);
-  box-shadow: 0 4px 12px var(--primary-a30);
+  background: var(--ios-blue);
+  color: white;
+  font-weight: 600;
+  box-shadow: var(--shadow-primary);
+}
+
+.nav-item:active {
+  transform: scale(0.98);
 }
 
 .all-pages-list {
@@ -424,6 +806,20 @@ function getRouteIcon(key: string) {
   max-height: 400px;
   overflow-y: auto;
   padding-right: 0.25rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 400px;
+    transform: translateY(0);
+  }
 }
 
 .all-pages-list::-webkit-scrollbar {
@@ -453,12 +849,29 @@ function getRouteIcon(key: string) {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   font-size: 0.8125rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: grab;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
+  user-select: none;
+}
+
+.page-item:active {
+  cursor: grabbing;
+}
+
+.page-item.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.page-item.drag-over {
+  background: var(--ios-blue);
+  color: white;
+  transform: translateX(8px) scale(1.03);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
 }
 
 .page-item:hover {
@@ -473,18 +886,18 @@ function getRouteIcon(key: string) {
   gap: 0.625rem;
   padding: 0.625rem 1rem;
   margin: 0.5rem 0;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
   background: var(--bg-primary, white);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.8125rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   transition: all 0.2s ease;
   font-weight: 500;
 }
 
 .toggle-pages:hover {
-  background: var(--bg-secondary, #f8fafc);
+  background: var(--bg-secondary);
   border-color: var(--accent-primary);
   color: var(--accent-primary);
 }
@@ -494,21 +907,22 @@ function getRouteIcon(key: string) {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
-  border-radius: 12px;
+  background: var(--fill-tertiary);
+  border-radius: var(--border-radius-lg);
   margin-bottom: 0.75rem;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: var(--border-width) solid var(--border-light);
 }
 
 .avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-radius: 10px;
+  background: var(--gradient-primary);
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-primary);
+  color: white;
+  box-shadow: 0 2px 8px var(--primary-a20);
 }
 
 .profile-info {
@@ -519,7 +933,7 @@ function getRouteIcon(key: string) {
 
 .profile-label {
   font-size: 0.65rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -527,14 +941,14 @@ function getRouteIcon(key: string) {
 .profile-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .version-info {
   padding: 0.75rem 1rem;
   text-align: center;
   font-size: 0.75rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
 }
 
 /* Main Content */
@@ -544,16 +958,16 @@ function getRouteIcon(key: string) {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 2rem 2.5rem;
-  background: var(--bg-primary, #fff);
+  padding: 1.5rem 2rem;
+  background: var(--bg-secondary);
   margin: 0;
   border-radius: 0;
 }
 
 .no-profile-banner {
   border: 1px solid #fde68a;
-  background: #fffbeb;
-  color: #92400e;
+  background: rgba(255, 204, 0, 0.1);
+  color: var(--ios-orange);
   padding: 0.9rem 1rem;
   border-radius: 14px;
   margin-bottom: 1.25rem;
@@ -597,18 +1011,18 @@ function getRouteIcon(key: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
   border-radius: 10px;
   cursor: pointer;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   transition: all 0.2s ease;
   z-index: 2;
 }
 
 .hero-close:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   border-color: var(--accent-primary);
 }
 
@@ -633,7 +1047,7 @@ function getRouteIcon(key: string) {
 .hero-title {
   font-size: 1.75rem;
   font-weight: 800;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   margin-bottom: 0.375rem;
   text-align: center;
   letter-spacing: -0.02em;
@@ -641,7 +1055,7 @@ function getRouteIcon(key: string) {
 
 .hero-subtitle {
   font-size: 0.9375rem;
-  color: var(--text-primary, #475569);
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 0.875rem;
   font-weight: 500;
@@ -650,7 +1064,7 @@ function getRouteIcon(key: string) {
 
 .hero-intro {
   font-size: 0.8125rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   line-height: 1.6;
   text-align: center;
   margin-bottom: 1rem;
@@ -678,11 +1092,11 @@ function getRouteIcon(key: string) {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
-  background: var(--card-bg, #ffffff);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   padding: 0.875rem;
   border-radius: 12px;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -691,7 +1105,7 @@ function getRouteIcon(key: string) {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px var(--primary-a15), 0 0 0 1px var(--primary-a20);
   border-color: var(--primary-a30);
-  background: var(--hover-bg, #f8fafc);
+  background: var(--hover-bg);
 }
 
 .point-icon {
@@ -727,13 +1141,13 @@ function getRouteIcon(key: string) {
 .point-text {
   flex: 1;
   font-size: 0.8125rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
 .point-text strong {
   display: block;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -754,30 +1168,31 @@ function getRouteIcon(key: string) {
   align-items: center;
   gap: 0.625rem;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  border: 1px solid var(--border-color, rgba(226, 232, 240, 0.6));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  background: var(--backdrop-light);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-smooth);
 }
 
 .stat-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px var(--primary-a15);
-  border-color: var(--primary-a30);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: var(--shadow-primary);
+  border-color: var(--primary-a15);
 }
 
 .stat-icon {
   width: 36px;
   height: 36px;
   background: var(--gradient-primary);
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--lime-bright);
-  box-shadow: 0 4px 12px var(--primary-a30);
+  color: white;
+  box-shadow: var(--shadow-primary);
 }
 
 .stat-info {
@@ -788,13 +1203,13 @@ function getRouteIcon(key: string) {
 .stat-value {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -802,11 +1217,11 @@ function getRouteIcon(key: string) {
 .section-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   margin-bottom: 1rem;
   padding-bottom: 0.625rem;
   border-bottom: 2px solid transparent;
-  background: linear-gradient(to right, var(--border-color, #e2e8f0) 0%, transparent 100%) no-repeat bottom;
+  background: linear-gradient(to right, var(--border-color) 0%, transparent 100%) no-repeat bottom;
   background-size: 100% 2px;
   letter-spacing: -0.01em;
   display: flex;
@@ -817,8 +1232,8 @@ function getRouteIcon(key: string) {
 .pages-count {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--text-tertiary, #94a3b8);
-  background: var(--hover-bg, #f1f5f9);
+  color: var(--text-tertiary);
+  background: var(--hover-bg);
   padding: 0.25rem 0.625rem;
   border-radius: 6px;
 }
@@ -835,25 +1250,63 @@ function getRouteIcon(key: string) {
 }
 
 .action-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.875rem;
   padding: 1rem 1.125rem;
-  background: var(--card-bg, #ffffff);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 14px;
+  background: var(--card-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-smooth);
   text-align: left;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-card:hover .remove-card-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.remove-card-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  z-index: 10;
+}
+
+.remove-card-btn:hover {
+  background: var(--error-red);
+  border-color: var(--error-red);
+  color: white;
+  transform: scale(1.1);
 }
 
 .action-card:hover {
-  background: var(--hover-bg, #f8fafc);
-  border-color: var(--primary-a50);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px var(--primary-a20), 0 0 0 1px var(--primary-a20);
+  background: var(--hover-bg);
+  border-color: var(--ios-blue);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: var(--shadow-primary-lg);
+}
+
+.action-card:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
 .action-icon {
@@ -862,10 +1315,10 @@ function getRouteIcon(key: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  transition: all var(--transition-smooth);
   position: relative;
 }
 
@@ -875,58 +1328,58 @@ function getRouteIcon(key: string) {
 }
 
 .action-icon.drive {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: var(--accent-primary);
+  background: linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%);
+  color: white;
 }
 
 .action-icon.wallet {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #d97706;
+  background: linear-gradient(135deg, var(--ios-orange) 0%, var(--ios-yellow) 100%);
+  color: white;
 }
 
 .action-icon.explorer {
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: #059669;
+  color: var(--ios-green);
 }
 
 .action-icon.network {
   background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-  color: #db2777;
+  color: var(--ios-pink);
 }
 
 .action-icon.domain {
   background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-  color: #6366f1;
+  color: var(--ios-blue);
 }
 
 .action-icon.staking {
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  color: #16a34a;
+  color: var(--ios-green);
 }
 
 .action-icon.dao {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #d97706;
+  color: var(--ios-orange);
 }
 
 .action-icon.gateways {
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: #059669;
+  color: var(--ios-green);
 }
 
 .action-icon.search {
   background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
-  color: #65a30d;
+  color: var(--ios-green);
 }
 
 .action-icon.help {
   background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
-  color: #ca8a04;
+  color: var(--ios-orange);
 }
 
 .action-icon.settings {
   background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-  color: #9333ea;
+  color: var(--ios-purple);
 }
 
 .action-info {
@@ -940,18 +1393,18 @@ function getRouteIcon(key: string) {
 .action-title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 .action-desc {
   font-size: 0.75rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
 .action-arrow {
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   transition: all 0.2s;
 }
 
@@ -976,7 +1429,7 @@ function getRouteIcon(key: string) {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.875rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
   border-radius: 10px;
@@ -984,7 +1437,7 @@ function getRouteIcon(key: string) {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--text-primary, #475569);
+  color: var(--text-primary);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
