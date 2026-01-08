@@ -159,6 +159,23 @@
               </select>
             </div>
           </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Brightness</span>
+              <span class="setting-desc">Adjust screen brightness ({{ brightness }}%)</span>
+            </div>
+            <div class="setting-control brightness-control">
+              <Sun :size="16" class="brightness-icon" />
+              <input 
+                type="range" 
+                min="50" 
+                max="100" 
+                v-model="brightness"
+                class="brightness-slider"
+              />
+              <span class="brightness-value">{{ brightness }}%</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -286,7 +303,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { 
   Settings,
   Palette,
@@ -307,6 +324,7 @@ import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
 const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
+const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
 const blockTrackers = ref(true);
 const exportingBackup = ref(false);
 const importingBackup = ref(false);
@@ -325,6 +343,17 @@ function toggleDarkMode() {
 watch(fontSize, (newSize) => {
   localStorage.setItem('lumen-font-size', newSize);
   document.documentElement.setAttribute('data-font-size', newSize);
+});
+
+watch(brightness, (newBrightness) => {
+  localStorage.setItem('lumen-brightness', newBrightness.toString());
+  document.documentElement.style.setProperty('--screen-brightness', `${newBrightness}%`);
+  document.body.style.filter = `brightness(${newBrightness}%)`;
+});
+
+// Apply brightness on mount
+onMounted(() => {
+  document.body.style.filter = `brightness(${brightness.value}%)`;
 });
 
 function getViewTitle(): string {
@@ -384,7 +413,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   display: flex;
   height: 100vh;
   min-height: 100vh;
-  background: var(--bg-tertiary, #f0f2f5);
+  background: var(--bg-tertiary);
   overflow: hidden;
 }
 
@@ -393,12 +422,14 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: var(--sidebar-bg, #ffffff);
+  background: var(--sidebar-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  color: var(--text-primary, #1a1a2e);
-  border-right: 2px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary);
+  border-right: var(--border-width) solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -414,23 +445,24 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   width: 40px;
   height: 40px;
   background: var(--gradient-primary);
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  box-shadow: var(--shadow-primary);
 }
 
 .logo-icon.large {
   width: 64px;
   height: 64px;
-  border-radius: 16px;
+  border-radius: var(--border-radius-xl);
 }
 
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .profile-card {
@@ -438,21 +470,22 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--bg-secondary, #f8fafc);
-  border-radius: 12px;
+  background: var(--fill-tertiary);
+  border-radius: var(--border-radius-lg);
   margin-bottom: 1.25rem;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: var(--border-width) solid var(--border-light);
 }
 
 .avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-radius: 10px;
+  background: var(--gradient-primary);
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-primary);
+  color: white;
+  box-shadow: 0 2px 8px var(--primary-a20);
 }
 
 .profile-info {
@@ -463,7 +496,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .profile-label {
   font-size: 0.65rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -471,7 +504,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .profile-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -490,7 +523,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .nav-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
@@ -507,13 +540,13 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-  background: var(--hover-bg, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
@@ -525,7 +558,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .version-info {
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   text-align: center;
 }
 
@@ -537,7 +570,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   flex-direction: column;
   overflow: hidden;
   padding: 2rem 2.5rem;
-  background: var(--bg-primary, #fff);
+  background: var(--bg-secondary);
   margin: 0;
   border-radius: 0;
 }
@@ -549,13 +582,13 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .content-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .content-header p {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
 
@@ -575,10 +608,18 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
-  background: var(--card-bg, white);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  transition: all var(--transition-fast);
+}
+
+.setting-item:hover {
+  background: var(--hover-bg);
+  border-color: var(--ios-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .setting-info {
@@ -590,12 +631,12 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .setting-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .setting-desc {
   font-size: 0.8rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .setting-control {
@@ -610,53 +651,53 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .setting-hint {
   margin-top: 0.5rem;
   font-size: 0.8rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .select-control {
   padding: 0.5rem 1rem;
-  background: var(--bg-secondary, #f1f5f9);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.85rem;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .input-control {
   padding: 0.5rem 1rem;
-  background: var(--bg-secondary, #f1f5f9);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.85rem;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   width: 150px;
 }
 
 .btn-secondary {
   padding: 0.5rem 1rem;
-  background: var(--bg-secondary, #f1f5f9);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-secondary:hover {
-  background: var(--border-color, #e2e8f0);
-  color: var(--text-primary, #1e293b);
+  background: var(--border-color);
+  color: var(--text-primary);
 }
 
 /* Theme Selector */
 .theme-selector {
   display: flex;
   gap: 0.5rem;
-  background: var(--bg-secondary, #f1f5f9);
+  background: var(--bg-secondary);
   padding: 0.375rem;
   border-radius: 10px;
-  border: 1px solid var(--border-color, #e2e8f0);
+  border: 1px solid var(--border-color);
 }
 
 .theme-option {
@@ -669,14 +710,14 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .theme-option:hover {
   background: var(--hover-bg, var(--primary-a10));
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .theme-option.active {
@@ -703,7 +744,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: var(--border-color, #e2e8f0);
+  background: var(--border-color);
   border-radius: 26px;
   transition: all 0.2s;
 }
@@ -715,7 +756,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   width: 20px;
   left: 3px;
   bottom: 3px;
-  background: white;
+  background: var(--text-primary);
   border-radius: 50%;
   transition: all 0.2s;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -729,6 +770,71 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   transform: translateX(22px);
 }
 
+/* Brightness Control */
+.brightness-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.brightness-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.brightness-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-color);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.brightness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.brightness-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
+}
+
+.brightness-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.brightness-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
+}
+
+.brightness-value {
+  min-width: 45px;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .status-badge {
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
@@ -737,8 +843,8 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .status-badge.connected {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 /* About Card */
@@ -748,7 +854,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   align-items: center;
   text-align: center;
   padding: 3rem;
-  background: var(--card-bg, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%));
+  background: var(--card-bg);
   border-radius: 20px;
   border: 1px solid var(--border-color, transparent);
 }
@@ -760,19 +866,19 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .about-card h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .about-card .version {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0 0 1rem 0;
 }
 
 .about-card .description {
   font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: 0 0 1.5rem 0;
 }
 

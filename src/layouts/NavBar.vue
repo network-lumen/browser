@@ -7,7 +7,7 @@
     <UiButton
       variant="none"
       class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
-      :style="{ background: 'var(--bg-primary, white)', color: 'var(--text-secondary, #64748b)', padding: '0.5rem' }"
+      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       :disabled="!canGoBack"
       title="Back"
       @click="previous"
@@ -16,7 +16,8 @@
     </UiButton>
     <UiButton
       variant="none"
-      class="cursor-pointer border-none bg-white border-radius-circle color-gray-blue hover-bg-black-a10 padding-50"
+      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       :disabled="!canGoForward"
       title="Forward"
       @click="next"
@@ -26,7 +27,8 @@
 
     <UiButton
       variant="none"
-      class="cursor-pointer border-none bg-white border-radius-circle color-gray-blue hover-bg-black-a10 padding-50"
+      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       :aria-busy="loading ? 'true' : 'false'"
       :disabled="loading"
       :title="loading ? 'Loading…' : 'Refresh'"
@@ -52,7 +54,8 @@
     <!-- quick links -->
     <UiButton
       variant="none"
-      class="cursor-pointer border-none bg-white border-radius-circle color-gray-blue hover-bg-black-a10 padding-50"
+      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       title="Home"
       @click="$emit('goto', 'lumen://home')"
     >
@@ -60,7 +63,8 @@
     </UiButton>
     <UiButton
       variant="none"
-      class="cursor-pointer border-none bg-white border-radius-circle color-gray-blue hover-bg-black-a10 padding-50"
+      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       title="Network"
       @click="$emit('goto', 'lumen://network')"
     >
@@ -68,7 +72,8 @@
     </UiButton>
     <UiButton
       variant="none"
-      class="cursor-pointer border-none bg-white border-radius-circle color-gray-blue hover-bg-black-a10 padding-50"
+      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       title="Drive"
       @click="$emit('goto', 'lumen://drive')"
     >
