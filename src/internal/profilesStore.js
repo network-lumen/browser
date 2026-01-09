@@ -98,6 +98,21 @@ export async function exportProfileBackup(id) {
         return { ok: false, error: 'backup_failed' };
     }
 }
+export async function exportProfilesBackup(ids) {
+    try {
+        const api = getApi();
+        if (!api || typeof api.exportBackups !== 'function') {
+            return { ok: false, error: 'backup_api_unavailable' };
+        }
+        const res = await api.exportBackups(Array.isArray(ids) ? ids : []);
+        if (!res)
+            return { ok: false, error: 'backup_failed' };
+        return res;
+    }
+    catch {
+        return { ok: false, error: 'backup_failed' };
+    }
+}
 export async function importProfileFromBackup() {
     try {
         const api = getApi();

@@ -145,6 +145,100 @@ async function ensureWalletForProfile(profile) {
   }
 }
 
+function sanitizeBackupFolderSegment(input) {
+  const reserved = new Set([
+    'CON',
+    'PRN',
+    'AUX',
+    'NUL',
+    'COM1',
+    'COM2',
+    'COM3',
+    'COM4',
+    'COM5',
+    'COM6',
+    'COM7',
+    'COM8',
+    'COM9',
+    'LPT1',
+    'LPT2',
+    'LPT3',
+    'LPT4',
+    'LPT5',
+    'LPT6',
+    'LPT7',
+    'LPT8',
+    'LPT9'
+  ]);
+
+  const raw = String(input || '').trim();
+  if (!raw) return '';
+  let name = raw
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[. ]+$/g, '');
+
+  if (!name) return '';
+  if (name.length > 48) name = name.slice(0, 48).trim();
+  if (reserved.has(name.toUpperCase())) name = `profile-${name}`;
+  return name;
+}
+
+function buildProfileBackupObject(p) {
+  const srcProfileDir = profileDir(p.id);
+  const srcPqcDir = pqcKeysDir();
+
+  // Decrypt mnemonic from local keystore
+  let mnemonicPlain = '';
+  try {
+    const ksSrc = path.join(srcProfileDir, 'keystore.json');
+    if (fs.existsSync(ksSrc)) {
+      const ks = readJson(ksSrc, null);
+      if (ks && ks.crypto) {
+        mnemonicPlain = decryptMnemonicLocal(ks);
+      }
+    }
+  } catch {}
+
+  // Load PQC key for this profile (if any)
+  let pqcKey = null;
+  try {
+    const addr = String(p.walletAddress || p.address || '').trim();
+    const keysFile = path.join(srcPqcDir, 'keys.json');
+    const linksFile = path.join(srcPqcDir, 'links.json');
+    if (addr && fs.existsSync(keysFile) && fs.existsSync(linksFile)) {
+      const linksRaw = readJson(linksFile, {});
+      const keysRaw = readJson(keysFile, {});
+      if (linksRaw && typeof linksRaw === 'object' && keysRaw && typeof keysRaw === 'object') {
+        const keyName = typeof linksRaw[addr] === 'string' ? String(linksRaw[addr]) : '';
+        const rec = keyName ? keysRaw[keyName] : null;
+        if (rec && typeof rec === 'object') {
+          pqcKey = {
+            name: rec.name || keyName,
+            scheme: rec.scheme || rec.Scheme || 'dilithium3',
+            publicKey: rec.publicKey || rec.public_key,
+            privateKey: rec.privateKey || rec.private_key,
+            createdAt: rec.createdAt || rec.created_at || null
+          };
+        }
+      }
+    }
+  } catch {}
+
+  return {
+    version: 1,
+    id: p.id,
+    name: p.name,
+    colorIndex: p.colorIndex,
+    role: p.role || 'user',
+    walletAddress: p.walletAddress || p.address || null,
+    createdAt: Date.now(),
+    mnemonic: mnemonicPlain || null,
+    pqc: pqcKey
+  };
+}
+
 function registerProfilesIpc() {
   ipcMain.handle('profiles:list', async () => {
     const { profiles, activeId } = loadProfilesFile();
@@ -268,62 +362,73 @@ function registerProfilesIpc() {
       const baseDir = res.filePaths[0];
       ensureDir(baseDir);
 
-      const srcProfileDir = profileDir(p.id);
-      const srcPqcDir = pqcKeysDir();
-
-      // Decrypt mnemonic from local keystore
-      let mnemonicPlain = '';
-      try {
-        const ksSrc = path.join(srcProfileDir, 'keystore.json');
-        if (fs.existsSync(ksSrc)) {
-          const ks = readJson(ksSrc, null);
-          if (ks && ks.crypto) {
-            mnemonicPlain = decryptMnemonicLocal(ks);
-          }
-        }
-      } catch {}
-
-      // Load PQC key for this profile (if any)
-      let pqcKey = null;
-      try {
-        const addr = String(p.walletAddress || p.address || '').trim();
-        const keysFile = path.join(srcPqcDir, 'keys.json');
-        const linksFile = path.join(srcPqcDir, 'links.json');
-        if (addr && fs.existsSync(keysFile) && fs.existsSync(linksFile)) {
-          const linksRaw = readJson(linksFile, {});
-          const keysRaw = readJson(keysFile, {});
-          if (linksRaw && typeof linksRaw === 'object' && keysRaw && typeof keysRaw === 'object') {
-            const keyName = typeof linksRaw[addr] === 'string' ? String(linksRaw[addr]) : '';
-            const rec = keyName ? keysRaw[keyName] : null;
-            if (rec && typeof rec === 'object') {
-              pqcKey = {
-                name: rec.name || keyName,
-                scheme: rec.scheme || rec.Scheme || 'dilithium3',
-                publicKey: rec.publicKey || rec.public_key,
-                privateKey: rec.privateKey || rec.private_key,
-                createdAt: rec.createdAt || rec.created_at || null
-              };
-            }
-          }
-        }
-      } catch {}
-
-      const backup = {
-        version: 1,
-        id: p.id,
-        name: p.name,
-        colorIndex: p.colorIndex,
-        role: p.role || 'user',
-        walletAddress: p.walletAddress || p.address || null,
-        createdAt: Date.now(),
-        mnemonic: mnemonicPlain || null,
-        pqc: pqcKey
-      };
+      const backup = buildProfileBackupObject(p);
 
       const backupPath = path.join(baseDir, 'profile.json');
       fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
 
       return { ok: true, path: backupPath };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('profiles:exportBackups', async (_evt, ids) => {
+    const requested = Array.isArray(ids) ? ids : [];
+    const uniqueIds = Array.from(
+      new Set(requested.map((x) => String(x || '').trim()).filter(Boolean))
+    );
+    if (!uniqueIds.length) return { ok: false, error: 'no_profiles_selected' };
+
+    const { profiles } = loadProfilesFile();
+    const byId = new Map(profiles.map((p) => [p.id, p]));
+
+    try {
+      const res = await dialog.showOpenDialog({
+        title: 'Select destination folder for backups',
+        properties: ['openDirectory', 'createDirectory']
+      });
+      if (res.canceled || !res.filePaths || !res.filePaths.length) {
+        return { ok: false, error: 'canceled' };
+      }
+      const baseDir = res.filePaths[0];
+      ensureDir(baseDir);
+
+      const results = [];
+      for (const id of uniqueIds) {
+        const p = byId.get(id);
+        if (!p) {
+          results.push({ id, ok: false, error: 'profile_not_found' });
+          continue;
+        }
+
+        try {
+          const seg = sanitizeBackupFolderSegment(p.name) || 'profile';
+          const baseName = `${seg}-${p.id}`;
+          let dirName = baseName;
+          let dstDir = path.join(baseDir, dirName);
+          let i = 1;
+          while (fs.existsSync(dstDir)) {
+            dirName = `${baseName}-${i++}`;
+            dstDir = path.join(baseDir, dirName);
+          }
+          ensureDir(dstDir);
+
+          const backupPath = path.join(dstDir, 'profile.json');
+          const backup = buildProfileBackupObject(p);
+          fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+
+          results.push({ id: p.id, ok: true, path: backupPath });
+        } catch (e) {
+          results.push({
+            id: p.id,
+            ok: false,
+            error: String(e && e.message ? e.message : e)
+          });
+        }
+      }
+
+      return { ok: true, baseDir, results };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

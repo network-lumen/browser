@@ -44,7 +44,7 @@
             @click="currentView = 'profiles'"
           >
             <User :size="18" />
-            <span>Profiles</span>
+            <span>Profiles &amp; backups</span>
           </button>
         </div>
 
@@ -201,21 +201,68 @@
       <!-- Profiles View -->
       <div v-else-if="currentView === 'profiles'" class="settings-section">
         <div class="setting-group">
+          <div class="setting-item profiles-header">
+            <div class="setting-info">
+              <span class="setting-label">Profiles</span>
+              <span class="setting-desc">Select one or more profiles to export.</span>
+            </div>
+            <div class="setting-control profile-select-actions">
+              <button
+                class="btn-secondary"
+                type="button"
+                @click="selectAllProfiles"
+                :disabled="!profiles.length"
+              >
+                Select all
+              </button>
+              <button
+                class="btn-secondary"
+                type="button"
+                @click="clearSelectedProfiles"
+                :disabled="!selectedProfileIds.length"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <div v-if="profiles.length" class="profiles-list">
+            <label
+              v-for="p in profiles"
+              :key="p.id"
+              class="profile-row"
+              :class="{ active: p.id === activeProfileId }"
+            >
+              <input
+                class="profile-checkbox"
+                type="checkbox"
+                :value="p.id"
+                v-model="selectedProfileIds"
+              />
+              <div class="profile-row-main">
+                <div class="profile-row-title">
+                  <span class="profile-title">{{ p.name || p.id }}</span>
+                  <span v-if="p.id === activeProfileId" class="profile-badge">Active</span>
+                </div>
+                <span class="profile-id">{{ p.id }}</span>
+              </div>
+            </label>
+          </div>
+          <p v-else class="setting-hint">No profiles found.</p>
+
           <div class="setting-item">
             <div class="setting-info">
-              <span class="setting-label">Profile backups</span>
-              <span class="setting-desc">
-                Export or import full backup folders (profiles + PQC keys).
-              </span>
+              <span class="setting-label">Backups</span>
+              <span class="setting-desc">Export or import full backup folders (profiles + PQC keys).</span>
             </div>
             <div class="setting-control profile-backup-actions">
               <button
                 class="btn-secondary"
                 type="button"
-                @click="onExportBackup"
-                :disabled="!hasActiveProfile || exportingBackup"
+                @click="onExportSelectedBackups"
+                :disabled="!selectedProfileIds.length || exportingBackup"
               >
-                Export active profile backup
+                Export selected ({{ selectedProfileIds.length }})
               </button>
               <button
                 class="btn-secondary"
@@ -228,8 +275,14 @@
             </div>
           </div>
           <p class="setting-hint">
-            Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys).
+            Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
           </p>
+          <p v-if="backupExportSummary" class="setting-hint">{{ backupExportSummary }}</p>
+          <div v-if="backupExportFailures.length" class="backup-failures">
+            <div v-for="f in backupExportFailures" :key="f.id" class="backup-failure">
+              {{ f.id }}: {{ f.error || 'failed' }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -367,7 +420,7 @@ import {
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
-import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
+import { exportProfilesBackup, importProfileFromBackup } from '../profilesStore';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
 
@@ -391,10 +444,40 @@ const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100
 const blockTrackers = ref(true);
 const exportingBackup = ref(false);
 const importingBackup = ref(false);
-const hasActiveProfile = computed(() => !!activeProfileId.value);
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
+const selectedProfileIds = ref<string[]>([]);
+const lastBackupExport = ref<
+  | null
+  | {
+      ok: boolean;
+      baseDir?: string;
+      results?: { id: string; ok: boolean; path?: string; error?: string }[];
+      error?: string;
+    }
+>(null);
+
+const backupExportSummary = computed(() => {
+  const res = lastBackupExport.value;
+  if (!res) return '';
+  if (!res.ok) return 'Backup export failed.';
+  const results = Array.isArray(res.results) ? res.results : [];
+  const okCount = results.filter((r) => r && r.ok).length;
+  const total = results.length || 0;
+  const base = res.baseDir ? ` to ${res.baseDir}` : '';
+  if (total <= 1) return `Exported ${okCount ? '1 profile' : '0 profiles'}${base}.`;
+  if (!okCount) return `Export failed for ${total} profiles${base}.`;
+  if (okCount === total) return `Exported ${okCount} profiles${base}.`;
+  return `Exported ${okCount}/${total} profiles${base}.`;
+});
+
+const backupExportFailures = computed(() => {
+  const res = lastBackupExport.value;
+  if (!res || !res.ok) return [];
+  const results = Array.isArray(res.results) ? res.results : [];
+  return results.filter((r) => r && r.ok === false);
+});
 
 const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
@@ -505,13 +588,53 @@ function getViewDescription(): string {
   return descs[currentView.value] || '';
 }
 
-async function onExportBackup() {
-  if (!activeProfileId.value || exportingBackup.value) return;
+function selectAllProfiles() {
+  selectedProfileIds.value = profiles.value.map((p) => p.id);
+}
+
+function clearSelectedProfiles() {
+  selectedProfileIds.value = [];
+  lastBackupExport.value = null;
+}
+
+watch(
+  () => profiles.value,
+  (next) => {
+    const valid = new Set(Array.isArray(next) ? next.map((p) => p.id) : []);
+    selectedProfileIds.value = selectedProfileIds.value.filter((id) => valid.has(id));
+    if (!selectedProfileIds.value.length && activeProfileId.value && valid.has(activeProfileId.value)) {
+      selectedProfileIds.value = [activeProfileId.value];
+    }
+  },
+  { immediate: true, deep: true },
+);
+
+watch(
+  () => currentView.value,
+  (v) => {
+    if (v !== 'profiles') return;
+    if (selectedProfileIds.value.length) return;
+    const activeId = activeProfileId.value;
+    if (!activeId) return;
+    if (profiles.value.some((p) => p.id === activeId)) {
+      selectedProfileIds.value = [activeId];
+    }
+  },
+);
+
+async function onExportSelectedBackups() {
+  if (exportingBackup.value) return;
+  const uniqueIds = Array.from(
+    new Set(selectedProfileIds.value.map((x) => String(x || '').trim()).filter(Boolean)),
+  );
+  if (!uniqueIds.length) return;
+
   exportingBackup.value = true;
+  lastBackupExport.value = null;
   try {
-    await exportProfileBackup(activeProfileId.value);
+    lastBackupExport.value = await exportProfilesBackup(uniqueIds);
   } catch {
-    // ignore errors
+    lastBackupExport.value = { ok: false, error: 'backup_failed' };
   } finally {
     exportingBackup.value = false;
   }
@@ -771,6 +894,98 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .profile-backup-actions {
   gap: 0.5rem;
+}
+
+.profile-select-actions {
+  gap: 0.5rem;
+}
+
+.profiles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast);
+}
+
+.profile-row:hover {
+  background: var(--hover-bg);
+}
+
+.profile-row.active {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.profile-checkbox {
+  width: 16px;
+  height: 16px;
+}
+
+.profile-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.profile-row-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.profile-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 520px;
+}
+
+.profile-badge {
+  font-size: 0.7rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.18);
+  color: var(--text-primary);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.profile-id {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 520px;
+}
+
+.backup-failures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.backup-failure {
+  font-size: 0.8rem;
+  color: var(--ios-red);
 }
 
 .setting-hint {
