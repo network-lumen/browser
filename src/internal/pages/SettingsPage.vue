@@ -79,7 +79,7 @@
 
       <!-- Version -->
       <div class="version-info">
-        <span>Lumen v1.0.0</span>
+        <span>Lumen v{{ appVersion }}</span>
       </div>
     </aside>
 
@@ -289,12 +289,27 @@
             </div>
           </div>
           <h2>Lumen Browser</h2>
-          <p class="version">Version 1.0.0</p>
-          <p class="description">A decentralized web browser powered by IPFS</p>
+          <p class="version">Version {{ appVersion }}</p>
+          <p class="description">The Decentralized Internet Stack</p>
           <div class="about-links">
-            <a href="#" class="about-link">Website</a>
-            <a href="#" class="about-link">GitHub</a>
-            <a href="#" class="about-link">Documentation</a>
+            <a
+              href="https://lumen-network.org/"
+              class="about-link"
+              @click.prevent="openInNewTabSafe('https://lumen-network.org/')"
+              >Website</a
+            >
+            <a
+              href="https://github.com/network-lumen"
+              class="about-link"
+              @click.prevent="openInNewTabSafe('https://github.com/network-lumen')"
+              >GitHub</a
+            >
+            <a
+              href="lumen://help"
+              class="about-link"
+              @click.prevent="openInNewTabSafe('lumen://help')"
+              >Documentation</a
+            >
           </div>
         </div>
       </div>
@@ -303,7 +318,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed, inject, onMounted } from 'vue';
 import { 
   Settings,
   Palette,
@@ -320,6 +335,20 @@ import {
 import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
+import pkg from '../../../package.json';
+
+const appVersion = String((pkg as any)?.version || '0.0.0');
+
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+
+function openInNewTabSafe(url: string) {
+  if (openInNewTab) {
+    openInNewTab(url);
+    return;
+  }
+  navigate?.(url, { push: true });
+}
 
 const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
