@@ -14,12 +14,20 @@
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
           @pointerdown="onTabPointerDown($event, t.id, i)"
-          @auxclick="(e) => e.button === 1 && closeTab(t.id)"
-        >
-          <div class="flex-align-justify-center border-radius-circle size-100">
-            <UiSpinner v-if="t.loading" class="color-gray-blue" size="sm" />
-            <Earth v-else :size="16" class="color-gray-blue" />
-          </div>
+            @auxclick="(e) => e.button === 1 && closeTab(t.id)"
+          >
+            <div class="flex-align-justify-center border-radius-circle size-100">
+              <UiSpinner v-if="t.loading" class="color-gray-blue" size="sm" />
+              <img
+                v-else-if="t.favicon"
+                class="favicon"
+                :src="t.favicon"
+                alt=""
+                draggable="false"
+                @error="onFaviconError(t)"
+              />
+              <Earth v-else :size="16" class="color-gray-blue" />
+            </div>
           <div class="label txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
             {{ currentTitle(t) }}
           </div>
@@ -66,19 +74,28 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { Earth, Plus, X } from 'lucide-vue-next';
-import TabBar from '../layouts/TabBar.vue';
-import UiSpinner from '../ui/UiSpinner.vue';
-import UiButton from '../ui/UiButton.vue';
-import { getInternalTitle } from '../internal/routes';
+  import TabBar from '../layouts/TabBar.vue';
+  import UiSpinner from '../ui/UiSpinner.vue';
+  import UiButton from '../ui/UiButton.vue';
+  import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
+  import {
+    buildCandidateUrl,
+    LOCAL_IPFS_GATEWAY_BASE,
+    loadWhitelistedGatewayBases,
+    probeUrl,
+    resolveDomainTarget,
+    resolveIpnsToCid,
+  } from '../internal/services/contentResolver';
 
 type TabHistoryEntry = { url: string; title?: string };
-type Tab = {
-  id: string;
-  url?: string;
-  history: TabHistoryEntry[];
-  history_position: number;
-  loading?: boolean;
-};
+  type Tab = {
+    id: string;
+    url?: string;
+    history: TabHistoryEntry[];
+    history_position: number;
+    loading?: boolean;
+    favicon?: string | null;
+  };
 
 const tabs = ref<Tab[]>([]);
 const activeId = ref<string>('');
@@ -186,14 +203,125 @@ function openInNewTab(url: string) {
   nextTick(recalcLabelWidth);
 }
 
-// Expose tab opening to internal pages via provide/inject
-provide('openInNewTab', (url: string) => {
-  openInNewTab(url);
-});
+  // Expose tab opening to internal pages via provide/inject
+  provide('openInNewTab', (url: string) => {
+    openInNewTab(url);
+  });
 
-function measureLayout() {
-  const root = hdr.value;
-  if (!root) return;
+  const INTERNAL_KEYS = new Set((INTERNAL_ROUTE_KEYS || []).map((k: string) => String(k).toLowerCase()));
+
+  function parseLumenHost(rawUrl: string): string {
+    const s = String(rawUrl || '').trim();
+    if (!/^lumen:\/\//i.test(s)) return '';
+    const withoutScheme = s.slice('lumen://'.length);
+    return (withoutScheme.split(/[\/?#]/, 1)[0] || '').trim().toLowerCase();
+  }
+
+  function isDomainHost(host: string): boolean {
+    const h = String(host || '').trim().toLowerCase();
+    if (!h) return false;
+    if (INTERNAL_KEYS.has(h)) return false;
+    return h.includes('.');
+  }
+
+  const faviconCacheByHost = new Map<string, string | null>();
+  const faviconInflightByHost = new Map<string, Promise<string | null>>();
+
+  async function resolveFaviconForHost(host: string): Promise<string | null> {
+    const h = String(host || '').trim().toLowerCase();
+    if (!isDomainHost(h)) return null;
+
+    try {
+      const { target } = await resolveDomainTarget(h);
+      const cid =
+        target.proto === 'ipfs'
+          ? String(target.id || '').trim()
+          : await resolveIpnsToCid(target.id).catch(() => null);
+
+      if (!cid) return null;
+
+      const path = '/favicon.ico';
+      const ipfsTarget = { proto: 'ipfs' as const, id: cid };
+
+      const localUrl = buildCandidateUrl(LOCAL_IPFS_GATEWAY_BASE, ipfsTarget, path, '');
+      if (await probeUrl(localUrl, 1500)) return localUrl;
+
+      const bases = await loadWhitelistedGatewayBases().catch(() => [] as string[]);
+      if (!bases.length) return null;
+
+      const probes = bases.map((base) => {
+        const url = buildCandidateUrl(base, ipfsTarget, path, '');
+        return probeUrl(url, 1500).then((ok) => {
+          if (!ok) throw new Error('not_found');
+          return url;
+        });
+      });
+
+      return await Promise.any(probes);
+    } catch {
+      return null;
+    }
+  }
+
+  async function getFaviconForHost(host: string): Promise<string | null> {
+    const h = String(host || '').trim().toLowerCase();
+    if (!h) return null;
+    if (faviconCacheByHost.has(h)) return faviconCacheByHost.get(h) ?? null;
+    const inflight = faviconInflightByHost.get(h);
+    if (inflight) return await inflight;
+
+    const p = resolveFaviconForHost(h)
+      .then((res) => {
+        faviconCacheByHost.set(h, res ?? null);
+        faviconInflightByHost.delete(h);
+        return res ?? null;
+      })
+      .catch(() => {
+        faviconCacheByHost.set(h, null);
+        faviconInflightByHost.delete(h);
+        return null;
+      });
+
+    faviconInflightByHost.set(h, p);
+    return await p;
+  }
+
+  const tabHostById = new Map<string, string>();
+
+  function onFaviconError(t: Tab) {
+    t.favicon = null;
+  }
+
+  async function ensureTabFavicon(t: Tab) {
+    const url = String(t.url || '').trim();
+    const host = parseLumenHost(url);
+
+    const prev = tabHostById.get(t.id) || '';
+    if (prev === host) return;
+    tabHostById.set(t.id, host);
+
+    if (!host || !isDomainHost(host)) {
+      t.favicon = null;
+      return;
+    }
+
+    const reqHost = host;
+    const icon = await getFaviconForHost(reqHost);
+    if (tabHostById.get(t.id) !== reqHost) return;
+    t.favicon = icon;
+  }
+
+  watch(
+    () => tabs.value.map((t) => t.url || ''),
+    () => {
+      tabs.value.forEach((t) => void ensureTabFavicon(t));
+    },
+    { immediate: true },
+  );
+  
+  function measureLayout() {
+    const root = hdr.value;
+    if (!root) return;
   const nodes = Array.from(root.querySelectorAll<HTMLElement>('.tab'));
   const rootLeft = root.getBoundingClientRect().left;
   layout.value = nodes.map((n, i) => {
@@ -376,10 +504,17 @@ function createResizeObserver() {
 </script>
 
 <style scoped>
-.main-shell {
-  min-height: 100vh;
-  background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
-              radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
-              linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
-}
-</style>
+  .main-shell {
+    min-height: 100vh;
+    background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
+                radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
+                linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
+  }
+
+  .favicon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    object-fit: cover;
+  }
+  </style>

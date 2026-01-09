@@ -313,29 +313,44 @@ function refresh() {
   emit('refresh-request');
 }
 
-function normalizeInput(raw: string): string {
-  const v = String(raw || '').trim();
-  if (!v) return 'lumen://home';
+  function normalizeInput(raw: string): string {
+    const v = String(raw || '').trim();
+    if (!v) return 'lumen://home';
 
-  // already a lumen:// URL
-  if (/^lumen:\/\//i.test(v)) {
-    const withoutScheme = v.slice('lumen://'.length);
-    const host = (withoutScheme.split(/[\/?#]/, 1)[0] || '').toLowerCase();
-    const builtin = ['home', 'search', 'drive', 'settings', 'network', 'gateways', 'help'];
-    if (!host) return 'lumen://home';
-    if (builtin.includes(host)) return `lumen://${host}`;
-    return v;
+    // preserve any lumen:// URL as-is (including query/hash)
+    if (/^lumen:\/\//i.test(v)) return v;
+
+    // allow http(s) URLs
+    if (/^https?:\/\//i.test(v)) return v;
+
+    // allow bare internal routes ("home", "wallet"...)
+    const lowered = v.toLowerCase();
+    const builtin = [
+      'home',
+      'search',
+      'drive',
+      'wallet',
+      'network',
+      'settings',
+      'help',
+      'domain',
+      'explorer',
+      'dao',
+      'ipfs',
+      'gateways',
+      'release',
+      'newtab',
+    ];
+    if (builtin.includes(lowered)) return `lumen://${lowered}`;
+
+    // "mydomain.com" -> lumen://mydomain.com
+    if (!/^\w+:/i.test(v) && /\./.test(v) && !/\s/.test(v)) {
+      return `lumen://${v}`;
+    }
+
+    const q = encodeURIComponent(v);
+    return `lumen://search?q=${q}`;
   }
-
-  const lowered = v.toLowerCase();
-  const builtin = ['home', 'search', 'drive', 'settings', 'network', 'gateways', 'help'];
-  if (builtin.includes(lowered)) {
-    return `lumen://${lowered}`;
-  }
-
-  const q = encodeURIComponent(v);
-  return `lumen://search?q=${q}`;
-}
 
 function onEnter(ev: KeyboardEvent) {
   const el = ev.target as HTMLInputElement | null;

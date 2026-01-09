@@ -4,6 +4,7 @@ import SettingsPage from './pages/SettingsPage.vue';
 import DrivePage from './pages/DrivePage.vue';
 import IpfsPage from './pages/IpfsPage.vue';
 import SitePage from './pages/SitePage.vue';
+import WebPage from './pages/WebPage.vue';
 import GatewaysPage from './pages/GatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
@@ -51,6 +52,9 @@ function parseInternalKey(rawUrl) {
 }
 export const INTERNAL_ROUTE_KEYS = Object.keys(INTERNAL_ROUTES);
 export function resolveInternalComponent(rawUrl) {
+    const asString = String(rawUrl || '').trim();
+    if (/^https?:\/\//i.test(asString))
+        return WebPage;
     const key = parseInternalKey(rawUrl);
     const route = INTERNAL_ROUTES[key];
     if (route)
@@ -60,6 +64,16 @@ export function resolveInternalComponent(rawUrl) {
     return INTERNAL_ROUTES.search.component;
 }
 export function getInternalTitle(rawUrl) {
+    const asString = String(rawUrl || '').trim();
+    if (/^https?:\/\//i.test(asString)) {
+        try {
+            const u = new URL(asString);
+            return (u.hostname || asString).trim();
+        }
+        catch {
+            return asString || 'New tab';
+        }
+    }
     const key = parseInternalKey(rawUrl);
     const route = INTERNAL_ROUTES[key];
     if (route)

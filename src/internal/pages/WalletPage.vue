@@ -19,37 +19,7 @@
         </div>
       </div>
 
-      <!-- Wallet Status -->
-      <div
-        class="wallet-status"
-        :class="{ connected: isConnected }"
-        @click="isConnected ? disconnectWallet() : connectWallet()"
-      >
-        <div class="status-dot"></div>
-        <span>{{ isConnected ? 'Connected' : 'Not Connected' }}</span>
-      </div>
-
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Assets</span>
-          <button
-            class="nav-item"
-            :class="{ active: currentView === 'overview' }"
-            @click="currentView = 'overview'"
-          >
-            <LayoutDashboard :size="18" />
-            <span>Overview</span>
-          </button>
-          <button
-            class="nav-item"
-            :class="{ active: currentView === 'tokens' }"
-            @click="currentView = 'tokens'"
-          >
-            <Coins :size="18" />
-            <span>Tokens</span>
-          </button>
-        </div>
-
         <div class="nav-section">
           <span class="nav-label">Activity</span>
           <button

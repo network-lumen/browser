@@ -231,13 +231,15 @@ const ORDER_KEY = 'lumen_all_pages_order';
 const savedOrder = localStorage.getItem(ORDER_KEY);
 const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
 
-const allRoutes = computed(() => {
-  const routes = INTERNAL_ROUTE_KEYS;
-  if (customOrder.value.length === 0) return routes;
-  
-  // Sort berdasarkan custom order, items yang tidak ada di custom order di akhir
-  const ordered = [...routes].sort((a, b) => {
-    const indexA = customOrder.value.indexOf(a);
+  const allRoutes = computed(() => {
+    const routes = INTERNAL_ROUTE_KEYS.filter(
+      (key) => !['ipfs', 'gateways', 'release'].includes(key),
+    );
+    if (customOrder.value.length === 0) return routes;
+    
+    // Sort berdasarkan custom order, items yang tidak ada di custom order di akhir
+    const ordered = [...routes].sort((a, b) => {
+      const indexA = customOrder.value.indexOf(a);
     const indexB = customOrder.value.indexOf(b);
     if (indexA === -1 && indexB === -1) return 0;
     if (indexA === -1) return 1;
