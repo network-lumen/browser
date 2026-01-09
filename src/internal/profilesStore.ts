@@ -19,6 +19,17 @@ declare global {
         create: (name: string) => Promise<Profile | null>;
         export: (id: string) => Promise<string | null>;
         exportBackup?: (id: string) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
+        exportBackups?: (
+          ids: string[]
+        ) => Promise<
+          | {
+              ok: boolean;
+              baseDir?: string;
+              results?: { id: string; ok: boolean; path?: string; error?: string }[];
+              error?: string;
+            }
+          | null
+        >;
         import: (json: string) => Promise<Profile | null>;
         importBackup?: () => Promise<{ ok: boolean; selectedId?: string; error?: string } | null>;
         delete: (id: string) => Promise<{ profiles: Profile[]; activeId: string }>;
@@ -127,6 +138,25 @@ export async function exportProfileBackup(id: string): Promise<{ ok: boolean; pa
       return { ok: false, error: 'backup_api_unavailable' };
     }
     const res = await api.exportBackup(id);
+    if (!res) return { ok: false, error: 'backup_failed' };
+    return res;
+  } catch {
+    return { ok: false, error: 'backup_failed' };
+  }
+}
+
+export async function exportProfilesBackup(ids: string[]): Promise<{
+  ok: boolean;
+  baseDir?: string;
+  results?: { id: string; ok: boolean; path?: string; error?: string }[];
+  error?: string;
+}> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.exportBackups !== 'function') {
+      return { ok: false, error: 'backup_api_unavailable' };
+    }
+    const res = await api.exportBackups(Array.isArray(ids) ? ids : []);
     if (!res) return { ok: false, error: 'backup_failed' };
     return res;
   } catch {

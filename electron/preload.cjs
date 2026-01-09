@@ -48,6 +48,7 @@ contextBridge.exposeInMainWorld('lumen', {
     create: (name) => ipcRenderer.invoke('profiles:create', name),
     export: (id) => ipcRenderer.invoke('profiles:export', id),
     exportBackup: (id) => ipcRenderer.invoke('profiles:exportBackup', id),
+    exportBackups: (ids) => ipcRenderer.invoke('profiles:exportBackups', ids),
     import: (json) => ipcRenderer.invoke('profiles:import', json),
     importBackup: () => ipcRenderer.invoke('profiles:importBackup'),
     delete: (id) => ipcRenderer.invoke('profiles:delete', id)
