@@ -6,6 +6,7 @@
       class="webview"
       :src="currentHttpUrl"
       partition="persist:lumen"
+      allowpopups
       :webpreferences="webprefs"
       @will-navigate="onWillNavigate"
       @did-navigate="onDidNavigate"
@@ -33,6 +34,11 @@ const webprefs =
 
 function isHttpUrl(raw: string): boolean {
   return /^\s*https?:\/\//i.test(String(raw || ""));
+}
+
+function isAllowedNewTabUrl(raw: string): boolean {
+  const s = String(raw || "").trim();
+  return isHttpUrl(s) || /^lumen:\/\//i.test(s);
 }
 
 const currentHttpUrl = computed(() => {
@@ -118,7 +124,7 @@ function onNewWindow(ev: any) {
   if (!pageActive.value) return;
   ev.preventDefault?.();
   const href = String(ev?.url || "").trim();
-  if (isHttpUrl(href)) openInNewTab?.(href);
+  if (isAllowedNewTabUrl(href)) openInNewTab?.(href);
 }
 
 onMounted(() => {
@@ -151,4 +157,3 @@ onBeforeUnmount(() => {
   background: var(--bg-primary);
 }
 </style>
-

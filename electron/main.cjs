@@ -155,6 +155,49 @@ app.whenReady().then(() => {
     console.warn('[electron] failed to set userData path', e);
   }
 
+  // Route any window.open / target=_blank (including from <webview>) into our tab system.
+  // This prevents Electron from creating a separate "Chromium-like" popup window.
+  try {
+    app.on('web-contents-created', (_event, contents) => {
+      if (!contents) return;
+
+      const forwardToTabs = (url) => {
+        try {
+          const s = String(url || '').trim();
+          if (!s) return;
+          if (!/^https?:\/\//i.test(s) && !/^lumen:\/\//i.test(s)) return;
+          const owner =
+            typeof contents.getOwnerBrowserWindow === 'function'
+              ? contents.getOwnerBrowserWindow()
+              : null;
+          const fallback =
+            getMainWindow() ||
+            BrowserWindow.getAllWindows()[0] ||
+            BrowserWindow.getFocusedWindow();
+          const targetWin = owner || fallback;
+          const wc = targetWin && targetWin.webContents ? targetWin.webContents : null;
+          if (!wc) return;
+          wc.send('tabs:openInNewTab', s);
+        } catch {}
+      };
+
+      try {
+        contents.setWindowOpenHandler(({ url }) => {
+          forwardToTabs(url);
+          return { action: 'deny' };
+        });
+      } catch {}
+
+      // Backward compat for older Electron events.
+      try {
+        contents.on('new-window', (event, url) => {
+          try { event.preventDefault(); } catch {}
+          forwardToTabs(url);
+        });
+      } catch {}
+    });
+  } catch {}
+
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
   startIpfsSeedBootstrapper();

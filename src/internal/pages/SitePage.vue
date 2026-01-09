@@ -61,7 +61,7 @@
           :src="resolvedHttpUrl"
           ref="siteFrame"
           referrerpolicy="no-referrer"
-          sandbox="allow-scripts allow-forms allow-same-origin"
+          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
         ></iframe>
       </div>
     </main>

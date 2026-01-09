@@ -114,6 +114,7 @@ const draggingWidth = ref(0);
 const layout = ref<{ id: string; left: number; width: number; center: number }[]>([]);
 const dropIndex = ref(-1);
 const shifts = ref<Record<string, number>>({});
+let tabsOpenUnsub: null | (() => void) = null;
 
 const labelWidth = ref(200);
 const MIN_LABEL = 0;
@@ -139,11 +140,28 @@ onMounted(async () => {
   }
   recalcLabelWidth();
   createResizeObserver();
+
+  try {
+    const api: any = (window as any).lumen;
+    if (api && typeof api.tabsOnOpenInNewTab === 'function') {
+      tabsOpenUnsub = api.tabsOnOpenInNewTab((url: string) => {
+        const next = String(url || '').trim();
+        if (!next) return;
+        openInNewTab(next);
+      });
+    }
+  } catch {
+    // ignore
+  }
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', recalcLabelWidth);
   ro?.disconnect();
+  try {
+    tabsOpenUnsub?.();
+  } catch {}
+  tabsOpenUnsub = null;
 });
 
 watch(

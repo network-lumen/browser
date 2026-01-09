@@ -165,6 +165,7 @@
             :src="contentUrl"
             class="embed"
             partition="persist:lumen"
+            allowpopups
             :webpreferences="webprefs"
             @will-navigate="onWebviewWillNavigate"
             @did-navigate="onWebviewDidNavigate"
@@ -779,6 +780,7 @@ function onWebviewNewWindow(ev: any) {
   const href = String(ev?.url || "");
   const lumen = toLumenFromWebHref(href);
   if (lumen) openInNewTab?.(lumen);
+  else if (/^\s*https?:\/\//i.test(href)) openInNewTab?.(href.trim());
 }
 
 async function load() {

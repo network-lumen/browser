@@ -1,6 +1,21 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('lumen', {
+  tabsOnOpenInNewTab: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        const url = typeof payload === 'string' ? payload : payload && payload.url ? payload.url : '';
+        callback(String(url || ''));
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('tabs:openInNewTab', handler);
+    return () => {
+      ipcRenderer.removeListener('tabs:openInNewTab', handler);
+    };
+  },
   settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
   settingsSet: (partial) => ipcRenderer.invoke('settings:set', partial || {}),
   settingsOnChanged: (callback) => {

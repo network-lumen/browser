@@ -4,6 +4,42 @@ const path = require('node:path');
 let splashWindow = null;
 let mainWindow = null;
 
+function isAllowedNewTabUrl(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return false;
+  return /^https?:\/\//i.test(s) || /^lumen:\/\//i.test(s);
+}
+
+function wireWindowOpenToTabs(win) {
+  if (!win || win.isDestroyed()) return;
+  const wc = win.webContents;
+  if (!wc) return;
+
+  try {
+    wc.setWindowOpenHandler(({ url }) => {
+      if (isAllowedNewTabUrl(url)) {
+        try {
+          wc.send('tabs:openInNewTab', String(url || ''));
+        } catch {}
+      }
+      return { action: 'deny' };
+    });
+  } catch {}
+
+  try {
+    wc.on('new-window', (event, url) => {
+      try {
+        event.preventDefault();
+      } catch {}
+      if (isAllowedNewTabUrl(url)) {
+        try {
+          wc.send('tabs:openInNewTab', String(url || ''));
+        } catch {}
+      }
+    });
+  } catch {}
+}
+
 function createSplashWindow() {
   if (splashWindow && !splashWindow.isDestroyed()) return splashWindow;
 
@@ -26,6 +62,7 @@ function createSplashWindow() {
 
   splashWindow.setMenu(null);
   splashWindow.setMenuBarVisibility(false);
+  wireWindowOpenToTabs(splashWindow);
 
   const devServerUrl =
     process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
@@ -81,6 +118,7 @@ function createMainWindow() {
 
   mainWindow.setMenu(null);
   mainWindow.setMenuBarVisibility(false);
+  wireWindowOpenToTabs(mainWindow);
 
   const devServerUrl =
     process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
