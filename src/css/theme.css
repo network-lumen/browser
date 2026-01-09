@@ -91,6 +91,7 @@
     --card-bg: #ffffff;
     --sidebar-bg: rgba(255, 255, 255, 0.7);
     --hover-bg: #0000000A;
+    --tab-active-bg: rgba(var(--black-rgb), 0.1);
     --fill-primary: #78788033;
     --fill-secondary: #78788028;
     --fill-tertiary: #7676801E;
@@ -232,6 +233,7 @@
     --card-bg: #2C2C2E;
     --sidebar-bg: #1C1C1E;
     --hover-bg: rgba(255, 255, 255, 0.08);
+    --tab-active-bg: rgba(255, 255, 255, 0.18);
     --fill-primary: rgba(120, 120, 128, 0.36);
     --fill-secondary: rgba(120, 120, 128, 0.32);
     --fill-tertiary: rgba(118, 118, 128, 0.24);

@@ -528,4 +528,19 @@ function createResizeObserver() {
     border-radius: 3px;
     object-fit: cover;
   }
-  </style>
+
+  .tabs-header .tab {
+    position: relative;
+    border: 1px solid transparent;
+    background: transparent;
+  }
+
+  .tabs-header .tab.active {
+    background: var(--tab-active-bg, rgba(0, 0, 0, 0.25));
+    z-index: 2;
+  }
+
+  .tabs-header .tab.active .label {
+    color: var(--text-primary, #0f172a);
+  }
+    </style>
