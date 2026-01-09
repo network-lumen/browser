@@ -65,19 +65,10 @@
       variant="none"
       class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
       :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
-      title="Network"
-      @click="$emit('goto', 'lumen://network')"
-    >
-      <Globe :size="18" />
-    </UiButton>
-    <UiButton
-      variant="none"
-      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
-      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
       title="Drive"
       @click="$emit('goto', 'lumen://drive')"
     >
-      <Folder :size="18" />
+      <Cloud :size="18" />
     </UiButton>
 
     <!-- profiles -->
@@ -194,7 +185,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Folder, Globe, User, Trash2 } from 'lucide-vue-next';
+  import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, User, Trash2 } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import {

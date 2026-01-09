@@ -78,6 +78,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import UiSpinner from '../ui/UiSpinner.vue';
   import UiButton from '../ui/UiButton.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
+  import lumenFavicon from '../img/favicon.ico';
   import {
     buildCandidateUrl,
     LOCAL_IPFS_GATEWAY_BASE,
@@ -300,7 +301,17 @@ function openInNewTab(url: string) {
     if (prev === host) return;
     tabHostById.set(t.id, host);
 
-    if (!host || !isDomainHost(host)) {
+    if (!host) {
+      t.favicon = lumenFavicon;
+      return;
+    }
+
+    if (INTERNAL_KEYS.has(host)) {
+      t.favicon = lumenFavicon;
+      return;
+    }
+
+    if (!isDomainHost(host)) {
       t.favicon = null;
       return;
     }

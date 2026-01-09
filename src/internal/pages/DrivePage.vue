@@ -4,7 +4,7 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo-icon">
-          <HardDrive :size="22" />
+          <Cloud :size="22" />
         </div>
         <span class="logo-text">Drive</span>
       </div>
@@ -476,7 +476,7 @@
       <!-- Empty State -->
       <div v-else class="empty-state">
         <div class="empty-icon">
-          <HardDrive :size="64" stroke-width="1" />
+          <Cloud :size="64" stroke-width="1" />
         </div>
         <h3 class="txt-md txt-weight-strong margin-top-50">
           {{ isBrowsing ? "Empty folder" : "No saved content" }}
@@ -1134,7 +1134,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, inject } from "vue";
 import {
-  HardDrive,
+  Cloud,
   Download,
   Database,
   Plus,
