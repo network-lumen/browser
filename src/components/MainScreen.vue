@@ -14,6 +14,7 @@
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
           @pointerdown="onTabPointerDown($event, t.id, i)"
+          @click="onTabClick(t.id)"
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
             <div class="flex-align-justify-center border-radius-circle size-100">
@@ -119,6 +120,11 @@ let tabsOpenUnsub: null | (() => void) = null;
 const labelWidth = ref(200);
 const MIN_LABEL = 0;
 const MAX_LABEL = 220;
+let tabSeq = 0;
+function nextTabId(): string {
+  tabSeq += 1;
+  return `tab-${tabSeq}-${Date.now().toString(36)}`;
+}
 const GAP = 1;
 
 function tabClasses(t: Tab) {
@@ -126,6 +132,11 @@ function tabClasses(t: Tab) {
     'active': t.id === activeId.value,
     'dragging z-2 cursor-events-none': draggingId.value === t.id
   };
+}
+
+function onTabClick(id: string) {
+  if (!id) return;
+  activeId.value = id;
 }
 
 function tabsHeaderHeight(): number {
@@ -178,7 +189,7 @@ function currentTitle(t: Tab): string {
 }
 
 function makeTab(partial?: Partial<Tab>): Tab {
-  const id = `tab-${tabs.value.length + 1}`;
+  const id = nextTabId();
   const defaultUrl = 'lumen://newtab';
   const defaultTitle = getInternalTitle(defaultUrl);
   const history = partial?.history || [{ url: defaultUrl, title: defaultTitle }];
@@ -391,7 +402,11 @@ function onTabPointerDown(e: PointerEvent, id: string, idx: number) {
   const el = e.currentTarget as HTMLElement | null;
   if (!el) return;
 
-  el.setPointerCapture(e.pointerId);
+  try {
+    el.setPointerCapture(e.pointerId);
+  } catch {
+    // ignore
+  }
 
   draggingId.value = id;
   dragStartX.value = e.clientX;
@@ -454,50 +469,57 @@ function onTabPointerDown(e: PointerEvent, id: string, idx: number) {
   };
 
   const onUp = async (ev: PointerEvent) => {
-    el.releasePointerCapture(ev.pointerId);
-    document.removeEventListener('pointermove', onMove);
-    document.removeEventListener('pointerup', onUp);
-    document.documentElement.style.userSelect = '';
+    try {
+      try {
+        el.releasePointerCapture(ev.pointerId);
+      } catch {
+        // ignore
+      }
 
-    const didDrag = isDragging.value;
-    isDragging.value = false;
+      const didDrag = isDragging.value;
+      isDragging.value = false;
 
-    const before = currentLeftById();
+      const before = currentLeftById();
 
-    if (didDrag) {
-      const from = startIndex.value;
-      let to = dropIndex.value;
-      if (to > from) to -= 1;
+      if (didDrag) {
+        const from = startIndex.value;
+        let to = dropIndex.value;
+        if (to > from) to -= 1;
 
-      if (from !== -1 && to !== -1 && from !== to) {
-        const arr = tabs.value.slice();
-        const [moved] = arr.splice(from, 1);
-        arr.splice(to, 0, moved);
-        tabs.value = arr;
-        activeId.value = moved.id;
+        if (from !== -1 && to !== -1 && from !== to) {
+          const arr = tabs.value.slice();
+          const [moved] = arr.splice(from, 1);
+          arr.splice(to, 0, moved);
+          tabs.value = arr;
+          activeId.value = moved.id;
 
-        await nextTick();
+          await nextTick();
 
-        const after = currentLeftById();
-        const root = hdr.value;
-        if (root) {
-          root.querySelectorAll<HTMLElement>('.tab').forEach((node) => {
-            const idNode = node.dataset.id as string;
-            if (before[idNode] === undefined || after[idNode] === undefined) return;
-            const delta = before[idNode] - after[idNode];
-            node.style.transform = `translateX(${delta}px)`;
-            void node.offsetWidth;
-            node.style.transform = '';
-          });
+          const after = currentLeftById();
+          const root = hdr.value;
+          if (root) {
+            root.querySelectorAll<HTMLElement>('.tab').forEach((node) => {
+              const idNode = node.dataset.id as string;
+              if (before[idNode] === undefined || after[idNode] === undefined) return;
+              const delta = before[idNode] - after[idNode];
+              node.style.transform = `translateX(${delta}px)`;
+              void node.offsetWidth;
+              node.style.transform = '';
+            });
+          }
         }
       }
-    }
+    } finally {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.documentElement.style.userSelect = '';
 
-    draggingId.value = null;
-    dragDx.value = 0;
-    startIndex.value = -1;
-    dropIndex.value = -1;
-    shifts.value = {};
+      draggingId.value = null;
+      dragDx.value = 0;
+      startIndex.value = -1;
+      dropIndex.value = -1;
+      shifts.value = {};
+    }
   };
 
   document.addEventListener('pointermove', onMove);
@@ -551,6 +573,11 @@ function createResizeObserver() {
     position: relative;
     border: 1px solid transparent;
     background: transparent;
+  }
+
+  .tabs-header {
+    position: relative;
+    z-index: 1000;
   }
 
   .tabs-header .tab.active {
