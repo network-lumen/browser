@@ -212,7 +212,15 @@ function addTab() {
 }
 
 function closeTab(id: string) {
-  if (tabs.value.length === 1) return;
+  if (tabs.value.length === 1) {
+    const only = tabs.value[0];
+    if (!only || only.id !== id) return;
+    const t = makeTab();
+    tabs.value = [t];
+    activeId.value = t.id;
+    nextTick(recalcLabelWidth);
+    return;
+  }
   const idx = tabs.value.findIndex((t) => t.id === id);
   if (idx === -1) return;
   const closingActive = activeId.value === id;
