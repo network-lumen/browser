@@ -15,7 +15,7 @@
           <button
             class="plans-btn"
             type="button"
-            @click="saveToDrive"
+            @click="openSaveModal"
             :class="{ 'save-active': saved }"
             :disabled="!rootCid || loading || saving || saved"
             :title="
@@ -204,6 +204,56 @@
         </div>
       </template>
     </main>
+
+    <Transition name="fade">
+      <div
+        v-if="showSaveModal"
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        @click="closeSaveModal"
+      >
+        <div class="modal" @click.stop>
+          <header class="modal-header">
+            <h3>Save to Drive</h3>
+            <button class="modal-close" type="button" @click="closeSaveModal">
+              <span>×</span>
+            </button>
+          </header>
+
+          <div class="modal-body">
+            <label class="modal-label" for="save-name">Name</label>
+            <input
+              id="save-name"
+              v-model="saveNameDraft"
+              class="modal-input"
+              type="text"
+              :placeholder="saveNamePlaceholder"
+              :disabled="savePreparing || saving"
+              @keydown.enter.prevent="confirmSaveToDrive"
+            />
+
+            <div v-if="saveModalError" class="modal-error">
+              {{ saveModalError }}
+            </div>
+          </div>
+
+          <footer class="modal-actions">
+            <button class="btn-secondary" type="button" @click="closeSaveModal">
+              Cancel
+            </button>
+            <button
+              class="btn-primary"
+              type="button"
+              :disabled="savePreparing || saving"
+              @click="confirmSaveToDrive"
+            >
+              {{ saving ? "Saving..." : "Save" }}
+            </button>
+          </footer>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -267,6 +317,16 @@ const suffix = ref("");
 const saving = ref(false);
 const saved = ref(false);
 const savedCid = ref("");
+const showSaveModal = ref(false);
+const saveNameDraft = ref("");
+const saveModalError = ref("");
+const savePreparing = ref(false);
+const saveTargetCid = ref("");
+
+const saveNamePlaceholder = computed(() => {
+  const name = inferDefaultName();
+  return name || "Enter a name";
+});
 
 const LOCAL_NAMES_KEY = "lumen_drive_saved_names";
 
@@ -947,19 +1007,52 @@ async function resolveCurrentItemCid(): Promise<string> {
   return cid || rootCid.value;
 }
 
-async function saveToDrive() {
-  if (!rootCid.value || saving.value) return;
-  saving.value = true;
+async function openSaveModal() {
+  if (!rootCid.value || saving.value || saved.value) return;
+  showSaveModal.value = true;
+  saveModalError.value = "";
+  saveTargetCid.value = "";
+  saveNameDraft.value = inferDefaultName();
+
+  savePreparing.value = true;
   try {
     const cid = await resolveCurrentItemCid();
+    saveTargetCid.value = cid;
+  } catch (e: any) {
+    saveModalError.value = String(e?.message || e || "Unable to prepare save.");
+  } finally {
+    savePreparing.value = false;
+  }
+}
+
+function closeSaveModal() {
+  if (saving.value) return;
+  showSaveModal.value = false;
+  savePreparing.value = false;
+  saveTargetCid.value = "";
+  saveModalError.value = "";
+}
+
+async function confirmSaveToDrive() {
+  if (!rootCid.value || saving.value) return;
+  const name = String(saveNameDraft.value || "").trim();
+  if (!name) {
+    saveModalError.value = "Please enter a name.";
+    return;
+  }
+
+  saving.value = true;
+  try {
+    const cid = saveTargetCid.value || (await resolveCurrentItemCid());
     const ok = await (window as any).lumen?.ipfsPinAdd?.(cid).catch(() => null);
     if (!ok?.ok) throw new Error(String(ok?.error || "save_failed"));
-    const name = inferDefaultName();
-    if (name) setDriveSavedName(cid, name);
+    setDriveSavedName(cid, name);
     savedCid.value = cid;
     saved.value = true;
+    showSaveModal.value = false;
   } catch (e: any) {
     error.value = String(e?.message || e);
+    saveModalError.value = error.value;
   } finally {
     saving.value = false;
   }
@@ -1081,6 +1174,134 @@ function stopUrlWatch() {
   width: 100%;
   height: 100%;
   background: var(--bg-primary);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1.25rem;
+}
+
+.modal {
+  width: min(520px, 100%);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.modal-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a15);
+}
+
+.modal-error {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--ios-red);
+}
+
+.modal-actions {
+  padding: 0.9rem 1rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-secondary,
+.btn-primary {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.65rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn-secondary {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--hover-bg, var(--bg-secondary));
+  color: var(--text-primary);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  border-color: transparent;
+  color: white;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .main-content {
