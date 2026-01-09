@@ -564,10 +564,16 @@ const activeProfile = computed(() => profiles.value.find((p) => p.id === activeP
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 const hasProfiles = computed(() => profiles.value.length > 0);
 
-const showIntroHero = ref(true);
+const HOME_INTRO_HIDDEN_KEY = 'lumen-home-intro-hidden';
+const showIntroHero = ref(localStorage.getItem(HOME_INTRO_HIDDEN_KEY) !== '1');
 
 function dismissIntroHero() {
   showIntroHero.value = false;
+  try {
+    localStorage.setItem(HOME_INTRO_HIDDEN_KEY, '1');
+  } catch {
+    // ignore
+  }
 }
 
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
