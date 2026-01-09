@@ -21,15 +21,7 @@
           </div>
         </div>
 
-        <nav class="sidebar-nav">
-          <div class="nav-section">
-            <span class="nav-label">Manage</span>
-            <button class="nav-item active" type="button">
-              <List :size="18" />
-              <span>My domains</span>
-            </button>
-          </div>
-        </nav>
+
       </div>
     </aside>
 
