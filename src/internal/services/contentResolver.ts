@@ -1,6 +1,10 @@
+import { getLocalGatewayBase } from './appSettings';
+
 export type DomainTarget = { proto: 'ipfs' | 'ipns'; id: string };
 
-export const LOCAL_IPFS_GATEWAY_BASE = 'http://127.0.0.1:8080';
+export function localIpfsGatewayBase(): string {
+  return getLocalGatewayBase();
+}
 
 type GatewayCache = { ts: number; bases: string[] } | null;
 let gatewayCache: GatewayCache = null;
@@ -175,9 +179,10 @@ export async function pickFastestSource(
 ): Promise<{ base: string; label: string }> {
   const localP = (async () => {
     opts.onStatus?.('Trying IPFS peer-to-peer…');
-    const ok = await probeUrl(buildCandidateUrl(LOCAL_IPFS_GATEWAY_BASE, target, path, suffix), 2000);
+    const base = localIpfsGatewayBase();
+    const ok = await probeUrl(buildCandidateUrl(base, target, path, suffix), 2000);
     if (!ok) throw new Error('local_unavailable');
-    return { base: LOCAL_IPFS_GATEWAY_BASE, label: 'Local IPFS' };
+    return { base, label: 'Local IPFS' };
   })();
 
   const gatewaysP = (async () => {
@@ -196,4 +201,3 @@ export async function pickFastestSource(
 
   return await Promise.any([localP, gatewaysP]);
 }
-

@@ -1158,7 +1158,7 @@ import {
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
-  LOCAL_IPFS_GATEWAY_BASE,
+  localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
 import { profilesState, activeProfileId } from "../profilesStore";
@@ -2986,7 +2986,7 @@ function isVideoFile(name: string): boolean {
 }
 
 function getGatewayUrl(cid: string): string {
-  const localBase = LOCAL_IPFS_GATEWAY_BASE;
+  const localBase = localIpfsGatewayBase();
   const publicBase = "https://ipfs.io";
   const base =
     hosting.value.kind === "gateway"

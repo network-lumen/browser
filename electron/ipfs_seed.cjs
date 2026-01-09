@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const os = require('node:os');
 
 const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
+const { getSetting } = require('./settings.cjs');
 const {
   fetchGatewaysFromRest,
   resolveGatewayBaseFromEndpoint,
@@ -96,7 +97,8 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 }
 
 async function kuboJson(pathname, searchParams, timeoutMs) {
-  const url = new URL(`http://127.0.0.1:5001${pathname}`);
+  const base = String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
+  const url = new URL(`${base}${pathname}`);
   for (const [k, v] of Object.entries(searchParams || {})) {
     url.searchParams.set(k, String(v));
   }

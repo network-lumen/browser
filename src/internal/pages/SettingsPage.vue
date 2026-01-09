@@ -40,14 +40,6 @@
           </button>
           <button 
             class="nav-item"
-            :class="{ active: currentView === 'network' }"
-            @click="currentView = 'network'"
-          >
-            <Globe :size="18" />
-            <span>Network</span>
-          </button>
-          <button 
-            class="nav-item"
             :class="{ active: currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -60,11 +52,11 @@
           <span class="nav-label">Advanced</span>
           <button 
             class="nav-item"
-            :class="{ active: currentView === 'ipfs' }"
-            @click="currentView = 'ipfs'"
+            :class="{ active: currentView === 'advanced' }"
+            @click="currentView = 'advanced'"
           >
-            <Database :size="18" />
-            <span>IPFS</span>
+            <Code2 :size="18" />
+            <span>Developer settings</span>
           </button>
           <button 
             class="nav-item"
@@ -206,21 +198,6 @@
         </div>
       </div>
 
-      <!-- Network View -->
-      <div v-else-if="currentView === 'network'" class="settings-section">
-        <div class="setting-group">
-          <div class="setting-item">
-            <div class="setting-info">
-              <span class="setting-label">Default Gateway</span>
-              <span class="setting-desc">IPFS gateway for content loading</span>
-            </div>
-            <div class="setting-control">
-              <input type="text" class="input-control" value="localhost:8088" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Profiles View -->
       <div v-else-if="currentView === 'profiles'" class="settings-section">
         <div class="setting-group">
@@ -256,27 +233,82 @@
         </div>
       </div>
 
-      <!-- IPFS View -->
-      <div v-else-if="currentView === 'ipfs'" class="settings-section">
+      <!-- Developer settings View -->
+      <div v-else-if="currentView === 'advanced'" class="settings-section">
         <div class="setting-group">
+          <p class="setting-hint">
+            These settings are intended for developers. Most users should not need to change them.
+          </p>
+
+          <div class="advanced-title">
+            <Globe :size="18" />
+            <span>Network</span>
+          </div>
+
           <div class="setting-item">
             <div class="setting-info">
-              <span class="setting-label">IPFS Node</span>
-              <span class="setting-desc">Local IPFS node configuration</span>
+              <span class="setting-label">Local IPFS Gateway</span>
+              <span class="setting-desc">Used for loading IPFS content in the UI</span>
             </div>
             <div class="setting-control">
-              <span class="status-badge connected">Running</span>
+              <input
+                type="text"
+                class="input-control wide"
+                v-model="localGatewayDraft"
+                placeholder="http://127.0.0.1:8080"
+              />
             </div>
           </div>
+
+          <div class="advanced-title">
+            <Database :size="18" />
+            <span>IPFS</span>
+          </div>
+
           <div class="setting-item">
             <div class="setting-info">
-              <span class="setting-label">API Port</span>
-              <span class="setting-desc">IPFS API endpoint port</span>
+              <span class="setting-label">IPFS API Endpoint</span>
+              <span class="setting-desc">Used by the Electron backend (Kubo API)</span>
             </div>
             <div class="setting-control">
-              <input type="text" class="input-control" value="5001" />
+              <input
+                type="text"
+                class="input-control wide"
+                v-model="ipfsApiDraft"
+                placeholder="http://127.0.0.1:5001"
+              />
             </div>
           </div>
+
+          <div v-if="devSettingsError" class="setting-hint" style="color: var(--ios-red);">
+            {{ devSettingsError }}
+          </div>
+
+          <div class="profile-backup-actions" style="margin-top: 0.75rem;">
+            <button
+              class="btn-secondary"
+              type="button"
+              :disabled="devSettingsSaving"
+              @click="resetDevSettings"
+            >
+              Reset
+            </button>
+            <button
+              class="btn-secondary"
+              type="button"
+              :disabled="devSettingsSaving"
+              @click="saveDevSettings"
+            >
+              {{ devSettingsSaving ? 'Saving...' : 'Save' }}
+            </button>
+          </div>
+
+          <p class="setting-hint">
+            Note: the local IPFS daemon must actually be configured to use these ports/addresses.
+          </p>
+          <p class="setting-hint">
+            Changes are applied automatically (no restart prompt).
+          </p>
         </div>
       </div>
 
@@ -325,6 +357,7 @@ import {
   Shield,
   Globe,
   Database,
+  Code2,
   Info,
   Hexagon,
   User,
@@ -336,6 +369,7 @@ import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfileBackup, importProfileFromBackup } from '../profilesStore';
 import pkg from '../../../package.json';
+import { appSettingsState, setAppSettings } from '../services/appSettings';
 
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
@@ -350,7 +384,7 @@ function openInNewTabSafe(url: string) {
   navigate?.(url, { push: true });
 }
 
-const currentView = ref<'appearance' | 'privacy' | 'network' | 'profiles' | 'ipfs' | 'about'>('appearance');
+const currentView = ref<'appearance' | 'privacy' | 'profiles' | 'advanced' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
@@ -361,6 +395,11 @@ const hasActiveProfile = computed(() => !!activeProfileId.value);
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
+
+const localGatewayDraft = ref('');
+const ipfsApiDraft = ref('');
+const devSettingsSaving = ref(false);
+const devSettingsError = ref('');
 
 // Initialize theme on mount
 initTheme();
@@ -385,13 +424,71 @@ onMounted(() => {
   document.body.style.filter = `brightness(${brightness.value}%)`;
 });
 
+watch(
+  () => currentView.value,
+  (v) => {
+    if (v !== 'advanced') return;
+    localGatewayDraft.value = String(appSettingsState.value.localGatewayBase || '').trim();
+    ipfsApiDraft.value = String(appSettingsState.value.ipfsApiBase || '').trim();
+    devSettingsError.value = '';
+  },
+  { immediate: true },
+);
+
+function validateUrl(raw: string): string | null {
+  const v = String(raw || '').trim();
+  if (!v) return null;
+  try {
+    const u = new URL(v);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    u.hash = '';
+    u.search = '';
+    return u.toString().replace(/\/+$/, '');
+  } catch {
+    return null;
+  }
+}
+
+function resetDevSettings() {
+  localGatewayDraft.value = String(appSettingsState.value.localGatewayBase || '').trim();
+  ipfsApiDraft.value = String(appSettingsState.value.ipfsApiBase || '').trim();
+  devSettingsError.value = '';
+}
+
+async function saveDevSettings() {
+  if (devSettingsSaving.value) return;
+  const localGatewayBase = validateUrl(localGatewayDraft.value);
+  const ipfsApiBase = validateUrl(ipfsApiDraft.value);
+  if (!localGatewayBase) {
+    devSettingsError.value = 'Invalid Local IPFS Gateway URL.';
+    return;
+  }
+  if (!ipfsApiBase) {
+    devSettingsError.value = 'Invalid IPFS API URL.';
+    return;
+  }
+
+  devSettingsSaving.value = true;
+  devSettingsError.value = '';
+  try {
+    const res = await setAppSettings({ localGatewayBase, ipfsApiBase });
+    if (!res.ok) {
+      devSettingsError.value = String(res.error || 'Failed to save settings.');
+      return;
+    }
+    localGatewayDraft.value = String(appSettingsState.value.localGatewayBase || '').trim();
+    ipfsApiDraft.value = String(appSettingsState.value.ipfsApiBase || '').trim();
+  } finally {
+    devSettingsSaving.value = false;
+  }
+}
+
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     appearance: 'Appearance',
     privacy: 'Privacy & Security',
-    network: 'Network Settings',
     profiles: 'Profiles & backups',
-    ipfs: 'IPFS Configuration',
+    advanced: 'Developer settings',
     about: 'About Lumen'
   };
   return titles[currentView.value] || 'Settings';
@@ -401,9 +498,8 @@ function getViewDescription(): string {
   const descs: Record<string, string> = {
     appearance: 'Customize the look and feel',
     privacy: 'Manage your privacy settings',
-    network: 'Configure network preferences',
     profiles: 'Backup or restore profiles and PQC keys',
-    ipfs: 'IPFS node settings',
+    advanced: 'Advanced network configuration',
     about: 'Information about Lumen'
   };
   return descs[currentView.value] || '';
@@ -683,6 +779,17 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   color: var(--text-secondary);
 }
 
+.advanced-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 .select-control {
   padding: 0.5rem 1rem;
   background: var(--bg-secondary);
@@ -701,6 +808,10 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   font-size: 0.85rem;
   color: var(--text-primary);
   width: 150px;
+}
+
+.input-control.wide {
+  width: 320px;
 }
 
 .btn-secondary {

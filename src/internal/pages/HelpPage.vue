@@ -72,7 +72,7 @@
               <div class="step-number">1</div>
               <div class="step-content">
                 <h4>Configure IPFS</h4>
-                <p>Ensure your local IPFS node is running on port 8088</p>
+                <p>Ensure your local IPFS node is running</p>
               </div>
             </div>
             <div class="step">

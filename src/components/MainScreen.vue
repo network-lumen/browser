@@ -81,7 +81,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import lumenFavicon from '../img/favicon.ico';
   import {
     buildCandidateUrl,
-    LOCAL_IPFS_GATEWAY_BASE,
+    localIpfsGatewayBase,
     loadWhitelistedGatewayBases,
     probeUrl,
     resolveDomainTarget,
@@ -244,7 +244,7 @@ function openInNewTab(url: string) {
       const path = '/favicon.ico';
       const ipfsTarget = { proto: 'ipfs' as const, id: cid };
 
-      const localUrl = buildCandidateUrl(LOCAL_IPFS_GATEWAY_BASE, ipfsTarget, path, '');
+      const localUrl = buildCandidateUrl(localIpfsGatewayBase(), ipfsTarget, path, '');
       if (await probeUrl(localUrl, 1500)) return localUrl;
 
       const bases = await loadWhitelistedGatewayBases().catch(() => [] as string[]);

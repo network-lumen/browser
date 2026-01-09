@@ -3,6 +3,7 @@ const { readFileSync, existsSync } = require('fs');
 const path = require('path');
 const { createHash, randomBytes, hkdfSync, createCipheriv, createDecipheriv } = require('crypto');
 const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
+const { getSetting } = require('../settings.cjs');
 const { decryptMnemonicLocal, encryptMnemonicLocal } = require('../utils/crypto.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
 let pqcWorker = null;
@@ -38,6 +39,10 @@ async function getMlKem() {
 }
 
 let bridge = null;
+
+function ipfsApiBase() {
+  return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
+}
 async function loadBridge() {
   if (bridge) return bridge;
   try {
@@ -1572,7 +1577,7 @@ function registerGatewayIpc() {
       let dagSize = null;
       try {
         const statRes = await fetch(
-          `http://127.0.0.1:5001/api/v0/dag/stat?arg=${encodeURIComponent(cid)}&enc=json`,
+          `${ipfsApiBase()}/api/v0/dag/stat?arg=${encodeURIComponent(cid)}&enc=json`,
           { method: 'POST' }
         );
         if (statRes.ok) {
@@ -1618,7 +1623,7 @@ function registerGatewayIpc() {
         return { ok: false, status: init.status, error: details };
       }
 
-      const exportUrl = `http://127.0.0.1:5001/api/v0/dag/export?arg=${encodeURIComponent(cid)}`;
+      const exportUrl = `${ipfsApiBase()}/api/v0/dag/export?arg=${encodeURIComponent(cid)}`;
       const exportRes = await fetch(exportUrl, { method: 'POST' });
       if (!exportRes.ok) {
         return { ok: false, status: exportRes.status, error: 'ipfs_dag_export_failed' };

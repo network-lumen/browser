@@ -3,8 +3,61 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./ipfs_seed.cjs');
+const { getSetting } = require('./settings.cjs');
 
 let ipfsProcess = null;
+
+function ipfsApiBase() {
+  return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
+}
+
+function localGatewayBase() {
+  return String(getSetting('localGatewayBase') || 'http://127.0.0.1:8080').replace(/\/+$/, '');
+}
+
+function multiaddrForHttpBase(rawBase) {
+  try {
+    const u = new URL(String(rawBase || '').trim());
+    const host = String(u.hostname || '').trim();
+    const port = Number(u.port || '');
+    if (!host || !Number.isFinite(port) || port <= 0 || port > 65535) return null;
+
+    const isIpv6 = host.includes(':') && !host.includes('.');
+    const isIpv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
+    const isLocalhost = host.toLowerCase() === 'localhost';
+
+    const addrHost = isLocalhost ? '127.0.0.1' : host;
+    const family = isIpv6 ? 'ip6' : 'ip4';
+
+    if (!isIpv6 && !isIpv4 && !isLocalhost) return null;
+
+    return `/${family}/${addrHost}/tcp/${port}`;
+  } catch {
+    return null;
+  }
+}
+
+function applyIpfsAddressesConfig(bin, repoPath) {
+  try {
+    const apiAddr = multiaddrForHttpBase(ipfsApiBase());
+    const gwAddr = multiaddrForHttpBase(localGatewayBase());
+    if (!apiAddr || !gwAddr) return;
+
+    const env = { ...process.env, IPFS_PATH: repoPath };
+    const setCfg = (key, value) => {
+      const r = spawnSync(bin, ['config', key, value], { env, stdio: 'pipe' });
+      if (r.error) console.warn('[electron][ipfs] ipfs config error', key, r.error);
+      else if (r.status !== 0) {
+        console.warn('[electron][ipfs] ipfs config failed', key, r.status, String(r.stderr || ''));
+      }
+    };
+
+    setCfg('Addresses.API', apiAddr);
+    setCfg('Addresses.Gateway', gwAddr);
+  } catch (e) {
+    console.warn('[electron][ipfs] applyIpfsAddressesConfig failed', e);
+  }
+}
 
 function resolveKuboBin() {
   try {
@@ -57,6 +110,10 @@ function startIpfsDaemon() {
   console.log('[electron][ipfs] using binary:', bin);
   const repoPath = ensureIpfsRepo(bin);
   console.log('[electron][ipfs] starting daemon with repo:', repoPath);
+
+  // Make the embedded daemon listen on the configured endpoints.
+  applyIpfsAddressesConfig(bin, repoPath);
+
   try {
     ipfsProcess = spawn(
       bin,
@@ -98,10 +155,11 @@ function startIpfsDaemon() {
 async function checkIpfsStatus(retries = 3, delay = 1000) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`[electron][ipfs] checking status on 127.0.0.1:5001 (attempt ${attempt}/${retries})`);
+      const base = ipfsApiBase();
+      console.log(`[electron][ipfs] checking status on ${base} (attempt ${attempt}/${retries})`);
       const controller = new AbortController();
       const t = setTimeout(() => controller.abort(), 2500);
-      const res = await fetch('http://127.0.0.1:5001/api/v0/id?enc=json', {
+      const res = await fetch(`${base}/api/v0/id?enc=json`, {
         method: 'POST',
         signal: controller.signal
       });
@@ -142,7 +200,7 @@ async function ipfsAdd(data, filename) {
     const footerBuf = Buffer.from(footer, 'utf8');
     const body = Buffer.concat([headerBuf, dataBuf, footerBuf]);
 
-    const res = await fetch('http://127.0.0.1:5001/api/v0/add?pin=true', {
+    const res = await fetch(`${ipfsApiBase()}/api/v0/add?pin=true`, {
       method: 'POST',
       headers: {
         'Content-Type': `multipart/form-data; boundary=${boundary}`
@@ -221,7 +279,7 @@ async function ipfsAddDirectory(payload) {
     parts.push(Buffer.from(`--${boundary}--\r\n`, 'utf8'));
     const body = Buffer.concat(parts);
 
-    const url = new URL('http://127.0.0.1:5001/api/v0/add');
+    const url = new URL(`${ipfsApiBase()}/api/v0/add`);
     url.searchParams.set('pin', 'true');
 
     const res = await fetch(url.toString(), {
@@ -309,7 +367,7 @@ async function fetchBytesFromUrl(url, opts) {
 
 async function fetchBytesFromKuboCat(arg, opts) {
   const signal = opts?.signal;
-  const url = new URL('http://127.0.0.1:5001/api/v0/cat');
+  const url = new URL(`${ipfsApiBase()}/api/v0/cat`);
   url.searchParams.set('arg', String(arg ?? ''));
   const res = await fetch(url.toString(), { method: 'POST', signal });
   if (!res.ok) {
@@ -342,7 +400,7 @@ async function ipfsGet(cidOrPath, options = {}) {
       new Set(defaultGateways.map((x) => String(x || '').trim().replace(/\/+$/, '')).filter(Boolean))
     );
 
-    const localGatewayUrl = buildGatewayUrl('http://127.0.0.1:8080', arg);
+    const localGatewayUrl = buildGatewayUrl(localGatewayBase(), arg);
 
     const controllers = [];
     const timers = [];
@@ -442,7 +500,7 @@ async function ipfsGet(cidOrPath, options = {}) {
 
 async function ipfsPinList() {
   try {
-    const res = await fetch('http://127.0.0.1:5001/api/v0/pin/ls?type=recursive', {
+    const res = await fetch(`${ipfsApiBase()}/api/v0/pin/ls?type=recursive`, {
       method: 'POST'
     });
 
@@ -464,7 +522,7 @@ async function ipfsPinAdd(cidOrPath) {
   try {
     const arg = sanitizeCidOrPath(cidOrPath);
     console.log('[electron][ipfs] pin add:', arg);
-    const url = new URL('http://127.0.0.1:5001/api/v0/pin/add');
+    const url = new URL(`${ipfsApiBase()}/api/v0/pin/add`);
     url.searchParams.set('arg', arg);
     url.searchParams.set('recursive', 'true');
     const res = await fetch(url.toString(), { method: 'POST' });
@@ -505,7 +563,7 @@ function mapLsObject(obj) {
 async function ipfsLs(cidOrPath) {
   try {
     const arg = sanitizeCidOrPath(cidOrPath);
-    const url = new URL('http://127.0.0.1:5001/api/v0/ls');
+    const url = new URL(`${ipfsApiBase()}/api/v0/ls`);
     url.searchParams.set('arg', arg);
     url.searchParams.set('resolve-type', 'true');
     const res = await fetch(url.toString(), { method: 'POST' });
@@ -529,7 +587,7 @@ async function ipfsLs(cidOrPath) {
 async function ipfsUnpin(cid) {
   try {
     console.log('[electron][ipfs] unpinning:', cid);
-    const url = new URL('http://127.0.0.1:5001/api/v0/pin/rm');
+    const url = new URL(`${ipfsApiBase()}/api/v0/pin/rm`);
     url.searchParams.set('arg', String(cid ?? ''));
     const res = await fetch(url.toString(), { method: 'POST' });
 
@@ -548,7 +606,7 @@ async function ipfsUnpin(cid) {
 
 async function ipfsStats() {
   try {
-    const res = await fetch('http://127.0.0.1:5001/api/v0/repo/stat', {
+    const res = await fetch(`${ipfsApiBase()}/api/v0/repo/stat`, {
       method: 'POST'
     });
 
@@ -571,7 +629,7 @@ async function ipfsStats() {
 async function ipfsPublishToIPNS(cid, key = 'self') {
   try {
     console.log('[electron][ipfs] publishing to IPNS:', cid, 'key:', key);
-    const url = new URL('http://127.0.0.1:5001/api/v0/name/publish');
+    const url = new URL(`${ipfsApiBase()}/api/v0/name/publish`);
     url.searchParams.set('arg', `/ipfs/${String(cid ?? '')}`);
     url.searchParams.set('key', String(key ?? 'self'));
     const res = await fetch(url.toString(), { method: 'POST' });
@@ -594,7 +652,7 @@ async function ipfsPublishToIPNS(cid, key = 'self') {
 async function ipfsResolveIPNS(name) {
   try {
     console.log('[electron][ipfs] resolving IPNS:', name);
-    const url = new URL('http://127.0.0.1:5001/api/v0/name/resolve');
+    const url = new URL(`${ipfsApiBase()}/api/v0/name/resolve`);
     url.searchParams.set('arg', String(name ?? ''));
     const res = await fetch(url.toString(), { method: 'POST' });
 
@@ -615,7 +673,7 @@ async function ipfsResolveIPNS(name) {
 
 async function ipfsKeyList() {
   try {
-    const res = await fetch('http://127.0.0.1:5001/api/v0/key/list', {
+    const res = await fetch(`${ipfsApiBase()}/api/v0/key/list`, {
       method: 'POST'
     });
 
@@ -635,7 +693,7 @@ async function ipfsKeyList() {
 async function ipfsKeyGen(name) {
   try {
     console.log('[electron][ipfs] generating key:', name);
-    const url = new URL('http://127.0.0.1:5001/api/v0/key/gen');
+    const url = new URL(`${ipfsApiBase()}/api/v0/key/gen`);
     url.searchParams.set('arg', String(name ?? ''));
     url.searchParams.set('type', 'rsa');
     url.searchParams.set('size', '2048');
@@ -658,7 +716,7 @@ async function ipfsKeyGen(name) {
 
 async function ipfsSwarmPeers() {
   try {
-    const res = await fetch('http://127.0.0.1:5001/api/v0/swarm/peers?enc=json', {
+    const res = await fetch(`${ipfsApiBase()}/api/v0/swarm/peers?enc=json`, {
       method: 'POST'
     });
 
@@ -678,6 +736,7 @@ function stopIpfsDaemon() {
   if (ipfsProcess && !ipfsProcess.killed) {
     try { ipfsProcess.kill(); } catch {}
   }
+  ipfsProcess = null;
 }
 
 module.exports = {

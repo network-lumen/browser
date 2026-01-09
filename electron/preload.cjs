@@ -1,6 +1,22 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('lumen', {
+  settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
+  settingsSet: (partial) => ipcRenderer.invoke('settings:set', partial || {}),
+  settingsOnChanged: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        callback(payload);
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('settings:changed', handler);
+    return () => {
+      ipcRenderer.removeListener('settings:changed', handler);
+    };
+  },
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
   ipfsAddDirectory: (payload) => ipcRenderer.invoke('ipfs:addDirectory', payload || {}),

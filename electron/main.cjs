@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
+const { getSettings, setSettings } = require('./settings.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -89,6 +90,30 @@ ipcMain.handle('ipfs:keyGen', async (_evt, name) => {
 
 ipcMain.handle('ipfs:swarmPeers', async () => {
   return ipfsSwarmPeers();
+});
+
+ipcMain.handle('settings:getAll', async () => {
+  return { ok: true, settings: getSettings() };
+});
+
+ipcMain.handle('settings:set', async (_evt, partial) => {
+  const before = getSettings();
+  const res = setSettings(partial || {});
+  if (res?.ok && res?.settings) {
+    const after = res.settings;
+    const changed =
+      String(before?.ipfsApiBase || '') !== String(after?.ipfsApiBase || '') ||
+      String(before?.localGatewayBase || '') !== String(after?.localGatewayBase || '');
+
+    // Apply without prompting: restart the embedded IPFS daemon so it binds to the new ports.
+    if (changed) {
+      try { stopIpfsDaemon(); } catch {}
+      setTimeout(() => {
+        try { startIpfsDaemon(); } catch {}
+      }, 250);
+    }
+  }
+  return res;
 });
 
 ipcMain.on('window:mode', (_evt, mode) => {

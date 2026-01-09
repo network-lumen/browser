@@ -271,7 +271,7 @@ import {
 import { Check, Copy, Download, File, Folder, Save } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
-  LOCAL_IPFS_GATEWAY_BASE,
+  localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
 
@@ -417,7 +417,7 @@ const displayLumenUrl = computed(() => {
 const contentUrl = computed(() => {
   if (!rootCid.value) return "";
   const p = relPath.value ? `/${encodePath(relPath.value)}` : "";
-  return `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${rootCid.value}${p}${suffix.value || ""}`;
+  return `${localIpfsGatewayBase()}/ipfs/${rootCid.value}${p}${suffix.value || ""}`;
 });
 
 const crumbs = computed(() => {
@@ -893,8 +893,8 @@ async function load() {
             );
             const relEncoded = relPath.value ? encodePath(relPath.value) : "";
             const baseHref = relEncoded
-              ? `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${rootCid.value}/${relEncoded}`
-              : `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${rootCid.value}/`;
+              ? `${localIpfsGatewayBase()}/ipfs/${rootCid.value}/${relEncoded}`
+              : `${localIpfsGatewayBase()}/ipfs/${rootCid.value}/`;
             htmlSrcdoc.value = buildIpfsSiteSrcdoc({
               html,
               cid: rootCid.value,

@@ -215,7 +215,7 @@ import {
   Search,
   Wallet,
 } from "lucide-vue-next";
-import { LOCAL_IPFS_GATEWAY_BASE } from "../services/contentResolver";
+import { localIpfsGatewayBase } from "../services/contentResolver";
 
 type SearchType = "site" | "video" | "image" | "";
 type ResultKind = "site" | "ipfs" | "tx" | "block" | "address" | "link";
@@ -402,7 +402,7 @@ function isBlockHeight(v: string): boolean {
 function faviconUrlForCid(cid: string): string | null {
   const c = String(cid || "").trim();
   if (!c) return null;
-  return `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${c}/favicon.ico`;
+  return `${localIpfsGatewayBase()}/ipfs/${c}/favicon.ico`;
 }
 
 function buildDomainCandidates(query: string): string[] {
@@ -661,8 +661,6 @@ type GatewaySiteSearchResult = {
   tags?: any;
 };
 
-const LOCAL_IPFS_GATEWAY = "http://127.0.0.1:8088";
-
 function safePathSuffix(pathValue: any): string {
   const p = String(pathValue ?? "").trim();
   if (!p) return "";
@@ -700,7 +698,7 @@ function mapGatewayHitToResult(
   if (filterType === "image" && !isImage) return null;
   if (filterType === "video" && !isVideo) return null;
   const thumbUrl = isImage
-    ? `${LOCAL_IPFS_GATEWAY_BASE}/ipfs/${cid}${path}`
+    ? `${localIpfsGatewayBase()}/ipfs/${cid}${path}`
     : undefined;
 
   const title =
