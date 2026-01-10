@@ -1,5 +1,5 @@
 <template>
-  <div class="explorer-page">
+  <div class="explorer-page internal-page">
     <!-- Show Block Detail if URL contains /block/ -->
     <BlockDetailPage v-if="isBlockDetailView" />
     
@@ -12,24 +12,13 @@
     <!-- Show normal explorer view otherwise -->
     <template v-else>
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="14" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/>
-          </svg>
-        </div>
-        <span class="logo-text">Explorer</span>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Browse</span>
-          <button 
-            class="nav-item"
+    <InternalSidebar title="Explorer" :icon="LayoutGrid" activeKey="explorer">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Browse</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
@@ -40,8 +29,9 @@
             </svg>
             <span>Overview</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'blocks' }"
             @click="currentView = 'blocks'"
           >
@@ -53,8 +43,9 @@
             </svg>
             <span>Blocks</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -64,8 +55,9 @@
             </svg>
             <span>Transactions</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'validators' }"
             @click="currentView = 'validators'"
           >
@@ -79,7 +71,7 @@
           </button>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -774,6 +766,8 @@ import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
+import InternalSidebar from '../../components/InternalSidebar.vue';
+import { LayoutGrid } from 'lucide-vue-next';
 
 const lumen = (window as any).lumen;
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
@@ -1770,13 +1764,6 @@ watch(txTimeFilter, () => {
 </script>
 
 <style scoped>
-.explorer-page {
-  display: flex;
-  height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 /* Sidebar */
 .sidebar {
   width: 260px;

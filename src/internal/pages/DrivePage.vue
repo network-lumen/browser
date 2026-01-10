@@ -1,16 +1,7 @@
 <template>
-  <div class="drive-page">
+  <div class="drive-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Cloud :size="22" />
-        </div>
-        <span class="logo-text">Drive</span>
-      </div>
-
-      <ActiveProfileCard :profile="activeProfile" />
-
+    <InternalSidebar title="Drive" :icon="Cloud" activeKey="drive">
       <!-- Hosting -->
       <div class="hosting-panel">
         <div class="stats-header">
@@ -99,7 +90,7 @@
           </button>
         </div>
       </div>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -1149,7 +1140,7 @@ import {
   User,
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
-import ActiveProfileCard from "../../components/ActiveProfileCard.vue";
+import InternalSidebar from "../../components/InternalSidebar.vue";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
@@ -3139,14 +3130,6 @@ async function reloadForActiveProfileChange() {
 </script>
 
 <style scoped>
-.drive-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 /* Sidebar */
 .sidebar {
   width: 260px;

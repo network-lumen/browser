@@ -1,27 +1,22 @@
 <template>
-  <div class="release-page">
+  <div class="release-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Rocket :size="24" />
-        </div>
-        <span class="logo-text">Releases</span>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Versions</span>
-          <button 
-            class="nav-item"
+    <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Versions</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'latest' }"
             @click="currentView = 'latest'"
           >
             <Star :size="18" />
             <span>Latest</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'all' }"
             @click="currentView = 'all'"
           >
@@ -30,7 +25,7 @@
           </button>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -105,6 +100,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Rocket, Star, FileText } from 'lucide-vue-next';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const currentView = ref<'latest' | 'all'>('latest');
 
@@ -120,14 +116,6 @@ function getViewDescription(): string {
 </script>
 
 <style scoped>
-.release-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 .sidebar {
   width: 260px;
   min-width: 260px;

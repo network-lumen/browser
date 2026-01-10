@@ -1,21 +1,7 @@
 <template>
-  <div class="domain-page">
+  <div class="domain-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Globe :size="24" />
-        </div>
-        <span class="logo-text">Domains</span>
-      </div>
-
-      <div class="sidebar-body">
-
-        <ActiveProfileCard :profile="activeProfile" />
-
-
-      </div>
-    </aside>
+    <InternalSidebar title="Domains" :icon="Globe" activeKey="domain" />
 
     <!-- Main Content -->
     <main class="main-content">
@@ -282,7 +268,7 @@ import {
   User
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
-import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
@@ -821,13 +807,6 @@ void loadDomains();
 </script>
 
 <style scoped>
-.domain-page {
-  display: flex;
-  height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 .sidebar {
   width: 260px;
   min-width: 260px;

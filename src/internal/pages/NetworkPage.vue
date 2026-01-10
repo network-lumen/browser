@@ -1,36 +1,18 @@
 <template>
-  <div class="network-page">
+  <div class="network-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="2"/>
-            <circle cx="12" cy="12" r="7"/>
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 2v4M12 18v4M22 12h-4M6 12H2"/>
-          </svg>
-        </div>
-        <span class="logo-text">Network</span>
-      </div>
-
-      <!-- Network Status Badge -->
-      <div class="network-status" :class="connectionStatus">
-        <div class="status-dot"></div>
-        <span>{{ connectionStatusText }}</span>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Monitoring</span>
-          <button class="nav-item active">
+    <InternalSidebar title="Network" :icon="Network" activeKey="network">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Monitoring</span>
+          <button type="button" class="lsb-item active">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18"/>
               <path d="M18 17l-4-4-4 4-4-4"/>
             </svg>
             <span>Status</span>
           </button>
-          <button class="nav-item" @click="refreshData" :disabled="refreshing">
+          <button type="button" class="lsb-item" @click="refreshData" :disabled="refreshing">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
@@ -38,8 +20,8 @@
           </button>
         </div>
 
-        <div class="nav-section">
-          <span class="nav-label">Metrics</span>
+        <div class="lsb-section">
+          <span class="lsb-label">Metrics</span>
           <div class="metric-item">
             <span class="metric-label">Block Height</span>
             <span class="metric-value">{{ formatNumber(blockHeight) }}</span>
@@ -66,8 +48,8 @@
           </div>
         </div>
 
-        <div class="nav-section">
-          <span class="nav-label">Node Info</span>
+        <div class="lsb-section">
+          <span class="lsb-label">Node Info</span>
           <div class="node-detail">
             <span class="node-detail-label">Chain ID</span>
             <span class="node-detail-value">lumen-1</span>
@@ -90,7 +72,7 @@
           </div>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -253,6 +235,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { Network } from 'lucide-vue-next';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 
 // Window interface
 const lumen = (window as any).lumen;
@@ -627,13 +611,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.network-page {
-  display: flex;
-  height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 /* Sidebar */
 .sidebar {
   width: 280px;

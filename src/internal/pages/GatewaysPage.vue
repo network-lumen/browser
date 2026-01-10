@@ -1,19 +1,13 @@
 <template>
-  <div class="gateways-page">
+  <div class="gateways-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Server :size="24" />
-        </div>
-        <span class="logo-text">Gateways</span>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Manage</span>
+    <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Manage</span>
           <button
-            class="nav-item"
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'list' }"
             @click="currentView = 'list'"
           >
@@ -21,7 +15,8 @@
             <span>Gateway plans</span>
           </button>
           <button
-            class="nav-item"
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'add' }"
             @click="currentView = 'add'"
           >
@@ -30,7 +25,7 @@
           </button>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -157,6 +152,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { Server, List, Plus } from 'lucide-vue-next';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const currentView = ref<'list' | 'add'>('list');
 
@@ -375,14 +371,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.gateways-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 .sidebar {
   width: 260px;
   min-width: 260px;

@@ -1,37 +1,31 @@
 <template>
-  <div class="settings-page">
+  <div class="settings-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Settings :size="24" />
-        </div>
-        <span class="logo-text">Settings</span>
-      </div>
-
-      <ActiveProfileCard :profile="activeProfile" />
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">General</span>
-          <button 
-            class="nav-item"
+    <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">General</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
             <Palette :size="18" />
             <span>Appearance</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
             <Shield :size="18" />
             <span>Privacy</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -40,18 +34,20 @@
           </button>
         </div>
 
-        <div class="nav-section">
-          <span class="nav-label">Advanced</span>
-          <button 
-            class="nav-item"
+        <div class="lsb-section">
+          <span class="lsb-label">Advanced</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
             <Code2 :size="18" />
             <span>Developer settings</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'about' }"
             @click="currentView = 'about'"
           >
@@ -61,11 +57,7 @@
         </div>
       </nav>
 
-      <!-- Version -->
-      <div class="version-info">
-        <span>Lumen v{{ appVersion }}</span>
-      </div>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -419,7 +411,7 @@ import {
 import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfilesBackup, importProfilesFromBackup } from '../profilesStore';
-import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
 
@@ -688,14 +680,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 </script>
 
 <style scoped>
-.settings-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 /* Sidebar */
 .sidebar {
   width: 260px;

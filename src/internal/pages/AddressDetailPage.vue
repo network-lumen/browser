@@ -289,7 +289,9 @@ onMounted(() => {
 <style scoped>
 .address-detail-page {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
   background: var(--bg-tertiary);
   color: var(--text-primary);
   padding: 2rem;

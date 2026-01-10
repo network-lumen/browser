@@ -1,35 +1,31 @@
 <template>
-  <div class="help-page">
+  <div class="help-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <HelpCircle :size="24" />
-        </div>
-        <span class="logo-text">Help</span>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Resources</span>
-          <button 
-            class="nav-item"
+    <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Resources</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'getting-started' }"
             @click="currentView = 'getting-started'"
           >
             <Compass :size="18" />
             <span>Getting Started</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'faq' }"
             @click="currentView = 'faq'"
           >
             <MessageCircle :size="18" />
             <span>FAQ</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'docs' }"
             @click="currentView = 'docs'"
           >
@@ -38,10 +34,11 @@
           </button>
         </div>
 
-        <div class="nav-section">
-          <span class="nav-label">Support</span>
-          <button 
-            class="nav-item"
+        <div class="lsb-section">
+          <span class="lsb-label">Support</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'contact' }"
             @click="currentView = 'contact'"
           >
@@ -50,7 +47,7 @@
           </button>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -192,6 +189,7 @@ import {
   Zap,
   Github
 } from 'lucide-vue-next';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const currentView = ref<'getting-started' | 'faq' | 'docs' | 'contact'>('getting-started');
 
@@ -217,14 +215,6 @@ function getViewDescription(): string {
 </script>
 
 <style scoped>
-.help-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 .sidebar {
   width: 260px;
   min-width: 260px;

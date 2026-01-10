@@ -1,27 +1,22 @@
 <template>
-  <div class="dao-page">
+  <div class="dao-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Users :size="24" />
-        </div>
-        <span class="logo-text">DAO</span>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Governance</span>
-          <button 
-            class="nav-item"
+    <InternalSidebar title="DAO" :icon="Users" activeKey="dao">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Governance</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'proposals' }"
             @click="currentView = 'proposals'"
           >
             <FileText :size="18" />
             <span>Proposals</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'voting' }"
             @click="currentView = 'voting'"
           >
@@ -30,18 +25,20 @@
           </button>
         </div>
 
-        <div class="nav-section">
-          <span class="nav-label">Treasury</span>
-          <button 
-            class="nav-item"
+        <div class="lsb-section">
+          <span class="lsb-label">Treasury</span>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'treasury' }"
             @click="currentView = 'treasury'"
           >
             <Wallet :size="18" />
             <span>Treasury</span>
           </button>
-          <button 
-            class="nav-item"
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'members' }"
             @click="currentView = 'members'"
           >
@@ -50,7 +47,7 @@
           </button>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -368,6 +365,7 @@ import {
   Plus,
   X
 } from 'lucide-vue-next';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const lumen = (window as any).lumen;
 
@@ -701,14 +699,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dao-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 /* Sidebar */
 .sidebar {
   width: 260px;

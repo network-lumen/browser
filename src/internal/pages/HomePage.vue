@@ -1,75 +1,33 @@
 <template>
-  <div class="home-page">
+  <div class="home-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Hexagon :size="28" />
-        </div>
-        <span class="logo-text">Lumen</span>
+    <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
+      <button type="button" class="toggle-pages" @click="showAllPages = !showAllPages">
+        <span>All pages</span>
+        <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
+      </button>
+
+      <div v-if="showAllPages" class="all-pages-list">
+        <button
+          v-for="key in allRoutes"
+          :key="key"
+          type="button"
+          class="page-item"
+          :class="{ dragging: draggedItem === key, 'drag-over': dragOverItem === key }"
+          draggable="true"
+          @dragstart="onItemDragStart($event, key)"
+          @dragover.prevent="onItemDragOver($event, key)"
+          @dragleave="onItemDragLeave"
+          @drop.prevent.stop="onItemDrop($event, key)"
+          @dragend="onItemDragEnd"
+          @click="onItemClick(key, $event)"
+        >
+          <component :is="getRouteIcon(key)" :size="16" />
+          <span>{{ getInternalTitle(`lumen://${key}`) }}</span>
+        </button>
       </div>
 
-      <!-- Profile Info -->
-      <ActiveProfileCard :profile="activeProfile" />
-      
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Menu</span>
-          <button 
-            v-for="key in mainRoutes" 
-            :key="key"
-            class="nav-item"
-            :class="{ active: key === 'home' }"
-            @click="openRoute(key)"
-          >
-            <component :is="getRouteIcon(key)" :size="18" />
-            <span>{{ formatRouteName(key) }}</span>
-          </button>
-        </div>
-        
-        <div class="nav-section">
-          <button 
-            class="dropdown-selector" 
-            @click="showAllPages = !showAllPages"
-            @mousedown="handleDragStart"
-            @mousemove="handleDragMove"
-            @mouseup="handleDragEnd"
-            @mouseleave="handleDragEnd"
-            @touchstart="handleDragStart"
-            @touchmove="handleDragMove"
-            @touchend="handleDragEnd"
-          >
-            <span class="dropdown-label">All Pages</span>
-            <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" class="dropdown-icon" />
-          </button>
-          
-          <div v-if="showAllPages" class="all-pages-list">
-            <button 
-              v-for="key in allRoutes" 
-              :key="key"
-              class="page-item"
-              :class="{ 'dragging': draggedItem === key, 'drag-over': dragOverItem === key }"
-              draggable="true"
-              @click="onItemClick(key, $event)"
-              @dragstart="onItemDragStart($event, key)"
-              @dragover.prevent="onItemDragOver($event, key)"
-              @dragenter.prevent="onItemDragOver($event, key)"
-              @dragleave="onItemDragLeave"
-              @drop.prevent.stop="onItemDrop($event, key)"
-              @dragend="onItemDragEnd"
-            >
-              <component :is="getRouteIcon(key)" :size="14" />
-              <span>{{ formatRouteName(key) }}</span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <!-- Version -->
-      <div class="version-info">
-        <span>Lumen v{{ appVersion }}</span>
-      </div>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -223,23 +181,20 @@
 
 <script setup lang="ts">
 import { inject, computed, ref } from 'vue';
-import { INTERNAL_ROUTE_KEYS } from '../routes';
-import { profilesState, activeProfileId } from '../profilesStore';
-import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
-import pkg from '../../../package.json';
+import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
+import { profilesState } from '../profilesStore';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 import { 
-  Home, User, HardDrive, Wallet, Globe, Settings, 
-  ArrowUpRight, Zap, Network, FileText, Hexagon,
-  Shield, Database, Vote, Package, AtSign, Search,
+  Home, HardDrive, Wallet, Globe, Settings, 
+  ArrowUpRight, Network, FileText, Hexagon,
+  Database, Vote, Package, AtSign, Search,
   HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
-
-const mainRoutes = ['home', 'drive', 'wallet', 'network', 'settings'];
 
 // My Space section cards yang bisa di-customize
 const MY_SPACE_CARDS_KEY = 'my_space_cards_order';
 const savedMySpaceCards = localStorage.getItem(MY_SPACE_CARDS_KEY);
-const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'dao', 'gateways', 'settings'];
+const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'dao', 'settings'];
 const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : DEFAULT_MY_SPACE_CARDS.slice());
 
 // Lumen section cards yang bisa di-customize
@@ -255,7 +210,7 @@ const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
 
   const allRoutes = computed(() => {
     const routes = INTERNAL_ROUTE_KEYS.filter(
-      (key) => !['ipfs', 'gateways', 'release'].includes(key),
+      (key) => !['home', 'ipfs', 'gateways', 'release', 'block', 'transaction', 'tx', 'address'].includes(key),
     );
     if (customOrder.value.length === 0) return routes;
     
@@ -272,34 +227,6 @@ const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
 });
 
 const showAllPages = ref(false);
-
-// Drag handling untuk All Pages toggle
-let startY = 0;
-let currentY = 0;
-let isDragging = false;
-
-function handleDragStart(e: MouseEvent | TouchEvent) {
-  isDragging = true;
-  startY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-}
-
-function handleDragMove(e: MouseEvent | TouchEvent) {
-  if (!isDragging) return;
-  currentY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-  const diff = currentY - startY;
-  
-  if (diff > 30 && !showAllPages.value) {
-    showAllPages.value = true;
-    isDragging = false;
-  } else if (diff < -30 && showAllPages.value) {
-    showAllPages.value = false;
-    isDragging = false;
-  }
-}
-
-function handleDragEnd() {
-  isDragging = false;
-}
 
 // Drag and drop untuk reorder items
 const draggedItem = ref<string | null>(null);
@@ -575,6 +502,12 @@ function onItemDrop(e: DragEvent, dropKey: string) {
   e.stopPropagation();
   
   console.log('Drop on:', dropKey, 'Dragged:', draggedItem.value);
+
+  if (dragSource.value !== 'sidebar') {
+    draggedItem.value = null;
+    dragOverItem.value = null;
+    return;
+  }
   
   if (!draggedItem.value || draggedItem.value === dropKey) {
     draggedItem.value = null;
@@ -585,6 +518,12 @@ function onItemDrop(e: DragEvent, dropKey: string) {
   const currentRoutes = [...allRoutes.value];
   const draggedIndex = currentRoutes.indexOf(draggedItem.value);
   const dropIndex = currentRoutes.indexOf(dropKey);
+
+  if (draggedIndex === -1 || dropIndex === -1) {
+    draggedItem.value = null;
+    dragOverItem.value = null;
+    return;
+  }
   
   console.log('Reordering from', draggedIndex, 'to', dropIndex);
   
@@ -623,11 +562,7 @@ function onItemClick(key: string, e: MouseEvent) {
 }
 
 const profiles = profilesState;
-const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
-const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 const hasProfiles = computed(() => profiles.value.length > 0);
-
-const appVersion = String((pkg as any)?.version || '0.0.0');
 
 const HOME_INTRO_HIDDEN_KEY = 'lumen-home-intro-hidden';
 const showIntroHero = ref(localStorage.getItem(HOME_INTRO_HIDDEN_KEY) !== '1');
@@ -735,14 +670,6 @@ function getRouteIcon(key: string) {
 </script>
 
 <style scoped>
-.home-page {
-  display: flex;
-  height: 100%;
-  min-height: 0;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 /* Sidebar */
 .sidebar {
   width: 260px;
@@ -966,7 +893,9 @@ function getRouteIcon(key: string) {
 .toggle-pages {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.625rem;
+  width: 100%;
   padding: 0.625rem 1rem;
   margin: 0.5rem 0;
   border: 1px solid var(--border-color);

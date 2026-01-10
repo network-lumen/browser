@@ -1,21 +1,13 @@
 <template>
-  <div class="wallet-page">
+  <div class="wallet-page internal-page">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <Wallet :size="24" />
-        </div>
-        <span class="logo-text">Wallet</span>
-      </div>
-
-      <ActiveProfileCard :profile="activeProfile" />
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <span class="nav-label">Activity</span>
+    <InternalSidebar title="Wallet" :icon="Wallet" activeKey="wallet">
+      <nav class="lsb-nav">
+        <div class="lsb-section">
+          <span class="lsb-label">Activity</span>
           <button
-            class="nav-item"
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -23,7 +15,8 @@
             <span>Transactions</span>
           </button>
           <button
-            class="nav-item"
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'recurring' }"
             @click="currentView = 'recurring'"
           >
@@ -31,7 +24,8 @@
             <span>Recurring</span>
           </button>
           <button
-            class="nav-item"
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'addressbook' }"
             @click="currentView = 'addressbook'"
           >
@@ -40,7 +34,7 @@
           </button>
         </div>
       </nav>
-    </aside>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -670,7 +664,7 @@ import {
 import { profilesState, activeProfileId } from '../profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
 import QRCode from 'qrcode';
-import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
+import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
 import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
@@ -1457,19 +1451,11 @@ function exportTransactions() {
 </script>
 
 <style scoped>
-.wallet-page {
-  display: flex;
-  height: 100vh;
-  min-height: 100vh;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
 .sidebar {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  height: 100vh;
+  height: 100%;
   background: var(--sidebar-bg);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
