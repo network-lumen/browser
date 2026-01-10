@@ -113,15 +113,29 @@ export async function exportProfilesBackup(ids) {
         return { ok: false, error: 'backup_failed' };
     }
 }
-export async function importProfileFromBackup() {
+export async function importProfilesFromBackup() {
     try {
         const api = getApi();
-        if (!api || typeof api.importBackup !== 'function')
-            return null;
+        if (!api || typeof api.importBackup !== 'function') {
+            return { ok: false, error: 'backup_api_unavailable' };
+        }
         const res = await api.importBackup();
+        if (!res)
+            return { ok: false, error: 'backup_failed' };
+        if (res.ok === false)
+            return res;
+        await initProfiles();
+        return res;
+    }
+    catch {
+        return { ok: false, error: 'backup_failed' };
+    }
+}
+export async function importProfileFromBackup() {
+    try {
+        const res = await importProfilesFromBackup();
         if (!res || res.ok === false)
             return null;
-        await initProfiles();
         const id = res.selectedId || activeProfileId.value || profilesState.value[0]?.id || '';
         return profilesState.value.find((p) => p.id === id) || null;
     }
