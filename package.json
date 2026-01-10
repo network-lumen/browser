@@ -10,6 +10,9 @@
     "dev:electron": "electron electron/main.cjs",
     "build": "vite build",
     "preview": "vite preview",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win nsis",
     "electron": "electron electron/main.cjs"
   },
   "dependencies": {
@@ -29,7 +32,48 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "concurrently": "^9.0.0",
     "electron": "^31.3.1",
+    "electron-builder": "^26.0.12",
     "typescript": "^5.5.4",
     "vite": "^5.4.2"
+  },
+  "build": {
+    "appId": "com.lumen.browser",
+    "productName": "Lumen Browser",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/kubo/kubo/**"
+    ],
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/peers.txt",
+        "to": "peers.txt"
+      },
+      {
+        "from": "resources/gateways_whitelist.txt",
+        "to": "gateways_whitelist.txt"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "icon": "src/img/logo.png",
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Lumen Browser",
+      "runAfterFinish": true
+    }
   }
 }

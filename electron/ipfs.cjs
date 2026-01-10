@@ -60,10 +60,16 @@ function applyIpfsAddressesConfig(bin, repoPath) {
 }
 
 function resolveKuboBin() {
+  function unwrapAsarPath(p) {
+    const s = String(p || '');
+    if (!s) return s;
+    return s.replace(/app\.asar([\\/])/g, 'app.asar.unpacked$1');
+  }
+
   try {
     const kubo = require('kubo');
     const p = typeof kubo?.path === 'function' ? kubo.path() : kubo?.path;
-    if (typeof p === 'string' && p.length > 0) return p;
+    if (typeof p === 'string' && p.length > 0) return unwrapAsarPath(p);
   } catch (_e) {
     // fall through
   }

@@ -15,9 +15,14 @@ function ensureHttp(u) {
 function resolvePeersFilePath() {
   const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
 
+  const packagedResourcesPath = app && app.isPackaged ? process.resourcesPath : null;
+
   // Try multiple possible locations for peers.txt
   const candidates = [
+    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
+    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')] : []),
     path.join(appPath, 'resources', 'peers.txt'),
+    path.join(appPath, '..', 'peers.txt'),
     path.join(appPath, '..', 'resources', 'peers.txt'), // dev mode: electron/../resources
     path.join(process.cwd(), 'resources', 'peers.txt'),
   ];
@@ -572,12 +577,13 @@ function mulDec(amount, dec) {
 }
 
 async function dnsGetParams() {
+  const LCD_TIMEOUT_MS = 20_000;
   const restBase = getRestBaseUrl();
   if (!restBase) {
     return { ok: false, error: 'rest_base_missing' };
   }
   const url = `${trimSlash(restBase)}/lumen/dns/v1/params`;
-  const res = await httpGet(url, { timeout: 7000 });
+  const res = await httpGet(url, { timeout: LCD_TIMEOUT_MS });
   if (!res.ok) {
     return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
   }
@@ -585,12 +591,13 @@ async function dnsGetParams() {
 }
 
 async function pqcGetParams() {
+  const LCD_TIMEOUT_MS = 20_000;
   const restBase = getRestBaseUrl();
   if (!restBase) {
     return { ok: false, error: 'rest_base_missing' };
   }
   const url = `${trimSlash(restBase)}/lumen/pqc/v1/params`;
-  const res = await httpGet(url, { timeout: 7000 });
+  const res = await httpGet(url, { timeout: LCD_TIMEOUT_MS });
   if (!res.ok) {
     return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
   }
@@ -600,6 +607,7 @@ async function pqcGetParams() {
 }
 
 async function dnsGetDomainInfo(nameInput) {
+  const LCD_TIMEOUT_MS = 20_000;
   const restBase = getRestBaseUrl();
   if (!restBase) {
     return { ok: false, error: 'rest_base_missing' };
@@ -607,7 +615,7 @@ async function dnsGetDomainInfo(nameInput) {
   const name = String(nameInput || '').trim();
   if (!name) return { ok: false, error: 'missing_name' };
   const url = `${trimSlash(restBase)}/lumen/dns/v1/domain/${encodeURIComponent(name)}`;
-  const res = await httpGet(url, { timeout: 7000 });
+  const res = await httpGet(url, { timeout: LCD_TIMEOUT_MS });
   if (!res.ok) {
     return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
   }
@@ -714,6 +722,8 @@ async function dnsEstimateRegisterPrice(input) {
 }
 
 async function dnsListByOwnerDetailed(ownerInput) {
+  const LCD_LIST_TIMEOUT_MS = 20_000;
+  const LCD_ITEM_TIMEOUT_MS = 15_000;
   const restBase = getRestBaseUrl();
   if (!restBase) {
     return { ok: false, error: 'rest_base_missing' };
@@ -722,7 +732,7 @@ async function dnsListByOwnerDetailed(ownerInput) {
   if (!owner) return { ok: false, error: 'missing_owner' };
 
   const byOwnerUrl = `${trimSlash(restBase)}/lumen/dns/v1/domains_by_owner/${encodeURIComponent(owner)}`;
-  const listRes = await httpGet(byOwnerUrl, { timeout: 7000 });
+  const listRes = await httpGet(byOwnerUrl, { timeout: LCD_LIST_TIMEOUT_MS });
   if (!listRes.ok) {
     return { ok: false, status: listRes.status, error: listRes.error || `http_${listRes.status}` };
   }
@@ -739,7 +749,7 @@ async function dnsListByOwnerDetailed(ownerInput) {
     if (!name) continue;
     try {
       const u = `${trimSlash(restBase)}/lumen/dns/v1/domain/${encodeURIComponent(name)}`;
-      const d = await httpGet(u, { timeout: 7000 });
+      const d = await httpGet(u, { timeout: LCD_ITEM_TIMEOUT_MS });
       if (!d.ok) continue;
       const dom = (d.json && (d.json.domain || d.json)) || {};
       out.push(dom);

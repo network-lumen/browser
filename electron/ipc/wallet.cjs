@@ -66,33 +66,53 @@ function resolvePqcHome() {
   return userDataPath();
 }
 
+function resolvePeersFilePath() {
+  const { app } = require('electron');
+  const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
+  const packagedResourcesPath = app && app.isPackaged ? process.resourcesPath : null;
+
+  const candidates = [
+    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
+    ...(packagedResourcesPath
+      ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')]
+      : []),
+    path.join(appPath, 'resources', 'peers.txt'),
+    path.join(appPath, '..', 'peers.txt'),
+    path.join(appPath, '..', 'resources', 'peers.txt'),
+    path.join(process.cwd(), 'resources', 'peers.txt'),
+  ];
+
+  for (const file of candidates) {
+    try {
+      if (fs.existsSync(file)) {
+        console.log('[wallet] found peers file at:', file);
+        return file;
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
 function getRestBaseUrl() {
   // Reuse same peers.txt logic as chain.cjs, but inline minimal version here
   // to avoid circular dependencies.
-  const appPath = require('electron').app.getAppPath();
-  const candidates = [
-    path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'),
-    path.join(process.cwd(), 'resources', 'peers.txt')
-  ];
   let rpc = null;
   let rest = null;
-  for (const file of candidates) {
-    try {
-      if (!fs.existsSync(file)) continue;
-      const raw = fs.readFileSync(file, 'utf8');
-      for (const line of raw.split(/\r?\n/)) {
-        const cleaned = String(line || '').replace(/#.*/, '').trim();
-        if (!cleaned) continue;
-        const parts = cleaned.split(/[\s,]+/).filter(Boolean);
-        if (!parts.length) continue;
-        rpc = parts[0] || null;
-        rest = parts[1] || null;
-        break;
-      }
-    } catch {}
-    if (rpc || rest) break;
-  }
+  const peersFile = resolvePeersFilePath();
+  if (!peersFile) return '';
+  try {
+    const raw = fs.readFileSync(peersFile, 'utf8');
+    for (const line of raw.split(/\r?\n/)) {
+      const cleaned = String(line || '').replace(/#.*/, '').trim();
+      if (!cleaned) continue;
+      const parts = cleaned.split(/[\s,]+/).filter(Boolean);
+      if (!parts.length) continue;
+      rpc = parts[0] || null;
+      rest = parts[1] || null;
+      break;
+    }
+  } catch {}
   const ensureHttp = (u) => {
     const trimmed = String(u || '').replace(/\/+$/, '');
     if (!trimmed) return '';
@@ -114,28 +134,21 @@ function getRestBaseUrl() {
 }
 
 function getRpcBaseUrl() {
-  const appPath = require('electron').app.getAppPath();
-  const candidates = [
-    path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'),
-    path.join(process.cwd(), 'resources', 'peers.txt')
-  ];
-  for (const file of candidates) {
-    try {
-      if (!fs.existsSync(file)) continue;
-      const raw = fs.readFileSync(file, 'utf8');
-      for (const line of raw.split(/\r?\n/)) {
-        const cleaned = String(line || '').replace(/#.*/, '').trim();
-        if (!cleaned) continue;
-        const parts = cleaned.split(/[\s,]+/).filter(Boolean);
-        if (!parts.length) continue;
-        const rpc = parts[0] || null;
-        if (!rpc) continue;
-        const trimmed = String(rpc || '').replace(/\/+$/, '');
-        return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
-      }
-    } catch {}
-  }
+  const peersFile = resolvePeersFilePath();
+  if (!peersFile) return '';
+  try {
+    const raw = fs.readFileSync(peersFile, 'utf8');
+    for (const line of raw.split(/\r?\n/)) {
+      const cleaned = String(line || '').replace(/#.*/, '').trim();
+      if (!cleaned) continue;
+      const parts = cleaned.split(/[\s,]+/).filter(Boolean);
+      if (!parts.length) continue;
+      const rpc = parts[0] || null;
+      if (!rpc) continue;
+      const trimmed = String(rpc || '').replace(/\/+$/, '');
+      return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
+    }
+  } catch {}
   return '';
 }
 

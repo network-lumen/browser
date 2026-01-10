@@ -204,7 +204,9 @@ app.whenReady().then(() => {
   createSplashWindow();
   startChainPoller();
 
-  if (!app.isPackaged) {
+  const allowDevtools = !app.isPackaged || String(process.env.DEBUG_LUMEN_ELECTRON || '') === '1';
+
+  if (allowDevtools) {
     app.on('web-contents-created', (_event, contents) => {
       contents.on('before-input-event', (event, input) => {
         if (isDevtoolsToggle(input)) {

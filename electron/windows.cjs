@@ -67,14 +67,14 @@ function createSplashWindow() {
   const devServerUrl =
     process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
 
-  const splashUrl = app.isPackaged
-    ? path.join(__dirname, '..', 'dist', 'index.html?splash=1')
-    : `${devServerUrl}?splash=1`;
+  const indexFile = path.join(__dirname, '..', 'dist', 'index.html');
 
   if (!app.isPackaged) {
-    splashWindow.loadURL(splashUrl);
+    splashWindow.loadURL(`${devServerUrl}?splash=1`);
   } else {
-    splashWindow.loadFile(splashUrl);
+    splashWindow.loadFile(indexFile, { query: { splash: '1' } }).catch((e) => {
+      console.error('[electron][splash] failed to load:', e);
+    });
   }
 
   splashWindow.once('ready-to-show', () => {

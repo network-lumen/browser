@@ -400,6 +400,34 @@ function parsePeerLine(line) {
   return { rpc, rest, grpc };
 }
 
+function resolvePeersFilePath() {
+  const appPath = require('electron').app.getAppPath?.() || process.cwd();
+  const packagedResourcesPath =
+    require('electron').app.isPackaged ? process.resourcesPath : null;
+
+  const candidates = [
+    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
+    ...(packagedResourcesPath
+      ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')]
+      : []),
+    path.join(appPath, 'resources', 'peers.txt'),
+    path.join(appPath, '..', 'peers.txt'),
+    path.join(appPath, '..', 'resources', 'peers.txt'),
+    path.join(process.cwd(), 'resources', 'peers.txt'),
+  ];
+
+  for (const file of candidates) {
+    try {
+      if (existsSync(file)) {
+        console.log('[gateway] found peers file at:', file);
+        return file;
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
 function resolveGatewaysWhitelistFilePath() {
   const explicit = process.env.LUMEN_GATEWAYS_WHITELIST_FILE;
   const candidates = [];
@@ -463,22 +491,7 @@ function loadPeersFromFile(filePath) {
 }
 
 function getRestBaseUrl() {
-  const appPath = require('electron').app.getAppPath();
-  const candidates = [
-    path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'),
-    path.join(process.cwd(), 'resources', 'peers.txt'),
-  ];
-
-  let peersFile = null;
-  for (const file of candidates) {
-    try {
-      if (existsSync(file)) {
-        peersFile = file;
-        break;
-      }
-    } catch {}
-  }
+  const peersFile = resolvePeersFilePath();
   if (!peersFile) return null;
 
   const peers = loadPeersFromFile(peersFile);
