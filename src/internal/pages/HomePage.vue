@@ -10,15 +10,7 @@
       </div>
 
       <!-- Profile Info -->
-      <div class="profile-card" v-if="activeProfile">
-        <div class="avatar">
-          <User :size="18" />
-        </div>
-        <div class="profile-info">
-          <span class="profile-label">Active Profile</span>
-          <span class="profile-name">{{ activeProfileDisplay }}</span>
-        </div>
-      </div>
+      <ActiveProfileCard :profile="activeProfile" />
       
       <nav class="sidebar-nav">
         <div class="nav-section">
@@ -233,6 +225,7 @@
 import { inject, computed, ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS } from '../routes';
 import { profilesState, activeProfileId } from '../profilesStore';
+import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
 import pkg from '../../../package.json';
 import { 
   Home, User, HardDrive, Wallet, Globe, Settings, 

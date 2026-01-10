@@ -74,106 +74,75 @@
     <!-- profiles -->
     <div class="profile-ctl gap-50 appregion-no-drag flex-align-center ">
       <div class="relative avatar-wrap padding-25">
-        <UiButton
-          class="avatar-btn txt-letter-spacing-00125 cursor-select-none  cursor-pointer txt-weight-strong txt-xs overflow-hidden border-none border-radius-circle flex-align-justify-center size-160"
-          :class="
-            isGuestOnly
-              ? 'bg-white-blue-dark color-gray-blue-light'
-              : 'border-1px-solid border-color-default ' + avatarHueClass(activeProfileName || activeProfileId)
-          "
-          :title="activeProfileDisplay"
-          @click.stop="toggleProfileMenu"
-        >
-          <User v-if="isGuestOnly" :size="16" stroke-width="2.5" />
-          <span v-else>{{ avatarLetter }}</span>
-        </UiButton>
+        <button type="button" class="profile-trigger" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
+          <ProfileAvatar :profile="activeProfile" :size="30" :title="activeProfileDisplay" />
+          <span class="profile-trigger-name">{{ activeProfileDisplay }}</span>
+        </button>
 
         <div
           v-if="showProfileMenu"
-          class="menu z-1 box-shadow-default border-radius-10px flex flex-column absolute right-0 top-full margin-top-50 min-w-1500"
-          :style="{ background: 'var(--bg-primary, white)', border: '1px solid var(--border-color, #e2e8f0)', padding: '0.625rem' }"
+          class="menu profile-menu z-1 absolute right-0 top-full margin-top-50"
           role="menu"
         >
-          <div class="menu-head txt-weight-strong txt-xs" :style="{ padding: '0.5rem', color: 'var(--text-primary, #64748b)' }">
-            {{ isGuestOnly ? '' : 'Profiles' }}
+          <ActiveProfileCard
+            v-if="activeProfile"
+            :profile="activeProfile"
+            dense
+            :label="isGuestOnly ? 'Guest mode' : 'Active profile'"
+          />
+
+          <div v-if="hasProfiles && !isGuestOnly" class="profile-menu-section">
+            <div class="profile-menu-title">Profiles</div>
+            <ul class="profile-list">
+              <li
+                v-for="p in profiles"
+                :key="p.id"
+                class="profile-row"
+                :class="{ active: p.id === activeProfileId }"
+                role="menuitem"
+              >
+                <button type="button" class="profile-row-btn" @click.stop="selectProfile(p.id)">
+                  <ProfileAvatar :profile="p" :size="28" :title="p.name || p.id" />
+                  <span class="profile-row-name">{{ p.name || p.id }}</span>
+                </button>
+
+                <button type="button" class="profile-row-delete" title="Delete profile" @click.stop="onDeleteProfile(p.id)">
+                  <Trash2 :size="16" />
+                </button>
+              </li>
+            </ul>
           </div>
 
-          <ul
-            v-if="hasProfiles && !isGuestOnly"
-            class="profile-list list-style-none padding-25 margin-0 gap-25 txt-xs overflow-auto flex flex-column max-h-50vh"
-          >
-            <li
-              v-for="p in profiles"
-              :key="p.id"
-              class="profile-item gap-50 border-radius-10px flex-align-center"
-              :style="{ padding: '0.5rem', background: p.id === activeProfileId ? 'var(--bg-secondary, #f8fafc)' : 'transparent', border: p.id === activeProfileId ? '1px solid var(--border-color, #e2e8f0)' : 'none' }"
-              :class="{ 'active': p.id === activeProfileId }"
-              role="menuitem"
-            >
-              <button
-                type="button"
-                class="flex-align-center flex-1 gap-50 cursor-pointer border-none bg-transparent text-align-left"
-                @click.stop="selectProfile(p.id)"
-              >
-                <span
-                  class="profile-avatar txt-weight-strong txt-xs overflow-hidden border-radius-circle flex-align-justify-center size-100"
-                  :style="{ border: '1px solid var(--border-color, #e2e8f0)' }"
-                  :class="avatarHueClass(p.name || p.id)"
-                >
-                  {{ (p.name || p.id).trim().charAt(0).toUpperCase() }}
-                </span>
-                <span class="txt-xs" :style="{ color: 'var(--text-primary, #64748b)' }">
-                  {{ p.name || p.id }}
-                </span>
-              </button>
-
-              <UiButton
-                variant="none"
-                class="margin-left-auto cursor-pointer border-none bg-white border-radius-circle hover-bg-black-a10 padding-50"
-                title="Delete profile"
-                @click.stop="onDeleteProfile(p.id)"
-              >
-                <Trash2 :size="18" class="color-red-base" />
-              </UiButton>
-            </li>
-          </ul>
-
-          <div v-else class="txt-xs" :style="{ padding: '0.5rem', color: 'var(--text-secondary, #64748b)' }">
+          <div v-else class="profile-menu-hint">
             {{ isGuestOnly
-              ? 'Guest mode active no local profiles created or imported yet.'
+              ? 'Guest mode active. Create or import a profile to get started.'
               : 'No profiles yet.' }}
           </div>
 
-          <div class="menu-actions padding-top-50 flex flex-column gap-25">
-            <UiButton variant="ghost" size="sm" @click="onCreateProfileClick">
+          <div class="profile-menu-actions">
+            <UiButton variant="none" class="profile-menu-action" @click="onCreateProfileClick">
               New profile…
             </UiButton>
-            <UiButton variant="ghost" size="sm" :disabled="!activeProfileId" @click="onExportProfile">
+            <UiButton variant="none" class="profile-menu-action" :disabled="!activeProfileId" @click="onExportProfile">
               Export active profile…
             </UiButton>
-            <UiButton variant="ghost" size="sm" @click="onImportProfileClick">
+            <UiButton variant="none" class="profile-menu-action" @click="onImportProfileClick">
               Import profile…
             </UiButton>
 
-            <div v-if="creatingProfile" class="flex flex-column gap-25 padding-top-25">
-              <input
-                v-model="newProfileName"
-                type="text"
-                class="outline-none flex-1 txt-xs border-radius-10px"
-                :style="{ padding: '0.5rem', border: '1px solid var(--border-color, #e2e8f0)', background: 'var(--bg-primary, white)', color: 'var(--text-primary, #1e293b)' }"
-                placeholder="Profile name"
-              />
-              <div class="flex gap-25">
-                <UiButton size="sm" variant="primary" @click="confirmCreateProfile">
+            <div v-if="creatingProfile" class="profile-create">
+              <input v-model="newProfileName" type="text" class="profile-create-input" placeholder="Profile name" />
+              <div class="profile-create-actions">
+                <UiButton variant="none" class="profile-menu-action primary" @click="confirmCreateProfile">
                   Create
                 </UiButton>
-                <UiButton size="sm" variant="ghost" @click="cancelCreateProfile">
+                <UiButton variant="none" class="profile-menu-action" @click="cancelCreateProfile">
                   Cancel
                 </UiButton>
               </div>
             </div>
 
-            <div v-if="profileMessage" class="txt-xs" :style="{ paddingTop: '0.625rem', color: 'var(--text-secondary, #64748b)' }">
+            <div v-if="profileMessage" class="profile-menu-message">
               {{ profileMessage }}
             </div>
           </div>
@@ -185,7 +154,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
-  import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, User, Trash2 } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2 } from 'lucide-vue-next';
+import ActiveProfileCard from '../components/ActiveProfileCard.vue';
+import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import {
@@ -193,8 +164,6 @@ import {
   activeProfileId,
   setActiveProfile,
   createProfile,
-  exportProfile,
-  importProfile,
   deleteProfile,
   initProfiles,
   exportProfileBackup,
@@ -225,8 +194,6 @@ const urlField = ref('');
 const showProfileMenu = ref(false);
 const creatingProfile = ref(false);
 const newProfileName = ref('');
-const showImportArea = ref(false);
-const importJson = ref('');
 const profileMessage = ref('');
 
 const profiles = profilesState;
@@ -238,26 +205,9 @@ const isGuestOnly = computed(
   () => activeProfile.value?.role === 'guest' && profiles.value.length === 1
 );
 
-const activeProfileName = computed(() => activeProfile.value?.name || '');
 const activeProfileDisplay = computed(
   () => activeProfile.value?.name || activeProfile.value?.id || 'Profile'
 );
-
-const avatarLetter = computed(() => {
-  const base = activeProfileName.value || activeProfileId.value || 'P';
-  return base.trim().charAt(0).toUpperCase();
-});
-
-function avatarHueClass(base: string) {
-  const name = String(base || '');
-  if (!name) return 'avatar-hue-0';
-  let h = 0;
-  for (let i = 0; i < name.length; i++) {
-    h = (h * 31 + name.charCodeAt(i)) | 0;
-  }
-  const bucket = Math.abs(h) % 12;
-  return `avatar-hue-${bucket}`;
-}
 
 const activeTab = computed<Tab | null>(() => {
   return props.tabs.find((t) => t.id === props.tabActive) ?? null;
@@ -353,10 +303,8 @@ function onEnter(ev: KeyboardEvent) {
 
 function resetProfileUi() {
   creatingProfile.value = false;
-  showImportArea.value = false;
   profileMessage.value = '';
   newProfileName.value = '';
-  importJson.value = '';
 }
 
 function toggleProfileMenu() {
@@ -374,7 +322,6 @@ function selectProfile(id: string) {
 
 function onCreateProfileClick() {
   creatingProfile.value = true;
-  showImportArea.value = false;
   profileMessage.value = '';
   newProfileName.value = '';
 }
@@ -430,24 +377,6 @@ function cancelCreateProfile() {
   newProfileName.value = '';
 }
 
-async function confirmImportProfile() {
-  const json = importJson.value.trim();
-  if (!json) return;
-  const imported = await importProfile(json);
-  if (!imported) {
-    profileMessage.value = 'Invalid profile JSON.';
-    return;
-  }
-  showImportArea.value = false;
-  importJson.value = '';
-  profileMessage.value = 'Profile imported.';
-}
-
-function cancelImportProfile() {
-  showImportArea.value = false;
-  importJson.value = '';
-}
-
 async function onDeleteProfile(id: string) {
   const ok = await deleteProfile(id);
   if (!ok) {
@@ -476,29 +405,200 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.avatar-hue-0  { background: hsl(  0deg 62% 56%); color: var(--white-blue-light); }
-.avatar-hue-1  { background: hsl( 30deg 62% 56%); color: var(--gray-blue-dark); }
-.avatar-hue-2  { background: hsl( 60deg 62% 56%); color: var(--gray-blue-dark); }
-.avatar-hue-3  { background: hsl( 90deg 62% 56%); color: var(--gray-blue-dark); }
-.avatar-hue-4  { background: hsl(120deg 62% 56%); color: var(--gray-blue-dark); }
-.avatar-hue-5  { background: hsl(150deg 62% 56%); color: var(--gray-blue-dark); }
-.avatar-hue-6  { background: hsl(180deg 62% 56%); color: var(--gray-blue-dark); }
-.avatar-hue-7  { background: hsl(210deg 62% 56%); color: var(--white-blue-light); }
-.avatar-hue-8  { background: hsl(240deg 62% 56%); color: var(--white-blue-light); }
-.avatar-hue-9  { background: hsl(270deg 62% 56%); color: var(--white-blue-light); }
-.avatar-hue-10 { background: hsl(300deg 62% 56%); color: var(--white-blue-light); }
-.avatar-hue-11 { background: hsl(330deg 62% 56%); color: var(--white-blue-light); }
+.profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--border-radius-full);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  max-width: 12rem;
+}
+
+.profile-trigger:where(:hover, :focus-visible) {
+  background: var(--hover-bg);
+}
+
+.profile-trigger-name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-menu {
+  min-width: 18rem;
+  max-width: 22rem;
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-xl);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.profile-menu-title {
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.profile-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 40vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--border-radius-md);
+  padding: 0.25rem;
+}
+
+.profile-row:where(:hover, :focus-within) {
+  background: var(--hover-bg);
+}
+
+.profile-row.active {
+  background: var(--fill-tertiary);
+  border: var(--border-width) solid var(--border-light);
+}
+
+.profile-row-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.profile-row-name {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-row-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-full);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--error-red);
+}
+
+.profile-row-delete:where(:hover, :focus-visible) {
+  background: var(--hover-bg);
+}
+
+.profile-menu-hint {
+  padding: 0.5rem 0.25rem;
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+
+.profile-menu-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.profile-menu-action {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--border-radius-md);
+  border: var(--border-width) solid var(--border-light);
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.profile-menu-action:where(:hover, :focus-visible) {
+  background: var(--hover-bg);
+}
+
+.profile-menu-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-menu-action.primary {
+  border-color: transparent;
+  background: var(--accent-primary);
+  color: #fff;
+  justify-content: center;
+}
+
+.profile-menu-action.primary:where(:hover, :focus-visible) {
+  filter: brightness(0.96);
+}
+
+.profile-create {
+  margin-top: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: var(--border-width) solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-create-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--border-radius-md);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+}
+
+.profile-create-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.profile-create-actions .profile-menu-action {
+  flex: 1;
+  justify-content: center;
+}
+
+.profile-menu-message {
+  margin-top: 0.25rem;
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+  padding: 0.25rem 0.25rem;
+}
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -9,15 +9,7 @@
         <span class="logo-text">Settings</span>
       </div>
 
-      <div class="profile-card" v-if="activeProfile">
-        <div class="avatar">
-          <User :size="18" />
-        </div>
-        <div class="profile-info">
-          <span class="profile-label">Active Profile</span>
-          <span class="profile-name">{{ activeProfileDisplay }}</span>
-        </div>
-      </div>
+      <ActiveProfileCard :profile="activeProfile" />
       
       <nav class="sidebar-nav">
         <div class="nav-section">
@@ -427,6 +419,7 @@ import {
 import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfilesBackup, importProfilesFromBackup } from '../profilesStore';
+import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
 

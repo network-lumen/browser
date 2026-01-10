@@ -11,15 +11,7 @@
 
       <div class="sidebar-body">
 
-        <div class="profile-card" v-if="activeProfile">
-          <div class="avatar">
-            <User :size="18" />
-          </div>
-          <div class="profile-info">
-            <span class="profile-label">Active Profile</span>
-            <span class="profile-name">{{ activeProfileDisplay }}</span>
-          </div>
-        </div>
+        <ActiveProfileCard :profile="activeProfile" />
 
 
       </div>
@@ -290,6 +282,7 @@ import {
   User
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
+import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
 
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 

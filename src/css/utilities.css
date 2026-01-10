@@ -45,6 +45,20 @@
 .bg-white-blue-dark { background-color: var(--white-blue-dark); }
 .bg-blue { background-color: var(--blue); }
 .bg-blue-sky { background-color: var(--blue-sky); }
+
+/* ---------------------------- AVATAR COLORS ---------------------------- */
+.avatar-hue-0  { background: hsl(  0deg 62% 56%); color: #f8fafc; }
+.avatar-hue-1  { background: hsl( 30deg 62% 56%); color: #0f172a; }
+.avatar-hue-2  { background: hsl( 60deg 62% 56%); color: #0f172a; }
+.avatar-hue-3  { background: hsl( 90deg 62% 56%); color: #0f172a; }
+.avatar-hue-4  { background: hsl(120deg 62% 56%); color: #0f172a; }
+.avatar-hue-5  { background: hsl(150deg 62% 56%); color: #0f172a; }
+.avatar-hue-6  { background: hsl(180deg 62% 56%); color: #0f172a; }
+.avatar-hue-7  { background: hsl(210deg 62% 56%); color: #f8fafc; }
+.avatar-hue-8  { background: hsl(240deg 62% 56%); color: #f8fafc; }
+.avatar-hue-9  { background: hsl(270deg 62% 56%); color: #f8fafc; }
+.avatar-hue-10 { background: hsl(300deg 62% 56%); color: #f8fafc; }
+.avatar-hue-11 { background: hsl(330deg 62% 56%); color: #f8fafc; }
 /* .bg-primary-a10 removed (unused) */
 @media (hover: hover) {
   /* .hover-bg-white removed (unused) */

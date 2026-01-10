@@ -9,15 +9,7 @@
         <span class="logo-text">Wallet</span>
       </div>
 
-      <div class="profile-card" v-if="activeProfile">
-        <div class="avatar">
-          <User :size="18" />
-        </div>
-        <div class="profile-info">
-          <span class="profile-label">Active Profile</span>
-          <span class="profile-name">{{ activeProfileDisplay }}</span>
-        </div>
-      </div>
+      <ActiveProfileCard :profile="activeProfile" />
 
       <nav class="sidebar-nav">
         <div class="nav-section">
@@ -678,6 +670,7 @@ import {
 import { profilesState, activeProfileId } from '../profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
 import QRCode from 'qrcode';
+import ActiveProfileCard from '../../components/ActiveProfileCard.vue';
 import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
 import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';

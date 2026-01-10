@@ -9,15 +9,7 @@
         <span class="logo-text">Drive</span>
       </div>
 
-      <div class="profile-card" v-if="activeProfile">
-        <div class="avatar">
-          <User :size="18" />
-        </div>
-        <div class="profile-info">
-          <span class="profile-label">Active Profile</span>
-          <span class="profile-name">{{ activeProfileDisplay }}</span>
-        </div>
-      </div>
+      <ActiveProfileCard :profile="activeProfile" />
 
       <!-- Hosting -->
       <div class="hosting-panel">
@@ -1157,6 +1149,7 @@ import {
   User,
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import ActiveProfileCard from "../../components/ActiveProfileCard.vue";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
