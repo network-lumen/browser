@@ -239,6 +239,147 @@ function buildProfileBackupObject(p) {
   };
 }
 
+function collectBackupFiles(selectionPath) {
+  const out = [];
+  const raw = String(selectionPath || '').trim();
+  if (!raw) return out;
+
+  let st = null;
+  try {
+    st = fs.statSync(raw);
+  } catch {
+    return out;
+  }
+
+  if (st.isFile()) {
+    out.push(raw);
+    return out;
+  }
+
+  if (!st.isDirectory()) return out;
+
+  const direct = path.join(raw, 'profile.json');
+  try {
+    if (fs.existsSync(direct) && fs.statSync(direct).isFile()) {
+      out.push(direct);
+      return out;
+    }
+  } catch {}
+
+  let entries = [];
+  try {
+    entries = fs.readdirSync(raw, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+
+  for (const ent of entries) {
+    if (!ent || !ent.isDirectory()) continue;
+    const candidate = path.join(raw, ent.name, 'profile.json');
+    try {
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) out.push(candidate);
+    } catch {}
+  }
+  if (out.length) return out;
+
+  // Fallback: allow selecting a folder that directly contains backup json files.
+  for (const ent of entries) {
+    if (!ent || !ent.isFile()) continue;
+    const name = String(ent.name || '');
+    if (!name.toLowerCase().endsWith('.json')) continue;
+    out.push(path.join(raw, name));
+  }
+
+  return out;
+}
+
+function importOneBackupObject(imported, profiles) {
+  if (!imported || typeof imported !== 'object') {
+    return { ok: false, error: 'invalid_profile_backup' };
+  }
+
+  const name = String(imported.name || '').trim();
+  if (!name) {
+    return { ok: false, error: 'missing_profile_name' };
+  }
+
+  // Resolve id, avoid conflicts (in-memory list)
+  const rawId = String(imported.id || '').trim();
+  const baseId = rawId || makeProfileId(name);
+  let id = baseId;
+  while (profiles.some((p) => p.id === id)) {
+    id = makeProfileId(name);
+  }
+
+  const colorIndex = Number.isFinite(imported.colorIndex)
+    ? Number(imported.colorIndex)
+    : colorIndexForName(name);
+  const role = imported.role === 'guest' ? 'guest' : 'user';
+  const walletAddress = String(imported.walletAddress || imported.address || '').trim() || null;
+
+  const profile = {
+    id,
+    name,
+    colorIndex,
+    role,
+    walletAddress
+  };
+
+  profiles.push(profile);
+
+  // Rebuild keystore from plaintext mnemonic
+  try {
+    const m = String(imported.mnemonic || '').trim();
+    if (m) {
+      const ks = encryptMnemonicLocal(m);
+      const dstDir = profileDir(id);
+      ensureDir(dstDir);
+      fs.writeFileSync(keystorePath(id), JSON.stringify(ks, null, 2), 'utf8');
+
+      const meta = {
+        id,
+        name,
+        address: walletAddress,
+        createdAt: imported.createdAt || Date.now()
+      };
+      fs.writeFileSync(
+        path.join(dstDir, 'profile.json'),
+        JSON.stringify(meta, null, 2),
+        'utf8'
+      );
+    }
+  } catch {}
+
+  // Merge PQC key if present
+  try {
+    const pqc = imported.pqc;
+    if (pqc && pqc.publicKey && pqc.privateKey && walletAddress) {
+      const keysFile = path.join(pqcKeysDir(), 'keys.json');
+      const linksFile = path.join(pqcKeysDir(), 'links.json');
+      let keys = {};
+      let links = {};
+      if (fs.existsSync(keysFile)) keys = readJson(keysFile, {}) || {};
+      if (fs.existsSync(linksFile)) links = readJson(linksFile, {}) || {};
+
+      const keyName = String(pqc.name || `profile:${id}`);
+      keys[keyName] = {
+        name: keyName,
+        scheme: pqc.scheme || 'dilithium3',
+        publicKey: pqc.publicKey,
+        privateKey: pqc.privateKey,
+        createdAt: pqc.createdAt || new Date().toISOString()
+      };
+      links[walletAddress] = keyName;
+
+      ensureDir(pqcKeysDir());
+      fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2), 'utf8');
+      fs.writeFileSync(linksFile, JSON.stringify(links, null, 2), 'utf8');
+    }
+  } catch {}
+
+  return { ok: true, id };
+}
+
 function registerProfilesIpc() {
   ipcMain.handle('profiles:list', async () => {
     const { profiles, activeId } = loadProfilesFile();
@@ -478,119 +619,58 @@ function registerProfilesIpc() {
   ipcMain.handle('profiles:importBackup', async () => {
     try {
       const res = await dialog.showOpenDialog({
-        title: 'Select Lumen profile backup',
-        properties: ['openFile'],
+        title: 'Select Lumen profile backup (file or folder)',
+        properties: ['openFile', 'openDirectory', 'multiSelections'],
         filters: [{ name: 'Profile backup', extensions: ['json'] }]
       });
       if (res.canceled || !res.filePaths || !res.filePaths.length) {
         return { ok: false, error: 'canceled' };
       }
-      const selectedPath = res.filePaths[0];
 
-      let profileFile = selectedPath;
-      try {
-        const st = fs.statSync(selectedPath);
-        if (st.isDirectory()) {
-          profileFile = path.join(selectedPath, 'profile.json');
-        }
-      } catch {}
-
-      if (!fs.existsSync(profileFile)) {
-        return { ok: false, error: 'profile_json_missing' };
-      }
-
-      const imported = readJson(profileFile, null);
-      if (!imported || typeof imported !== 'object') {
-        return { ok: false, error: 'invalid_profile_backup' };
-      }
-
-      const name = String(imported.name || '').trim();
-      if (!name) {
-        return { ok: false, error: 'missing_profile_name' };
-      }
+      const selections = Array.from(new Set(res.filePaths.map((p) => String(p || '').trim()).filter(Boolean)));
 
       const all = loadProfilesFile();
       let profiles = all.profiles.slice();
       let activeId = all.activeId;
 
-      // Resolve id, avoid conflicts
-      const rawId = String(imported.id || '').trim();
-      const baseId = rawId || makeProfileId(name);
-      let id = baseId;
-      while (profiles.some((p) => p.id === id)) {
-        id = makeProfileId(name);
+      const results = [];
+      const seenFiles = new Set();
+
+      for (const sel of selections) {
+        const files = collectBackupFiles(sel);
+        for (const file of files) {
+          const abs = String(file || '').trim();
+          if (!abs || seenFiles.has(abs)) continue;
+          seenFiles.add(abs);
+
+          try {
+            if (!fs.existsSync(abs)) {
+              results.push({ ok: false, path: abs, error: 'profile_json_missing' });
+              continue;
+            }
+
+            const imported = readJson(abs, null);
+            const one = importOneBackupObject(imported, profiles);
+            if (one.ok) {
+              activeId = one.id;
+              results.push({ ok: true, path: abs, id: one.id });
+            } else {
+              results.push({ ok: false, path: abs, error: one.error || 'invalid_profile_backup' });
+            }
+          } catch (e) {
+            results.push({ ok: false, path: abs, error: String(e && e.message ? e.message : e) });
+          }
+        }
       }
 
-      const colorIndex = Number.isFinite(imported.colorIndex)
-        ? Number(imported.colorIndex)
-        : colorIndexForName(name);
-      const role = imported.role === 'guest' ? 'guest' : 'user';
-      const walletAddress = String(imported.walletAddress || imported.address || '').trim() || null;
+      const importedCount = results.filter((r) => r && r.ok).length;
+      if (!importedCount) {
+        return { ok: false, error: results.length ? 'no_valid_backups_found' : 'profile_json_missing' };
+      }
 
-      const profile = {
-        id,
-        name,
-        colorIndex,
-        role,
-        walletAddress
-      };
-
-      profiles.push(profile);
-
-      // Rebuild keystore from plaintext mnemonic
-      try {
-        const m = String(imported.mnemonic || '').trim();
-        if (m) {
-          const ks = encryptMnemonicLocal(m);
-          const dstDir = profileDir(id);
-          ensureDir(dstDir);
-          fs.writeFileSync(keystorePath(id), JSON.stringify(ks, null, 2), 'utf8');
-
-          const meta = {
-            id,
-            name,
-            address: walletAddress,
-            createdAt: imported.createdAt || Date.now()
-          };
-          fs.writeFileSync(
-            path.join(dstDir, 'profile.json'),
-            JSON.stringify(meta, null, 2),
-            'utf8'
-          );
-        }
-      } catch {}
-
-      // Merge PQC key if present
-      try {
-        const pqc = imported.pqc;
-        if (pqc && pqc.publicKey && pqc.privateKey && walletAddress) {
-          const keysFile = path.join(pqcKeysDir(), 'keys.json');
-          const linksFile = path.join(pqcKeysDir(), 'links.json');
-          let keys = {};
-          let links = {};
-          if (fs.existsSync(keysFile)) keys = readJson(keysFile, {}) || {};
-          if (fs.existsSync(linksFile)) links = readJson(linksFile, {}) || {};
-
-          const keyName = String(pqc.name || `profile:${id}`);
-          keys[keyName] = {
-            name: keyName,
-            scheme: pqc.scheme || 'dilithium3',
-            publicKey: pqc.publicKey,
-            privateKey: pqc.privateKey,
-            createdAt: pqc.createdAt || new Date().toISOString()
-          };
-          links[walletAddress] = keyName;
-
-          ensureDir(pqcKeysDir());
-          fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2), 'utf8');
-          fs.writeFileSync(linksFile, JSON.stringify(links, null, 2), 'utf8');
-        }
-      } catch {}
-
-      activeId = id;
       saveProfilesFile({ profiles, activeId });
 
-      return { ok: true, selectedId: activeId };
+      return { ok: true, selectedId: activeId, imported: importedCount, results };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

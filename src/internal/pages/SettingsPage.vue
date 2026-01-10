@@ -283,6 +283,12 @@
               {{ f.id }}: {{ f.error || 'failed' }}
             </div>
           </div>
+          <p v-if="backupImportSummary" class="setting-hint">{{ backupImportSummary }}</p>
+          <div v-if="backupImportFailures.length" class="backup-failures">
+            <div v-for="f in backupImportFailures" :key="f.path" class="backup-failure">
+              {{ f.path }}: {{ f.error || 'failed' }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -420,7 +426,7 @@ import {
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
-import { exportProfilesBackup, importProfileFromBackup } from '../profilesStore';
+import { exportProfilesBackup, importProfilesFromBackup } from '../profilesStore';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
 
@@ -457,6 +463,16 @@ const lastBackupExport = ref<
       error?: string;
     }
 >(null);
+const lastBackupImport = ref<
+  | null
+  | {
+      ok: boolean;
+      selectedId?: string;
+      imported?: number;
+      results?: { ok: boolean; path: string; id?: string; error?: string }[];
+      error?: string;
+    }
+>(null);
 
 const backupExportSummary = computed(() => {
   const res = lastBackupExport.value;
@@ -474,6 +490,27 @@ const backupExportSummary = computed(() => {
 
 const backupExportFailures = computed(() => {
   const res = lastBackupExport.value;
+  if (!res || !res.ok) return [];
+  const results = Array.isArray(res.results) ? res.results : [];
+  return results.filter((r) => r && r.ok === false);
+});
+
+const backupImportSummary = computed(() => {
+  const res = lastBackupImport.value;
+  if (!res) return '';
+  if (!res.ok) {
+    const err = String(res.error || '');
+    if (err === 'canceled') return 'Backup import canceled.';
+    if (err === 'no_valid_backups_found') return 'No valid backups found.';
+    return 'Backup import failed.';
+  }
+  const count = Number.isFinite(res.imported) ? Number(res.imported) : 0;
+  if (count === 1) return 'Imported 1 profile.';
+  return `Imported ${count} profiles.`;
+});
+
+const backupImportFailures = computed(() => {
+  const res = lastBackupImport.value;
   if (!res || !res.ok) return [];
   const results = Array.isArray(res.results) ? res.results : [];
   return results.filter((r) => r && r.ok === false);
@@ -643,10 +680,11 @@ async function onExportSelectedBackups() {
 async function onImportBackup() {
   if (importingBackup.value) return;
   importingBackup.value = true;
+  lastBackupImport.value = null;
   try {
-    await importProfileFromBackup();
+    lastBackupImport.value = await importProfilesFromBackup();
   } catch {
-    // ignore
+    lastBackupImport.value = { ok: false, error: 'backup_failed' };
   } finally {
     importingBackup.value = false;
   }

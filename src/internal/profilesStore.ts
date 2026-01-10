@@ -31,7 +31,16 @@ declare global {
           | null
         >;
         import: (json: string) => Promise<Profile | null>;
-        importBackup?: () => Promise<{ ok: boolean; selectedId?: string; error?: string } | null>;
+        importBackup?: () => Promise<
+          | {
+              ok: boolean;
+              selectedId?: string;
+              imported?: number;
+              results?: { ok: boolean; path: string; id?: string; error?: string }[];
+              error?: string;
+            }
+          | null
+        >;
         delete: (id: string) => Promise<{ profiles: Profile[]; activeId: string }>;
       };
       staking?: {
@@ -166,14 +175,33 @@ export async function exportProfilesBackup(ids: string[]): Promise<{
 
 export async function importProfileFromBackup(): Promise<Profile | null> {
   try {
-    const api = getApi();
-    if (!api || typeof api.importBackup !== 'function') return null;
-    const res = await api.importBackup();
-    if (!res || res.ok === false) return null;
-    await initProfiles();
+    const res = await importProfilesFromBackup();
+    if (!res.ok) return null;
     const id = res.selectedId || activeProfileId.value || profilesState.value[0]?.id || '';
     return profilesState.value.find((p) => p.id === id) || null;
   } catch {
     return null;
+  }
+}
+
+export async function importProfilesFromBackup(): Promise<{
+  ok: boolean;
+  selectedId?: string;
+  imported?: number;
+  results?: { ok: boolean; path: string; id?: string; error?: string }[];
+  error?: string;
+}> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.importBackup !== 'function') {
+      return { ok: false, error: 'backup_api_unavailable' };
+    }
+    const res = await api.importBackup();
+    if (!res) return { ok: false, error: 'backup_failed' };
+    if (res.ok === false) return res;
+    await initProfiles();
+    return res;
+  } catch {
+    return { ok: false, error: 'backup_failed' };
   }
 }

@@ -128,8 +128,21 @@
         <div 
           class="actions-grid"
           @dragover.prevent="onMySpaceDragOver"
+          @dragleave="onMySpaceDragLeave"
           @drop.prevent="onMySpaceDrop"
         >
+          <div
+            v-if="mySpaceCards.length === 0"
+            class="empty-grid"
+            :class="{ 'is-drag-over': dragOverMySpace }"
+            @click="showAllPages = true"
+          >
+            <div class="empty-title">No cards yet</div>
+            <div class="empty-desc">Drag a page from “All Pages” to add it here.</div>
+            <button class="empty-btn" type="button" @click.stop="restoreMySpaceDefaults">
+              Restore defaults
+            </button>
+          </div>
           <button 
             v-for="key in mySpaceCards" 
             :key="key"
@@ -166,8 +179,21 @@
         <div 
           class="actions-grid"
           @dragover.prevent="onLumenDragOver"
+          @dragleave="onLumenDragLeave"
           @drop.prevent="onLumenDrop"
         >
+          <div
+            v-if="lumenCards.length === 0"
+            class="empty-grid"
+            :class="{ 'is-drag-over': dragOverLumen }"
+            @click="showAllPages = true"
+          >
+            <div class="empty-title">No cards yet</div>
+            <div class="empty-desc">Drag a page from “All Pages” to add it here.</div>
+            <button class="empty-btn" type="button" @click.stop="restoreLumenDefaults">
+              Restore defaults
+            </button>
+          </div>
           <button 
             v-for="key in lumenCards" 
             :key="key"
@@ -220,12 +246,14 @@ const mainRoutes = ['home', 'drive', 'wallet', 'network', 'settings'];
 // My Space section cards yang bisa di-customize
 const MY_SPACE_CARDS_KEY = 'my_space_cards_order';
 const savedMySpaceCards = localStorage.getItem(MY_SPACE_CARDS_KEY);
-const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : ['drive', 'domain', 'wallet', 'dao', 'gateways', 'settings']);
+const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'dao', 'gateways', 'settings'];
+const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : DEFAULT_MY_SPACE_CARDS.slice());
 
 // Lumen section cards yang bisa di-customize
 const LUMEN_CARDS_KEY = 'lumen_cards_order';
 const savedLumenCards = localStorage.getItem(LUMEN_CARDS_KEY);
-const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : ['explorer', 'network', 'search', 'help']);
+const DEFAULT_LUMEN_CARDS = ['explorer', 'network', 'search', 'help'];
+const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : DEFAULT_LUMEN_CARDS.slice());
 
 // Custom order untuk All Pages dengan localStorage
 const ORDER_KEY = 'lumen_all_pages_order';
@@ -369,6 +397,15 @@ function onMySpaceDragOver(e: DragEvent) {
   dragOverMySpace.value = true;
 }
 
+function onMySpaceDragLeave(e: DragEvent) {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const x = e.clientX;
+  const y = e.clientY;
+  if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+    dragOverMySpace.value = false;
+  }
+}
+
 function onMySpaceDrop(e: DragEvent) {
   e.preventDefault();
   dragOverMySpace.value = false;
@@ -377,6 +414,11 @@ function onMySpaceDrop(e: DragEvent) {
   
   // Add ke akhir My Space cards jika drop di area kosong
   if (!mySpaceCards.value.includes(draggedItem.value)) {
+    // Ensure a card lives in only one section.
+    if (lumenCards.value.includes(draggedItem.value)) {
+      lumenCards.value = lumenCards.value.filter((k) => k !== draggedItem.value);
+      localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+    }
     mySpaceCards.value.push(draggedItem.value);
     localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
     console.log('Added to end of My Space:', draggedItem.value);
@@ -399,6 +441,15 @@ function removeMySpaceCard(key: string) {
 function onLumenDragOver(e: DragEvent) {
   e.preventDefault();
   dragOverLumen.value = true;
+}
+
+function onLumenDragLeave(e: DragEvent) {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const x = e.clientX;
+  const y = e.clientY;
+  if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+    dragOverLumen.value = false;
+  }
 }
 
 function onCardDragOver(e: DragEvent, key: string, section: 'myspace' | 'lumen') {
@@ -433,8 +484,8 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
     } else if (draggedIndex === -1) {
       // Add from sidebar/other section ke My Space
       const newCards = [...mySpaceCards.value];
-      // Remove from Lumen if it was there
-      if (dragSource.value === 'lumen') {
+      // Ensure a card lives in only one section.
+      if (lumenCards.value.includes(draggedItem.value)) {
         lumenCards.value = lumenCards.value.filter(k => k !== draggedItem.value);
         localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
       }
@@ -458,8 +509,8 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
     } else if (draggedIndex === -1) {
       // Add from sidebar/other section ke Lumen
       const newCards = [...lumenCards.value];
-      // Remove from My Space if it was there
-      if (dragSource.value === 'myspace') {
+      // Ensure a card lives in only one section.
+      if (mySpaceCards.value.includes(draggedItem.value)) {
         mySpaceCards.value = mySpaceCards.value.filter(k => k !== draggedItem.value);
         localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
       }
@@ -485,8 +536,8 @@ function onLumenDrop(e: DragEvent) {
   
   // Add ke akhir Lumen cards jika drop di area kosong
   if (!lumenCards.value.includes(draggedItem.value)) {
-    // Remove from My Space if it was there
-    if (dragSource.value === 'myspace') {
+    // Ensure a card lives in only one section.
+    if (mySpaceCards.value.includes(draggedItem.value)) {
       mySpaceCards.value = mySpaceCards.value.filter(k => k !== draggedItem.value);
       localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
     }
@@ -506,6 +557,24 @@ function removeLumenCard(key: string) {
   lumenCards.value = lumenCards.value.filter(k => k !== key);
   localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
   console.log('Removed from Lumen:', key);
+}
+
+function restoreMySpaceDefaults() {
+  mySpaceCards.value = DEFAULT_MY_SPACE_CARDS.slice();
+  localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+  // Ensure uniqueness.
+  lumenCards.value = lumenCards.value.filter((k) => !mySpaceCards.value.includes(k));
+  localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+  showAllPages.value = true;
+}
+
+function restoreLumenDefaults() {
+  lumenCards.value = DEFAULT_LUMEN_CARDS.slice();
+  localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+  // Ensure uniqueness.
+  mySpaceCards.value = mySpaceCards.value.filter((k) => !lumenCards.value.includes(k));
+  localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+  showAllPages.value = true;
 }
 
 function onItemDrop(e: DragEvent, dropKey: string) {
@@ -1268,6 +1337,59 @@ function getRouteIcon(key: string) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 0.875rem;
+}
+
+.empty-grid {
+  grid-column: 1 / -1;
+  min-height: 128px;
+  border: 2px dashed rgba(148, 163, 184, 0.55);
+  border-radius: var(--border-radius-lg);
+  background: rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1rem 1.25rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.empty-grid.is-drag-over {
+  border-color: var(--ios-blue);
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+}
+
+.empty-title {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.empty-desc {
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-btn {
+  margin-top: 0.35rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.empty-btn:hover {
+  border-color: var(--primary-a50);
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
 }
 
 .action-card {
