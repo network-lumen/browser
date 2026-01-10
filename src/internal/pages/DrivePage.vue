@@ -20,9 +20,6 @@
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
             <span class="hosting-title">Local</span>
-            <span class="hosting-meta">{{
-              ipfsConnected ? "Online" : "Offline"
-            }}</span>
           </button>
           <button
             class="hosting-details"
@@ -69,11 +66,6 @@
             <span class="hosting-title" :title="sub.hoverTitle">{{
               sub.label
             }}</span>
-            <span class="hosting-meta" v-if="false">
-              <template v-if="sub.region">{{ sub.region }}</template>
-              <template v-else>—</template>
-            </span>
-            <span class="hosting-meta">{{ sub.region || "-" }}</span>
             <span class="hosting-tags" v-if="sub.planTags.length">
               <span v-for="p in sub.planTags" :key="p" class="hosting-tag">{{
                 p
@@ -97,12 +89,8 @@
       <!-- Header -->
       <header class="content-header">
         <div>
-          <h1 class="txt-lg txt-weight-strong">
-            {{ headerTitle }}
-          </h1>
-          <p class="txt-xs color-gray-blue margin-top-10">
-            {{ headerSubtitle }}
-          </p>
+          <h1>{{ headerTitle }}</h1>
+          <p>{{ headerSubtitle }}</p>
         </div>
 
         <div class="header-actions">
@@ -3293,12 +3281,10 @@ async function reloadForActiveProfileChange() {
 }
 
 .hosting-panel {
-  padding: 1rem;
-  background: var(--card-bg);
-  border-radius: 12px;
-  margin-top: 1rem;
-  margin-bottom: 0.75rem;
-  border: 1px solid var(--border-color);
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .hosting-row {
@@ -3306,8 +3292,9 @@ async function reloadForActiveProfileChange() {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .hosting-row.active {
@@ -3318,33 +3305,34 @@ async function reloadForActiveProfileChange() {
 .hosting-main {
   flex: 1;
   display: grid;
-  grid-template-columns: 10px 1fr auto;
+  grid-template-columns: 10px 1fr;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.7rem;
+  column-gap: 0.65rem;
+  row-gap: 0.3rem;
+  padding: 0.75rem 0.85rem;
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 12px;
   color: var(--text-secondary);
   text-align: left;
+  min-width: 0;
 }
 
 .hosting-title {
-  font-size: 0.82rem;
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-primary);
-}
-
-.hosting-meta {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  justify-self: end;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .hosting-dot {
+  grid-column: 1;
+  grid-row: 1;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -3369,25 +3357,27 @@ async function reloadForActiveProfileChange() {
 
 .hosting-details {
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .hosting-details:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
+  background: var(--primary-a08);
+  border-color: var(--primary-a15);
+  color: var(--accent-primary);
 }
 
 .hosting-divider {
-  margin: 0.85rem 0.25rem 0.5rem;
+  margin: 1rem 0.25rem 0.75rem;
   height: 1px;
   background: var(--border-color);
 }
@@ -3408,31 +3398,45 @@ async function reloadForActiveProfileChange() {
 }
 
 .hosting-subheader-action {
-  border: none;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--primary-a15);
+  background: var(--primary-a08);
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--accent-secondary);
   cursor: pointer;
-  padding: 0.25rem 0.4rem;
-  border-radius: 8px;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .hosting-subheader-action:hover {
-  background: rgba(37, 99, 235, 0.1);
+  background: var(--primary-a15);
+  border-color: var(--primary-a25);
+  color: var(--accent-primary);
 }
 
 .hosting-empty {
   margin-top: 0.5rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px dashed var(--border-light);
   font-size: 0.75rem;
   color: var(--text-tertiary);
+  background: transparent;
 }
 
 .hosting-tags {
+  grid-column: 2 / -1;
+  grid-row: 2;
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
-  margin-left: 0.6rem;
-  justify-self: end;
+  justify-self: start;
+  margin-left: 0;
 }
 
 .hosting-tag {
@@ -3440,7 +3444,8 @@ async function reloadForActiveProfileChange() {
   align-items: center;
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
-  background: var(--primary-a15);
+  background: var(--primary-a08);
+  border: 1px solid var(--primary-a15);
   color: var(--accent-secondary);
   font-size: 0.68rem;
   font-weight: 700;
@@ -4319,36 +4324,43 @@ async function reloadForActiveProfileChange() {
 /* Files Grid */
 .files-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 0.75rem;
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  padding: 0.25rem;
+  padding: 0.75rem;
   align-content: start;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .file-card {
-  background: var(--bg-primary);
-  border-radius: 10px;
-  padding: 0.5rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 0.6rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.2s ease;
   min-width: 0;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-light);
   height: fit-content;
+  position: relative;
 }
 
 .file-card:hover {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--bg-primary);
+  border-color: var(--primary-a25);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .file-card.selected {
-  background: var(--fill-success);
+  background: var(--fill-blue);
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a15);
+  box-shadow: 0 0 0 2px var(--primary-a15);
 }
 
 .file-preview {
@@ -4425,30 +4437,43 @@ async function reloadForActiveProfileChange() {
 
 .file-actions {
   display: flex;
-  gap: 0.15rem;
-  justify-content: flex-start;
+  gap: 0.25rem;
+  justify-content: flex-end;
   margin-top: 0.35rem;
   padding-top: 0.35rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.file-card:hover .file-actions,
+.file-card.selected .file-actions {
+  border-top-color: var(--border-light);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .action-btn {
   padding: 0.25rem;
-  border: none;
-  background: var(--hover-bg);
-  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   transition: all 0.15s;
 }
 
 .action-btn:hover {
-  background: var(--accent-primary);
-  color: white;
+  background: var(--primary-a08);
+  border-color: var(--primary-a15);
+  color: var(--accent-primary);
 }
 
 .action-btn.danger:hover {
-  background: #e74c3c;
+  background: rgba(255, 59, 48, 0.12);
+  border-color: rgba(255, 59, 48, 0.25);
+  color: var(--ios-red);
 }
 
 /* Empty State */
@@ -4481,11 +4506,13 @@ async function reloadForActiveProfileChange() {
   background: var(--bg-primary);
   display: flex;
   flex-direction: column;
-  padding: 1.25rem;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 0;
+  border-radius: 0;
   flex-shrink: 0;
-  border: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .detail-header {
@@ -4501,16 +4528,18 @@ async function reloadForActiveProfileChange() {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background: #e8e8ed;
+  border: 1px solid var(--border-light);
+  background: transparent;
   cursor: pointer;
   color: var(--text-tertiary);
-  border-radius: 6px;
+  border-radius: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .close-btn:hover {
-  background: #ff3b30;
-  color: white;
+  background: rgba(255, 59, 48, 0.12);
+  border-color: rgba(255, 59, 48, 0.25);
+  color: var(--ios-red);
 }
 
 .detail-preview {
@@ -4523,6 +4552,7 @@ async function reloadForActiveProfileChange() {
   background: var(--bg-secondary);
   color: var(--text-tertiary);
   overflow: hidden;
+  border: 1px solid var(--border-light);
 }
 
 .detail-preview-image {
@@ -4563,6 +4593,24 @@ async function reloadForActiveProfileChange() {
   font-size: 0.8rem;
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.name-input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a15);
+  background: var(--bg-primary);
 }
 
 .info-value.cid {
@@ -4705,6 +4753,8 @@ async function reloadForActiveProfileChange() {
   background: var(--bg-primary);
   border-radius: 12px;
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  min-height: 0;
 }
 
 .list-header {
@@ -4766,11 +4816,11 @@ async function reloadForActiveProfileChange() {
 }
 
 .list-item:hover {
-  background: var(--bg-secondary);
+  background: var(--primary-a08);
 }
 
 .list-item.selected {
-  background: var(--fill-success);
+  background: var(--fill-blue);
 }
 
 .list-icon {
@@ -4827,10 +4877,19 @@ async function reloadForActiveProfileChange() {
   width: 80px;
   min-width: 80px;
   justify-content: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .list-item:hover .list-actions {
   opacity: 1;
+  pointer-events: auto;
+}
+
+.list-item.selected .list-actions {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Details Table View */
@@ -4841,7 +4900,7 @@ async function reloadForActiveProfileChange() {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   min-height: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .files-table {
@@ -4882,11 +4941,11 @@ async function reloadForActiveProfileChange() {
 }
 
 .files-table tbody tr:hover {
-  background: var(--bg-secondary);
+  background: var(--primary-a08);
 }
 
 .files-table tbody tr.selected {
-  background: var(--fill-success);
+  background: var(--fill-blue);
 }
 
 .td-name {
@@ -5000,24 +5059,24 @@ async function reloadForActiveProfileChange() {
   width: 100px;
 }
 
+.td-actions {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.files-table tbody tr:hover .td-actions,
+.files-table tbody tr.selected .td-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .td-actions .action-btn {
-  background: var(--border-color);
-  color: var(--text-secondary);
   margin-right: 0.25rem;
 }
 
-.td-actions .action-btn:hover {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.td-actions .action-btn.danger:hover {
-  background: #e74c3c;
-}
-
-.files-table tbody tr:hover .td-actions .action-btn {
-  background: var(--accent-primary);
-  color: white;
+.td-actions .action-btn:last-child {
+  margin-right: 0;
 }
 
 .th-actions {
