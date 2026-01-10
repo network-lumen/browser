@@ -102,12 +102,12 @@ function createMainWindow() {
     height: 800,
     titleBarStyle: isMac ? 'hiddenInset' : (isWin ? 'hidden' : 'default'),
     titleBarOverlay: isWin
-      ? { color: '#dbeafe', symbolColor: '#334155', height: 30 }
+      ? { color: '#ffffff', symbolColor: '#334155', height: 30 }
       : undefined,
     resizable: true,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#ffffff',
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),

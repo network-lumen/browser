@@ -75,7 +75,7 @@
 
       <!-- Version -->
       <div class="version-info">
-        <span>Lumen v1.0.0</span>
+        <span>Lumen v{{ appVersion }}</span>
       </div>
     </aside>
 
@@ -207,6 +207,7 @@
 import { inject, computed, ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS } from '../routes';
 import { profilesState, activeProfileId } from '../profilesStore';
+import pkg from '../../../package.json';
 import { 
   Home, User, HardDrive, Wallet, Globe, Settings, 
   ArrowUpRight, Zap, Network, FileText, Hexagon,
@@ -564,6 +565,8 @@ const activeProfile = computed(() => profiles.value.find((p) => p.id === activeP
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 const hasProfiles = computed(() => profiles.value.length > 0);
 
+const appVersion = String((pkg as any)?.version || '0.0.0');
+
 const HOME_INTRO_HIDDEN_KEY = 'lumen-home-intro-hidden';
 const showIntroHero = ref(localStorage.getItem(HOME_INTRO_HIDDEN_KEY) !== '1');
 
@@ -672,8 +675,8 @@ function getRouteIcon(key: string) {
 <style scoped>
 .home-page {
   display: flex;
-  height: 100vh;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
   background: var(--bg-tertiary);
   overflow: hidden;
 }
@@ -692,6 +695,8 @@ function getRouteIcon(key: string) {
   color: var(--text-primary);
   border-right: var(--border-width) solid var(--border-color);
   flex-shrink: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .sidebar-header {
@@ -724,6 +729,36 @@ function getRouteIcon(key: string) {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.65);
+}
+
+.version-info {
+  flex-shrink: 0;
+  margin-top: 0.75rem;
+  border-top: var(--border-width) solid var(--border-light);
+  background: var(--sidebar-bg);
 }
 
 .nav-section {
@@ -811,41 +846,19 @@ function getRouteIcon(key: string) {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-  animation: slideDown 0.3s ease-out;
+  padding-bottom: 0.25rem;
+  animation: fadeDown 0.18s ease-out;
 }
 
-@keyframes slideDown {
+@keyframes fadeDown {
   from {
     opacity: 0;
-    max-height: 0;
-    transform: translateY(-10px);
+    transform: translateY(-6px);
   }
   to {
     opacity: 1;
-    max-height: 400px;
     transform: translateY(0);
   }
-}
-
-.all-pages-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.all-pages-list::-webkit-scrollbar-track {
-  background: rgba(226, 232, 240, 0.3);
-  border-radius: 4px;
-}
-
-.all-pages-list::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 4px;
-}
-
-.all-pages-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
 }
 
 .page-item {
