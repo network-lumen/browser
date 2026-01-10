@@ -5,14 +5,34 @@
       <nav class="lsb-nav">
         <div class="lsb-section">
           <span class="lsb-label">Monitoring</span>
-          <button type="button" class="lsb-item active">
+          <button
+            type="button"
+            class="lsb-item"
+            :class="{ active: activeView === 'status' }"
+            @click="activeView = 'status'"
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18"/>
               <path d="M18 17l-4-4-4 4-4-4"/>
             </svg>
             <span>Status</span>
           </button>
-          <button type="button" class="lsb-item" @click="refreshData" :disabled="refreshing">
+          <button
+            type="button"
+            class="lsb-item"
+            :class="{ active: activeView === 'params' }"
+            @click="activeView = 'params'"
+          >
+            <SlidersHorizontal :size="18" />
+            <span>Params</span>
+          </button>
+          <button
+            v-if="activeView === 'status'"
+            type="button"
+            class="lsb-item"
+            @click="refreshData"
+            :disabled="refreshing"
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
@@ -76,8 +96,9 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <!-- Main Grid Layout -->
-      <div class="main-grid">
+      <template v-if="activeView === 'status'">
+        <!-- Main Grid Layout -->
+        <div class="main-grid">
         <!-- Left Column: Overview Cards -->
         <div class="left-column">
           <div class="info-card">
@@ -228,18 +249,23 @@
           </div>
         </section>
       </div>
-    </div>
+      </div>
+      </template>
+
+      <NetworkParamsPanel v-else :restBase="restBase" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { Network } from 'lucide-vue-next';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { Network, SlidersHorizontal } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 
 // Window interface
 const lumen = (window as any).lumen;
+const activeView = ref<'status' | 'params'>('status');
 
 // RPC endpoints
 const rpcBase = ref('http://142.132.201.187:26657');
