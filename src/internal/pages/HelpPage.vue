@@ -17,29 +17,11 @@
           <button
             type="button"
             class="lsb-item"
-            :class="{ active: currentView === 'getting-started' }"
-            @click="setView('getting-started')"
+            :class="{ active: currentView === 'domains' }"
+            @click="setView('domains')"
           >
-            <Compass :size="18" />
-            <span>Getting Started</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item"
-            :class="{ active: currentView === 'faq' }"
-            @click="setView('faq')"
-          >
-            <MessageCircle :size="18" />
-            <span>FAQ</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item"
-            :class="{ active: currentView === 'docs' }"
-            @click="setView('docs')"
-          >
-            <Book :size="18" />
-            <span>Documentation</span>
+            <Link2 :size="18" />
+            <span>Domains & Drive</span>
           </button>
         </div>
 
@@ -51,8 +33,8 @@
             :class="{ active: currentView === 'contact' }"
             @click="setView('contact')"
           >
-            <Mail :size="18" />
-            <span>Contact</span>
+            <MessageCircle :size="18" />
+            <span>Support</span>
           </button>
         </div>
       </nav>
@@ -235,86 +217,118 @@
         </div>
       </div>
 
-      <!-- Getting Started View -->
-      <div v-else-if="currentView === 'getting-started'" class="content-area">
-        <div class="help-section">
-          <h3>Welcome to Lumen Browser</h3>
-          <p>Lumen is a decentralized web browser powered by IPFS. Here's how to get started:</p>
-          <div class="steps">
-            <div class="step">
-              <div class="step-number">1</div>
-              <div class="step-content">
-                <h4>Configure IPFS</h4>
-                <p>Ensure your local IPFS node is running</p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-number">2</div>
-              <div class="step-content">
-                <h4>Explore Files</h4>
-                <p>Visit the Drive page to upload and manage your IPFS content</p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-number">3</div>
-              <div class="step-content">
-                <h4>Connect Wallet</h4>
-                <p>Set up your Web3 wallet to interact with blockchain features</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Domains & Drive View -->
+      <div v-else-if="currentView === 'domains'" class="content-area">
+        <div class="discover">
+          <section class="discover-hero">
+            <h3>Create a domain and link it to your Drive</h3>
+            <p>
+              This is the easiest way to publish something and share it with a clean link like
+              <code>lumen://your-name.lmn</code>.
+            </p>
+          </section>
 
-      <!-- FAQ View -->
-      <div v-else-if="currentView === 'faq'" class="content-area">
-        <div class="faq-list">
-          <div class="faq-item">
-            <h4>What is IPFS?</h4>
-            <p>IPFS (InterPlanetary File System) is a protocol and peer-to-peer network for storing and sharing data in a distributed file system.</p>
-          </div>
-          <div class="faq-item">
-            <h4>How do I upload files?</h4>
-            <p>Navigate to the Drive page and click the upload button. Select your files and they will be added to IPFS.</p>
-          </div>
-          <div class="faq-item">
-            <h4>Is my data secure?</h4>
-            <p>All content uploaded to IPFS is content-addressed and cryptographically hashed, ensuring integrity and authenticity.</p>
-          </div>
-          <div class="faq-item">
-            <h4>How do I connect a wallet?</h4>
-            <p>Visit the Wallet page and click the connect button to link your Web3 wallet to Lumen.</p>
-          </div>
-        </div>
-      </div>
+          <section class="discover-section">
+            <h4 class="discover-section-title">Step 1 — Put your content in Drive</h4>
+            <p class="discover-section-text">
+              Go to Drive, upload a file or a folder, then click <strong>Share</strong>. Lumen will copy a private “Lumen link”
+              to your clipboard.
+            </p>
 
-      <!-- Docs View -->
-      <div v-else-if="currentView === 'docs'" class="content-area">
-        <div class="docs-grid">
-          <div class="doc-card">
-            <div class="doc-icon">
-              <FileText :size="24" />
+            <div class="diagram">
+              <div class="diagram-node">
+                <div class="diagram-badge">1</div>
+                <div class="diagram-title">Open Drive</div>
+                <div class="diagram-desc">Upload a file or folder</div>
+              </div>
+              <ArrowRight class="diagram-arrow" :size="18" />
+              <div class="diagram-node diagram-wide">
+                <div class="diagram-badge">2</div>
+                <div class="diagram-title">Click “Share”</div>
+                <div class="diagram-desc">A Lumen link is copied</div>
+              </div>
+              <ArrowRight class="diagram-arrow" :size="18" />
+              <div class="diagram-node">
+                <div class="diagram-badge">Tip</div>
+                <div class="diagram-title">Keep it</div>
+                <div class="diagram-desc">You will paste it in the next step</div>
+              </div>
             </div>
-            <h4>User Guide</h4>
-            <p>Complete guide to using Lumen Browser</p>
-            <a href="#" class="doc-link">Read More →</a>
-          </div>
-          <div class="doc-card">
-            <div class="doc-icon">
-              <Code :size="24" />
+
+            <div class="discover-cta">
+              <button class="cta-btn" type="button" @click="goto('lumen://drive')">
+                <FolderOpen :size="18" />
+                <span>Open Drive</span>
+              </button>
             </div>
-            <h4>Developer Docs</h4>
-            <p>Technical documentation for developers</p>
-            <a href="#" class="doc-link">Read More →</a>
-          </div>
-          <div class="doc-card">
-            <div class="doc-icon">
-              <Zap :size="24" />
+          </section>
+
+          <section class="discover-section">
+            <h4 class="discover-section-title">Step 2 — Buy your domain name</h4>
+            <p class="discover-section-text">
+              Go to Domains, click <strong>Buy domain</strong>, choose a name, and confirm. This registers your name on the
+              blockchain address book.
+            </p>
+
+            <div class="diagram">
+              <div class="diagram-node">
+                <div class="diagram-badge">You</div>
+                <div class="diagram-title">Pick a name</div>
+                <div class="diagram-desc">Example: <code>myfamily.lmn</code></div>
+              </div>
+              <ArrowRight class="diagram-arrow" :size="18" />
+              <div class="diagram-node diagram-accent">
+                <div class="diagram-badge">Shared</div>
+                <div class="diagram-title">Blockchain registration</div>
+                <div class="diagram-desc">No central company owns it</div>
+              </div>
+              <ArrowRight class="diagram-arrow" :size="18" />
+              <div class="diagram-node">
+                <div class="diagram-badge">Done</div>
+                <div class="diagram-title">It’s yours</div>
+                <div class="diagram-desc">Now you can link it to content</div>
+              </div>
             </div>
-            <h4>API Reference</h4>
-            <p>Complete API documentation</p>
-            <a href="#" class="doc-link">Read More →</a>
-          </div>
+
+            <div class="discover-cta">
+              <button class="cta-btn" type="button" @click="goto('lumen://domain')">
+                <Link2 :size="18" />
+                <span>Open Domains</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="discover-section">
+            <h4 class="discover-section-title">Step 3 - Link the domain to your Drive content</h4>
+            <p class="discover-section-text">
+              You will paste the link from Drive into your domain settings.
+            </p>
+
+            <div class="discover-note">
+              1) In <strong>Drive</strong>, click <strong>Share</strong> on your file or folder.<br />
+              2) You will get a link that looks like: <code>lumen://ipfs/XXXX</code><br />
+              3) Copy only the <code>XXXX</code> part (the part after <code>lumen://ipfs/</code>).<br />
+              4) Go to <strong>Domains</strong> -> <strong>Settings</strong> -> add a record:<br />
+              <span class="mono-inline">Key</span>: <code>cid</code><br />
+              <span class="mono-inline">Value</span>: <code>XXXX</code><br />
+              5) Click <strong>Save</strong>.
+            </div>
+          </section>
+
+          <section class="discover-section">
+            <h4 class="discover-section-title">Step 4 - Open your website</h4>
+            <p class="discover-section-text">
+              Type <code>lumen://your-name.lmn</code> in the address bar. If you update your Drive content later, you can come back
+              and update the link in domain settings.
+            </p>
+
+            <div class="discover-cta">
+              <button class="cta-btn" type="button" @click="goto('lumen://newtab')">
+                <Globe :size="18" />
+                <span>Open a New Tab</span>
+              </button>
+            </div>
+          </section>
         </div>
       </div>
 
@@ -324,27 +338,20 @@
           <h3>Get in Touch</h3>
           <p>Need help? We're here to assist you.</p>
           <div class="contact-methods">
-            <div class="contact-item">
-              <Mail :size="20" />
-              <div>
-                <strong>Email</strong>
-                <p>support@lumen-browser.com</p>
-              </div>
-            </div>
-            <div class="contact-item">
+            <button class="contact-item contact-link" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
               <MessageCircle :size="20" />
               <div>
                 <strong>Discord</strong>
                 <p>Join our community</p>
               </div>
-            </div>
-            <div class="contact-item">
+            </button>
+            <button class="contact-item contact-link" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
               <Github :size="20" />
               <div>
                 <strong>GitHub</strong>
                 <p>Report issues and contribute</p>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -358,13 +365,7 @@ import type { ComputedRef } from 'vue';
 import { 
   HelpCircle,
   Sparkles,
-  Compass,
   MessageCircle,
-  Book,
-  Mail,
-  FileText,
-  Code,
-  Zap,
   Github,
   Globe,
   Database,
@@ -377,7 +378,7 @@ import {
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
-type HelpView = 'discover' | 'getting-started' | 'faq' | 'docs' | 'contact';
+type HelpView = 'discover' | 'domains' | 'contact';
 
 const currentTabUrl = inject<ComputedRef<string>>(
   'currentTabUrl',
@@ -387,27 +388,29 @@ const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | nul
   'navigate',
   null,
 );
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
-const currentView = ref<HelpView>('getting-started');
+const currentView = ref<HelpView>('discover');
 
 function normalizeViewFromUrl(rawUrl: string): HelpView {
   const s = String(rawUrl || '').trim();
-  if (!s) return 'getting-started';
+  if (!s) return 'discover';
 
   // Avoid URL() edge cases with custom schemes by doing minimal parsing ourselves.
-  if (!/^lumen:\/\//i.test(s)) return 'getting-started';
+  if (!/^lumen:\/\//i.test(s)) return 'discover';
   const withoutScheme = s.slice('lumen://'.length);
   const beforeQuery = withoutScheme.split(/[?#]/, 1)[0] || '';
   const segs = beforeQuery.split('/').filter(Boolean);
   const host = String(segs[0] || '').toLowerCase();
-  if (host !== 'help') return 'getting-started';
+  if (host !== 'help') return 'discover';
 
   const firstPath = String(segs[1] || '').toLowerCase();
   if (firstPath === 'discover') return 'discover';
-  if (firstPath === 'getting-started') return 'getting-started';
-  if (firstPath === 'faq') return 'faq';
-  if (firstPath === 'docs') return 'docs';
+  if (firstPath === 'domains' || firstPath === 'domain') return 'domains';
   if (firstPath === 'contact') return 'contact';
+  // Backward-compat: old tabs now redirect to Discover.
+  if (firstPath === 'docs') return 'discover';
+  if (firstPath === 'getting-started' || firstPath === 'faq') return 'discover';
 
   // Optional query param `view=` (kept for backward-compat)
   try {
@@ -415,20 +418,18 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
     const params = new URLSearchParams(qs || '');
     const viewParam = String(params.get('view') || '').trim().toLowerCase();
     if (viewParam === 'discover') return 'discover';
-    if (viewParam === 'getting-started') return 'getting-started';
-    if (viewParam === 'faq') return 'faq';
-    if (viewParam === 'docs') return 'docs';
+    if (viewParam === 'domains' || viewParam === 'domain') return 'domains';
     if (viewParam === 'contact') return 'contact';
+    if (viewParam === 'docs') return 'discover';
+    if (viewParam === 'getting-started' || viewParam === 'faq') return 'discover';
   } catch {}
 
-  return 'getting-started';
+  return 'discover';
 }
 
 function urlForView(view: HelpView): string {
   if (view === 'discover') return 'lumen://help/discover';
-  if (view === 'getting-started') return 'lumen://help/getting-started';
-  if (view === 'faq') return 'lumen://help/faq';
-  if (view === 'docs') return 'lumen://help/docs';
+  if (view === 'domains') return 'lumen://help/domains';
   if (view === 'contact') return 'lumen://help/contact';
   return 'lumen://help';
 }
@@ -447,6 +448,14 @@ function goto(url: string) {
   navigate(url, { push: true });
 }
 
+function openInNewTabSafe(url: string) {
+  if (openInNewTab) {
+    openInNewTab(url);
+    return;
+  }
+  goto(url);
+}
+
 watch(
   () => currentTabUrl?.value,
   (u) => {
@@ -459,10 +468,8 @@ watch(
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     discover: 'What is Lumen?',
-    'getting-started': 'Getting Started',
-    faq: 'Frequently Asked Questions',
-    docs: 'Documentation',
-    contact: 'Contact Support'
+    domains: 'Domains & Drive',
+    contact: 'Contact Support',
   };
   return titles[currentView.value] || 'Help';
 }
@@ -470,10 +477,8 @@ function getViewTitle(): string {
 function getViewDescription(): string {
   const descs: Record<string, string> = {
     discover: 'A quick overview of the Lumen stack',
-    'getting-started': 'Learn how to use Lumen Browser',
-    faq: 'Common questions and answers',
-    docs: 'Comprehensive documentation',
-    contact: 'Reach out to our team'
+    domains: 'Create a domain and link it to Drive content',
+    contact: 'Reach out to our team',
   };
   return descs[currentView.value] || '';
 }
@@ -552,6 +557,15 @@ function getViewDescription(): string {
 }
 
 .discover-card code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.85em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.4rem;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.mono-inline {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   font-size: 0.85em;
   padding: 0.1rem 0.35rem;
@@ -931,81 +945,6 @@ function getViewDescription(): string {
   margin: 0;
 }
 
-.faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.faq-item {
-  padding: 1.5rem;
-  background: var(--card-bg);
-  border-radius: var(--border-radius-lg);
-}
-
-.faq-item h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.faq-item p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.docs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.25rem;
-}
-
-.doc-card {
-  padding: 1.75rem;
-  background: var(--card-bg);
-  border-radius: var(--border-radius-lg);
-  text-align: center;
-}
-
-.doc-icon {
-  width: 56px;
-  height: 56px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-lg);
-  color: white;
-  box-shadow: var(--shadow-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-}
-
-.doc-card h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.doc-card p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0 0 1rem 0;
-}
-
-.doc-link {
-  font-size: 0.85rem;
-  color: var(--accent-primary);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.doc-link:hover {
-  text-decoration: underline;
-}
-
 .contact-section h3 {
   font-size: 1.25rem;
   font-weight: 600;
@@ -1032,6 +971,22 @@ function getViewDescription(): string {
   padding: 1.25rem;
   background: var(--card-bg);
   border-radius: var(--border-radius-lg);
+}
+
+.contact-link {
+  width: 100%;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.contact-link:hover {
+  background: var(--hover-bg);
+}
+
+.contact-link:active {
+  transform: translateY(1px);
 }
 
 .contact-item strong {
