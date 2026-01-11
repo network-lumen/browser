@@ -1,5 +1,6 @@
 <template>
   <section class="main-shell flex flex-column w-full h-full">
+    <UiToast />
     <div class="app overflow-hidden">
       <div
         class="tabs-header  h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center"
@@ -78,6 +79,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import TabBar from '../layouts/TabBar.vue';
   import UiSpinner from '../ui/UiSpinner.vue';
   import UiButton from '../ui/UiButton.vue';
+  import UiToast from '../ui/UiToast.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import lumenFavicon from '../img/favicon.ico';
   import {

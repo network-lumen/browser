@@ -638,7 +638,23 @@
           </div>
 
           <div class="stake-form">
-            <div class="form-group">
+            <!-- Withdraw Rewards - No amount needed -->
+            <div v-if="currentStakeAction === 'Withdraw'" class="withdraw-info">
+              <div class="withdraw-notice">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 16v-4"/>
+                  <path d="M12 8h.01"/>
+                </svg>
+                <div class="withdraw-text">
+                  <strong>Withdraw Staking Rewards</strong>
+                  <p>This will claim all pending rewards from this validator to your wallet.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amount Input - Not for Withdraw -->
+            <div v-else class="form-group">
               <label>Amount to {{ currentStakeAction.toLowerCase() }}</label>
               <div class="input-wrapper">
                 <input 
@@ -777,7 +793,9 @@ import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 import { LayoutGrid } from 'lucide-vue-next';
+import { useToast } from '../../composables/useToast';
 
+const toast = useToast();
 const lumen = (window as any).lumen;
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 const currentTabUrl = inject<any>('currentTabUrl', null);
@@ -1249,15 +1267,18 @@ function performSearch() {
   if (/^\d+$/.test(query)) {
     const height = parseInt(query);
     navigateToBlock(height);
+    toast.info(`Navigating to block ${height}...`);
   }
   else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
     navigateToTransaction(query.toUpperCase());
+    toast.info('Navigating to transaction...');
   }
   else if (/^lmn1[a-z0-9]{38,}$/.test(query)) {
     navigateToAddress(query);
+    toast.info('Navigating to address...');
   }
   else {
-    alert('Invalid search query. Please enter:\n- Block height (number)\n- Transaction hash (64 hex chars)\n- Address (lmn1...)');
+    toast.error('Invalid search query. Use block height, tx hash (64 hex), or address (lmn1...)');
   }
 }
 
@@ -1458,6 +1479,10 @@ function setStakePercentage(percentage: number) {
 }
 
 const canConfirm = computed(() => {
+  // Withdraw doesn't require amount
+  if (currentStakeAction.value === 'Withdraw') {
+    return hasActiveProfile.value;
+  }
   if (!stakeAmount.value || parseFloat(stakeAmount.value) <= 0) return false;
   if (currentStakeAction.value === 'Redelegate' && !targetValidator.value) return false;
   if (!hasActiveProfile.value) return false;
@@ -1610,13 +1635,10 @@ watch(stakePercentage, (newVal) => {
 
 function copyToClipboard(text: string, label: string = 'Text') {
   navigator.clipboard.writeText(text).then(() => {
-    copiedText.value = label;
-    showCopyNotification.value = true;
-    setTimeout(() => {
-      showCopyNotification.value = false;
-    }, 2000);
+    toast.success(`${label} copied to clipboard`);
   }).catch(err => {
     console.error('Failed to copy:', err);
+    toast.error('Failed to copy to clipboard');
   });
 }
 
@@ -3748,6 +3770,45 @@ watch(txTimeFilter, () => {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.withdraw-info {
+  padding: 0.5rem 0;
+}
+
+.withdraw-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--primary-a08, rgba(0, 122, 255, 0.08));
+  border-radius: 10px;
+  border: 1px solid var(--primary-a15, rgba(0, 122, 255, 0.15));
+}
+
+.withdraw-notice svg {
+  flex-shrink: 0;
+  color: var(--accent-primary, #007aff);
+  margin-top: 2px;
+}
+
+.withdraw-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.withdraw-text strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.withdraw-text p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
 .form-group {

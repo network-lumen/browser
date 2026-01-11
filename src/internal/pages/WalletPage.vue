@@ -368,17 +368,6 @@
 
     </main>
 
-    <!-- Toast Notification -->
-    <Transition name="toast">
-      <div v-if="toastVisible" class="toast-notification" :class="toastType">
-        <div class="toast-icon">
-          <Check v-if="toastType === 'success'" :size="18" />
-          <AlertCircle v-else :size="18" />
-        </div>
-        <span class="toast-message">{{ toastMessage }}</span>
-      </div>
-    </Transition>
-
     <!-- Send Modal -->
     <Transition name="fade">
       <div v-if="showSendModal" class="modal-overlay" @click="closeSendModal">
@@ -678,6 +667,7 @@ import SubscriptionsView from '../../components/SubscriptionsView.vue';
 import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
 import { getRecurringPaymentsService, type RecurringPayment } from '../services/recurringPayments';
+import { useToast } from '../../composables/useToast';
 
 const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
@@ -851,10 +841,8 @@ const recurringPaymentsService = getRecurringPaymentsService();
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
-const toastVisible = ref(false);
-const toastMessage = ref('');
-const toastType = ref<'success' | 'error'>('success');
-let toastTimeout: any = null;
+// Use global toast system
+const toast = useToast();
 
 onMounted(() => {
   loadContacts();
@@ -1304,14 +1292,16 @@ function copyToClipboard(text: string, message: string = 'Copied to clipboard!')
   });
 }
 
-function showToast(message: string, type: 'success' | 'error' = 'success') {
-  if (toastTimeout) clearTimeout(toastTimeout);
-  toastMessage.value = message;
-  toastType.value = type;
-  toastVisible.value = true;
-  toastTimeout = setTimeout(() => {
-    toastVisible.value = false;
-  }, 2500);
+function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') {
+  if (type === 'error') {
+    toast.error(message);
+  } else if (type === 'warning') {
+    toast.warning(message);
+  } else if (type === 'info') {
+    toast.info(message);
+  } else {
+    toast.success(message);
+  }
 }
 
 function openExplorer(txHash: string) {

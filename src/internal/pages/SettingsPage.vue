@@ -632,12 +632,14 @@ import {
   LockKeyhole
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
+import { useToast } from '../../composables/useToast';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfilesBackup, importProfilesFromBackup } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
 
+const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
@@ -776,11 +778,14 @@ async function setSecurityPassword() {
       newPassword.value = '';
       confirmPassword.value = '';
       securitySuccess.value = 'Password protection enabled successfully.';
+      toast.success('Password protection enabled');
     } else {
       securityError.value = result?.error || 'Failed to set password.';
+      toast.error(result?.error || 'Failed to set password');
     }
   } catch (e: any) {
     securityError.value = e?.message || 'Failed to set password.';
+    toast.error(e?.message || 'Failed to set password');
   } finally {
     securityLoading.value = false;
   }
@@ -824,11 +829,14 @@ async function changeSecurityPassword() {
       newPassword.value = '';
       confirmPassword.value = '';
       securitySuccess.value = 'Password changed successfully.';
+      toast.success('Password changed successfully');
     } else {
       securityError.value = setResult?.error || 'Failed to set new password.';
+      toast.error(setResult?.error || 'Failed to set new password');
     }
   } catch (e: any) {
     securityError.value = e?.message || 'Failed to change password.';
+    toast.error(e?.message || 'Failed to change password');
   } finally {
     securityLoading.value = false;
   }
@@ -847,11 +855,14 @@ async function removeSecurityPassword() {
       removePasswordInput.value = '';
       showRemovePasswordConfirm.value = false;
       securitySuccess.value = 'Password protection removed.';
+      toast.success('Password protection removed');
     } else {
       securityError.value = result?.error || 'Failed to remove password.';
+      toast.error(result?.error || 'Failed to remove password');
     }
   } catch (e: any) {
     securityError.value = e?.message || 'Failed to remove password.';
+    toast.error(e?.message || 'Failed to remove password');
   } finally {
     securityLoading.value = false;
   }

@@ -51,9 +51,19 @@ function applyIpfsAddressesConfig(bin, repoPath) {
         console.warn('[electron][ipfs] ipfs config failed', key, r.status, String(r.stderr || ''));
       }
     };
+    const setCfgJson = (key, value) => {
+      const r = spawnSync(bin, ['config', '--json', key, value], { env, stdio: 'pipe' });
+      if (r.error) console.warn('[electron][ipfs] ipfs config error', key, r.error);
+      else if (r.status !== 0) {
+        console.warn('[electron][ipfs] ipfs config failed', key, r.status, String(r.stderr || ''));
+      }
+    };
 
     setCfg('Addresses.API', apiAddr);
     setCfg('Addresses.Gateway', gwAddr);
+    
+    // Disable mDNS discovery to avoid warning spam on Windows
+    setCfgJson('Discovery.MDNS.Enabled', 'false');
   } catch (e) {
     console.warn('[electron][ipfs] applyIpfsAddressesConfig failed', e);
   }
