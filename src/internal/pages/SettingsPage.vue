@@ -26,6 +26,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'security' }"
+            @click="currentView = 'security'"
+          >
+            <Lock :size="18" />
+            <span>Security</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -179,6 +188,218 @@
               <button class="btn-secondary">Clear Data</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Security View -->
+      <div v-else-if="currentView === 'security'" class="settings-section">
+        <div class="setting-group">
+          <!-- Status Display -->
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Password Protection</span>
+              <span class="setting-desc">
+                {{ securityStatus.enabled 
+                  ? 'Password is required for wallet signing operations' 
+                  : 'No password set - wallet operations are unprotected' }}
+              </span>
+            </div>
+            <div class="setting-control">
+              <span 
+                class="status-badge" 
+                :class="securityStatus.enabled ? 'status-enabled' : 'status-disabled'"
+              >
+                {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Session Status (only shown when password is enabled) -->
+          <div v-if="securityStatus.enabled" class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Session Status</span>
+              <span class="setting-desc">
+                {{ securitySessionActive 
+                  ? 'Session unlocked - password cached for 5 minutes' 
+                  : 'Session locked - password required for next operation' }}
+              </span>
+            </div>
+            <div class="setting-control">
+              <button 
+                v-if="securitySessionActive"
+                class="btn-secondary"
+                @click="lockSecuritySession"
+              >
+                <LockKeyhole :size="16" />
+                Lock Now
+              </button>
+              <span v-else class="status-badge status-locked">
+                <LockKeyhole :size="14" />
+                Locked
+              </span>
+            </div>
+          </div>
+
+          <!-- Set Password (when no password is set) -->
+          <div v-if="!securityStatus.enabled" class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Set Password</span>
+              <span class="setting-desc">
+                Create a password to protect wallet signing operations. 
+                Your keys will be encrypted with this password.
+              </span>
+            </div>
+          </div>
+
+          <div v-if="!securityStatus.enabled" class="security-form">
+            <div class="form-row">
+              <label class="form-label">New Password</label>
+              <input 
+                type="password" 
+                class="input-control"
+                v-model="newPassword"
+                placeholder="Enter password (min 8 characters)"
+                :disabled="securityLoading"
+              />
+            </div>
+            <div class="form-row">
+              <label class="form-label">Confirm Password</label>
+              <input 
+                type="password" 
+                class="input-control"
+                v-model="confirmPassword"
+                placeholder="Confirm password"
+                :disabled="securityLoading"
+                @keyup.enter="setSecurityPassword"
+              />
+            </div>
+            <div v-if="securityError" class="security-error">
+              {{ securityError }}
+            </div>
+            <button 
+              class="btn-primary"
+              @click="setSecurityPassword"
+              :disabled="securityLoading || !newPassword || !confirmPassword"
+            >
+              {{ securityLoading ? 'Setting up...' : 'Enable Password Protection' }}
+            </button>
+          </div>
+
+          <!-- Change/Remove Password (when password is set) -->
+          <div v-if="securityStatus.enabled" class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Change Password</span>
+              <span class="setting-desc">
+                Update your security password. You'll need to enter your current password.
+              </span>
+            </div>
+          </div>
+
+          <div v-if="securityStatus.enabled" class="security-form">
+            <div class="form-row">
+              <label class="form-label">Current Password</label>
+              <input 
+                type="password" 
+                class="input-control"
+                v-model="currentPassword"
+                placeholder="Enter current password"
+                :disabled="securityLoading"
+              />
+            </div>
+            <div class="form-row">
+              <label class="form-label">New Password</label>
+              <input 
+                type="password" 
+                class="input-control"
+                v-model="newPassword"
+                placeholder="Enter new password (min 8 characters)"
+                :disabled="securityLoading"
+              />
+            </div>
+            <div class="form-row">
+              <label class="form-label">Confirm New Password</label>
+              <input 
+                type="password" 
+                class="input-control"
+                v-model="confirmPassword"
+                placeholder="Confirm new password"
+                :disabled="securityLoading"
+                @keyup.enter="changeSecurityPassword"
+              />
+            </div>
+            <div v-if="securityError" class="security-error">
+              {{ securityError }}
+            </div>
+            <div v-if="securitySuccess" class="security-success">
+              {{ securitySuccess }}
+            </div>
+            <div class="security-actions">
+              <button 
+                class="btn-primary"
+                @click="changeSecurityPassword"
+                :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword"
+              >
+                {{ securityLoading ? 'Changing...' : 'Change Password' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Remove Password -->
+          <div v-if="securityStatus.enabled" class="setting-item" style="margin-top: 1.5rem;">
+            <div class="setting-info">
+              <span class="setting-label">Remove Password</span>
+              <span class="setting-desc">
+                Disable password protection. Your keys will be re-encrypted with app-level encryption only.
+              </span>
+            </div>
+            <div class="setting-control">
+              <button 
+                class="btn-danger"
+                @click="showRemovePasswordConfirm = true"
+                :disabled="securityLoading"
+              >
+                Remove Password
+              </button>
+            </div>
+          </div>
+
+          <!-- Remove Password Confirmation -->
+          <div v-if="showRemovePasswordConfirm" class="security-confirm-box">
+            <p>Enter your current password to disable protection:</p>
+            <input 
+              type="password" 
+              class="input-control"
+              v-model="removePasswordInput"
+              placeholder="Current password"
+              :disabled="securityLoading"
+              @keyup.enter="removeSecurityPassword"
+            />
+            <div v-if="securityError" class="security-error">
+              {{ securityError }}
+            </div>
+            <div class="security-actions">
+              <button 
+                class="btn-secondary"
+                @click="cancelRemovePassword"
+                :disabled="securityLoading"
+              >
+                Cancel
+              </button>
+              <button 
+                class="btn-danger"
+                @click="removeSecurityPassword"
+                :disabled="securityLoading || !removePasswordInput"
+              >
+                {{ securityLoading ? 'Removing...' : 'Confirm Remove' }}
+              </button>
+            </div>
+          </div>
+
+          <p class="setting-hint" style="margin-top: 1rem;">
+            <strong>How it works:</strong> When enabled, every wallet signing operation 
+            (send tokens, delegate, create domain, etc.) will require your password. 
+            After entering the password, it stays cached for 5 minutes for convenience.
+          </p>
         </div>
       </div>
 
@@ -406,7 +627,9 @@ import {
   User,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  Lock,
+  LockKeyhole
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { profilesState, activeProfileId } from '../profilesStore';
@@ -428,7 +651,7 @@ function openInNewTabSafe(url: string) {
   navigate?.(url, { push: true });
 }
 
-const currentView = ref<'appearance' | 'privacy' | 'profiles' | 'advanced' | 'about'>('appearance');
+const currentView = ref<'appearance' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
@@ -505,6 +728,172 @@ const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
+
+// Security state
+const securityStatus = ref<{ enabled: boolean }>({ enabled: false });
+const securitySessionActive = ref(false);
+const securityLoading = ref(false);
+const securityError = ref('');
+const securitySuccess = ref('');
+const newPassword = ref('');
+const confirmPassword = ref('');
+const currentPassword = ref('');
+const removePasswordInput = ref('');
+const showRemovePasswordConfirm = ref(false);
+
+// Security functions
+async function loadSecurityStatus() {
+  try {
+    const status = await (window as any).lumen.security.getStatus();
+    securityStatus.value = { enabled: !!(status?.passwordEnabled && status?.hasPassword) };
+    const session = await (window as any).lumen.security.checkSession();
+    securitySessionActive.value = !!session?.active;
+  } catch (e) {
+    console.error('Failed to load security status:', e);
+  }
+}
+
+async function setSecurityPassword() {
+  securityError.value = '';
+  securitySuccess.value = '';
+  
+  if (newPassword.value.length < 8) {
+    securityError.value = 'Password must be at least 8 characters.';
+    return;
+  }
+  
+  if (newPassword.value !== confirmPassword.value) {
+    securityError.value = 'Passwords do not match.';
+    return;
+  }
+  
+  securityLoading.value = true;
+  try {
+    const result = await (window as any).lumen.security.setPassword({ password: newPassword.value });
+    if (result?.ok) {
+      securityStatus.value = { enabled: true };
+      securitySessionActive.value = true;
+      newPassword.value = '';
+      confirmPassword.value = '';
+      securitySuccess.value = 'Password protection enabled successfully.';
+    } else {
+      securityError.value = result?.error || 'Failed to set password.';
+    }
+  } catch (e: any) {
+    securityError.value = e?.message || 'Failed to set password.';
+  } finally {
+    securityLoading.value = false;
+  }
+}
+
+async function changeSecurityPassword() {
+  securityError.value = '';
+  securitySuccess.value = '';
+  
+  if (newPassword.value.length < 8) {
+    securityError.value = 'New password must be at least 8 characters.';
+    return;
+  }
+  
+  if (newPassword.value !== confirmPassword.value) {
+    securityError.value = 'New passwords do not match.';
+    return;
+  }
+  
+  securityLoading.value = true;
+  try {
+    // Verify current password first
+    const verify = await (window as any).lumen.security.verifyPassword({ password: currentPassword.value });
+    if (!verify?.ok) {
+      securityError.value = 'Current password is incorrect.';
+      securityLoading.value = false;
+      return;
+    }
+    
+    // Remove old and set new
+    const removeResult = await (window as any).lumen.security.removePassword({ password: currentPassword.value });
+    if (!removeResult?.ok) {
+      securityError.value = removeResult?.error || 'Failed to change password.';
+      securityLoading.value = false;
+      return;
+    }
+    
+    const setResult = await (window as any).lumen.security.setPassword({ password: newPassword.value });
+    if (setResult?.ok) {
+      currentPassword.value = '';
+      newPassword.value = '';
+      confirmPassword.value = '';
+      securitySuccess.value = 'Password changed successfully.';
+    } else {
+      securityError.value = setResult?.error || 'Failed to set new password.';
+    }
+  } catch (e: any) {
+    securityError.value = e?.message || 'Failed to change password.';
+  } finally {
+    securityLoading.value = false;
+  }
+}
+
+async function removeSecurityPassword() {
+  securityError.value = '';
+  securitySuccess.value = '';
+  securityLoading.value = true;
+  
+  try {
+    const result = await (window as any).lumen.security.removePassword({ password: removePasswordInput.value });
+    if (result?.ok) {
+      securityStatus.value = { enabled: false };
+      securitySessionActive.value = false;
+      removePasswordInput.value = '';
+      showRemovePasswordConfirm.value = false;
+      securitySuccess.value = 'Password protection removed.';
+    } else {
+      securityError.value = result?.error || 'Failed to remove password.';
+    }
+  } catch (e: any) {
+    securityError.value = e?.message || 'Failed to remove password.';
+  } finally {
+    securityLoading.value = false;
+  }
+}
+
+function cancelRemovePassword() {
+  showRemovePasswordConfirm.value = false;
+  removePasswordInput.value = '';
+  securityError.value = '';
+}
+
+async function lockSecuritySession() {
+  try {
+    await (window as any).lumen.security.lockSession();
+    securitySessionActive.value = false;
+  } catch (e) {
+    console.error('Failed to lock session:', e);
+  }
+}
+
+// Load security status on mount
+onMounted(() => {
+  loadSecurityStatus();
+});
+
+// Reload security status when switching to security view
+watch(
+  () => currentView.value,
+  (v) => {
+    if (v === 'security') {
+      loadSecurityStatus();
+      // Clear form state
+      securityError.value = '';
+      securitySuccess.value = '';
+      newPassword.value = '';
+      confirmPassword.value = '';
+      currentPassword.value = '';
+      removePasswordInput.value = '';
+      showRemovePasswordConfirm.value = false;
+    }
+  },
+);
 
 // Initialize theme on mount
 initTheme();
@@ -592,6 +981,7 @@ function getViewTitle(): string {
   const titles: Record<string, string> = {
     appearance: 'Appearance',
     privacy: 'Privacy & Security',
+    security: 'Security',
     profiles: 'Profiles & backups',
     advanced: 'Developer settings',
     about: 'About Lumen'
@@ -603,6 +993,7 @@ function getViewDescription(): string {
   const descs: Record<string, string> = {
     appearance: 'Customize the look and feel',
     privacy: 'Manage your privacy settings',
+    security: 'Password protection for wallet operations',
     profiles: 'Backup or restore profiles and PQC keys',
     advanced: 'Advanced network configuration',
     about: 'Information about Lumen'
@@ -1327,5 +1718,130 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
     align-items: flex-start;
     gap: 1rem;
   }
+}
+
+/* Security Section Styles */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-enabled {
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--ios-green, #34c759);
+}
+
+.status-disabled {
+  background: rgba(142, 142, 147, 0.15);
+  color: var(--text-secondary, #8e8e93);
+}
+
+.status-locked {
+  background: rgba(255, 149, 0, 0.15);
+  color: var(--ios-orange, #ff9500);
+}
+
+.security-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
+  border-radius: 12px;
+  margin-top: 0.5rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.security-error {
+  color: var(--ios-red, #ff3b30);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+.security-success {
+  color: var(--ios-green, #34c759);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+.security-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.security-confirm-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 12px;
+  margin-top: 0.75rem;
+}
+
+.security-confirm-box p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.btn-primary {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-primary, #007aff);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  padding: 0.5rem 1rem;
+  background: var(--ios-red, #ff3b30);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

@@ -10,6 +10,7 @@ const { registerProfilesIpc } = require('./ipc/profiles.cjs');
 const { registerWalletIpc } = require('./ipc/wallet.cjs');
 const { registerGatewayIpc } = require('./ipc/gateway.cjs');
 const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.cjs');
+const { registerSecurityIpc } = require('./ipc/security.cjs');
 
 registerChainIpc();
 registerProfilesIpc();
@@ -17,6 +18,7 @@ registerHttpIpc();
 registerWalletIpc();
 registerGatewayIpc();
 registerAddressBookIpc();
+registerSecurityIpc();
 
 function isDevtoolsToggle(input) {
   const key = String(input && input.key ? input.key : '').toUpperCase();

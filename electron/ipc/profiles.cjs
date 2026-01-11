@@ -2,7 +2,7 @@ const { app, ipcMain, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');
-const { encryptMnemonicLocal, decryptMnemonicLocal } = require('../utils/crypto.cjs');
+const { encryptMnemonicLocal, decryptMnemonicLocal, encryptWithPassword, decryptWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 
 // Lazy loader for @lumen-chain/sdk.createWallet (ESM-friendly)
 let createWalletFn = null;
@@ -185,7 +185,7 @@ function sanitizeBackupFolderSegment(input) {
   return name;
 }
 
-function buildProfileBackupObject(p) {
+function buildProfileBackupObject(p, decryptPassword) {
   const srcProfileDir = profileDir(p.id);
   const srcPqcDir = pqcKeysDir();
 
@@ -196,10 +196,20 @@ function buildProfileBackupObject(p) {
     if (fs.existsSync(ksSrc)) {
       const ks = readJson(ksSrc, null);
       if (ks && ks.crypto) {
-        mnemonicPlain = decryptMnemonicLocal(ks);
+        // Check if password-protected
+        if (isPasswordProtected(ks)) {
+          if (decryptPassword) {
+            mnemonicPlain = decryptWithPassword(ks, decryptPassword);
+          }
+          // If no password provided, mnemonic stays empty
+        } else {
+          mnemonicPlain = decryptMnemonicLocal(ks);
+        }
       }
     }
-  } catch {}
+  } catch (e) {
+    console.warn('[buildProfileBackupObject] Failed to decrypt mnemonic:', e?.message || e);
+  }
 
   // Load PQC key for this profile (if any)
   let pqcKey = null;
@@ -208,8 +218,24 @@ function buildProfileBackupObject(p) {
     const keysFile = path.join(srcPqcDir, 'keys.json');
     const linksFile = path.join(srcPqcDir, 'links.json');
     if (addr && fs.existsSync(keysFile) && fs.existsSync(linksFile)) {
+      // First check if keys.json is encrypted
+      let keysRaw = readJson(keysFile, {});
+      
+      // If keys.json is password-protected, decrypt it first
+      if (keysRaw && isPasswordProtected(keysRaw)) {
+        if (decryptPassword) {
+          try {
+            const decrypted = decryptWithPassword(keysRaw, decryptPassword);
+            keysRaw = JSON.parse(decrypted);
+          } catch {
+            keysRaw = {};
+          }
+        } else {
+          keysRaw = {};
+        }
+      }
+      
       const linksRaw = readJson(linksFile, {});
-      const keysRaw = readJson(keysFile, {});
       if (linksRaw && typeof linksRaw === 'object' && keysRaw && typeof keysRaw === 'object') {
         const keyName = typeof linksRaw[addr] === 'string' ? String(linksRaw[addr]) : '';
         const rec = keyName ? keysRaw[keyName] : null;
@@ -224,7 +250,9 @@ function buildProfileBackupObject(p) {
         }
       }
     }
-  } catch {}
+  } catch (e) {
+    console.warn('[buildProfileBackupObject] Failed to load PQC key:', e?.message || e);
+  }
 
   return {
     version: 1,
@@ -298,6 +326,11 @@ function collectBackupFiles(selectionPath) {
 function importOneBackupObject(imported, profiles) {
   if (!imported || typeof imported !== 'object') {
     return { ok: false, error: 'invalid_profile_backup' };
+  }
+
+  // Check if this is an encrypted backup
+  if (imported.passwordProtected === true && imported.crypto) {
+    return { ok: false, error: 'encrypted_backup', encrypted: true };
   }
 
   const name = String(imported.name || '').trim();
@@ -524,10 +557,82 @@ ipcMain.handle('profiles:getFavourites', async () => {
     return JSON.stringify(p, null, 2);
   });
 
-  ipcMain.handle('profiles:exportBackup', async (_evt, id) => {
+  // Check if profile requires password to export (keystore or pqc is password-protected)
+  ipcMain.handle('profiles:checkExportRequiresPassword', async (_evt, id) => {
     const { profiles } = loadProfilesFile();
     const p = profiles.find((x) => x.id === id);
     if (!p) return { ok: false, error: 'profile_not_found' };
+
+    let requiresPassword = false;
+    
+    // Check keystore
+    try {
+      const ksSrc = path.join(profileDir(p.id), 'keystore.json');
+      if (fs.existsSync(ksSrc)) {
+        const ks = readJson(ksSrc, null);
+        if (ks && isPasswordProtected(ks)) {
+          requiresPassword = true;
+        }
+      }
+    } catch {}
+
+    // Check PQC keys
+    if (!requiresPassword) {
+      try {
+        const keysFile = path.join(pqcKeysDir(), 'keys.json');
+        if (fs.existsSync(keysFile)) {
+          const keysRaw = readJson(keysFile, null);
+          if (keysRaw && isPasswordProtected(keysRaw)) {
+            requiresPassword = true;
+          }
+        }
+      } catch {}
+    }
+
+    return { ok: true, requiresPassword };
+  });
+
+  ipcMain.handle('profiles:exportBackup', async (_evt, id, password, encryptOutput) => {
+    console.log('[exportBackup] Called with id:', id, 'password provided:', !!password, 'password length:', password?.length, 'encryptOutput:', !!encryptOutput);
+    
+    const { profiles } = loadProfilesFile();
+    const p = profiles.find((x) => x.id === id);
+    if (!p) return { ok: false, error: 'profile_not_found' };
+
+    // Check if we need password to decrypt the data first
+    let needsDecryptPassword = false;
+    try {
+      const ksSrc = path.join(profileDir(p.id), 'keystore.json');
+      if (fs.existsSync(ksSrc)) {
+        const ks = readJson(ksSrc, null);
+        if (ks && isPasswordProtected(ks)) {
+          needsDecryptPassword = true;
+        }
+      }
+    } catch {}
+    
+    if (!needsDecryptPassword) {
+      try {
+        const keysFile = path.join(pqcKeysDir(), 'keys.json');
+        if (fs.existsSync(keysFile)) {
+          const keysRaw = readJson(keysFile, null);
+          if (keysRaw && isPasswordProtected(keysRaw)) {
+            needsDecryptPassword = true;
+          }
+        }
+      } catch {}
+    }
+
+    console.log('[exportBackup] needsDecryptPassword:', needsDecryptPassword);
+
+    // If data is password-protected but no password provided, return error
+    if (needsDecryptPassword && !password) {
+      console.log('[exportBackup] Password required but not provided');
+      return { ok: false, error: 'password_required_for_export' };
+    }
+
+    // Only encrypt output if explicitly requested AND password is valid
+    const shouldEncryptOutput = !!(encryptOutput && password && typeof password === 'string' && password.length >= 6);
 
     try {
       const res = await dialog.showOpenDialog({
@@ -540,14 +645,35 @@ ipcMain.handle('profiles:getFavourites', async () => {
       const baseDir = res.filePaths[0];
       ensureDir(baseDir);
 
-      const backup = buildProfileBackupObject(p);
+      // Build backup with password to decrypt if needed
+      const backup = buildProfileBackupObject(p, password);
+      
+      // Validate that mnemonic was extracted (if keystore exists)
+      const ksSrc = path.join(profileDir(p.id), 'keystore.json');
+      if (fs.existsSync(ksSrc) && !backup.mnemonic) {
+        return { ok: false, error: 'invalid_password' };
+      }
 
-      const backupPath = path.join(baseDir, 'profile.json');
-      fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+      let backupPath;
+      if (shouldEncryptOutput) {
+        // Encrypt the entire backup object with password
+        const encryptedBackup = encryptWithPassword(JSON.stringify(backup), password);
+        encryptedBackup.profileName = p.name; // Store name in clear for identification
+        encryptedBackup.profileId = p.id;
+        backupPath = path.join(baseDir, 'profile.encrypted.json');
+        fs.writeFileSync(backupPath, JSON.stringify(encryptedBackup, null, 2), 'utf8');
+      } else {
+        backupPath = path.join(baseDir, 'profile.json');
+        fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+      }
 
       return { ok: true, path: backupPath };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      const errMsg = String(e && e.message ? e.message : e);
+      if (errMsg.includes('Unsupported state') || errMsg.includes('bad decrypt') || errMsg.includes('authentication')) {
+        return { ok: false, error: 'invalid_password' };
+      }
+      return { ok: false, error: errMsg };
     }
   });
 
@@ -691,6 +817,8 @@ ipcMain.handle('profiles:getFavourites', async () => {
             if (one.ok) {
               activeId = one.id;
               results.push({ ok: true, path: abs, id: one.id });
+            } else if (one.encrypted) {
+              results.push({ ok: false, path: abs, error: one.error, encrypted: true });
             } else {
               results.push({ ok: false, path: abs, error: one.error || 'invalid_profile_backup' });
             }
@@ -701,6 +829,17 @@ ipcMain.handle('profiles:getFavourites', async () => {
       }
 
       const importedCount = results.filter((r) => r && r.ok).length;
+      
+      // Check if any files need decryption
+      const encryptedFiles = results.filter((r) => r && r.encrypted === true);
+      if (encryptedFiles.length > 0 && importedCount === 0) {
+        return { 
+          ok: false, 
+          error: 'encrypted_backup_found',
+          encryptedFiles: encryptedFiles.map(f => f.path)
+        };
+      }
+      
       if (!importedCount) {
         return { ok: false, error: results.length ? 'no_valid_backups_found' : 'profile_json_missing' };
       }
@@ -708,6 +847,49 @@ ipcMain.handle('profiles:getFavourites', async () => {
       saveProfilesFile({ profiles, activeId });
 
       return { ok: true, selectedId: activeId, imported: importedCount, results };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Import encrypted backup with password
+  ipcMain.handle('profiles:importEncryptedBackup', async (_evt, filePath, password) => {
+    try {
+      if (!filePath || !password) {
+        return { ok: false, error: 'missing_parameters' };
+      }
+
+      const abs = String(filePath || '').trim();
+      if (!fs.existsSync(abs)) {
+        return { ok: false, error: 'file_not_found' };
+      }
+
+      const encrypted = readJson(abs, null);
+      if (!encrypted || !encrypted.passwordProtected || !encrypted.crypto) {
+        return { ok: false, error: 'not_encrypted_backup' };
+      }
+
+      // Try to decrypt
+      let decrypted;
+      try {
+        const plaintext = decryptWithPassword(encrypted, password);
+        decrypted = JSON.parse(plaintext);
+      } catch (e) {
+        return { ok: false, error: 'invalid_password' };
+      }
+
+      // Now import the decrypted backup
+      const all = loadProfilesFile();
+      let profiles = all.profiles.slice();
+      
+      const result = importOneBackupObject(decrypted, profiles);
+      if (!result.ok) {
+        return { ok: false, error: result.error || 'import_failed' };
+      }
+
+      saveProfilesFile({ profiles, activeId: result.id });
+
+      return { ok: true, id: result.id };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
