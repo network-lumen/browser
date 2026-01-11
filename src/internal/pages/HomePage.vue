@@ -852,18 +852,18 @@ function getRouteIcon(key: string) {
 
 .page-item {
   width: 100%;
-  padding: 0.625rem 1rem;
+  padding: 0.5rem 0.75rem;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.5rem;
   color: var(--text-secondary);
-  font-size: 0.8125rem;
+  font-size: 13px;
   font-weight: 500;
   cursor: grab;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
   text-align: left;
   user-select: none;
 }
@@ -878,40 +878,39 @@ function getRouteIcon(key: string) {
 }
 
 .page-item.drag-over {
-  background: var(--ios-blue);
+  background: var(--accent-primary);
   color: white;
-  transform: translateX(8px) scale(1.03);
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
+  transform: translateX(4px);
 }
 
 .page-item:hover {
-  background: var(--primary-a08);
-  color: var(--accent-primary);
-  transform: translateX(4px);
+  background: var(--hover-bg);
+  color: var(--text-primary);
+  transform: translateX(2px);
 }
 
 .toggle-pages {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.625rem;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.625rem 1rem;
+  padding: 0.5rem 0.75rem;
   margin: 0.5rem 0;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary, white);
-  border-radius: 8px;
+  border: 0.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.8125rem;
+  font-size: 13px;
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   font-weight: 500;
 }
 
 .toggle-pages:hover {
-  background: var(--bg-secondary);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
+  background: var(--hover-bg);
+  border-color: var(--primary-a30);
+  color: var(--text-primary);
 }
 
 .profile-card {
@@ -970,30 +969,30 @@ function getRouteIcon(key: string) {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.5rem;
   background: var(--bg-secondary);
   margin: 0;
   border-radius: 0;
 }
 
 .no-profile-banner {
-  border: 1px solid #fde68a;
-  background: rgba(255, 204, 0, 0.1);
+  border: 0.5px solid rgba(255, 204, 0, 0.4);
+  background: rgba(255, 204, 0, 0.08);
   color: var(--ios-orange);
-  padding: 0.9rem 1rem;
-  border-radius: 14px;
-  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 1rem;
 }
 
 .no-profile-title {
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .no-profile-sub {
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
-  opacity: 0.95;
+  margin-top: 0.125rem;
+  font-size: 12px;
+  opacity: 0.9;
 }
 
 .action-card:disabled {
@@ -1003,32 +1002,32 @@ function getRouteIcon(key: string) {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, var(--primary-a10) 0%, var(--primary-a15) 100%);
+  background: linear-gradient(135deg, var(--primary-a08) 0%, var(--primary-a10) 100%);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--primary-a20);
-  box-shadow: 0 8px 32px var(--primary-a15);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  border: 0.5px solid var(--primary-a20);
+  box-shadow: 0 4px 20px var(--primary-a10);
   position: relative;
   overflow: hidden;
 }
 
 .hero-close {
   position: absolute;
-  top: 0.85rem;
-  right: 0.85rem;
-  width: 34px;
-  height: 34px;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color);
+  border: 0.5px solid var(--border-color);
   background: var(--card-bg);
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   z-index: 2;
 }
 
@@ -1043,44 +1042,43 @@ function getRouteIcon(key: string) {
   position: absolute;
   top: -50%;
   right: -20%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, var(--lime-a15) 0%, transparent 70%);
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, var(--primary-a10) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
 
 .hero-content {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   position: relative;
   z-index: 1;
 }
 
 .hero-title {
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.25rem;
   text-align: center;
   letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 0.9375rem;
+  font-size: 14px;
   color: var(--text-primary);
   text-align: center;
-  margin-bottom: 0.875rem;
+  margin-bottom: 0.625rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
 }
 
 .hero-intro {
-  font-size: 0.8125rem;
+  font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.5;
   text-align: center;
-  margin-bottom: 1rem;
-  max-width: 680px;
+  margin-bottom: 0.75rem;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -1090,85 +1088,67 @@ function getRouteIcon(key: string) {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 20px var(--primary-a30));
+  filter: drop-shadow(0 0 16px var(--primary-a25));
 }
 
 .description-features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.75rem;
+  gap: 0.625rem;
+  margin-top: 0.625rem;
 }
 
 .feature-point {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.625rem;
   align-items: flex-start;
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  padding: 0.875rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(8px);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-md);
+  border: 0.5px solid var(--border-color);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .feature-point:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px var(--primary-a15), 0 0 0 1px var(--primary-a20);
-  border-color: var(--primary-a30);
-  background: var(--hover-bg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-a25);
 }
 
 .point-icon {
-  font-size: 1.125rem;
+  font-size: 1rem;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--gradient-primary);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px var(--primary-a25), 0 0 0 4px var(--lime-a10);
-  position: relative;
-}
-
-.point-icon::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(135deg, var(--primary-a40), var(--primary-a40));
-  border-radius: 12px;
-  filter: blur(8px);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
-.feature-point:hover .point-icon::after {
-  opacity: 1;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-primary);
 }
 
 .point-text {
   flex: 1;
-  font-size: 0.8125rem;
+  font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .point-text strong {
   display: block;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .hero-stats {
   display: flex;
-  gap: 0.875rem;
-  margin-top: 1rem;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
   flex-wrap: wrap;
   justify-content: center;
   position: relative;
@@ -1178,26 +1158,25 @@ function getRouteIcon(key: string) {
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.75rem 1rem;
-  background: var(--backdrop-light);
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--card-bg);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  border: 0.5px solid var(--border-light);
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-smooth);
+  transition: all 0.15s ease;
 }
 
 .stat-item:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: var(--shadow-primary);
-  border-color: var(--primary-a15);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: var(--gradient-primary);
   border-radius: var(--border-radius-sm);
   display: flex;
@@ -1213,28 +1192,26 @@ function getRouteIcon(key: string) {
 }
 
 .stat-value {
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 11px;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
 /* Sections */
 .section-title {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 1rem;
-  padding-bottom: 0.625rem;
-  border-bottom: 2px solid transparent;
-  background: linear-gradient(to right, var(--border-color) 0%, transparent 100%) no-repeat bottom;
-  background-size: 100% 2px;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 0.5px solid var(--border-light);
   letter-spacing: -0.01em;
   display: flex;
   justify-content: space-between;
@@ -1242,93 +1219,92 @@ function getRouteIcon(key: string) {
 }
 
 .pages-count {
-  font-size: 0.75rem;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-tertiary);
   background: var(--hover-bg);
-  padding: 0.25rem 0.625rem;
-  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--border-radius-xs);
 }
 
 /* Quick Actions */
 .quick-actions {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.875rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.625rem;
 }
 
 .empty-grid {
   grid-column: 1 / -1;
-  min-height: 128px;
-  border: 2px dashed rgba(148, 163, 184, 0.55);
-  border-radius: var(--border-radius-lg);
-  background: rgba(255, 255, 255, 0.35);
+  min-height: 100px;
+  border: 1.5px dashed var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--fill-tertiary);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  padding: 1rem 1.25rem;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .empty-grid.is-drag-over {
-  border-color: var(--ios-blue);
-  background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+  border-color: var(--accent-primary);
+  background: var(--primary-a08);
 }
 
 .empty-title {
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 13px;
   color: var(--text-primary);
 }
 
 .empty-desc {
-  font-size: 0.85rem;
+  font-size: 12px;
   text-align: center;
   color: var(--text-secondary);
 }
 
 .empty-btn {
-  margin-top: 0.35rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: rgba(255, 255, 255, 0.65);
+  margin-top: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--border-radius-full);
+  border: 0.5px solid var(--border-color);
+  background: var(--card-bg);
   color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .empty-btn:hover {
-  border-color: var(--primary-a50);
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
+  border-color: var(--accent-primary);
+  background: var(--primary-a08);
 }
 
 .action-card {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 1rem 1.125rem;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
   background: var(--card-bg);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-lg);
+  border: 0.5px solid var(--border-color);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: all var(--transition-smooth);
+  transition: all 0.15s ease;
   text-align: left;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
 }
 
 .action-card:hover .remove-card-btn {
@@ -1338,21 +1314,21 @@ function getRouteIcon(key: string) {
 
 .remove-card-btn {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 24px;
-  height: 24px;
+  top: 0.375rem;
+  right: 0.375rem;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
+  border: 0.5px solid var(--border-color);
+  border-radius: var(--border-radius-full);
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.2s ease;
-  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  color: var(--text-tertiary);
   z-index: 10;
 }
 
@@ -1360,36 +1336,34 @@ function getRouteIcon(key: string) {
   background: var(--error-red);
   border-color: var(--error-red);
   color: white;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .action-card:hover {
   background: var(--hover-bg);
-  border-color: var(--ios-blue);
-  transform: translateY(-3px) scale(1.01);
-  box-shadow: var(--shadow-primary-lg);
+  border-color: var(--primary-a30);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .action-card:active {
-  transform: translateY(-1px) scale(0.99);
+  transform: translateY(0);
 }
 
 .action-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all var(--transition-smooth);
-  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
 }
 
 .action-card:hover .action-icon {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: scale(1.03);
 }
 
 .action-icon.drive {
@@ -1450,68 +1424,68 @@ function getRouteIcon(key: string) {
 .action-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
   flex: 1;
   min-width: 0;
 }
 
 .action-title {
-  font-size: 0.9375rem;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 .action-desc {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .action-arrow {
   color: var(--text-tertiary);
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .action-card:hover .action-arrow {
   color: var(--accent-primary);
-  transform: translate(2px, -2px);
+  transform: translateX(2px);
 }
 
 /* Routes Section */
 .routes-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .routes-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.625rem;
+  gap: 0.5rem;
 }
 
 .route-chip {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 0.875rem;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
-  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  border: 0.5px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 0.8125rem;
+  transition: all 0.15s ease;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-xs);
 }
 
 .route-chip:hover {
   background: var(--gradient-primary);
   border-color: transparent;
-  color: var(--lime-bright);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 16px var(--primary-a25);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary);
 }
 
 /* Responsive */
@@ -1521,7 +1495,7 @@ function getRouteIcon(key: string) {
   }
   
   .hero-stats {
-    gap: 1rem;
+    gap: 0.625rem;
   }
 }
 

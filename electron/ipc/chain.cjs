@@ -3,6 +3,14 @@ const fs = require('fs');
 const path = require('path');
 const { httpGet } = require('./http.cjs');
 
+// Cache to reduce log spam
+let _cachedPeersFilePath = null;
+let _cachedRpcBaseUrl = null;
+let _cachedRestBaseUrl = null;
+let _loggedPeersPath = false;
+let _loggedRpcBase = false;
+let _loggedRestBase = false;
+
 function trimSlash(s) {
   return String(s || '').replace(/\/+$/, '');
 }
@@ -13,6 +21,8 @@ function ensureHttp(u) {
 }
 
 function resolvePeersFilePath() {
+  if (_cachedPeersFilePath !== null) return _cachedPeersFilePath;
+
   const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
 
   const packagedResourcesPath = app && app.isPackaged ? process.resourcesPath : null;
@@ -30,12 +40,17 @@ function resolvePeersFilePath() {
   for (const file of candidates) {
     try {
       if (fs.existsSync(file)) {
-        console.log('[rpc] found peers file at:', file);
+        if (!_loggedPeersPath) {
+          console.log('[rpc] found peers file at:', file);
+          _loggedPeersPath = true;
+        }
+        _cachedPeersFilePath = file;
         return file;
       }
     } catch {}
   }
 
+  _cachedPeersFilePath = '';
   return null;
 }
 
@@ -71,53 +86,88 @@ function loadPeersFromFile(filePath) {
 }
 
 function getRpcBaseUrl() {
+  if (_cachedRpcBaseUrl !== null) return _cachedRpcBaseUrl || null;
+
   const peersFile = resolvePeersFilePath();
   if (!peersFile) {
-    console.warn('[rpc] peers file not found');
+    if (!_loggedRpcBase) {
+      console.warn('[rpc] peers file not found');
+      _loggedRpcBase = true;
+    }
+    _cachedRpcBaseUrl = '';
     return null;
   }
 
   const peers = loadPeersFromFile(peersFile);
   if (!peers.length) {
-    console.warn('[rpc] no valid peers found in', peersFile);
+    if (!_loggedRpcBase) {
+      console.warn('[rpc] no valid peers found in', peersFile);
+      _loggedRpcBase = true;
+    }
+    _cachedRpcBaseUrl = '';
     return null;
   }
 
   const first = peers[0];
   if (!first || !first.rpc) {
+    _cachedRpcBaseUrl = '';
     return null;
   }
 
   const base = ensureHttp(first.rpc);
-  console.log('[rpc] using base endpoint from peers file:', base);
+  if (!_loggedRpcBase) {
+    console.log('[rpc] using base endpoint from peers file:', base);
+    _loggedRpcBase = true;
+  }
+  _cachedRpcBaseUrl = base;
   return base;
 }
 
 function getRestBaseUrl() {
+  if (_cachedRestBaseUrl !== null) return _cachedRestBaseUrl || null;
+
   const peersFile = resolvePeersFilePath();
   if (!peersFile) {
-    console.warn('[dns] peers file not found');
+    if (!_loggedRestBase) {
+      console.warn('[dns] peers file not found');
+      _loggedRestBase = true;
+    }
+    _cachedRestBaseUrl = '';
     return null;
   }
 
   const peers = loadPeersFromFile(peersFile);
   if (!peers.length) {
-    console.warn('[dns] no valid peers found in', peersFile);
+    if (!_loggedRestBase) {
+      console.warn('[dns] no valid peers found in', peersFile);
+      _loggedRestBase = true;
+    }
+    _cachedRestBaseUrl = '';
     return null;
   }
 
   const first = peers[0];
-  if (!first) return null;
+  if (!first) {
+    _cachedRestBaseUrl = '';
+    return null;
+  }
 
   let rest = first.rest || '';
   if (rest) {
     const base = ensureHttp(rest);
-    console.log('[dns] using REST endpoint from peers file:', base);
+    if (!_loggedRestBase) {
+      console.log('[dns] using REST endpoint from peers file:', base);
+      _loggedRestBase = true;
+    }
+    _cachedRestBaseUrl = base;
     return base;
   }
 
   // Derive REST from RPC as a fallback (e.g. 26657 -> 1317)
-  if (!first.rpc) return null;
+  if (!first.rpc) {
+    _cachedRestBaseUrl = '';
+    return null;
+  }
   const rpcBase = ensureHttp(first.rpc);
   try {
     const u = new URL(rpcBase);
@@ -126,10 +176,18 @@ function getRestBaseUrl() {
       u.port = '1317';
     }
     const derived = trimSlash(u.toString());
-    console.log('[dns] derived REST endpoint from RPC:', derived);
+    if (!_loggedRestBase) {
+      console.log('[dns] derived REST endpoint from RPC:', derived);
+      _loggedRestBase = true;
+    }
+    _cachedRestBaseUrl = derived;
     return derived;
   } catch {
-    console.warn('[dns] failed to derive REST endpoint from RPC, falling back to RPC base');
+    if (!_loggedRestBase) {
+      console.warn('[dns] failed to derive REST endpoint from RPC, falling back to RPC base');
+      _loggedRestBase = true;
+    }
+    _cachedRestBaseUrl = rpcBase;
     return rpcBase;
   }
 }

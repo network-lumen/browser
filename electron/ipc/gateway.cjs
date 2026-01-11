@@ -6,6 +6,12 @@ const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
 const { getSetting } = require('../settings.cjs');
 const { decryptMnemonicLocal, encryptMnemonicLocal } = require('../utils/crypto.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
+
+// Cache to reduce log spam
+let _gwCachedPeersFilePath = null;
+let _gwLoggedPeersPath = false;
+let _gwResolvedEndpointsLogged = new Set();
+
 let pqcWorker = null;
 try {
   pqcWorker = require('../utils/pqc-worker.cjs');
@@ -401,6 +407,8 @@ function parsePeerLine(line) {
 }
 
 function resolvePeersFilePath() {
+  if (_gwCachedPeersFilePath !== null) return _gwCachedPeersFilePath || null;
+
   const appPath = require('electron').app.getAppPath?.() || process.cwd();
   const packagedResourcesPath =
     require('electron').app.isPackaged ? process.resourcesPath : null;
@@ -419,12 +427,17 @@ function resolvePeersFilePath() {
   for (const file of candidates) {
     try {
       if (existsSync(file)) {
-        console.log('[gateway] found peers file at:', file);
+        if (!_gwLoggedPeersPath) {
+          console.log('[gateway] found peers file at:', file);
+          _gwLoggedPeersPath = true;
+        }
+        _gwCachedPeersFilePath = file;
         return file;
       }
     } catch {}
   }
 
+  _gwCachedPeersFilePath = '';
   return null;
 }
 
@@ -540,7 +553,11 @@ async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
   // If it's already an HTTP(s) URL, use as-is
   if (/^https?:\/\//i.test(ep)) {
     const out = trimSlash(ep);
-    if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint http', ep, '->', out);
+    // Only log once per endpoint
+    if (!_gwResolvedEndpointsLogged.has(ep)) {
+      if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint http', ep, '->', out);
+      _gwResolvedEndpointsLogged.add(ep);
+    }
     return out;
   }
 
@@ -555,10 +572,17 @@ async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
   const restBase = getRestBaseUrl();
   if (!restBase) return null;
 
+  // Only log dns query once per domain
+  const logKey = `dns:${domain}`;
+  const shouldLogQuery = !_gwResolvedEndpointsLogged.has(logKey);
+
   try {
     const rest = trimSlash(restBase);
     const url = `${rest}/lumen/dns/v1/domain/${encodeURIComponent(domain)}`;
-    if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint dns query', domain, 'via', rest);
+    if (shouldLogQuery && !quiet) {
+      console.log('[gateway] resolveGatewayBaseFromEndpoint dns query', domain, 'via', rest);
+      _gwResolvedEndpointsLogged.add(logKey);
+    }
     const ms =
       typeof msArg === 'number' && Number.isFinite(msArg) && msArg > 0
         ? msArg
@@ -605,7 +629,11 @@ async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
         base = `https://${base}`;
       }
       const out = trimSlash(base);
-      if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint resolved', ep, '->', out);
+      // Only log resolution once per endpoint
+      if (!_gwResolvedEndpointsLogged.has(ep)) {
+        if (!quiet) console.log('[gateway] resolveGatewayBaseFromEndpoint resolved', ep, '->', out);
+        _gwResolvedEndpointsLogged.add(ep);
+      }
       return out;
   } catch {
     return null;

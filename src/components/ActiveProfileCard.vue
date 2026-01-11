@@ -41,38 +41,39 @@ const displayName = computed(() => {
 .active-profile-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem;
+  gap: 0.625rem;
+  padding: 0.75rem;
   width: 100%;
   background: var(--fill-tertiary);
-  border: var(--border-width) solid var(--border-light);
-  border-radius: var(--border-radius-lg);
-  margin-bottom: 1rem;
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  margin-bottom: 0.875rem;
 }
 
 .active-profile-card.dense {
-  padding: 0.75rem;
-  gap: 0.625rem;
+  padding: 0.625rem;
+  gap: 0.5rem;
   margin-bottom: 0;
 }
 
 .active-profile-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.125rem;
   min-width: 0;
 }
 
 .active-profile-label {
-  font-size: 0.65rem;
+  font-size: 10px;
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 .active-profile-name {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;

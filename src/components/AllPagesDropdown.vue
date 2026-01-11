@@ -135,29 +135,31 @@ function openRoute(key: string) {
 
 <style scoped>
 .all-pages {
-  margin-top: 1rem;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 0.5px solid var(--border-light);
 }
 
 .lsb-item--dropdown {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.625rem;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.625rem 1rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary, white);
-  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  border: 0.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.8125rem;
+  font-size: 13px;
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .lsb-item--dropdown:hover {
-  background: var(--bg-secondary);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
+  background: var(--hover-bg);
+  border-color: var(--primary-a30);
+  color: var(--text-primary);
 }
 
 .all-pages-title {
@@ -165,14 +167,15 @@ function openRoute(key: string) {
 }
 
 .all-pages-list {
-  margin-top: 0.35rem;
+  margin-top: 0.375rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 2px;
 }
 
 .lsb-item--compact {
-  padding: 0.55rem 0.75rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 13px;
 }
 
 .all-pages-name {

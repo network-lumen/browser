@@ -152,6 +152,35 @@
         </div>
       </header>
 
+      <!-- Search and Filter Bar -->
+      <div class="search-filter-bar">
+        <div class="search-box">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="search-input"
+            placeholder="Search files..."
+            @input="currentPage = 1"
+          />
+          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''; currentPage = 1">
+            <X :size="14" />
+          </button>
+        </div>
+        <div class="filter-info">
+          <span class="file-count">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
+          <select v-model="itemsPerPage" class="per-page-select" @change="currentPage = 1">
+            <option :value="10">10 per page</option>
+            <option :value="20">20 per page</option>
+            <option :value="50">50 per page</option>
+            <option :value="100">100 per page</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Breadcrumb (folders) -->
       <div v-if="isBrowsing" class="browse-bar">
         <button class="btn-ghost" type="button" @click="exitBrowse">
@@ -444,8 +473,71 @@
         </table>
       </div>
 
+      <!-- Pagination -->
+      <div v-if="filteredFiles.length > 0 && totalPages > 1" class="pagination-bar">
+        <button 
+          class="page-btn" 
+          :disabled="currentPage === 1"
+          @click="currentPage = 1"
+          title="First page"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
+          </svg>
+        </button>
+        <button 
+          class="page-btn" 
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+          title="Previous page"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        
+        <div class="page-numbers">
+          <template v-for="(page, idx) in pageNumbers" :key="idx">
+            <span v-if="page === '...'" class="page-ellipsis">...</span>
+            <button 
+              v-else
+              class="page-num" 
+              :class="{ active: currentPage === page }"
+              @click="currentPage = page as number"
+            >
+              {{ page }}
+            </button>
+          </template>
+        </div>
+        
+        <button 
+          class="page-btn" 
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+          title="Next page"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <button 
+          class="page-btn" 
+          :disabled="currentPage === totalPages"
+          @click="currentPage = totalPages"
+          title="Last page"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
+          </svg>
+        </button>
+        
+        <span class="page-info">
+          {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }} of {{ filteredFiles.length }}
+        </span>
+      </div>
+
       <!-- Empty State -->
-      <div v-else class="empty-state">
+      <div v-else-if="filteredFiles.length === 0" class="empty-state">
         <div class="empty-icon">
           <Cloud :size="64" stroke-width="1" />
         </div>
@@ -1162,6 +1254,11 @@ const ipfsConnected = ref(false);
 const stats = ref<IpfsStats | null>(null);
 const hosting = ref<HostingState>({ kind: "local", gatewayId: "" });
 
+// Search and Pagination
+const searchQuery = ref("");
+const currentPage = ref(1);
+const itemsPerPage = ref(20);
+
 const uploading = ref(false);
 const uploadingFile = ref("");
 const isDragging = ref(false);
@@ -1413,8 +1510,44 @@ const rootSavedEntries = computed<DriveFile[]>(() => {
   });
 });
 
+// Filtered files (after search)
+const filteredFiles = computed<DriveFile[]>(() => {
+  const source = isBrowsing.value ? browseEntries.value : rootSavedEntries.value;
+  const query = searchQuery.value.toLowerCase().trim();
+  if (!query) return source;
+  return source.filter((f) => f.name.toLowerCase().includes(query));
+});
+
+// Paginated files
 const displayFiles = computed<DriveFile[]>(() => {
-  return isBrowsing.value ? browseEntries.value : rootSavedEntries.value;
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredFiles.value.slice(start, end);
+});
+
+// Total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredFiles.value.length / itemsPerPage.value) || 1;
+});
+
+// Page numbers for pagination
+const pageNumbers = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const pages: (number | string)[] = [];
+  
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (current > 3) pages.push('...');
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      pages.push(i);
+    }
+    if (current < total - 2) pages.push('...');
+    pages.push(total);
+  }
+  return pages;
 });
 
 const sidebarFilesCount = computed(() => {
@@ -3748,6 +3881,190 @@ async function reloadForActiveProfileChange() {
   margin: 0.25rem 0 0 0;
 }
 
+/* Search & Filter Bar */
+.search-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 400px;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
+}
+
+.search-box .search-icon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.search-box .search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+  min-width: 0;
+}
+
+.search-box .search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: var(--fill-tertiary);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clear-search:hover {
+  background: var(--fill-secondary);
+  color: var(--text-primary);
+}
+
+.filter-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.file-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.per-page-select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.per-page-select:hover {
+  border-color: var(--accent-primary);
+}
+
+.per-page-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--primary-a10);
+}
+
+/* Pagination */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.page-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-num:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent-primary);
+}
+
+.page-num.active {
+  background: var(--gradient-primary);
+  border-color: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.page-ellipsis {
+  padding: 0 0.25rem;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+}
+
+.page-info {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -4335,6 +4652,27 @@ async function reloadForActiveProfileChange() {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-tertiary) transparent;
+}
+
+.files-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.files-grid::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.files-grid::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.files-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .file-card {
@@ -4755,6 +5093,27 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-tertiary) transparent;
+}
+
+.files-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.files-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.files-list::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.files-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .list-header {
@@ -4901,6 +5260,32 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
   min-height: 0;
   box-shadow: var(--shadow-sm);
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-tertiary) transparent;
+}
+
+.files-table-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.files-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.files-table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.files-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+.files-table-wrapper::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .files-table {

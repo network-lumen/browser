@@ -89,16 +89,32 @@
 
       <ul v-if="loading" class="skeleton-list">
         <li v-for="i in 5" :key="i" class="skeleton-item">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-url"></div>
-          <div class="skeleton-desc"></div>
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-url"></div>
+            <div class="skeleton-desc"></div>
+          </div>
         </li>
       </ul>
 
-      <div v-else-if="!results.length" class="empty">
-        <div class="empty-title">No results</div>
-        <div class="empty-subtitle">
-          Try different keywords or remove filters.
+      <div v-else-if="!results.length" class="empty-state">
+        <div class="empty-icon">
+          <Search :size="48" />
+        </div>
+        <div class="empty-content">
+          <h3 class="empty-title">No results found</h3>
+          <p class="empty-subtitle">
+            We couldn't find anything matching "<strong>{{ q }}</strong>"
+          </p>
+          <div class="empty-suggestions">
+            <span class="suggestion-label">Try:</span>
+            <ul class="suggestion-list">
+              <li>Using different keywords</li>
+              <li>Searching for a domain (e.g., <code>example.lmn</code>)</li>
+              <li>Entering a CID, transaction hash, or address directly</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -136,8 +152,13 @@
 
       <ul v-else class="result-list">
         <li v-for="r in results" :key="r.id" class="result-item">
-          <button class="result-card" type="button" @click="openResult(r)">
-            <div class="result-icon">
+          <button 
+            class="result-card" 
+            :class="[`result-${r.kind}`, r.media ? `media-${r.media}` : '']"
+            type="button" 
+            @click="openResult(r)"
+          >
+            <div class="result-icon" :class="`icon-${r.kind}`">
               <img
                 v-if="r.thumbUrl && !brokenThumbs[r.id]"
                 class="thumb"
@@ -145,9 +166,14 @@
                 alt=""
                 @error="markThumbBroken(r.id)"
               />
-              <component v-else :is="iconFor(r.kind, r.media)" :size="18" />
+              <component v-else :is="iconFor(r.kind, r.media)" :size="20" />
             </div>
             <div class="result-body">
+              <div class="result-header">
+                <span v-if="r.kind !== 'site'" class="result-type-badge" :class="`type-${r.kind}`">
+                  {{ formatKind(r.kind, r.media) }}
+                </span>
+              </div>
               <div v-if="r.title" class="result-title">{{ r.title }}</div>
               <div class="result-url mono">{{ r.url }}</div>
               <div v-if="r.description" class="result-desc">
@@ -214,8 +240,16 @@ import {
   Layers,
   Search,
   Wallet,
+  FileText,
+  Music,
+  Box,
+  ExternalLink,
+  Sparkles,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
+import { useToast } from "../../composables/useToast";
+
+const toast = useToast();
 
 type SearchType = "site" | "video" | "image" | "";
 type ResultKind = "site" | "ipfs" | "tx" | "block" | "address" | "link";
@@ -298,17 +332,40 @@ function iconFor(kind: ResultKind, media?: ResultItem["media"]) {
       return Globe;
     case "ipfs":
       if (media === "video") return Film;
+      if (media === "audio") return Music;
       if (media === "image") return Image;
       return Layers;
     case "tx":
       return Hash;
     case "block":
-      return Layers;
+      return Box;
     case "address":
       return Wallet;
     case "link":
     default:
-      return Search;
+      return ExternalLink;
+  }
+}
+
+function formatKind(kind: ResultKind, media?: ResultItem["media"]): string {
+  switch (kind) {
+    case "site":
+      return "Site";
+    case "ipfs":
+      if (media === "video") return "Video";
+      if (media === "audio") return "Audio";
+      if (media === "image") return "Image";
+      return "IPFS";
+    case "tx":
+      return "Transaction";
+    case "block":
+      return "Block";
+    case "address":
+      return "Address";
+    case "link":
+      return "Link";
+    default:
+      return kind;
   }
 }
 
@@ -1259,8 +1316,10 @@ async function runSearch(query: string, type: SearchType) {
     }
   } catch (e: any) {
     if (seq !== searchSeq) return;
-    errorMsg.value = String(e?.message || e || "search_failed");
+    const errMessage = String(e?.message || e || "search_failed");
+    errorMsg.value = errMessage;
     results.value = [];
+    toast.error(`Search failed: ${errMessage}`);
   } finally {
     if (seq !== searchSeq) return;
     loading.value = false;
@@ -1437,50 +1496,60 @@ const imageResults = computed(() =>
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  gap: 0.625rem;
+  margin-top: 0.75rem;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   background: var(--card-bg);
   color: var(--text-secondary);
-  padding: 0.75rem 1.5rem;
-  border-radius: 24px;
+  padding: 0.625rem 1.25rem;
+  border-radius: 999px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.9375rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
+  font-size: 0.875rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pill svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
 .pill:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.pill:hover:not(:disabled) {
-  border-color: var(--ios-blue);
+.pill:hover:not(:disabled):not(.active) {
+  border-color: var(--primary-a40);
   color: var(--text-primary);
-  background: var(--bg-primary);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
+  background: var(--bg-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pill:hover:not(:disabled) svg {
+  transform: scale(1.1);
 }
 
 .pill.active {
-  background: var(--ios-blue);
-  border-color: var(--ios-blue);
+  background: linear-gradient(135deg, var(--ios-blue) 0%, #5856d6 100%);
+  border-color: transparent;
   color: white;
   font-weight: 700;
-  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.35), 
-              0 2px 8px rgba(0, 122, 255, 0.25);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+}
+
+.pill.active svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .results {
@@ -1599,6 +1668,98 @@ const imageResults = computed(() =>
   box-shadow: 0 4px 12px var(--primary-a20);
 }
 
+/* Result type-specific icon colors */
+.icon-site {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.12) 0%, rgba(88, 86, 214, 0.12) 100%);
+  color: var(--ios-blue);
+}
+
+.icon-ipfs {
+  background: linear-gradient(135deg, rgba(48, 209, 88, 0.12) 0%, rgba(52, 199, 89, 0.12) 100%);
+  color: var(--ios-green);
+}
+
+.icon-tx {
+  background: linear-gradient(135deg, rgba(255, 159, 10, 0.12) 0%, rgba(255, 149, 0, 0.12) 100%);
+  color: var(--ios-orange);
+}
+
+.icon-block {
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.12) 0%, rgba(175, 82, 222, 0.12) 100%);
+  color: var(--ios-purple, #af52de);
+}
+
+.icon-address {
+  background: linear-gradient(135deg, rgba(90, 200, 250, 0.12) 0%, rgba(0, 122, 255, 0.12) 100%);
+  color: var(--ios-teal, #5ac8fa);
+}
+
+.icon-link {
+  background: linear-gradient(135deg, rgba(142, 142, 147, 0.12) 0%, rgba(99, 99, 102, 0.12) 100%);
+  color: var(--ios-gray, #8e8e93);
+}
+
+/* Result type badges */
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.result-type-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.type-ipfs {
+  background: rgba(48, 209, 88, 0.12);
+  color: var(--ios-green);
+}
+
+.type-tx {
+  background: rgba(255, 159, 10, 0.12);
+  color: var(--ios-orange);
+}
+
+.type-block {
+  background: rgba(88, 86, 214, 0.12);
+  color: var(--ios-purple, #af52de);
+}
+
+.type-address {
+  background: rgba(90, 200, 250, 0.12);
+  color: var(--ios-teal, #5ac8fa);
+}
+
+.type-link {
+  background: rgba(142, 142, 147, 0.12);
+  color: var(--ios-gray, #8e8e93);
+}
+
+/* Card accent colors by type */
+.result-tx::before {
+  background: linear-gradient(180deg, var(--ios-orange) 0%, rgba(255, 159, 10, 0.5) 100%);
+}
+
+.result-block::before {
+  background: linear-gradient(180deg, var(--ios-purple, #af52de) 0%, rgba(175, 82, 222, 0.5) 100%);
+}
+
+.result-address::before {
+  background: linear-gradient(180deg, var(--ios-teal, #5ac8fa) 0%, rgba(90, 200, 250, 0.5) 100%);
+}
+
+.result-ipfs::before {
+  background: linear-gradient(180deg, var(--ios-green) 0%, rgba(48, 209, 88, 0.5) 100%);
+}
+
 .thumb {
   width: 100%;
   height: 100%;
@@ -1710,6 +1871,7 @@ const imageResults = computed(() =>
   color: var(--text-secondary);
   line-height: 1.6;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -1793,54 +1955,151 @@ const imageResults = computed(() =>
   border: 1px solid var(--primary-a20);
 }
 
-.empty {
-  padding: 1.2rem 1rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) dashed var(--border-color);
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 2rem;
+  border-radius: var(--border-radius-xl);
+  border: 2px dashed var(--border-color);
   background: var(--card-bg);
   text-align: center;
 }
 
-.empty-title {
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  margin-bottom: 1.5rem;
+}
+
+.empty-content {
+  max-width: 400px;
+}
+
+.empty-state .empty-title {
+  font-size: 1.25rem;
   font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+}
+
+.empty-state .empty-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+
+.empty-subtitle strong {
   color: var(--text-primary);
 }
 
-.empty-subtitle {
-  margin-top: 0.35rem;
+.empty-suggestions {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.suggestion-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.suggestion-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.suggestion-list code {
+  font-size: 0.8125rem;
+  padding: 0.15rem 0.4rem;
+  background: var(--primary-a08);
+  border-radius: 4px;
+  color: var(--accent-primary);
+}
+
+/* Improved Skeleton */
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .skeleton-item {
-  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  border-radius: var(--border-radius-xl);
   border: var(--border-width) solid var(--border-color);
   background: var(--card-bg);
-  padding: 0.95rem 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.skeleton-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .skeleton-title,
 .skeleton-url,
 .skeleton-desc {
-  border-radius: 8px;
-  background: rgba(148, 163, 184, 0.22);
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 .skeleton-title {
-  height: 1.05rem;
-  width: 55%;
+  height: 1.125rem;
+  width: 60%;
 }
 
 .skeleton-url {
-  height: 0.8rem;
-  width: 38%;
-  margin-top: 0.55rem;
+  height: 0.875rem;
+  width: 40%;
+  margin-top: 0.625rem;
 }
 
 .skeleton-desc {
-  height: 2.1rem;
-  width: 75%;
-  margin-top: 0.55rem;
+  height: 2.5rem;
+  width: 85%;
+  margin-top: 0.625rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .debug-modal {

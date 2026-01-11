@@ -2,7 +2,7 @@
   <aside class="lumen-sidebar">
     <div class="lumen-sidebar-header">
       <div class="lumen-sidebar-icon">
-        <component :is="icon" :size="24" />
+        <component :is="icon" :size="20" />
       </div>
       <span class="lumen-sidebar-title">{{ title }}</span>
     </div>
@@ -24,14 +24,15 @@
 
       <!-- ⭐ FAVOURITES -->
       <div v-if="favourites.length" class="sidebar-section">
-        <div class="sidebar-title">⭐ Favourites</div>
+        <div class="sidebar-section-title">Favourites</div>
         <button
-          class="sidebar-item"
+          class="sidebar-fav-item"
           v-for="url in favourites"
           :key="url"
           @click="$emit('goto', url)"
         >
-          {{ url.replace('lumen://', '') }}
+          <Star :size="14" />
+          <span>{{ url.replace('lumen://', '') }}</span>
         </button>
       </div>
     </div>
@@ -47,6 +48,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { Star } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
 
@@ -79,60 +81,37 @@ const activeProfile = computed(() =>
 </script>
 
 <style scoped>
-/* ===== FAVOURITES ===== */
-.sidebar-section {
-  margin-top: 1rem;
-}
-.sidebar-title {
-  font-size: 0.7rem;
-  opacity: 0.7;
-  margin-bottom: 0.25rem;
-}
-.sidebar-item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  cursor: pointer;
-}
-.sidebar-item:hover {
-  background: var(--hover-bg);
-}
-
-/* ===== ORIGINAL STYLES ===== */
+/* ===== SIDEBAR BASE ===== */
 .lumen-sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
   background: var(--sidebar-bg);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1rem;
   color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
+  border-right: 0.5px solid var(--border-color);
   flex-shrink: 0;
   min-height: 0;
 }
 
+/* ===== HEADER ===== */
 .lumen-sidebar-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 1.25rem;
+  gap: 0.625rem;
+  padding: 0.375rem 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .lumen-sidebar-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   background: var(--gradient-primary);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,32 +120,37 @@ const activeProfile = computed(() =>
 }
 
 .lumen-sidebar-title {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
+/* ===== NO PROFILE STATE ===== */
 .lumen-sidebar-no-profile {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  padding: 1rem;
-  border-radius: var(--border-radius-lg);
+  padding: 0.875rem;
+  border-radius: var(--border-radius-md);
   background: var(--fill-tertiary);
-  border: var(--border-width) solid var(--border-light);
-  margin-bottom: 1rem;
+  border: 0.5px solid var(--border-light);
+  margin-bottom: 0.875rem;
 }
 
 .no-profile-title {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .no-profile-sub {
-  font-size: 0.78rem;
+  font-size: 12px;
   color: var(--text-tertiary);
+  line-height: 1.4;
 }
 
+/* ===== SCROLL AREA ===== */
 .lumen-sidebar-scroll {
   flex: 1;
   min-height: 0;
@@ -174,20 +158,82 @@ const activeProfile = computed(() =>
   overflow-x: hidden;
   padding-right: 0.25rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+  scrollbar-color: var(--fill-secondary) transparent;
 }
 
+.lumen-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lumen-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lumen-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--fill-secondary);
+  border-radius: 4px;
+}
+
+.lumen-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--fill-primary);
+}
+
+/* ===== FAVOURITES SECTION ===== */
+.sidebar-section {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 0.5px solid var(--border-light);
+}
+
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.sidebar-fav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-fav-item:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.sidebar-fav-item svg {
+  color: #FFD60A;
+  flex-shrink: 0;
+}
+
+/* ===== FOOTER ===== */
 .lumen-sidebar-footer {
   padding-top: 0.75rem;
+  border-top: 0.5px solid var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .lumen-sidebar-version {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 11px;
   color: var(--text-tertiary);
 }
 </style>
