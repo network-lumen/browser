@@ -139,11 +139,29 @@ function openRoute(key: string) {
 }
 
 .lsb-item--dropdown {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary, white);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.lsb-item--dropdown:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .all-pages-title {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .all-pages-list {

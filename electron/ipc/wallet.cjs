@@ -7,8 +7,9 @@ const { Buffer } = require('buffer');
 const Long = require('long');
 const { httpGet } = require('./http.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
-const { decryptMnemonicLocal } = require('../utils/crypto.cjs');
+const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, decryptWithPassword, encryptWithPassword } = require('../utils/crypto.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
+const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 let pqcWorker = null;
 try {
   pqcWorker = require('../utils/pqc-worker.cjs');
@@ -17,6 +18,51 @@ try {
 }
 
 let bridge = null;
+
+/**
+ * Temporarily decrypt PQC keys file for use by SDK
+ * Returns cleanup function to restore encrypted state
+ */
+function tempDecryptPqcKeys(password) {
+  const keysFile = path.join(userDataPath('pqc_keys'), 'keys.json');
+  if (!fs.existsSync(keysFile)) return null;
+
+  try {
+    const data = readJson(keysFile, null);
+    if (!data) return null;
+
+    // Check if encrypted
+    if (!data._encrypted || !data.crypto) {
+      // Not encrypted, no action needed
+      return null;
+    }
+
+    // Decrypt using password
+    const decryptedStr = decryptWithPassword(data, password);
+    if (!decryptedStr) {
+      console.warn('[wallet] failed to decrypt PQC keys');
+      return null;
+    }
+
+    const decryptedKeys = JSON.parse(decryptedStr);
+    
+    // Save decrypted version temporarily
+    const backup = JSON.stringify(data);
+    fs.writeFileSync(keysFile, JSON.stringify(decryptedKeys, null, 2), 'utf8');
+
+    // Return cleanup function
+    return () => {
+      try {
+        fs.writeFileSync(keysFile, backup, 'utf8');
+      } catch (e) {
+        console.error('[wallet] failed to restore encrypted PQC keys', e);
+      }
+    };
+  } catch (e) {
+    console.error('[wallet] error in tempDecryptPqcKeys', e);
+    return null;
+  }
+}
 
 async function loadBridge() {
   if (bridge) return bridge;
@@ -50,13 +96,75 @@ function keystoreFile(profileId) {
   return userDataPath('profiles', profileId, 'keystore.json');
 }
 
-function loadMnemonic(profileId) {
+/**
+ * Load mnemonic from keystore, handling both app-secret and password-protected keystores
+ * @param {string} profileId 
+ * @param {string|null} password - Password for password-protected keystores (optional if session is active)
+ * @returns {string} mnemonic
+ */
+function loadMnemonic(profileId, password = null) {
   const file = keystoreFile(profileId);
   const ks = readJson(file, null);
   if (!ks) throw new Error(`No keystore for profileId=${profileId}`);
+  
+  // Check if keystore is password-protected
+  if (isPasswordProtected(ks)) {
+    // Try session password first, then provided password
+    const pwd = password || getSessionPassword();
+    if (!pwd) {
+      throw new Error('password_required');
+    }
+    const mnemonic = decryptMnemonicWithPassword(ks, pwd);
+    if (!mnemonic) throw new Error('Failed to decrypt keystore with password');
+    return mnemonic;
+  }
+  
+  // Legacy: app-secret encrypted keystore
   const mnemonic = decryptMnemonicLocal(ks);
   if (!mnemonic) throw new Error('Failed to decrypt keystore');
   return mnemonic;
+}
+
+/**
+ * Check if a signing operation requires password verification
+ * @param {string|null} providedPassword - Password provided with the request
+ * @returns {{ ok: boolean, error?: string }}
+ */
+function checkPasswordForSigning(providedPassword = null) {
+  if (!isPasswordRequired()) {
+    return { ok: true };
+  }
+  
+  // Check session password
+  const sessionPwd = getSessionPassword();
+  if (sessionPwd) {
+    return { ok: true };
+  }
+  
+  // Check provided password
+  if (providedPassword) {
+    if (verifyStoredPassword(providedPassword)) {
+      return { ok: true };
+    }
+    return { ok: false, error: 'invalid_password' };
+  }
+  
+  return { ok: false, error: 'password_required' };
+}
+
+/**
+ * Check if PQC keys are password-encrypted
+ */
+function arePqcKeysEncrypted() {
+  const keysFile = path.join(userDataPath('pqc_keys'), 'keys.json');
+  if (!fs.existsSync(keysFile)) return false;
+  
+  try {
+    const data = readJson(keysFile, null);
+    return data && data._encrypted === true;
+  } catch {
+    return false;
+  }
 }
 
 function resolvePqcHome() {
@@ -276,6 +384,11 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
   const preferred = `profile:${profileId}`;
   const preferredRecord = normalize(store.getKey(preferred));
   const allKeys = store.listKeys().map(normalize);
+  
+  console.log('[ensureLocalPqcKey] existingLink:', existingLink, 'preferred:', preferred);
+  console.log('[ensureLocalPqcKey] record found:', !!record, 'preferredRecord found:', !!preferredRecord);
+  console.log('[ensureLocalPqcKey] allKeys:', allKeys.map(k => k.name));
+  console.log('[ensureLocalPqcKey] onChain:', onChain);
 
   const findByHash = (target) => {
     const t = normalizeHashString(target);
@@ -429,11 +542,27 @@ function registerWalletIpc() {
       const amount = Number(input && input.amount ? input.amount : 0);
       const memo = String(input && input.memo ? input.memo : '');
       const denom = String(input && input.denom ? input.denom : 'ulmn');
+      const password = input && input.password ? String(input.password) : null;
       
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!from || !to || !(amount > 0)) return { ok: false, error: 'missing_from_to_amount' };
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
       
       if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
 
@@ -442,7 +571,9 @@ function registerWalletIpc() {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = from.match(/^([a-z0-9]+)1/i);
+      // Ensure from is a valid string before calling match
+      const fromStr = String(from || '');
+      const prefixMatch = fromStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
@@ -468,38 +599,77 @@ function registerWalletIpc() {
         setTimeout(() => reject(new Error('Connection timeout after 15 seconds')), 15000)
       );
       
+      console.log('[wallet:sendTokens] connecting to client...');
       const client = await Promise.race([connectPromise, timeoutPromise]);
+      console.log('[wallet:sendTokens] connected, client:', client ? 'ok' : 'null');
 
-      const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, from);
-      if (pqcLocal && pqcLocal.record) {
-        await ensureOnChainPqcLink(mod, client, from, pqcLocal.record);
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      const keysEncrypted = arePqcKeysEncrypted();
+      console.log('[wallet:sendTokens] keysEncrypted:', keysEncrypted, 'hasPassword:', !!password, 'hasSession:', !!getSessionPassword());
+      if (keysEncrypted) {
+        if (!effectivePassword) {
+          console.log('[wallet:sendTokens] no password available, returning password_required');
+          return { ok: false, error: 'password_required' };
+        }
+        console.log('[wallet:sendTokens] decrypting PQC keys...');
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          console.log('[wallet:sendTokens] decryption failed, returning invalid_password');
+          return { ok: false, error: 'invalid_password' };
+        }
+        console.log('[wallet:sendTokens] PQC keys decrypted successfully');
       }
 
-      const { MsgSend } = await import('cosmjs-types/cosmos/bank/v1beta1/tx.js');
-      const micro = Math.round(amount * 1_000_000);
-      
-      const msg = {
-        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-        value: MsgSend.fromPartial({
-          fromAddress: from,
-          toAddress: to,
-          amount: [{ denom, amount: String(micro) }]
-        })
-      };
+      try {
+        console.log('[wallet:sendTokens] calling ensureLocalPqcKey...');
+        const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, from);
+        console.log('[wallet:sendTokens] pqcLocal:', pqcLocal);
+        
+        if (pqcLocal && pqcLocal.record) {
+          console.log('[wallet:sendTokens] calling ensureOnChainPqcLink...');
+          await ensureOnChainPqcLink(mod, client, from, pqcLocal.record);
+          console.log('[wallet:sendTokens] ensureOnChainPqcLink done');
+        }
 
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '250000' }));
+        console.log('[wallet:sendTokens] preparing MsgSend...');
+        const { MsgSend } = await import('cosmjs-types/cosmos/bank/v1beta1/tx.js');
+        const micro = Math.round(amount * 1_000_000);
+        
+        const msg = {
+          typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+          value: MsgSend.fromPartial({
+            fromAddress: from,
+            toAddress: to,
+            amount: [{ denom, amount: String(micro) }]
+          })
+        };
 
-      const res = await client.signAndBroadcast(from, [msg], zeroFee(), memo);
-      
-      if (res.code !== 0) {
-        throw new Error(res.rawLog || `broadcast failed (code ${res.code})`);
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '250000' }));
+
+        console.log('[wallet:sendTokens] calling signAndBroadcast...');
+        const res = await client.signAndBroadcast(from, [msg], zeroFee(), memo);
+        console.log('[wallet:sendTokens] signAndBroadcast result:', res);
+        
+        if (res.code !== 0) {
+          throw new Error(res.rawLog || `broadcast failed (code ${res.code})`);
+        }
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        // Restore encrypted PQC keys
+        if (cleanupPqc) {
+          console.log('[wallet:sendTokens] restoring encrypted PQC keys...');
+          cleanupPqc();
+        }
       }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
     } catch (e) {
+      console.error('[wallet:sendTokens] error:', e);
+      console.error('[wallet:sendTokens] stack:', e && e.stack ? e.stack : 'no stack');
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -519,19 +689,36 @@ function registerWalletIpc() {
         Number.isFinite(durationDaysRaw) && durationDaysRaw > 0
           ? durationDaysRaw
           : 365;
+      const password = input && input.password ? String(input.password) : null;
 
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!name) return { ok: false, error: 'missing_name' };
       if (!owner) return { ok: false, error: 'missing_owner' };
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
 
       const mod = await loadBridge();
       if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = owner.match(/^([a-z0-9]+)1/i);
+      const ownerStr = String(owner || '');
+      const prefixMatch = ownerStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
@@ -560,6 +747,19 @@ function registerWalletIpc() {
         }
       );
 
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
       try {
         const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, owner);
         if (pqcLocal && pqcLocal.record) {
@@ -570,6 +770,8 @@ function registerWalletIpc() {
           '[dns] ensure PQC link failed',
           err && err.message ? err.message : err
         );
+      } finally {
+        if (cleanupPqc) cleanupPqc();
       }
 
       const dnsMod =
@@ -630,6 +832,7 @@ function registerWalletIpc() {
       const recordsRaw = Array.isArray(input && input.records ? input.records : [])
         ? input.records
         : [];
+      const password = input && input.password ? String(input.password) : null;
 
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!name) return { ok: false, error: 'missing_name' };
@@ -645,14 +848,30 @@ function registerWalletIpc() {
         return { ok: false, error: 'missing_records' };
       }
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
 
       const mod = await loadBridge();
       if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = owner.match(/^([a-z0-9]+)1/i);
+      const ownerStr = String(owner || '');
+      const prefixMatch = ownerStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
@@ -681,6 +900,19 @@ function registerWalletIpc() {
         }
       );
 
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
       try {
         const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, owner);
         if (pqcLocal && pqcLocal.record) {
@@ -691,6 +923,8 @@ function registerWalletIpc() {
           '[dns] ensure PQC link (update) failed',
           err && err.message ? err.message : err
         );
+      } finally {
+        if (cleanupPqc) cleanupPqc();
       }
 
       const dnsMod =
@@ -805,13 +1039,29 @@ function registerWalletIpc() {
       const address = String(input && input.address ? input.address : '').trim();
       const validatorAddress = String(input && input.validatorAddress ? input.validatorAddress : '').trim();
       const amount = input && input.amount ? input.amount : null;
+      const password = input && input.password ? String(input.password) : null;
       
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!address || !validatorAddress || !amount) {
         return { ok: false, error: 'missing_required_fields' };
       }
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
       if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
 
       const mod = await loadBridge();
@@ -819,7 +1069,8 @@ function registerWalletIpc() {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const addressStr = String(address || '');
+      const prefixMatch = addressStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
@@ -838,29 +1089,46 @@ function registerWalletIpc() {
         pqc: { homeDir: resolvePqcHome() }
       });
 
-      const { MsgDelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
-      
-      const msg = {
-        typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
-        value: MsgDelegate.fromPartial({
-          delegatorAddress: address,
-          validatorAddress: validatorAddress,
-          amount: amount
-        })
-      };
-
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '300000' }));
-
-      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-      
-      if (res.code !== 0) {
-        throw new Error(res.rawLog || `delegate failed (code ${res.code})`);
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
       }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
+
+      try {
+        const { MsgDelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+        
+        const msg = {
+          typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+          value: MsgDelegate.fromPartial({
+            delegatorAddress: address,
+            validatorAddress: validatorAddress,
+            amount: amount
+          })
+        };
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '300000' }));
+
+        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+        
+        if (res.code !== 0) {
+          throw new Error(res.rawLog || `delegate failed (code ${res.code})`);
+        }
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
@@ -872,13 +1140,29 @@ function registerWalletIpc() {
       const address = String(input && input.address ? input.address : '').trim();
       const validatorAddress = String(input && input.validatorAddress ? input.validatorAddress : '').trim();
       const amount = input && input.amount ? input.amount : null;
+      const password = input && input.password ? String(input.password) : null;
       
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!address || !validatorAddress || !amount) {
         return { ok: false, error: 'missing_required_fields' };
       }
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
       if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
 
       const mod = await loadBridge();
@@ -886,7 +1170,8 @@ function registerWalletIpc() {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const addressStr = String(address || '');
+      const prefixMatch = addressStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
@@ -905,29 +1190,46 @@ function registerWalletIpc() {
         pqc: { homeDir: resolvePqcHome() }
       });
 
-      const { MsgUndelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
-      
-      const msg = {
-        typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
-        value: MsgUndelegate.fromPartial({
-          delegatorAddress: address,
-          validatorAddress: validatorAddress,
-          amount: amount
-        })
-      };
-
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '300000' }));
-
-      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-      
-      if (res.code !== 0) {
-        throw new Error(res.rawLog || `undelegate failed (code ${res.code})`);
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
       }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
+
+      try {
+        const { MsgUndelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+        
+        const msg = {
+          typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
+          value: MsgUndelegate.fromPartial({
+            delegatorAddress: address,
+            validatorAddress: validatorAddress,
+            amount: amount
+          })
+        };
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '300000' }));
+
+        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+        
+        if (res.code !== 0) {
+          throw new Error(res.rawLog || `undelegate failed (code ${res.code})`);
+        }
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
@@ -940,13 +1242,29 @@ function registerWalletIpc() {
       const validatorSrcAddress = String(input && input.validatorSrcAddress ? input.validatorSrcAddress : '').trim();
       const validatorDstAddress = String(input && input.validatorDstAddress ? input.validatorDstAddress : '').trim();
       const amount = input && input.amount ? input.amount : null;
+      const password = input && input.password ? String(input.password) : null;
       
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!address || !validatorSrcAddress || !validatorDstAddress || !amount) {
         return { ok: false, error: 'missing_required_fields' };
       }
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
       if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
 
       const mod = await loadBridge();
@@ -954,7 +1272,8 @@ function registerWalletIpc() {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const addressStr = String(address || '');
+      const prefixMatch = addressStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
@@ -973,30 +1292,47 @@ function registerWalletIpc() {
         pqc: { homeDir: resolvePqcHome() }
       });
 
-      const { MsgBeginRedelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
-      
-      const msg = {
-        typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
-        value: MsgBeginRedelegate.fromPartial({
-          delegatorAddress: address,
-          validatorSrcAddress: validatorSrcAddress,
-          validatorDstAddress: validatorDstAddress,
-          amount: amount
-        })
-      };
-
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '300000' }));
-
-      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-      
-      if (res.code !== 0) {
-        throw new Error(res.rawLog || `redelegate failed (code ${res.code})`);
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
       }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
+
+      try {
+        const { MsgBeginRedelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+        
+        const msg = {
+          typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
+          value: MsgBeginRedelegate.fromPartial({
+            delegatorAddress: address,
+            validatorSrcAddress: validatorSrcAddress,
+            validatorDstAddress: validatorDstAddress,
+            amount: amount
+          })
+        };
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '300000' }));
+
+        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+        
+        if (res.code !== 0) {
+          throw new Error(res.rawLog || `redelegate failed (code ${res.code})`);
+        }
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
@@ -1007,13 +1343,29 @@ function registerWalletIpc() {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();
       const address = String(input && input.address ? input.address : '').trim();
       const validatorAddress = String(input && input.validatorAddress ? input.validatorAddress : '').trim();
+      const password = input && input.password ? String(input.password) : null;
       
       if (!profileId) return { ok: false, error: 'missing_profileId' };
       if (!address || !validatorAddress) {
         return { ok: false, error: 'missing_required_fields' };
       }
 
-      const mnemonic = loadMnemonic(profileId);
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
       if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
 
       const mod = await loadBridge();
@@ -1021,7 +1373,8 @@ function registerWalletIpc() {
         return { ok: false, error: 'wallet_bridge_unavailable' };
       }
 
-      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const addressStr = String(address || '');
+      const prefixMatch = addressStr.match(/^([a-z0-9]+)1/i);
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
@@ -1040,28 +1393,45 @@ function registerWalletIpc() {
         pqc: { homeDir: resolvePqcHome() }
       });
 
-      const { MsgWithdrawDelegatorReward } = await import('cosmjs-types/cosmos/distribution/v1beta1/tx.js');
-      
-      const msg = {
-        typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-        value: MsgWithdrawDelegatorReward.fromPartial({
-          delegatorAddress: address,
-          validatorAddress: validatorAddress
-        })
-      };
-
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '300000' }));
-
-      const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-      
-      if (res.code !== 0) {
-        throw new Error(res.rawLog || `withdraw rewards failed (code ${res.code})`);
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
       }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
+
+      try {
+        const { MsgWithdrawDelegatorReward } = await import('cosmjs-types/cosmos/distribution/v1beta1/tx.js');
+        
+        const msg = {
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          value: MsgWithdrawDelegatorReward.fromPartial({
+            delegatorAddress: address,
+            validatorAddress: validatorAddress
+          })
+        };
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '300000' }));
+
+        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
+        
+        if (res.code !== 0) {
+          throw new Error(res.rawLog || `withdraw rewards failed (code ${res.code})`);
+        }
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

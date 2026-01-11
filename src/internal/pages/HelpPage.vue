@@ -53,166 +53,153 @@
       <!-- Discover View -->
       <div v-if="currentView === 'discover'" class="content-area">
         <div class="discover">
-          <section class="discover-hero">
-            <h3>Lumen, explained simply</h3>
-            <p>
-              Think of Lumen like “the internet”, but with <strong>no central phonebook</strong> and <strong>no single
-              server</strong> that can disappear. Names live on the blockchain, and content is stored in a distributed
-              network.
-            </p>
-          </section>
-
-          <section class="discover-grid">
-            <div class="discover-card">
-              <div class="discover-ico">
-                <Globe :size="20" />
-              </div>
-              <div>
-                <h4>Human links</h4>
-                <p>You can type a name like <code>demo.lmn</code> instead of a long code.</p>
-              </div>
+          <!-- Hero Section -->
+          <section class="hero-section">
+            <div class="hero-content">
+              <h2 class="hero-title">Welcome to <span class="gradient-text">Lumen</span></h2>
+              <p class="hero-subtitle">The decentralized web browser for the next generation of internet</p>
             </div>
-
-            <div class="discover-card">
-              <div class="discover-ico">
-                <Database :size="20" />
+            <div class="hero-features">
+              <div class="feature-point">
+                <div class="point-icon">🌐</div>
+                <div class="point-text">
+                  <strong>Decentralized Storage</strong>
+                  <span>Store and share content without central servers</span>
+                </div>
               </div>
-              <div>
-                <h4>Content everywhere</h4>
-                <p>Your website can be stored in many places, so it stays available.</p>
+              <div class="feature-point">
+                <div class="point-icon">🔐</div>
+                <div class="point-text">
+                  <strong>Blockchain Domains</strong>
+                  <span>Own your identity with .lmn domains</span>
+                </div>
               </div>
-            </div>
-
-            <div class="discover-card">
-              <div class="discover-ico">
-                <Server :size="20" />
-              </div>
-              <div>
-                <h4>Decentralized cloud</h4>
-                <p>Optional “Pro” cloud service for speed, search, and better reliability (SLA).</p>
-              </div>
-            </div>
-
-            <div class="discover-card">
-              <div class="discover-ico">
-                <Wallet :size="20" />
-              </div>
-              <div>
-                <h4>Your identity</h4>
-                <p>Your profile and wallet prove what you own and what you pay for.</p>
+              <div class="feature-point">
+                <div class="point-icon">⚡</div>
+                <div class="point-text">
+                  <strong>Secure by Design</strong>
+                  <span>Encrypted connections and local-first data</span>
+                </div>
               </div>
             </div>
           </section>
 
-          <section class="discover-section">
-            <h4 class="discover-section-title">1) Names stored on the blockchain</h4>
-            <p class="discover-section-text">
-              On today’s internet, the “address book” for websites is usually run by centralized services. On Lumen, the address
-              book is stored on the blockchain: everyone can read it, and no single server owns it.
-            </p>
-
-            <div class="diagram">
-              <div class="diagram-node">
-                <div class="diagram-badge">You</div>
-                <div class="diagram-title">Lumen Browser</div>
-                <div class="diagram-desc">You type <code>lumen://demo.lmn</code></div>
-              </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node diagram-accent">
-                <div class="diagram-badge">Shared</div>
-                <div class="diagram-title">Blockchain record</div>
-                <div class="diagram-desc">Record: <code>demo.lmn → the website</code></div>
-              </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node">
-                <div class="diagram-badge">Result</div>
-                <div class="diagram-title">Verified answer</div>
-                <div class="diagram-desc">No central “address book” server</div>
-              </div>
-            </div>
-
-            <div class="discover-note">
-              In simple terms: the “address book” is public, shared, and hard to tamper with.
-            </div>
-          </section>
-
-          <section class="discover-section">
-            <h4 class="discover-section-title">2) Distributed hosting: no single website server</h4>
-            <p class="discover-section-text">
-              Instead of “one website = one server”, Lumen can load content from a distributed network.
-              Think of it like a library: the same “book” can exist in many places, so it doesn’t disappear when one computer goes offline.
-            </p>
-
-            <div class="diagram">
-              <div class="diagram-node">
-                <div class="diagram-badge">Website</div>
-                <div class="diagram-title">The content</div>
-                <div class="diagram-desc">A page, a file, or a whole site</div>
-              </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node diagram-wide">
-                <div class="diagram-badge">Many copies</div>
-                <div class="diagram-title">Distributed network</div>
-                <div class="diagram-desc">Many computers can serve the same content</div>
-              </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node">
-                <div class="diagram-badge">You</div>
-                <div class="diagram-title">You receive it</div>
-                <div class="diagram-desc">Even if one host is down</div>
-              </div>
-            </div>
-
-            <div class="discover-note">
-              In simple terms: content can survive even if one computer goes offline.
+          <!-- Quick Actions -->
+          <section class="quick-actions">
+            <h3 class="section-title">Get Started</h3>
+            <div class="actions-grid">
+              <button class="action-card" type="button" @click="goto('lumen://drive')">
+                <div class="action-icon drive">
+                  <FolderOpen :size="24" />
+                </div>
+                <div class="action-info">
+                  <span class="action-title">Drive</span>
+                  <span class="action-desc">Upload and manage your files</span>
+                </div>
+                <ArrowRight :size="16" class="action-arrow" />
+              </button>
+              <button class="action-card" type="button" @click="goto('lumen://domain')">
+                <div class="action-icon domain">
+                  <Link2 :size="24" />
+                </div>
+                <div class="action-info">
+                  <span class="action-title">Domains</span>
+                  <span class="action-desc">Register your .lmn domain</span>
+                </div>
+                <ArrowRight :size="16" class="action-arrow" />
+              </button>
+              <button class="action-card" type="button" @click="goto('lumen://wallet')">
+                <div class="action-icon wallet">
+                  <Wallet :size="24" />
+                </div>
+                <div class="action-info">
+                  <span class="action-title">Wallet</span>
+                  <span class="action-desc">Manage your LMN tokens</span>
+                </div>
+                <ArrowRight :size="16" class="action-arrow" />
+              </button>
+              <button class="action-card" type="button" @click="goto('lumen://search')">
+                <div class="action-icon search">
+                  <Search :size="24" />
+                </div>
+                <div class="action-info">
+                  <span class="action-title">Search</span>
+                  <span class="action-desc">Discover decentralized content</span>
+                </div>
+                <ArrowRight :size="16" class="action-arrow" />
+              </button>
             </div>
           </section>
 
-          <section class="discover-section">
-            <h4 class="discover-section-title">3) Pro cloud: better speed and reliability (SLA)</h4>
-            <p class="discover-section-text">
-              If you want a smoother experience, you can subscribe to a Pro cloud plan. It’s a professional service that helps with
-              speed and reliability. “SLA” simply means: the service makes a clear promise about uptime and quality.
-            </p>
-
-            <div class="diagram">
-              <div class="diagram-node">
-                <div class="diagram-badge">You</div>
-                <div class="diagram-title">Browser</div>
-                <div class="diagram-desc">Open / search / save</div>
+          <!-- How it Works -->
+          <section class="how-it-works">
+            <h3 class="section-title">How Lumen Works</h3>
+            <div class="steps-grid">
+              <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h4>Blockchain Names</h4>
+                  <p>Domain names are stored on the blockchain - no central authority can take them away.</p>
+                </div>
               </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node diagram-accent">
-                <div class="diagram-badge">Pro</div>
-                <div class="diagram-title">Pro cloud</div>
-                <div class="diagram-desc">Fast loading, search, keeps content available</div>
+              <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h4>Distributed Storage</h4>
+                  <p>Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
+                </div>
               </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node">
-                <div class="diagram-badge">Network</div>
-                <div class="diagram-title">Distributed hosting</div>
-                <div class="diagram-desc">Content stored in many places</div>
+              <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h4>Verified Access</h4>
+                  <p>Every piece of content is cryptographically verified for authenticity.</p>
+                </div>
               </div>
-            </div>
-
-            <div class="discover-note">
-              In simple terms: you can use Lumen without Pro, but Pro makes it feel “premium” and dependable.
             </div>
           </section>
 
-          <section class="discover-cta">
-            <button class="cta-btn" type="button" @click="goto('lumen://search')">
-              <Search :size="18" />
-              <span>Try Search</span>
-            </button>
-            <button class="cta-btn" type="button" @click="goto('lumen://drive')">
-              <FolderOpen :size="18" />
-              <span>Open Drive</span>
-            </button>
-            <button class="cta-btn" type="button" @click="goto('lumen://domain')">
-              <Link2 :size="18" />
-              <span>Manage Domains</span>
-            </button>
+          <!-- Features Grid -->
+          <section class="features-section">
+            <h3 class="section-title">Key Features</h3>
+            <div class="features-grid">
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <Globe :size="24" />
+                </div>
+                <div class="feature-content">
+                  <h4>Human-Readable Links</h4>
+                  <p>Type <code>demo.lmn</code> instead of long cryptographic hashes.</p>
+                </div>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <Database :size="24" />
+                </div>
+                <div class="feature-content">
+                  <h4>Content Everywhere</h4>
+                  <p>Your website exists in many places, so it stays available.</p>
+                </div>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <Server :size="24" />
+                </div>
+                <div class="feature-content">
+                  <h4>Pro Cloud Service</h4>
+                  <p>Optional premium service for faster loading and reliability.</p>
+                </div>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <Wallet :size="24" />
+                </div>
+                <div class="feature-content">
+                  <h4>Your Identity</h4>
+                  <p>Your wallet proves what you own and enables transactions.</p>
+                </div>
+              </div>
+            </div>
           </section>
         </div>
       </div>
@@ -220,137 +207,107 @@
       <!-- Domains & Drive View -->
       <div v-else-if="currentView === 'domains'" class="content-area">
         <div class="discover">
-          <section class="discover-hero">
-            <h3>Create a domain and link it to your Drive</h3>
-            <p>
-              This is the easiest way to publish something and share it with a clean link like
-              <code>lumen://your-name.lmn</code>.
-            </p>
+          <!-- Hero -->
+          <section class="hero-section small">
+            <div class="hero-content">
+              <h2 class="hero-title">Publish Your <span class="gradient-text">Website</span></h2>
+              <p class="hero-subtitle">Create a domain and link it to your Drive content in 4 easy steps</p>
+            </div>
           </section>
 
-          <section class="discover-section">
-            <h4 class="discover-section-title">Step 1 — Put your content in Drive</h4>
-            <p class="discover-section-text">
-              Go to Drive, upload a file or a folder, then click <strong>Share</strong>. Lumen will copy a private “Lumen link”
-              to your clipboard.
-            </p>
-
-            <div class="diagram">
-              <div class="diagram-node">
-                <div class="diagram-badge">1</div>
-                <div class="diagram-title">Open Drive</div>
-                <div class="diagram-desc">Upload a file or folder</div>
+          <!-- Steps -->
+          <div class="tutorial-steps">
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h4>Upload to Drive</h4>
               </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node diagram-wide">
-                <div class="diagram-badge">2</div>
-                <div class="diagram-title">Click “Share”</div>
-                <div class="diagram-desc">A Lumen link is copied</div>
-              </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node">
-                <div class="diagram-badge">Tip</div>
-                <div class="diagram-title">Keep it</div>
-                <div class="diagram-desc">You will paste it in the next step</div>
-              </div>
-            </div>
-
-            <div class="discover-cta">
-              <button class="cta-btn" type="button" @click="goto('lumen://drive')">
+              <p>Go to Drive, upload a file or folder, then click <strong>Share</strong> to get a Lumen link.</p>
+              <button class="step-action" type="button" @click="goto('lumen://drive')">
                 <FolderOpen :size="18" />
                 <span>Open Drive</span>
               </button>
             </div>
-          </section>
 
-          <section class="discover-section">
-            <h4 class="discover-section-title">Step 2 — Buy your domain name</h4>
-            <p class="discover-section-text">
-              Go to Domains, click <strong>Buy domain</strong>, choose a name, and confirm. This registers your name on the
-              blockchain address book.
-            </p>
-
-            <div class="diagram">
-              <div class="diagram-node">
-                <div class="diagram-badge">You</div>
-                <div class="diagram-title">Pick a name</div>
-                <div class="diagram-desc">Example: <code>myfamily.lmn</code></div>
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h4>Buy Your Domain</h4>
               </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node diagram-accent">
-                <div class="diagram-badge">Shared</div>
-                <div class="diagram-title">Blockchain registration</div>
-                <div class="diagram-desc">No central company owns it</div>
-              </div>
-              <ArrowRight class="diagram-arrow" :size="18" />
-              <div class="diagram-node">
-                <div class="diagram-badge">Done</div>
-                <div class="diagram-title">It’s yours</div>
-                <div class="diagram-desc">Now you can link it to content</div>
-              </div>
-            </div>
-
-            <div class="discover-cta">
-              <button class="cta-btn" type="button" @click="goto('lumen://domain')">
+              <p>Go to Domains, click <strong>Buy domain</strong>, choose a name like <code>yourname.lmn</code>.</p>
+              <button class="step-action" type="button" @click="goto('lumen://domain')">
                 <Link2 :size="18" />
                 <span>Open Domains</span>
               </button>
             </div>
-          </section>
 
-          <section class="discover-section">
-            <h4 class="discover-section-title">Step 3 - Link the domain to your Drive content</h4>
-            <p class="discover-section-text">
-              You will paste the link from Drive into your domain settings.
-            </p>
-
-            <div class="discover-note">
-              1) In <strong>Drive</strong>, click <strong>Share</strong> on your file or folder.<br />
-              2) You will get a link that looks like: <code>lumen://ipfs/XXXX</code><br />
-              3) Copy only the <code>XXXX</code> part (the part after <code>lumen://ipfs/</code>).<br />
-              4) Go to <strong>Domains</strong> -> <strong>Settings</strong> -> add a record:<br />
-              <span class="mono-inline">Key</span>: <code>cid</code><br />
-              <span class="mono-inline">Value</span>: <code>XXXX</code><br />
-              5) Click <strong>Save</strong>.
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h4>Link Domain to Content</h4>
+              </div>
+              <p>In Domain settings, add a record with <code>Key: cid</code> and <code>Value: your-content-hash</code>.</p>
             </div>
-          </section>
 
-          <section class="discover-section">
-            <h4 class="discover-section-title">Step 4 - Open your website</h4>
-            <p class="discover-section-text">
-              Type <code>lumen://your-name.lmn</code> in the address bar. If you update your Drive content later, you can come back
-              and update the link in domain settings.
-            </p>
-
-            <div class="discover-cta">
-              <button class="cta-btn" type="button" @click="goto('lumen://newtab')">
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h4>Visit Your Site</h4>
+              </div>
+              <p>Type <code>lumen://yourname.lmn</code> in the address bar to access your decentralized website!</p>
+              <button class="step-action" type="button" @click="goto('lumen://newtab')">
                 <Globe :size="18" />
-                <span>Open a New Tab</span>
+                <span>Open New Tab</span>
               </button>
             </div>
-          </section>
+          </div>
         </div>
       </div>
 
       <!-- Contact View -->
       <div v-else-if="currentView === 'contact'" class="content-area">
-        <div class="contact-section">
-          <h3>Get in Touch</h3>
-          <p>Need help? We're here to assist you.</p>
-          <div class="contact-methods">
-            <button class="contact-item contact-link" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
-              <MessageCircle :size="20" />
-              <div>
-                <strong>Discord</strong>
-                <p>Join our community</p>
+        <div class="discover">
+          <!-- Hero -->
+          <section class="hero-section small">
+            <div class="hero-content">
+              <h2 class="hero-title">Get <span class="gradient-text">Help</span></h2>
+              <p class="hero-subtitle">Connect with our community and get support</p>
+            </div>
+          </section>
+
+          <!-- Contact Cards -->
+          <div class="contact-grid">
+            <button class="contact-card" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
+              <div class="contact-icon discord">
+                <MessageCircle :size="28" />
               </div>
+              <div class="contact-info">
+                <h4>Discord Community</h4>
+                <p>Join our active community, ask questions, and get help from other users.</p>
+              </div>
+              <ArrowRight :size="18" class="contact-arrow" />
             </button>
-            <button class="contact-item contact-link" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
-              <Github :size="20" />
-              <div>
-                <strong>GitHub</strong>
-                <p>Report issues and contribute</p>
+
+            <button class="contact-card" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
+              <div class="contact-icon github">
+                <Github :size="28" />
               </div>
+              <div class="contact-info">
+                <h4>GitHub</h4>
+                <p>Report bugs, contribute to the codebase, or explore our open-source projects.</p>
+              </div>
+              <ArrowRight :size="18" class="contact-arrow" />
+            </button>
+
+            <button class="contact-card" type="button" @click="openInNewTabSafe('https://lumen.network')">
+              <div class="contact-icon website">
+                <Globe :size="28" />
+              </div>
+              <div class="contact-info">
+                <h4>Official Website</h4>
+                <p>Visit our website for documentation, news, and updates.</p>
+              </div>
+              <ArrowRight :size="18" class="contact-arrow" />
             </button>
           </div>
         </div>
@@ -536,8 +493,8 @@ function getViewDescription(): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.18);
+  background: var(--fill-blue);
+  border: 1px solid rgba(var(--ios-blue-rgb), 0.18);
   color: var(--ios-blue);
   flex: 0 0 auto;
 }
@@ -561,8 +518,9 @@ function getViewDescription(): string {
   font-size: 0.85em;
   padding: 0.1rem 0.35rem;
   border-radius: 0.4rem;
-  background: rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--fill-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .mono-inline {
@@ -570,8 +528,9 @@ function getViewDescription(): string {
   font-size: 0.85em;
   padding: 0.1rem 0.35rem;
   border-radius: 0.4rem;
-  background: rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--fill-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .discover-flow {
@@ -608,8 +567,8 @@ function getViewDescription(): string {
   margin-top: 0.85rem;
   padding: 0.75rem 0.85rem;
   border-radius: 14px;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.14);
+  background: var(--fill-blue);
+  border: 1px solid rgba(var(--ios-blue-rgb), 0.14);
   color: var(--text-primary);
   font-size: 0.9rem;
   line-height: 1.35;
@@ -624,20 +583,20 @@ function getViewDescription(): string {
 
 .diagram-node {
   border-radius: 16px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid var(--border-color);
+  background: var(--fill-tertiary);
   padding: 0.85rem 0.9rem;
   min-width: 0;
 }
 
 .diagram-node.diagram-accent {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(15, 23, 42, 0.02));
-  border-color: rgba(59, 130, 246, 0.22);
+  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.14), var(--fill-tertiary));
+  border-color: rgba(var(--ios-blue-rgb), 0.22);
 }
 
 .diagram-node.diagram-wide {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.02));
-  border-color: rgba(34, 197, 94, 0.20);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.12), var(--fill-tertiary));
+  border-color: rgba(var(--ios-green-rgb), 0.20);
 }
 
 .diagram-badge {
@@ -646,9 +605,9 @@ function getViewDescription(): string {
   font-weight: 850;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.7);
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(15, 23, 42, 0.10);
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   padding: 0.18rem 0.5rem;
   border-radius: 999px;
   margin-bottom: 0.5rem;
@@ -668,7 +627,7 @@ function getViewDescription(): string {
 }
 
 .diagram-arrow {
-  color: rgba(15, 23, 42, 0.35);
+  color: var(--text-tertiary);
   align-self: center;
 }
 
@@ -685,9 +644,9 @@ function getViewDescription(): string {
   font-weight: 800;
   font-size: 0.8rem;
   padding: 0.45rem 0.65rem;
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--fill-blue);
   color: var(--text-primary);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .flow-body {
@@ -707,7 +666,7 @@ function getViewDescription(): string {
 }
 
 .flow-arrow {
-  color: rgba(15, 23, 42, 0.35);
+  color: var(--text-tertiary);
   flex: 0 0 auto;
 }
 
@@ -723,7 +682,7 @@ function getViewDescription(): string {
   gap: 0.55rem;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  background: rgba(15, 23, 42, 0.04);
+  background: var(--fill-tertiary);
   color: var(--text-primary);
   padding: 0.7rem 0.9rem;
   font-weight: 750;
@@ -732,114 +691,14 @@ function getViewDescription(): string {
 }
 
 .cta-btn:hover {
-  background: rgba(15, 23, 42, 0.07);
+  background: var(--hover-bg);
 }
 
 .cta-btn:active {
   transform: scale(0.99);
 }
 
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-lg);
-  color: white;
-  box-shadow: var(--shadow-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 1.5rem;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  border: none;
-  background: transparent;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--fs-base);
-  font-weight: 400;
-  color: var(--text-primary);
-  transition: all var(--transition-fast);
-  letter-spacing: -0.022em;
-}
-
-.nav-item:hover {
-  background: var(--hover-bg);
-}
-
-.nav-item.active {
-  background: var(--ios-blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: var(--shadow-primary);
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
-.nav-item.active {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
+/* Main Content */
 .main-content {
   flex: 1;
   min-width: 0;
@@ -1002,48 +861,9 @@ function getViewDescription(): string {
   margin: 0;
 }
 
-@media (max-width: 900px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
-  }
-}
-
 @media (max-width: 700px) {
   .help-page {
     flex-direction: column;
-  }
-  
-  .sidebar {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    flex-direction: row;
-    padding: 1rem;
-    overflow-x: auto;
-  }
-  
-  .sidebar-header {
-    margin-bottom: 0;
-    margin-right: 1rem;
-  }
-  
-  .sidebar-nav {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-  
-  .nav-section {
-    flex-direction: row;
-  }
-  
-  .nav-label {
-    display: none;
-  }
-  
-  .nav-item span {
-    display: none;
   }
   
   .main-content {
@@ -1074,5 +894,425 @@ function getViewDescription(): string {
     transform: rotate(90deg);
     justify-self: center;
   }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-features {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.hero-section.small {
+  padding: 1.5rem;
+}
+
+.hero-content {
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.hero-features {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.feature-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.point-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.point-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.point-text strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.point-text span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Quick Actions */
+.quick-actions,
+.how-it-works,
+.features-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.action-card:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.action-icon.drive {
+  background: var(--fill-blue);
+  color: var(--ios-blue);
+}
+
+.action-icon.domain {
+  background: var(--fill-purple);
+  color: var(--ios-purple);
+}
+
+.action-icon.wallet {
+  background: var(--fill-green);
+  color: var(--ios-green);
+}
+
+.action-icon.search {
+  background: var(--fill-orange);
+  color: var(--ios-orange);
+}
+
+.action-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.action-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.action-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.action-arrow {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* Steps Grid */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.step-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.step-card .step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-card .step-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.step-card .step-content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.feature-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--fill-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ios-blue);
+  flex-shrink: 0;
+}
+
+.feature-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.feature-content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Tutorial Steps */
+.tutorial-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tutorial-step {
+  padding: 1.25rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.tutorial-step .step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tutorial-step p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.step-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.step-action:hover {
+  background: var(--hover-bg);
+}
+
+/* Contact Grid */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.contact-card:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+}
+
+.contact-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-icon.discord {
+  background: var(--fill-purple);
+  color: var(--ios-purple);
+}
+
+.contact-icon.github {
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
+}
+
+.contact-icon.website {
+  background: var(--fill-blue);
+  color: var(--ios-blue);
+}
+
+.contact-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-info h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.contact-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.contact-arrow {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
 }
 </style>

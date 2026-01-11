@@ -500,6 +500,61 @@ html, body {
     transition: background-color 0.15s ease;
 }
 
+/* ========== INTERNAL SIDEBAR NAVIGATION (lsb-*) ========== */
+.lsb-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.lsb-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.lsb-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.lsb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.85rem;
+    border: none;
+    background: transparent;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.lsb-item:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.lsb-item.active {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 12px var(--primary-a30);
+}
+
+.lsb-item svg {
+    flex-shrink: 0;
+}
+
 .table-row-hover:hover {
     background-color: var(--hover-bg);
 }

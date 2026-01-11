@@ -63,10 +63,12 @@ getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavouri
     select: (id) => ipcRenderer.invoke('profiles:setActive', id),
     create: (name) => ipcRenderer.invoke('profiles:create', name),
     export: (id) => ipcRenderer.invoke('profiles:export', id),
-    exportBackup: (id) => ipcRenderer.invoke('profiles:exportBackup', id),
-    exportBackups: (ids) => ipcRenderer.invoke('profiles:exportBackups', ids),
+    checkExportRequiresPassword: (id) => ipcRenderer.invoke('profiles:checkExportRequiresPassword', id),
+    exportBackup: (id, password, encryptOutput) => ipcRenderer.invoke('profiles:exportBackup', id, password, encryptOutput),
+    exportBackups: (ids, password, encryptOutput) => ipcRenderer.invoke('profiles:exportBackups', ids, password, encryptOutput),
     import: (json) => ipcRenderer.invoke('profiles:import', json),
     importBackup: () => ipcRenderer.invoke('profiles:importBackup'),
+    importEncryptedBackup: (filePath, password) => ipcRenderer.invoke('profiles:importEncryptedBackup', filePath, password),
     delete: (id) => ipcRenderer.invoke('profiles:delete', id)
   },
   rpc: {
@@ -125,6 +127,15 @@ getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavouri
     add: (contact) => ipcRenderer.invoke('addressbook:add', contact),
     update: (id, updates) => ipcRenderer.invoke('addressbook:update', id, updates),
     delete: (id) => ipcRenderer.invoke('addressbook:delete', id)
+  },
+  security: {
+    getStatus: () => ipcRenderer.invoke('security:getStatus'),
+    setPassword: (payload) => ipcRenderer.invoke('security:setPassword', payload || {}),
+    verifyPassword: (payload) => ipcRenderer.invoke('security:verifyPassword', payload || {}),
+    removePassword: (payload) => ipcRenderer.invoke('security:removePassword', payload || {}),
+    lockSession: () => ipcRenderer.invoke('security:lockSession'),
+    checkSession: () => ipcRenderer.invoke('security:checkSession'),
+    extendSession: () => ipcRenderer.invoke('security:extendSession')
   }
 });
 

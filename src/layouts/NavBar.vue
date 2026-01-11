@@ -161,6 +161,136 @@
       </div>
     </div>
   </header>
+
+  <!-- Export Options Modal -->
+  <Teleport to="body">
+    <div v-if="showExportModal" class="export-modal-overlay" @click.self="cancelExportModal">
+      <div class="export-modal">
+        <div class="export-modal-header">
+          <h3>Export Profile</h3>
+          <button type="button" class="export-modal-close" @click="cancelExportModal">×</button>
+        </div>
+        
+        <div class="export-modal-body">
+          <p class="export-modal-desc">
+            Export your profile backup.
+            <template v-if="exportRequiresPassword">
+              <br/><strong>Note:</strong> Your wallet is password-protected. Enter your password to include wallet data in the backup.
+            </template>
+            <template v-else>
+              You can optionally encrypt it with a password.
+            </template>
+          </p>
+          
+          <!-- Password required for decryption notice -->
+          <div v-if="exportRequiresPassword" class="export-password-fields">
+            <div class="export-field">
+              <label>Wallet Password</label>
+              <input 
+                type="password" 
+                v-model="exportPassword" 
+                placeholder="Enter your wallet password"
+                class="export-input"
+                @keyup.enter="confirmExportProfile"
+              />
+            </div>
+            
+            <label class="export-option" style="margin-top: 12px;">
+              <input type="checkbox" v-model="exportEncrypted" />
+              <span class="export-option-label">Also encrypt the backup file with this password</span>
+            </label>
+          </div>
+          
+          <!-- Optional encryption for non-protected wallets -->
+          <template v-if="!exportRequiresPassword">
+            <label class="export-option">
+              <input type="checkbox" v-model="exportEncrypted" />
+              <span class="export-option-label">Encrypt backup with password</span>
+            </label>
+            
+            <div v-if="exportEncrypted" class="export-password-fields">
+              <div class="export-field">
+                <label>Password</label>
+                <input 
+                  type="password" 
+                  v-model="exportPassword" 
+                  placeholder="Enter password (min 6 characters)"
+                  class="export-input"
+                />
+              </div>
+              <div class="export-field">
+                <label>Confirm Password</label>
+                <input 
+                  type="password" 
+                  v-model="exportPasswordConfirm" 
+                  placeholder="Confirm password"
+                  class="export-input"
+                  @keyup.enter="confirmExportProfile"
+                />
+              </div>
+            </div>
+          </template>
+          
+          <div v-if="exportError" class="export-error">
+            {{ exportError }}
+          </div>
+          
+          <div class="export-modal-actions">
+            <UiButton variant="none" class="export-btn cancel" @click="cancelExportModal">
+              Cancel
+            </UiButton>
+            <UiButton variant="none" class="export-btn confirm" @click="confirmExportProfile">
+              Export {{ exportEncrypted ? '(Encrypted)' : '' }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- Import Password Modal (for encrypted backups) -->
+  <Teleport to="body">
+    <div v-if="showImportPasswordModal" class="export-modal-overlay" @click.self="cancelImportPasswordModal">
+      <div class="export-modal">
+        <div class="export-modal-header">
+          <h3>Encrypted Backup</h3>
+          <button type="button" class="export-modal-close" @click="cancelImportPasswordModal">×</button>
+        </div>
+        
+        <div class="export-modal-body">
+          <p class="export-modal-desc">
+            This backup is encrypted. Please enter the password to decrypt and import it.
+          </p>
+          
+          <div class="export-password-fields">
+            <div class="export-field">
+              <label>Backup Password</label>
+              <input 
+                type="password" 
+                v-model="importPassword" 
+                placeholder="Enter backup password"
+                class="export-input"
+                @keyup.enter="confirmImportEncrypted"
+              />
+            </div>
+          </div>
+          
+          <div v-if="importError" class="export-error">
+            {{ importError }}
+          </div>
+          
+          <div class="export-modal-actions">
+            <UiButton variant="none" class="export-btn cancel" @click="cancelImportPasswordModal">
+              Cancel
+            </UiButton>
+            <UiButton variant="none" class="export-btn confirm" @click="confirmImportEncrypted">
+              Import
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -178,7 +308,7 @@ import {
   deleteProfile,
   initProfiles,
   exportProfileBackup,
-  importProfileFromBackup
+  importProfilesFromBackup
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
 
@@ -216,6 +346,20 @@ const showProfileMenu = ref(false);
 const creatingProfile = ref(false);
 const newProfileName = ref('');
 const profileMessage = ref('');
+
+// Export modal state
+const showExportModal = ref(false);
+const exportEncrypted = ref(false);
+const exportRequiresPassword = ref(false); // true if keystore/pqc is password-protected
+const exportPassword = ref('');
+const exportPasswordConfirm = ref('');
+const exportError = ref('');
+
+// Import encrypted modal state
+const showImportPasswordModal = ref(false);
+const importPassword = ref('');
+const importError = ref('');
+const pendingEncryptedFile = ref<string | null>(null);
 
 const profiles = profilesState;
 
@@ -350,35 +494,183 @@ function onCreateProfileClick() {
 async function onExportProfile() {
   const id = activeProfileId.value;
   if (!id) return;
+  
+  // Check if profile requires password to decrypt data
+  exportRequiresPassword.value = false;
   try {
-    const res = await exportProfileBackup(id);
-    if (!res || res.ok === false) {
-      profileMessage.value = 'Backup export failed.';
+    const api = (window as any).lumen?.profiles;
+    console.log('[NavBar] checkExportRequiresPassword API available:', !!api?.checkExportRequiresPassword);
+    if (api?.checkExportRequiresPassword) {
+      const check = await api.checkExportRequiresPassword(id);
+      console.log('[NavBar] checkExportRequiresPassword result:', check);
+      if (check?.ok && check.requiresPassword) {
+        exportRequiresPassword.value = true;
+      }
+    }
+  } catch (e) {
+    console.error('[NavBar] checkExportRequiresPassword error:', e);
+  }
+  
+  console.log('[NavBar] exportRequiresPassword after check:', exportRequiresPassword.value);
+  
+  // Show export options modal
+  showExportModal.value = true;
+  exportEncrypted.value = false;
+  exportPassword.value = '';
+  exportPasswordConfirm.value = '';
+  exportError.value = '';
+}
+
+function cancelExportModal() {
+  showExportModal.value = false;
+  exportEncrypted.value = false;
+  exportRequiresPassword.value = false;
+  exportPassword.value = '';
+  exportPasswordConfirm.value = '';
+  exportError.value = '';
+}
+
+async function confirmExportProfile() {
+  const id = activeProfileId.value;
+  if (!id) return;
+  
+  // Password is required if:
+  // 1. User wants encrypted output, OR
+  // 2. Profile data is password-protected (needs password to decrypt)
+  const needsPassword = exportEncrypted.value || exportRequiresPassword.value;
+  
+  // Validate password
+  if (needsPassword) {
+    if (!exportPassword.value) {
+      exportError.value = exportRequiresPassword.value 
+        ? 'Password is required to decrypt your wallet data for export.'
+        : 'Password is required for encrypted export.';
       return;
     }
+    if (exportPassword.value.length < 6) {
+      exportError.value = 'Password must be at least 6 characters.';
+      return;
+    }
+    // Only require confirm if encrypting output AND NOT using existing wallet password
+    // (when exportRequiresPassword is true, user is entering their existing wallet password)
+    if (exportEncrypted.value && !exportRequiresPassword.value && exportPassword.value !== exportPasswordConfirm.value) {
+      exportError.value = 'Passwords do not match.';
+      return;
+    }
+  }
+  
+  exportError.value = '';
+  
+  try {
+    // Always pass password if user entered one (either for decryption or encryption)
+    // Don't rely on needsPassword flag - if there's a password entered, send it
+    const password = exportPassword.value && exportPassword.value.length >= 6 ? exportPassword.value : undefined;
+    
+    // encryptOutput is true when user explicitly wants to encrypt the backup file
+    const encryptOutput = exportEncrypted.value;
+    
+    // Debug: show an alert with the values before export
+    const debugInfo = `Password: ${password ? password.length + ' chars' : 'none'}\nEncrypt output: ${encryptOutput}\nrequiresPassword: ${exportRequiresPassword.value}`;
+    console.log('[NavBar] Export debug:', debugInfo);
+    
+    // Call IPC directly to bypass any module caching issues
+    const api = (window as any).lumen?.profiles;
+    console.log('[NavBar] Direct IPC call - password:', password ? `${password.length} chars` : 'none', 'encryptOutput:', encryptOutput);
+    if (!api || typeof api.exportBackup !== 'function') {
+      exportError.value = 'Export API not available';
+      return;
+    }
+    
+    const res = await api.exportBackup(id, password, encryptOutput);
+    console.log('[NavBar] Direct IPC result:', res);
+    
+    if (!res || res.ok === false) {
+      // Handle specific error messages
+      if (res?.error === 'invalid_password') {
+        exportError.value = 'Incorrect password. Please try again.';
+        return;
+      }
+      if (res?.error === 'password_required_for_export') {
+        exportError.value = 'Password is required to decrypt wallet data.';
+        exportRequiresPassword.value = true;
+        return;
+      }
+      exportError.value = res?.error || 'Backup export failed.';
+      return;
+    }
+    
+    cancelExportModal();
     profileMessage.value = res.path
-      ? `Backup folder created at: ${res.path}`
+      ? `Backup ${exportEncrypted.value ? '(encrypted) ' : ''}created at: ${res.path}`
       : 'Backup folder created for this profile.';
-  } catch {
-    profileMessage.value = 'Backup export failed.';
+  } catch (e: any) {
+    exportError.value = e?.message || 'Backup export failed.';
   }
 }
 
 function onImportProfileClick() {
   // Use backup import flow instead of raw JSON.
-  importProfileFromBackup()
-    .then((imported) => {
-      if (imported) {
-        profileMessage.value = 'Profile imported from backup.';
+  importProfilesFromBackup()
+    .then((result) => {
+      if (result.ok) {
+        profileMessage.value = `Imported ${result.imported || 1} profile(s) from backup.`;
         showProfileMenu.value = false;
         resetProfileUi();
+      } else if (result.error === 'encrypted_backup_found' && result.encryptedFiles?.length) {
+        // Show password modal for encrypted backup
+        pendingEncryptedFile.value = result.encryptedFiles[0];
+        importPassword.value = '';
+        importError.value = '';
+        showImportPasswordModal.value = true;
+      } else if (result.error === 'canceled') {
+        // User canceled, don't show error
       } else {
-        profileMessage.value = 'Backup import canceled or failed.';
+        profileMessage.value = result.error || 'Backup import failed.';
       }
     })
     .catch(() => {
       profileMessage.value = 'Backup import failed.';
     });
+}
+
+function cancelImportPasswordModal() {
+  showImportPasswordModal.value = false;
+  importPassword.value = '';
+  importError.value = '';
+  pendingEncryptedFile.value = null;
+}
+
+async function confirmImportEncrypted() {
+  if (!pendingEncryptedFile.value || !importPassword.value) {
+    importError.value = 'Password is required.';
+    return;
+  }
+
+  importError.value = '';
+
+  try {
+    const api = (window as any).lumen?.profiles;
+    if (!api || typeof api.importEncryptedBackup !== 'function') {
+      importError.value = 'Import API not available.';
+      return;
+    }
+
+    const res = await api.importEncryptedBackup(pendingEncryptedFile.value, importPassword.value);
+    
+    if (res && res.ok) {
+      cancelImportPasswordModal();
+      await initProfiles();
+      profileMessage.value = 'Encrypted profile imported successfully.';
+      showProfileMenu.value = false;
+      resetProfileUi();
+    } else if (res?.error === 'invalid_password') {
+      importError.value = 'Invalid password. Please try again.';
+    } else {
+      importError.value = res?.error || 'Import failed.';
+    }
+  } catch (e: any) {
+    importError.value = e?.message || 'Import failed.';
+  }
 }
 
 async function confirmCreateProfile() {
@@ -621,5 +913,172 @@ onBeforeUnmount(() => {
   font-size: var(--fs-sm);
   color: var(--text-tertiary);
   padding: 0.25rem 0.25rem;
+}
+
+/* Export Modal */
+.export-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.export-modal {
+  background: var(--card-bg, #fff);
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  min-width: 380px;
+  max-width: 90vw;
+  overflow: hidden;
+}
+
+.export-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.export-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.export-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.export-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.export-modal-body {
+  padding: 1.25rem;
+}
+
+.export-modal-desc {
+  margin: 0 0 1rem 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-md);
+  transition: background 0.2s;
+}
+
+.export-option:hover {
+  background: var(--hover-bg);
+}
+
+.export-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-primary);
+}
+
+.export-option-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.export-password-fields {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-secondary, #f8fafc);
+  border-radius: var(--border-radius-md);
+}
+
+.export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.export-field label {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.export-input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+}
+
+.export-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.export-error {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius-md);
+  color: #ef4444;
+  font-size: var(--fs-sm);
+}
+
+.export-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.export-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn.cancel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.export-btn.cancel:hover {
+  background: var(--hover-bg);
+}
+
+.export-btn.confirm {
+  background: var(--accent-primary);
+  border: none;
+  color: #fff;
+}
+
+.export-btn.confirm:hover {
+  filter: brightness(1.1);
 }
 </style>

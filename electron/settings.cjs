@@ -4,7 +4,10 @@ const path = require('node:path');
 
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8080',
-  ipfsApiBase: 'http://127.0.0.1:5001'
+  ipfsApiBase: 'http://127.0.0.1:5001',
+  // Security settings
+  securityPasswordEnabled: false,
+  securityPasswordHash: null // { hash, salt, algorithm, params }
 });
 
 let cached = null;
@@ -71,7 +74,9 @@ function getSettings() {
   const disk = loadSettingsFromDisk();
   const settings = {
     localGatewayBase: normalizeBaseUrl(disk.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase),
-    ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase)
+    ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase),
+    securityPasswordEnabled: !!disk.securityPasswordEnabled,
+    securityPasswordHash: disk.securityPasswordHash || null
   };
   cached = settings;
   return settings;
@@ -121,9 +126,64 @@ function getSetting(key) {
   return s && Object.prototype.hasOwnProperty.call(s, key) ? s[key] : undefined;
 }
 
+/**
+ * Get security status (without exposing the full hash to renderer)
+ */
+function getSecurityStatus() {
+  const s = getSettings();
+  return {
+    passwordEnabled: !!s.securityPasswordEnabled,
+    hasPassword: !!(s.securityPasswordHash && s.securityPasswordHash.hash)
+  };
+}
+
+/**
+ * Set security password hash (internal use only)
+ */
+function setSecurityPassword(passwordHash) {
+  const current = getSettings();
+  const next = {
+    ...current,
+    securityPasswordEnabled: !!(passwordHash && passwordHash.hash),
+    securityPasswordHash: passwordHash || null
+  };
+  cached = next;
+  persistSettingsToDisk(next);
+  broadcastSettingsChanged({ securityPasswordEnabled: next.securityPasswordEnabled });
+  return { ok: true };
+}
+
+/**
+ * Remove security password
+ */
+function removeSecurityPassword() {
+  const current = getSettings();
+  const next = {
+    ...current,
+    securityPasswordEnabled: false,
+    securityPasswordHash: null
+  };
+  cached = next;
+  persistSettingsToDisk(next);
+  broadcastSettingsChanged({ securityPasswordEnabled: false });
+  return { ok: true };
+}
+
+/**
+ * Get stored password hash for verification (internal use only)
+ */
+function getStoredPasswordHash() {
+  const s = getSettings();
+  return s.securityPasswordHash || null;
+}
+
 module.exports = {
   DEFAULT_SETTINGS,
   getSettings,
   setSettings,
-  getSetting
+  getSetting,
+  getSecurityStatus,
+  setSecurityPassword,
+  removeSecurityPassword,
+  getStoredPasswordHash
 };

@@ -19,9 +19,11 @@ declare global {
         select: (id: string) => Promise<string>;
         create: (name: string) => Promise<Profile | null>;
         export: (id: string) => Promise<string | null>;
-        exportBackup?: (id: string) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
+        checkExportRequiresPassword?: (id: string) => Promise<{ ok: boolean; requiresPassword?: boolean; error?: string }>;
+        exportBackup?: (id: string, password?: string) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
         exportBackups?: (
-          ids: string[]
+          ids: string[],
+          password?: string
         ) => Promise<
           | {
               ok: boolean;
@@ -144,16 +146,21 @@ export async function deleteProfile(id: string): Promise<boolean> {
   }
 }
 
-export async function exportProfileBackup(id: string): Promise<{ ok: boolean; path?: string; error?: string }> {
+export async function exportProfileBackup(id: string, password?: string, encryptOutput?: boolean): Promise<{ ok: boolean; path?: string; error?: string }> {
+  console.log('[profilesStore] exportProfileBackup called with:', { id, passwordProvided: !!password, passwordLength: password?.length, encryptOutput });
   try {
     const api = getApi();
+    console.log('[profilesStore] api available:', !!api, 'exportBackup func:', typeof api?.exportBackup);
     if (!api || typeof api.exportBackup !== 'function') {
       return { ok: false, error: 'backup_api_unavailable' };
     }
-    const res = await api.exportBackup(id);
+    console.log('[profilesStore] Calling api.exportBackup with password:', !!password, 'encryptOutput:', !!encryptOutput);
+    const res = await api.exportBackup(id, password, encryptOutput);
+    console.log('[profilesStore] api.exportBackup result:', res);
     if (!res) return { ok: false, error: 'backup_failed' };
     return res;
-  } catch {
+  } catch (e) {
+    console.error('[profilesStore] exportProfileBackup error:', e);
     return { ok: false, error: 'backup_failed' };
   }
 }
@@ -194,6 +201,7 @@ export async function importProfilesFromBackup(): Promise<{
   imported?: number;
   results?: { ok: boolean; path: string; id?: string; error?: string }[];
   error?: string;
+  encryptedFiles?: string[];
 }> {
   try {
     const api = getApi();
@@ -202,9 +210,9 @@ export async function importProfilesFromBackup(): Promise<{
     }
     const res = await api.importBackup();
     if (!res) return { ok: false, error: 'backup_failed' };
-    if (res.ok === false) return res;
+    if (res.ok === false) return res as any;
     await initProfiles();
-    return res;
+    return res as any;
   } catch {
     return { ok: false, error: 'backup_failed' };
   }

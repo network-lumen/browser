@@ -746,7 +746,7 @@
 
             <button 
               class="confirm-btn" 
-              @click="confirmStakeAction" 
+              @click="() => confirmStakeAction()" 
               :disabled="!canConfirm || isProcessingTx"
             >
               <span v-if="!isProcessingTx">Confirm {{ currentStakeAction }}</span>
@@ -756,6 +756,14 @@
         </div>
       </div>
     </div>
+    
+    <!-- Password Modal -->
+    <PasswordPromptModal
+      :visible="showPasswordModal"
+      :message="passwordModalMessage"
+      @confirm="handlePasswordConfirm"
+      @cancel="handlePasswordCancel"
+    />
     </template>
   </div>
 </template>
@@ -767,6 +775,7 @@ import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 import { LayoutGrid } from 'lucide-vue-next';
 
 const lumen = (window as any).lumen;
@@ -894,6 +903,15 @@ const txMessage = ref('');
 const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 const txHash = ref('');
 
+// Password modal state
+const showPasswordModal = ref(false);
+const passwordModalMessage = ref('');
+const pendingStakeOperation = ref<{
+  action: string;
+  params: any;
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+} | null>(null);
 const bondedTokens = ref(114760000);
 const unbondedTokens = ref(385240000);
 const totalSupply = ref(500000000);
@@ -1446,7 +1464,7 @@ const canConfirm = computed(() => {
   return true;
 });
 
-async function confirmStakeAction() {
+async function confirmStakeAction(password?: string) {
   if (!canConfirm.value || !activeProfile.value || !selectedValidator.value) return;
   
   const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
@@ -1488,15 +1506,18 @@ async function confirmStakeAction() {
     console.log('Validator:', selectedValidator.value.address);
     console.log('Amount (ulmn):', amountInUlmn);
     
+    const baseParams = {
+      profileId: profileId,
+      address: profileAddress,
+      validatorAddress: selectedValidator.value.address,
+      amount: { amount: amountInUlmn, denom: 'ulmn' },
+      ...(password ? { password } : {})
+    };
+    
     switch (currentStakeAction.value) {
       case 'Delegate':
         if (typeof walletApi.delegate === 'function') {
-          result = await walletApi.delegate({
-            profileId: profileId,
-            address: profileAddress,
-            validatorAddress: selectedValidator.value.address,
-            amount: { amount: amountInUlmn, denom: 'ulmn' }
-          });
+          result = await walletApi.delegate(baseParams);
         } else {
           throw new Error('Delegate function not available');
         }
@@ -1504,12 +1525,7 @@ async function confirmStakeAction() {
         
       case 'Undelegate':
         if (typeof walletApi.undelegate === 'function') {
-          result = await walletApi.undelegate({
-            profileId: profileId,
-            address: profileAddress,
-            validatorAddress: selectedValidator.value.address,
-            amount: { amount: amountInUlmn, denom: 'ulmn' }
-          });
+          result = await walletApi.undelegate(baseParams);
         } else {
           throw new Error('Undelegate function not available');
         }
@@ -1522,7 +1538,8 @@ async function confirmStakeAction() {
             address: profileAddress,
             validatorSrcAddress: selectedValidator.value.address,
             validatorDstAddress: targetValidator.value,
-            amount: { amount: amountInUlmn, denom: 'ulmn' }
+            amount: { amount: amountInUlmn, denom: 'ulmn' },
+            ...(password ? { password } : {})
           });
         } else {
           throw new Error('Redelegate function not available');
@@ -1534,7 +1551,8 @@ async function confirmStakeAction() {
           result = await walletApi.withdrawRewards({
             profileId: profileId,
             address: profileAddress,
-            validatorAddress: selectedValidator.value.address
+            validatorAddress: selectedValidator.value.address,
+            ...(password ? { password } : {})
           });
         } else {
           throw new Error('WithdrawRewards function not available');
@@ -1543,6 +1561,17 @@ async function confirmStakeAction() {
     }
     
     console.log('Transaction result:', result);
+    
+    // Handle password_required error
+    if (result?.ok === false && (result?.error === 'password_required' || result?.error === 'invalid_password')) {
+      isProcessingTx.value = false;
+      txStatus.value = 'idle';
+      txMessage.value = '';
+      
+      passwordModalMessage.value = `Enter your password to ${currentStakeAction.value.toLowerCase()}.`;
+      showPasswordModal.value = true;
+      return;
+    }
     
     if (result && result.ok !== false) {
       txStatus.value = 'success';
@@ -1562,6 +1591,17 @@ async function confirmStakeAction() {
   } finally {
     isProcessingTx.value = false;
   }
+}
+
+async function handlePasswordConfirm(password: string) {
+  showPasswordModal.value = false;
+  await confirmStakeAction(password);
+}
+
+function handlePasswordCancel() {
+  showPasswordModal.value = false;
+  txStatus.value = 'idle';
+  txMessage.value = '';
 }
 
 watch(stakePercentage, (newVal) => {
