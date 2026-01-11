@@ -57,6 +57,7 @@ contextBridge.exposeInMainWorld('lumen', {
     getParams: () => ipcRenderer.invoke('pqc:getParams')
   },
   profiles: {
+getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavourite: (domain, cid) => ipcRenderer.invoke('profiles:setFavourite', domain, cid),    removeFavourite: (domain) => ipcRenderer.invoke('profiles:removeFavourite', domain),
     list: () => ipcRenderer.invoke('profiles:list'),
     getActive: () => ipcRenderer.invoke('profiles:getActive'),
     select: (id) => ipcRenderer.invoke('profiles:setActive', id),

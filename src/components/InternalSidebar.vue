@@ -15,12 +15,32 @@
 
     <div class="lumen-sidebar-scroll">
       <slot />
-      <AllPagesDropdown v-if="showAllPages" :activeKey="activeKey" :exclude="allPagesExclude" />
+
+      <AllPagesDropdown
+        v-if="showAllPages"
+        :activeKey="activeKey"
+        :exclude="allPagesExclude"
+      />
+
+      <!-- ⭐ FAVOURITES -->
+      <div v-if="favourites.length" class="sidebar-section">
+        <div class="sidebar-title">⭐ Favourites</div>
+        <button
+          class="sidebar-item"
+          v-for="url in favourites"
+          :key="url"
+          @click="$emit('goto', url)"
+        >
+          {{ url.replace('lumen://', '') }}
+        </button>
+      </div>
     </div>
 
     <div v-if="showVersion || $slots.footer" class="lumen-sidebar-footer">
       <slot name="footer" />
-      <div v-if="showVersion" class="lumen-sidebar-version">Lumen v{{ appVersion }}</div>
+      <div v-if="showVersion" class="lumen-sidebar-version">
+        Lumen v{{ appVersion }}
+      </div>
     </div>
   </aside>
 </template>
@@ -28,9 +48,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { profilesState, activeProfileId } from '../internal/profilesStore';
+import { useFavourites } from '../internal/favouritesStore';
+
 import ActiveProfileCard from './ActiveProfileCard.vue';
 import AllPagesDropdown from './AllPagesDropdown.vue';
 import pkg from '../../package.json';
+
+const { favourites } = useFavourites();
 
 const props = withDefaults(defineProps<{
   title: string;
@@ -49,10 +73,37 @@ const props = withDefaults(defineProps<{
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
 const profiles = profilesState;
-const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
+const activeProfile = computed(() =>
+  profiles.value.find((p) => p.id === activeProfileId.value) || null
+);
 </script>
 
 <style scoped>
+/* ===== FAVOURITES ===== */
+.sidebar-section {
+  margin-top: 1rem;
+}
+.sidebar-title {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-bottom: 0.25rem;
+}
+.sidebar-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+.sidebar-item:hover {
+  background: var(--hover-bg);
+}
+
+/* ===== ORIGINAL STYLES ===== */
 .lumen-sidebar {
   width: 260px;
   min-width: 260px;
@@ -126,19 +177,6 @@ const activeProfile = computed(() => profiles.value.find((p) => p.id === activeP
   scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
 }
 
-.lumen-sidebar-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.lumen-sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.lumen-sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.45);
-  border-radius: 999px;
-}
-
 .lumen-sidebar-footer {
   padding-top: 0.75rem;
   display: flex;
@@ -151,86 +189,5 @@ const activeProfile = computed(() => profiles.value.find((p) => p.id === activeP
   text-align: center;
   font-size: 0.75rem;
   color: var(--text-tertiary);
-}
-
-/* Sidebar nav styles for slot content */
-.lumen-sidebar-scroll :deep(.lsb-nav) {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-section) {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-label) {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.4rem 0.75rem;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item) {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
-  user-select: none;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item:hover) {
-  background: var(--primary-a08);
-  color: var(--accent-primary);
-  transform: translateX(4px);
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item.active) {
-  background: var(--ios-blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: var(--shadow-primary);
-  transform: none;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item svg) {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item span) {
-  min-width: 0;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item--dropdown) {
-  justify-content: space-between;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary, white);
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item--dropdown:hover) {
-  background: var(--bg-secondary);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  transform: none;
-}
-
-.lumen-sidebar-scroll :deep(.lsb-item--compact) {
-  padding: 0.55rem 0.75rem;
 }
 </style>

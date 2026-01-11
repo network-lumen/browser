@@ -7,6 +7,7 @@ export type Profile = {
   role?: 'guest' | 'user';
   walletAddress?: string;
   address?: string;
+  favourites?: Record<string, string>;
 };
 
 declare global {
@@ -42,6 +43,9 @@ declare global {
           | null
         >;
         delete: (id: string) => Promise<{ profiles: Profile[]; activeId: string }>;
+        getFavourites?: () => Promise<Record<string, string>>;
+        setFavourite?: (domain: string, cid: string) => Promise<any>;
+        removeFavourite?: (domain: string) => Promise<any>;
       };
       staking?: {
         getDelegations: (profileId: string) => Promise<any>;
@@ -203,5 +207,38 @@ export async function importProfilesFromBackup(): Promise<{
     return res;
   } catch {
     return { ok: false, error: 'backup_failed' };
+  }
+}
+
+// ===== FAVOURITES API =====
+export async function getFavourites(): Promise<Record<string, string>> {
+  try {
+    const api = getApi();
+    if (!api || !api.getFavourites) return {};
+    return (await api.getFavourites()) || {};
+  } catch {
+    return {};
+  }
+}
+
+export async function addFavourite(domain: string, cid: string): Promise<boolean> {
+  try {
+    const api = getApi();
+    if (!api || !api.setFavourite) return false;
+    const res = await api.setFavourite(domain, cid);
+    return !!res?.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function removeFavourite(domain: string): Promise<boolean> {
+  try {
+    const api = getApi();
+    if (!api || !api.removeFavourite) return false;
+    const res = await api.removeFavourite(domain);
+    return !!res?.ok;
+  } catch {
+    return false;
   }
 }
