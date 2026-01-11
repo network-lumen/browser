@@ -815,7 +815,7 @@
     <!-- Plans Modal -->
     <Transition name="modal">
       <div v-if="showPlansModal" class="modal-overlay" @click="closePlansModal">
-        <div class="modal-content" @click.stop>
+        <div class="modal-content plans-modal" @click.stop>
           <div class="modal-header">
             <h3>Cloud plans</h3>
             <button class="modal-close" @click="closePlansModal">
@@ -894,45 +894,89 @@
                 </div>
               </div>
 
-              <!-- Filters -->
-              <div class="plans-controls">
-                <div class="plans-search-group">
-                  <div class="plans-search-input">
-                    <input
-                      v-model.trim="planFilter"
-                      type="search"
-                      placeholder="Search gateways or plans"
-                      class="plans-filter-input"
-                      @keydown.stop
-                      aria-label="Search gateways"
-                    />
-                  </div>
-                </div>
-              </div>
+               <!-- Filters -->
+               <div class="plans-controls">
+                 <div class="plans-controls-row">
+                   <div class="plans-search-group plans-search-group-primary">
+                     <div class="plans-search-input">
+                       <Search :size="16" class="plans-search-ico" />
+                       <input
+                         v-model.trim="planFilter"
+                         type="search"
+                         placeholder="Search gateways or plans"
+                         class="plans-filter-input"
+                         @keydown.stop
+                         aria-label="Search gateways"
+                       />
+                     </div>
 
-              <div v-if="!planGroups.length" class="plans-empty">
-                <h4>No gateways match your filters</h4>
-                <p class="plans-empty-muted">Try clearing filters or search.</p>
-                <div class="plans-empty-actions">
-                  <button
-                    v-if="planFilter"
-                    type="button"
-                    class="btn-ghost"
-                    @click="planFilter = ''"
-                  >
-                    Clear search
-                  </button>
-                </div>
-              </div>
+                     <select
+                       v-model="planRegion"
+                       class="plans-filter-select"
+                       aria-label="Region filter"
+                     >
+                       <option value="">All regions</option>
+                       <option v-for="r in planRegions" :key="r" :value="r">
+                         {{ r }}
+                       </option>
+                     </select>
+                   </div>
 
-              <!-- Grouped by gateway -->
-              <div v-if="planGroups.length" class="plans-grid">
-                <article
-                  v-for="group in planGroups"
-                  :key="group.gateway.id"
-                  class="gateway-card"
-                  :class="{ offline: !group.gateway.active }"
-                >
+                   <div class="plans-search-group plans-search-group-sort">
+                     <select
+                       v-model="planSortBy"
+                       class="plans-filter-select"
+                       aria-label="Sort by"
+                     >
+                       <option value="score-desc">Sort: Score (high-low)</option>
+                       <option value="name-asc">Sort: Name (A-Z)</option>
+                       <option value="name-desc">Sort: Name (Z-A)</option>
+                     </select>
+                   </div>
+                 </div>
+
+                 <div class="plans-controls-row plans-controls-row-secondary">
+                   <label class="plans-filter-checkbox">
+                     <input type="checkbox" v-model="planOnlineOnly" />
+                     <span>Online only</span>
+                   </label>
+                 </div>
+               </div>
+
+               <div v-if="!planGroups.length" class="plans-empty">
+                 <h4>No gateways match your filters</h4>
+                 <p class="plans-empty-muted">Try clearing filters or search.</p>
+                 <div class="plans-empty-actions">
+                   <button
+                     v-if="planFilter"
+                     type="button"
+                     class="btn-ghost"
+                     @click="planFilter = ''"
+                   >
+                     Clear search
+                   </button>
+                   <button
+                     v-if="hasPlanFilters"
+                     type="button"
+                     class="btn-ghost"
+                     @click="resetPlanFilters"
+                   >
+                     Reset filters
+                   </button>
+                   <button type="button" class="btn-ghost" @click="openPlansModal">
+                     Reload
+                   </button>
+                 </div>
+               </div>
+
+               <!-- Grouped by gateway -->
+               <div v-if="planGroups.length" class="plans-grid">
+                 <article
+                   v-for="group in planPagedGroups"
+                   :key="group.gateway.id"
+                   class="gateway-card"
+                   :class="{ offline: !group.gateway.active }"
+                 >
                   <header class="gateway-card-header">
                     <div class="gateway-title">
                       <span
@@ -1050,14 +1094,73 @@
                           </span>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                   </div>
+                 </div>
+               </article>
+             </div>
+
+             <div v-if="planGroups.length" class="plans-pager">
+               <div class="plans-pager-side">
+                 <span class="plans-pager-text">
+                   Showing {{ planPageStart + 1 }}-{{
+                     Math.min(planPageEnd, planGroups.length)
+                   }}
+                   of {{ planGroups.length }}
+                 </span>
+               </div>
+               <div class="plans-pager-controls">
+                 <button
+                   type="button"
+                   class="plans-pager-btn"
+                   :disabled="planPage === 1"
+                   @click="planPage = 1"
+                 >
+                   ⟪
+                 </button>
+                 <button
+                   type="button"
+                   class="plans-pager-btn"
+                   :disabled="planPage === 1"
+                   @click="planPage--"
+                 >
+                   Prev
+                 </button>
+                 <span class="plans-pager-text">
+                   Page {{ planPage }} / {{ planTotalPages || 1 }}
+                 </span>
+                 <button
+                   type="button"
+                   class="plans-pager-btn"
+                   :disabled="planPage === planTotalPages"
+                   @click="planPage++"
+                 >
+                   Next
+                 </button>
+                 <button
+                   type="button"
+                   class="plans-pager-btn"
+                   :disabled="planPage === planTotalPages"
+                   @click="planPage = planTotalPages"
+                 >
+                   ⟫
+                 </button>
+               </div>
+               <div class="plans-pager-side">
+                 <select
+                   v-model.number="planPageSize"
+                   aria-label="Rows per page"
+                   class="per-page-select"
+                 >
+                   <option :value="8">8 / page</option>
+                   <option :value="16">16 / page</option>
+                   <option :value="24">24 / page</option>
+                 </select>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
     </Transition>
 
     <!-- Subscribe Plan Modal -->
@@ -1198,6 +1301,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, inject } from "vue";
 import {
   Cloud,
+  Search,
   Download,
   Database,
   Plus,
@@ -1339,6 +1443,8 @@ const planFilter = ref("");
 const planRegion = ref("");
 const planOnlineOnly = ref(false);
 const planSortBy = ref<"score-desc" | "name-asc" | "name-desc">("score-desc");
+const planPage = ref(1);
+const planPageSize = ref(8);
 
 // Local details
 const showLocalDetails = ref(false);
@@ -1355,17 +1461,17 @@ const planRegions = computed(() => {
 });
 
 const hasPlanFilters = computed(() => {
-  return (
-    !!planRegion.value || !!planOnlineOnly.value || !!planFilter.value.trim()
-  );
+  return !!planRegion.value || !!planOnlineOnly.value;
 });
 
 function resetPlanFilters() {
-  planFilter.value = "";
   planRegion.value = "";
   planOnlineOnly.value = false;
-  planSortBy.value = "score-desc";
 }
+
+watch([planFilter, planRegion, planOnlineOnly, planSortBy, planPageSize], () => {
+  planPage.value = 1;
+});
 
 function planGatewayDisplay(gw: GatewayView): string {
   if (gw.endpoint) return gw.endpoint;
@@ -1442,6 +1548,19 @@ const planGroups = computed(() => {
     .filter(Boolean) as { gateway: GatewayView; plans: PlanView[] }[];
 
   return groups;
+});
+
+const planTotalPages = computed(() => {
+  return Math.max(1, Math.ceil(planGroups.value.length / planPageSize.value));
+});
+const planPageStart = computed(() => (planPage.value - 1) * planPageSize.value);
+const planPageEnd = computed(() => planPageStart.value + planPageSize.value);
+const planPagedGroups = computed(() => {
+  return planGroups.value.slice(planPageStart.value, planPageEnd.value);
+});
+
+watch(planTotalPages, (total) => {
+  if (planPage.value > total) planPage.value = total;
 });
 
 const activeSavedCids = computed(() => {
@@ -2058,6 +2177,8 @@ async function openPlansModal() {
     if (!profilesApi || !gwApi || !gwApi.getPlansOverview) return;
 
     showPlansModal.value = true;
+    planPage.value = 1;
+    expandedGatewayIds.value = new Set();
     plansLoading.value = true;
     plansError.value = "";
     plans.value = [];
@@ -4197,29 +4318,53 @@ async function reloadForActiveProfileChange() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 0.75rem;
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border-color);
+  flex-direction: column;
 }
 
 .plans-search-group {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.plans-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.plans-search-group-primary {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.plans-search-group-sort {
+  margin-left: auto;
+}
+
+.plans-controls-row-secondary {
+  justify-content: flex-end;
 }
 
 .plans-search-input {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  height: 40px;
+  padding: 0 0.75rem;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
+  flex: 1 1 auto;
   min-width: 220px;
 }
 
@@ -4229,7 +4374,62 @@ async function reloadForActiveProfileChange() {
   background: transparent;
   font-size: 0.875rem;
   color: var(--text-primary);
+  height: 100%;
   min-width: 140px;
+}
+
+.plans-search-ico {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.plans-filter-select {
+  height: 40px;
+  padding: 0 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 180px;
+}
+
+.plans-filter-select:hover {
+  border-color: var(--accent-primary);
+}
+
+.plans-filter-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--primary-a10);
+}
+
+.plans-filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.plans-filter-checkbox input {
+  accent-color: var(--accent-primary);
+}
+
+@media (max-width: 720px) {
+  .plans-controls-row {
+    flex-wrap: wrap;
+  }
+
+  .plans-search-group {
+    flex-wrap: wrap;
+  }
+
+  .plans-search-group-sort {
+    margin-left: 0;
+  }
 }
 
 .plans-empty {
@@ -4262,6 +4462,57 @@ async function reloadForActiveProfileChange() {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 0.75rem;
   margin-top: 0.75rem;
+}
+
+.plans-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.plans-pager-side {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plans-pager-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.plans-pager-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.plans-pager-btn {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.plans-pager-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.plans-pager-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .gateway-card {
@@ -5595,6 +5846,10 @@ async function reloadForActiveProfileChange() {
   max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.modal-content.plans-modal {
+  max-width: 860px;
 }
 
 .modal-header {
