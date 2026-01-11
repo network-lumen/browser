@@ -51,25 +51,36 @@
       />
     </div>
 
-    <!-- quick links -->
-    <UiButton
-      variant="none"
-      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
-      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
-      title="Home"
-      @click="$emit('goto', 'lumen://home')"
-    >
-      <House :size="18" />
-    </UiButton>
-    <UiButton
-      variant="none"
-      class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
-      :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
-      title="Drive"
-      @click="$emit('goto', 'lumen://drive')"
-    >
-      <Cloud :size="18" />
-    </UiButton>
+      <!-- quick links -->
+      <UiButton
+        variant="none"
+        class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+        :style="{ background: 'var(--card-bg)', color: favActive ? 'gold' : 'var(--text-secondary)', padding: '0.5rem' }"
+        title="Toggle favourite"
+        @click="onToggleFavourite"
+      >
+        <Star :size="18" :fill="favActive ? 'currentColor' : 'none'" />
+      </UiButton>
+
+      <UiButton
+        variant="none"
+        class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+        :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
+        title="Home"
+        @click="$emit('goto', 'lumen://home')"
+      >
+        <House :size="18" />
+      </UiButton>
+
+      <UiButton
+        variant="none"
+        class="cursor-pointer border-none border-radius-circle hover-bg-black-a10"
+        :style="{ background: 'var(--card-bg)', color: 'var(--text-secondary)', padding: '0.5rem' }"
+        title="Drive"
+        @click="$emit('goto', 'lumen://drive')"
+      >
+        <Cloud :size="18" />
+      </UiButton>
 
     <!-- profiles -->
     <div class="profile-ctl gap-50 appregion-no-drag flex-align-center ">
@@ -154,7 +165,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2 } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
@@ -169,6 +180,7 @@ import {
   exportProfileBackup,
   importProfileFromBackup
 } from '../internal/profilesStore';
+import { useFavourites } from '../internal/favouritesStore';
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -191,6 +203,15 @@ const emit = defineEmits<{
 }>();
 
 const urlField = ref('');
+const { toggleFavourite, isFav } = useFavourites();
+const favActive = computed(() => {
+  if (props.currentUrl == null) return false;
+  return isFav(props.currentUrl);
+});
+function onToggleFavourite() {
+  if (props.currentUrl == null) return;
+  toggleFavourite(props.currentUrl);
+}
 const showProfileMenu = ref(false);
 const creatingProfile = ref(false);
 const newProfileName = ref('');

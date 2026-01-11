@@ -233,6 +233,8 @@ function buildProfileBackupObject(p) {
     colorIndex: p.colorIndex,
     role: p.role || 'user',
     walletAddress: p.walletAddress || p.address || null,
+      favourites: p.favourites || {},
+    favourites: p.favourites || {},
     createdAt: Date.now(),
     mnemonic: mnemonicPlain || null,
     pqc: pqcKey
@@ -380,6 +382,21 @@ function importOneBackupObject(imported, profiles) {
   return { ok: true, id };
 }
 
+function saveProfiles(profiles, activeId) {
+  saveProfilesFile({ profiles, activeId });
+}
+
+function updateActiveProfile(mutator) {
+  const data = loadProfilesFile();
+  const idx = data.profiles.findIndex(p => p.id === data.activeId);
+  if (idx === -1) return { ok: false };
+  const p = { ...data.profiles[idx] };
+  mutator(p);
+  data.profiles[idx] = p;
+  saveProfiles(data);
+  return { ok: true, profile: p };
+}
+
 function registerProfilesIpc() {
   ipcMain.handle('profiles:list', async () => {
     const { profiles, activeId } = loadProfilesFile();
@@ -411,7 +428,8 @@ function registerProfilesIpc() {
     // Ensure every profile exposes walletAddress so the renderer keeps working.
     const normalized = updatedProfiles.map((p) => ({
       ...p,
-      walletAddress: p.walletAddress || p.address || null
+      walletAddress: p.walletAddress || p.address || null,
+      favourites: p.favourites || {}
     }));
 
     // No profiles at all -> bootstrap a guest profile without on-chain wallet.
@@ -442,6 +460,25 @@ function registerProfilesIpc() {
     }
 
     return { profiles: normalized, activeId };
+  });
+
+ipcMain.handle('profiles:getFavourites', async () => {
+    const { profiles, activeId } = loadProfilesFile();
+    const p = profiles.find(p => p.id === activeId);
+    return (p && p.favourites) || {};
+  });
+
+  ipcMain.handle('profiles:setFavourite', async (_evt, domain, cid) => {
+    return updateActiveProfile(p => {
+      p.favourites = p.favourites || {};
+      p.favourites[String(domain)] = String(cid);
+    });
+  });
+
+  ipcMain.handle('profiles:removeFavourite', async (_evt, domain) => {
+    return updateActiveProfile(p => {
+      if (p.favourites) delete p.favourites[String(domain)];
+    });
   });
 
   ipcMain.handle('profiles:getActive', async () => {
