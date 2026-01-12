@@ -423,14 +423,12 @@
                     :alt="file.name"
                     class="table-thumbnail"
                     @error="() => onImageError(file)"
-                    style="width:32px;height:32px;object-fit:cover;border-radius:6px;vertical-align:middle;"
                   />
                   <component
                     v-else
                     :is="getFileIcon(file.name)"
-                    :size="24"
+                    :size="16"
                     stroke-width="1.5"
-                    style="vertical-align:middle;"
                   />
                 </div>
                 <span>{{ file.name }}</span>
@@ -5207,10 +5205,10 @@ async function reloadForActiveProfileChange() {
   font-family: "SF Mono", "Consolas", monospace;
   font-size: 0.7rem;
   word-break: break-all;
-  background: #ecf0f1;
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-  color: #0071e3;
+  background: var(--bg-secondary);
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  color: var(--accent-primary);
 }
 
 .detail-actions {
@@ -5542,52 +5540,116 @@ async function reloadForActiveProfileChange() {
 
 .files-table {
   width: 100%;
-  min-width: 700px;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 1rem;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-size: 0.8rem;
   table-layout: fixed;
-  background: var(--card-bg, #fff);
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  overflow: hidden;
-  border: 1px solid var(--border-color, #e5e7eb);
 }
 
+.files-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--hover-bg);
+  z-index: 1;
+}
 
 .files-table th {
   text-align: left;
-  padding: 0.85rem 1.25rem;
-  font-weight: 700;
-  font-size: 0.98rem;
+  padding: 0.875rem 1rem;
+  font-weight: 600;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-secondary, #555);
-  border-bottom: 2px solid var(--border-color, #e5e7eb);
-  background: var(--bg-secondary, #f8fafd);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 
-.files-table th.th-name, .files-table td.td-name {
+.files-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.files-table tbody tr {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.files-table tbody tr:hover {
+  background: var(--primary-a08);
+}
+
+.files-table tbody tr.selected {
+  background: var(--fill-blue);
+}
+
+.td-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+}
+
+.th-name {
+  width: 35%;
   min-width: 200px;
-  width: 30%;
 }
-.files-table th.th-size, .files-table td.td-size {
+
+.td-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.table-icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.table-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.td-size,
+.th-size {
+  width: 100px;
   min-width: 100px;
-  width: 15%;
   text-align: right;
 }
-.files-table th.th-date, .files-table td.td-date {
+
+.td-size {
+  color: var(--text-tertiary);
+}
+
+.td-date,
+.th-date {
+  width: 160px;
   min-width: 160px;
-  width: 25%;
   text-align: right;
 }
-.files-table th.th-actions, .files-table td.td-actions {
+
+.td-date {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.td-actions,
+.th-actions {
+  width: 120px;
   min-width: 120px;
-  width: 15%;
   text-align: center;
 }
 
@@ -5772,69 +5834,123 @@ async function reloadForActiveProfileChange() {
   height: 32px;
   border-radius: 8px;
   border: none;
-  border-radius: 0;
-  vertical-align: middle;
-  transition: background 0.15s;
-}
-
-.files-table tbody tr {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.15s;
-  border-bottom: 1px solid #f0f1f3;
-}
-
-.files-table tbody tr:nth-child(even) {
-  background: #fafbfc;
-}
-
-.files-table tbody tr:hover {
-  background: #eaf3ff;
-}
-
-.files-table tbody tr.selected {
-  background: #d0e7ff;
-}
-
-
-.td-name {
   display: flex;
   align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-desc {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 0.75rem;
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-modal-primary {
+  flex: 1;
+  padding: 0.875rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.9375rem;
   font-weight: 500;
-  min-width: 200px;
-  width: 30%;
-  height: 40px;
-  vertical-align: middle;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-.td-size {
-  color: #888;
-  font-size: 0.97rem;
-  min-width: 100px;
-  width: 15%;
-  text-align: right;
+
+.btn-modal-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--primary-a30);
 }
-.td-date {
-  color: #888;
-  font-size: 0.97rem;
-  min-width: 160px;
-  width: 25%;
-  text-align: right;
+
+.btn-modal-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
-.td-actions {
-  color: #888;
-  font-size: 0.97rem;
-  min-width: 120px;
-  width: 15%;
+
+.btn-modal-secondary {
+  flex: 1;
+  padding: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.btn-modal-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.permalink-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 0;
   text-align: center;
-  min-height: 32px;
-  height: 100%;
 }
 
-.files-table td:empty::after {
-  content: "-";
-  color: #d0d0d0;
-  font-size: 1.1em;
+.permalink-loading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
-/* --- End Pro Table Enhancements --- */
+.permalink-success {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.permalink-success p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.permalink-result-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
 </style>
