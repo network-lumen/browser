@@ -32,45 +32,9 @@
     <!-- Main Content -->
     <main class="main-content">
       <div v-if="!hasProfiles" class="no-profile-banner">
-        <div class="no-profile-title">Vous n'avez pas de profile actuellement</div>
-        <div class="no-profile-sub">Créez-en un via le bouton en haut à droite.</div>
+        <div class="no-profile-title">No profile found</div>
+        <div class="no-profile-sub">Create one using the button in the top right.</div>
       </div>
-      <!-- Hero Section -->
-      <section v-if="showIntroHero" class="hero-section">
-        <button class="hero-close" type="button" title="Hide intro" @click="dismissIntroHero">
-          <X :size="16" />
-        </button>
-        <div class="hero-content">
-          <h1 class="hero-title">Welcome to <span class="gradient-text">Lumen</span></h1>
-          <p class="hero-subtitle">Make your content universally accessible — uncensorable by design</p>
-          <p class="hero-intro">Lumen lets you publish and access content without relying on centralized platforms.</p>
-        </div>
-        
-        <div class="description-features">
-              <div class="feature-point">
-                <div class="point-icon">🌐</div>
-                <div class="point-text">
-                  <strong>Decentralized Storage:</strong> Store and share your public content without central servers, using decentralized networks
-                </div>
-              </div>
-              <div class="feature-point">
-                <div class="point-icon">🔐</div>
-                <div class="point-text">
-                  <strong>All-in-One Control</strong> Manage domains, digital assets, and network interactions in one interface
-                </div>
-              </div>
-              <div class="feature-point">
-                <div class="point-icon">⚡</div>
-                <div class="point-text">
-                  <strong>Secure by Design:</strong> Encrypted connections, local-first data, and no built-in tracking
-                </div>
-              </div>
-            </div>
-        
-        <div class="hero-stats">
-
-        </div>
-      </section>
 
       <!-- Quick Actions -->
       <section class="quick-actions">
@@ -564,18 +528,6 @@ function onItemClick(key: string, e: MouseEvent) {
 const profiles = profilesState;
 const hasProfiles = computed(() => profiles.value.length > 0);
 
-const HOME_INTRO_HIDDEN_KEY = 'lumen-home-intro-hidden';
-const showIntroHero = ref(localStorage.getItem(HOME_INTRO_HIDDEN_KEY) !== '1');
-
-function dismissIntroHero() {
-  showIntroHero.value = false;
-  try {
-    localStorage.setItem(HOME_INTRO_HIDDEN_KEY, '1');
-  } catch {
-    // ignore
-  }
-}
-
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
 function openRoute(key: string) {
@@ -981,210 +933,6 @@ function getRouteIcon(key: string) {
   cursor: not-allowed;
 }
 
-/* Hero Section */
-.hero-section {
-  background: linear-gradient(135deg, var(--primary-a08) 0%, var(--primary-a10) 100%);
-  backdrop-filter: blur(10px);
-  border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
-  border: 0.5px solid var(--primary-a20);
-  box-shadow: 0 4px 20px var(--primary-a10);
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 0.5px solid var(--border-color);
-  background: var(--card-bg);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.15s ease;
-  z-index: 2;
-}
-
-.hero-close:hover {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border-color: var(--accent-primary);
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, var(--primary-a10) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.hero-content {
-  margin-bottom: 0.75rem;
-  position: relative;
-  z-index: 1;
-}
-
-.hero-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  text-align: center;
-  letter-spacing: -0.02em;
-}
-
-.hero-subtitle {
-  font-size: 14px;
-  color: var(--text-primary);
-  text-align: center;
-  margin-bottom: 0.625rem;
-  font-weight: 500;
-}
-
-.hero-intro {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  text-align: center;
-  margin-bottom: 0.75rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.gradient-text {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 16px var(--primary-a25));
-}
-
-.description-features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.625rem;
-  margin-top: 0.625rem;
-}
-
-.feature-point {
-  display: flex;
-  gap: 0.625rem;
-  align-items: flex-start;
-  background: var(--card-bg);
-  backdrop-filter: blur(8px);
-  padding: 0.75rem;
-  border-radius: var(--border-radius-md);
-  border: 0.5px solid var(--border-color);
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.feature-point:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary-a25);
-}
-
-.point-icon {
-  font-size: 1rem;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-sm);
-  box-shadow: var(--shadow-primary);
-}
-
-.point-text {
-  flex: 1;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.point-text strong {
-  display: block;
-  color: var(--text-primary);
-  margin-bottom: 0.125rem;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.hero-stats {
-  display: flex;
-  gap: 0.625rem;
-  margin-top: 0.875rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 0.875rem;
-  background: var(--card-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  border-radius: var(--border-radius-md);
-  border: 0.5px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.15s ease;
-}
-
-.stat-item:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.stat-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-.stat-label {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
 /* Sections */
 .section-title {
   font-size: 15px;
@@ -1474,10 +1222,6 @@ function getRouteIcon(key: string) {
   .actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  .hero-stats {
-    gap: 0.625rem;
-  }
 }
 
 @media (max-width: 900px) {
@@ -1498,10 +1242,6 @@ function getRouteIcon(key: string) {
   
   .actions-grid {
     grid-template-columns: 1fr;
-  }
-  
-  .hero-stats {
-    flex-direction: column;
   }
 }
 
@@ -1540,14 +1280,6 @@ function getRouteIcon(key: string) {
   
   .main-content {
     padding: 1rem;
-  }
-  
-  .hero-content h1 {
-    font-size: 1.35rem;
-  }
-  
-  .hero-content p {
-    font-size: 0.85rem;
   }
   
   .action-card {
