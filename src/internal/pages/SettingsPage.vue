@@ -18,7 +18,8 @@
             type="button"
             class="lsb-item"
             :class="{ active: currentView === 'privacy' }"
-            @click="currentView = 'privacy'"
+            disabled
+            style="opacity:0.5; cursor:not-allowed;"
           >
             <Shield :size="18" />
             <span>Privacy</span>
@@ -81,22 +82,6 @@
       <!-- Appearance View -->
       <div v-if="currentView === 'appearance'" class="settings-section">
         <div class="setting-group">
-          <div class="setting-item">
-            <div class="setting-info">
-              <span class="setting-label">Dark Mode</span>
-              <span class="setting-desc">{{ effectiveTheme === 'dark' ? 'Dark mode is enabled' : 'Light mode is enabled' }}</span>
-            </div>
-            <div class="setting-control">
-              <label class="toggle">
-                <input 
-                  type="checkbox" 
-                  :checked="theme === 'dark'"
-                  @change="toggleDarkMode"
-                />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
           <div class="setting-item">
             <div class="setting-info">
               <span class="setting-label">Theme Preference</span>
@@ -908,10 +893,6 @@ watch(
 
 // Initialize theme on mount
 initTheme();
-
-function toggleDarkMode() {
-  setTheme(theme.value === 'dark' ? 'light' : 'dark');
-}
 
 watch(fontSize, (newSize) => {
   localStorage.setItem('lumen-font-size', newSize);
