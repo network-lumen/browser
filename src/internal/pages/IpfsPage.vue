@@ -274,6 +274,7 @@ import UiSpinner from "../../ui/UiSpinner.vue";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
+  probeUrl,
 } from "../services/contentResolver";
 
 type Entry = {
@@ -315,6 +316,7 @@ const rootCid = ref("");
 const relPath = ref("");
 const wantsDir = ref(false);
 const suffix = ref("");
+const resolvedGatewayBase = ref("");
 const saving = ref(false);
 const saved = ref(false);
 const savedCid = ref("");
@@ -418,8 +420,61 @@ const displayLumenUrl = computed(() => {
 const contentUrl = computed(() => {
   if (!rootCid.value) return "";
   const p = relPath.value ? `/${encodePath(relPath.value)}` : "";
-  return `${localIpfsGatewayBase()}/ipfs/${rootCid.value}${p}${suffix.value || ""}`;
+  const base = resolvedGatewayBase.value || localIpfsGatewayBase();
+  return `${String(base).replace(/\/+$/, "")}/ipfs/${rootCid.value}${p}${suffix.value || ""}`;
 });
+
+async function pickGatewayBaseForCurrentTarget(): Promise<string> {
+  const cid = String(rootCid.value || "").trim();
+  if (!cid) return localIpfsGatewayBase();
+
+  const relEncoded = relPath.value ? encodePath(relPath.value) : "";
+  const suffixStr = String(suffix.value || "");
+  const makeUrl = (base: string) => {
+    const b = String(base || "").replace(/\/+$/, "");
+    if (!b) return "";
+    const rel = relEncoded ? `/${relEncoded}` : "";
+    return `${b}/ipfs/${cid}${rel}${suffixStr}`;
+  };
+
+  const localBase = localIpfsGatewayBase();
+  const localUrl = makeUrl(localBase);
+  if (localUrl && (await probeUrl(localUrl, 2000))) return localBase;
+
+  const whitelisted = await loadWhitelistedGatewayBases().catch(() => [] as string[]);
+  if (whitelisted.length) {
+    try {
+      const best = await Promise.any(
+        whitelisted.map(async (b) => {
+          const url = makeUrl(b);
+          const ok = url ? await probeUrl(url, 2500) : false;
+          if (!ok) throw new Error("probe_failed");
+          return b;
+        }),
+      );
+      if (best) return best;
+    } catch {
+      // fall through
+    }
+  }
+
+  const publicBases = ["https://ipfs.io", "https://dweb.link", "https://cloudflare-ipfs.com"];
+  try {
+    const best = await Promise.any(
+      publicBases.map(async (b) => {
+        const url = makeUrl(b);
+        const ok = url ? await probeUrl(url, 4000) : false;
+        if (!ok) throw new Error("probe_failed");
+        return b;
+      }),
+    );
+    if (best) return best;
+  } catch {
+    // fall through
+  }
+
+  return localBase;
+}
 
 const crumbs = computed(() => {
   const p = String(relPath.value || "").replace(/^\/+/, "");
@@ -811,6 +866,7 @@ async function load() {
   mediaErrored.value = false;
   htmlSrcdoc.value = "";
   clearHtmlFrame();
+  resolvedGatewayBase.value = "";
   saved.value = false;
   savedCid.value = "";
 
@@ -850,6 +906,7 @@ async function load() {
     isDir.value = wantsDir.value || mapped.length > 0;
 
     if (!isDir.value) {
+      resolvedGatewayBase.value = await pickGatewayBaseForCurrentTarget();
       viewKind.value = guessViewKind(relPath.value || rootCid.value);
       if (viewKind.value === "unknown") {
         const sniffed = await sniffViewKindFromHead(contentUrl.value);

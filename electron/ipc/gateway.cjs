@@ -4,7 +4,13 @@ const path = require('path');
 const { createHash, randomBytes, hkdfSync, createCipheriv, createDecipheriv } = require('crypto');
 const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
 const { getSetting } = require('../settings.cjs');
-const { decryptMnemonicLocal, encryptMnemonicLocal } = require('../utils/crypto.cjs');
+const {
+  decryptMnemonicLocal,
+  decryptMnemonicWithPassword,
+  encryptMnemonicLocal,
+  isPasswordProtected,
+} = require('../utils/crypto.cjs');
+const { getSessionPassword } = require('./security.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
 
 // Cache to reduce log spam
@@ -336,6 +342,17 @@ function loadMnemonic(profileId) {
   const file = keystoreFile(profileId);
   const raw = existsSync(file) ? readJson(file, null) : null;
   if (!raw) throw new Error(`No keystore for profileId=${profileId}`);
+
+  // Password-protected keystore (v2): require an active security session password.
+  if (isPasswordProtected(raw)) {
+    const pwd = getSessionPassword();
+    if (!pwd) throw new Error('password_required');
+    const mnemonic = decryptMnemonicWithPassword(raw, pwd);
+    if (!mnemonic) throw new Error('Failed to decrypt keystore with password');
+    return mnemonic;
+  }
+
+  // Legacy local-secret keystore (v1)
   const mnemonic = decryptMnemonicLocal(raw);
   if (!mnemonic) throw new Error('Failed to decrypt keystore');
   return mnemonic;
@@ -1770,41 +1787,56 @@ function registerGatewayIpc() {
       const useGuest = !profileId || isGuestProfile(profileId);
       let wallet = null;
       let mnemonic = null;
+
+       async function ensureGuestWallet() {
+         const file = guestPqWalletFile();
+         const now = Date.now();
+         const current = readJson(file, null);
+         const expiresAt = Number(current?.expiresAt ?? 0);
+         const ks = current?.keystore ?? null;
+         const addrRaw = current?.walletAddress ?? null;
+         const shouldRotate = !expiresAt || !Number.isFinite(expiresAt) || expiresAt <= now;
+         if (!shouldRotate && ks && addrRaw) {
+           try {
+             mnemonic = decryptMnemonicLocal(ks);
+             wallet = String(addrRaw || '').trim();
+           } catch {
+             mnemonic = null;
+             wallet = null;
+           }
+         }
+         if (!mnemonic || !wallet || shouldRotate) {
+           const mnemonicObj = Bip39.encode(randomBytes(32), EnglishMnemonic.wordlist);
+           mnemonic = String(mnemonicObj);
+           wallet = await deriveWalletAddressFromMnemonic(mnemonic, 'lmn');
+           const createdAt = now;
+           const next = {
+             version: 1,
+             createdAt,
+             expiresAt: createdAt + guestTtlMs,
+             walletAddress: wallet,
+             keystore: encryptMnemonicLocal(mnemonic),
+           };
+           writeJson(file, next);
+         }
+       }
+
       if (useGuest) {
-        const file = guestPqWalletFile();
-        const now = Date.now();
-        const current = readJson(file, null);
-        const expiresAt = Number(current?.expiresAt ?? 0);
-        const ks = current?.keystore ?? null;
-        const addrRaw = current?.walletAddress ?? null;
-        const shouldRotate = !expiresAt || !Number.isFinite(expiresAt) || expiresAt <= now;
-        if (!shouldRotate && ks && addrRaw) {
-          try {
-            mnemonic = decryptMnemonicLocal(ks);
-            wallet = String(addrRaw || '').trim();
-          } catch {
-            mnemonic = null;
-            wallet = null;
-          }
-        }
-        if (!mnemonic || !wallet || shouldRotate) {
-          const mnemonicObj = Bip39.encode(randomBytes(32), EnglishMnemonic.wordlist);
-          mnemonic = String(mnemonicObj);
-          wallet = await deriveWalletAddressFromMnemonic(mnemonic, 'lmn');
-          const createdAt = now;
-          const next = {
-            version: 1,
-            createdAt,
-            expiresAt: createdAt + guestTtlMs,
-            walletAddress: wallet,
-            keystore: encryptMnemonicLocal(mnemonic),
-          };
-          writeJson(file, next);
-        }
+        await ensureGuestWallet();
       } else {
         wallet = getWalletAddressForProfile(profileId);
         if (!wallet) return { ok: false, error: 'wallet_unavailable' };
-        mnemonic = loadMnemonic(profileId);
+        try {
+          mnemonic = loadMnemonic(profileId);
+        } catch (e) {
+          // Search shouldn't hard-fail if the user keystore is locked (password) or can't be decrypted.
+          // Fall back to a short-lived guest wallet to keep search available.
+          console.warn(
+            '[gateway] searchPq using guest wallet fallback:',
+            e && e.message ? e.message : e
+          );
+          await ensureGuestWallet();
+        }
       }
 
       const lang =

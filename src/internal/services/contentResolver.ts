@@ -177,6 +177,12 @@ export async function pickFastestSource(
   suffix: string,
   opts: { onStatus?: (s: string) => void } = {}
 ): Promise<{ base: string; label: string }> {
+  const publicGatewayBases = [
+    "https://ipfs.io",
+    "https://dweb.link",
+    "https://cloudflare-ipfs.com",
+  ];
+
   const localP = (async () => {
     opts.onStatus?.('Trying IPFS peer-to-peer…');
     const base = localIpfsGatewayBase();
@@ -199,5 +205,19 @@ export async function pickFastestSource(
     return await Promise.any(probes);
   })();
 
-  return await Promise.any([localP, gatewaysP]);
+  try {
+    return await Promise.any([localP, gatewaysP]);
+  } catch (_e) {
+    // Last-resort fallbacks: public gateways are slower and less private, so only use them
+    // once local/whitelisted sources have all failed.
+    opts.onStatus?.("Trying public IPFS gateways…");
+    const probes = publicGatewayBases.map((b) =>
+      (async () => {
+        const ok = await probeUrl(buildCandidateUrl(b, target, path, suffix), 4000);
+        if (!ok) throw new Error("probe_failed");
+        return { base: b, label: b.replace(/^https?:\/\//i, "") };
+      })(),
+    );
+    return await Promise.any(probes);
+  }
 }
