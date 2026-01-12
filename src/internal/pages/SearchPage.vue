@@ -70,10 +70,11 @@
     <section v-if="touched" class="results">
       <div class="meta">
         <div class="txt-xs color-gray-blue">
-          <span v-if="!loading && results.length"
-            >About {{ results.length }} results</span
-          >
-          <span v-else-if="!loading && !results.length">No results</span>
+          <span v-if="!loading">
+            <template v-if="page > 1">Page {{ page }} | </template>
+            <template v-if="results.length">About {{ results.length }} results</template>
+            <template v-else>No results</template>
+          </span>
         </div>
         <button
           class="debug-toggle txt-xs"
@@ -200,6 +201,102 @@
           </button>
         </li>
       </ul>
+
+      <div v-if="showPager" class="pagination-bar">
+        <button
+          class="page-btn"
+          type="button"
+          :disabled="loading || page === 1"
+          @click="gotoPage(1)"
+          title="First page"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="11 17 6 12 11 7" />
+            <polyline points="18 17 13 12 18 7" />
+          </svg>
+        </button>
+        <button
+          class="page-btn"
+          type="button"
+          :disabled="loading || page === 1"
+          @click="prevPage"
+          title="Previous page"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        <div class="page-numbers">
+          <template v-for="(p, idx) in pageNumbers" :key="idx">
+            <span v-if="p === '...'" class="page-ellipsis">...</span>
+            <button
+              v-else
+              class="page-num"
+              :class="{ active: page === p }"
+              :disabled="loading"
+              @click="gotoPage(p as number)"
+            >
+              {{ p }}
+            </button>
+          </template>
+        </div>
+
+        <button
+          class="page-btn"
+          type="button"
+          :disabled="loading || !gatewayHasMore"
+          @click="nextPage"
+          title="Next page"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+        <button
+          v-if="knownTotalPages != null && knownTotalPages > 1"
+          class="page-btn"
+          type="button"
+          :disabled="loading || page === knownTotalPages"
+          @click="gotoPage(knownTotalPages)"
+          title="Last page"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="13 17 18 12 13 7" />
+            <polyline points="6 17 11 12 6 7" />
+          </svg>
+        </button>
+
+        <span class="page-info">{{ pageInfoText }}</span>
+      </div>
     </section>
 
     <div
@@ -287,6 +384,11 @@ const loading = ref(false);
 const errorMsg = ref("");
 const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
+const page = ref(1);
+const activeQuery = ref("");
+const activeType = ref<SearchType>("site");
+const gatewayHasMore = ref(false);
+const gatewayPageSize = 12;
 
 const debugMode = ref(false);
 const debugOpen = ref(false);
@@ -377,26 +479,31 @@ function goto(url: string, opts?: { push?: boolean }) {
   openInNewTab?.(url);
 }
 
-function parseSearchUrl(raw: string): { q: string; type: SearchType } {
+function parseSearchUrl(raw: string): { q: string; type: SearchType; page: number } {
   const value = String(raw || "").trim();
-  if (!value) return { q: "", type: "site" };
+  if (!value) return { q: "", type: "site", page: 1 };
   try {
     const u = new URL(value);
     const qs = u.searchParams.get("q") || "";
     const type = (u.searchParams.get("type") || "") as SearchType;
     const t: SearchType =
       type === "site" || type === "image" || type === "" ? type : "site";
-    return { q: qs, type: t };
+    const pageRaw = u.searchParams.get("page") || "";
+    const parsedPage = Number.parseInt(pageRaw, 10);
+    const p = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    return { q: qs, type: t, page: p };
   } catch {
-    return { q: "", type: "site" };
+    return { q: "", type: "site", page: 1 };
   }
 }
 
-function makeSearchUrl(query: string, type: SearchType): string {
+function makeSearchUrl(query: string, type: SearchType, page = 1): string {
   const s = String(query || "").trim();
   const u = new URL("lumen://search");
   if (s) u.searchParams.set("q", s);
   if (type) u.searchParams.set("type", type);
+  const p = Number.isFinite(Number(page)) && Number(page) > 1 ? Math.floor(Number(page)) : 1;
+  if (p > 1) u.searchParams.set("page", String(p));
   return u.toString();
 }
 
@@ -405,7 +512,8 @@ function setType(t: SearchType) {
   selectedType.value = t;
   const s = q.value.trim();
   if (!s) return;
-  goto(makeSearchUrl(s, t), { push: false });
+  page.value = 1;
+  goto(makeSearchUrl(s, t, 1), { push: false });
 }
 
 function submit() {
@@ -415,14 +523,22 @@ function submit() {
   errorMsg.value = "";
   results.value = [];
   loading.value = true;
-  goto(makeSearchUrl(s, selectedType.value), { push: true });
+  page.value = 1;
+  goto(makeSearchUrl(s, selectedType.value, 1), { push: true });
 }
 
 function openResult(r: ResultItem) {
-  if (selectedType.value === "site" && r.kind === "site") {
-    openInNewTab?.(r.url);
+  const wantsNewTab =
+    selectedType.value === "" ||
+    selectedType.value === "image" ||
+    (selectedType.value === "site" && r.kind === "site");
+
+  if (wantsNewTab) {
+    if (openInNewTab) openInNewTab(r.url);
+    else goto(r.url, { push: true });
     return;
   }
+
   goto(r.url, { push: true });
 }
 
@@ -654,6 +770,11 @@ function normalizeGatewayType(t: SearchType): string {
   if (t === "site" || t === "image") return t;
   return "";
 }
+
+type GatewaySearchResult = {
+  items: ResultItem[];
+  maybeHasMore: boolean;
+};
 
 async function getActiveProfileId(): Promise<string | null> {
   const profilesApi = (window as any).lumen?.profiles;
@@ -985,28 +1106,36 @@ async function searchGateways(
   query: string,
   type: SearchType,
   seq: number,
-): Promise<ResultItem[]> {
+  opts: { limit: number; offset: number },
+): Promise<GatewaySearchResult> {
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.searchPq !== "function") return [];
+  if (!gwApi || typeof gwApi.searchPq !== "function") return { items: [], maybeHasMore: false };
 
-  const gateways = await loadGatewaysForSearch(profileId);
-  if (seq !== searchSeq) return [];
-  if (!gateways.length) return [];
+  const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
+  if (seq !== searchSeq) return { items: [], maybeHasMore: false };
+
+  const list: GatewayView[] = gateways.length
+    ? gateways
+    : [{ id: "default", endpoint: "", regions: [] }];
+
+  type GatewayBatch = { items: ResultItem[]; rawCount: number };
 
   const wantedType = normalizeGatewayType(type);
-  const tasks = gateways.map(async (g) => {
+  const wantedMode = wantedType === "site" ? "sites" : "";
+  const tasks = list.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
       .searchPq({
         profileId,
         endpoint: g.endpoint,
         query,
         lang: "en",
-        limit: 12,
-        offset: 0,
+        limit: opts.limit,
+        offset: opts.offset,
+        mode: wantedMode,
         type: wantedType,
       })
       .catch(() => null);
-    if (!resp || resp.ok === false) return [];
+    if (!resp || resp.ok === false) return { items: [], rawCount: 0 };
     const data = resp.data || {};
     const out: ResultItem[] = [];
 
@@ -1014,6 +1143,7 @@ async function searchGateways(
     const siteResults: GatewaySiteSearchResult[] = Array.isArray(data.results)
       ? data.results
       : [];
+    const rawCountSite = siteResults.length;
     const sites = siteResults.filter((s) => {
       const t = String(s?.type || "").trim().toLowerCase();
       const domain = String(s?.domain || "").trim();
@@ -1058,7 +1188,7 @@ async function searchGateways(
         };
         debugByDomain.value = { ...debugByDomain.value, [key]: next };
       }
-      return out;
+      return { items: out, rawCount: rawCountSite };
     }
 
     const hits: GatewaySearchHit[] = Array.isArray(data.hits)
@@ -1066,17 +1196,20 @@ async function searchGateways(
       : Array.isArray(data.results)
         ? data.results
         : [];
+    const rawCountHits = hits.length;
 
     for (const h of hits) {
       const mapped = mapGatewayHitToResult(h, g, type);
       if (mapped) out.push(mapped);
     }
-    return out;
+    return { items: out, rawCount: rawCountHits };
   });
 
   const lists = await Promise.all(tasks);
-  if (seq !== searchSeq) return [];
-  const flat = lists.flat();
+  if (seq !== searchSeq) return { items: [], maybeHasMore: false };
+
+  const maybeHasMore = lists.some((l) => l.rawCount >= opts.limit);
+  const flat = lists.flatMap((l) => l.items);
 
   const seen = new Set<string>();
   const unique: ResultItem[] = [];
@@ -1086,7 +1219,7 @@ async function searchGateways(
     seen.add(key);
     unique.push(r);
   }
-  return unique;
+  return { items: unique, maybeHasMore };
 }
 
 async function fetchTagsForCid(
@@ -1199,16 +1332,97 @@ function buildFastResults(query: string): ResultItem[] {
   return list;
 }
 
-async function runSearch(query: string, type: SearchType) {
+function clampPage(value: any): number {
+  const n = Number.parseInt(String(value ?? ""), 10);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function gotoPage(targetPage: number) {
+  const s = activeQuery.value.trim();
+  if (!s) return;
+  const p = clampPage(targetPage);
+  goto(makeSearchUrl(s, activeType.value, p), { push: true });
+}
+
+function nextPage() {
+  gotoPage(page.value + 1);
+}
+
+function prevPage() {
+  if (page.value <= 1) return;
+  gotoPage(page.value - 1);
+}
+
+const showPager = computed(() => {
+  if (!touched.value) return false;
+  if (!activeQuery.value.trim()) return false;
+  return page.value > 1 || gatewayHasMore.value;
+});
+
+const knownTotalPages = computed<number | null>(() =>
+  gatewayHasMore.value ? null : page.value,
+);
+
+const pageNumbers = computed((): (number | string)[] => {
+  const total = knownTotalPages.value;
+  const current = page.value;
+  const pages: (number | string)[] = [];
+
+  if (total != null) {
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (current > 3) pages.push("...");
+      for (
+        let i = Math.max(2, current - 1);
+        i <= Math.min(total - 1, current + 1);
+        i++
+      ) {
+        pages.push(i);
+      }
+      if (current < total - 2) pages.push("...");
+      pages.push(total);
+    }
+    return pages;
+  }
+
+  pages.push(1);
+  if (current <= 3) {
+    for (let i = 2; i <= Math.max(3, current + 1); i++) pages.push(i);
+    pages.push("...");
+    return pages;
+  }
+
+  pages.push("...");
+  for (let i = current - 1; i <= current + 1; i++) {
+    if (i < 2) continue;
+    pages.push(i);
+  }
+  pages.push("...");
+  return pages;
+});
+
+const pageInfoText = computed(() => {
+  if (!results.value.length) return `Page ${page.value}`;
+  const start = (page.value - 1) * gatewayPageSize + 1;
+  const end = (page.value - 1) * gatewayPageSize + results.value.length;
+  const plus = gatewayHasMore.value ? "+" : "";
+  return `${start}-${end}${plus} results`;
+});
+
+async function runSearch(query: string, type: SearchType, pageParam = 1) {
   const seq = ++searchSeq;
   const clean = String(query || "").trim();
-  const runKey = `${type}::${clean}`;
+  const safePage = clampPage(pageParam);
+  const runKey = `${type}::${clean}::page=${safePage}`;
   if (!clean) {
     touched.value = false;
     loading.value = false;
     errorMsg.value = "";
     results.value = [];
     lastRunKey.value = "";
+    gatewayHasMore.value = false;
     return;
   }
   if (runKey === lastRunKey.value && results.value.length) return;
@@ -1219,6 +1433,7 @@ async function runSearch(query: string, type: SearchType) {
   errorMsg.value = "";
   results.value = [];
   debugByDomain.value = {};
+  gatewayHasMore.value = false;
 
   try {
     const base = buildFastResults(clean);
@@ -1226,21 +1441,25 @@ async function runSearch(query: string, type: SearchType) {
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      type === "site" || type === ""
+      safePage === 1 && (type === "site" || type === "")
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
-    const gatewayPromise = profileId
-      ? searchGateways(profileId, clean, type, seq)
-      : Promise.resolve([]);
+    const gatewayPromise = searchGateways(profileId || "", clean, type, seq, {
+      limit: gatewayPageSize,
+      offset: (safePage - 1) * gatewayPageSize,
+    });
 
-    const [bestDomain, gwResults] = await Promise.all([
+    const [bestDomain, gw] = await Promise.all([
       domainPromise,
       gatewayPromise,
     ]);
     if (seq !== searchSeq) return;
 
+    const gwResults = gw.items;
+    gatewayHasMore.value = gw.maybeHasMore;
+
     let domainTags: string[] = [];
-    if (bestDomain?.cid && profileId) {
+    if (safePage === 1 && bestDomain?.cid && profileId) {
       const tagRes = await fetchTagsForCid(profileId, bestDomain.cid, seq);
       domainTags = tagRes.tags;
       const key = String(bestDomain.name || "").trim().toLowerCase();
@@ -1263,7 +1482,7 @@ async function runSearch(query: string, type: SearchType) {
     }
     if (seq !== searchSeq) return;
 
-    if (bestDomain?.name) {
+    if (safePage === 1 && bestDomain?.name) {
       const url = `lumen://${bestDomain.name}`;
       const favicon = bestDomain.cid ? faviconUrlForCid(bestDomain.cid) : null;
       base.push({
@@ -1295,7 +1514,7 @@ async function runSearch(query: string, type: SearchType) {
       }
     }
 
-    if (!profileId && (type === "image" || type === "")) {
+    if (safePage === 1 && !profileId && (type === "image" || type === "")) {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway search",
@@ -1331,10 +1550,13 @@ watch(
   (next) => {
     const url = String(next || "").trim();
     if (!url) return;
-    const { q: qs, type } = parseSearchUrl(url);
+    const { q: qs, type, page: p } = parseSearchUrl(url);
     if (type !== selectedType.value) selectedType.value = type;
     if (qs !== q.value) q.value = qs;
-    runSearch(qs, type);
+    activeQuery.value = qs;
+    activeType.value = type;
+    if (p !== page.value) page.value = p;
+    runSearch(qs, type, p);
   },
   { immediate: true },
 );
@@ -1572,6 +1794,90 @@ const imageResults = computed(() =>
 .meta .txt-xs {
   font-weight: 500;
   font-size: 0.8125rem;
+}
+
+/* Pagination */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.page-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-num:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent-primary);
+}
+
+.page-num.active {
+  background: var(--gradient-primary);
+  border-color: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.page-ellipsis {
+  padding: 0 0.25rem;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+}
+
+.page-info {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+  white-space: nowrap;
 }
 
 .debug-toggle {

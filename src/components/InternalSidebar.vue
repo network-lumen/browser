@@ -29,7 +29,7 @@
           class="sidebar-fav-item"
           v-for="url in favourites"
           :key="url"
-          @click="$emit('goto', url)"
+          @click="openFavourite(url)"
         >
           <Star :size="14" />
           <span>{{ url.replace('lumen://', '') }}</span>
@@ -47,10 +47,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Star } from 'lucide-vue-next';
-import { profilesState, activeProfileId } from '../internal/profilesStore';
-import { useFavourites } from '../internal/favouritesStore';
+ import { computed, inject } from 'vue';
+ import { Star } from 'lucide-vue-next';
+ import { profilesState, activeProfileId } from '../internal/profilesStore';
+ import { useFavourites } from '../internal/favouritesStore';
 
 import ActiveProfileCard from './ActiveProfileCard.vue';
 import AllPagesDropdown from './AllPagesDropdown.vue';
@@ -74,10 +74,43 @@ const props = withDefaults(defineProps<{
 
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
-const profiles = profilesState;
-const activeProfile = computed(() =>
-  profiles.value.find((p) => p.id === activeProfileId.value) || null
-);
+ const profiles = profilesState;
+ const activeProfile = computed(() =>
+   profiles.value.find((p) => p.id === activeProfileId.value) || null
+ );
+
+ const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+ const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+
+ function toOriginUrl(rawUrl: string): string {
+   const s = String(rawUrl || '').trim();
+   if (!s) return 'lumen://home';
+
+   if (/^https?:\/\//i.test(s)) {
+     try {
+       return new URL(s).origin;
+     } catch {
+       return s;
+     }
+   }
+
+   if (/^lumen:\/\//i.test(s)) {
+     const withoutScheme = s.slice('lumen://'.length);
+     const host = (withoutScheme.split(/[\/?#]/, 1)[0] || '').trim();
+     return host ? `lumen://${host}` : 'lumen://home';
+   }
+
+   return s;
+ }
+
+ function openFavourite(url: string) {
+   const target = toOriginUrl(url);
+   if (openInNewTab) {
+     openInNewTab(target);
+     return;
+   }
+   navigate?.(target, { push: true });
+ }
 </script>
 
 <style scoped>
