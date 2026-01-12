@@ -687,7 +687,7 @@ async function onDeleteProfile(id: string) {
 function onGlobalClick(e: MouseEvent) {
   const el = e.target as HTMLElement | null;
   if (!el) return;
-  if (el.closest('.avatar-wrap') || el.closest('.menu')) return;
+  if (el.closest('.avatar-wrap') || el.closest('.menu') || el.closest('.profile-menu')) return;
   showProfileMenu.value = false;
   resetProfileUi();
 }

@@ -1061,17 +1061,28 @@ function coerceGatewayEndpoint(input) {
   const raw = String(input ?? '').trim();
   if (!raw) return '';
   try {
+    // Keep explicit scheme/port when provided (e.g. http://1.2.3.4:8787),
+    // because gateways often serve on non-standard ports and/or HTTP-only.
     const hasScheme = /^[a-z]+:\/\//i.test(raw);
-    const url = new URL(hasScheme ? raw : `https://${raw}`);
-    const host = url.hostname || raw;
-    return host.replace(/\/+$/, '').toLowerCase();
+    if (hasScheme) {
+      const url = new URL(raw);
+      const proto = String(url.protocol || '').toLowerCase();
+      if (proto === 'http:' || proto === 'https:') {
+        const origin = url.origin || raw;
+        if (origin && origin !== 'null') {
+          return origin.replace(/\/+$/, '').trim().toLowerCase();
+        }
+      }
+      const host = url.host || url.hostname || raw;
+      return String(host).replace(/\/+$/, '').trim().toLowerCase();
+    }
   } catch {
-    return raw
-      .replace(/^https?:\/\//i, '')
-      .split('/')[0]
-      .trim()
-      .toLowerCase();
+    // fall through to the non-URL normalization below
   }
+
+  // No explicit scheme: treat as DNS-style hint (record.domain) or host[:port].
+  const head = raw.split(/[/?#]/, 1)[0] || '';
+  return head.replace(/\/+$/, '').trim().toLowerCase();
 }
 
 function decorateGateway(raw) {
