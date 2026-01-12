@@ -1934,23 +1934,6 @@ watch(txTimeFilter, () => {
   padding: 1.5rem;
 }
 
-.main-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.main-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.main-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 3px;
-}
-
-.main-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-}
-
 /* Search Section */
 .search-section {
   margin-bottom: 2rem;
@@ -2201,19 +2184,6 @@ watch(txTimeFilter, () => {
 .table-body {
   max-height: 600px;
   overflow-y: auto;
-}
-
-.table-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.table-body::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-}
-
-.table-body::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
 }
 
 .table-row {

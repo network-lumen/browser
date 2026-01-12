@@ -733,25 +733,6 @@ function getViewDescription(): string {
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 0.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
-}
-
-.content-area::-webkit-scrollbar {
-  width: 6px;
-}
-
-.content-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.content-area::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.45);
-  border-radius: 999px;
-}
-
-.content-area::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.65);
 }
 
 .help-section h3 {

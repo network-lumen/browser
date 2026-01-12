@@ -4902,27 +4902,6 @@ async function reloadForActiveProfileChange() {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-tertiary) transparent;
-}
-
-.files-grid::-webkit-scrollbar {
-  width: 8px;
-}
-
-.files-grid::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
-}
-
-.files-grid::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 4px;
-  opacity: 0.5;
-}
-
-.files-grid::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
 }
 
 .file-card {
@@ -5343,27 +5322,6 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-tertiary) transparent;
-}
-
-.files-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.files-list::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
-}
-
-.files-list::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 4px;
-  opacity: 0.5;
-}
-
-.files-list::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
 }
 
 .list-header {
@@ -5510,32 +5468,6 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
   min-height: 0;
   box-shadow: var(--shadow-sm);
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-tertiary) transparent;
-}
-
-.files-table-wrapper::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.files-table-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
-}
-
-.files-table-wrapper::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 4px;
-  opacity: 0.5;
-}
-
-.files-table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
-
-.files-table-wrapper::-webkit-scrollbar-corner {
-  background: transparent;
 }
 
 .files-table {
