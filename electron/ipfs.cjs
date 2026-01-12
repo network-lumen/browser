@@ -557,6 +557,81 @@ async function ipfsPinAdd(cidOrPath) {
   }
 }
 
+async function ipfsPinLs(cidOrPath, type = 'recursive') {
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    const pinType = String(type || 'recursive');
+    const url = new URL(`${ipfsApiBase()}/api/v0/pin/ls`);
+    url.searchParams.set('arg', arg);
+    url.searchParams.set('type', pinType);
+    const res = await fetch(url.toString(), { method: 'POST' });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: errText || 'http_' + res.status };
+    }
+
+    const json = await res.json().catch(() => null);
+    const keys = json && typeof json.Keys === 'object' ? Object.keys(json.Keys) : [];
+    return { ok: true, pinned: keys.length > 0, keys };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+async function ipfsPinRm(cidOrPath) {
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    const url = new URL(`${ipfsApiBase()}/api/v0/pin/rm`);
+    url.searchParams.set('arg', arg);
+    url.searchParams.set('recursive', 'true');
+    const res = await fetch(url.toString(), { method: 'POST' });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: errText || 'http_' + res.status };
+    }
+
+    await res.text().catch(() => '');
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+async function ipfsObjectStat(cidOrPath) {
+  try {
+    const arg = sanitizeCidOrPath(cidOrPath);
+    const url = new URL(`${ipfsApiBase()}/api/v0/object/stat`);
+    url.searchParams.set('arg', arg);
+    const res = await fetch(url.toString(), { method: 'POST' });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: errText || 'http_' + res.status };
+    }
+
+    const json = await res.json().catch(() => null);
+    const cumulativeSize = Number(json?.CumulativeSize ?? NaN);
+    const dataSize = Number(json?.DataSize ?? NaN);
+    const blockSize = Number(json?.BlockSize ?? NaN);
+    const linksSize = Number(json?.LinksSize ?? NaN);
+    const numLinks = Number(json?.NumLinks ?? NaN);
+
+    return {
+      ok: true,
+      cumulativeSize: Number.isFinite(cumulativeSize) ? cumulativeSize : null,
+      dataSize: Number.isFinite(dataSize) ? dataSize : null,
+      blockSize: Number.isFinite(blockSize) ? blockSize : null,
+      linksSize: Number.isFinite(linksSize) ? linksSize : null,
+      numLinks: Number.isFinite(numLinks) ? numLinks : null,
+      raw: json
+    };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
 function sanitizeCidOrPath(input) {
   const s = String(input ?? '').trim();
   if (!s) throw new Error('Empty CID or path');
@@ -764,7 +839,10 @@ module.exports = {
   ipfsGet,
   ipfsLs,
   ipfsPinList,
+  ipfsPinLs,
   ipfsPinAdd,
+  ipfsPinRm,
+  ipfsObjectStat,
   ipfsUnpin,
   ipfsStats,
   ipfsPublishToIPNS,
