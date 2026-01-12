@@ -54,7 +54,8 @@ contextBridge.exposeInMainWorld('lumen', {
     get: (url, options) => ipcRenderer.invoke('http:get', url, options || {})
   },
   pqc: {
-    getParams: () => ipcRenderer.invoke('pqc:getParams')
+    getParams: () => ipcRenderer.invoke('pqc:getParams'),
+    getAccount: (address) => ipcRenderer.invoke('pqc:getAccount', address)
   },
   profiles: {
 getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavourite: (domain, cid) => ipcRenderer.invoke('profiles:setFavourite', domain, cid),    removeFavourite: (domain) => ipcRenderer.invoke('profiles:removeFavourite', domain),

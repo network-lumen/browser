@@ -664,6 +664,36 @@ async function pqcGetParams() {
   return { ok: true, data: { params } };
 }
 
+async function pqcGetAccount(addressInput) {
+  const LCD_TIMEOUT_MS = 20_000;
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+
+  const address = String(addressInput || '').trim();
+  if (!address) return { ok: false, error: 'missing_address' };
+
+  const url = `${trimSlash(restBase)}/lumen/pqc/v1/accounts/${encodeURIComponent(address)}`;
+  const res = await httpGet(url, { timeout: LCD_TIMEOUT_MS });
+
+  // Not linked yet (treat as non-error)
+  if (!res.ok && (res.status === 404 || res.status === 400)) {
+    return { ok: true, linked: false, account: null };
+  }
+  if (!res.ok) {
+    return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
+  }
+
+  const data = res.json || null;
+  const account = (data && (data.account || data)) || data || null;
+  const pubKeyHash =
+    account && (account.pubKeyHash || account.pub_key_hash || account.pubKey || account.pub_key)
+      ? String(account.pubKeyHash || account.pub_key_hash || account.pubKey || account.pub_key)
+      : '';
+  return { ok: true, linked: !!pubKeyHash, account };
+}
+
 async function dnsGetDomainInfo(nameInput) {
   const LCD_TIMEOUT_MS = 20_000;
   const restBase = getRestBaseUrl();
@@ -882,6 +912,14 @@ function registerChainIpc() {
   ipcMain.handle('pqc:getParams', async () => {
     try {
       return await pqcGetParams();
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('pqc:getAccount', async (_evt, address) => {
+    try {
+      return await pqcGetAccount(address);
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

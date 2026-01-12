@@ -10,6 +10,7 @@ const {
   encryptMnemonicLocal,
   isPasswordProtected,
 } = require('../utils/crypto.cjs');
+const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { getSessionPassword } = require('./security.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
 
@@ -277,10 +278,6 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
   }
 
   const params = await loadPqcParams(client);
-  const minBalance = params.minBalanceForLink || params.min_balance_for_link;
-  if (minBalance) {
-    await assertMinBalance(client, address, minBalance);
-  }
 
   const powBitsRaw = params.powDifficultyBits || params.pow_difficulty_bits || 0;
   const powBits = Number(powBitsRaw) || 0;
@@ -314,6 +311,141 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
   );
   if (res.code !== 0) {
     throw new Error(res.rawLog || `broadcast failed (code ${res.code})`);
+  }
+}
+
+const WALLET_ACTIVATION_TOOLTIP =
+  'To be activated, you must make your first transaction (buy domain/send token etc..) with a minimum of 0.001 LMN in your wallet';
+
+function isPqcRelatedErrorText(text) {
+  const msg = String(text || '').toLowerCase();
+  if (!msg) return false;
+  if (msg.includes('codespace: pqc')) return true;
+  if (msg.includes('pqc_policy_required')) return true;
+  if (!msg.includes('pqc')) return false;
+  return (
+    msg.includes('link') ||
+    msg.includes('linked') ||
+    msg.includes('missing pqc key') ||
+    msg.includes('pqc signature required') ||
+    msg.includes('signature required') ||
+    msg.includes('pub_key_hash') ||
+    msg.includes('pubkeyhash') ||
+    msg.includes('pub key hash') ||
+    msg.includes('policy')
+  );
+}
+
+function isActivationBalanceErrorText(text) {
+  const msg = String(text || '').toLowerCase();
+  if (!msg) return false;
+  return (
+    msg.includes('min_balance_for_link') ||
+    msg.includes('min balance for link') ||
+    msg.includes('requires at least') ||
+    msg.includes('insufficient funds') ||
+    msg.includes('spendable balance')
+  );
+}
+
+function sanitizePqcErrorMessage(text) {
+  if (isActivationBalanceErrorText(text)) {
+    return WALLET_ACTIVATION_TOOLTIP;
+  }
+  return String(text || '').trim();
+}
+
+async function waitForPqcLinkCommit(address, timeoutMs = 15_000) {
+  const restBase = getRestBaseUrl();
+  const base = String(restBase || '').replace(/\/+$/, '');
+  if (!base) return false;
+
+  const addr = String(address || '').trim();
+  if (!addr) return false;
+
+  const deadline = Date.now() + Math.max(0, Number(timeoutMs) || 0);
+  const url = `${base}/lumen/pqc/v1/accounts/${encodeURIComponent(addr)}`;
+
+  while (Date.now() < deadline) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(url, { method: 'GET', signal: controller.signal });
+      clearTimeout(timer);
+      if (res && res.ok) {
+        const data = await res.json().catch(() => null);
+        const account = (data && (data.account || data)) || null;
+        const pubKeyHash =
+          account &&
+          (account.pubKeyHash ||
+            account.pub_key_hash ||
+            account.pubKey ||
+            account.pub_key);
+        if (pubKeyHash && String(pubKeyHash).length > 0) {
+          return true;
+        }
+      }
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 750));
+  }
+  return false;
+}
+
+async function signAndBroadcastWithPqcAutoLink({
+  bridgeMod,
+  client,
+  profileId,
+  address,
+  msgs,
+  fee,
+  memo,
+  label,
+}) {
+  const broadcastOnce = async () => {
+    const res = await client.signAndBroadcast(address, msgs, fee, memo);
+    if (res && typeof res.code === 'number' && res.code !== 0) {
+      const raw = res.rawLog || `broadcast failed (code ${res.code})`;
+      const err = new Error(String(raw));
+      err.txhash = res.transactionHash || res.txhash || res.hash || '';
+      throw err;
+    }
+    return res;
+  };
+
+  try {
+    return await broadcastOnce();
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    if (!isPqcRelatedErrorText(msg)) {
+      throw e;
+    }
+
+    try {
+      const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, address);
+      if (pqcLocal && pqcLocal.record) {
+        await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
+        await waitForPqcLinkCommit(address).catch(() => false);
+      }
+    } catch (linkErr) {
+      const linkMsg = String(linkErr && linkErr.message ? linkErr.message : linkErr);
+      throw new Error(sanitizePqcErrorMessage(linkMsg));
+    }
+
+    try {
+      return await broadcastOnce();
+    } catch (e2) {
+      const msg2 = String(e2 && e2.message ? e2.message : e2);
+      if (isPqcRelatedErrorText(msg2)) {
+        await waitForPqcLinkCommit(address, 20_000).catch(() => false);
+        try {
+          return await broadcastOnce();
+        } catch (e3) {
+          const msg3 = String(e3 && e3.message ? e3.message : e3);
+          throw new Error(sanitizePqcErrorMessage(msg3));
+        }
+      }
+      throw e2;
+    }
   }
 }
 
@@ -1939,6 +2071,7 @@ function registerGatewayIpc() {
       mark('start');
       const profileId = String(input?.profileId || '').trim();
       if (!profileId) return { ok: false, error: 'missing_profileId' };
+      const password = input?.password ? String(input.password) : null;
 
       const planInput = input?.plan || {};
       const gatewayIdRaw = input?.gatewayId ?? planInput.gatewayId ?? planInput.gateway_id;
@@ -2018,86 +2151,88 @@ function registerGatewayIpc() {
       }
       mark('connectWithSigner.done');
 
-      try {
-        const pqcStart = Date.now();
-        const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, walletAddr);
-        if (pqcLocal && pqcLocal.record) {
-          mark('pqc.ensureLocal.done', { ms: Date.now() - pqcStart });
-          const linkStart = Date.now();
-          await ensureOnChainPqcLink(bridgeMod, client, walletAddr, pqcLocal.record);
-          mark('pqc.ensureOnChain.done', { ms: Date.now() - linkStart });
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
         }
-      } catch (err) {
-        console.warn(
-          '[gateway] ensure PQC link (plan subscribe) failed',
-          err && err.message ? err.message : err
-        );
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
       }
 
-      const metadata = JSON.stringify({
-        kind: 'plan',
-        planId,
-        gatewayId,
-        planPrice: priceUlmn,
-        monthsTotal,
-        createdAt: Date.now(),
-      });
-
-      const gatewayMod = client.gateways?.();
-      let msg = null;
-      if (gatewayMod?.msgCreateContract) {
-        msg = await gatewayMod.msgCreateContract(walletAddr, {
+      try {
+        const metadata = JSON.stringify({
+          kind: 'plan',
+          planId,
           gatewayId,
-          priceUlmn,
-          storageGbPerMonth: storageGb,
-          networkGbPerMonth: networkGb,
+          planPrice: priceUlmn,
           monthsTotal,
-          metadata,
+          createdAt: Date.now(),
         });
-      }
-      if (!msg) {
-        msg = {
-          typeUrl: '/lumen.gateway.v1.MsgCreateContract',
-          value: {
-            client: walletAddr,
+
+        const gatewayMod = client.gateways?.();
+        let msg = null;
+        if (gatewayMod?.msgCreateContract) {
+          msg = await gatewayMod.msgCreateContract(walletAddr, {
             gatewayId,
             priceUlmn,
             storageGbPerMonth: storageGb,
             networkGbPerMonth: networkGb,
             monthsTotal,
             metadata,
-          },
-        };
+          });
+        }
+        if (!msg) {
+          msg = {
+            typeUrl: '/lumen.gateway.v1.MsgCreateContract',
+            value: {
+              client: walletAddr,
+              gatewayId,
+              priceUlmn,
+              storageGbPerMonth: storageGb,
+              networkGbPerMonth: networkGb,
+              monthsTotal,
+              metadata,
+            },
+          };
+        }
+
+        const zeroFee =
+          (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
+          (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '250000' }));
+        const memo = String(input?.memo || 'gateway:plan:subscribe');
+
+        const fee = zeroFee();
+        console.log('[gateway] subscribePlan broadcast', {
+          planId,
+          gatewayId,
+          fee,
+          typeUrl: msg?.typeUrl,
+        });
+
+        mark('broadcast.start', { typeUrl: msg?.typeUrl, planId, gatewayId });
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod,
+          client,
+          profileId,
+          address: walletAddr,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'gateway_subscribePlan',
+        });
+        const txhash = String(res?.transactionHash || res?.txhash || res?.hash || '');
+        mark('broadcast.ok', { txhash });
+
+        return { ok: true, txhash, planId, gatewayId };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
       }
-
-      const zeroFee =
-        (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
-        (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '250000' }));
-      const memo = String(input?.memo || 'gateway:plan:subscribe');
-
-      const fee = zeroFee();
-      console.log('[gateway] subscribePlan broadcast', {
-        planId,
-        gatewayId,
-        fee,
-        typeUrl: msg?.typeUrl,
-      });
-
-      mark('broadcast.start', { typeUrl: msg?.typeUrl, planId, gatewayId });
-      const res = await client.signAndBroadcast(walletAddr, [msg], fee, memo);
-      if (typeof res?.code === 'number' && res.code !== 0) {
-        mark('broadcast.failed', { code: res.code });
-        return {
-          ok: false,
-          error: String(res?.rawLog || `broadcast failed (code ${res.code})`),
-          txhash: String(res?.transactionHash || res?.txhash || res?.hash || ''),
-        };
-      }
-      const txhash = String(res?.transactionHash || res?.txhash || res?.hash || '');
-      mark('broadcast.ok', { txhash });
-
-      return { ok: true, txhash, planId, gatewayId };
     } catch (e) {
       mark('error', { error: String(e && e.message ? e.message : e) });
       return { ok: false, error: String(e && e.message ? e.message : e) };

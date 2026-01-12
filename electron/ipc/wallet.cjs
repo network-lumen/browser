@@ -7,7 +7,8 @@ const { Buffer } = require('buffer');
 const Long = require('long');
 const { httpGet } = require('./http.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
-const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, decryptWithPassword, encryptWithPassword } = require('../utils/crypto.cjs');
+const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
+const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 let pqcWorker = null;
@@ -18,51 +19,6 @@ try {
 }
 
 let bridge = null;
-
-/**
- * Temporarily decrypt PQC keys file for use by SDK
- * Returns cleanup function to restore encrypted state
- */
-function tempDecryptPqcKeys(password) {
-  const keysFile = path.join(userDataPath('pqc_keys'), 'keys.json');
-  if (!fs.existsSync(keysFile)) return null;
-
-  try {
-    const data = readJson(keysFile, null);
-    if (!data) return null;
-
-    // Check if encrypted
-    if (!data._encrypted || !data.crypto) {
-      // Not encrypted, no action needed
-      return null;
-    }
-
-    // Decrypt using password
-    const decryptedStr = decryptWithPassword(data, password);
-    if (!decryptedStr) {
-      console.warn('[wallet] failed to decrypt PQC keys');
-      return null;
-    }
-
-    const decryptedKeys = JSON.parse(decryptedStr);
-    
-    // Save decrypted version temporarily
-    const backup = JSON.stringify(data);
-    fs.writeFileSync(keysFile, JSON.stringify(decryptedKeys, null, 2), 'utf8');
-
-    // Return cleanup function
-    return () => {
-      try {
-        fs.writeFileSync(keysFile, backup, 'utf8');
-      } catch (e) {
-        console.error('[wallet] failed to restore encrypted PQC keys', e);
-      }
-    };
-  } catch (e) {
-    console.error('[wallet] error in tempDecryptPqcKeys', e);
-    return null;
-  }
-}
 
 async function loadBridge() {
   if (bridge) return bridge;
@@ -152,21 +108,6 @@ function checkPasswordForSigning(providedPassword = null) {
   return { ok: false, error: 'password_required' };
 }
 
-/**
- * Check if PQC keys are password-encrypted
- */
-function arePqcKeysEncrypted() {
-  const keysFile = path.join(userDataPath('pqc_keys'), 'keys.json');
-  if (!fs.existsSync(keysFile)) return false;
-  
-  try {
-    const data = readJson(keysFile, null);
-    return data && data._encrypted === true;
-  } catch {
-    return false;
-  }
-}
-
 function resolvePqcHome() {
   if (process.env.LUMEN_PQC_HOME) return process.env.LUMEN_PQC_HOME;
   // Store PQC data alongside other app metadata in the app's userData folder.
@@ -212,7 +153,9 @@ function getRestBaseUrl() {
   try {
     const raw = fs.readFileSync(peersFile, 'utf8');
     for (const line of raw.split(/\r?\n/)) {
-      const cleaned = String(line || '').replace(/#.*/, '').trim();
+      const asStr = String(line || '');
+      const hashPos = asStr.indexOf('#');
+      const cleaned = (hashPos >= 0 ? asStr.slice(0, hashPos) : asStr).trim();
       if (!cleaned) continue;
       const parts = cleaned.split(/[\s,]+/).filter(Boolean);
       if (!parts.length) continue;
@@ -247,7 +190,9 @@ function getRpcBaseUrl() {
   try {
     const raw = fs.readFileSync(peersFile, 'utf8');
     for (const line of raw.split(/\r?\n/)) {
-      const cleaned = String(line || '').replace(/#.*/, '').trim();
+      const asStr = String(line || '');
+      const hashPos = asStr.indexOf('#');
+      const cleaned = (hashPos >= 0 ? asStr.slice(0, hashPos) : asStr).trim();
       if (!cleaned) continue;
       const parts = cleaned.split(/[\s,]+/).filter(Boolean);
       if (!parts.length) continue;
@@ -498,10 +443,6 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
     throw new Error('PQC module unavailable on client');
   }
   const params = await loadPqcParams(client);
-  const minBalance = params.minBalanceForLink || params.min_balance_for_link;
-  if (minBalance) {
-    await assertMinBalance(client, address, minBalance);
-  }
   const powBitsRaw = params.powDifficultyBits || params.pow_difficulty_bits || 0;
   const powBits = Number(powBitsRaw) || 0;
   let powNonce = new Uint8Array([0]);
@@ -530,6 +471,138 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
   );
   if (res.code !== 0) {
     throw new Error(res.rawLog || `link-account PQC failed (code ${res.code})`);
+  }
+}
+
+const WALLET_ACTIVATION_TOOLTIP =
+  'To be activated, you must make your first transaction (buy domain/send token etc..) with a minimum of 0.001 LMN in your wallet';
+
+function isPqcRelatedErrorText(text) {
+  const msg = String(text || '').toLowerCase();
+  if (!msg) return false;
+  if (msg.includes('codespace: pqc')) return true;
+  if (msg.includes('pqc_policy_required')) return true;
+  if (!msg.includes('pqc')) return false;
+  return (
+    msg.includes('link') ||
+    msg.includes('linked') ||
+    msg.includes('missing pqc key') ||
+    msg.includes('pqc signature required') ||
+    msg.includes('signature required') ||
+    msg.includes('pub_key_hash') ||
+    msg.includes('pubkeyhash') ||
+    msg.includes('pub key hash') ||
+    msg.includes('policy')
+  );
+}
+
+function isActivationBalanceErrorText(text) {
+  const msg = String(text || '').toLowerCase();
+  if (!msg) return false;
+  return (
+    msg.includes('min_balance_for_link') ||
+    msg.includes('min balance for link') ||
+    msg.includes('requires at least') ||
+    msg.includes('insufficient funds') ||
+    msg.includes('spendable balance')
+  );
+}
+
+function sanitizePqcErrorMessage(text) {
+  if (isActivationBalanceErrorText(text)) {
+    return WALLET_ACTIVATION_TOOLTIP;
+  }
+  return String(text || '').trim();
+}
+
+async function waitForPqcLinkCommit(address, timeoutMs = 15_000) {
+  const restBase = getRestBaseUrl();
+  const base = String(restBase || '').replace(/\/+$/, '');
+  if (!base) return false;
+
+  const addr = String(address || '').trim();
+  if (!addr) return false;
+
+  const deadline = Date.now() + Math.max(0, Number(timeoutMs) || 0);
+  const url = `${base}/lumen/pqc/v1/accounts/${encodeURIComponent(addr)}`;
+
+  while (Date.now() < deadline) {
+    try {
+      const res = await httpGet(url, { timeout: 6000 });
+      if (res && res.ok) {
+        const data = res.json || null;
+        const account = (data && (data.account || data)) || null;
+        const pubKeyHash =
+          account &&
+          (account.pubKeyHash ||
+            account.pub_key_hash ||
+            account.pubKey ||
+            account.pub_key);
+        if (pubKeyHash && String(pubKeyHash).length > 0) {
+          return true;
+        }
+      }
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 750));
+  }
+  return false;
+}
+
+async function signAndBroadcastWithPqcAutoLink({
+  bridgeMod,
+  client,
+  profileId,
+  address,
+  msgs,
+  fee,
+  memo,
+  label,
+}) {
+  const broadcastOnce = async () => {
+    const res = await client.signAndBroadcast(address, msgs, fee, memo);
+    if (res && typeof res.code === 'number' && res.code !== 0) {
+      const raw = res.rawLog || `broadcast failed (code ${res.code})`;
+      const err = new Error(String(raw));
+      err.txhash = res.transactionHash || res.txhash || res.hash || '';
+      throw err;
+    }
+    return res;
+  };
+
+  try {
+    return await broadcastOnce();
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    if (!isPqcRelatedErrorText(msg)) {
+      throw e;
+    }
+
+    try {
+      const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, address);
+      if (pqcLocal && pqcLocal.record) {
+        await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
+        await waitForPqcLinkCommit(address).catch(() => false);
+      }
+    } catch (linkErr) {
+      const linkMsg = String(linkErr && linkErr.message ? linkErr.message : linkErr);
+      throw new Error(sanitizePqcErrorMessage(linkMsg));
+    }
+
+    try {
+      return await broadcastOnce();
+    } catch (e2) {
+      const msg2 = String(e2 && e2.message ? e2.message : e2);
+      if (isPqcRelatedErrorText(msg2)) {
+        await waitForPqcLinkCommit(address, 20_000).catch(() => false);
+        try {
+          return await broadcastOnce();
+        } catch (e3) {
+          const msg3 = String(e3 && e3.message ? e3.message : e3);
+          throw new Error(sanitizePqcErrorMessage(msg3));
+        }
+      }
+      throw e2;
+    }
   }
 }
 
@@ -623,16 +696,6 @@ function registerWalletIpc() {
       }
 
       try {
-        console.log('[wallet:sendTokens] calling ensureLocalPqcKey...');
-        const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, from);
-        console.log('[wallet:sendTokens] pqcLocal:', pqcLocal);
-        
-        if (pqcLocal && pqcLocal.record) {
-          console.log('[wallet:sendTokens] calling ensureOnChainPqcLink...');
-          await ensureOnChainPqcLink(mod, client, from, pqcLocal.record);
-          console.log('[wallet:sendTokens] ensureOnChainPqcLink done');
-        }
-
         console.log('[wallet:sendTokens] preparing MsgSend...');
         const { MsgSend } = await import('cosmjs-types/cosmos/bank/v1beta1/tx.js');
         const micro = Math.round(amount * 1_000_000);
@@ -651,13 +714,20 @@ function registerWalletIpc() {
           (mod.utils && mod.utils.zeroFee) ||
           (() => ({ amount: [], gas: '250000' }));
 
-        console.log('[wallet:sendTokens] calling signAndBroadcast...');
-        const res = await client.signAndBroadcast(from, [msg], zeroFee(), memo);
+        const fee = zeroFee();
+        console.log('[wallet:sendTokens] calling signAndBroadcast (PQC middleware)...');
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: from,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'wallet_sendTokens',
+        });
         console.log('[wallet:sendTokens] signAndBroadcast result:', res);
         
-        if (res.code !== 0) {
-          throw new Error(res.rawLog || `broadcast failed (code ${res.code})`);
-        }
         const txhash = res.transactionHash || res.hash || '';
         return { ok: true, txhash };
       } finally {
@@ -761,62 +831,57 @@ function registerWalletIpc() {
       }
 
       try {
-        const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, owner);
-        if (pqcLocal && pqcLocal.record) {
-          await ensureOnChainPqcLink(mod, client, owner, pqcLocal.record);
+        const dnsMod =
+          typeof client.dns === 'function' ? client.dns() : client.dns;
+        if (!dnsMod || typeof dnsMod.msgRegister !== 'function') {
+          return { ok: false, error: 'dns_module_unavailable' };
         }
-      } catch (err) {
-        console.warn(
-          '[dns] ensure PQC link failed',
-          err && err.message ? err.message : err
-        );
+
+        let domain = '';
+        let ext = '';
+        const m = name.match(/^([^\.]+)\.([^\.]+)$/);
+        if (m) {
+          domain = m[1];
+          ext = m[2];
+        } else {
+          domain = name;
+          ext = 'lumen';
+        }
+
+        const msg = await dnsMod.msgRegister(owner, {
+          domain,
+          ext,
+          cid: input && input.cid ? String(input.cid) : '',
+          ipns: input && input.ipns ? String(input.ipns) : '',
+          records: Array.isArray(input && input.records ? input.records : [])
+            ? input.records
+            : [],
+          duration_days: durationDays
+        });
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '250000' }));
+
+        const memo = String((input && input.memo) || 'dns:register');
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: owner,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'dns_createDomain',
+        });
+
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
       } finally {
         if (cleanupPqc) cleanupPqc();
       }
-
-      const dnsMod =
-        typeof client.dns === 'function' ? client.dns() : client.dns;
-      if (!dnsMod || typeof dnsMod.msgRegister !== 'function') {
-        return { ok: false, error: 'dns_module_unavailable' };
-      }
-
-      let domain = '';
-      let ext = '';
-      const m = name.match(/^([^\.]+)\.([^\.]+)$/);
-      if (m) {
-        domain = m[1];
-        ext = m[2];
-      } else {
-        domain = name;
-        ext = 'lumen';
-      }
-
-      const msg = await dnsMod.msgRegister(owner, {
-        domain,
-        ext,
-        cid: input && input.cid ? String(input.cid) : '',
-        ipns: input && input.ipns ? String(input.ipns) : '',
-        records: Array.isArray(input && input.records ? input.records : [])
-          ? input.records
-          : [],
-        duration_days: durationDays
-      });
-
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '250000' }));
-
-      const memo = String((input && input.memo) || 'dns:register');
-      const res = await client.signAndBroadcast(owner, [msg], zeroFee(), memo);
-      if (res.code !== 0) {
-        return {
-          ok: false,
-          error: res.rawLog || `broadcast failed (code ${res.code})`
-        };
-      }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
@@ -914,119 +979,114 @@ function registerWalletIpc() {
       }
 
       try {
-        const pqcLocal = await ensureLocalPqcKey(mod, client, profileId, owner);
-        if (pqcLocal && pqcLocal.record) {
-          await ensureOnChainPqcLink(mod, client, owner, pqcLocal.record);
+        const dnsMod =
+          typeof client.dns === 'function' ? client.dns() : client.dns;
+        if (!dnsMod || typeof dnsMod.msgUpdate !== 'function') {
+          return { ok: false, error: 'dns_module_unavailable' };
         }
-      } catch (err) {
-        console.warn(
-          '[dns] ensure PQC link (update) failed',
-          err && err.message ? err.message : err
-        );
+
+        let domain = '';
+        let ext = '';
+        const m = name.match(/^([^\.]+)\.([^\.]+)$/);
+        if (m) {
+          domain = m[1];
+          ext = m[2];
+        } else {
+          domain = name;
+          ext = 'lumen';
+        }
+
+        const identifier = `${String(domain || '').toLowerCase()}.${String(
+          ext || ''
+        ).toLowerCase()}`;
+
+        let powBits = 0;
+        try {
+          const rest = restBase || rpcBase;
+          const url = `${String(rest).replace(/\/+$/, '')}/lumen/dns/v1/params`;
+          const prs = await httpGet(url, { timeout: 5000 });
+          if (prs && prs.ok && prs.json) {
+            const raw = prs.json;
+            const params =
+              (raw && (raw.params || raw.data?.params)) || raw.data || raw || {};
+            const fromRest = Number(
+              params.update_pow_difficulty ??
+                params.updatePowDifficulty ??
+                params.pow_difficulty ??
+                params.powDifficulty ??
+                0
+            );
+            if (Number.isFinite(fromRest) && fromRest > 0) {
+              powBits = fromRest;
+            }
+          }
+        } catch (e) {
+          console.warn(
+            '[dns] updateDomain: failed to load dns params for pow',
+            e && e.message ? e.message : e
+          );
+        }
+
+        const budgetMsRaw =
+          Number(
+            input &&
+              (input.powBudgetMs ?? input.pow_budget_ms ?? input.pow_budget_ms)
+          ) || 0;
+        const budgetMs =
+          Number.isFinite(budgetMsRaw) && budgetMsRaw > 0 ? budgetMsRaw : 2500;
+
+        const mined = await mineUpdatePowNonce(identifier, owner, powBits, budgetMs);
+        if (!mined) {
+          return {
+            ok: false,
+            error: 'pow_budget_exceeded',
+            detail: { bits: powBits, budgetMs }
+          };
+        }
+        const powNonce = mined.nonce;
+
+        const cidEntry = records.find((r) => r.key === 'cid');
+        const ipnsEntry = records.find((r) => r.key === 'ipns');
+        const cid = cidEntry ? cidEntry.value : String(input && input.cid ? input.cid : '');
+        const ipns = ipnsEntry ? ipnsEntry.value : String(input && input.ipns ? input.ipns : '');
+
+        const msg = await dnsMod.msgUpdate(owner, {
+          domain,
+          ext,
+          cid,
+          ipns,
+          records,
+          powNonce
+        });
+
+        if (msg && msg.value) {
+          msg.value.powNonce = powNonce;
+          msg.value.pow_nonce = powNonce;
+        }
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '250000' }));
+
+        const memo = String((input && input.memo) || 'dns:update');
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: owner,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'dns_updateDomain',
+        });
+
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
       } finally {
         if (cleanupPqc) cleanupPqc();
       }
-
-      const dnsMod =
-        typeof client.dns === 'function' ? client.dns() : client.dns;
-      if (!dnsMod || typeof dnsMod.msgUpdate !== 'function') {
-        return { ok: false, error: 'dns_module_unavailable' };
-      }
-
-      let domain = '';
-      let ext = '';
-      const m = name.match(/^([^\.]+)\.([^\.]+)$/);
-      if (m) {
-        domain = m[1];
-        ext = m[2];
-      } else {
-        domain = name;
-        ext = 'lumen';
-      }
-
-      const identifier = `${String(domain || '').toLowerCase()}.${String(
-        ext || ''
-      ).toLowerCase()}`;
-
-      let powBits = 0;
-      try {
-        const rest = restBase || rpcBase;
-        const url = `${String(rest).replace(/\/+$/, '')}/lumen/dns/v1/params`;
-        const prs = await httpGet(url, { timeout: 5000 });
-        if (prs && prs.ok && prs.json) {
-          const raw = prs.json;
-          const params =
-            (raw && (raw.params || raw.data?.params)) || raw.data || raw || {};
-          const fromRest = Number(
-            params.update_pow_difficulty ??
-              params.updatePowDifficulty ??
-              params.pow_difficulty ??
-              params.powDifficulty ??
-              0
-          );
-          if (Number.isFinite(fromRest) && fromRest > 0) {
-            powBits = fromRest;
-          }
-        }
-      } catch (e) {
-        console.warn(
-          '[dns] updateDomain: failed to load dns params for pow',
-          e && e.message ? e.message : e
-        );
-      }
-
-      const budgetMsRaw =
-        Number(
-          input &&
-            (input.powBudgetMs ?? input.pow_budget_ms ?? input.pow_budget_ms)
-        ) || 0;
-      const budgetMs =
-        Number.isFinite(budgetMsRaw) && budgetMsRaw > 0 ? budgetMsRaw : 2500;
-
-      const mined = await mineUpdatePowNonce(identifier, owner, powBits, budgetMs);
-      if (!mined) {
-        return {
-          ok: false,
-          error: 'pow_budget_exceeded',
-          detail: { bits: powBits, budgetMs }
-        };
-      }
-      const powNonce = mined.nonce;
-
-      const cidEntry = records.find((r) => r.key === 'cid');
-      const ipnsEntry = records.find((r) => r.key === 'ipns');
-      const cid = cidEntry ? cidEntry.value : String(input && input.cid ? input.cid : '');
-      const ipns = ipnsEntry ? ipnsEntry.value : String(input && input.ipns ? input.ipns : '');
-
-      const msg = await dnsMod.msgUpdate(owner, {
-        domain,
-        ext,
-        cid,
-        ipns,
-        records,
-        powNonce
-      });
-
-      if (msg && msg.value) {
-        msg.value.powNonce = powNonce;
-        msg.value.pow_nonce = powNonce;
-      }
-
-      const zeroFee =
-        (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-        (mod.utils && mod.utils.zeroFee) ||
-        (() => ({ amount: [], gas: '250000' }));
-
-      const memo = String((input && input.memo) || 'dns:update');
-      const res = await client.signAndBroadcast(owner, [msg], zeroFee(), memo);
-      if (res.code !== 0) {
-        return {
-          ok: false,
-          error: res.rawLog || `broadcast failed (code ${res.code})`
-        };
-      }
-      const txhash = res.transactionHash || res.hash || '';
-      return { ok: true, txhash };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
@@ -1119,11 +1179,17 @@ function registerWalletIpc() {
           (mod.utils && mod.utils.zeroFee) ||
           (() => ({ amount: [], gas: '300000' }));
 
-        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-        
-        if (res.code !== 0) {
-          throw new Error(res.rawLog || `delegate failed (code ${res.code})`);
-        }
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee,
+          memo: '',
+          label: 'wallet_delegate',
+        });
         const txhash = res.transactionHash || res.hash || '';
         return { ok: true, txhash };
       } finally {
@@ -1220,11 +1286,17 @@ function registerWalletIpc() {
           (mod.utils && mod.utils.zeroFee) ||
           (() => ({ amount: [], gas: '300000' }));
 
-        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-        
-        if (res.code !== 0) {
-          throw new Error(res.rawLog || `undelegate failed (code ${res.code})`);
-        }
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee,
+          memo: '',
+          label: 'wallet_undelegate',
+        });
         const txhash = res.transactionHash || res.hash || '';
         return { ok: true, txhash };
       } finally {
@@ -1323,11 +1395,17 @@ function registerWalletIpc() {
           (mod.utils && mod.utils.zeroFee) ||
           (() => ({ amount: [], gas: '300000' }));
 
-        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-        
-        if (res.code !== 0) {
-          throw new Error(res.rawLog || `redelegate failed (code ${res.code})`);
-        }
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee,
+          memo: '',
+          label: 'wallet_redelegate',
+        });
         const txhash = res.transactionHash || res.hash || '';
         return { ok: true, txhash };
       } finally {
@@ -1422,11 +1500,17 @@ function registerWalletIpc() {
           (mod.utils && mod.utils.zeroFee) ||
           (() => ({ amount: [], gas: '300000' }));
 
-        const res = await client.signAndBroadcast(address, [msg], zeroFee(), '');
-        
-        if (res.code !== 0) {
-          throw new Error(res.rawLog || `withdraw rewards failed (code ${res.code})`);
-        }
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee,
+          memo: '',
+          label: 'wallet_withdrawRewards',
+        });
         const txhash = res.transactionHash || res.hash || '';
         return { ok: true, txhash };
       } finally {
