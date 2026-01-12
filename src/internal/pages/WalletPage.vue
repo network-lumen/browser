@@ -8,6 +8,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'overview' }"
+            @click="currentView = 'overview'"
+          >
+            <Wallet :size="18" />
+            <span>Wallet</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -68,8 +77,8 @@
           <div class="balance-header">
             <span class="balance-label">Total Balance</span>
             <button class="eye-btn" @click="showBalance = !showBalance">
-              <Eye v-if="showBalance" :size="18" />
-              <EyeOff v-else :size="18" />
+              <Eye v-if="showBalance" :size="18" :style="{ color: effectiveTheme === 'dark' ? 'white' : '#222' }" />
+              <EyeOff v-else :size="18" :style="{ color: effectiveTheme === 'dark' ? 'white' : '#222' }" />
             </button>
           </div>
           <div class="balance-amount">
@@ -668,6 +677,7 @@ import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
 import { getRecurringPaymentsService, type RecurringPayment } from '../services/recurringPayments';
 import { useToast } from '../../composables/useToast';
+import { useTheme } from '../../composables/useTheme';
 
 const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
@@ -843,6 +853,7 @@ const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
 // Use global toast system
 const toast = useToast();
+const { effectiveTheme } = useTheme();
 
 onMounted(() => {
   loadContacts();
