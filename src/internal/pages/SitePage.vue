@@ -320,7 +320,7 @@ function buildDomainSiteSrcdoc(params: {
 ${"</scr" + "ipt>"}
 `.trim();
 
-  return safeInjectIntoHead(params.html, `\\n${inject}\\n`);
+  return safeInjectIntoHead(params.html, `\n${inject}\n`);
 }
 
 function syncSuffixToFrame(nextSuffix: string) {
