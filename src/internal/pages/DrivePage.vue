@@ -823,9 +823,6 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="modal-desc">
-              View on-chain storage plans published by gateways.
-            </p>
 
             <div v-if="plansLoading" class="permalink-loading">
               <UiSpinner size="md" />
@@ -4218,7 +4215,6 @@ async function reloadForActiveProfileChange() {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 0.5rem;
 }
 
 .plan-row {

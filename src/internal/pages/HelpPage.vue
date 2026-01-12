@@ -299,7 +299,7 @@
               <ArrowRight :size="18" class="contact-arrow" />
             </button>
 
-            <button class="contact-card" type="button" @click="openInNewTabSafe('https://lumen.network')">
+            <button class="contact-card" type="button" @click="openInNewTabSafe('https://lumen-network.org')">
               <div class="contact-icon website">
                 <Globe :size="28" />
               </div>
