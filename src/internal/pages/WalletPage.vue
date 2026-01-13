@@ -631,6 +631,7 @@
     <PasswordPromptModal
       :visible="showPasswordModal"
       :message="passwordModalMessage"
+      :busy="passwordOperationBusy"
       @confirm="handlePasswordConfirm"
       @cancel="handlePasswordCancel"
     />
@@ -734,6 +735,7 @@ const savingContact = ref(false);
 // Password Modal State
 const showPasswordModal = ref(false);
 const passwordModalMessage = ref('');
+const passwordOperationBusy = ref(false);
 const pendingPasswordOperation = ref<{
   operation: (...args: any[]) => Promise<any>;
   args: any[];
@@ -778,8 +780,12 @@ async function handlePasswordConfirm(password: string) {
   }
   
   const { operation, args, resolve, reject } = pendingPasswordOperation.value;
+  const baseMessage = passwordModalMessage.value;
   
   try {
+    passwordOperationBusy.value = true;
+    passwordModalMessage.value = 'Working... Please wait.';
+
     // Add password to the operation args
     const argsWithPassword = args.map(arg => {
       if (typeof arg === 'object' && arg !== null) {
@@ -793,11 +799,13 @@ async function handlePasswordConfirm(password: string) {
     if (result?.ok === false && result?.error === 'password_required') {
       // Password still required (incorrect password)
       showToast('Incorrect password', 'error');
+      passwordModalMessage.value = baseMessage;
       return; // Keep modal open
     }
     
     if (result?.ok === false && result?.error === 'invalid_password') {
       showToast('Invalid password', 'error');
+      passwordModalMessage.value = baseMessage;
       return; // Keep modal open
     }
     
@@ -807,15 +815,20 @@ async function handlePasswordConfirm(password: string) {
   } catch (e: any) {
     if (e?.error === 'invalid_password' || e?.message?.includes('password')) {
       showToast('Invalid password', 'error');
+      passwordModalMessage.value = baseMessage;
       return; // Keep modal open
     }
     showPasswordModal.value = false;
     pendingPasswordOperation.value = null;
     reject(e);
+  } finally {
+    passwordOperationBusy.value = false;
+    passwordModalMessage.value = baseMessage;
   }
 }
 
 function handlePasswordCancel() {
+  if (passwordOperationBusy.value) return;
   showPasswordModal.value = false;
   if (pendingPasswordOperation.value) {
     pendingPasswordOperation.value.reject(new Error('Operation cancelled by user'));
@@ -1086,6 +1099,10 @@ function sendTransaction() {
 }
 
 function closeSendModal() {
+  if (sendingTransaction.value || showPasswordModal.value || passwordOperationBusy.value) {
+    showToast('Transaction in progress. Please wait...', 'info');
+    return;
+  }
   showSendModal.value = false;
   showContactPicker.value = false;
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
@@ -1889,7 +1906,7 @@ function exportTransactions() {
 
 .action-btn.primary {
   background: var(--gradient-primary);
-  color: var(--text-primary);
+  color: #fff;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 

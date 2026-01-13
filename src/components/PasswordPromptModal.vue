@@ -1,7 +1,11 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="visible" class="password-modal-overlay" @click.self="handleCancel">
+      <div
+        v-if="visible"
+        class="password-modal-overlay"
+        @click.self="handleCancel"
+      >
         <div class="password-modal">
           <div class="modal-header">
             <LockKeyhole :size="24" class="modal-icon" />
@@ -19,7 +23,7 @@
               class="password-input"
               v-model="password"
               placeholder="Enter password"
-              :disabled="loading"
+              :disabled="loading || busy"
               @keyup.enter="handleSubmit"
               @keyup.escape="handleCancel"
             />
@@ -33,16 +37,21 @@
             <button 
               class="btn-secondary"
               @click="handleCancel"
-              :disabled="loading"
+              :disabled="loading || busy"
             >
               Cancel
             </button>
             <button 
               class="btn-primary"
               @click="handleSubmit"
-              :disabled="loading || !password"
+              :disabled="loading || busy || !password"
             >
-              {{ loading ? 'Verifying...' : 'Confirm' }}
+              <span v-if="loading">Verifying...</span>
+              <span v-else-if="busy" class="btn-primary-busy">
+                <span class="btn-spinner" aria-hidden="true"></span>
+                Working...
+              </span>
+              <span v-else>Confirm</span>
             </button>
           </div>
         </div>
@@ -58,6 +67,7 @@ import { LockKeyhole } from 'lucide-vue-next';
 const props = defineProps<{
   visible: boolean;
   message?: string;
+  busy?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -82,7 +92,7 @@ watch(() => props.visible, async (isVisible) => {
 });
 
 async function handleSubmit() {
-  if (!password.value || loading.value) return;
+  if (!password.value || loading.value || props.busy) return;
   
   error.value = '';
   loading.value = true;
@@ -108,7 +118,7 @@ async function handleSubmit() {
 }
 
 function handleCancel() {
-  if (loading.value) return;
+  if (loading.value || props.busy) return;
   password.value = '';
   error.value = '';
   emit('cancel');
@@ -256,6 +266,27 @@ defineExpose({
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn-primary-busy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  animation: btn-spin 0.85s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Transitions */
