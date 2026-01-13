@@ -127,6 +127,18 @@
         >
           <button
             type="button"
+            class="image-save-btn"
+            :class="{ saved: isPinnedImage(r) }"
+            :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
+            @click.stop="togglePinImage(r)"
+          >
+            <Bookmark
+              :size="16"
+              :fill="isPinnedImage(r) ? 'currentColor' : 'none'"
+            />
+          </button>
+          <button
+            type="button"
             class="image-card-btn"
             @click="openResult(r)"
             :title="r.url"
@@ -157,15 +169,6 @@
                 >+{{ r.badges.length - 4 }}</span
               >
             </div>
-            <button
-              type="button"
-              class="image-save-btn"
-              :class="{ saved: isPinnedImage(r) }"
-              :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
-              @click.stop="togglePinImage(r)"
-            >
-              <Save :size="14" :fill="isPinnedImage(r) ? 'currentColor' : 'none'" />
-            </button>
           </div>
         </div>
       </div>
@@ -348,6 +351,7 @@ import { computed, inject, onMounted, ref, watch } from "vue";
 import {
   ArrowUpRight,
   Bug,
+  Bookmark,
   Compass,
   Film,
   Globe,
@@ -361,7 +365,6 @@ import {
   Box,
   ExternalLink,
   Sparkles,
-  Save,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { useToast } from "../../composables/useToast";
@@ -464,26 +467,57 @@ async function togglePinImage(result: ResultItem) {
   const isPinned = pinnedCids.value.includes(cid);
 
   try {
+    const api: any = (window as any).lumen || null;
     if (isPinned) {
       // Unpin
-      const res = await (window as any).lumen?.ipfsPinRm?.(cid).catch(() => null);
+      const unpinFn =
+        typeof api?.ipfsUnpin === "function"
+          ? api.ipfsUnpin
+          : typeof api?.ipfsPinRm === "function"
+            ? api.ipfsPinRm
+            : null;
+
+      if (!unpinFn) {
+        const msg = "Local save API unavailable (missing ipfsUnpin)";
+        console.error("[search][local-save] unpin missing API:", { cid });
+        toast.error(msg);
+        return;
+      }
+
+      const res = await unpinFn(cid).catch(() => null);
       if (res?.ok) {
         pinnedCids.value = pinnedCids.value.filter((c) => c !== cid);
         toast.success("Removed from local save");
+        void refreshPinnedCids();
       } else {
-        toast.error("Failed to remove from local save");
+        const err = String(res?.error || "").trim();
+        console.warn("[search][local-save] unpin failed:", { cid, res });
+        toast.error(err ? `Failed to remove from local save: ${err}` : "Failed to remove from local save");
       }
     } else {
       // Pin
-      const res = await (window as any).lumen?.ipfsPinAdd?.(cid).catch(() => null);
+      if (typeof api?.ipfsPinAdd !== "function") {
+        const msg = "Local save API unavailable (missing ipfsPinAdd)";
+        console.error("[search][local-save] pin missing API:", { cid });
+        toast.error(msg);
+        return;
+      }
+
+      const res = await api.ipfsPinAdd(cid).catch(() => null);
       if (res?.ok) {
         pinnedCids.value = [...pinnedCids.value, cid];
         toast.success("Saved to local");
+        void refreshPinnedCids();
       } else {
-        toast.error("Failed to save to local");
+        const err = String(res?.error || "").trim();
+        console.warn("[search][local-save] pin failed:", { cid, res });
+        toast.error(err ? `Failed to save to local: ${err}` : "Failed to save to local");
       }
     }
   } catch (e: any) {
+    if (debugMode.value) {
+      console.error("[search][local-save] exception:", e);
+    }
     toast.error(String(e?.message || "Operation failed"));
   }
 }
@@ -2223,7 +2257,7 @@ const imageResults = computed(() =>
   padding: 0.75rem 0.75rem 0.9rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.5rem;
 }
 
@@ -2236,9 +2270,9 @@ const imageResults = computed(() =>
 }
 
 .image-badge {
-  font-size: 0.6875rem;
+  font-size: 0.5rem;
   line-height: 1;
-  padding: 0.35rem 0.5rem;
+  padding: 0.25rem 0.4rem;
   border-radius: 999px;
   background: rgba(45, 95, 79, 0.08);
   color: var(--accent-primary);
@@ -2247,9 +2281,9 @@ const imageResults = computed(() =>
 }
 
 .image-badge-more {
-  font-size: 0.6875rem;
+  font-size: 0.5rem;
   line-height: 1;
-  padding: 0.35rem 0.5rem;
+  padding: 0.25rem 0.4rem;
   border-radius: 999px;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
@@ -2260,12 +2294,17 @@ const imageResults = computed(() =>
 }
 
 .image-save-btn {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
   border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
+  background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+  backdrop-filter: blur(6px);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -2275,10 +2314,9 @@ const imageResults = computed(() =>
 }
 
 .image-save-btn:hover {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: white;
-  transform: scale(1.05);
+  transform: scale(1.06);
+  color: var(--accent-primary);
+  border-color: var(--primary-a30);
 }
 
 .image-save-btn.saved {
@@ -2290,6 +2328,7 @@ const imageResults = computed(() =>
 .image-save-btn.saved:hover {
   background: var(--error-red);
   border-color: var(--error-red);
+  color: white;
 }
 
 .result-body {
@@ -2384,37 +2423,20 @@ const imageResults = computed(() =>
 }
 
 .badge {
-  font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.25rem 0.75rem;
+  font-size: 0.56rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 999px;
-  background: linear-gradient(
-    135deg,
-    var(--primary-a10) 0%,
-    var(--lime-a10) 100%
-  );
+  background: var(--primary-a08);
   color: var(--accent-primary);
   border: 1px solid var(--primary-a20);
   transition: all 0.2s ease;
 }
 
 .result-card:hover .badge {
-  background: linear-gradient(
-    135deg,
-    var(--primary-a15) 0%,
-    var(--lime-a15) 100%
-  );
+  background: var(--primary-a10);
   border-color: var(--primary-a30);
   transform: translateY(-1px);
-}
-
-.badge {
-  font-size: 0.75rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: var(--primary-a08);
-  color: var(--accent-primary);
-  border: 1px solid var(--primary-a20);
 }
 
 /* Empty State */

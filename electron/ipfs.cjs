@@ -677,16 +677,20 @@ async function ipfsLs(cidOrPath) {
 
 async function ipfsUnpin(cid) {
   try {
-    console.log('[electron][ipfs] unpinning:', cid);
+    const arg = sanitizeCidOrPath(cid);
+    console.log('[electron][ipfs] unpinning:', arg);
     const url = new URL(`${ipfsApiBase()}/api/v0/pin/rm`);
-    url.searchParams.set('arg', String(cid ?? ''));
+    url.searchParams.set('arg', arg);
+    url.searchParams.set('recursive', 'true');
     const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {
-      console.warn('[electron][ipfs] unpin failed:', res.status);
-      return { ok: false, error: 'http_' + res.status };
+      const errText = await res.text().catch(() => '');
+      console.warn('[electron][ipfs] unpin failed:', res.status, errText);
+      return { ok: false, error: errText || 'http_' + res.status };
     }
 
+    await res.text().catch(() => '');
     console.log('[electron][ipfs] unpin success');
     return { ok: true };
   } catch (e) {
