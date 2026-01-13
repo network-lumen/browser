@@ -49,7 +49,6 @@
 
       <div v-if="loading" class="loading-wrap">
         <UiSpinner size="md" />
-        <span class="txt-xs color-gray-blue">Loading...</span>
       </div>
 
       <div v-else-if="error" class="error-wrap">
@@ -286,6 +285,7 @@ type Entry = {
 };
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
+const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const openInNewTab = inject<((url: string) => void) | null>(
   "openInNewTab",
   null,
@@ -1132,6 +1132,14 @@ function detachSiteMsgListener() {
   siteMsgListenerAttached = false;
 }
 
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    load();
+  }
+);
+
 onMounted(() => {
   pageActive.value = true;
   attachSiteMsgListener();
@@ -1168,6 +1176,17 @@ function stopUrlWatch() {
   stopUrlWatchHandle();
   stopUrlWatchHandle = null;
 }
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    if (pageActive.value) {
+      load();
+    }
+  }
+);
+
 </script>
 
 <style scoped>

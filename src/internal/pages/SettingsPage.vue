@@ -600,6 +600,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, inject, onMounted } from 'vue';
+
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import { 
   Settings,
   Palette,
@@ -867,6 +869,14 @@ async function lockSecuritySession() {
     console.error('Failed to lock session:', e);
   }
 }
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadSecurityStatus();
+  }
+);
 
 // Load security status on mount
 onMounted(() => {

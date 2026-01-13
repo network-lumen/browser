@@ -18,14 +18,7 @@
 
       <div v-if="loading" class="loading-wrap">
         <UiSpinner size="md" />
-        <div class="loading-lines">
-          <span class="txt-xs color-gray-blue"
-            >Resolving on-chain content…</span
-          >
-          <span v-if="statusLine" class="txt-xs color-gray-blue">{{
-            statusLine
-          }}</span>
-        </div>
+
       </div>
 
       <div v-else-if="error" class="error-wrap">
@@ -89,6 +82,7 @@ import {
 } from "../services/contentResolver";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
+const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const navigate = inject<
   ((url: string, opts?: { push?: boolean }) => void) | null
 >("navigate", null);
@@ -551,6 +545,17 @@ function stopUrlWatch() {
   stopUrlWatchHandle();
   stopUrlWatchHandle = null;
 }
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    if (pageActive.value) {
+      resolveAndLoad();
+    }
+  }
+);
+
 </script>
 
 <style scoped>

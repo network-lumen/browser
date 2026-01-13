@@ -180,7 +180,9 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed, ref } from 'vue';
+import { inject, computed, ref, watch } from 'vue';
+
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
 import { profilesState } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';

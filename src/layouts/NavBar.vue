@@ -117,13 +117,13 @@
         </div>
 
         <div class="profile-menu-actions">
-          <UiButton variant="none" class="profile-menu-action" @click="onCreateProfileClick">
+          <UiButton variant="none" class="profile-menu-action" @click.stop="onCreateProfileClick">
             New profile…
           </UiButton>
-          <UiButton variant="none" class="profile-menu-action" :disabled="!activeProfileId" @click="onExportProfile">
+          <UiButton variant="none" class="profile-menu-action" :disabled="!activeProfileId" @click.stop="onExportProfile">
             Export active profile…
           </UiButton>
-          <UiButton variant="none" class="profile-menu-action" @click="onImportProfileClick">
+          <UiButton variant="none" class="profile-menu-action" @click.stop="onImportProfileClick">
             Import profile…
           </UiButton>
 
@@ -315,6 +315,7 @@ const emit = defineEmits<{
   (e: 'goto', url: string): void;
   (e: 'history-step', payload: { delta: number }): void;
   (e: 'refresh-request'): void;
+  (e: 'openSettings'): void;
 }>();
 
 const urlField = ref('');
@@ -660,13 +661,22 @@ async function confirmImportEncrypted() {
 
 async function confirmCreateProfile() {
   const name = newProfileName.value.trim();
-  if (!name) return;
-  const created = await createProfile(name);
-  if (created) {
-    creatingProfile.value = false;
-    profileMessage.value = 'Profile created.';
-  } else {
-    profileMessage.value = 'Failed to create profile.';
+  if (!name) {
+    profileMessage.value = 'Profile name is required.';
+    return;
+  }
+  try {
+    const created = await createProfile(name);
+    if (created) {
+      creatingProfile.value = false;
+      profileMessage.value = 'Profile created.';
+    } else {
+      profileMessage.value = 'Failed to create profile. (No profile returned)';
+      console.error('[NavBar] Failed to create profile: createProfile returned null or undefined');
+    }
+  } catch (e) {
+    profileMessage.value = 'Error creating profile: ' + (e?.message || e || 'Unknown error');
+    console.error('[NavBar] Error creating profile:', e);
   }
 }
 
@@ -687,7 +697,7 @@ async function onDeleteProfile(id: string) {
 function onGlobalClick(e: MouseEvent) {
   const el = e.target as HTMLElement | null;
   if (!el) return;
-  if (el.closest('.avatar-wrap') || el.closest('.menu')) return;
+  if (el.closest('.profile-trigger') || el.closest('.profile-menu')) return;
   showProfileMenu.value = false;
   resetProfileUi();
 }
@@ -999,14 +1009,21 @@ onBeforeUnmount(() => {
   padding: 0.5rem 0.625rem;
   border-radius: var(--border-radius-sm);
   border: 0.5px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--fill-primary);
   color: var(--text-primary);
   font-size: 13px;
+  font-weight: 500;
+}
+
+.profile-create-input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.6;
 }
 
 .profile-create-input:focus {
   outline: none;
   border-color: var(--accent-primary);
+  background: var(--fill-primary);
 }
 
 .profile-create-actions {

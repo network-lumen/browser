@@ -109,6 +109,7 @@
                     class="form-input domain-part"
                     v-model="registerForm.domainName"
                     placeholder="myname"
+                    @input="sanitizeDomainInput"
                     @blur="refreshAvailability"
                   />
                   <span class="dot-sep">.</span>
@@ -251,6 +252,14 @@
         </div>
       </Transition>
     </main>
+
+    <!-- Password Modal -->
+    <PasswordPromptModal
+      :visible="showPasswordModal"
+      :message="passwordModalMessage"
+      @confirm="handlePasswordConfirm"
+      @cancel="handlePasswordCancel"
+    />
   </div>
 </template>
 
@@ -269,7 +278,9 @@ import {
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
 type DomainRow = {
@@ -302,6 +313,10 @@ const registerForm = ref({
   years: '1',
   ext: 'lmn'
 });
+
+const showPasswordModal = ref(false);
+const passwordModalMessage = ref('');
+const pendingPasswordAction = ref<'register' | 'settings' | null>(null);
 
 const showSettingsModal = ref(false);
 const selectedDomain = ref<DomainRow | null>(null);
@@ -378,6 +393,25 @@ const canSaveSettings = computed(() => {
   if (!hasFundsForSettings.value) return false;
   return true;
 });
+
+function sanitizeDomainInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const cursorPos = input.selectionStart;
+  const oldValue = registerForm.value.domainName;
+  // Only allow alphanumeric characters (a-z, A-Z, 0-9) and hyphens (-)
+  const sanitized = oldValue.replace(/[^a-zA-Z0-9-]/g, '');
+  
+  if (sanitized !== oldValue) {
+    registerForm.value.domainName = sanitized;
+    // Restore cursor position after sanitization
+    const removedChars = oldValue.length - sanitized.length;
+    const newPos = Math.max(0, (cursorPos || 0) - removedChars);
+    // Use nextTick to ensure DOM is updated before setting cursor
+    setTimeout(() => {
+      input.setSelectionRange(newPos, newPos);
+    }, 0);
+  }
+}
 
 watch(
   () => [registerForm.value.domainName, registerForm.value.ext, showRegisterModal.value],
@@ -468,6 +502,14 @@ function expiryText(d: DomainRow): string {
   if (days < 0) return `Expired ${prettyDate(ms)}`;
   return `Expires ${prettyDate(ms)}`;
 }
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadDomains();
+  }
+);
 
 async function loadDomains() {
   loading.value = true;
@@ -645,7 +687,7 @@ const canRegister = computed(
     domainAvailable.value
 );
 
-async function confirmRegister() {
+async function confirmRegister(password?: string) {
   if (!canRegister.value || registering.value) return;
   const namePart = registerForm.value.domainName.trim();
   const extPart = (registerForm.value.ext || '').trim() || 'lmn';
@@ -672,8 +714,21 @@ async function confirmRegister() {
       profileId,
       owner,
       name: fqdn,
-      duration_days: days
+      duration_days: days,
+      ...(password ? { password } : {})
     });
+    
+    // Handle password_required error
+    if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
+      registering.value = false;
+      pendingPasswordAction.value = 'register';
+      passwordModalMessage.value = res?.error === 'invalid_password' 
+        ? 'Invalid password. Please try again.' 
+        : 'Enter your password to register this domain.';
+      showPasswordModal.value = true;
+      return;
+    }
+    
     if (!res || res.ok === false) {
       const msg = res && res.error ? String(res.error) : 'Registration failed';
       window.alert(msg);
@@ -688,6 +743,25 @@ async function confirmRegister() {
   } finally {
     registering.value = false;
   }
+}
+
+async function handlePasswordConfirm(password: string) {
+  showPasswordModal.value = false;
+  
+  if (pendingPasswordAction.value === 'register') {
+    await confirmRegister(password);
+  } else if (pendingPasswordAction.value === 'settings') {
+    await saveSettings(password);
+  }
+  
+  pendingPasswordAction.value = null;
+}
+
+function handlePasswordCancel() {
+  showPasswordModal.value = false;
+  pendingPasswordAction.value = null;
+  registering.value = false;
+  savingSettings.value = false;
 }
 
 async function openSettingsModal(d?: DomainRow) {
@@ -734,7 +808,7 @@ function removeSettingsRecord(index: number) {
   settingsRecords.value = next;
 }
 
-async function saveSettings() {
+async function saveSettings(password?: string) {
   if (savingSettings.value) return;
   const name = selectedDomain.value?.name;
   const owner = (profileAddress.value || '').trim();
@@ -786,8 +860,21 @@ async function saveSettings() {
       profileId,
       owner,
       name,
-      records
+      records,
+      ...(password ? { password } : {})
     });
+    
+    // Handle password_required error
+    if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
+      savingSettings.value = false;
+      pendingPasswordAction.value = 'settings';
+      passwordModalMessage.value = res?.error === 'invalid_password' 
+        ? 'Invalid password. Please try again.' 
+        : 'Enter your password to update this domain.';
+      showPasswordModal.value = true;
+      return;
+    }
+    
     if (!res || res.ok === false) {
       const msg = res && res.error ? String(res.error) : 'Domain update failed';
       window.alert(msg);

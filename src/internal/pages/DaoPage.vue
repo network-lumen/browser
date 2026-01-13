@@ -356,7 +356,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
+
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import { 
   Users,
   FileText,
@@ -684,6 +686,14 @@ async function fetchAllData() {
 }
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    fetchAllData();
+  }
+);
 
 onMounted(() => {
   fetchAllData();

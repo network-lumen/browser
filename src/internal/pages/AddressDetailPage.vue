@@ -139,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue';
+import { ref, onMounted, computed, inject, watch } from 'vue';
 
 const loading = ref(true);
 const error = ref('');
@@ -149,6 +149,7 @@ const restBase = ref('http://142.132.201.187:1317');
 const lumen = (window as any).lumen;
 
 const currentTabUrl = inject<any>('currentTabUrl', null);
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
@@ -284,6 +285,22 @@ async function loadAddressData() {
 onMounted(() => {
   loadAddressData();
 });
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadAddressData();
+  }
+);
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadAddressData();
+  }
+);
 </script>
 
 <style scoped>

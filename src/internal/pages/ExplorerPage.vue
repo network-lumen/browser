@@ -799,6 +799,7 @@ const toast = useToast();
 const lumen = (window as any).lumen;
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 const currentTabUrl = inject<any>('currentTabUrl', null);
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
 const activeProfile = computed(() => {
   if (!activeProfileId.value) return null;
@@ -1823,6 +1824,17 @@ watch(txTimeFilter, () => {
     initializeCharts();
   }
 });
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    fetchAllData();
+    if (currentView.value === 'overview') {
+      initializeCharts();
+    }
+  }
+);
 </script>
 
 <style scoped>

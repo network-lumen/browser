@@ -638,7 +638,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect, onMounted } from 'vue';
+import { computed, ref, watch, watchEffect, onMounted, inject } from 'vue';
+
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import {
   Wallet,
   LayoutDashboard,
@@ -1014,6 +1016,19 @@ watch(currentView, (next) => {
     void refreshActivities();
   }
 });
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    if (isConnected.value) {
+      void refreshWallet();
+      if (currentView.value === 'transactions') {
+        void refreshActivities();
+      }
+    }
+  }
+);
 
 async function refreshWallet() {
   if (!isConnected.value || !address.value) {
@@ -1435,6 +1450,10 @@ async function confirmSendPreview() {
     // Clear cache to force refresh
     clearActivitiesCache();
     
+    // Wait a moment for the transaction to be processed on-chain
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Refresh balance and activities
     await refreshWallet();
     await refreshActivities();
   } catch (e: any) {
