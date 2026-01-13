@@ -1296,6 +1296,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, inject } from "vue";
+
+const currentTabRefresh = inject<any>("currentTabRefresh", null);
+
 import {
   Cloud,
   Search,
@@ -1847,6 +1850,20 @@ const gatewayBandwidthUsed = computed(() => {
 
 const toastIcon = computed(() =>
   toastType.value === "success" ? CheckCircle : AlertCircle,
+);
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    if (hosting.value.kind === "local") {
+      void loadStats();
+      void loadPinnedFiles();
+      loadFiles();
+    } else if (hosting.value.kind === "gateway") {
+      void refreshActiveGatewayData();
+    }
+  }
 );
 
 onMounted(async () => {
@@ -5022,25 +5039,53 @@ async function reloadForActiveProfileChange() {
 }
 
 .action-btn {
-  padding: 0.25rem;
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  border: none;
+  background: var(--fill-tertiary);
+  border-radius: 6px;
   cursor: pointer;
-  color: var(--text-tertiary);
-  transition: all 0.15s;
+  color: var(--text-primary);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.action-btn::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 14px;
+  background: var(--border-color);
+  opacity: 0.6;
+}
+
+.action-btn:last-child::after {
+  display: none;
 }
 
 .action-btn:hover {
-  background: var(--primary-a08);
-  border-color: var(--primary-a15);
-  color: var(--accent-primary);
+  background: var(--accent-primary);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+.action-btn.danger {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--error-red);
 }
 
 .action-btn.danger:hover {
-  background: rgba(255, 59, 48, 0.12);
-  border-color: rgba(255, 59, 48, 0.25);
-  color: var(--ios-red);
+  background: var(--error-red);
+  color: #ffffff;
 }
 
 /* Empty State */
@@ -5507,19 +5552,39 @@ async function reloadForActiveProfileChange() {
   transition: background 0.1s;
 }
 
-.files-table tbody tr:hover {
-  background: var(--primary-a08);
+.files-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+  table-layout: fixed;
+  background: var(--card-bg, #fff);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .files-table tbody tr.selected {
   background: var(--fill-blue);
 }
 
-.td-name {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 500;
+.files-table th {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  border-bottom: 2px solid var(--separator);
+  background: var(--bg-primary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
 }
 
 .th-name {
@@ -5602,7 +5667,11 @@ async function reloadForActiveProfileChange() {
 }
 
 .td-actions .action-btn {
-  margin-right: 0.25rem;
+  margin: 0 0.125rem;
+}
+
+.td-actions .action-btn:first-child {
+  margin-left: 0;
 }
 
 .td-actions .action-btn:last-child {
@@ -5809,35 +5878,49 @@ async function reloadForActiveProfileChange() {
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid var(--separator);
+  position: relative;
 }
 
-.btn-modal-primary:hover:not(:disabled) {
+.files-table tbody tr:nth-child(even) {
+  background: var(--fill-tertiary);
+}
+
+.files-table tbody tr:hover {
+  background: var(--hover-bg);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--primary-a30);
+  box-shadow: 0 4px 16px -6px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  z-index: 1;
 }
 
-.btn-modal-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+.files-table tbody tr.selected {
+  background: linear-gradient(90deg, var(--fill-blue) 0%, var(--fill-blue) 97%, transparent 100%) !important;
+  box-shadow: inset 3px 0 0 0 var(--accent-primary), inset 0 0 0 1px var(--primary-a20);
+  position: relative;
 }
 
-.btn-modal-secondary {
-  flex: 1;
-  padding: 0.875rem;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.files-table tbody tr.selected:hover {
+  background: linear-gradient(90deg, var(--primary-a30) 0%, var(--primary-a25) 97%, transparent 100%) !important;
+  box-shadow: inset 3px 0 0 0 var(--accent-primary), inset 0 0 0 1px var(--primary-a35), 0 4px 16px -6px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  z-index: 2;
+}
+
+.files-table tbody tr.selected td {
+  border-bottom-color: transparent;
+}
+
+.files-table td {
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--separator);
+  color: var(--text-primary);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  vertical-align: middle;
+}
+
+.files-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .btn-modal-secondary:hover:not(:disabled) {
@@ -5856,33 +5939,121 @@ async function reloadForActiveProfileChange() {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 2rem 0;
-  text-align: center;
+  font-weight: 500;
+  color: var(--text-primary);
+  min-width: 200px;
+  width: 30%;
+  height: 40px;
+  vertical-align: middle;
 }
 
-.permalink-loading p {
-  margin: 0;
+.td-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: -0.005em;
+}
+
+.files-table tbody tr:hover .td-name span {
+  color: var(--accent-primary);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.files-table tbody tr.selected .td-name span {
+  color: var(--accent-primary);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.table-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.files-table tbody tr:hover .table-icon {
+  opacity: 1;
+  color: var(--accent-primary);
+  transform: scale(1.1);
+}
+
+.files-table tbody tr.selected .table-icon {
+  color: var(--accent-primary);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.td-size {
   color: var(--text-secondary);
   font-size: 0.875rem;
+  min-width: 100px;
+  width: 15%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease;
 }
 
-.permalink-success {
-  text-align: center;
-  padding: 1rem 0;
+.files-table tbody tr:hover .td-size,
+.files-table tbody tr.selected .td-size {
+  color: var(--text-primary);
 }
 
-.permalink-success p {
+.td-date {
   color: var(--text-secondary);
   font-size: 0.875rem;
-  margin: 0;
+  min-width: 160px;
+  width: 25%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease;
 }
 
-.permalink-result-box {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+.files-table tbody tr:hover .td-date,
+.files-table tbody tr.selected .td-date {
+  color: var(--text-primary);
+}
+.td-actions {
+  color: var(--text-tertiary);
+  font-size: 0.9375rem;
+  min-width: 140px;
+  width: 15%;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.files-table tbody tr .td-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.files-table tbody tr:hover .td-actions,
+.files-table tbody tr.selected .td-actions {
+  gap: 0.25rem;
+}
+
+.files-table td:empty::after {
+  content: "—";
+  color: var(--text-quaternary);
+  font-size: 1em;
 }
 
 </style>

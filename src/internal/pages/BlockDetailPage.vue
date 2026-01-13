@@ -129,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue';
+import { ref, onMounted, computed, inject, watch } from 'vue';
 
 const loading = ref(true);
 const error = ref('');
@@ -143,6 +143,7 @@ const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keyba
 const avatarCache = ref<Record<string, string>>({});
 
 const currentTabUrl = inject<any>('currentTabUrl', null);
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
@@ -386,6 +387,14 @@ async function fetchKeybaseAvatars() {
 onMounted(() => {
   loadBlockData();
 });
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadBlockData();
+  }
+);
 </script>
 
 <style scoped>

@@ -70,6 +70,12 @@
         @openInNewTab="openInNewTab"
       />
     </div>
+
+    <WalletOnboardingModal
+      :visible="showOnboarding"
+      @complete="handleOnboardingComplete"
+      @skip="handleOnboardingSkip"
+    />
   </section>
 </template>
 
@@ -80,7 +86,9 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import UiSpinner from '../ui/UiSpinner.vue';
   import UiButton from '../ui/UiButton.vue';
   import UiToast from '../ui/UiToast.vue';
+  import WalletOnboardingModal from './WalletOnboardingModal.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
+  import { activeProfileId } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
   import {
     buildCandidateUrl,
@@ -103,6 +111,9 @@ type TabHistoryEntry = { url: string; title?: string };
 
 const tabs = ref<Tab[]>([]);
 const activeId = ref<string>('');
+
+const showOnboarding = ref(false);
+const ONBOARDING_KEY_PREFIX = 'lumen_wallet_onboarding_completed_';
 
 const hdr = ref<HTMLElement | null>(null);
 const draggingId = ref<string | null>(null);
@@ -166,6 +177,9 @@ onMounted(async () => {
   } catch {
     // ignore
   }
+
+  // Check if onboarding is needed
+  await checkOnboardingStatus();
 });
 
 onBeforeUnmount(() => {
@@ -181,6 +195,18 @@ watch(
   () => tabs.value.length,
   () => {
     nextTick(recalcLabelWidth);
+  }
+);
+
+// Watch for profile changes and check onboarding status
+watch(
+  () => activeProfileId.value,
+  async (newProfileId, oldProfileId) => {
+    if (newProfileId && newProfileId !== oldProfileId) {
+      // Small delay to ensure profile is fully loaded
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await checkOnboardingStatus();
+    }
   }
 );
 
@@ -561,6 +587,59 @@ function createResizeObserver() {
   ro = new ResizeObserver(() => recalcLabelWidth());
   if (hdr.value) ro.observe(hdr.value);
   window.addEventListener('resize', recalcLabelWidth);
+}
+
+async function checkOnboardingStatus() {
+  try {
+    const profileId = activeProfileId.value;
+    if (!profileId) {
+      // No active profile, skip
+      return;
+    }
+
+    // Check if onboarding was already completed for this profile
+    const storageKey = ONBOARDING_KEY_PREFIX + profileId;
+    const completed = localStorage.getItem(storageKey);
+    if (completed === 'true') {
+      return;
+    }
+
+    // Check if password is already set
+    const anyWindow = window as any;
+    const securityApi = anyWindow?.lumen?.security;
+    if (!securityApi || typeof securityApi.getStatus !== 'function') {
+      // Security API not available, skip onboarding
+      return;
+    }
+
+    const status = await securityApi.getStatus();
+    const hasPassword = !!(status?.passwordEnabled && status?.hasPassword);
+
+    if (hasPassword) {
+      // Password already set, mark onboarding as complete for this profile
+      localStorage.setItem(storageKey, 'true');
+      return;
+    }
+
+    // Show onboarding modal
+    showOnboarding.value = true;
+  } catch (e) {
+    console.error('[MainScreen] Error checking onboarding status:', e);
+  }
+}
+
+function handleOnboardingComplete() {
+  const profileId = activeProfileId.value;
+  if (profileId) {
+    const storageKey = ONBOARDING_KEY_PREFIX + profileId;
+    localStorage.setItem(storageKey, 'true');
+  }
+  showOnboarding.value = false;
+}
+
+function handleOnboardingSkip() {
+  // User skipped, but don't mark as complete so it shows again next time
+  showOnboarding.value = false;
 }
 </script>
 

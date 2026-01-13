@@ -150,8 +150,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch, inject } from 'vue';
 import { Server, List, Plus } from 'lucide-vue-next';
+
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const currentView = ref<'list' | 'add'>('list');
@@ -363,6 +365,15 @@ function formatPrice(ulmn: number): string {
   if (!ulmn) return 'Free';
   return `${lmn.toFixed(lmn >= 10 ? 0 : 2)} LMN / mo`;
 }
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  async () => {
+    await resolveActiveProfile();
+    await loadPlansOverview();
+  }
+);
 
 onMounted(async () => {
   await resolveActiveProfile();

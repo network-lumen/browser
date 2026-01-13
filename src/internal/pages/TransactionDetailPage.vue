@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue';
+import { ref, onMounted, computed, inject, watch } from 'vue';
 
 const loading = ref(true);
 const error = ref('');
@@ -137,6 +137,7 @@ const rpcBase = ref('http://142.132.201.187:26657');
 const lumen = (window as any).lumen;
 
 const currentTabUrl = inject<any>('currentTabUrl', null);
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
@@ -268,6 +269,14 @@ function parseMessages(tx: string): any[] {
 onMounted(() => {
   loadTransactionData();
 });
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadTransactionData();
+  }
+);
 </script>
 
 <style scoped>
