@@ -157,25 +157,15 @@
                 >+{{ r.badges.length - 4 }}</span
               >
             </div>
-            <div class="image-actions">
-              <button
-                type="button"
-                class="image-action-btn"
-                title="Download"
-                @click.stop="downloadImage(r)"
-              >
-                <Download :size="14" />
-              </button>
-              <button
-                type="button"
-                class="image-action-btn"
-                :class="{ saved: isPinnedImage(r) }"
-                :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
-                @click.stop="togglePinImage(r)"
-              >
-                <Save :size="14" :fill="isPinnedImage(r) ? 'currentColor' : 'none'" />
-              </button>
-            </div>
+            <button
+              type="button"
+              class="image-save-btn"
+              :class="{ saved: isPinnedImage(r) }"
+              :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
+              @click.stop="togglePinImage(r)"
+            >
+              <Save :size="14" :fill="isPinnedImage(r) ? 'currentColor' : 'none'" />
+            </button>
           </div>
         </div>
       </div>
@@ -372,7 +362,6 @@ import {
   ExternalLink,
   Sparkles,
   Save,
-  Download,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { useToast } from "../../composables/useToast";
@@ -496,81 +485,6 @@ async function togglePinImage(result: ResultItem) {
     }
   } catch (e: any) {
     toast.error(String(e?.message || "Operation failed"));
-  }
-}
-
-function getFileExtensionFromUrl(url: string): string {
-  const parts = url.split('/');
-  const last = parts[parts.length - 1]?.split('?')[0] || '';
-  const match = last.match(/\.(\w+)$/);
-  return match ? match[1].toLowerCase() : '';
-}
-
-function getMimeTypeFromExtension(ext: string): string {
-  const mimeMap: Record<string, string> = {
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    png: 'image/png',
-    gif: 'image/gif',
-    webp: 'image/webp',
-    svg: 'image/svg+xml',
-    mp4: 'video/mp4',
-    webm: 'video/webm',
-    mp3: 'audio/mpeg',
-    wav: 'audio/wav',
-    pdf: 'application/pdf',
-    txt: 'text/plain',
-    json: 'application/json',
-  };
-  return mimeMap[ext] || 'application/octet-stream';
-}
-
-async function downloadImage(result: ResultItem) {
-  const cid = extractCidFromUrl(result.url);
-  if (!cid) {
-    toast.error("Invalid IPFS URL");
-    return;
-  }
-
-  try {
-    const gatewayUrl = `${localIpfsGatewayBase}/${cid}`;
-    const response = await fetch(gatewayUrl);
-    
-    if (!response.ok) {
-      toast.error("Failed to download file");
-      return;
-    }
-
-    const blob = await response.blob();
-    
-    // Get file extension from URL or content-type
-    let ext = getFileExtensionFromUrl(result.url);
-    if (!ext) {
-      const contentType = response.headers.get('content-type') || '';
-      if (contentType.includes('jpeg')) ext = 'jpg';
-      else if (contentType.includes('png')) ext = 'png';
-      else if (contentType.includes('gif')) ext = 'gif';
-      else if (contentType.includes('webp')) ext = 'webp';
-      else ext = 'bin';
-    }
-
-    // Create proper blob with mime type
-    const mimeType = getMimeTypeFromExtension(ext);
-    const properBlob = new Blob([blob], { type: mimeType });
-    
-    // Create download link
-    const url = URL.createObjectURL(properBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${cid.slice(0, 12)}.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast.success("Download started");
-  } catch (e: any) {
-    toast.error(String(e?.message || "Download failed"));
   }
 }
 
@@ -2345,13 +2259,7 @@ const imageResults = computed(() =>
   font-weight: 600;
 }
 
-.image-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.image-action-btn {
+.image-save-btn {
   flex-shrink: 0;
   width: 32px;
   height: 32px;
@@ -2366,20 +2274,20 @@ const imageResults = computed(() =>
   transition: all 0.2s ease;
 }
 
-.image-action-btn:hover {
+.image-save-btn:hover {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   color: white;
   transform: scale(1.05);
 }
 
-.image-action-btn.saved {
+.image-save-btn.saved {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   color: white;
 }
 
-.image-action-btn.saved:hover {
+.image-save-btn.saved:hover {
   background: var(--error-red);
   border-color: var(--error-red);
 }

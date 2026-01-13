@@ -131,21 +131,6 @@
               {{ address || '-' }}
             </div>
           </div>
-          <div class="info-card">
-            <div class="info-label">Activated</div>
-            <div class="info-value">
-              <div class="activation-stack">
-                <span class="activation-status" :class="activationClass">
-                  <Check v-if="pqcLinked === true" :size="14" />
-                  <X v-else-if="showActivationNoIcon" :size="14" />
-                  <span>{{ activationText }}</span>
-                </span>
-                <div v-if="activationDetail" class="activation-detail">
-                  {{ activationDetail }}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -713,37 +698,6 @@ const address = computed(() => {
 const balanceLmn = ref<number | null>(null);
 const balanceLoading = ref(false);
 const balanceError = ref('');
-const pqcLinked = ref<boolean | null>(null);
-const pqcLoading = ref(false);
-const pqcError = ref('');
-
-const activationText = computed(() => {
-  if (!isConnected.value || !address.value) return '-';
-  if (pqcLoading.value) return 'Checking...';
-  return pqcLinked.value === true ? 'Yes' : 'No';
-});
-
-const activationClass = computed(() => {
-  if (!isConnected.value || !address.value) return 'unknown';
-  if (pqcLoading.value) return 'unknown';
-  return pqcLinked.value === true ? 'yes' : 'no';
-});
-
-const showActivationNoIcon = computed(() => {
-  if (!isConnected.value || !address.value) return false;
-  if (pqcLoading.value) return false;
-  return pqcLinked.value !== true;
-});
-
-const activationDetail = computed(() => {
-  if (!isConnected.value || !address.value) return '';
-  if (pqcLoading.value) return '';
-  if (pqcLinked.value === true) return '';
-  if (pqcError.value) {
-    return 'Wallet not activated yet. Make your first transaction to activate.';
-  }
-  return 'Wallet not activated yet. Make your first transaction to activate.';
-});
 
 const showSendModal = ref(false);
 const showReceiveModal = ref(false);
@@ -1080,12 +1034,8 @@ async function refreshWallet() {
   if (!isConnected.value || !address.value) {
     balanceLmn.value = null;
     balanceError.value = '';
-    pqcLinked.value = null;
-    pqcError.value = '';
     return;
   }
-
-  void refreshActivation();
   balanceLoading.value = true;
   balanceError.value = '';
   try {
@@ -1122,38 +1072,6 @@ async function refreshWallet() {
     balanceLmn.value = null;
   } finally {
     balanceLoading.value = false;
-  }
-}
-
-async function refreshActivation() {
-  if (!isConnected.value || !address.value) {
-    pqcLinked.value = null;
-    pqcError.value = '';
-    return;
-  }
-
-  pqcLoading.value = true;
-  pqcError.value = '';
-  try {
-    const anyWindow = window as any;
-    const pqcApi = anyWindow?.lumen?.pqc;
-    if (!pqcApi || typeof pqcApi.getAccount !== 'function') {
-      pqcError.value = 'PQC bridge not available';
-      pqcLinked.value = null;
-      return;
-    }
-    const res = await pqcApi.getAccount(address.value);
-    if (!res || res.ok === false) {
-      pqcError.value = res?.error || 'Unable to load activation status';
-      pqcLinked.value = null;
-      return;
-    }
-    pqcLinked.value = !!res.linked;
-  } catch (e: any) {
-    pqcError.value = String(e?.message || e || 'Unable to load activation status');
-    pqcLinked.value = null;
-  } finally {
-    pqcLoading.value = false;
   }
 }
 
@@ -1971,7 +1889,7 @@ function exportTransactions() {
 
 .action-btn.primary {
   background: var(--gradient-primary);
-  color: white;
+  color: var(--text-primary);
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
@@ -2205,37 +2123,6 @@ function exportTransactions() {
 .info-value.mono {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   word-break: break-all;
-}
-
-.activation-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 600;
-}
-
-.activation-status.yes {
-  color: var(--accent-primary);
-}
-
-.activation-status.no {
-  color: #ef4444;
-}
-
-.activation-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.activation-detail {
-  font-size: 0.8rem;
-  line-height: 1.2;
-  color: #ef4444;
-}
-
-.activation-status.unknown {
-  color: var(--text-secondary);
 }
 
 .content-section {
