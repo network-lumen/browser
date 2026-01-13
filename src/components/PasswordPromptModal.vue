@@ -34,7 +34,8 @@
           </div>
           
           <div class="modal-actions">
-            <button 
+            <button
+              v-if="cancelable !== false"
               class="btn-secondary"
               @click="handleCancel"
               :disabled="loading || busy"
@@ -68,6 +69,7 @@ const props = defineProps<{
   visible: boolean;
   message?: string;
   busy?: boolean;
+  cancelable?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -118,6 +120,7 @@ async function handleSubmit() {
 }
 
 function handleCancel() {
+  if (props.cancelable === false) return;
   if (loading.value || props.busy) return;
   password.value = '';
   error.value = '';

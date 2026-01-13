@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, BrowserWindow, app } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const {
@@ -21,10 +21,58 @@ const {
 const { userDataPath, readJson, ensureDir } = require('../utils/fs.cjs');
 
 // In-memory password cache for session (cleared on app quit)
-// This allows us to not ask for password on every single operation
+// The session stays unlocked until the app closes, but it is auto-locked
+// after a period of user inactivity ("touchSession").
 let sessionPassword = null;
 let sessionPasswordExpiry = 0;
-const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+const SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+let sessionLockTimer = null;
+let sessionTouchThrottleAt = 0;
+const SESSION_TOUCH_THROTTLE_MS = 1500;
+
+function broadcastSessionChanged(active) {
+  try {
+    const payload = { active: !!active };
+    const wins = typeof BrowserWindow?.getAllWindows === 'function' ? BrowserWindow.getAllWindows() : [];
+    for (const w of wins) {
+      try {
+        w?.webContents?.send?.('security:sessionChanged', payload);
+      } catch {
+        // ignore per-window failures
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function scheduleSessionAutoLock() {
+  try {
+    if (sessionLockTimer) {
+      clearTimeout(sessionLockTimer);
+      sessionLockTimer = null;
+    }
+
+    if (!sessionPassword || !sessionPasswordExpiry) return;
+
+    const now = Date.now();
+    const delay = Math.max(0, sessionPasswordExpiry - now) + 50;
+    sessionLockTimer = setTimeout(() => {
+      try {
+        if (!sessionPassword || !sessionPasswordExpiry) return;
+        if (Date.now() < sessionPasswordExpiry) {
+          scheduleSessionAutoLock();
+          return;
+        }
+        clearSessionPassword();
+      } catch {
+        // ignore
+      }
+    }, delay);
+  } catch {
+    // ignore
+  }
+}
 
 function profileDir(id) {
   return userDataPath('profiles', id);
@@ -44,6 +92,13 @@ function pqcKeysDir() {
 function clearSessionPassword() {
   sessionPassword = null;
   sessionPasswordExpiry = 0;
+  try {
+    if (sessionLockTimer) {
+      clearTimeout(sessionLockTimer);
+      sessionLockTimer = null;
+    }
+  } catch {}
+  broadcastSessionChanged(false);
 }
 
 /**
@@ -51,7 +106,9 @@ function clearSessionPassword() {
  */
 function setSessionPassword(password) {
   sessionPassword = password;
-  sessionPasswordExpiry = Date.now() + SESSION_TIMEOUT_MS;
+  sessionPasswordExpiry = Date.now() + SESSION_IDLE_TIMEOUT_MS;
+  scheduleSessionAutoLock();
+  broadcastSessionChanged(true);
 }
 
 /**
@@ -63,9 +120,48 @@ function getSessionPassword() {
     clearSessionPassword();
     return null;
   }
-  // Extend session on use
-  sessionPasswordExpiry = Date.now() + SESSION_TIMEOUT_MS;
   return sessionPassword;
+}
+
+function touchSession() {
+  if (!sessionPassword) return false;
+  const now = Date.now();
+  if (now - sessionTouchThrottleAt < SESSION_TOUCH_THROTTLE_MS) return true;
+  sessionTouchThrottleAt = now;
+  sessionPasswordExpiry = now + SESSION_IDLE_TIMEOUT_MS;
+  scheduleSessionAutoLock();
+  return true;
+}
+
+let activityHooksInstalled = false;
+function installActivityHooks() {
+  if (activityHooksInstalled) return;
+  activityHooksInstalled = true;
+
+  if (!app || typeof app.on !== 'function') return;
+
+  const attach = (contents) => {
+    if (!contents || typeof contents.on !== 'function') return;
+    try {
+      contents.on('before-input-event', () => {
+        try {
+          touchSession();
+        } catch {}
+      });
+    } catch {
+      // ignore
+    }
+  };
+
+  try {
+    for (const w of BrowserWindow.getAllWindows()) {
+      attach(w?.webContents);
+    }
+  } catch {}
+
+  app.on('web-contents-created', (_event, contents) => {
+    attach(contents);
+  });
 }
 
 /**
@@ -268,6 +364,7 @@ function changePassword(currentPassword, newPassword) {
 }
 
 function registerSecurityIpc() {
+  installActivityHooks();
   // Get security status (password enabled, etc.)
   ipcMain.handle('security:getStatus', async () => {
     const status = getSecurityStatus();
@@ -374,6 +471,13 @@ function registerSecurityIpc() {
     return { ok: true };
   });
 
+  // Touch session (extend idle timeout on user action)
+  ipcMain.handle('security:touchSession', async () => {
+    const ok = touchSession();
+    if (!ok) return { ok: false, error: 'no_active_session' };
+    return { ok: true };
+  });
+
   // Check if session is active
   ipcMain.handle('security:checkSession', async () => {
     return { active: !!getSessionPassword() };
@@ -381,11 +485,9 @@ function registerSecurityIpc() {
 
   // Extend session timeout
   ipcMain.handle('security:extendSession', async () => {
-    if (sessionPassword) {
-      sessionPasswordExpiry = Date.now() + SESSION_TIMEOUT_MS;
-      return { ok: true };
-    }
-    return { ok: false, error: 'no_active_session' };
+    const ok = touchSession();
+    if (!ok) return { ok: false, error: 'no_active_session' };
+    return { ok: true };
   });
 }
 

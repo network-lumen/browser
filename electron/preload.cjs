@@ -136,7 +136,22 @@ getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavouri
     removePassword: (payload) => ipcRenderer.invoke('security:removePassword', payload || {}),
     lockSession: () => ipcRenderer.invoke('security:lockSession'),
     checkSession: () => ipcRenderer.invoke('security:checkSession'),
-    extendSession: () => ipcRenderer.invoke('security:extendSession')
+    extendSession: () => ipcRenderer.invoke('security:extendSession'),
+    touchSession: () => ipcRenderer.invoke('security:touchSession'),
+    onSessionChanged: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('security:sessionChanged', handler);
+      return () => {
+        ipcRenderer.removeListener('security:sessionChanged', handler);
+      };
+    }
   }
 });
 

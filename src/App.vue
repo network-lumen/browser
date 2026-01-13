@@ -4,7 +4,9 @@
       v-if="stage === 'startup'"
       @ready="handleStartupReady"
     />
-    <MainScreen v-else />
+    <SecurityGate v-else>
+      <MainScreen />
+    </SecurityGate>
   </main>
 </template>
 
@@ -12,6 +14,7 @@
 import { ref, onMounted, watch } from 'vue';
 import StartupScreen from './components/StartupScreen.vue';
 import MainScreen from './components/MainScreen.vue';
+import SecurityGate from './components/SecurityGate.vue';
 import { useTheme } from './composables/useTheme';
 
 type Stage = 'startup' | 'main';

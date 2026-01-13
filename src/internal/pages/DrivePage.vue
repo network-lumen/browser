@@ -761,6 +761,22 @@
               <div v-if="gatewayUsageLoading" class="plans-empty-muted">
                 Loading…
               </div>
+              <div
+                v-else-if="gatewayUsageError === 'password_required'"
+                class="plans-error"
+              >
+                <div class="plans-error-title">Wallet locked</div>
+                <div class="plans-error-text">
+                  Unlock your Lumen identity to fetch usage from this cloud.
+                </div>
+                <button
+                  class="btn-ghost"
+                  type="button"
+                  @click="openGatewayUnlockModal"
+                >
+                  Unlock
+                </button>
+              </div>
               <div v-else-if="gatewayUsageError" class="plans-error">
                 {{ gatewayUsageError }}
               </div>
@@ -1291,6 +1307,13 @@
         </div>
       </div>
     </Transition>
+
+    <PasswordPromptModal
+      :visible="showGatewayUnlockModal"
+      message="Enter your password to unlock the wallet (required for cloud usage)."
+      @confirm="handleGatewayUnlockConfirm"
+      @cancel="handleGatewayUnlockCancel"
+    />
   </div>
 </template>
 
@@ -1325,6 +1348,7 @@ import {
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import InternalSidebar from "../../components/InternalSidebar.vue";
+import PasswordPromptModal from "../../components/PasswordPromptModal.vue";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
@@ -1451,6 +1475,21 @@ const showLocalDetails = ref(false);
 
 // Subscription details
 const showGatewayDetails = ref(false);
+const showGatewayUnlockModal = ref(false);
+
+function openGatewayUnlockModal() {
+  showGatewayUnlockModal.value = true;
+}
+
+async function handleGatewayUnlockConfirm(_password: string) {
+  showGatewayUnlockModal.value = false;
+  gatewayUsageError.value = "";
+  await refreshActiveGatewayData();
+}
+
+function handleGatewayUnlockCancel() {
+  showGatewayUnlockModal.value = false;
+}
 
 const planRegions = computed(() => {
   const set = new Set<string>();
@@ -4462,6 +4501,28 @@ async function reloadForActiveProfileChange() {
 }
 
 .plans-empty-muted {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.plans-error {
+  margin-top: 0.5rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 59, 48, 0.25);
+  background: rgba(255, 59, 48, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.plans-error-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plans-error-text {
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
