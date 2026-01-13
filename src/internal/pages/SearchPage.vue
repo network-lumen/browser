@@ -120,35 +120,54 @@
       </div>
 
       <div v-else-if="selectedType === 'image'" class="image-grid">
-        <button
+        <div
           v-for="r in imageResults"
           :key="r.id"
-          type="button"
           class="image-card"
-          @click="openResult(r)"
-          :title="r.url"
         >
-          <img
-            v-if="r.thumbUrl"
-            class="image-thumb"
-            :src="r.thumbUrl"
-            alt=""
-            loading="lazy"
-          />
-          <div v-else class="image-fallback">
-            <Image :size="18" />
-          </div>
-          <div v-if="r.badges?.length" class="image-meta">
-            <div class="image-tags">
+          <button
+            type="button"
+            class="image-card-btn"
+            @click="openResult(r)"
+            :title="r.url"
+          >
+            <img
+              v-if="r.thumbUrl"
+              class="image-thumb"
+              :src="r.thumbUrl"
+              alt=""
+              loading="lazy"
+            />
+            <div v-else class="image-fallback">
+              <Image :size="18" />
+            </div>
+          </button>
+          <div class="image-meta">
+            <div v-if="r.badges?.length" class="image-tags">
               <span
-                v-for="b in r.badges"
+                v-for="(b, idx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
                 class="image-badge"
                 >{{ b }}</span
               >
+              <span
+                v-if="r.badges.length > 4"
+                class="image-badge-more"
+                :title="r.badges.slice(4).join(', ')"
+                >+{{ r.badges.length - 4 }}</span
+              >
             </div>
+            <button
+              type="button"
+              class="image-save-btn"
+              :class="{ saved: isPinnedImage(r) }"
+              :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
+              @click.stop="togglePinImage(r)"
+            >
+              <Save :size="14" :fill="isPinnedImage(r) ? 'currentColor' : 'none'" />
+            </button>
           </div>
-        </button>
+        </div>
       </div>
 
       <ul v-else class="result-list">
@@ -342,6 +361,7 @@ import {
   Box,
   ExternalLink,
   Sparkles,
+  Save,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { useToast } from "../../composables/useToast";
@@ -369,6 +389,7 @@ type GatewayView = {
 };
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
+const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const navigate = inject<
   ((url: string, opts?: { push?: boolean }) => void) | null
 >("navigate", null);
@@ -404,6 +425,69 @@ const gatewaysCache = ref<{ at: number; items: GatewayView[] }>({
   items: [],
 });
 
+const pinnedCids = ref<string[]>([]);
+
+function extractCidFromUrl(url: string): string | null {
+  const lower = url.toLowerCase();
+  if (lower.startsWith("lumen://ipfs/")) {
+    const cid = url
+      .slice("lumen://ipfs/".length)
+      .replace(/^\/+/, "")
+      .split(/[\/\?#]/, 1)[0];
+    return cid || null;
+  }
+  return null;
+}
+
+function isPinnedImage(result: ResultItem): boolean {
+  const cid = extractCidFromUrl(result.url);
+  return cid ? pinnedCids.value.includes(cid) : false;
+}
+
+async function refreshPinnedCids() {
+  try {
+    const res = await (window as any).lumen?.ipfsPinList?.().catch(() => null);
+    const pins =
+      res?.ok && Array.isArray(res.pins)
+        ? res.pins.map((x: any) => String(x))
+        : [];
+    pinnedCids.value = pins;
+  } catch {
+    pinnedCids.value = [];
+  }
+}
+
+async function togglePinImage(result: ResultItem) {
+  const cid = extractCidFromUrl(result.url);
+  if (!cid) return;
+
+  const isPinned = pinnedCids.value.includes(cid);
+
+  try {
+    if (isPinned) {
+      // Unpin
+      const res = await (window as any).lumen?.ipfsPinRm?.(cid).catch(() => null);
+      if (res?.ok) {
+        pinnedCids.value = pinnedCids.value.filter((c) => c !== cid);
+        toast.success("Removed from local save");
+      } else {
+        toast.error("Failed to remove from local save");
+      }
+    } else {
+      // Pin
+      const res = await (window as any).lumen?.ipfsPinAdd?.(cid).catch(() => null);
+      if (res?.ok) {
+        pinnedCids.value = [...pinnedCids.value, cid];
+        toast.success("Saved to local");
+      } else {
+        toast.error("Failed to save to local");
+      }
+    }
+  } catch (e: any) {
+    toast.error(String(e?.message || "Operation failed"));
+  }
+}
+
 function focusInput() {
   inputEl.value?.focus();
 }
@@ -417,6 +501,8 @@ onMounted(() => {
   } catch {
     debugMode.value = false;
   }
+
+  void refreshPinnedCids();
 });
 
 function toggleDebugMode() {
@@ -1561,6 +1647,18 @@ watch(
   { immediate: true },
 );
 
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    void refreshPinnedCids();
+    if (activeQuery.value) {
+      runSearch(activeQuery.value, activeType.value, page.value);
+    }
+  }
+);
+
+
 const imageResults = computed(() =>
   results.value.filter((r) => r.media === "image" || !!r.thumbUrl),
 );
@@ -1674,15 +1772,15 @@ const imageResults = computed(() =>
 
 .search-btn {
   border: none;
-  background: var(--gradient-primary);
-  color: var(--lime-bright);
-  font-weight: 700;
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 600;
   font-size: 0.9375rem;
   padding: 0.75rem 1.5rem;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px var(--primary-a25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
 }
@@ -1691,7 +1789,7 @@ const imageResults = computed(() =>
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, var(--lime-a20) 0%, transparent 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -1707,7 +1805,7 @@ const imageResults = computed(() =>
 
 .search-btn:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 20px var(--primary-a30);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .search-btn:active:not(:disabled) {
@@ -2083,16 +2181,24 @@ const imageResults = computed(() =>
   background: var(--card-bg);
   border-radius: var(--border-radius-xl);
   overflow: hidden;
-  padding: 0;
-  cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-smooth);
+  position: relative;
 }
 
 .image-card:hover {
   transform: translateY(-6px) scale(1.02);
   border-color: var(--primary-a40);
   box-shadow: 0 16px 32px var(--primary-a15);
+}
+
+.image-card-btn {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: block;
 }
 
 .image-thumb {
@@ -2115,14 +2221,18 @@ const imageResults = computed(() =>
 
 .image-meta {
   padding: 0.75rem 0.75rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .image-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  max-height: 6.5rem;
-  overflow: auto;
+  flex: 1;
+  min-width: 0;
 }
 
 .image-badge {
@@ -2134,6 +2244,52 @@ const imageResults = computed(() =>
   color: var(--accent-primary);
   border: 1px solid rgba(45, 95, 79, 0.16);
   white-space: nowrap;
+}
+
+.image-badge-more {
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  cursor: help;
+  font-weight: 600;
+}
+
+.image-save-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-save-btn:hover {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+  transform: scale(1.05);
+}
+
+.image-save-btn.saved {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+}
+
+.image-save-btn.saved:hover {
+  background: var(--error-red);
+  border-color: var(--error-red);
 }
 
 .result-body {
