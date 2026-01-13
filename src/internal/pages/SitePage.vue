@@ -314,7 +314,7 @@ function buildDomainSiteSrcdoc(params: {
 ${"</scr" + "ipt>"}
 `.trim();
 
-  return safeInjectIntoHead(params.html, `\\n${inject}\\n`);
+  return safeInjectIntoHead(params.html, `\n${inject}\n`);
 }
 
 function syncSuffixToFrame(nextSuffix: string) {
@@ -352,8 +352,9 @@ function onSiteMessage(evt: MessageEvent) {
 
 function chooseCandidatePaths(p: string): string[] {
   const path = normalizePath(p || "/");
-  if (path === "/") return ["/", "/index.html"];
-  if (/\/$/.test(path)) return [path, `${path}index.html`];
+  // Prefer explicit index.html so caching/pinning stays file-scoped (avoid pinning whole directories).
+  if (path === "/") return ["/index.html", "/"];
+  if (/\/$/.test(path)) return [`${path}index.html`, path];
   return [path];
 }
 

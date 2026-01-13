@@ -423,14 +423,12 @@
                     :alt="file.name"
                     class="table-thumbnail"
                     @error="() => onImageError(file)"
-                    style="width:32px;height:32px;object-fit:cover;border-radius:6px;vertical-align:middle;"
                   />
                   <component
                     v-else
                     :is="getFileIcon(file.name)"
-                    :size="24"
+                    :size="16"
                     stroke-width="1.5"
-                    style="vertical-align:middle;"
                   />
                 </div>
                 <span>{{ file.name }}</span>
@@ -825,9 +823,6 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="modal-desc">
-              View on-chain storage plans published by gateways.
-            </p>
 
             <div v-if="plansLoading" class="permalink-loading">
               <UiSpinner size="md" />
@@ -4241,7 +4236,6 @@ async function reloadForActiveProfileChange() {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 0.5rem;
 }
 
 .plan-row {
@@ -4925,27 +4919,6 @@ async function reloadForActiveProfileChange() {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-tertiary) transparent;
-}
-
-.files-grid::-webkit-scrollbar {
-  width: 8px;
-}
-
-.files-grid::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
-}
-
-.files-grid::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 4px;
-  opacity: 0.5;
-}
-
-.files-grid::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
 }
 
 .file-card {
@@ -5256,10 +5229,10 @@ async function reloadForActiveProfileChange() {
   font-family: "SF Mono", "Consolas", monospace;
   font-size: 0.7rem;
   word-break: break-all;
-  background: #ecf0f1;
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-  color: #0071e3;
+  background: var(--bg-secondary);
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  color: var(--accent-primary);
 }
 
 .detail-actions {
@@ -5394,27 +5367,6 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-tertiary) transparent;
-}
-
-.files-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.files-list::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
-}
-
-.files-list::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 4px;
-  opacity: 0.5;
-}
-
-.files-list::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
 }
 
 .list-header {
@@ -5561,32 +5513,43 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
   min-height: 0;
   box-shadow: var(--shadow-sm);
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-tertiary) transparent;
 }
 
-.files-table-wrapper::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.files-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  table-layout: fixed;
 }
 
-.files-table-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
+.files-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--hover-bg);
+  z-index: 1;
 }
 
-.files-table-wrapper::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 4px;
-  opacity: 0.5;
+.files-table th {
+  text-align: left;
+  padding: 0.875rem 1rem;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 
-.files-table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+.files-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
-.files-table-wrapper::-webkit-scrollbar-corner {
-  background: transparent;
+.files-table tbody tr {
+  cursor: pointer;
+  transition: background 0.1s;
 }
 
 .files-table {
@@ -5603,6 +5566,9 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-color);
 }
 
+.files-table tbody tr.selected {
+  background: var(--fill-blue);
+}
 
 .files-table th {
   text-align: left;
@@ -5621,23 +5587,66 @@ async function reloadForActiveProfileChange() {
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
 }
 
-.files-table th.th-name, .files-table td.td-name {
+.th-name {
+  width: 35%;
   min-width: 200px;
-  width: 30%;
 }
-.files-table th.th-size, .files-table td.td-size {
+
+.td-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.table-icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.table-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.td-size,
+.th-size {
+  width: 100px;
   min-width: 100px;
-  width: 15%;
   text-align: right;
 }
-.files-table th.th-date, .files-table td.td-date {
+
+.td-size {
+  color: var(--text-tertiary);
+}
+
+.td-date,
+.th-date {
+  width: 160px;
   min-width: 160px;
-  width: 25%;
   text-align: right;
 }
-.files-table th.th-actions, .files-table td.td-actions {
+
+.td-date {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.td-actions,
+.th-actions {
+  width: 120px;
   min-width: 120px;
-  width: 15%;
   text-align: center;
 }
 
@@ -5826,12 +5835,48 @@ async function reloadForActiveProfileChange() {
   height: 32px;
   border-radius: 8px;
   border: none;
-  border-radius: 0;
-  vertical-align: middle;
-  transition: background 0.15s;
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.files-table tbody tr {
+.modal-close:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-desc {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-modal-primary {
+  flex: 1;
+  padding: 0.875rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-bottom: 1px solid var(--separator);
@@ -5878,10 +5923,21 @@ async function reloadForActiveProfileChange() {
   border-bottom: none;
 }
 
+.btn-modal-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
 
-.td-name {
+.btn-modal-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.permalink-loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -6000,5 +6056,4 @@ async function reloadForActiveProfileChange() {
   font-size: 1em;
 }
 
-/* --- End Pro Table Enhancements --- */
 </style>

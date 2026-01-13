@@ -190,25 +190,6 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 0.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--fill-secondary) transparent;
-}
-
-.lumen-sidebar-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.lumen-sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.lumen-sidebar-scroll::-webkit-scrollbar-thumb {
-  background: var(--fill-secondary);
-  border-radius: 4px;
-}
-
-.lumen-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--fill-primary);
 }
 
 /* ===== FAVOURITES SECTION ===== */

@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
+const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings } = require('./settings.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
@@ -203,6 +204,18 @@ app.whenReady().then(() => {
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
   startIpfsSeedBootstrapper();
+
+  // CDN-style rolling cache for IPFS resources loaded by the browser.
+  try {
+    const sessions = [
+      session.defaultSession,
+      session.fromPartition('persist:lumen')
+    ].filter(Boolean);
+    startIpfsCache({ sessions });
+  } catch (e) {
+    console.warn('[electron][ipfs-cache] failed to start', String(e?.message || e));
+  }
+
   createSplashWindow();
   startChainPoller();
 
