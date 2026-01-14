@@ -106,6 +106,7 @@
             >
               <div class="dir-name" @click="openEntry(it)">
                 <Folder v-if="it.type === 'dir'" :size="16" class="ico" />
+                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="ico" />
                 <File v-else :size="16" class="ico" />
                 <span class="txt-overflow-ellipsis nowrap overflow-hidden">{{
                   it.name
@@ -176,6 +177,13 @@
             v-else-if="viewKind === 'pdf'"
             :src="contentUrl"
             class="embed"
+          ></iframe>
+
+          <iframe
+            v-else-if="viewKind === 'epub'"
+            :src="epubReaderUrl"
+            class="embed"
+            allow="fullscreen"
           ></iframe>
 
           <pre v-else-if="viewKind === 'text'" class="text">{{
@@ -268,7 +276,7 @@ import {
   ref,
   watch,
 } from "vue";
-import { Check, Copy, Download, File, Folder, Save } from "lucide-vue-next";
+import { BookOpen, Check, Copy, Download, File, Folder, Save } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
   localIpfsGatewayBase,
@@ -300,7 +308,7 @@ const error = ref("");
 const entries = ref<Entry[]>([]);
 const isDir = ref(false);
 const viewKind = ref<
-  "image" | "video" | "audio" | "html" | "pdf" | "text" | "unknown"
+  "image" | "video" | "audio" | "html" | "pdf" | "epub" | "text" | "unknown"
 >("unknown");
 const textContent = ref("");
 const mediaErrored = ref(false);
@@ -332,6 +340,49 @@ const saveNamePlaceholder = computed(() => {
 });
 
 const LOCAL_NAMES_KEY = "lumen_drive_saved_names";
+
+function isEpubName(nameOrPath: string): boolean {
+  const s = String(nameOrPath || "").toLowerCase();
+  return s.endsWith(".epub") || s.includes(".epub?");
+}
+
+function getDefaultBibiOrigin(): string {
+  try {
+    const baseEl = document.querySelector<HTMLBaseElement>("base[href]");
+    if (baseEl?.href) {
+      const u = new URL("./lib/bibi/", baseEl.href);
+      return u.href.replace(/\/+$/, "");
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const u = new URL("./lib/bibi/", window.location.href);
+    return u.href.replace(/\/+$/, "");
+  } catch {
+    // ignore
+  }
+
+  return "/lib/bibi";
+}
+
+const bibiOrigin = computed(() =>
+  String((window as any).BIBI_ORIGIN || getDefaultBibiOrigin()).replace(
+    /\/+$/,
+    "",
+  ),
+);
+
+const epubReaderUrl = computed(() => {
+  const book = String(contentUrl.value || "").trim();
+  if (!book) return "";
+  const bibi = String(bibiOrigin.value || "").replace(/\/+$/, "");
+  if (!bibi) return "";
+  return `${bibi}/index.html?book=${encodeURIComponent(
+    book,
+  )}#autostart=1&ui=full&reader=view`;
+});
 
 function decodeSafe(seg: string): string {
   try {
@@ -499,6 +550,7 @@ function guessViewKind(nameOrPath: string): typeof viewKind.value {
   if (["mp4", "webm", "mov", "mkv", "avi"].includes(ext)) return "video";
   if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "audio";
   if (["pdf"].includes(ext)) return "pdf";
+  if (["epub"].includes(ext)) return "epub";
   if (["html", "htm"].includes(ext)) return "html";
   if (["txt", "md", "json", "xml", "csv", "log"].includes(ext)) return "text";
   return "unknown";
@@ -543,6 +595,7 @@ async function sniffViewKindFromHead(
     if (ct.startsWith("audio/")) return "audio";
     if (ct.includes("text/html")) return "html";
     if (ct.includes("application/pdf")) return "pdf";
+    if (ct.includes("application/epub+zip")) return "epub";
     if (ct.startsWith("text/")) return "text";
     if (ct.includes("application/json") || ct.includes("application/xml"))
       return "text";
@@ -564,6 +617,23 @@ async function detectViaMagicBytes(
 
     const bytes = new Uint8Array(got.data);
     if (bytes.length < 12) return "unknown";
+
+    // EPUB: ZIP container that contains a `mimetype` entry with content "application/epub+zip".
+    // When the `mimetype` entry is stored uncompressed, that string typically appears very early.
+    if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
+      try {
+        const needle = new TextEncoder().encode("application/epub+zip");
+        const sample = bytes.subarray(0, Math.min(bytes.length, 2048));
+        outer: for (let i = 0; i <= sample.length - needle.length; i++) {
+          for (let j = 0; j < needle.length; j++) {
+            if (sample[i + j] !== needle[j]) continue outer;
+          }
+          return "epub";
+        }
+      } catch {
+        // ignore
+      }
+    }
 
     // Check magic bytes for common formats
     // JPEG: FF D8 FF

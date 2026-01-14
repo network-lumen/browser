@@ -154,8 +154,8 @@
 
           <div class="perm-box">
             <div class="perm-row">
-              <span class="perm-k">CID</span>
-              <span class="perm-v mono">{{ pinCid }}</span>
+              <span class="perm-k">Target</span>
+              <span class="perm-v mono">{{ pinTargetDisplay }}</span>
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@
           <button class="btn-secondary" type="button" @click="closePin(false)" :disabled="pinning">
             Cancel
           </button>
-          <button class="btn-primary" type="button" @click="submitPin" :disabled="pinning || !pinCid">
+          <button class="btn-primary" type="button" @click="submitPin" :disabled="pinning || !pinTarget">
             <span class="spinner" v-if="pinning"></span>
             <span>{{ pinning ? 'Saving...' : 'Save' }}</span>
           </button>
@@ -355,7 +355,7 @@ function closeSend(confirm: boolean) {
 // Pin modal state
 const pinning = ref(false);
 const pinError = ref("");
-const pinCid = ref("");
+const pinTarget = ref("");
 const saveNameDraft = ref("");
 
 const LOCAL_NAMES_KEY = "lumen_drive_saved_names";
@@ -376,10 +376,45 @@ function extractCid(cidOrUrl: string): string {
   return raw;
 }
 
+function normalizePinTarget(cidOrUrl: string): string {
+  const raw = String(cidOrUrl || "").trim();
+  if (!raw) return "";
+
+  const lumen = raw.replace(/^lumen:\/\//i, "");
+  if (/^(ipfs|ipns)\//i.test(lumen)) return "/" + lumen.replace(/^\/+/, "");
+
+  if (/^\/(ipfs|ipns)\//i.test(raw)) return raw;
+  if (/^(ipfs|ipns)\//i.test(raw)) return "/" + raw.replace(/^\/+/, "");
+
+  try {
+    const u = new URL(raw);
+    const m = u.pathname.match(/\/(ipfs|ipns)\/.+/i);
+    if (m && m[0]) return m[0];
+  } catch {
+    // ignore
+  }
+
+  return raw;
+}
+
+function formatMiddleEllipsis(s: string, head = 28, tail = 34): string {
+  const v = String(s || "");
+  if (v.length <= head + tail + 3) return v;
+  return v.slice(0, head) + "…" + v.slice(-tail);
+}
+
+const pinTargetDisplay = computed(() => {
+  const t = String(pinTarget.value || "").trim();
+  if (!t) return "";
+  if (t.startsWith("/ipfs/")) return formatMiddleEllipsis(`lumen://ipfs/${t.slice("/ipfs/".length)}`);
+  if (t.startsWith("/ipns/")) return formatMiddleEllipsis(`lumen://ipns/${t.slice("/ipns/".length)}`);
+  return formatMiddleEllipsis(t);
+});
+
 function resetPinState() {
   pinning.value = false;
   pinError.value = "";
-  pinCid.value = extractCid(String(current.value?.data?.cidOrUrl || ""));
+  pinTarget.value = normalizePinTarget(String(current.value?.data?.cidOrUrl || ""));
   saveNameDraft.value = String(
     current.value?.data?.name || current.value?.data?.meta?.title || "",
   ).trim();
@@ -387,7 +422,7 @@ function resetPinState() {
 
 async function submitPin() {
   const api: any = (window as any).lumen;
-  if (!pinCid.value) return;
+  if (!pinTarget.value) return;
 
   const name = String(saveNameDraft.value || "").trim();
   if (!name) {
@@ -402,21 +437,24 @@ async function submitPin() {
   pinning.value = true;
   pinError.value = "";
   try {
-    const res = await api.ipfsPinAdd(pinCid.value);
+    const res = await api.ipfsPinAdd(pinTarget.value);
     if (!res?.ok) {
       respond(res ?? { ok: false, error: "save_failed" });
       return;
     }
+    const pins = Array.isArray(res?.pins) ? res.pins : Array.isArray(res?.Pins) ? res.Pins : [];
+    const pinnedCid = String(res?.pinnedCid || pins?.[0] || "").trim();
+    const key = pinnedCid || extractCid(pinTarget.value);
     try {
       const stored = localStorage.getItem(LOCAL_NAMES_KEY);
       const parsed = stored ? JSON.parse(stored) : {};
       const base = parsed && typeof parsed === "object" ? parsed : {};
-      const next = { ...base, [pinCid.value]: name };
+      const next = { ...base, [key]: name };
       localStorage.setItem(LOCAL_NAMES_KEY, JSON.stringify(next));
     } catch {
       // ignore
     }
-    respond({ ...(res || {}), ok: true, cid: pinCid.value, name });
+    respond({ ...(res || {}), ok: true, cid: key, name, target: pinTarget.value });
   } catch (e: any) {
     pinError.value = String(e?.message || e || "save_failed");
   } finally {

@@ -3,7 +3,15 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   base: './',
-  plugins: [vue()],
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'webview'
+        }
+      }
+    })
+  ],
   root: '.',
   server: {
     port: 5173,

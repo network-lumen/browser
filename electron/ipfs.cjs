@@ -549,8 +549,28 @@ async function ipfsPinAdd(cidOrPath) {
       return { ok: false, error: 'http_' + res.status };
     }
 
-    await res.text().catch(() => '');
-    return { ok: true };
+    const bodyText = await res.text().catch(() => '');
+    let pins = [];
+    try {
+      const json = JSON.parse(bodyText || 'null');
+      if (Array.isArray(json?.Pins)) pins = json.Pins.map((p) => String(p || '')).filter(Boolean);
+    } catch {
+      // Some IPFS setups can stream newline-delimited JSON.
+      const lines = String(bodyText || '')
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(Boolean);
+      for (let i = lines.length - 1; i >= 0; i--) {
+        try {
+          const json = JSON.parse(lines[i]);
+          if (Array.isArray(json?.Pins)) {
+            pins = json.Pins.map((p) => String(p || '')).filter(Boolean);
+            break;
+          }
+        } catch {}
+      }
+    }
+    return pins.length ? { ok: true, pins, pinnedCid: pins[0] } : { ok: true };
   } catch (e) {
     console.error('[electron][ipfs] pin add error:', e);
     return { ok: false, error: String(e?.message || e) };

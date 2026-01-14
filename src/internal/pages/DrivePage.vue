@@ -242,7 +242,7 @@
           @click="selectFile(file)"
           :class="{ selected: selectedFile?.cid === file.cid }"
         >
-          <div class="file-preview" :class="getFileTypeClass(file.name)">
+          <div class="file-preview" :class="getFileTypeClass(file)">
             <!-- Show actual image preview -->
             <img
               v-if="isImageFile(file.name)"
@@ -278,7 +278,7 @@
             <!-- Show icon for other files -->
             <component
               v-else
-              :is="getFileIcon(file.name)"
+              :is="getFileIcon(file)"
               :size="32"
               stroke-width="1.5"
             />
@@ -349,7 +349,7 @@
           @click="selectFile(file)"
           :class="{ selected: selectedFile?.cid === file.cid }"
         >
-          <div class="list-icon" :class="getFileTypeClass(file.name)">
+          <div class="list-icon" :class="getFileTypeClass(file)">
             <!-- Show small thumbnail for images -->
             <img
               v-if="isImageFile(file.name)"
@@ -373,7 +373,7 @@
             ></video>
             <component
               v-else
-              :is="getFileIcon(file.name)"
+              :is="getFileIcon(file)"
               :size="20"
               stroke-width="1.5"
             />
@@ -439,7 +439,7 @@
               :class="{ selected: selectedFile?.cid === file.cid }"
             >
               <td class="td-name">
-                <div class="table-icon" :class="getFileTypeClass(file.name)">
+                <div class="table-icon" :class="getFileTypeClass(file)">
                   <img
                     v-if="isImageFile(file.name)"
                     :src="getImageSrc(file)"
@@ -462,7 +462,7 @@
                   ></video>
                   <component
                     v-else
-                    :is="getFileIcon(file.name)"
+                    :is="getFileIcon(file)"
                     :size="16"
                     stroke-width="1.5"
                   />
@@ -606,7 +606,7 @@
         </button>
       </div>
 
-      <div class="detail-preview" :class="getFileTypeClass(selectedFile.name)">
+      <div class="detail-preview" :class="getFileTypeClass(selectedFile)">
         <!-- Show actual image preview in detail panel -->
         <img
           v-if="isImageFile(selectedFile.name)"
@@ -628,7 +628,7 @@
         <!-- Show icon for other files -->
         <component
           v-else
-          :is="getFileIcon(selectedFile.name)"
+          :is="getFileIcon(selectedFile)"
           :size="48"
           stroke-width="1.5"
         />
@@ -1370,6 +1370,7 @@ import {
   FileVideo,
   FileAudio,
   FileArchive,
+  BookOpen,
   File,
   CheckCircle,
   AlertCircle,
@@ -1635,6 +1636,8 @@ const activeSavedCids = computed(() => {
 const localSavedCount = computed(() => pinnedFiles.value.length);
 
 const entryTypeCache = ref<Record<string, "file" | "dir">>({});
+const entryContentTypeCache = ref<Record<string, string>>({});
+const entryContentTypeInFlight = new Set<string>();
 
 const browseRootCid = ref("");
 const browseRelPath = ref("");
@@ -3181,6 +3184,76 @@ watch(activeProfileId, (next, prev) => {
   void reloadForActiveProfileChange();
 });
 
+const contentTypeKnownExts = new Set([
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "svg",
+  "bmp",
+  "mp4",
+  "webm",
+  "mov",
+  "avi",
+  "mkv",
+  "mp3",
+  "wav",
+  "ogg",
+  "flac",
+  "m4a",
+  "zip",
+  "rar",
+  "7z",
+  "tar",
+  "gz",
+  "epub",
+  "pdf",
+  "doc",
+  "docx",
+  "txt",
+  "md",
+]);
+
+let contentTypePrefetchSeq = 0;
+watch(
+  displayFiles,
+  (next) => {
+    const seq = ++contentTypePrefetchSeq;
+    const list = Array.isArray(next) ? next : [];
+    const targets = list
+      .filter((f) => {
+        const cid = String(f?.cid || "").trim();
+        if (!cid) return false;
+        if (isDirEntry(f)) return false;
+        if (isEpubFile(f)) return false;
+        if (entryContentTypeCache.value[cid]) return false;
+        const ext = String(f?.name || "").split(".").pop()?.toLowerCase() || "";
+        return !contentTypeKnownExts.has(ext);
+      })
+      .slice(0, 20);
+
+    if (!targets.length) return;
+
+    void (async () => {
+      const max = Math.min(4, targets.length);
+      let nextIndex = 0;
+      const workers = new Array(max).fill(0).map(async () => {
+        while (true) {
+          const idx = nextIndex++;
+          if (idx >= targets.length) break;
+          if (seq !== contentTypePrefetchSeq) return;
+          const cid = String(targets[idx]?.cid || "").trim();
+          if (!cid) continue;
+          await ensureContentTypeCached(cid);
+        }
+      });
+      await Promise.all(workers);
+    })();
+  },
+  { immediate: true },
+);
+
 function isDirEntry(file: DriveFile | null | undefined): boolean {
   return String((file as any)?.type || "") === "dir";
 }
@@ -3282,13 +3355,15 @@ async function removeFile(file: DriveFile) {
   showToast("Remove failed", "error");
 }
 
-function getFileTypeClass(name: string): string {
+function getFileTypeClass(file: DriveFile | null | undefined): string {
+  const name = String(file?.name || "");
   const ext = name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
     return "type-image";
   if (["mp4", "webm", "mov", "avi", "mkv"].includes(ext)) return "type-video";
   if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "type-audio";
   if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "type-archive";
+  if (["epub"].includes(ext) || isEpubFile(file)) return "type-book";
   if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) return "type-document";
   return "type-file";
 }
@@ -3340,6 +3415,65 @@ function getGatewayUrl(cid: string): string {
   if (!base) return "";
   const encoded = encodeIpfsTarget(cid);
   return `${String(base).replace(/\/+$/, "")}/ipfs/${encoded}`;
+}
+
+async function sniffContentType(url: string): Promise<string> {
+  const target = String(url || "").trim();
+  if (!target) return "";
+
+  try {
+    const anyWin: any = window as any;
+    const httpHead = anyWin?.lumen?.httpHead;
+    let ct = "";
+
+    // Prefer the Electron http bridge to avoid CORS issues with local gateways.
+    if (typeof httpHead === "function") {
+      const res = await httpHead(target, { timeout: 6000 }).catch(() => null);
+      const headers =
+        res && res.headers && typeof res.headers === "object" ? res.headers : {};
+      const headerKey = Object.keys(headers).find(
+        (k) => String(k || "").toLowerCase() === "content-type",
+      );
+      ct = headerKey ? String(headers[headerKey] || "") : "";
+    } else {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(target, {
+        method: "HEAD",
+        signal: controller.signal,
+      });
+      clearTimeout(t);
+      ct = String(res.headers.get("content-type") || "");
+    }
+
+    return String(ct || "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+async function ensureContentTypeCached(cid: string) {
+  const key = String(cid || "").trim();
+  if (!key) return;
+  if (entryContentTypeCache.value[key]) return;
+  if (entryContentTypeInFlight.has(key)) return;
+
+  entryContentTypeInFlight.add(key);
+  try {
+    const url = getGatewayUrl(key);
+    const ct = await sniffContentType(url);
+    if (!ct) return;
+    entryContentTypeCache.value = { ...entryContentTypeCache.value, [key]: ct };
+  } finally {
+    entryContentTypeInFlight.delete(key);
+  }
+}
+
+function isEpubFile(file: DriveFile | null | undefined): boolean {
+  const name = String(file?.name || "").toLowerCase();
+  if (name.endsWith(".epub")) return true;
+  const ct = entryContentTypeCache.value[String(file?.cid || "").trim()] || "";
+  return ct.includes("application/epub+zip");
 }
 
 function imageMimeFromName(name: string): string {
@@ -3400,13 +3534,15 @@ async function onImageError(file: DriveFile) {
   }
 }
 
-function getFileIcon(name: string) {
+function getFileIcon(file: DriveFile | null | undefined) {
+  const name = String(file?.name || "");
   const ext = name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
     return FileImage;
   if (["mp4", "webm", "mov", "avi", "mkv"].includes(ext)) return FileVideo;
   if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return FileAudio;
   if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return FileArchive;
+  if (["epub"].includes(ext) || isEpubFile(file)) return BookOpen;
   if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) return FileText;
   return File;
 }
@@ -5118,6 +5254,10 @@ async function reloadForActiveProfileChange() {
 }
 .file-preview.type-archive {
   color: #34c759;
+  background: var(--card-bg);
+}
+.file-preview.type-book {
+  color: #f59e0b;
   background: var(--card-bg);
 }
 .file-preview.type-document {
