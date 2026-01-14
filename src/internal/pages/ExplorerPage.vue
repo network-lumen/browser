@@ -773,13 +773,6 @@
       </div>
     </div>
     
-    <!-- Password Modal -->
-    <PasswordPromptModal
-      :visible="showPasswordModal"
-      :message="passwordModalMessage"
-      @confirm="handlePasswordConfirm"
-      @cancel="handlePasswordCancel"
-    />
     </template>
   </div>
 </template>
@@ -791,7 +784,6 @@ import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 import { LayoutGrid } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
 
@@ -922,15 +914,6 @@ const txMessage = ref('');
 const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 const txHash = ref('');
 
-// Password modal state
-const showPasswordModal = ref(false);
-const passwordModalMessage = ref('');
-const pendingStakeOperation = ref<{
-  action: string;
-  params: any;
-  resolve: (value: any) => void;
-  reject: (reason?: any) => void;
-} | null>(null);
 const bondedTokens = ref(114760000);
 const unbondedTokens = ref(385240000);
 const totalSupply = ref(500000000);
@@ -1490,7 +1473,7 @@ const canConfirm = computed(() => {
   return true;
 });
 
-async function confirmStakeAction(password?: string) {
+async function confirmStakeAction() {
   if (!canConfirm.value || !activeProfile.value || !selectedValidator.value) return;
   
   const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
@@ -1537,7 +1520,6 @@ async function confirmStakeAction(password?: string) {
       address: profileAddress,
       validatorAddress: selectedValidator.value.address,
       amount: { amount: amountInUlmn, denom: 'ulmn' },
-      ...(password ? { password } : {})
     };
     
     switch (currentStakeAction.value) {
@@ -1565,7 +1547,6 @@ async function confirmStakeAction(password?: string) {
             validatorSrcAddress: selectedValidator.value.address,
             validatorDstAddress: targetValidator.value,
             amount: { amount: amountInUlmn, denom: 'ulmn' },
-            ...(password ? { password } : {})
           });
         } else {
           throw new Error('Redelegate function not available');
@@ -1578,7 +1559,6 @@ async function confirmStakeAction(password?: string) {
             profileId: profileId,
             address: profileAddress,
             validatorAddress: selectedValidator.value.address,
-            ...(password ? { password } : {})
           });
         } else {
           throw new Error('WithdrawRewards function not available');
@@ -1590,12 +1570,9 @@ async function confirmStakeAction(password?: string) {
     
     // Handle password_required error
     if (result?.ok === false && (result?.error === 'password_required' || result?.error === 'invalid_password')) {
-      isProcessingTx.value = false;
+      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
       txStatus.value = 'idle';
       txMessage.value = '';
-      
-      passwordModalMessage.value = `Enter your password to ${currentStakeAction.value.toLowerCase()}.`;
-      showPasswordModal.value = true;
       return;
     }
     
@@ -1617,17 +1594,6 @@ async function confirmStakeAction(password?: string) {
   } finally {
     isProcessingTx.value = false;
   }
-}
-
-async function handlePasswordConfirm(password: string) {
-  showPasswordModal.value = false;
-  await confirmStakeAction(password);
-}
-
-function handlePasswordCancel() {
-  showPasswordModal.value = false;
-  txStatus.value = 'idle';
-  txMessage.value = '';
 }
 
 watch(stakePercentage, (newVal) => {

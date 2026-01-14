@@ -253,13 +253,6 @@
       </Transition>
     </main>
 
-    <!-- Password Modal -->
-    <PasswordPromptModal
-      :visible="showPasswordModal"
-      :message="passwordModalMessage"
-      @confirm="handlePasswordConfirm"
-      @cancel="handlePasswordCancel"
-    />
   </div>
 </template>
 
@@ -278,7 +271,6 @@ import {
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
@@ -313,10 +305,6 @@ const registerForm = ref({
   years: '1',
   ext: 'lmn'
 });
-
-const showPasswordModal = ref(false);
-const passwordModalMessage = ref('');
-const pendingPasswordAction = ref<'register' | 'settings' | null>(null);
 
 const showSettingsModal = ref(false);
 const selectedDomain = ref<DomainRow | null>(null);
@@ -687,7 +675,7 @@ const canRegister = computed(
     domainAvailable.value
 );
 
-async function confirmRegister(password?: string) {
+async function confirmRegister() {
   if (!canRegister.value || registering.value) return;
   const namePart = registerForm.value.domainName.trim();
   const extPart = (registerForm.value.ext || '').trim() || 'lmn';
@@ -715,17 +703,10 @@ async function confirmRegister(password?: string) {
       owner,
       name: fqdn,
       duration_days: days,
-      ...(password ? { password } : {})
     });
     
-    // Handle password_required error
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
-      registering.value = false;
-      pendingPasswordAction.value = 'register';
-      passwordModalMessage.value = res?.error === 'invalid_password' 
-        ? 'Invalid password. Please try again.' 
-        : 'Enter your password to register this domain.';
-      showPasswordModal.value = true;
+      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
       return;
     }
     
@@ -743,25 +724,6 @@ async function confirmRegister(password?: string) {
   } finally {
     registering.value = false;
   }
-}
-
-async function handlePasswordConfirm(password: string) {
-  showPasswordModal.value = false;
-  
-  if (pendingPasswordAction.value === 'register') {
-    await confirmRegister(password);
-  } else if (pendingPasswordAction.value === 'settings') {
-    await saveSettings(password);
-  }
-  
-  pendingPasswordAction.value = null;
-}
-
-function handlePasswordCancel() {
-  showPasswordModal.value = false;
-  pendingPasswordAction.value = null;
-  registering.value = false;
-  savingSettings.value = false;
 }
 
 async function openSettingsModal(d?: DomainRow) {
@@ -808,7 +770,7 @@ function removeSettingsRecord(index: number) {
   settingsRecords.value = next;
 }
 
-async function saveSettings(password?: string) {
+async function saveSettings() {
   if (savingSettings.value) return;
   const name = selectedDomain.value?.name;
   const owner = (profileAddress.value || '').trim();
@@ -861,17 +823,10 @@ async function saveSettings(password?: string) {
       owner,
       name,
       records,
-      ...(password ? { password } : {})
     });
     
-    // Handle password_required error
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
-      savingSettings.value = false;
-      pendingPasswordAction.value = 'settings';
-      passwordModalMessage.value = res?.error === 'invalid_password' 
-        ? 'Invalid password. Please try again.' 
-        : 'Enter your password to update this domain.';
-      showPasswordModal.value = true;
+      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
       return;
     }
     

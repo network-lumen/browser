@@ -480,7 +480,10 @@ function loadMnemonic(profileId) {
     const pwd = getSessionPassword();
     if (!pwd) throw new Error('password_required');
     const mnemonic = decryptMnemonicWithPassword(raw, pwd);
-    if (!mnemonic) throw new Error('Failed to decrypt keystore with password');
+    if (!mnemonic) {
+      console.warn('[gateway] mnemonic decrypt failed for profileId=', profileId);
+      throw new Error('invalid_password');
+    }
     return mnemonic;
   }
 

@@ -19,24 +19,21 @@
     />
 
     <div class="content-stack flex w-full flex-1">
-      <KeepAlive>
-        <component
-          v-if="activeTab"
-          :key="`${activeTab.id}::${cacheKeyForUrl(activeTab.url || '')}`"
-          :is="componentForTab(activeTab)"
-          class="flex w-full h-full"
-        />
-      </KeepAlive>
+      <TabPane
+        v-for="t in tabs"
+        :key="t.id"
+        :tab="t"
+        :active="t.id === tabActive"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, provide } from "vue";
+import { computed } from "vue";
 import NavBar from "./NavBar.vue";
+import TabPane from "./TabPane.vue";
 import {
-  INTERNAL_ROUTE_KEYS,
-  resolveInternalComponent,
   getInternalTitle,
 } from "../internal/routes";
 
@@ -71,44 +68,12 @@ function currentUrl(): string {
   return t?.url || "lumen://home";
 }
 
-// Provide current URL to child components
-provide(
-  "currentTabUrl",
-  computed(() => currentUrl()),
-);
-// Provide a refresh signal to child components (refresh button in the address bar)
-provide(
-  "currentTabRefresh",
-  computed(() => activeTab.value?.refreshTick ?? 0),
-);
-// Provide in-tab navigation to internal pages
-provide("navigate", (url: string, opts?: { push?: boolean }) => {
-  navigateInternal(url, opts || {});
-});
-
 function normalizeInternalUrl(raw: string): string {
   const v = String(raw || "").trim();
   if (!v) return "lumen://home";
   if (/^lumen:\/\//i.test(v)) return v;
   if (/^https?:\/\//i.test(v)) return v;
   return `lumen://${v}`;
-}
-
-const INTERNAL_KEYS = new Set(
-  (INTERNAL_ROUTE_KEYS || []).map((k: string) => String(k).toLowerCase()),
-);
-
-function cacheKeyForUrl(rawUrl: string): string {
-  const s = String(rawUrl || "").trim();
-  if (!s) return "home";
-  if (/^https?:\/\//i.test(s)) return "web";
-
-  const withoutScheme = /^lumen:\/\//i.test(s) ? s.slice("lumen://".length) : s;
-  const host = (withoutScheme.split(/[\/?#]/, 1)[0] || "").toLowerCase();
-  if (!host) return "home";
-  if (INTERNAL_KEYS.has(host)) return host;
-  if (host.includes(".")) return "site";
-  return "search";
 }
 
 function navigateInternal(url: string, opts: { push?: boolean } = {}) {
@@ -189,16 +154,12 @@ function onHistoryStep(payload: { delta: number }) {
 function openSettings() {
   emit("openInNewTab", "lumen://settings");
 }
-
-function componentForTab(t: Tab) {
-  const url = t.url || "lumen://home";
-  return resolveInternalComponent(url);
-}
 </script>
 
 <style scoped>
 .content-stack {
   min-height: 0;
   overflow: hidden;
+  position: relative;
 }
 </style>

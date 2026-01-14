@@ -71,7 +71,10 @@ function loadMnemonic(profileId, password = null) {
       throw new Error('password_required');
     }
     const mnemonic = decryptMnemonicWithPassword(ks, pwd);
-    if (!mnemonic) throw new Error('Failed to decrypt keystore with password');
+    if (!mnemonic) {
+      console.warn('[wallet] mnemonic decrypt failed for profileId=', profileId);
+      throw new Error('invalid_password');
+    }
     return mnemonic;
   }
   
@@ -607,6 +610,19 @@ async function signAndBroadcastWithPqcAutoLink({
 }
 
 function registerWalletIpc() {
+  function sanitizeDecryptErrorMessage(errMsg) {
+    const msg = String(errMsg || '').trim();
+    const lower = msg.toLowerCase();
+    if (
+      lower.includes('unable to authenticate data') ||
+      lower.includes('unsupported state') ||
+      lower.includes('bad decrypt')
+    ) {
+      return 'invalid_password';
+    }
+    return msg || 'unknown_error';
+  }
+
   ipcMain.handle('wallet:sendTokens', async (_evt, input) => {
     try {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();
@@ -740,7 +756,8 @@ function registerWalletIpc() {
     } catch (e) {
       console.error('[wallet:sendTokens] error:', e);
       console.error('[wallet:sendTokens] stack:', e && e.stack ? e.stack : 'no stack');
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
   });
 
@@ -883,7 +900,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
   });
 
@@ -1088,7 +1106,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
   });
 

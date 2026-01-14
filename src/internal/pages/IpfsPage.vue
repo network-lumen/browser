@@ -511,16 +511,31 @@ async function sniffViewKindFromHead(
   if (!target) return "unknown";
 
   try {
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(target, {
-      method: "HEAD",
-      signal: controller.signal,
-    });
-    clearTimeout(t);
-    if (!res.ok) return "unknown";
+    const anyWin: any = window as any;
+    const httpHead = anyWin?.lumen?.httpHead;
+    let ct = "";
 
-    const ct = String(res.headers.get("content-type") || "").toLowerCase();
+    // Prefer the Electron http bridge to avoid CORS issues with local gateways.
+    if (typeof httpHead === "function") {
+      const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
+      const headers =
+        res && res.headers && typeof res.headers === "object" ? res.headers : {};
+      const headerKey = Object.keys(headers).find(
+        (k) => String(k || "").toLowerCase() === "content-type",
+      );
+      ct = headerKey ? String(headers[headerKey] || "") : "";
+    } else {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(target, {
+        method: "HEAD",
+        signal: controller.signal,
+      });
+      clearTimeout(t);
+      ct = String(res.headers.get("content-type") || "");
+    }
+
+    ct = String(ct || "").toLowerCase();
     console.log("[ipfs-page] sniffed content-type:", ct, "for", url);
     if (!ct) return "unknown";
     if (ct.startsWith("image/")) return "image";

@@ -16,6 +16,11 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.removeListener('tabs:openInNewTab', handler);
     };
   },
+  tabsReportState: (tabIds) => {
+    const ids = Array.isArray(tabIds) ? tabIds.map((x) => String(x || '')).filter(Boolean) : [];
+    ipcRenderer.send('tabs:state', ids);
+    return true;
+  },
   settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
   settingsSet: (partial) => ipcRenderer.invoke('settings:set', partial || {}),
   settingsOnChanged: (callback) => {
@@ -152,6 +157,29 @@ getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavouri
         ipcRenderer.removeListener('security:sessionChanged', handler);
       };
     }
+  },
+  lumenSite: {
+    onUiRequest: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('lumenSite:uiRequest', handler);
+      return () => {
+        ipcRenderer.removeListener('lumenSite:uiRequest', handler);
+      };
+    },
+    respondUiRequest: (id, response) => {
+      ipcRenderer.send('lumenSite:uiResponse', { id, response: response ?? null });
+    }
+  },
+  domainSite: {
+    sendToken: (payload) => ipcRenderer.invoke('domainSite:sendToken', payload || {}),
+    pin: (payload) => ipcRenderer.invoke('domainSite:pin', payload || {})
   }
 });
 

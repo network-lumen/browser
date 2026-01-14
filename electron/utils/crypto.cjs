@@ -212,7 +212,17 @@ function encryptMnemonicWithPassword(mnemonic, password) {
  * Decrypt mnemonic that was encrypted with password
  */
 function decryptMnemonicWithPassword(keystore, password) {
-  return decryptWithPassword(keystore, password);
+  try {
+    return decryptWithPassword(keystore, password);
+  } catch (e) {
+    try {
+      const msg = String(e && e.message ? e.message : e);
+      console.warn('[crypto] decryptMnemonicWithPassword failed:', msg);
+    } catch {
+      // ignore
+    }
+    return null;
+  }
 }
 
 /**

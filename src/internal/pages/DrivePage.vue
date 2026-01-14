@@ -249,6 +249,9 @@
               :src="getImageSrc(file)"
               :alt="file.name"
               class="preview-image"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
               @error="() => onImageError(file)"
             />
             <!-- Show video preview -->
@@ -256,8 +259,15 @@
               v-else-if="isVideoFile(file.name)"
               :src="getGatewayUrl(contentTargetFor(file))"
               class="preview-video"
+              :poster="videoPosterFor(file)"
+              preload="metadata"
               muted
-              @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
+              playsinline
+              @loadeddata="markVideoThumbReady(file)"
+              @mouseenter="
+                (e) =>
+                  void (e.target as HTMLVideoElement).play().catch(() => {})
+              "
               @mouseleave="
                 (e) => {
                   (e.target as HTMLVideoElement).pause();
@@ -346,8 +356,21 @@
               :src="getImageSrc(file)"
               :alt="file.name"
               class="list-thumbnail"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
               @error="() => onImageError(file)"
             />
+            <video
+              v-else-if="isVideoFile(file.name)"
+              :src="getGatewayUrl(contentTargetFor(file))"
+              class="list-thumbnail-video"
+              :poster="videoPosterFor(file)"
+              preload="metadata"
+              muted
+              playsinline
+              @loadeddata="markVideoThumbReady(file)"
+            ></video>
             <component
               v-else
               :is="getFileIcon(file.name)"
@@ -422,8 +445,21 @@
                     :src="getImageSrc(file)"
                     :alt="file.name"
                     class="table-thumbnail"
+                    loading="lazy"
+                    decoding="async"
+                    fetchpriority="low"
                     @error="() => onImageError(file)"
                   />
+                  <video
+                    v-else-if="isVideoFile(file.name)"
+                    :src="getGatewayUrl(contentTargetFor(file))"
+                    class="table-thumbnail-video"
+                    :poster="videoPosterFor(file)"
+                    preload="metadata"
+                    muted
+                    playsinline
+                    @loadeddata="markVideoThumbReady(file)"
+                  ></video>
                   <component
                     v-else
                     :is="getFileIcon(file.name)"
@@ -577,6 +613,7 @@
           :src="getImageSrc(selectedFile)"
           :alt="selectedFile.name"
           class="detail-preview-image"
+          decoding="async"
           @error="() => selectedFile && onImageError(selectedFile)"
         />
         <!-- Show video preview in detail panel -->
@@ -586,6 +623,7 @@
           class="detail-preview-video"
           controls
           muted
+          playsinline
         ></video>
         <!-- Show icon for other files -->
         <component
@@ -772,7 +810,7 @@
                 <button
                   class="btn-ghost"
                   type="button"
-                  @click="openGatewayUnlockModal"
+                  @click="requestUnlock"
                 >
                   Unlock
                 </button>
@@ -1308,12 +1346,6 @@
       </div>
     </Transition>
 
-    <PasswordPromptModal
-      :visible="showGatewayUnlockModal"
-      message="Enter your password to unlock the wallet (required for cloud usage)."
-      @confirm="handleGatewayUnlockConfirm"
-      @cancel="handleGatewayUnlockCancel"
-    />
   </div>
 </template>
 
@@ -1348,7 +1380,6 @@ import {
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import InternalSidebar from "../../components/InternalSidebar.vue";
-import PasswordPromptModal from "../../components/PasswordPromptModal.vue";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
@@ -1415,6 +1446,7 @@ const renameDraft = ref("");
 const imagePreviewUrls = ref<Record<string, string>>({});
 const imagePreviewTried = ref<Record<string, boolean>>({});
 const imagePreviewInFlight = new Set<string>();
+const videoThumbReady = ref<Record<string, true>>({});
 
 // Gateway / PQC usage (DrivePanel-style)
 const gatewayUsage = ref<any | null>(null);
@@ -1475,20 +1507,12 @@ const showLocalDetails = ref(false);
 
 // Subscription details
 const showGatewayDetails = ref(false);
-const showGatewayUnlockModal = ref(false);
-
-function openGatewayUnlockModal() {
-  showGatewayUnlockModal.value = true;
-}
-
-async function handleGatewayUnlockConfirm(_password: string) {
-  showGatewayUnlockModal.value = false;
-  gatewayUsageError.value = "";
-  await refreshActiveGatewayData();
-}
-
-function handleGatewayUnlockCancel() {
-  showGatewayUnlockModal.value = false;
+async function requestUnlock() {
+  try {
+    await (window as any).lumen?.security?.lockSession?.();
+  } catch {
+    // ignore
+  }
 }
 
 const planRegions = computed(() => {
@@ -2211,6 +2235,12 @@ async function refreshGatewayBase(baseUrlHint?: string) {
       .getBaseUrl(profileId, baseUrlHint)
       .catch(() => null);
     if (!res || res.ok === false) {
+      const code = String(res?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await api?.security?.lockSession?.();
+        } catch {}
+      }
       gatewayBase.value = null;
       return;
     }
@@ -2568,6 +2598,11 @@ async function refreshGatewayUsage(baseUrlHint?: string) {
       .catch(() => null);
     if (!res || res.ok === false) {
       const code = String(res?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await api?.security?.lockSession?.();
+        } catch {}
+      }
       // If the gateway doesn't expose a Kyber pubkey, just treat it as "no plan"
       if (code === "kyber_pubkey_http_unavailable") {
         gatewayUsage.value = null;
@@ -2609,6 +2644,11 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       .catch(() => null);
     if (!res || res.ok === false) {
       const code = String(res?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await api?.security?.lockSession?.();
+        } catch {}
+      }
       if (code === "kyber_pubkey_http_unavailable") {
         gatewayPinned.value = [];
         gatewayPinnedError.value = "";
@@ -3263,15 +3303,40 @@ function isVideoFile(name: string): boolean {
   return ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
 }
 
+function videoPosterFor(file: DriveFile): string | undefined {
+  const key = contentTargetFor(file);
+  if (!key) return undefined;
+  if (videoThumbReady.value[key]) return undefined;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0f172a" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#0f172a" stop-opacity="0.34"/>
+  </linearGradient>
+</defs>
+<rect width="320" height="240" rx="18" fill="url(#g)"/>
+<g>
+  <circle cx="160" cy="120" r="32" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2"/>
+  <path d="M154 106 L154 134 L178 120 Z" fill="#ffffff" fill-opacity="0.65"/>
+</g>
+</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function markVideoThumbReady(file: DriveFile) {
+  const key = contentTargetFor(file);
+  if (!key) return;
+  if (videoThumbReady.value[key]) return;
+  videoThumbReady.value = { ...videoThumbReady.value, [key]: true };
+}
+
 function getGatewayUrl(cid: string): string {
   const localBase = localIpfsGatewayBase();
   const publicBase = "https://ipfs.io";
-  const base =
-    hosting.value.kind === "gateway"
-      ? gatewayBase.value || publicBase
-      : ipfsConnected.value
-        ? localBase
-        : publicBase;
+  // "gatewayBase" is the Lumen gateway API base (PQ-auth endpoints) and does not
+  // necessarily serve IPFS gateway routes like `/ipfs/<cid>`.
+  // For previews/streaming, always use an actual IPFS gateway (local if available).
+  const base = ipfsConnected.value ? localBase : publicBase;
   if (!base) return "";
   const encoded = encodeIpfsTarget(cid);
   return `${String(base).replace(/\/+$/, "")}/ipfs/${encoded}`;
@@ -3308,6 +3373,7 @@ async function onImageError(file: DriveFile) {
   imagePreviewInFlight.add(key);
   imagePreviewTried.value = { ...imagePreviewTried.value, [key]: true };
   try {
+    // Avoid fetching huge images into memory: keep blob previews for small images only.
     const gateways = await loadWhitelistedGatewayBases().catch(() => []);
     const got = await (window as any).lumen
       ?.ipfsGet?.(key, { gateways })
@@ -4993,6 +5059,8 @@ async function reloadForActiveProfileChange() {
   border: 1px solid var(--border-light);
   height: fit-content;
   position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: 180px 140px;
 }
 
 .file-card:hover {
@@ -5482,6 +5550,8 @@ async function reloadForActiveProfileChange() {
   cursor: pointer;
   transition: all 0.1s;
   border-bottom: 1px solid var(--hover-bg);
+  content-visibility: auto;
+  contain-intrinsic-size: 920px 56px;
 }
 
 .list-item:last-child {
@@ -5513,6 +5583,15 @@ async function reloadForActiveProfileChange() {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
+}
+
+.list-thumbnail-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  display: block;
 }
 
 .list-name {
@@ -5679,6 +5758,15 @@ async function reloadForActiveProfileChange() {
   height: 100%;
   object-fit: cover;
   border-radius: 6px;
+}
+
+.table-thumbnail-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  display: block;
 }
 
 .td-size,

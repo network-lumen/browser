@@ -35,124 +35,87 @@ function ensureLumenSite() {
   }
 }
 
-async function requestUserConsent(kind, details) {
+function parseLumenIpfsOrIpns(input) {
+  const raw = safeString(input, 4096);
+  if (!raw) return { kind: '', id: '', rest: '' };
+  const s = raw.replace(/^lumen:\/\//i, '');
+  let m = s.match(/^(ipfs)\/([^/?#]+)([^?#]*)/i);
+  if (m) return { kind: 'ipfs', id: m[2] || '', rest: m[3] || '' };
+  m = s.match(/^(ipns)\/([^/?#]+)([^?#]*)/i);
+  if (m) return { kind: 'ipns', id: m[2] || '', rest: m[3] || '' };
+  return { kind: '', id: '', rest: '' };
+}
+
+async function getLocalGatewayBase() {
   try {
-    const payload = {
-      kind: safeString(kind, 64),
-      details: details ?? null,
-      meta: {
-        origin: safeString(location?.origin || ''),
-        href: safeString(currentHref()),
-        title: safeString(document?.title || '', 512)
-      }
-    };
-    const res = await ipcRenderer.invoke('lumenSite:confirm', payload);
-    return res === true;
+    const base = await ipcRenderer.invoke('lumenSite:getLocalGatewayBase');
+    return safeString(base, 1024);
   } catch {
-    return false;
+    return '';
   }
 }
 
-async function resolveActiveProfileFallback() {
-  try {
-    return (await ipcRenderer.invoke('profiles:getActive')) || null;
-  } catch {
-    return null;
-  }
-}
-
-function normalizeSendInput(rawTx) {
-  const tx = rawTx && typeof rawTx === 'object' ? rawTx : {};
-  const profileId = safeString(tx.profileId || tx.profile || tx.profile_id || '');
-  const from = safeString(tx.from || tx.address || tx.sender || '');
-  const to = safeString(tx.to || tx.recipient || '');
-
-  const memo = safeString(tx.memo || tx.note || '', 1024);
-  const denomIn = safeString(tx.denom || 'ulmn', 16).toLowerCase();
-
-  const amountUlmnExplicit =
-    tx.amount_ulmn != null ? Math.floor(safeNumber(tx.amount_ulmn)) : null;
-  const amountInput = safeNumber(tx.amount);
-
-  let amountLmn = 0;
-  if (amountUlmnExplicit != null && amountUlmnExplicit > 0) {
-    amountLmn = amountUlmnExplicit / 1_000_000;
-  } else if (denomIn === 'ulmn') {
-    amountLmn = amountInput / 1_000_000;
-  } else {
-    amountLmn = amountInput;
-  }
-
-  return {
-    profileId,
-    from,
-    to,
-    amountLmn,
-    memo,
-    denomIn
-  };
-}
-
-async function sendToken(rawTx, options) {
+async function resolveUrl(urlOrPath) {
   ensureLumenSite();
+  const raw = safeString(urlOrPath, 4096);
+  if (!raw) return '';
 
-  const optionsObj = options && typeof options === 'object' ? options : {};
-  const reason = safeString(optionsObj.reason || '', 256);
-  const siteLabel = safeString(optionsObj.siteLabel || '', 256);
-
-  const normalized = normalizeSendInput(rawTx);
-  let { profileId, from } = normalized;
-  const to = normalized.to;
-  const amountLmn = normalized.amountLmn;
-  const memo = normalized.memo;
-
-  if (!profileId || !from) {
-    const active = await resolveActiveProfileFallback();
-    if (!profileId) profileId = safeString(active?.id || active?.profileId || '');
-    if (!from) from = safeString(active?.address || active?.walletAddress || active?.addr || '');
+  // Accept lumen://ipfs/<cid>/... and lumen://ipns/<name>/...
+  if (/^lumen:\/\//i.test(raw)) {
+    const parsed = parseLumenIpfsOrIpns(raw);
+    if (!parsed.kind || !parsed.id) return '';
+    const base = (await getLocalGatewayBase()) || safeString(location?.origin || '', 1024);
+    const b = String(base || '').replace(/\/+$/, '');
+    return `${b}/${parsed.kind}/${parsed.id}${parsed.rest || ''}`;
   }
 
-  if (!profileId) return { ok: false, error: 'missing_profileId' };
-  if (!from || !to || !(amountLmn > 0)) return { ok: false, error: 'missing_from_to_amount' };
+  // Accept /ipfs/... and /ipns/... paths.
+  if (/^\/(ipfs|ipns)\//i.test(raw)) {
+    const base = (await getLocalGatewayBase()) || safeString(location?.origin || '', 1024);
+    const b = String(base || '').replace(/\/+$/, '');
+    return `${b}${raw}`;
+  }
 
-  const amountUlmn = Math.round(amountLmn * 1_000_000);
+  // Fallback: return as-is if it's already http(s).
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return raw;
+}
 
-  const allowed = await requestUserConsent('SendToken', {
-    profileId,
-    from,
-    to,
-    amount_lmn: amountLmn,
-    amount_ulmn: amountUlmn,
-    memo,
-    reason,
-    siteLabel
-  });
-  if (!allowed) return { ok: false, error: 'user_denied' };
+async function sendToken(rawTx) {
+  ensureLumenSite();
+  const tx = rawTx && typeof rawTx === 'object' ? rawTx : {};
+  const to = safeString(tx.to || tx.recipient || '', 256);
+  const memo = safeString(tx.memo || tx.note || '', 1024);
+  const amountLmnRaw = tx.amount_lmn ?? tx.amountLmn ?? tx.amount;
+  const amountLmn =
+    typeof amountLmnRaw === 'number' && Number.isFinite(amountLmnRaw) ? amountLmnRaw : null;
 
   try {
-    return await ipcRenderer.invoke('wallet:sendTokens', {
-      profileId,
-      from,
-      to,
-      amount: amountLmn,
-      denom: 'ulmn',
-      memo
-    });
+    return await ipcRenderer.invoke('lumenSite:sendToken', { to, memo, amountLmn, title: safeString(document?.title || '', 256) });
   } catch (e) {
     return { ok: false, error: safeString(e?.message || e || 'send_failed', 512) };
   }
 }
 
-async function saveCID(cidOrPath) {
+async function pinCid(cidOrUrl, optsMaybe) {
   ensureLumenSite();
-  const cid = safeString(cidOrPath, 2048);
-  if (!cid) return { ok: false, error: 'missing_cid' };
+  const inputObj = cidOrUrl && typeof cidOrUrl === 'object' ? cidOrUrl : null;
+  const cidOrUrlStr = safeString(
+    inputObj ? (inputObj.cidOrUrl || inputObj.cid || inputObj.url || '') : cidOrUrl,
+    4096
+  );
+  if (!cidOrUrlStr) return { ok: false, error: 'missing_cid' };
 
-  const allowed = await requestUserConsent('SaveCID', { cid });
-  if (!allowed) return { ok: false, error: 'user_denied' };
-
+  const name = safeString(
+    inputObj ? (inputObj.name || inputObj.title || inputObj.filename || '') : (optsMaybe && optsMaybe.name ? optsMaybe.name : ''),
+    256
+  );
   try {
-    return await ipcRenderer.invoke('ipfs:pinAdd', cid);
+    return await ipcRenderer.invoke('lumenSite:pin', {
+      cidOrUrl: cidOrUrlStr,
+      name,
+      title: safeString(document?.title || '', 256)
+    });
   } catch (e) {
     return { ok: false, error: safeString(e?.message || e || 'pin_failed', 512) };
   }
@@ -198,25 +161,31 @@ async function readCID(argOrOpts, optsMaybe) {
 const lumen = {
   // Minimal "action" API (requested)
   SendToken: sendToken,
-  SaveCID: saveCID,
+  Pin: pinCid,
+  Save: pinCid,
   ReadCID: readCID,
+  resolveUrl,
 
   // Preferred camelCase aliases
   sendToken,
-  saveCID,
+  pin: pinCid,
+  save: pinCid,
   readCID,
+  resolveUrl,
 
   // Legacy-ish surface for compatibility
   wallet: { requestSend: sendToken },
-  ipfs: { pinAdd: saveCID, cat: readCID, get: readCID }
+  ipfs: { pinAdd: pinCid, cat: readCID, get: readCID, resolveUrl }
 };
 
 try {
-  contextBridge.exposeInMainWorld('lumen', lumen);
-  try {
-    // Helpful flag for debugging / feature-detection
-    Object.defineProperty(window, '__lumenSiteInjected', { value: true, enumerable: false });
-  } catch {}
+  if (isIpfsGatewayUrl(currentHref())) {
+    contextBridge.exposeInMainWorld('lumen', lumen);
+    try {
+      // Helpful flag for debugging / feature-detection
+      Object.defineProperty(window, '__lumenSiteInjected', { value: true, enumerable: false });
+    } catch {}
+  }
 } catch {
   // ignore
 }

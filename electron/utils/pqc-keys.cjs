@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson } = require('./fs.cjs');
-const { decryptWithPassword } = require('./crypto.cjs');
+const { decryptWithPassword, isPasswordProtected } = require('./crypto.cjs');
 
 function pqcKeysFilePath() {
   return path.join(userDataPath('pqc_keys'), 'keys.json');
@@ -15,7 +15,13 @@ function arePqcKeysEncrypted() {
   if (!fs.existsSync(keysFile)) return false;
   try {
     const data = readJson(keysFile, null);
-    return !!(data && data._encrypted === true && data.crypto);
+    // Accept both current marker (_encrypted) and legacy password-protected containers.
+    return !!(
+      data &&
+      typeof data === 'object' &&
+      !!data.crypto &&
+      (data._encrypted === true || isPasswordProtected(data))
+    );
   } catch {
     return false;
   }
@@ -34,7 +40,9 @@ function tempDecryptPqcKeys(password) {
     if (!data) return null;
 
     // Not encrypted -> no action needed
-    if (!data._encrypted || !data.crypto) {
+    const encrypted =
+      !!data.crypto && (data._encrypted === true || isPasswordProtected(data));
+    if (!encrypted) {
       return null;
     }
 
@@ -67,4 +75,3 @@ module.exports = {
   arePqcKeysEncrypted,
   tempDecryptPqcKeys,
 };
-

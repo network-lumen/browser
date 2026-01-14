@@ -46,7 +46,7 @@
           :src="resolvedFrameUrl"
           ref="siteFrame"
           referrerpolicy="no-referrer"
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+          sandbox="allow-scripts allow-forms allow-popups"
         ></iframe>
         <iframe
           v-else-if="resolvedHttpUrl"
@@ -54,7 +54,7 @@
           :src="resolvedHttpUrl"
           ref="siteFrame"
           referrerpolicy="no-referrer"
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+          sandbox="allow-scripts allow-forms allow-popups"
         ></iframe>
       </div>
     </main>
@@ -82,6 +82,7 @@ import {
 } from "../services/contentResolver";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
+const currentTabId = inject<any>("currentTabId", null);
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const navigate = inject<
   ((url: string, opts?: { push?: boolean }) => void) | null
@@ -107,6 +108,7 @@ const active = ref<{
   resolvedPath: string;
   resolvedHttpUrl: string;
   baseDocUrl: string;
+  siteToken: string;
 } | null>(null);
 
 let resolvedFrameObjectUrl: string | null = null;
@@ -184,6 +186,18 @@ function safeInjectIntoHead(html: string, inject: string): string {
   return inject + src;
 }
 
+function makeSiteToken(): string {
+  try {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  } catch {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
 function buildDomainSiteSrcdoc(params: {
   html: string;
   host: string;
@@ -192,14 +206,23 @@ function buildDomainSiteSrcdoc(params: {
   resolvedPath: string;
   suffix: string;
   baseDocUrl: string;
+  siteToken: string;
 }): string {
   const host = String(params.host || "").trim();
   const proto = params.target.proto;
   const id = String(params.target.id || "").trim();
+  const targetBasePathRaw = String((params.target as any).basePath || "").trim();
+  const targetBasePath = (() => {
+    const s = String(targetBasePathRaw || "").trim();
+    if (!s) return "";
+    const n = normalizePath(s);
+    return n === "/" ? "" : n.replace(/\/+$/, "");
+  })();
   const canonicalPath = String(params.canonicalPath || "/");
   const resolvedPath = String(params.resolvedPath || canonicalPath || "/");
   const suffix = String(params.suffix || "");
   const baseDocUrl = String(params.baseDocUrl || "");
+  const siteToken = String(params.siteToken || "");
 
   const escapedBaseHref = baseDocUrl.replace(/\"/g, "&quot;");
   const inject = `
@@ -209,16 +232,94 @@ function buildDomainSiteSrcdoc(params: {
   const HOST = ${JSON.stringify(host)};
   const PROTO = ${JSON.stringify(proto)};
   const ID = ${JSON.stringify(id)};
+  const TARGET_BASE_PATH = ${JSON.stringify(targetBasePath)};
   const CANON_PATH = ${JSON.stringify(canonicalPath)};
   const RESOLVED_PATH = ${JSON.stringify(resolvedPath)};
   const BASE_DOC_URL = ${JSON.stringify(baseDocUrl)};
+  const SITE_TOKEN = ${JSON.stringify(siteToken)};
 
   const PREFIX = '/' + PROTO + '/' + ID;
   const PSEUDO_PATH = PREFIX + CANON_PATH;
 
+  function stripTargetBase(p){
+    try{
+      const path = String(p || '') || '/';
+      const base = String(TARGET_BASE_PATH || '');
+      if (!base) return path;
+      if (path === base) return '/';
+      if (path.indexOf(base + '/') === 0) return path.slice(base.length) || '/';
+      return path;
+    }catch{
+      return String(p || '') || '/';
+    }
+  }
+
   function post(msg){
     try{ parent.postMessage(Object.assign({ __lumen_site: true }, msg), '*') }catch{}
   }
+
+  // Minimal window.lumen bridge for lumen://domain pages.
+  try{
+    const pending = new Map();
+    let seq = 0;
+
+    function rpc(method, params){
+      return new Promise(function(resolve){
+        try{
+          const id = 'rpc-' + Date.now().toString(36) + '-' + (++seq).toString(36);
+          pending.set(id, resolve);
+          post({ type: 'rpc', token: SITE_TOKEN, id: id, method: String(method || ''), params: params ?? null });
+          setTimeout(function(){
+            try{
+              if (!pending.has(id)) return;
+              pending.delete(id);
+              resolve({ ok: false, error: 'rpc_timeout' });
+            }catch{}
+          }, 60000);
+        }catch{
+          resolve({ ok: false, error: 'rpc_failed' });
+        }
+      });
+    }
+
+    const lumen = window.lumen && typeof window.lumen === 'object' ? window.lumen : {};
+    lumen.sendToken = function(payload){ return rpc('sendToken', payload || {}); };
+    lumen.pin = function(input){
+      try{
+        if (input && typeof input === 'object') return rpc('pin', input);
+        return rpc('pin', { cidOrUrl: String(input || '') });
+      }catch{
+        return rpc('pin', { cidOrUrl: String(input || '') });
+      }
+    };
+    lumen.save = lumen.pin;
+    window.lumen = lumen;
+
+    function handleRpcResponse(d){
+      try{
+        if (!d || d.type !== 'rpc:response') return false;
+        if (String(d.token || '') !== String(SITE_TOKEN || '')) return true;
+        const id = typeof d.id === 'string' ? d.id : '';
+        if (!id) return true;
+        const resolve = pending.get(id);
+        if (!resolve) return true;
+        pending.delete(id);
+        if (d.ok === true) resolve(d.result);
+        else resolve({ ok: false, error: String(d.error || 'rpc_failed') });
+        return true;
+      }catch{
+        return true;
+      }
+    }
+
+    window.addEventListener('message', function(ev){
+      try{
+        const d = ev && ev.data ? ev.data : null;
+        if (!d || d.__lumen_parent !== true) return;
+        if (handleRpcResponse(d)) return;
+      }catch{}
+    });
+  }catch{}
 
   function applySuffix(suf){
     try{
@@ -258,7 +359,8 @@ function buildDomainSiteSrcdoc(params: {
     try{
       const u = new URL(h, 'https://lumen.local' + RESOLVED_PATH);
       if (u.origin !== 'https://lumen.local') return null;
-      return 'lumen://' + HOST + u.pathname + (u.search || '') + (u.hash || '');
+      const outPath = stripTargetBase(u.pathname);
+      return 'lumen://' + HOST + outPath + (u.search || '') + (u.hash || '');
     }catch{
       // Absolute HTTP URLs: best-effort map back if they still point inside /<proto>/<id>/...
       try{
@@ -266,7 +368,8 @@ function buildDomainSiteSrcdoc(params: {
         if (!u || !u.pathname) return null;
         if (u.pathname.indexOf(PREFIX) !== 0) return null;
         const rest = u.pathname.slice(PREFIX.length) || '/';
-        return 'lumen://' + HOST + rest + (u.search || '') + (u.hash || '');
+        const outPath = stripTargetBase(rest);
+        return 'lumen://' + HOST + outPath + (u.search || '') + (u.hash || '');
       }catch{
         return null;
       }
@@ -332,9 +435,117 @@ function syncSuffixToFrame(nextSuffix: string) {
   }
 }
 
+function safeString(v: any, maxLen = 2048): string {
+  const s = String(v ?? "").trim();
+  if (!s) return "";
+  return s.length > maxLen ? s.slice(0, maxLen) : s;
+}
+
+function sendRpcResponse(id: string, token: string, payload: any) {
+  try {
+    siteFrame.value?.contentWindow?.postMessage(
+      {
+        __lumen_parent: true,
+        type: "rpc:response",
+        id,
+        token,
+        ok: true,
+        result: payload ?? null,
+      },
+      "*",
+    );
+  } catch {
+    // ignore
+  }
+}
+
+function sendRpcError(id: string, token: string, error: string) {
+  try {
+    siteFrame.value?.contentWindow?.postMessage(
+      {
+        __lumen_parent: true,
+        type: "rpc:response",
+        id,
+        token,
+        ok: false,
+        error: String(error || "rpc_failed"),
+      },
+      "*",
+    );
+  } catch {
+    // ignore
+  }
+}
+
+async function handleSiteRpcRequest(d: any) {
+  const id = safeString(d?.id, 128);
+  const token = safeString(d?.token, 256);
+  if (!id || !token) return;
+
+  const curToken = safeString(active.value?.siteToken || "", 256);
+  if (!curToken || token !== curToken) {
+    sendRpcError(id, token, "invalid_token");
+    return;
+  }
+
+  const method = safeString(d?.method, 64);
+  const api: any = (window as any)?.lumen;
+  const host = safeString(active.value?.host || "", 256);
+  const href = safeString(currentTabUrl?.value || `lumen://${host}`, 4096);
+  const tabId = safeString(currentTabId?.value || "", 256);
+
+  if (!method) {
+    sendRpcError(id, token, "missing_method");
+    return;
+  }
+
+  if (method === "sendToken") {
+    if (!api?.domainSite?.sendToken) {
+      sendRpcError(id, token, "sendToken_unavailable");
+      return;
+    }
+    const p = d?.params && typeof d.params === "object" ? d.params : {};
+    const to = safeString(p?.to || p?.recipient || "", 256);
+    const memo = safeString(p?.memo || p?.note || "", 1024);
+    const amountRaw = p?.amountLmn ?? p?.amount_lmn ?? p?.amount;
+    const amountNum = Number(amountRaw);
+    const amountLmn = Number.isFinite(amountNum) ? amountNum : null;
+    const res = await api.domainSite
+      .sendToken({ tabId, host, href, to, memo, amountLmn })
+      .catch((e: any) => ({ ok: false, error: String(e?.message || e || "send_failed") }));
+    sendRpcResponse(id, token, res);
+    return;
+  }
+
+  if (method === "pin") {
+    if (!api?.domainSite?.pin) {
+      sendRpcError(id, token, "pin_unavailable");
+      return;
+    }
+    const p = d?.params && typeof d.params === "object" ? d.params : {};
+    const cidOrUrl = safeString(p?.cidOrUrl ?? p?.cid ?? p?.url ?? "", 2048);
+    const name = safeString(p?.name ?? p?.filename ?? p?.saveName ?? "", 256);
+    const res = await api.domainSite
+      .pin({ tabId, host, href, cidOrUrl, name })
+      .catch((e: any) => ({ ok: false, error: String(e?.message || e || "pin_failed") }));
+    sendRpcResponse(id, token, res);
+    return;
+  }
+
+  sendRpcError(id, token, "unknown_method");
+}
+
 function onSiteMessage(evt: MessageEvent) {
   const d: any = (evt as any)?.data;
+  const frameWin = siteFrame.value?.contentWindow || null;
+  if (!frameWin || evt.source !== frameWin) return;
   if (!d || d.__lumen_site !== true) return;
+
+  if (d.type === "rpc") {
+    void handleSiteRpcRequest(d);
+    return;
+  }
+
   const next = typeof d.url === "string" ? d.url : "";
   if (!next) return;
   if (d.type === "newtab") {
@@ -461,6 +672,7 @@ async function resolveAndLoad() {
         /^\s*<html\b/i.test(htmlRes.html));
 
     if (isHtml && htmlRes.html) {
+      const siteToken = makeSiteToken();
       resolvedSrcdoc.value = buildDomainSiteSrcdoc({
         html: htmlRes.html,
         host,
@@ -469,8 +681,21 @@ async function resolveAndLoad() {
         resolvedPath,
         suffix,
         baseDocUrl,
+        siteToken,
       });
       setResolvedFrameFromSrcdoc(resolvedSrcdoc.value);
+      active.value = {
+        host,
+        path,
+        suffix,
+        proto: target.proto,
+        id: target.id,
+        resolvedPath,
+        resolvedHttpUrl: resolvedUrl,
+        baseDocUrl,
+        siteToken,
+      };
+      return;
     } else {
       resolvedSrcdoc.value = "";
       clearResolvedFrame();
@@ -485,6 +710,7 @@ async function resolveAndLoad() {
       resolvedPath,
       resolvedHttpUrl: resolvedUrl,
       baseDocUrl,
+      siteToken: "",
     };
   } catch (e: any) {
     const isAgg =

@@ -149,6 +149,8 @@
               :src="r.thumbUrl"
               alt=""
               loading="lazy"
+              decoding="async"
+              fetchpriority="low"
             />
             <div v-else class="image-fallback">
               <Image :size="18" />
@@ -2218,6 +2220,8 @@ const imageResults = computed(() =>
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-smooth);
   position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: 240px 220px;
 }
 
 .image-card:hover {

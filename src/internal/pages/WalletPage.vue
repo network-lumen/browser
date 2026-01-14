@@ -626,15 +626,6 @@
       @scan="handleQrScan"
       :title="qrScannerTitle"
     />
-
-    <!-- Password Prompt Modal -->
-    <PasswordPromptModal
-      :visible="showPasswordModal"
-      :message="passwordModalMessage"
-      :busy="passwordOperationBusy"
-      @confirm="handlePasswordConfirm"
-      @cancel="handlePasswordCancel"
-    />
   </div>
 </template>
 
@@ -676,9 +667,8 @@ import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
-import PasswordPromptModal from '../../components/PasswordPromptModal.vue';
 import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
-import { getRecurringPaymentsService, type RecurringPayment } from '../services/recurringPayments';
+import { getRecurringPaymentsService } from '../services/recurringPayments';
 import { useToast } from '../../composables/useToast';
 import { useTheme } from '../../composables/useTheme';
 
@@ -731,110 +721,6 @@ const showContactModal = ref(false);
 const showContactPicker = ref(false);
 const editingContact = ref<any>(null);
 const savingContact = ref(false);
-
-// Password Modal State
-const showPasswordModal = ref(false);
-const passwordModalMessage = ref('');
-const passwordOperationBusy = ref(false);
-const pendingPasswordOperation = ref<{
-  operation: (...args: any[]) => Promise<any>;
-  args: any[];
-  resolve: (value: any) => void;
-  reject: (reason?: any) => void;
-} | null>(null);
-
-// Password-protected operation wrapper
-async function withPasswordPrompt<T>(
-  operation: (...args: any[]) => Promise<T>,
-  args: any[],
-  operationName: string = 'this operation'
-): Promise<T> {
-  try {
-    // First attempt without password (will work if session is cached or no password set)
-    const result = await operation(...args);
-    return result;
-  } catch (e: any) {
-    // Check if password is required
-    if (e?.error === 'password_required' || (typeof e === 'object' && e?.ok === false && e?.error === 'password_required')) {
-      // Show password modal
-      passwordModalMessage.value = `Enter your password to ${operationName}.`;
-      
-      return new Promise<T>((resolve, reject) => {
-        pendingPasswordOperation.value = {
-          operation,
-          args,
-          resolve: resolve as (value: any) => void,
-          reject
-        };
-        showPasswordModal.value = true;
-      });
-    }
-    throw e;
-  }
-}
-
-async function handlePasswordConfirm(password: string) {
-  if (!pendingPasswordOperation.value) {
-    showPasswordModal.value = false;
-    return;
-  }
-  
-  const { operation, args, resolve, reject } = pendingPasswordOperation.value;
-  const baseMessage = passwordModalMessage.value;
-  
-  try {
-    passwordOperationBusy.value = true;
-    passwordModalMessage.value = 'Working... Please wait.';
-
-    // Add password to the operation args
-    const argsWithPassword = args.map(arg => {
-      if (typeof arg === 'object' && arg !== null) {
-        return { ...arg, password };
-      }
-      return arg;
-    });
-    
-    const result = await operation(...argsWithPassword);
-    
-    if (result?.ok === false && result?.error === 'password_required') {
-      // Password still required (incorrect password)
-      showToast('Incorrect password', 'error');
-      passwordModalMessage.value = baseMessage;
-      return; // Keep modal open
-    }
-    
-    if (result?.ok === false && result?.error === 'invalid_password') {
-      showToast('Invalid password', 'error');
-      passwordModalMessage.value = baseMessage;
-      return; // Keep modal open
-    }
-    
-    showPasswordModal.value = false;
-    pendingPasswordOperation.value = null;
-    resolve(result);
-  } catch (e: any) {
-    if (e?.error === 'invalid_password' || e?.message?.includes('password')) {
-      showToast('Invalid password', 'error');
-      passwordModalMessage.value = baseMessage;
-      return; // Keep modal open
-    }
-    showPasswordModal.value = false;
-    pendingPasswordOperation.value = null;
-    reject(e);
-  } finally {
-    passwordOperationBusy.value = false;
-    passwordModalMessage.value = baseMessage;
-  }
-}
-
-function handlePasswordCancel() {
-  if (passwordOperationBusy.value) return;
-  showPasswordModal.value = false;
-  if (pendingPasswordOperation.value) {
-    pendingPasswordOperation.value.reject(new Error('Operation cancelled by user'));
-    pendingPasswordOperation.value = null;
-  }
-}
 const contactForm = ref({
   name: '',
   address: '',
@@ -1099,7 +985,7 @@ function sendTransaction() {
 }
 
 function closeSendModal() {
-  if (sendingTransaction.value || showPasswordModal.value || passwordOperationBusy.value) {
+  if (sendingTransaction.value) {
     showToast('Transaction in progress. Please wait...', 'info');
     return;
   }
@@ -1209,98 +1095,56 @@ async function executeRecurringPayment(paymentId: string) {
     return;
   }
 
-  const executeFunction = async (p: RecurringPayment, password?: string) => {
-    try {
-      const anyWindow = window as any;
-      const walletApi = anyWindow?.lumen?.wallet;
-      
-      if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-        return { success: false, error: 'Wallet bridge not available' };
-      }
-
-      const activeId = activeProfileId.value;
-      if (!activeId) {
-        return { success: false, error: 'No active profile selected' };
-      }
-
-      if (!address.value) {
-        return { success: false, error: 'No sender address available' };
-      }
-
-      const sendParams: any = {
-        profileId: activeId,
-        from: address.value,
-        to: p.recipient,
-        amount: p.amount,
-        denom: 'ulmn',
-        memo: `Recurring: ${p.name}`
-      };
-      
-      if (password) {
-        sendParams.password = password;
-      }
-
-      const res = await walletApi.sendTokens(sendParams);
-
-      if (!res || res.ok === false) {
-        return { success: false, error: res?.error || 'Transaction failed' };
-      }
-
-      return { success: true, txHash: res.txhash };
-    } catch (e: any) {
-      return { success: false, error: e.message || 'Unexpected error' };
-    }
-  };
-
-  // First attempt without password
-  let result = await executeFunction(payment);
-  
-  // Handle password_required
-  if (!result.success && result.error === 'password_required') {
-    passwordModalMessage.value = `Enter your password to execute recurring payment: ${payment.name}`;
-    
-    try {
-      const passwordResult = await new Promise<string>((resolve, reject) => {
-        const originalConfirm = handlePasswordConfirm;
-        const originalCancel = handlePasswordCancel;
-        
-        // Temporarily override handlers
-        (handlePasswordConfirm as any) = async (pwd: string) => {
-          showPasswordModal.value = false;
-          resolve(pwd);
-        };
-        (handlePasswordCancel as any) = () => {
-          showPasswordModal.value = false;
-          reject(new Error('Operation cancelled by user'));
-        };
-        
-        showPasswordModal.value = true;
-      });
-      
-      // Retry with password
-      result = await executeFunction(payment, passwordResult);
-    } catch (e: any) {
-      if (e?.message === 'Operation cancelled by user') {
-        showToast('Recurring payment cancelled', 'error');
-        return;
-      }
-      throw e;
-    }
+  const anyWindow = window as any;
+  const walletApi = anyWindow?.lumen?.wallet;
+  if (!walletApi || typeof walletApi.sendTokens !== 'function') {
+    showToast('Wallet bridge not available', 'error');
+    return;
   }
 
-  if (result.success) {
+  const activeId = activeProfileId.value;
+  if (!activeId) {
+    showToast('No active profile selected', 'error');
+    return;
+  }
+
+  if (!address.value) {
+    showToast('No sender address available', 'error');
+    return;
+  }
+
+  const sendParams: any = {
+    profileId: activeId,
+    from: address.value,
+    to: payment.recipient,
+    amount: payment.amount,
+    denom: 'ulmn',
+    memo: `Recurring: ${payment.name}`
+  };
+
+  try {
+    const res = await walletApi.sendTokens(sendParams);
+
+    if (!res || res.ok === false) {
+      const err = String(res?.error || 'Transaction failed');
+      if (err === 'password_required' || err === 'invalid_password') {
+        try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+        showToast('Wallet locked. Unlock to continue.', 'warning');
+        return;
+      }
+      showToast(`Failed to execute recurring payment: ${err}`, 'error');
+      return;
+    }
+
+    const result = { success: true, txHash: res.txhash };
     showToast('Recurring payment executed successfully', 'success');
     await refreshWallet();
     if (subscriptionsRef.value?.loadData) {
       subscriptionsRef.value.loadData();
     }
-    // Update payment status
     await recurringPaymentsService.executePayment(paymentId, async () => result);
-  } else {
-    showToast(`Failed to execute recurring payment: ${result.error}`, 'error');
-    if (subscriptionsRef.value?.loadData) {
-      subscriptionsRef.value.loadData();
-    }
+  } catch (e: any) {
+    showToast(`Failed to execute recurring payment: ${e?.message || 'Unexpected error'}`, 'error');
   }
 }
 
@@ -1440,23 +1284,13 @@ async function confirmSendPreview() {
     // First attempt
     let res = await sendOperation(sendParams);
 
-    // Handle password_required error
-    if (res?.ok === false && res?.error === 'password_required') {
-      sendingTransaction.value = false;
-      passwordModalMessage.value = 'Enter your password to send tokens.';
-      
-      res = await new Promise((resolve, reject) => {
-        pendingPasswordOperation.value = {
-          operation: sendOperation,
-          args: [sendParams],
-          resolve,
-          reject
-        };
-        showPasswordModal.value = true;
-      });
-    }
-
     if (!res || res.ok === false) {
+      const err = String(res?.error || 'unknown error');
+      if (err === 'password_required' || err === 'invalid_password') {
+        try { await (anyWindow as any)?.lumen?.security?.lockSession?.(); } catch {}
+        showToast('Wallet locked. Unlock to continue.', 'warning');
+        return;
+      }
       showToast(`Send failed: ${res?.error || 'unknown error'}`, 'error');
       return;
     }
@@ -1474,10 +1308,6 @@ async function confirmSendPreview() {
     await refreshWallet();
     await refreshActivities();
   } catch (e: any) {
-    if (e?.message === 'Operation cancelled by user') {
-      // User cancelled, no error toast needed
-      return;
-    }
     showToast(e?.message || 'Unexpected error while sending transaction', 'error');
   } finally {
     sendingTransaction.value = false;

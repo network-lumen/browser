@@ -1,6 +1,17 @@
 import { getLocalGatewayBase } from './appSettings';
 
-export type DomainTarget = { proto: 'ipfs' | 'ipns'; id: string };
+export type DomainTarget = {
+  proto: 'ipfs' | 'ipns';
+  id: string;
+  /**
+   * Optional sub-path inside the target root. Allows domain records like:
+   * `lumen://ipfs/<cid>/some/subdir/`
+   * so the domain root maps to that subdir.
+   *
+   * Normalized form: '' (none) or '/path/without/trailing/slash'.
+   */
+  basePath?: string;
+};
 
 export function localIpfsGatewayBase(): string {
   return getLocalGatewayBase();
@@ -29,21 +40,42 @@ function parseRecordTarget(value: any): DomainTarget | null {
   const v = String(value ?? '').trim();
   if (!v) return null;
   const lower = v.toLowerCase();
+
+  const normalizeBasePath = (p: string): string => {
+    const n = normalizePath(p);
+    if (n === '/') return '';
+    return n.replace(/\/+$/, '');
+  };
+
+  const parseProto = (proto: DomainTarget['proto'], raw: string): DomainTarget | null => {
+    const cleaned = String(raw || '').trim().replace(/^\/+/, '');
+    if (!cleaned) return null;
+    const pathOnly = cleaned.split(/[?#]/, 1)[0] || '';
+    const segs = pathOnly.split('/');
+    const id = String(segs[0] || '').trim();
+    if (!id) return null;
+    const rest = segs.slice(1).join('/');
+    const basePath = rest ? normalizeBasePath('/' + rest) : '';
+    return { proto, id, ...(basePath ? { basePath } : {}) };
+  };
+
   if (lower.startsWith('ipfs://')) {
-    const id = v.slice('ipfs://'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
-    return id ? { proto: 'ipfs', id } : null;
+    return parseProto('ipfs', v.slice('ipfs://'.length));
   }
   if (lower.startsWith('ipns://')) {
-    const id = v.slice('ipns://'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
-    return id ? { proto: 'ipns', id } : null;
+    return parseProto('ipns', v.slice('ipns://'.length));
   }
   if (lower.startsWith('lumen://ipfs/')) {
-    const id = v.slice('lumen://ipfs/'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
-    return id ? { proto: 'ipfs', id } : null;
+    return parseProto('ipfs', v.slice('lumen://ipfs/'.length));
   }
   if (lower.startsWith('lumen://ipns/')) {
-    const id = v.slice('lumen://ipns/'.length).replace(/^\/+/, '').split(/[/?#]/, 1)[0];
-    return id ? { proto: 'ipns', id } : null;
+    return parseProto('ipns', v.slice('lumen://ipns/'.length));
+  }
+  if (lower.startsWith('/ipfs/')) {
+    return parseProto('ipfs', v.slice('/ipfs/'.length));
+  }
+  if (lower.startsWith('/ipns/')) {
+    return parseProto('ipns', v.slice('/ipns/'.length));
   }
   if (isCidLike(v)) return { proto: 'ipfs', id: v };
   return null;
@@ -102,10 +134,12 @@ export async function resolveDomainTarget(
   }
 
   const cid = info?.cid ? String(info.cid).trim() : '';
-  if (cid && isCidLike(cid)) return { target: { proto: 'ipfs', id: cid }, baseDomain };
+  const parsedCid = cid ? parseRecordTarget(cid) : null;
+  if (parsedCid) return { target: parsedCid, baseDomain };
 
   const ipns = info?.ipns ? String(info.ipns).trim() : '';
-  if (ipns) return { target: { proto: 'ipns', id: ipns }, baseDomain };
+  const parsedIpns = ipns ? parseRecordTarget(ipns) : null;
+  if (parsedIpns) return { target: parsedIpns, baseDomain };
 
   if (isCidLike(baseDomain)) return { target: { proto: 'ipfs', id: baseDomain }, baseDomain };
 
@@ -114,9 +148,25 @@ export async function resolveDomainTarget(
 
 export function buildCandidateUrl(base: string, target: DomainTarget, path: string, suffix: string): string {
   const b = String(base || '').replace(/\/+$/, '');
-  const p = normalizePath(path);
-  const sub = p === '/' ? '/' : p;
-  return `${b}/${target.proto}/${target.id}${sub}${suffix || ''}`;
+  const canonical = normalizePath(path);
+  const basePath = target && target.basePath ? normalizePath(String(target.basePath)) : '/';
+  const baseNorm = basePath === '/' ? '' : basePath.replace(/\/+$/, '');
+
+  // If the caller already included the basePath in `path`, don't duplicate it.
+  let effectivePath = canonical;
+  if (baseNorm) {
+    if (canonical === baseNorm || canonical.startsWith(baseNorm + '/')) {
+      effectivePath = canonical;
+    } else if (canonical === '/') {
+      effectivePath = baseNorm + '/';
+    } else {
+      effectivePath = baseNorm + canonical;
+    }
+  }
+
+  // Keep explicit trailing slash for directory targets.
+  if (effectivePath === '') effectivePath = '/';
+  return `${b}/${target.proto}/${target.id}${effectivePath}${suffix || ''}`;
 }
 
 export async function probeUrl(url: string, timeoutMs = 2500): Promise<boolean> {

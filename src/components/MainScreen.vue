@@ -76,6 +76,8 @@
       @complete="handleOnboardingComplete"
       @skip="handleOnboardingSkip"
     />
+
+    <LumenSiteModalHost />
   </section>
 </template>
 
@@ -87,6 +89,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import UiButton from '../ui/UiButton.vue';
   import UiToast from '../ui/UiToast.vue';
   import WalletOnboardingModal from './WalletOnboardingModal.vue';
+  import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import { activeProfileId } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
@@ -196,6 +199,21 @@ watch(
   () => {
     nextTick(recalcLabelWidth);
   }
+);
+
+function reportTabsState() {
+  try {
+    const api: any = (window as any).lumen;
+    api?.tabsReportState?.(tabs.value.map((t) => t.id));
+  } catch {
+    // ignore
+  }
+}
+
+watch(
+  () => tabs.value.map((t) => t.id).join("|"),
+  () => reportTabsState(),
+  { immediate: true },
 );
 
 // Watch for profile changes and check onboarding status
