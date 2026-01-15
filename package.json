@@ -39,7 +39,6 @@
   "build": {
     "appId": "com.lumen.browser",
     "productName": "Lumen Browser",
-    "publish": "never",
     "asar": true,
     "asarUnpack": [
       "node_modules/kubo/kubo/**"
