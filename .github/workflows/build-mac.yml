@@ -2,7 +2,7 @@ name: Build macOS app
 
 on:
   push:
-    branches: [ build-yml ]
+    branches: [ beta ]
   workflow_dispatch:
 
 jobs:
