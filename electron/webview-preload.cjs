@@ -6,11 +6,6 @@ function safeString(v, maxLen = 2048) {
   return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
-function safeNumber(v) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
-
 function currentHref() {
   try {
     return String(location.href || '');

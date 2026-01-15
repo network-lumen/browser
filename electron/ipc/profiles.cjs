@@ -48,10 +48,6 @@ function pqcKeysDir() {
   return userDataPath('pqc_keys');
 }
 
-function secretFilePath() {
-  return userDataPath('secret.bin');
-}
-
 function loadProfilesFile() {
   const file = profilesFilePath();
   const fallback = { profiles: [], activeId: '' };

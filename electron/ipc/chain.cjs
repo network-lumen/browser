@@ -203,7 +203,7 @@ const chainState = {
 
 let chainPollTimer = null;
 
-async function pollChainOnce(reason) {
+async function pollChainOnce() {
   if (chainState.polling) return;
   chainState.polling = true;
 

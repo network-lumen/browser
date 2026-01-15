@@ -18,7 +18,7 @@ const {
   removeSecurityPassword,
   getStoredPasswordHash
 } = require('../settings.cjs');
-const { userDataPath, readJson, ensureDir } = require('../utils/fs.cjs');
+const { userDataPath, readJson } = require('../utils/fs.cjs');
 
 // In-memory password cache for session (cleared on app quit)
 // The session stays unlocked until the app closes, but it is auto-locked

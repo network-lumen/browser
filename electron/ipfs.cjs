@@ -247,17 +247,6 @@ function toBufferPayload(data) {
   throw new Error('invalid_payload');
 }
 
-function sanitizeDirectoryName(name) {
-  const raw = String(name ?? '').trim();
-  const cleaned = raw
-    .replace(/^[\\\/]+/, '')
-    .replace(/[\\\/]+$/, '')
-    .replace(/[:*?"<>|]/g, '_')
-    .replace(/\s+/g, ' ')
-    .slice(0, 80);
-  return cleaned || 'folder';
-}
-
 function sanitizeRelativePath(p) {
   const raw = String(p ?? '').trim().replace(/\\/g, '/');
   const cleaned = raw.replace(/^\/+/, '').replace(/\/+$/, '');

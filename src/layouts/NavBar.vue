@@ -292,7 +292,6 @@ import {
   createProfile,
   deleteProfile,
   initProfiles,
-  exportProfileBackup,
   importProfilesFromBackup
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';

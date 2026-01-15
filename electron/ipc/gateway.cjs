@@ -125,19 +125,6 @@ async function loadPqcParams(client) {
   }
 }
 
-async function assertMinBalance(client, address, coin) {
-  if (!coin || !coin.denom || !coin.amount) return;
-  if (typeof client.getBalance !== 'function') return;
-  const bal = await client.getBalance(address, coin.denom);
-  const current = BigInt(bal && bal.amount ? bal.amount : '0');
-  const required = BigInt(coin.amount);
-  if (current < required) {
-    throw new Error(
-      `PQC link requires at least ${coin.amount}${coin.denom} (balance ${bal && bal.amount ? bal.amount : '0'}${coin.denom})`
-    );
-  }
-}
-
 async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
   if (!address) return undefined;
   const pqc = bridgeMod && bridgeMod.pqc;
@@ -399,7 +386,6 @@ async function signAndBroadcastWithPqcAutoLink({
   msgs,
   fee,
   memo,
-  label,
 }) {
   const broadcastOnce = async () => {
     const res = await client.signAndBroadcast(address, msgs, fee, memo);
