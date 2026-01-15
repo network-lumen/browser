@@ -8,6 +8,9 @@ on:
 jobs:
   build-mac:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
 
     steps:
       - name: Checkout repo
@@ -33,5 +36,5 @@ jobs:
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lumen-browser-mac
+          name: lumen-browser-mac-${{ matrix.arch }}
           path: release/*.dmg
