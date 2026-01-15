@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never",
     "dist:win": "npm run build && electron-builder --win nsis",
     "electron": "electron electron/main.cjs"
   },
