@@ -30,3 +30,7 @@ npm run build
 ```
 
 This generates a static bundle in `dist/` that `electron/main.cjs` can load in production.
+
+## Mac launch
+
+sudo xattr -rd com.apple.quarantine /Applications/Lumen\ Browser.app
