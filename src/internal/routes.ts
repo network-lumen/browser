@@ -17,6 +17,7 @@ import DomainPage from './pages/DomainPage.vue';
 import NewTabPage from './pages/NewTabPage.vue';
 import TransactionDetailPage from './pages/TransactionDetailPage.vue';
 import AddressDetailPage from './pages/AddressDetailPage.vue';
+import DocsPage from './pages/DocsPage.vue';
 
 type InternalRoute = {
   component: any;
@@ -41,7 +42,8 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   address: { component: AddressDetailPage, title: 'Address Details' },
   dao: { component: DaoPage, title: 'DAO' },
   release: { component: ReleasePage, title: 'Release' },
-  help: { component: HelpPage, title: 'Help' }
+  help: { component: HelpPage, title: 'Help' },
+  docs: { component: DocsPage, title: 'Documentation' },
 };
 
 function isLikelyDomainHost(host: string): boolean {
@@ -83,7 +85,8 @@ export const ALL_COMPONENTS = [
   ReleasePage,
   WalletPage,
   DomainPage,
-  NewTabPage
+  NewTabPage,
+  DocsPage
 ];
 
 export function resolveInternalComponent(rawUrl: string) {
