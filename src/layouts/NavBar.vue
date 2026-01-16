@@ -387,6 +387,16 @@ watch(
     const v = String(val || '').trim();
     if (!v) return;
     urlField.value = v;
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent('lumen:tab-url-changed', {
+          detail: { url: v, tabId: props.tabActive },
+        })
+      );
+    } catch {
+      // ignore
+    }
   },
   { immediate: true }
 );

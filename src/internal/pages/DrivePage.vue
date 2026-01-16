@@ -1245,10 +1245,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, inject } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated,
+  watch,
+  inject,
+} from "vue";
 
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const currentTabUrl = inject<any>("currentTabUrl", null);
+const currentTabId = inject<any>("currentTabId", null);
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>(
   "navigate",
   null,
@@ -1916,20 +1926,101 @@ const toastIcon = computed(() =>
   toastType.value === "success" ? CheckCircle : AlertCircle,
 );
 
+function readInjectedTabUrl(): string {
+  const v: any = currentTabUrl;
+  try {
+    if (!v) return "";
+    if (typeof v === "string") return v;
+    if (typeof v === "function") return String(v() || "");
+    if (typeof v === "object" && "value" in v) return String(v.value || "");
+  } catch {
+    // ignore
+  }
+  return "";
+}
+
 let browseUrlSyncSeq = 0;
+let browseUrlSyncInFlight = "";
+async function syncBrowseFromUrl(rawUrl: string) {
+  const parsed = parseDriveBrowseFromUrl(rawUrl);
+  if (!parsed) return;
+
+  const canonical = driveUrlForBrowse(parsed.root, parsed.path);
+  const currentCanonical = driveUrlForBrowse(
+    String(browseRootCid.value || ""),
+    String(browseRelPath.value || ""),
+  );
+  if (canonical === currentCanonical) return;
+  if (canonical === browseUrlSyncInFlight) return;
+
+  browseUrlSyncInFlight = canonical;
+  const seq = ++browseUrlSyncSeq;
+  try {
+    await applyBrowseLocation(parsed.root, parsed.path);
+  } finally {
+    if (browseUrlSyncInFlight === canonical) browseUrlSyncInFlight = "";
+  }
+  if (seq !== browseUrlSyncSeq) return;
+}
+
 watch(
-  () => String(currentTabUrl?.value || ""),
+  () => String(readInjectedTabUrl() || ""),
   (url) => {
-    const seq = ++browseUrlSyncSeq;
-    void (async () => {
-      const parsed = parseDriveBrowseFromUrl(url);
-      if (!parsed) return;
-      await applyBrowseLocation(parsed.root, parsed.path);
-      if (seq !== browseUrlSyncSeq) return;
-    })();
+    void syncBrowseFromUrl(url);
   },
   { immediate: true },
 );
+
+let urlBarPollTimer: number | null = null;
+let urlBarLastValue = "";
+let urlBarLastUserInputAt = 0;
+let tabUrlChangedHandler: ((ev: any) => void) | null = null;
+
+function readUrlBarUrl(): string {
+  try {
+    const el = document.querySelector<HTMLInputElement>(".url-bar-input");
+    return String(el?.value || "");
+  } catch {
+    return "";
+  }
+}
+
+function isUrlBarUserEditing(): boolean {
+  return Date.now() - urlBarLastUserInputAt < 600;
+}
+
+function ensureUrlBarUserInputTracking() {
+  const el = document.querySelector<HTMLInputElement>(".url-bar-input");
+  if (!el) return;
+  const anyEl: any = el;
+  if (anyEl.__driveUrlBarTrackingAttached) return;
+  anyEl.__driveUrlBarTrackingAttached = true;
+  el.addEventListener(
+    "input",
+    () => {
+      urlBarLastUserInputAt = Date.now();
+    },
+    { passive: true },
+  );
+}
+
+function startUrlBarSync() {
+  if (urlBarPollTimer != null) return;
+  urlBarPollTimer = window.setInterval(() => {
+    ensureUrlBarUserInputTracking();
+    const val = readUrlBarUrl();
+    if (!val || val === urlBarLastValue) return;
+    urlBarLastValue = val;
+    if (isUrlBarUserEditing()) return;
+    void syncBrowseFromUrl(val);
+  }, 150);
+}
+
+function stopUrlBarSync() {
+  if (urlBarPollTimer == null) return;
+  window.clearInterval(urlBarPollTimer);
+  urlBarPollTimer = null;
+}
 
 // Watch for refresh signal from navbar
 watch(
@@ -1954,13 +2045,52 @@ onMounted(async () => {
 
   void refreshGatewayOverview();
 
+  try {
+    tabUrlChangedHandler = (ev: any) => {
+      const detail = ev?.detail || {};
+      const url = String(detail?.url || "");
+      const tabId = String(detail?.tabId || "");
+      const mine =
+        typeof currentTabId === "object" &&
+        currentTabId &&
+        "value" in currentTabId
+          ? String((currentTabId as any).value || "")
+          : String(currentTabId || "");
+      if (mine && tabId && mine !== tabId) return;
+      void syncBrowseFromUrl(url);
+    };
+    window.addEventListener(
+      "lumen:tab-url-changed",
+      tabUrlChangedHandler as any,
+    );
+  } catch {}
+
+  startUrlBarSync();
   document.addEventListener("dragover", handleDragOver);
   document.addEventListener("dragleave", handleDragLeave);
   document.addEventListener("drop", handleDrop);
   document.addEventListener("click", handleDocumentClick);
 });
 
+onActivated(() => {
+  startUrlBarSync();
+  void syncBrowseFromUrl(readInjectedTabUrl() || readUrlBarUrl());
+});
+
+onDeactivated(() => {
+  stopUrlBarSync();
+});
+
 onUnmounted(() => {
+  stopUrlBarSync();
+  try {
+    if (tabUrlChangedHandler)
+      window.removeEventListener(
+        "lumen:tab-url-changed",
+        tabUrlChangedHandler as any,
+      );
+  } catch {}
+  tabUrlChangedHandler = null;
   document.removeEventListener("dragover", handleDragOver);
   document.removeEventListener("dragleave", handleDragLeave);
   document.removeEventListener("drop", handleDrop);
@@ -3334,7 +3464,18 @@ async function loadBrowseEntries() {
 }
 
 function exitBrowse() {
-  void navigateBrowse("", "", { push: true });
+  const root = String(browseRootCid.value || "").trim();
+  const path = normalizeBrowsePath(browseRelPath.value);
+  if (!root) {
+    void navigateBrowse("", "", { push: true });
+    return;
+  }
+  if (!path) {
+    void navigateBrowse("", "", { push: true });
+    return;
+  }
+  const parent = normalizeBrowsePath(path.split("/").slice(0, -1).join("/"));
+  void navigateBrowse(root, parent, { push: true });
 }
 
 function exitBrowseSilent() {
