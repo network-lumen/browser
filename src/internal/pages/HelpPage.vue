@@ -40,7 +40,7 @@
             type="button"
             class="lsb-item"
             :class="{ active: currentView === 'docs' }"
-            @click.prevent="openInNewTabSafe('lumen://docs')"
+            @click="setView('docs')"
           >
             <BookOpen :size="18"/>
             <span>Documentation</span>
@@ -321,6 +321,201 @@
           </div>
         </div>
       </div>
+      
+      <!-- Docs View -->
+      <div v-if="currentView === 'docs'" class="content-area">
+        <div class="discover">
+          <!-- Hero Section -->
+          <section class="hero-section">
+            <div class="hero-content">
+              <h2 class="hero-title">Introducing <span class="gradient-text">Lumen Browser</span>: The evolution of the browser</h2>
+              <p class="hero-subtitle">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent
+                libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum
+                imperdiet.
+              </p>
+            </div>
+          </section>
+
+          <!-- Documentation Grid -->
+          <div class="docs-grid">
+            <!-- What is Lumen Browser -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <BookOpen :size="20" />
+              </div>
+              <div>
+                <h4>What is Lumen Browser?</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                  nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                  nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                  nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+              </div>
+            </div>
+
+            <!-- Secure your Wallet -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Wallet :size="20" />
+              </div>
+              <div>
+                <h4>Secure your Wallet</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in
+                  reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+              </div>
+            </div>
+
+            <!-- Upload -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <FolderOpen :size="20" />
+              </div>
+              <div>
+                <h4>Upload</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel sem nec arcu
+                  tincidunt tristique. Mauris posuere, nisl non hendrerit varius, risus neque blandit
+                  massa, vitae fermentum velit quam a odio.
+                </p>
+              </div>
+            </div>
+
+            <!-- Cloud -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Database :size="20" />
+              </div>
+              <div>
+                <h4>Cloud</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed viverra, arcu in tincidunt
+                  gravida, metus ante accumsan justo, sit amet consequat libero dolor sed ligula.
+                  Praesent faucibus, elit vitae fermentum viverra, odio tellus laoreet purus.
+                </p>
+              </div>
+            </div>
+
+            <!-- How to Manage Domain -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Link2 :size="20" />
+              </div>
+              <div>
+                <h4>How to Manage Domain</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque porro quisquam est,
+                  qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit. Quis autem vel eum iure
+                  reprehenderit qui in ea voluptate velit esse.
+                </p>
+              </div>
+            </div>
+
+            <!-- Domain Setting -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Globe :size="20" />
+              </div>
+              <div>
+                <h4>Domain Setting</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras id tortor vitae justo
+                  vulputate aliquet. Nulla facilisi. Vestibulum ante ipsum primis in faucibus orci luctus
+                  et ultrices posuere cubilia curae.
+                </p>
+              </div>
+            </div>
+
+            <!-- How to Linked Domain -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Link2 :size="20" />
+              </div>
+              <div>
+                <h4>How to Linked Domain</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minima veniam,
+                  quis nostrum exercitationem ullam corporis suscipit laboriosam. Nisi ut aliquid ex ea commodi
+                  consequatur.
+                </p>
+              </div>
+            </div>
+
+            <!-- Publish Website with .lmn -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Server :size="20" />
+              </div>
+              <div>
+                <h4>Publish Website with .lmn</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultricies, est vitae
+                  fermentum malesuada, elit sapien ullamcorper justo, at ultricies mi tortor vitae ex.
+                  Integer vitae lectus sed magna ultricies cursus.
+                </p>
+              </div>
+            </div>
+
+            <!-- Theme -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Sparkles :size="20" />
+              </div>
+              <div>
+                <h4>Theme</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed consequat elit nec neque
+                  gravida, a vestibulum est feugiat. Maecenas tincidunt nisl in enim tincidunt, sit amet
+                  convallis libero viverra.
+                </p>
+              </div>
+            </div>
+
+            <!-- Font Size -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Sparkles :size="20" />
+              </div>
+              <div>
+                <h4>Font Size</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sit amet lectus et
+                  metus dapibus fermentum. Integer dictum mi at orci pellentesque, eget consequat nibh
+                  auctor.
+                </p>
+              </div>
+            </div>
+
+            <!-- Brightness -->
+            <div class="discover-card">
+              <div class="discover-ico">
+                <Sparkles :size="20" />
+              </div>
+              <div>
+                <h4>Brightness</h4>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lacinia volutpat eros,
+                  ac laoreet purus euismod vitae. Etiam in sem nec turpis iaculis pellentesque.
+                  Quisque feugiat tellus at malesuada suscipit.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>  
     </main>
   </div>
 </template>
@@ -398,6 +593,7 @@ function urlForView(view: HelpView): string {
   if (view === 'discover') return 'lumen://help/discover';
   if (view === 'domains') return 'lumen://help/domains';
   if (view === 'contact') return 'lumen://help/contact';
+  if (view === 'docs') return 'lumen://help/docs';
   return 'lumen://help';
 }
 
@@ -437,6 +633,7 @@ function getViewTitle(): string {
     discover: 'What is Lumen?',
     domains: 'Domains & Drive',
     contact: 'Contact Support',
+    docs: 'Documentation',
   };
   return titles[currentView.value] || 'Help';
 }
@@ -446,6 +643,7 @@ function getViewDescription(): string {
     discover: 'A quick overview of the Lumen stack',
     domains: 'Create a domain and link it to Drive content',
     contact: 'Reach out to our team',
+    docs: "Find detailed information about Lumen's features, setup, and usage"
   };
   return descs[currentView.value] || '';
 }
@@ -483,6 +681,12 @@ function getViewDescription(): string {
 .discover-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.docs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.9rem;
 }
 
