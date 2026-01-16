@@ -36,6 +36,15 @@
             <MessageCircle :size="18" />
             <span>Support</span>
           </button>
+          <button
+            type="button"
+            class="lsb-item"
+            :class="{ active: currentView === 'docs' }"
+            @click.prevent="openInNewTabSafe('lumen://docs')"
+          >
+            <BookOpen :size="18"/>
+            <span>Documentation</span>
+          </button>
         </div>
       </nav>
     </InternalSidebar>
@@ -331,11 +340,12 @@ import {
   ArrowRight,
   Search,
   FolderOpen,
-  Link2
+  Link2,
+  BookOpen
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
-type HelpView = 'discover' | 'domains' | 'contact';
+type HelpView = 'discover' | 'domains' | 'contact' | 'docs';
 
 const currentTabUrl = inject<ComputedRef<string>>(
   'currentTabUrl',
@@ -366,7 +376,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
   if (firstPath === 'domains' || firstPath === 'domain') return 'domains';
   if (firstPath === 'contact') return 'contact';
   // Backward-compat: old tabs now redirect to Discover.
-  if (firstPath === 'docs') return 'discover';
+  if (firstPath === 'docs') return 'docs';
   if (firstPath === 'getting-started' || firstPath === 'faq') return 'discover';
 
   // Optional query param `view=` (kept for backward-compat)
@@ -377,7 +387,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
     if (viewParam === 'discover') return 'discover';
     if (viewParam === 'domains' || viewParam === 'domain') return 'domains';
     if (viewParam === 'contact') return 'contact';
-    if (viewParam === 'docs') return 'discover';
+    if (viewParam === 'docs') return 'docs';
     if (viewParam === 'getting-started' || viewParam === 'faq') return 'discover';
   } catch {}
 
