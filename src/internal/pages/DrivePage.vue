@@ -707,15 +707,12 @@
       >
         <div class="modal-content" @click.stop>
           <div class="modal-header">
-            <h3>Local node</h3>
+            <h3>Local drive</h3>
             <button class="modal-close" @click="closeLocalDetails">
               <X :size="20" />
             </button>
           </div>
           <div class="modal-body">
-            <p class="modal-desc">
-              Your local IPFS node status and saved content.
-            </p>
 
             <div class="details-grid">
               <div class="details-row">
@@ -1804,7 +1801,7 @@ const headerSubtitle = computed(() => {
   }
   return hosting.value.kind === "gateway"
     ? "Saved files on your cloud plan"
-    : "Saved files on your local node";
+    : "Saved files on your local drive";
 });
 
 function deriveGatewayStatus(
