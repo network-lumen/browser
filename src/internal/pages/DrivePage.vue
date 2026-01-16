@@ -112,14 +112,6 @@
             >
               <List :size="18" />
             </button>
-            <button
-              class="view-btn"
-              :class="{ active: viewMode === 'details' }"
-              @click="viewMode = 'details'"
-              title="Details View"
-            >
-              <TableProperties :size="18" />
-            </button>
           </div>
 
           <button class="plans-btn" type="button" @click="openPlansModal">
@@ -187,11 +179,15 @@
           Back
         </button>
         <div class="browse-crumbs">
-          <button class="crumb" type="button" @click="openBrowseAt('')">
-            /
+          <button class="crumb" type="button" @click="exitBrowse">
+            {{ browseHostingLabel }}
           </button>
-          <template v-for="(c, idx) in browseCrumbs" :key="c.path">
-            <span v-if="idx > 0" class="sep">/</span>
+          <span class="sep">/</span>
+          <button class="crumb" type="button" @click="openBrowseAt('')">
+            {{ browseRootLabel }}
+          </button>
+          <template v-for="c in browseCrumbs" :key="c.path">
+            <span class="sep">/</span>
             <button class="crumb" type="button" @click="openBrowseAt(c.path)">
               {{ c.label }}
             </button>
@@ -199,16 +195,8 @@
         </div>
       </div>
 
-      <div v-if="browseLoading" class="upload-progress">
-        <div class="progress-content">
-          <UiSpinner size="sm" />
-          <div class="progress-info">
-            <span class="txt-sm txt-weight-strong">Loading folder</span>
-            <span class="txt-xs color-gray-blue"
-              >Fetching directory entries...</span
-            >
-          </div>
-        </div>
+      <div v-if="browseLoading" class="listing-loading">
+        <div class="drive-spinner" aria-busy="true"></div>
       </div>
 
       <div v-else-if="browseError" class="fetch-error txt-xs margin-top-25">
@@ -230,16 +218,20 @@
         </div>
       </div>
 
+      <div v-if="showSavedListSpinner" class="listing-loading">
+        <div class="drive-spinner" aria-busy="true"></div>
+      </div>
+
       <!-- Files Grid View -->
       <div
-        v-if="displayFiles.length > 0 && viewMode === 'grid'"
+        v-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 && viewMode === 'grid'"
         class="files-grid"
       >
         <div
           v-for="file in displayFiles"
           :key="file.cid"
           class="file-card"
-          @click="selectFile(file)"
+          @click="handleEntryClick(file)"
           :class="{ selected: selectedFile?.cid === file.cid }"
         >
           <div class="file-preview" :class="getFileTypeClass(file)">
@@ -330,7 +322,7 @@
 
       <!-- Files List View -->
       <div
-        v-else-if="displayFiles.length > 0 && viewMode === 'list'"
+        v-else-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 && viewMode === 'list'"
         class="files-list"
       >
         <!-- List Header -->
@@ -346,7 +338,7 @@
           v-for="file in displayFiles"
           :key="file.cid"
           class="list-item"
-          @click="selectFile(file)"
+          @click="handleEntryClick(file)"
           :class="{ selected: selectedFile?.cid === file.cid }"
         >
           <div class="list-icon" :class="getFileTypeClass(file)">
@@ -417,100 +409,8 @@
         </div>
       </div>
 
-      <!-- Files Details View (Table) -->
-      <div
-        v-else-if="displayFiles.length > 0 && viewMode === 'details'"
-        class="files-table-wrapper"
-      >
-        <table class="files-table">
-          <thead>
-            <tr>
-              <th class="th-name">Name</th>
-              <th class="th-size">Size</th>
-              <th class="th-date">Date Added</th>
-              <th class="th-actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="file in displayFiles"
-              :key="file.cid"
-              @click="selectFile(file)"
-              :class="{ selected: selectedFile?.cid === file.cid }"
-            >
-              <td class="td-name">
-                <div class="table-icon" :class="getFileTypeClass(file)">
-                  <img
-                    v-if="isImageFile(file.name)"
-                    :src="getImageSrc(file)"
-                    :alt="file.name"
-                    class="table-thumbnail"
-                    loading="lazy"
-                    decoding="async"
-                    fetchpriority="low"
-                    @error="() => onImageError(file)"
-                  />
-                  <video
-                    v-else-if="isVideoFile(file.name)"
-                    :src="getGatewayUrl(contentTargetFor(file))"
-                    class="table-thumbnail-video"
-                    :poster="videoPosterFor(file)"
-                    preload="metadata"
-                    muted
-                    playsinline
-                    @loadeddata="markVideoThumbReady(file)"
-                  ></video>
-                  <component
-                    v-else
-                    :is="getFileIcon(file)"
-                    :size="16"
-                    stroke-width="1.5"
-                  />
-                </div>
-                <span>{{ file.name }}</span>
-              </td>
-              <td class="td-size">{{ formatSize(file.size) }}</td>
-              <td class="td-date">
-                {{ file.uploadedAt ? formatDate(file.uploadedAt) : "-" }}
-              </td>
-              <td class="td-actions">
-                <button
-                  v-if="!isBrowsing && isDirEntry(file)"
-                  class="action-btn"
-                  title="Details"
-                  @click.stop="openEntryDetails(file)"
-                >
-                  <TableProperties :size="14" />
-                </button>
-                <button
-                  class="action-btn"
-                  title="Download"
-                  @click.stop="downloadFile(file)"
-                >
-                  <Download :size="14" />
-                </button>
-                <button
-                  class="action-btn"
-                  title="Open"
-                  @click.stop="openInIpfs(file)"
-                >
-                  <ExternalLink :size="14" />
-                </button>
-                <button
-                  class="action-btn danger"
-                  title="Remove"
-                  @click.stop="removeFile(file)"
-                >
-                  <Trash2 :size="14" />
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
       <!-- Pagination -->
-      <div v-if="filteredFiles.length > 0 && totalPages > 1" class="pagination-bar">
+      <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="pagination-bar">
         <button 
           class="page-btn" 
           :disabled="currentPage === 1"
@@ -573,7 +473,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredFiles.length === 0" class="empty-state">
+      <div v-else-if="!showSavedListSpinner && !browseLoading && filteredFiles.length === 0" class="empty-state">
         <div class="empty-icon">
           <Cloud :size="64" stroke-width="1" />
         </div>
@@ -755,109 +655,108 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="modal-desc">Usage summary for the selected gateway.</p>
-
-            <div class="details-grid">
-              <div class="details-row">
-                <span class="details-label">Gateway</span>
-                <span class="details-value">{{ activeGatewayLabel }}</span>
-              </div>
-              <div class="details-row" v-if="false">
-                <span class="details-label">Base URL</span>
-                <span class="details-value mono">{{ gatewayBase || "—" }}</span>
-              </div>
-              <div class="details-row">
-                <span class="details-label">Status</span>
-                <span
-                  class="details-value"
-                  :class="activeSubscriptionStatusClass"
-                >
-                  {{ activeSubscriptionStatusLabel }}
-                </span>
-              </div>
-              <div class="details-row">
-                <span class="details-label">Saved</span>
-                <span class="details-value">{{ gatewayPinned.length }}</span>
-              </div>
+            <div v-if="gatewayDetailsLoading" class="permalink-loading">
+              <div class="drive-spinner" aria-busy="true"></div>
             </div>
 
-            <div class="details-section">
-              <div class="details-section-header">
-                <h4>Usage</h4>
-                <button
-                  class="btn-ghost"
-                  type="button"
-                  @click="refreshActiveGatewayData"
-                  :disabled="gatewayUsageLoading"
-                >
-                  Refresh
-                </button>
-              </div>
-              <div v-if="gatewayUsageLoading" class="plans-empty-muted">
-                Loading…
-              </div>
-              <div
-                v-else-if="gatewayUsageError === 'password_required'"
-                class="plans-error"
-              >
-                <div class="plans-error-title">Wallet locked</div>
-                <div class="plans-error-text">
-                  Unlock your Lumen identity to fetch usage from this cloud.
-                </div>
-                <button
-                  class="btn-ghost"
-                  type="button"
-                  @click="requestUnlock"
-                >
-                  Unlock
-                </button>
-              </div>
-              <div v-else-if="gatewayUsageError" class="plans-error">
-                {{ gatewayUsageError }}
-              </div>
-              <div v-else-if="gatewayUsage" class="details-grid">
+            <template v-else>
+              <div class="details-grid">
                 <div class="details-row">
-                  <span class="details-label">Quota</span>
-                  <span class="details-value">
-                    {{
-                      gatewayUsage.plan?.quota_bytes_total != null ||
-                      gatewayUsage.plan?.quotaBytesTotal != null
-                        ? formatSize(
-                            (gatewayUsage.plan.quota_bytes_total ??
-                              gatewayUsage.plan.quotaBytesTotal) as number,
-                          )
-                        : "—"
-                    }}
-                  </span>
-                </div>
-                <div class="details-row">
-                  <span class="details-label">Used</span>
-                  <span class="details-value">
-                    {{
-                      gatewayUsage.plan?.quota_bytes_used != null ||
-                      gatewayUsage.plan?.quotaBytesUsed != null
-                        ? formatSize(
-                            (gatewayUsage.plan.quota_bytes_used ??
-                              gatewayUsage.plan.quotaBytesUsed) as number,
-                          )
-                        : "-"
-                    }}
-                  </span>
-                </div>
-                <div class="details-row">
-                  <span class="details-label">Bandwidth</span>
-                  <span class="details-value">{{ gatewayBandwidthUsed }}</span>
-                </div>
-                <div class="details-row">
-                  <span class="details-label">Roots</span>
+                  <span class="details-label">Gateway</span>
                   <span class="details-value">{{
-                    gatewayUsage.usage?.roots_total ??
-                    gatewayUsage.usage?.rootsTotal ??
-                    "-"
+                    gatewayDetailsGatewayLabel
                   }}</span>
                 </div>
+                <div class="details-row" v-if="false">
+                  <span class="details-label">Base URL</span>
+                  <span class="details-value mono">{{ gatewayBase || "-" }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Status</span>
+                  <span
+                    class="details-value"
+                    :class="gatewayDetailsStatusClass"
+                  >
+                    {{ gatewayDetailsStatusLabel }}
+                  </span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Saved</span>
+                  <span class="details-value">
+                    {{ gatewayDetailsPinned.length }}
+                  </span>
+                </div>
               </div>
-            </div>
+
+              <div class="details-section">
+                <div class="details-section-header">
+                  <h4>Usage</h4>
+                </div>
+                <div
+                  v-if="gatewayDetailsUsageError === 'password_required'"
+                  class="plans-error"
+                >
+                  <div class="plans-error-title">Wallet locked</div>
+                  <div class="plans-error-text">
+                    Unlock your Lumen identity to fetch usage from this cloud.
+                  </div>
+                  <button
+                    class="btn-ghost"
+                    type="button"
+                    @click="requestUnlock"
+                  >
+                    Unlock
+                  </button>
+                </div>
+                <div v-else-if="gatewayDetailsUsageError" class="plans-error">
+                  {{ gatewayDetailsUsageError }}
+                </div>
+                <div v-else-if="gatewayDetailsUsage" class="details-grid">
+                  <div class="details-row">
+                    <span class="details-label">Quota</span>
+                    <span class="details-value">
+                      {{
+                        gatewayDetailsUsage.plan?.quota_bytes_total != null ||
+                        gatewayDetailsUsage.plan?.quotaBytesTotal != null
+                          ? formatSize(
+                              (gatewayDetailsUsage.plan.quota_bytes_total ??
+                                gatewayDetailsUsage.plan.quotaBytesTotal) as number,
+                            )
+                          : "-"
+                      }}
+                    </span>
+                  </div>
+                  <div class="details-row">
+                    <span class="details-label">Used</span>
+                    <span class="details-value">
+                      {{
+                        gatewayDetailsUsage.plan?.quota_bytes_used != null ||
+                        gatewayDetailsUsage.plan?.quotaBytesUsed != null
+                          ? formatSize(
+                              (gatewayDetailsUsage.plan.quota_bytes_used ??
+                                gatewayDetailsUsage.plan.quotaBytesUsed) as number,
+                            )
+                          : "-"
+                      }}
+                    </span>
+                  </div>
+                  <div class="details-row">
+                    <span class="details-label">Bandwidth</span>
+                    <span class="details-value">{{
+                      gatewayDetailsBandwidthUsed
+                    }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="details-label">Roots</span>
+                    <span class="details-value">{{
+                      gatewayDetailsUsage.usage?.roots_total ??
+                      gatewayDetailsUsage.usage?.rootsTotal ??
+                      "-"
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -876,8 +775,7 @@
           <div class="modal-body">
 
             <div v-if="plansLoading" class="permalink-loading">
-              <UiSpinner size="md" />
-              <p>Loading plans...</p>
+              <div class="drive-spinner" aria-busy="true"></div>
             </div>
 
             <div v-else-if="plansError" class="permalink-success">
@@ -1350,6 +1248,11 @@
 import { ref, computed, onMounted, onUnmounted, watch, inject } from "vue";
 
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
+const currentTabUrl = inject<any>("currentTabUrl", null);
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>(
+  "navigate",
+  null,
+);
 
 import {
   Cloud,
@@ -1403,9 +1306,10 @@ interface IpfsStats {
 type HostingKind = "local" | "gateway";
 type HostingState = { kind: HostingKind; gatewayId: string };
 
-const viewMode = ref<"grid" | "list" | "details">("details");
+const viewMode = ref<"grid" | "list">("list");
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
+const localPinnedLoading = ref(false);
 const selectedFile = ref<DriveFile | null>(null);
 const ipfsConnected = ref(false);
 const stats = ref<IpfsStats | null>(null);
@@ -1450,11 +1354,18 @@ const videoThumbReady = ref<Record<string, true>>({});
 const gatewayUsage = ref<any | null>(null);
 const gatewayUsageError = ref("");
 const gatewayUsageLoading = ref(false);
+const gatewayDetailsLoading = ref(false);
 const gatewayPinned = ref<string[]>([]);
 const gatewayPinnedError = ref("");
 const gatewayPinnedLoading = ref(false);
+
+const gatewayDetailsGatewayId = ref("");
+const gatewayDetailsUsage = ref<any | null>(null);
+const gatewayDetailsUsageError = ref("");
+const gatewayDetailsPinned = ref<string[]>([]);
+const gatewayDetailsPinnedError = ref("");
 const gatewayBase = ref<string | null>(null);
-const optimisticGatewayPinned = ref<Record<string, number>>({});
+const optimisticGatewayPinned = ref<Record<string, Record<string, number>>>({});
 const OPTIMISTIC_GATEWAY_PIN_TTL_MS = 2 * 60 * 1000;
 
 // Gateway plans (DrivePanel-style "Plans" entry)
@@ -1630,6 +1541,16 @@ const activeSavedCids = computed(() => {
     : pinnedFiles.value;
 });
 
+const savedRootsLoading = computed(() => {
+  return hosting.value.kind === "gateway"
+    ? gatewayPinnedLoading.value
+    : localPinnedLoading.value;
+});
+
+const showSavedListSpinner = computed(() => {
+  return !isBrowsing.value && savedRootsLoading.value;
+});
+
 const localSavedCount = computed(() => pinnedFiles.value.length);
 
 const entryTypeCache = ref<Record<string, "file" | "dir">>({});
@@ -1641,6 +1562,10 @@ const browseRelPath = ref("");
 const browseEntries = ref<DriveFile[]>([]);
 const browseLoading = ref(false);
 const browseError = ref("");
+let browseLoadSeq = 0;
+let gatewayDetailsLoadSeq = 0;
+let gatewayPinnedSeq = 0;
+let gatewayUsageSeq = 0;
 
 const isBrowsing = computed(() => !!browseRootCid.value);
 const canRenameSelected = computed(() => {
@@ -1712,6 +1637,11 @@ const totalPages = computed(() => {
   return Math.ceil(filteredFiles.value.length / itemsPerPage.value) || 1;
 });
 
+watch(totalPages, (total) => {
+  if (currentPage.value > total) currentPage.value = total;
+  if (currentPage.value < 1) currentPage.value = 1;
+});
+
 // Page numbers for pagination
 const pageNumbers = computed(() => {
   const total = totalPages.value;
@@ -1742,26 +1672,46 @@ const activeGateway = computed(() => {
   return gateways.value.find((g) => String(g.id) === id) || null;
 });
 
-const activeGatewayHint = computed(() => {
-  const gw = activeGateway.value;
-  if (gw?.endpoint) return String(gw.endpoint).trim();
-  const gid = String(hosting.value.gatewayId || "").trim();
+function gatewayHintForId(gatewayId: string): string {
+  const gid = String(gatewayId || "").trim();
   if (!gid) return "";
-  const sub = planSubscriptionsRaw.value.find(
-    (s) => String(s.gatewayId) === gid,
-  );
+
+  const gw = gateways.value.find((g) => String(g.id) === gid) || null;
+  if (gw?.endpoint) return String(gw.endpoint).trim();
+
+  const sub = planSubscriptionsRaw.value.find((s) => String(s.gatewayId) === gid);
   const metaEndpoint =
     sub?.metadata?.endpoint ?? sub?.metadata?.baseUrl ?? sub?.metadata?.url;
   if (typeof metaEndpoint === "string" && metaEndpoint.trim())
     return metaEndpoint.trim();
+
   const plan = plans.value.find((p) => String(p.gatewayId) === gid);
   const planEndpoint = plan?.gatewayEndpoint;
   return typeof planEndpoint === "string" ? planEndpoint.trim() : "";
+}
+
+const activeGatewayHint = computed(() => {
+  const gid = String(hosting.value.gatewayId || "").trim();
+  return gatewayHintForId(gid);
 });
 
 const activeGatewayLabel = computed(() => {
   const gw = activeGateway.value;
-  if (!gw) return "—";
+  if (!gw) return "-";
+  return gw.endpoint || `Gateway ${gw.id}`;
+});
+
+const gatewayDetailsGateway = computed(() => {
+  const gid = String(gatewayDetailsGatewayId.value || "").trim();
+  if (!gid) return null;
+  return gateways.value.find((g) => String(g.id) === gid) || null;
+});
+
+const gatewayDetailsGatewayLabel = computed(() => {
+  const gid = String(gatewayDetailsGatewayId.value || "").trim();
+  if (!gid) return "-";
+  const gw = gatewayDetailsGateway.value;
+  if (!gw) return `Gateway ${gid}`;
   return gw.endpoint || `Gateway ${gw.id}`;
 });
 
@@ -1780,6 +1730,18 @@ const browseRootName = computed(() => {
   if (!cid) return "";
   const name = getSavedName(cid);
   return name && name !== "Unknown" ? name : "";
+});
+
+const browseHostingLabel = computed(() => {
+  return hosting.value.kind === "gateway" ? hostingLabel.value : "Local drive";
+});
+
+const browseRootLabel = computed(() => {
+  const name = String(browseRootName.value || "").trim();
+  if (name) return name;
+  const cid = String(browseRootCid.value || "").trim();
+  if (!cid) return "Folder";
+  return cid.length > 10 ? `${cid.slice(0, 10)}…` : cid;
 });
 
 const browseCrumbs = computed(() => {
@@ -1896,6 +1858,30 @@ const activeSubscriptionStatusClass = computed(() => {
       : "off";
 });
 
+const gatewayDetailsSubscriptionRow = computed(() => {
+  const gid = String(gatewayDetailsGatewayId.value || "").trim();
+  if (!gid) return null;
+  return subscriptionRows.value.find((r) => r.gatewayId === gid) || null;
+});
+
+const gatewayDetailsStatusLabel = computed(() => {
+  const row = gatewayDetailsSubscriptionRow.value;
+  if (!row) return "-";
+  if (row.status === "active") return "Active";
+  if (row.status === "pending") return "Pending";
+  return "Off";
+});
+
+const gatewayDetailsStatusClass = computed(() => {
+  const row = gatewayDetailsSubscriptionRow.value;
+  if (!row) return "off";
+  return row.status === "active"
+    ? "ok"
+    : row.status === "pending"
+      ? "pending"
+      : "off";
+});
+
 const gatewayBandwidthUsed = computed(() => {
   const u = gatewayUsage.value?.usage || {};
   const raw =
@@ -1911,8 +1897,38 @@ const gatewayBandwidthUsed = computed(() => {
   return Number.isFinite(n) && n >= 0 ? formatSize(n) : "-";
 });
 
+const gatewayDetailsBandwidthUsed = computed(() => {
+  const u = gatewayDetailsUsage.value?.usage || {};
+  const raw =
+    u?.netMonth?.bytes ??
+    u?.net_month?.bytes ??
+    u?.net_month_bytes ??
+    u?.netMonthBytes ??
+    u?.bandwidthMonth?.bytes ??
+    u?.bandwidth_month?.bytes ??
+    u?.bandwidth_month_bytes ??
+    null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? formatSize(n) : "-";
+});
+
 const toastIcon = computed(() =>
   toastType.value === "success" ? CheckCircle : AlertCircle,
+);
+
+let browseUrlSyncSeq = 0;
+watch(
+  () => String(currentTabUrl?.value || ""),
+  (url) => {
+    const seq = ++browseUrlSyncSeq;
+    void (async () => {
+      const parsed = parseDriveBrowseFromUrl(url);
+      if (!parsed) return;
+      await applyBrowseLocation(parsed.root, parsed.path);
+      if (seq !== browseUrlSyncSeq) return;
+    })();
+  },
+  { immediate: true },
 );
 
 // Watch for refresh signal from navbar
@@ -2052,7 +2068,7 @@ async function handleDrop(e: DragEvent) {
       }
       if (entry.isDirectory) {
         const rootName = String(entry.name || "folder");
-        const all = await collectEntryFiles(entry, rootName);
+        const all = await collectEntryFiles(entry, "");
         const normalized = all
           .map(({ path, file }) => ({
             path: String(path).replace(/\\/g, "/").replace(/^\/+/, ""),
@@ -2092,6 +2108,8 @@ async function checkIpfsStatus() {
 function selectHosting(kind: HostingKind) {
   if (kind === hosting.value.kind) return;
   if (kind === "gateway") return;
+  exitBrowseSilent();
+  currentPage.value = 1;
   hosting.value = { kind, gatewayId: "" };
   gatewayBase.value = null;
   void checkIpfsStatus();
@@ -2102,6 +2120,8 @@ function selectHosting(kind: HostingKind) {
 function selectGateway(gatewayId: string) {
   const gid = String(gatewayId || "").trim();
   if (!gid) return;
+  exitBrowseSilent();
+  currentPage.value = 1;
   hosting.value = { kind: "gateway", gatewayId: gid };
   void refreshActiveGatewayData();
 }
@@ -2118,19 +2138,111 @@ function closeLocalDetails() {
 }
 
 function openGatewayDetails(gatewayId: string) {
-  selectGateway(gatewayId);
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return;
+  gatewayDetailsGatewayId.value = gid;
   showGatewayDetails.value = true;
+  void refreshGatewayDetailsData(gid);
 }
 
 function closeGatewayDetails() {
   showGatewayDetails.value = false;
+  gatewayDetailsGatewayId.value = "";
+  gatewayDetailsUsage.value = null;
+  gatewayDetailsUsageError.value = "";
+  gatewayDetailsPinned.value = [];
+  gatewayDetailsPinnedError.value = "";
+  gatewayDetailsLoading.value = false;
+}
+
+async function refreshGatewayDetailsData(gatewayId: string) {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return;
+
+  const seq = ++gatewayDetailsLoadSeq;
+  gatewayDetailsLoading.value = true;
+  gatewayDetailsUsage.value = null;
+  gatewayDetailsUsageError.value = "";
+  gatewayDetailsPinned.value = [];
+  gatewayDetailsPinnedError.value = "";
+
+  try {
+    const api: any = (window as any).lumen;
+    const profilesApi = api?.profiles;
+    const gwApi = api?.gateway;
+    if (!profilesApi || !gwApi) {
+      gatewayDetailsUsageError.value = "Gateway API unavailable";
+      return;
+    }
+
+    const active = await profilesApi.getActive?.().catch(() => null);
+    const profileId = active?.id;
+    if (!profileId) {
+      gatewayDetailsUsageError.value = "No active profile";
+      return;
+    }
+
+    const hint = gatewayHintForId(gid);
+    const [usageRes, pinnedRes] = await Promise.all([
+      gwApi.getWalletUsage(profileId, hint).catch((e: any) => ({
+        ok: false,
+        error: String(e?.message || e),
+      })),
+      gwApi.getWalletPinnedCids(profileId, hint, 1).catch((e: any) => ({
+        ok: false,
+        error: String(e?.message || e),
+      })),
+    ]);
+    if (
+      seq !== gatewayDetailsLoadSeq ||
+      !showGatewayDetails.value ||
+      String(gatewayDetailsGatewayId.value || "").trim() !== gid
+    ) {
+      return;
+    }
+
+    if (!usageRes || usageRes.ok === false) {
+      const code = String(usageRes?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await api?.security?.lockSession?.();
+        } catch {}
+      }
+      if (code !== "kyber_pubkey_http_unavailable") {
+        gatewayDetailsUsageError.value = code || "Usage fetch failed";
+      }
+    } else {
+      gatewayDetailsUsage.value = usageRes.data ?? null;
+    }
+
+    if (!pinnedRes || pinnedRes.ok === false) {
+      const code = String(pinnedRes?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await api?.security?.lockSession?.();
+        } catch {}
+      }
+      if (code !== "kyber_pubkey_http_unavailable") {
+        gatewayDetailsPinnedError.value = code || "Pinned CIDs fetch failed";
+      }
+    } else {
+      const data = pinnedRes.data ?? null;
+      const cids = Array.isArray(data?.cids)
+        ? data.cids.map((x: any) => String(x)).filter(Boolean)
+        : [];
+      gatewayDetailsPinned.value = Array.from(new Set(cids));
+    }
+  } catch (e: any) {
+    if (seq !== gatewayDetailsLoadSeq) return;
+    gatewayDetailsUsageError.value = String(e?.message || "Usage fetch failed");
+  } finally {
+    if (seq === gatewayDetailsLoadSeq) gatewayDetailsLoading.value = false;
+  }
 }
 
 async function refreshActiveGatewayData() {
   if (hosting.value.kind !== "gateway") return;
   const hint = activeGatewayHint.value;
-  await refreshGatewayBase(hint);
-  await refreshGatewayUsage(hint);
   await refreshGatewayPinned(hint);
 }
 
@@ -2263,8 +2375,6 @@ async function openPlansModal() {
     expandedGatewayIds.value = new Set();
     plansLoading.value = true;
     plansError.value = "";
-    plans.value = [];
-    planSubscriptionsRaw.value = [];
 
     const active = await profilesApi.getActive?.().catch(() => null);
     const profileId = active?.id;
@@ -2565,21 +2675,32 @@ async function loadStats() {
 }
 
 async function loadPinnedFiles() {
-  try {
-    const anyWin: any = window;
-    if (hosting.value.kind === "gateway") {
-      await refreshGatewayPinned(activeGatewayHint.value);
-      return;
-    }
+  const anyWin: any = window;
+  if (hosting.value.kind === "gateway") {
+    await refreshGatewayPinned(activeGatewayHint.value);
+    return;
+  }
 
+  localPinnedLoading.value = true;
+  try {
     const result = await anyWin.lumen?.ipfsPinList?.();
     if (result?.ok) {
       pinnedFiles.value = result.pins || [];
     }
-  } catch {}
+  } catch {
+    // ignore
+  } finally {
+    localPinnedLoading.value = false;
+  }
 }
 
 async function refreshGatewayUsage(baseUrlHint?: string) {
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (hosting.value.kind !== "gateway" || !gid) return;
+  const seq = ++gatewayUsageSeq;
+
+  gatewayUsageLoading.value = true;
+  gatewayUsageError.value = "";
   try {
     const api: any = (window as any).lumen;
     const profilesApi = api?.profiles;
@@ -2590,12 +2711,16 @@ async function refreshGatewayUsage(baseUrlHint?: string) {
     const profileId = active?.id;
     if (!profileId) return;
 
-    gatewayUsageLoading.value = true;
-    gatewayUsageError.value = "";
-
     const res = await gwApi
       .getWalletUsage(profileId, baseUrlHint)
       .catch(() => null);
+    if (
+      seq !== gatewayUsageSeq ||
+      hosting.value.kind !== "gateway" ||
+      String(hosting.value.gatewayId || "").trim() !== gid
+    ) {
+      return;
+    }
     if (!res || res.ok === false) {
       const code = String(res?.error || "").trim();
       if (code === "password_required" || code === "invalid_password") {
@@ -2616,16 +2741,23 @@ async function refreshGatewayUsage(baseUrlHint?: string) {
 
     gatewayUsage.value = res.data ?? null;
   } catch (e: any) {
+    if (seq !== gatewayUsageSeq) return;
     gatewayUsage.value = null;
     const msg = String(e?.message || "Usage fetch failed");
     gatewayUsageError.value =
       msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
   } finally {
-    gatewayUsageLoading.value = false;
+    if (seq === gatewayUsageSeq) gatewayUsageLoading.value = false;
   }
 }
 
 async function refreshGatewayPinned(baseUrlHint?: string) {
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (hosting.value.kind !== "gateway" || !gid) return;
+  const seq = ++gatewayPinnedSeq;
+
+  gatewayPinnedLoading.value = true;
+  gatewayPinnedError.value = "";
   try {
     const api: any = (window as any).lumen;
     const profilesApi = api?.profiles;
@@ -2636,12 +2768,16 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
     const profileId = active?.id;
     if (!profileId) return;
 
-    gatewayPinnedLoading.value = true;
-    gatewayPinnedError.value = "";
-
     const res = await gwApi
       .getWalletPinnedCids(profileId, baseUrlHint, 1)
       .catch(() => null);
+    if (
+      seq !== gatewayPinnedSeq ||
+      hosting.value.kind !== "gateway" ||
+      String(hosting.value.gatewayId || "").trim() !== gid
+    ) {
+      return;
+    }
     if (!res || res.ok === false) {
       const code = String(res?.error || "").trim();
       if (code === "password_required" || code === "invalid_password") {
@@ -2669,7 +2805,8 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
     const serverSet = new Set(server);
     const optimisticMissing: string[] = [];
     const nextOptimistic: Record<string, number> = {};
-    for (const [cid, ts] of Object.entries(optimisticGatewayPinned.value)) {
+    const optimisticForGateway = optimisticGatewayPinned.value[gid] || {};
+    for (const [cid, ts] of Object.entries(optimisticForGateway)) {
       const key = String(cid || "").trim();
       if (!key) continue;
       if (serverSet.has(key)) continue;
@@ -2678,24 +2815,31 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       nextOptimistic[key] = ts;
       optimisticMissing.push(key);
     }
-    optimisticGatewayPinned.value = nextOptimistic;
+    optimisticGatewayPinned.value = {
+      ...optimisticGatewayPinned.value,
+      [gid]: nextOptimistic,
+    };
     gatewayPinned.value = [...optimisticMissing, ...server as string[]];
   } catch (e: any) {
+    if (seq !== gatewayPinnedSeq) return;
     gatewayPinned.value = [];
     const msg = String(e?.message || "Pinned CIDs fetch failed");
     gatewayPinnedError.value =
       msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
   } finally {
-    gatewayPinnedLoading.value = false;
+    if (seq === gatewayPinnedSeq) gatewayPinnedLoading.value = false;
   }
 }
 
 function addOptimisticGatewayPinnedCid(cid: string) {
   const key = String(cid || "").trim();
   if (!key) return;
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (!gid) return;
+  const current = optimisticGatewayPinned.value[gid] || {};
   optimisticGatewayPinned.value = {
     ...optimisticGatewayPinned.value,
-    [key]: Date.now(),
+    [gid]: { ...current, [key]: Date.now() },
   };
   if (hosting.value.kind === "gateway") {
     gatewayPinned.value = [
@@ -2708,10 +2852,13 @@ function addOptimisticGatewayPinnedCid(cid: string) {
 function removeOptimisticGatewayPinnedCid(cid: string) {
   const key = String(cid || "").trim();
   if (!key) return;
-  if (!optimisticGatewayPinned.value[key]) return;
-  const next = { ...optimisticGatewayPinned.value };
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (!gid) return;
+  const current = optimisticGatewayPinned.value[gid];
+  if (!current || !current[key]) return;
+  const next = { ...current };
   delete next[key];
-  optimisticGatewayPinned.value = next;
+  optimisticGatewayPinned.value = { ...optimisticGatewayPinned.value, [gid]: next };
 }
 
 function loadFiles() {
@@ -3052,14 +3199,104 @@ function openInIpfs(file: DriveFile) {
   }
 }
 
+function normalizeBrowsePath(path: string): string {
+  return String(path || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+}
+
+function driveUrlForBrowse(rootCid: string, relPath: string): string {
+  const root = String(rootCid || "").trim();
+  const path = normalizeBrowsePath(relPath);
+  if (!root) return "lumen://drive";
+  const q = new URLSearchParams();
+  q.set("root", root);
+  if (path) q.set("path", path);
+  return `lumen://drive?${q.toString()}`;
+}
+
+function parseDriveBrowseFromUrl(
+  rawUrl: string,
+): { root: string; path: string } | null {
+  const s = String(rawUrl || "").trim();
+  if (!s) return null;
+  if (!/^lumen:\/\//i.test(s)) return null;
+  try {
+    const u = new URL(s);
+    if (String(u.hostname || "").toLowerCase() !== "drive") return null;
+    const root = String(u.searchParams.get("root") || "").trim();
+    const path = normalizeBrowsePath(u.searchParams.get("path") || "");
+    return { root, path };
+  } catch {
+    return null;
+  }
+}
+
+function resetBrowseState() {
+  browseLoadSeq++;
+  browseRootCid.value = "";
+  browseRelPath.value = "";
+  browseEntries.value = [];
+  browseError.value = "";
+  browseLoading.value = false;
+  selectedFile.value = null;
+  renameDraft.value = "";
+  currentPage.value = 1;
+}
+
+async function applyBrowseLocation(rootCid: string, relPath: string) {
+  const root = String(rootCid || "").trim();
+  const path = normalizeBrowsePath(relPath);
+
+  if (!root) {
+    if (isBrowsing.value) resetBrowseState();
+    return;
+  }
+
+  const prevRoot = String(browseRootCid.value || "").trim();
+  const prevPath = normalizeBrowsePath(browseRelPath.value);
+  const changed = root !== prevRoot || path !== prevPath;
+
+  browseRootCid.value = root;
+  browseRelPath.value = path;
+  selectedFile.value = null;
+  renameDraft.value = "";
+  currentPage.value = 1;
+
+  if (changed) await loadBrowseEntries();
+}
+
+async function navigateBrowse(
+  rootCid: string,
+  relPath: string,
+  opts: { push?: boolean } = {},
+) {
+  const push = opts.push ?? true;
+  const root = String(rootCid || "").trim();
+  const path = normalizeBrowsePath(relPath);
+
+  if (!root) {
+    resetBrowseState();
+    navigate?.("lumen://drive", { push });
+    return;
+  }
+
+  await applyBrowseLocation(root, path);
+  navigate?.(driveUrlForBrowse(root, path), { push });
+}
+
 async function loadBrowseEntries() {
+  const seq = ++browseLoadSeq;
   const cid = String(browseRootCid.value || "").trim();
+  const relPath = normalizeBrowsePath(browseRelPath.value);
   if (!cid) return;
   browseLoading.value = true;
   browseError.value = "";
   try {
-    const target = browseRelPath.value ? `${cid}/${browseRelPath.value}` : cid;
+    const target = relPath ? `${cid}/${relPath}` : cid;
     const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
+    if (seq !== browseLoadSeq) return;
     if (!res || res.ok === false) {
       browseEntries.value = [];
       browseError.value = String(res?.error || "Failed to list folder");
@@ -3070,9 +3307,7 @@ async function loadBrowseEntries() {
       .filter((it: any) => it && it.name && it.cid)
       .map((it: any) => {
         const name = String(it.name);
-        const rel = browseRelPath.value
-          ? `${browseRelPath.value}/${name}`
-          : name;
+        const rel = relPath ? `${relPath}/${name}` : name;
         return {
           cid: String(it.cid),
           name,
@@ -3087,42 +3322,35 @@ async function loadBrowseEntries() {
           return String(a.name).localeCompare(String(b.name));
         return a.type === "dir" ? -1 : 1;
       });
+    if (seq !== browseLoadSeq) return;
     browseEntries.value = mapped;
   } catch (e: any) {
+    if (seq !== browseLoadSeq) return;
     browseEntries.value = [];
     browseError.value = String(e?.message || "Failed to list folder");
   } finally {
-    browseLoading.value = false;
+    if (seq === browseLoadSeq) browseLoading.value = false;
   }
 }
 
 function exitBrowse() {
-  browseRootCid.value = "";
-  browseRelPath.value = "";
-  browseEntries.value = [];
-  browseError.value = "";
-  selectedFile.value = null;
-  renameDraft.value = "";
+  void navigateBrowse("", "", { push: true });
+}
+
+function exitBrowseSilent() {
+  void navigateBrowse("", "", { push: false });
 }
 
 async function openBrowseAt(path: string) {
-  browseRelPath.value = String(path || "")
-    .replace(/^\/+/, "")
-    .replace(/\/+$/, "");
-  selectedFile.value = null;
-  renameDraft.value = "";
-  await loadBrowseEntries();
+  const root = String(browseRootCid.value || "").trim();
+  if (!root) return;
+  await navigateBrowse(root, path, { push: true });
 }
 
 async function openDirectory(file: DriveFile) {
   const root = String(file?.rootCid || file?.cid || "").trim();
   if (!root) return;
-  browseRootCid.value = root;
-  await openBrowseAt(
-    String(file?.relPath || "")
-      .replace(/^\/+/, "")
-      .replace(/\/+$/, ""),
-  );
+  await navigateBrowse(root, String(file?.relPath || ""), { push: true });
 }
 
 async function handleEntryClick(file: DriveFile) {
@@ -3336,7 +3564,6 @@ async function removeFile(file: DriveFile) {
       removeOptimisticGatewayPinnedCid(cid);
       setSavedName(cid, "");
       await refreshActiveGatewayPinned();
-      await refreshGatewayUsage(activeGatewayHint.value);
       if (selectedFile.value?.cid === cid) {
         selectedFile.value = null;
         renameDraft.value = "";
@@ -3575,7 +3802,7 @@ async function reloadForActiveProfileChange() {
   const seq = ++profileReloadSeq;
 
   // Reset per-profile UI state.
-  exitBrowse();
+  exitBrowseSilent();
   selectedFile.value = null;
   renameDraft.value = "";
   showPlansModal.value = false;
@@ -5669,9 +5896,12 @@ async function reloadForActiveProfileChange() {
 }
 
 .list-date-header {
-  width: 140px;
-  min-width: 140px;
+  width: 180px;
+  min-width: 180px;
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .list-actions-header {
@@ -5754,10 +5984,13 @@ async function reloadForActiveProfileChange() {
 .list-date {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  width: 140px;
-  min-width: 140px;
+  width: 180px;
+  min-width: 180px;
   text-align: right;
   flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .list-actions {
@@ -6227,10 +6460,39 @@ async function reloadForActiveProfileChange() {
   gap: 0.75rem;
   font-weight: 500;
   color: var(--text-primary);
-  min-width: 200px;
-  width: 30%;
-  height: 40px;
+  width: 100%;
+  min-height: 220px;
   vertical-align: middle;
+}
+
+.listing-loading {
+  flex: 1;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+}
+
+.drive-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 3px solid rgba(148, 163, 184, 0.28);
+  border-top-color: var(--accent-primary);
+  animation: drive-spin 0.9s linear infinite;
+}
+
+@keyframes drive-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .td-name span {

@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, reactive } from "vue";
 import NavBar from "./NavBar.vue";
 import TabPane from "./TabPane.vue";
 import {
@@ -60,12 +60,26 @@ const emit = defineEmits<{
 }>();
 
 const activeTab = computed<Tab | undefined>(() =>
-  props.tabs.find((t) => t.id === props.tabActive),
+  (() => {
+    const found = props.tabs.find((t) => t.id === props.tabActive);
+    return found ? (reactive(found as any) as Tab) : undefined;
+  })(),
 );
 
 function currentUrl(): string {
   const t = activeTab.value;
-  return t?.url || "lumen://home";
+  if (!t) return "lumen://home";
+  const fallback = t.url || "lumen://home";
+  const history = Array.isArray(t.history) ? t.history : [];
+  const rawPos =
+    typeof t.history_position === "number"
+      ? t.history_position
+      : history.length - 1;
+  const max = Math.max(history.length - 1, 0);
+  const pos = Math.min(Math.max(rawPos, 0), max);
+  const entry = history[pos] || history[history.length - 1];
+  const url = typeof entry?.url === "string" ? entry.url.trim() : "";
+  return url || fallback;
 }
 
 function normalizeInternalUrl(raw: string): string {
@@ -147,7 +161,7 @@ function onHistoryStep(payload: { delta: number }) {
   tab.history_position = nextPos;
   const entry = history[nextPos];
   if (entry?.url) {
-    tab.url = entry.url;
+    navigateInternal(entry.url, { push: false });
   }
 }
 

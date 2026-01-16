@@ -2,8 +2,8 @@
   <div class="tab-pane" :class="{ active }">
     <KeepAlive>
       <component
-        :key="`${tab.id}::${cacheKeyForUrl(tab.url || '')}`"
-        :is="componentForTab(tab)"
+        :key="`${tabState.id}::${cacheKeyForUrl(tabState.url || '')}`"
+        :is="componentForTab(tabState)"
         class="flex w-full h-full"
       />
     </KeepAlive>
@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide } from "vue";
+import { computed, provide, reactive } from "vue";
 import {
   INTERNAL_ROUTE_KEYS,
   resolveInternalComponent,
@@ -35,8 +35,21 @@ const props = defineProps<{
   active: boolean;
 }>();
 
+const tabState = computed(() => reactive(props.tab as any) as Tab);
+
 function currentUrl(): string {
-  return props.tab?.url || "lumen://home";
+  const tab = tabState.value;
+  const fallback = tab?.url || "lumen://home";
+  const history = Array.isArray(tab?.history) ? tab.history : [];
+  const rawPos =
+    typeof tab?.history_position === "number"
+      ? tab.history_position
+      : history.length - 1;
+  const max = Math.max(history.length - 1, 0);
+  const pos = Math.min(Math.max(rawPos, 0), max);
+  const entry = history[pos] || history[history.length - 1];
+  const url = typeof entry?.url === "string" ? entry.url.trim() : "";
+  return url || fallback;
 }
 
 provide(
@@ -46,12 +59,12 @@ provide(
 
 provide(
   "currentTabId",
-  computed(() => props.tab?.id || ""),
+  computed(() => tabState.value?.id || ""),
 );
 
 provide(
   "currentTabRefresh",
-  computed(() => props.tab?.refreshTick ?? 0),
+  computed(() => tabState.value?.refreshTick ?? 0),
 );
 
 provide("navigate", (url: string, opts?: { push?: boolean }) => {
@@ -85,7 +98,7 @@ function cacheKeyForUrl(rawUrl: string): string {
 
 function navigateInternal(url: string, opts: { push?: boolean } = {}) {
   const push = opts.push ?? true;
-  const tab = props.tab;
+  const tab = tabState.value;
   if (!tab) return;
 
   const u = normalizeInternalUrl(url);

@@ -279,7 +279,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
@@ -360,7 +360,8 @@ const activeProfileDisplay = computed(
 );
 
 const activeTab = computed<Tab | null>(() => {
-  return props.tabs.find((t) => t.id === props.tabActive) ?? null;
+  const found = props.tabs.find((t) => t.id === props.tabActive) ?? null;
+  return found ? (reactive(found as any) as Tab) : null;
 });
 
 const canGoBack = computed(() => {
