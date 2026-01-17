@@ -1281,6 +1281,7 @@ import {
   FileAudio,
   FileArchive,
   BookOpen,
+  Folder,
   File,
   CheckCircle,
   AlertCircle,
@@ -3662,7 +3663,10 @@ watch(
 );
 
 function isDirEntry(file: DriveFile | null | undefined): boolean {
-  return String((file as any)?.type || "") === "dir";
+  if (String((file as any)?.type || "") === "dir") return true;
+  const cid = String((file as any)?.cid || "").trim();
+  if (!cid) return false;
+  return entryTypeCache.value[cid] === "dir";
 }
 
 function openEntryDetails(file: DriveFile) {
@@ -3762,6 +3766,7 @@ async function removeFile(file: DriveFile) {
 }
 
 function getFileTypeClass(file: DriveFile | null | undefined): string {
+  if (isDirEntry(file)) return "type-folder";
   const name = String(file?.name || "");
   const ext = name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
@@ -3941,6 +3946,7 @@ async function onImageError(file: DriveFile) {
 }
 
 function getFileIcon(file: DriveFile | null | undefined) {
+  if (isDirEntry(file)) return Folder;
   const name = String(file?.name || "");
   const ext = name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
@@ -5668,6 +5674,10 @@ async function reloadForActiveProfileChange() {
 }
 .file-preview.type-document {
   color: #0071e3;
+  background: var(--card-bg);
+}
+.file-preview.type-folder {
+  color: #8e8e93;
   background: var(--card-bg);
 }
 .file-preview.type-file {
