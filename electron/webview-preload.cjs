@@ -168,8 +168,101 @@ const lumen = {
   readCID,
   resolveUrl,
 
+  profiles: {
+    getActive: async () => {
+      ensureLumenSite();
+      return await ipcRenderer.invoke('profiles:getActive');
+    }
+  },
+
+  pubsub: {
+    publish: async (topic, data, opts) => {
+      ensureLumenSite();
+      const encoding =
+        (opts && opts.encoding) ||
+        (typeof data === 'string' ? 'text' : (typeof data === 'object' ? 'json' : 'text'));
+
+      const payload = { topic: safeString(topic, 1024), encoding };
+      if (encoding === 'binary') {
+        if (data instanceof Uint8Array) payload.dataB64 = Buffer.from(data).toString('base64');
+        else payload.dataB64 = safeString(data, 1024 * 1024);
+      } else if (encoding === 'json') {
+        payload.data = typeof data === 'string' ? data : JSON.stringify(data ?? null);
+      } else {
+        payload.data = String(data ?? '');
+      }
+      return await ipcRenderer.invoke('ipfs:pubsub:publish', payload);
+    },
+
+    subscribe: async (topic, opts = {}, onMessage) => {
+      ensureLumenSite();
+      const encoding = (opts && opts.encoding) ? String(opts.encoding) : 'text';
+      const res = await ipcRenderer.invoke('ipfs:pubsub:subscribe', { topic: safeString(topic, 1024), encoding });
+      if (!res || res.ok === false) throw new Error((res && res.error) ? String(res.error) : 'subscribe_failed');
+      const subId = String(res.subId || '');
+
+      const hMsg = (_e, payload) => {
+        try {
+          if (!payload || payload.subId !== subId) return;
+          // If binary came as array of numbers, restore Uint8Array.
+          if (payload.binary && Array.isArray(payload.binary)) payload.binary = new Uint8Array(payload.binary);
+          onMessage && onMessage(payload);
+        } catch {}
+      };
+      const hErr = (_e, payload) => { if (!payload || payload.subId !== subId) return; };
+      const hEnd = (_e, payload) => { if (!payload || payload.subId !== subId) return; };
+
+      ipcRenderer.on('ipfs:pubsub:message', hMsg);
+      ipcRenderer.on('ipfs:pubsub:error', hErr);
+      ipcRenderer.on('ipfs:pubsub:end', hEnd);
+
+      const unsubscribe = async () => {
+        try { ipcRenderer.removeListener('ipfs:pubsub:message', hMsg); } catch {}
+        try { ipcRenderer.removeListener('ipfs:pubsub:error', hErr); } catch {}
+        try { ipcRenderer.removeListener('ipfs:pubsub:end', hEnd); } catch {}
+        try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
+      };
+
+      return { subId, unsubscribe };
+    },
+
+    ls: async () => {
+      ensureLumenSite();
+      return await ipcRenderer.invoke('ipfs:pubsub:ls');
+    },
+
+    peers: async (topic) => {
+      ensureLumenSite();
+      return await ipcRenderer.invoke('ipfs:pubsub:peers', safeString(topic, 1024));
+    }
+  },
+
+  wallet: {
+    requestSend: sendToken,
+    signArbitrary: async (args) => {
+      ensureLumenSite();
+      const a = args && typeof args === 'object' ? args : {};
+      return await ipcRenderer.invoke('wallet:signArbitrary', {
+        profileId: safeString(a.profileId, 128),
+        address: safeString(a.address, 256),
+        algo: safeString(a.algo || 'ADR-036', 64),
+        payload: safeString(a.payload, 1024 * 1024),
+      });
+    },
+    verifyArbitrary: async (args) => {
+      ensureLumenSite();
+      const a = args && typeof args === 'object' ? args : {};
+      return await ipcRenderer.invoke('wallet:verifyArbitrary', {
+        algo: safeString(a.algo || 'ADR-036', 64),
+        payload: safeString(a.payload, 1024 * 1024),
+        signatureB64: safeString(a.signatureB64, 4096),
+        pubkeyB64: safeString(a.pubkeyB64, 4096),
+        address: safeString(a.address, 256),
+      });
+    }
+  },
+
   // Legacy-ish surface for compatibility
-  wallet: { requestSend: sendToken },
   ipfs: { pinAdd: pinCid, cat: readCID, get: readCID, resolveUrl }
 };
 
@@ -184,4 +277,3 @@ try {
 } catch {
   // ignore
 }
-

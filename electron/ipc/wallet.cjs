@@ -208,6 +208,36 @@ function hashHex(data) {
   return crypto.createHash('sha256').update(Buffer.from(data)).digest('hex');
 }
 
+function prefixFromAddress(address) {
+  const a = String(address || '').trim();
+  const i = a.indexOf('1');
+  return i > 0 ? a.slice(0, i) : 'lmn';
+}
+
+function sha256Utf8(payload) {
+  return crypto.createHash('sha256').update(Buffer.from(String(payload ?? ''), 'utf8')).digest();
+}
+
+async function derivePrivkeyFromMnemonic(mnemonic) {
+  const { Bip39, EnglishMnemonic, Slip10, Slip10Curve, Slip10RawIndex } = require('@cosmjs/crypto');
+  const seed = await Bip39.mnemonicToSeed(new EnglishMnemonic(String(mnemonic || '').trim()));
+  const { privkey } = Slip10.derivePath(Slip10Curve.Secp256k1, seed, [
+    Slip10RawIndex.hardened(44),
+    Slip10RawIndex.hardened(118),
+    Slip10RawIndex.hardened(0),
+    Slip10RawIndex.normal(0),
+    Slip10RawIndex.normal(0),
+  ]);
+  return privkey;
+}
+
+function pubkeyToAddressBech32(pubkeyCompressed, prefix) {
+  const { sha256, ripemd160 } = require('@cosmjs/crypto');
+  const { Bech32 } = require('@cosmjs/encoding');
+  const hash = ripemd160(sha256(pubkeyCompressed));
+  return Bech32.encode(String(prefix || 'lmn'), Bech32.toWords(hash));
+}
+
 function leadingZeroBits(buf) {
   let bits = 0;
   for (let i = 0; i < buf.length; i++) {
@@ -1518,6 +1548,90 @@ function registerWalletIpc() {
       } finally {
         if (cleanupPqc) cleanupPqc();
       }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Sign arbitrary payload (ADR-036 style: secp256k1 over sha256(utf8(payload))).
+  ipcMain.handle('wallet:signArbitrary', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const payload = String(input && Object.prototype.hasOwnProperty.call(input, 'payload') ? input.payload : '');
+      const algo = String(input && input.algo ? input.algo : 'ADR-036');
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address) return { ok: false, error: 'missing_address' };
+      if (!payload) return { ok: false, error: 'missing_payload' };
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') return { ok: false, error: 'password_required' };
+        if (errMsg === 'invalid_password') return { ok: false, error: 'invalid_password' };
+        return { ok: false, error: errMsg };
+      }
+
+      const privkey = await derivePrivkeyFromMnemonic(mnemonic);
+      const { Secp256k1 } = require('@cosmjs/crypto');
+      const kp = await Secp256k1.makeKeypair(privkey);
+      const pubkeyUncompressed = kp.pubkey;
+      const pubkeyCompressed = Secp256k1.compressPubkey(pubkeyUncompressed);
+
+      const digest = sha256Utf8(payload);
+      const sigObj = await Secp256k1.createSignature(digest, privkey);
+      const signatureFixed = sigObj.toFixedLength();
+
+      const prefix = prefixFromAddress(address);
+      const derivedAddr = pubkeyToAddressBech32(pubkeyCompressed, prefix);
+
+      return {
+        ok: true,
+        algo,
+        signatureB64: Buffer.from(signatureFixed).toString('base64'),
+        pubkeyB64: Buffer.from(pubkeyCompressed).toString('base64'),
+        address: derivedAddr,
+      };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Verify arbitrary payload signature.
+  ipcMain.handle('wallet:verifyArbitrary', async (_evt, input) => {
+    try {
+      const algo = String(input && input.algo ? input.algo : 'ADR-036');
+      const payload = String(input && Object.prototype.hasOwnProperty.call(input, 'payload') ? input.payload : '');
+      const signatureB64 = String(input && input.signatureB64 ? input.signatureB64 : '');
+      const address = String(input && input.address ? input.address : '').trim();
+      const pubkeyB64 = input && input.pubkeyB64 ? String(input.pubkeyB64) : '';
+
+      if (!payload || !signatureB64 || !address) return { ok: false, error: 'missing_payload_signature_address' };
+      if (!pubkeyB64) return { ok: false, error: 'missing_pubkeyB64' };
+
+      const { Secp256k1, Secp256k1Signature } = require('@cosmjs/crypto');
+      const pubBytesRaw = Buffer.from(pubkeyB64, 'base64');
+      const pubUncompressed = pubBytesRaw.length === 33 ? Secp256k1.uncompressPubkey(pubBytesRaw) : pubBytesRaw;
+      const pubCompressed = pubBytesRaw.length === 33 ? pubBytesRaw : Secp256k1.compressPubkey(pubBytesRaw);
+
+      const signature = Buffer.from(signatureB64, 'base64');
+      const digest = sha256Utf8(payload);
+      const sigObj = Secp256k1Signature.fromFixedLength(signature);
+      const validSig = await Secp256k1.verifySignature(sigObj, digest, pubUncompressed);
+
+      const prefix = prefixFromAddress(address);
+      const derivedAddr = pubkeyToAddressBech32(pubCompressed, prefix);
+      const ok = !!validSig && derivedAddr === address;
+      return { ok, algo };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

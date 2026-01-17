@@ -12,6 +12,7 @@ const { registerWalletIpc } = require('./ipc/wallet.cjs');
 const { registerGatewayIpc } = require('./ipc/gateway.cjs');
 const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.cjs');
 const { registerSecurityIpc } = require('./ipc/security.cjs');
+const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
 
 registerChainIpc();
@@ -21,6 +22,7 @@ registerWalletIpc();
 registerGatewayIpc();
 registerAddressBookIpc();
 registerSecurityIpc();
+registerIpfsPubsubIpc();
 
 function safeString(v, maxLen = 2048) {
   const s = String(v ?? '').trim();
