@@ -6087,8 +6087,8 @@ async function reloadForActiveProfileChange() {
 }
 
 .list-actions-header {
-  width: 80px;
-  min-width: 80px;
+  width: 160px;
+  min-width: 160px;
 }
 
 .list-item {
@@ -6178,9 +6178,11 @@ async function reloadForActiveProfileChange() {
 .list-actions {
   display: flex;
   gap: 0.25rem;
-  width: 80px;
-  min-width: 80px;
+  width: 160px;
+  min-width: 160px;
   justify-content: flex-end;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
