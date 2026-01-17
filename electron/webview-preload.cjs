@@ -197,7 +197,8 @@ const lumen = {
     subscribe: async (topic, opts = {}, onMessage) => {
       ensureLumenSite();
       const encoding = (opts && opts.encoding) ? String(opts.encoding) : 'text';
-      const res = await ipcRenderer.invoke('ipfs:pubsub:subscribe', { topic: safeString(topic, 1024), encoding });
+      const autoConnect = !!(opts && opts.autoConnect);
+      const res = await ipcRenderer.invoke('ipfs:pubsub:subscribe', { topic: safeString(topic, 1024), encoding, autoConnect });
       if (!res || res.ok === false) throw new Error((res && res.error) ? String(res.error) : 'subscribe_failed');
       const subId = String(res.subId || '');
 

@@ -38,10 +38,18 @@ function normalizeTopic(s) {
   return String(s || '').trim().replace(/^\/+/, '');
 }
 
-// multibase base64url (u) and base64 (m)
-const b64url = (b) => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,'');
-const toMbB64Url = (s) => 'u' + b64url(Buffer.from(String(s || ''), 'utf8'));
-const toMbB64 = (s) => 'm' + Buffer.from(String(s || ''), 'utf8').toString('base64');
+// multibase base64url ('u') and base64 ('m')
+function b64url(buf) {
+  return Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function toMbB64Url(s) {
+  return 'u' + b64url(Buffer.from(String(s || ''), 'utf8'));
+}
+
+function toMbB64(s) {
+  return 'm' + Buffer.from(String(s || ''), 'utf8').toString('base64');
+}
 
 function decodeMultibaseToBuffer(s) {
   try {
@@ -80,50 +88,23 @@ async function post(url, body, headers, signal) {
 
 async function tryPublishBuffer(topicRaw, msgBuf) {
   const base = ipfsApiBase();
+  const boundary = '----lumenForm-' + crypto.randomBytes(10).toString('hex');
+  const body = buildMultipartDataBody(msgBuf, boundary);
+  const headers = { 'Content-Type': `multipart/form-data; boundary=${boundary}` };
+
   const topicMbU = toMbB64Url(topicRaw);
   const topicMbM = toMbB64(topicRaw);
-  const variants = [];
 
-  // multipart + arg=mb64url(topic)
-  {
-    const boundary = '----lumenForm-' + crypto.randomBytes(10).toString('hex');
-    const body = buildMultipartDataBody(msgBuf, boundary);
-    const u = new URL(`${base}/api/v0/pubsub/pub`);
-    u.searchParams.set('arg', topicMbU);
-    variants.push({ url: u.toString(), headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` }, body });
-  }
-  // multipart + arg=text & arg-enc=text
-  {
-    const boundary = '----lumenForm-' + crypto.randomBytes(10).toString('hex');
-    const body = buildMultipartDataBody(msgBuf, boundary);
-    const u = new URL(`${base}/api/v0/pubsub/pub`);
-    u.searchParams.set('arg', topicRaw);
-    u.searchParams.set('arg-enc', 'text');
-    variants.push({ url: u.toString(), headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` }, body });
-  }
-  // multipart + arg=mb64(topic)
-  {
-    const boundary = '----lumenForm-' + crypto.randomBytes(10).toString('hex');
-    const body = buildMultipartDataBody(msgBuf, boundary);
-    const u = new URL(`${base}/api/v0/pubsub/pub`);
-    u.searchParams.set('arg', topicMbM);
-    variants.push({ url: u.toString(), headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` }, body });
-  }
-  // query: topic&data (utf8)
-  {
-    const u = new URL(`${base}/api/v0/pubsub/pub`);
-    u.searchParams.set('topic', topicRaw);
-    u.searchParams.set('data', msgBuf.toString('utf8'));
-    variants.push({ url: u.toString() });
-  }
-  // legacy: 2x arg
-  {
-    const u = new URL(`${base}/api/v0/pubsub/pub`);
-    u.searchParams.set('arg', topicRaw);
-    u.searchParams.append('arg', msgBuf.toString('utf8'));
-    u.searchParams.set('arg-enc', 'text');
-    variants.push({ url: u.toString() });
-  }
+  const variants = [
+    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicMbU); return u.toString(); })(), body, headers },
+    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicMbM); return u.toString(); })(), body, headers },
+    // If caller passed an already-multibase topic, try it as-is too.
+    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicRaw); return u.toString(); })(), body, headers },
+    // Legacy fallbacks (older kubo builds)
+    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicRaw); u.searchParams.set('arg-enc', 'text'); return u.toString(); })(), body, headers },
+    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('topic', topicRaw); u.searchParams.set('data', msgBuf.toString('utf8')); return u.toString(); })() },
+    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.append('arg', topicRaw); u.searchParams.append('arg', msgBuf.toString('utf8')); u.searchParams.set('arg-enc', 'text'); return u.toString(); })() },
+  ];
 
   for (const v of variants) {
     try {
@@ -137,36 +118,21 @@ async function tryPublishBuffer(topicRaw, msgBuf) {
 
 async function openSubscribeStream(topic, signal) {
   const base = ipfsApiBase();
+  const makeUrl = (arg, withArgEnc) => {
+    const u = new URL(`${base}/api/v0/pubsub/sub`);
+    u.searchParams.set('arg', arg);
+    if (withArgEnc) u.searchParams.set('arg-enc', 'text');
+    u.searchParams.set('discover', 'true');
+    return u.toString();
+  };
   const mbU = toMbB64Url(topic);
   const mbM = toMbB64(topic);
   const variants = [
-    (() => {
-      const u = new URL(`${base}/api/v0/pubsub/sub`);
-      u.searchParams.set('arg', mbU);
-      u.searchParams.set('discover', 'true');
-      return u.toString();
-    })(),
-    (() => {
-      const u = new URL(`${base}/api/v0/pubsub/sub`);
-      u.searchParams.set('arg', mbM);
-      u.searchParams.set('discover', 'true');
-      return u.toString();
-    })(),
-    (() => {
-      const u = new URL(`${base}/api/v0/pubsub/sub`);
-      u.searchParams.set('arg', topic);
-      u.searchParams.set('arg-enc', 'text');
-      u.searchParams.set('discover', 'true');
-      return u.toString();
-    })(),
-    (() => {
-      const u = new URL(`${base}/api/v0/pubsub/sub`);
-      u.searchParams.set('arg', topic);
-      u.searchParams.set('discover', 'true');
-      return u.toString();
-    })(),
+    makeUrl(mbU, false),
+    makeUrl(mbM, false),
+    makeUrl(topic, false),
+    makeUrl(topic, true),
   ];
-
   for (const url of variants) {
     try {
       const res = await fetch(url, { method: 'POST', signal });
@@ -180,6 +146,294 @@ async function openSubscribeStream(topic, signal) {
     } catch {}
   }
   return { reader: null };
+}
+
+/* ---------------- Best-effort rendezvous for small-topic PubSub ---------------- */
+const DISCOVERY_LIMITS = {
+  tickMs: 5000,
+  provideEveryMs: 45_000,
+  findprovsTimeoutMs: 4000,
+  connectTimeoutMs: 2500,
+  numProviders: 20,
+  maxNewPeersPerTick: 6,
+  maxAddrsPerPeer: 4,
+};
+
+const SELF_ID_CACHE = { id: '', at: 0 };
+async function getSelfPeerId() {
+  const now = Date.now();
+  if (SELF_ID_CACHE.id && now - SELF_ID_CACHE.at < 60_000) return SELF_ID_CACHE.id;
+  try {
+    const u = new URL(`${ipfsApiBase()}/api/v0/id`);
+    u.searchParams.set('enc', 'json');
+    const r = await post(u.toString());
+    if (!r.ok) return '';
+    const j = await r.json().catch(() => ({}));
+    const id = String(j?.ID || '').trim();
+    if (!id) return '';
+    SELF_ID_CACHE.id = id;
+    SELF_ID_CACHE.at = now;
+    return id;
+  } catch {
+    return '';
+  }
+}
+
+function buildMultipartFileBody(buf, boundary) {
+  const pre = Buffer.from(
+    `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="file"; filename="file"\r\n` +
+      `Content-Type: application/octet-stream\r\n\r\n`,
+    'utf8',
+  );
+  const post = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
+  return Buffer.concat([pre, buf, post]);
+}
+
+const RENDEZVOUS_CIDS = new Map(); // topic -> cid
+async function ensureRendezvousCidForTopic(topic) {
+  const key = String(topic || '');
+  if (!key) return '';
+  if (RENDEZVOUS_CIDS.has(key)) return RENDEZVOUS_CIDS.get(key);
+  try {
+    const payload = Buffer.from(`lumen.pubsub.rendezvous|v1|${key}`, 'utf8');
+    const boundary = '----lumenForm-' + crypto.randomBytes(10).toString('hex');
+    const body = buildMultipartFileBody(payload, boundary);
+
+    const u = new URL(`${ipfsApiBase()}/api/v0/add`);
+    u.searchParams.set('pin', 'true');
+    u.searchParams.set('cid-version', '1');
+    u.searchParams.set('raw-leaves', 'true');
+    u.searchParams.set('wrap-with-directory', 'false');
+    u.searchParams.set('hash', 'sha2-256');
+
+    const r = await post(u.toString(), body, { 'Content-Type': `multipart/form-data; boundary=${boundary}` });
+    const txt = await r.text().catch(() => '');
+    if (!r.ok) return '';
+    const line = txt.trim().split(/\r?\n/).filter(Boolean).pop() || '';
+    const j = line ? JSON.parse(line) : {};
+    const cid = String(j?.Hash || '').trim();
+    if (!cid) return '';
+    RENDEZVOUS_CIDS.set(key, cid);
+    return cid;
+  } catch {
+    return '';
+  }
+}
+
+async function routingProvideBestEffort(cid) {
+  let t = null;
+  try {
+    const u = new URL(`${ipfsApiBase()}/api/v0/routing/provide`);
+    u.searchParams.set('arg', String(cid || '').trim());
+    const ac = new AbortController();
+    t = setTimeout(() => ac.abort(), 12_000);
+    const r = await post(u.toString(), undefined, undefined, ac.signal);
+    await r.text().catch(() => '');
+  } catch {}
+  try { if (t) clearTimeout(t); } catch {}
+}
+
+async function routingFindprovs(cid, numProviders, timeoutMs) {
+  const out = new Map(); // peerId -> Set<addr>
+  let t = null;
+  try {
+    const u = new URL(`${ipfsApiBase()}/api/v0/routing/findprovs`);
+    u.searchParams.set('arg', String(cid || '').trim());
+    u.searchParams.set('num-providers', String(numProviders || 20));
+    const ac = new AbortController();
+    t = setTimeout(() => ac.abort(), Math.max(500, timeoutMs | 0));
+    const res = await fetch(u.toString(), { method: 'POST', signal: ac.signal });
+    if (!res.ok) {
+      await res.text().catch(() => '');
+      return new Map();
+    }
+    const reader = res.body && res.body.getReader ? res.body.getReader() : null;
+    if (!reader) {
+      return new Map();
+    }
+    const decoder = new TextDecoder();
+    let buf = '';
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!value || !value.byteLength) continue;
+        buf += decoder.decode(value, { stream: true });
+        let idx;
+        while ((idx = buf.indexOf('\n')) >= 0) {
+          const line = buf.slice(0, idx).trim();
+          buf = buf.slice(idx + 1);
+          if (!line) continue;
+          try {
+            const j = JSON.parse(line);
+            const rs = Array.isArray(j?.Responses) ? j.Responses : [];
+            for (const r of rs) {
+              const peerId = String(r?.ID || '').trim();
+              if (!peerId) continue;
+              const addrs = Array.isArray(r?.Addrs) ? r.Addrs : [];
+              if (!out.has(peerId)) out.set(peerId, new Set());
+              const set = out.get(peerId);
+              for (const a of addrs) {
+                const s = String(a || '').trim();
+                if (s) set.add(s);
+              }
+            }
+          } catch {}
+        }
+      }
+    } catch {}
+    try { reader.cancel(); } catch {}
+  } catch {
+    // ignore
+  }
+  try { if (t) clearTimeout(t); } catch {}
+  const final = new Map();
+  for (const [peerId, set] of out.entries()) {
+    final.set(peerId, Array.from(set));
+  }
+  return final;
+}
+
+function isLoopbackMultiaddr(ma) {
+  const s = String(ma || '');
+  return s.includes('/ip4/127.') || s.includes('/ip6/::1');
+}
+
+function withPeerId(ma, peerId) {
+  const s = String(ma || '').trim().replace(/\/+$/, '');
+  if (!s) return '';
+  const m = s.match(/\/p2p\/([^/]+)$/);
+  if (m) return m[1] === peerId ? s : '';
+  return `${s}/p2p/${peerId}`;
+}
+
+function scoreAddr(ma) {
+  const s = String(ma || '');
+  let score = 1000;
+  if (s.includes('/p2p-circuit')) score -= 500;
+  if (s.startsWith('/dns')) score -= 200;
+  if (s.includes('/quic-v1')) score -= 30;
+  if (s.includes('/webrtc-direct')) score -= 10;
+  if (s.includes('/tcp/')) score -= 5;
+  if (isLoopbackMultiaddr(s)) score += 10_000;
+  return score;
+}
+
+function pickBestAddrs(addrs, peerId, max) {
+  const uniq = Array.from(new Set((Array.isArray(addrs) ? addrs : []).map((a) => String(a || '').trim()).filter(Boolean)));
+  const enriched = [];
+  for (const a of uniq) {
+    if (isLoopbackMultiaddr(a)) continue;
+    const withPeer = withPeerId(a, peerId);
+    if (!withPeer) continue;
+    enriched.push({ a: withPeer, s: scoreAddr(withPeer) });
+  }
+  enriched.sort((x, y) => x.s - y.s);
+  return enriched.slice(0, Math.max(1, max | 0)).map((x) => x.a);
+}
+
+async function swarmConnectAddr(ma, timeoutMs) {
+  const addr = String(ma || '').trim();
+  if (!addr) return false;
+  let t = null;
+  try {
+    const u = new URL(`${ipfsApiBase()}/api/v0/swarm/connect`);
+    u.searchParams.set('arg', addr);
+    const ac = new AbortController();
+    t = setTimeout(() => ac.abort(), Math.max(500, timeoutMs | 0));
+    const r = await post(u.toString(), undefined, undefined, ac.signal);
+    await r.text().catch(() => '');
+    return !!r.ok;
+  } catch {
+    return false;
+  } finally {
+    try { if (t) clearTimeout(t); } catch {}
+  }
+}
+
+const TOPIC_DISCOVERY = new Map(); // topic -> { refs:number, stop:()=>void }
+function retainTopicDiscovery(topic) {
+  const key = String(topic || '');
+  if (!key) return () => {};
+  const existing = TOPIC_DISCOVERY.get(key);
+  if (existing) {
+    existing.refs += 1;
+    return () => releaseTopicDiscovery(key);
+  }
+
+  let stopped = false;
+  let inFlight = false;
+  let timer = null;
+  let cid = '';
+  let lastProvideAt = 0;
+  const attempts = new Map(); // peerId -> { n, at }
+
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    try { if (timer) clearInterval(timer); } catch {}
+  };
+
+  const tick = async () => {
+    if (stopped || inFlight) return;
+    inFlight = true;
+    try {
+      if (!cid) cid = await ensureRendezvousCidForTopic(key);
+      if (!cid) return;
+      const selfId = await getSelfPeerId();
+
+      const now = Date.now();
+      if (!lastProvideAt || now - lastProvideAt > DISCOVERY_LIMITS.provideEveryMs) {
+        lastProvideAt = now;
+        routingProvideBestEffort(cid);
+      }
+
+      const found = await routingFindprovs(cid, DISCOVERY_LIMITS.numProviders, DISCOVERY_LIMITS.findprovsTimeoutMs);
+      let peerBudget = DISCOVERY_LIMITS.maxNewPeersPerTick;
+      for (const [peerId, addrs] of found.entries()) {
+        if (peerBudget <= 0) break;
+        if (!peerId) continue;
+        if (selfId && peerId === selfId) continue;
+
+        const prev = attempts.get(peerId) || { n: 0, at: 0 };
+        if (prev.n >= 6 && now - prev.at < 60_000) continue;
+        if (now - prev.at < 10_000) continue;
+        attempts.set(peerId, { n: prev.n + 1, at: now });
+
+        const candidates = pickBestAddrs(addrs, peerId, DISCOVERY_LIMITS.maxAddrsPerPeer);
+        if (!candidates.length) continue;
+
+        let okAny = false;
+        for (const addr of candidates) {
+          // Swarm connect can block; keep the budget tight.
+          const ok = await swarmConnectAddr(addr, DISCOVERY_LIMITS.connectTimeoutMs);
+          if (ok) okAny = true;
+        }
+        if (okAny) peerBudget -= 1;
+      }
+    } finally {
+      inFlight = false;
+    }
+  };
+
+  TOPIC_DISCOVERY.set(key, { refs: 1, stop });
+  const tickSafe = () => { tick().catch(() => {}); };
+  tickSafe();
+  timer = setInterval(tickSafe, DISCOVERY_LIMITS.tickMs);
+
+  return () => releaseTopicDiscovery(key);
+}
+
+function releaseTopicDiscovery(topic) {
+  const key = String(topic || '');
+  if (!key) return;
+  const rec = TOPIC_DISCOVERY.get(key);
+  if (!rec) return;
+  rec.refs -= 1;
+  if (rec.refs > 0) return;
+  try { rec.stop(); } catch {}
+  TOPIC_DISCOVERY.delete(key);
 }
 
 function addWcSub(wcId, subId) {
@@ -247,6 +501,7 @@ function registerIpfsPubsubIpc() {
     if (curCount >= LIMITS.maxSubsPerWebContents) return { ok: false, error: 'too_many_subscriptions' };
 
     const encoding = String((args && args.encoding) || 'text');
+    const autoConnect = !!(args && args.autoConnect);
     const subId = `sub_${Date.now().toString(36)}_${crypto.randomBytes(6).toString('hex')}`;
 
     const ac = new AbortController();
@@ -254,9 +509,11 @@ function registerIpfsPubsubIpc() {
     if (!reader) return { ok: false, error: 'subscribe_failed' };
 
     let stopped = false;
+    const releaseDiscovery = autoConnect ? retainTopicDiscovery(topic) : null;
     const stop = () => {
       if (stopped) return;
       stopped = true;
+      try { if (releaseDiscovery) releaseDiscovery(); } catch {}
       try { reader.cancel(); } catch {}
       try { ac.abort(); } catch {}
     };
@@ -367,4 +624,3 @@ function registerIpfsPubsubIpc() {
 }
 
 module.exports = { registerIpfsPubsubIpc };
-

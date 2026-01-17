@@ -64,6 +64,11 @@ function applyIpfsAddressesConfig(bin, repoPath) {
     
     // Disable mDNS discovery to avoid warning spam on Windows
     setCfgJson('Discovery.MDNS.Enabled', 'false');
+
+    // Improve connectivity for real-time PubSub apps over the Internet.
+    setCfgJson('Swarm.RelayClient.Enabled', 'true');
+    setCfgJson('Swarm.EnableAutoRelay', 'true');
+    setCfgJson('Swarm.EnableHolePunching', 'true');
   } catch (e) {
     console.warn('[electron][ipfs] applyIpfsAddressesConfig failed', e);
   }
@@ -133,7 +138,7 @@ function startIpfsDaemon() {
   try {
     ipfsProcess = spawn(
       bin,
-      [ 'daemon', '--migrate=true', '--enable-gc', '--routing', 'dhtclient', '--enable-pubsub-experiment' ],
+      [ 'daemon', '--migrate=true', '--enable-gc', '--routing', 'dht', '--enable-pubsub-experiment' ],
       {
         stdio: ['ignore', 'pipe', 'pipe'],
         detached: false,

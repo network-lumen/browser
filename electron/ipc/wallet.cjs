@@ -233,9 +233,12 @@ async function derivePrivkeyFromMnemonic(mnemonic) {
 
 function pubkeyToAddressBech32(pubkeyCompressed, prefix) {
   const { sha256, ripemd160 } = require('@cosmjs/crypto');
-  const { Bech32 } = require('@cosmjs/encoding');
-  const hash = ripemd160(sha256(pubkeyCompressed));
-  return Bech32.encode(String(prefix || 'lmn'), Bech32.toWords(hash));
+  const bech32 = require('bech32');
+  if (!bech32 || typeof bech32.encode !== 'function' || typeof bech32.toWords !== 'function') {
+    throw new Error('bech32_unavailable');
+  }
+  const hash = Buffer.from(ripemd160(sha256(pubkeyCompressed)));
+  return bech32.encode(String(prefix || 'lmn'), bech32.toWords(hash));
 }
 
 function leadingZeroBits(buf) {
