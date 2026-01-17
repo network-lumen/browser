@@ -1975,6 +1975,7 @@ let urlBarPollTimer: number | null = null;
 let urlBarLastValue = "";
 let urlBarLastUserInputAt = 0;
 let tabUrlChangedHandler: ((ev: any) => void) | null = null;
+let tabHistoryStepHandler: ((ev: any) => void) | null = null;
 
 function readUrlBarUrl(): string {
   try {
@@ -2065,6 +2066,29 @@ onMounted(async () => {
     );
   } catch {}
 
+  try {
+    tabHistoryStepHandler = (ev: any) => {
+      const detail = ev?.detail || {};
+      const tabId = String(detail?.tabId || "");
+      const mine =
+        typeof currentTabId === "object" &&
+        currentTabId &&
+        "value" in currentTabId
+          ? String((currentTabId as any).value || "")
+          : String(currentTabId || "");
+      if (mine && tabId && mine !== tabId) return;
+      // History step changes URL without necessarily triggering reactive injection in this component.
+      // Wait a tick, then read from the navbar field (which visibly updates) and sync.
+      window.setTimeout(() => {
+        void syncBrowseFromUrl(readUrlBarUrl() || readInjectedTabUrl());
+      }, 0);
+    };
+    window.addEventListener(
+      "lumen:tab-history-step",
+      tabHistoryStepHandler as any,
+    );
+  } catch {}
+
   startUrlBarSync();
   document.addEventListener("dragover", handleDragOver);
   document.addEventListener("dragleave", handleDragLeave);
@@ -2091,6 +2115,14 @@ onUnmounted(() => {
       );
   } catch {}
   tabUrlChangedHandler = null;
+  try {
+    if (tabHistoryStepHandler)
+      window.removeEventListener(
+        "lumen:tab-history-step",
+        tabHistoryStepHandler as any,
+      );
+  } catch {}
+  tabHistoryStepHandler = null;
   document.removeEventListener("dragover", handleDragOver);
   document.removeEventListener("dragleave", handleDragLeave);
   document.removeEventListener("drop", handleDrop);
@@ -3352,15 +3384,18 @@ function parseDriveBrowseFromUrl(
   const s = String(rawUrl || "").trim();
   if (!s) return null;
   if (!/^lumen:\/\//i.test(s)) return null;
-  try {
-    const u = new URL(s);
-    if (String(u.hostname || "").toLowerCase() !== "drive") return null;
-    const root = String(u.searchParams.get("root") || "").trim();
-    const path = normalizeBrowsePath(u.searchParams.get("path") || "");
-    return { root, path };
-  } catch {
-    return null;
-  }
+
+  // Do not rely on `new URL()` for custom schemes; in some environments it fails.
+  const withoutScheme = s.replace(/^lumen:\/\//i, "");
+  const host = (withoutScheme.split(/[/?#]/, 1)[0] || "").toLowerCase();
+  if (host !== "drive") return null;
+
+  const query = withoutScheme.includes("?") ? withoutScheme.split("?", 2)[1] : "";
+  const qs = query ? query.split("#", 2)[0] : "";
+  const params = new URLSearchParams(qs);
+  const root = String(params.get("root") || "").trim();
+  const path = normalizeBrowsePath(params.get("path") || "");
+  return { root, path };
 }
 
 function resetBrowseState() {
@@ -3394,7 +3429,13 @@ async function applyBrowseLocation(rootCid: string, relPath: string) {
   renameDraft.value = "";
   currentPage.value = 1;
 
-  if (changed) await loadBrowseEntries();
+  if (changed) {
+    // Immediately show a "loading" state so the UI reacts as soon as the URL changes.
+    browseEntries.value = [];
+    browseError.value = "";
+    browseLoading.value = true;
+    await loadBrowseEntries();
+  }
 }
 
 async function navigateBrowse(

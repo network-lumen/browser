@@ -389,11 +389,24 @@ watch(
     urlField.value = v;
 
     try {
-      window.dispatchEvent(
-        new CustomEvent('lumen:tab-url-changed', {
-          detail: { url: v, tabId: props.tabActive },
-        })
-      );
+      const detail = { url: v, tabId: props.tabActive };
+      (window as any).__lumenLastTabUrlChanged = detail;
+      try {
+        window.dispatchEvent(new CustomEvent('lumen:tab-url-changed', { detail }));
+      } catch {
+        const ev: any = new Event('lumen:tab-url-changed');
+        ev.detail = detail;
+        window.dispatchEvent(ev);
+      }
+      try {
+        document.dispatchEvent(new CustomEvent('lumen:tab-url-changed', { detail }));
+      } catch {}
+      try {
+        if (localStorage.getItem('drive_debug') === '1') {
+          // eslint-disable-next-line no-console
+          console.debug('[NavBar] tab url changed', detail);
+        }
+      } catch {}
     } catch {
       // ignore
     }
@@ -404,11 +417,29 @@ watch(
 function previous() {
   if (!canGoBack.value) return;
   emit('history-step', { delta: -1 });
+  try {
+    window.dispatchEvent(
+      new CustomEvent('lumen:tab-history-step', {
+        detail: { delta: -1, tabId: props.tabActive },
+      })
+    );
+  } catch {
+    // ignore
+  }
 }
 
 function next() {
   if (!canGoForward.value) return;
   emit('history-step', { delta: 1 });
+  try {
+    window.dispatchEvent(
+      new CustomEvent('lumen:tab-history-step', {
+        detail: { delta: 1, tabId: props.tabActive },
+      })
+    );
+  } catch {
+    // ignore
+  }
 }
 
 function refresh() {
