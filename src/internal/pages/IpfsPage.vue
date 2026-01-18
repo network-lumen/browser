@@ -729,7 +729,7 @@ const videoSrc = computed(() => {
   return isHlsManifest.value ? undefined : contentUrl.value;
 });
 
-async function ensureHlsStopped() {
+async function ensureHlsStopped(opts: { clearVideoSrc?: boolean } = {}) {
   try {
     if (hlsInstance && typeof hlsInstance.destroy === "function") hlsInstance.destroy();
   } catch {
@@ -737,10 +737,33 @@ async function ensureHlsStopped() {
   }
   hlsInstance = null;
   hlsError.value = "";
+  const clearVideoSrc = !!opts.clearVideoSrc;
+  const video = videoEl.value;
+  if (!video) return;
+
+  // Never clear the src for normal videos (e.g. mp4) because Vue controls it via `:src`.
+  // Only clear when explicitly requested or when hls.js previously attached a blob URL.
+  const current = String((video as any).currentSrc || video.src || "");
+  const isBlob =
+    current.startsWith("blob:") ||
+    current.startsWith("mediasource:") ||
+    current.startsWith("ms-stream:");
+  if (!clearVideoSrc && !isBlob) return;
+
   try {
-    if (videoEl.value) videoEl.value.src = "";
+    video.pause?.();
   } catch {
     // ignore
+  }
+  try {
+    video.removeAttribute("src");
+    video.load?.();
+  } catch {
+    try {
+      (video as any).src = "";
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -754,7 +777,7 @@ async function ensureHlsPlaying(url: string) {
     if (typeof video.canPlayType === "function") {
       const can = video.canPlayType("application/vnd.apple.mpegurl");
       if (can === "probably" || can === "maybe") {
-        await ensureHlsStopped();
+        await ensureHlsStopped({ clearVideoSrc: true });
         video.src = url;
         void video.play?.().catch?.(() => {});
         return;
@@ -775,7 +798,7 @@ async function ensureHlsPlaying(url: string) {
   const sanitizeHlsUrl = (u: string): string =>
     String(u || "").replace(/%(?![0-9A-Fa-f]{2})/g, "%25");
 
-  await ensureHlsStopped();
+  await ensureHlsStopped({ clearVideoSrc: true });
   hlsInstance = new Hls({
     lowLatencyMode: true,
     xhrSetup: (xhr: XMLHttpRequest, rawUrl: string) => {
