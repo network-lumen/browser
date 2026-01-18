@@ -7,6 +7,8 @@ const { Readable } = require('node:stream');
 const crypto = require('node:crypto');
 const { getSetting } = require('../settings.cjs');
 
+const ACTIVE_HLS_CONVERSIONS = new Map(); // wcId -> { abort: () => void }
+
 function ipfsApiBase() {
   return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
 }
@@ -68,10 +70,11 @@ function spawnCapture(bin, args, opts) {
   });
 }
 
-async function kuboCatToFile(arg, outPath) {
+async function kuboCatToFile(arg, outPath, opts = {}) {
+  const signal = opts && opts.signal ? opts.signal : undefined;
   const u = new URL(`${ipfsApiBase()}/api/v0/cat`);
   u.searchParams.set('arg', String(arg || '').trim());
-  const res = await fetch(u.toString(), { method: 'POST' });
+  const res = await fetch(u.toString(), { method: 'POST', signal });
   if (!res.ok) {
     const txt = await res.text().catch(() => '');
     throw new Error(`kubo_cat_http_${res.status}${txt ? ':' + txt.slice(0, 180) : ''}`);
@@ -82,6 +85,37 @@ async function kuboCatToFile(arg, outPath) {
   const st = fs.statSync(outPath);
   if (!st.size) throw new Error('kubo_cat_empty');
   return st.size;
+}
+
+async function getDurationSec(ffprobeBin, inPath) {
+  try {
+    const r = await spawnCapture(ffprobeBin, [
+      '-v', 'error',
+      '-show_entries', 'format=duration',
+      '-of', 'default=nw=1:nk=1',
+      inPath,
+    ]);
+    const s = String(r.stdout || '').trim();
+    const v = Number(s);
+    if (Number.isFinite(v) && v > 0) return v;
+  } catch {
+    // ignore
+  }
+
+  try {
+    const r = await spawnCapture(ffprobeBin, [
+      '-v', 'error',
+      '-select_streams', 'v:0',
+      '-show_entries', 'stream=duration',
+      '-of', 'default=nw=1:nk=1',
+      inPath,
+    ]);
+    const s = String(r.stdout || '').trim();
+    const v = Number(s);
+    return Number.isFinite(v) && v > 0 ? v : null;
+  } catch {
+    return null;
+  }
 }
 
 async function hasAudio(ffprobeBin, inPath) {
@@ -156,6 +190,34 @@ async function extractCleanAudio(ffmpegBin, inPath, outM4a, audioBitrate = '128k
   }
 }
 
+function parseFfmpegOutTimeMs(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return null;
+  const m = s.match(/^(\d+):(\d+):(\d+)(?:\.(\d+))?$/);
+  if (!m) return null;
+  const hh = Number(m[1] || 0);
+  const mm = Number(m[2] || 0);
+  const ss = Number(m[3] || 0);
+  const frac = String(m[4] || '');
+  if (!Number.isFinite(hh) || !Number.isFinite(mm) || !Number.isFinite(ss)) return null;
+  const msPart = frac ? Number(frac.padEnd(3, '0').slice(0, 3)) : 0;
+  if (!Number.isFinite(msPart)) return null;
+  return (hh * 3600 + mm * 60 + ss) * 1000 + msPart;
+}
+
+function killProcessTree(child) {
+  if (!child || typeof child.kill !== 'function') return;
+  try {
+    if (child.killed) return;
+    child.kill('SIGTERM');
+  } catch {}
+  setTimeout(() => {
+    try {
+      if (!child.killed) child.kill('SIGKILL');
+    } catch {}
+  }, 1500);
+}
+
 function ensureDirs(dir, n) {
   for (let i = 0; i < n; i++) {
     fs.mkdirSync(path.join(dir, `v${i}`), { recursive: true });
@@ -179,22 +241,45 @@ function walkSizeBytes(rootDir) {
   return total;
 }
 
-async function ipfsAddDirFromDisk(dirPath) {
+async function ipfsAddDirFromDisk(dirPath, opts = {}) {
+  const signal = opts && opts.signal ? opts.signal : undefined;
+  const onSpawn = typeof opts.onSpawn === 'function' ? opts.onSpawn : null;
   const kubo = require('kubo');
   const ipfsBinRaw = typeof kubo?.path === 'function' ? kubo.path() : kubo?.path;
   const ipfsBin = unwrapAsarPath(String(ipfsBinRaw || 'ipfs'));
   const repoPath = userIpfsRepoPath();
   const env = { ...process.env, IPFS_PATH: repoPath };
 
-  const r = await spawnCapture(ipfsBin, [
-    'add',
-    '-r',
-    '-Q',
-    '--pin=true',
-    '--cid-version=1',
-    '--raw-leaves=true',
-    dirPath,
-  ], { env });
+  const r = await new Promise((resolve, reject) => {
+    const child = spawn(ipfsBin, [
+      'add',
+      '-r',
+      '-Q',
+      '--pin=true',
+      '--cid-version=1',
+      '--raw-leaves=true',
+      dirPath,
+    ], { env, stdio: ['ignore', 'pipe', 'pipe'] });
+    onSpawn?.(child);
+
+    let out = '';
+    let err = '';
+    child.stdout?.setEncoding('utf8');
+    child.stderr?.setEncoding('utf8');
+    child.stdout?.on('data', (d) => { out += String(d || ''); });
+    child.stderr?.on('data', (d) => { err += String(d || ''); });
+    child.on('error', reject);
+    child.on('close', (code) => {
+      resolve({ code: Number(code ?? -1), stdout: out, stderr: err });
+    });
+
+    if (signal) {
+      if (signal.aborted) killProcessTree(child);
+      signal.addEventListener('abort', () => killProcessTree(child), { once: true });
+    }
+  });
+
+  if (signal?.aborted) throw new Error('cancelled');
 
   if (r.code !== 0) {
     const msg = (r.stderr || r.stdout || '').trim();
@@ -205,11 +290,16 @@ async function ipfsAddDirFromDisk(dirPath) {
   return cid;
 }
 
-async function convertToHlsLadder({ cidOrPath, name, audioBitrate }) {
+async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onProgress, onSpawn }) {
   const ffmpegBin = resolveFfmpegBin();
   const ffprobeBin = resolveFfprobeBin();
   if (!ffmpegBin) throw new Error('ffmpeg_unavailable');
   if (!ffprobeBin) throw new Error('ffprobe_unavailable');
+
+  const emit = (payload) => {
+    if (typeof onProgress !== 'function') return;
+    try { onProgress(payload); } catch {}
+  };
 
   const ladder = [
     { h: 720, vbit: 3000_000, maxrate: 3210_000, buf: 4_500_000 },
@@ -227,6 +317,7 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate }) {
   };
 
   try {
+    if (signal?.aborted) throw new Error('cancelled');
     const base = safeBaseName(name);
     const ext = extLower(base);
     const srcExt = ext ? `.${ext}` : '.mp4';
@@ -235,10 +326,14 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate }) {
     fs.mkdirSync(outDir, { recursive: true });
     ensureDirs(outDir, ladder.length);
 
-    await kuboCatToFile(String(cidOrPath || '').trim(), srcPath);
+    emit({ stage: 'downloading', percent: 0 });
+    await kuboCatToFile(String(cidOrPath || '').trim(), srcPath, { signal });
+    if (signal?.aborted) throw new Error('cancelled');
 
     const fps = await getFps(ffprobeBin, srcPath);
     const gop = Math.max(1, Math.round(gopSec * fps));
+    const durationSec = await getDurationSec(ffprobeBin, srcPath);
+    const durationMs = durationSec ? Math.round(durationSec * 1000) : null;
 
     let audioPresent = await hasAudio(ffprobeBin, srcPath);
     let cleanAudioPath = null;
@@ -251,6 +346,10 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate }) {
 
     const cmd = [
       '-y',
+      '-hide_banner',
+      '-loglevel', 'error',
+      '-progress', 'pipe:1',
+      '-nostats',
       '-err_detect', 'ignore_err',
       '-fflags', '+discardcorrupt',
       '-analyzeduration', '200M',
@@ -299,14 +398,88 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate }) {
       'v%v/stream.m3u8',
     );
 
-    const r = await spawnCapture(ffmpegBin, cmd, { cwd: outDir });
+    emit({ stage: 'transcoding', percent: 0 });
+    const r = await new Promise((resolve, reject) => {
+      const child = spawn(ffmpegBin, cmd, { cwd: outDir, stdio: ['ignore', 'pipe', 'pipe'] });
+      onSpawn?.(child);
+
+      let errTail = '';
+      const MAX_ERR = 1400;
+      child.stderr?.setEncoding('utf8');
+      child.stderr?.on('data', (d) => {
+        errTail = (errTail + String(d || '')).slice(-MAX_ERR);
+      });
+
+      const prog = { outTimeMs: 0, frame: 0, fps: 0, speed: '', lastEmitAt: 0, lastPct: -1 };
+      let buf = '';
+      child.stdout?.setEncoding('utf8');
+      child.stdout?.on('data', (d) => {
+        buf += String(d || '');
+        const lines = buf.split(/\r?\n/);
+        buf = lines.pop() || '';
+        for (const line of lines) {
+          const idx = line.indexOf('=');
+          if (idx <= 0) continue;
+          const k = line.slice(0, idx).trim();
+          const v = line.slice(idx + 1).trim();
+          if (k === 'out_time') {
+            const ms = parseFfmpegOutTimeMs(v);
+            if (ms != null) prog.outTimeMs = ms;
+          } else if (k === 'out_time_ms') {
+            const n = Number(v);
+            if (Number.isFinite(n)) {
+              // ffmpeg reports microseconds in some builds; guard with duration when available.
+              const ms = durationMs && n > durationMs * 20 ? Math.round(n / 1000) : Math.round(n);
+              if (Number.isFinite(ms)) prog.outTimeMs = ms;
+            }
+          } else if (k === 'frame') {
+            const n = Number(v);
+            if (Number.isFinite(n)) prog.frame = n;
+          } else if (k === 'fps') {
+            const n = Number(v);
+            if (Number.isFinite(n)) prog.fps = n;
+          } else if (k === 'speed') {
+            prog.speed = v;
+          } else if (k === 'progress') {
+            const now = Date.now();
+            if (durationMs && durationMs > 0) {
+              const rawPct = Math.max(0, Math.min(100, Math.round((prog.outTimeMs / durationMs) * 100)));
+              const shouldEmit = (now - prog.lastEmitAt > 250 && rawPct !== prog.lastPct) || v === 'end';
+              if (shouldEmit) {
+                prog.lastEmitAt = now;
+                prog.lastPct = rawPct;
+                emit({
+                  stage: 'transcoding',
+                  percent: rawPct,
+                  frame: prog.frame,
+                  fps: prog.fps,
+                  speed: prog.speed,
+                });
+              }
+            }
+          }
+        }
+      });
+
+      child.on('error', reject);
+      child.on('close', (code) => resolve({ code: Number(code ?? -1), stderr: errTail }));
+
+      if (signal) {
+        if (signal.aborted) killProcessTree(child);
+        signal.addEventListener('abort', () => killProcessTree(child), { once: true });
+      }
+    });
     if (r.code !== 0) {
-      const tail = String(r.stderr || r.stdout || '').trim().slice(-1400);
+      if (signal?.aborted) throw new Error('cancelled');
+      const tail = String(r.stderr || '').trim().slice(-1400);
       throw new Error(tail || 'ffmpeg_failed');
     }
 
+    if (signal?.aborted) throw new Error('cancelled');
     const sizeBytes = walkSizeBytes(outDir);
-    const cid = await ipfsAddDirFromDisk(outDir);
+    emit({ stage: 'adding', percent: 0 });
+    const cid = await ipfsAddDirFromDisk(outDir, { signal, onSpawn });
+    if (signal?.aborted) throw new Error('cancelled');
 
     return { cid, sizeBytes, hasAudio: !!cleanAudioPath };
   } finally {
@@ -315,8 +488,25 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate }) {
 }
 
 function registerHlsIpc() {
+  ipcMain.handle('drive:cancelHlsConvert', async (evt) => {
+    const wcId = String(evt?.sender?.id || '');
+    const job = wcId ? ACTIVE_HLS_CONVERSIONS.get(wcId) : null;
+    if (!job) return { ok: false, error: 'no_active_job' };
+    try {
+      job.abort?.();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: String(e?.message || e || 'cancel_failed') };
+    }
+  });
+
   ipcMain.handle('drive:convertToHls', async (_evt, args) => {
     try {
+      const wcId = String(_evt?.sender?.id || '');
+      if (wcId && ACTIVE_HLS_CONVERSIONS.has(wcId)) {
+        return { ok: false, error: 'convert_in_progress' };
+      }
+
       const cidOrPath = String(args?.cidOrPath || '').trim();
       const name = String(args?.name || '').trim();
       if (!cidOrPath) return { ok: false, error: 'missing_cid' };
@@ -326,14 +516,53 @@ function registerHlsIpc() {
         return { ok: false, error: 'not_a_video' };
       }
 
+      const controller = new AbortController();
+      let activeChild = null;
+      const abort = () => {
+        try { controller.abort(); } catch {}
+        killProcessTree(activeChild);
+      };
+
+      if (wcId) ACTIVE_HLS_CONVERSIONS.set(wcId, { abort });
+
+      const sendProgress = (payload) => {
+        try {
+          _evt.sender.send('drive:hlsProgress', {
+            stage: String(payload?.stage || ''),
+            percent:
+              typeof payload?.percent === 'number' && Number.isFinite(payload.percent)
+                ? Math.max(0, Math.min(100, Math.round(payload.percent)))
+                : null,
+            frame: typeof payload?.frame === 'number' ? payload.frame : undefined,
+            fps: typeof payload?.fps === 'number' ? payload.fps : undefined,
+            speed: typeof payload?.speed === 'string' ? payload.speed : undefined,
+          });
+        } catch {}
+      };
+
       const res = await convertToHlsLadder({
         cidOrPath,
         name,
         audioBitrate: String(args?.audioBitrate || '128k'),
+        signal: controller.signal,
+        onProgress: sendProgress,
+        onSpawn: (child) => {
+          activeChild = child;
+          if (controller.signal?.aborted) killProcessTree(child);
+        },
       });
+      sendProgress({ stage: 'done', percent: 100 });
       return { ok: true, ...res };
     } catch (e) {
-      return { ok: false, error: String(e?.message || e || 'convert_failed') };
+      const msg = String(e?.message || e || 'convert_failed');
+      const lower = msg.toLowerCase();
+      if (lower.includes('abort') || lower.includes('cancel') || lower.includes('aborted')) {
+        return { ok: false, error: 'cancelled' };
+      }
+      return { ok: false, error: msg };
+    } finally {
+      const wcId = String(_evt?.sender?.id || '');
+      if (wcId) ACTIVE_HLS_CONVERSIONS.delete(wcId);
     }
   });
 }

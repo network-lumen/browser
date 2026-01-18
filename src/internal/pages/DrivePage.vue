@@ -227,9 +227,31 @@
               >Converting {{ convertingFile }}</span
             >
             <span class="txt-xs color-gray-blue"
-              >Building an HLS ladder locally…</span
+              >Warning: this can take a while.</span
             >
+            <span class="txt-xs color-gray-blue">
+              {{ convertingStatusLabel
+              }}<template v-if="convertingPercent != null">
+                ({{ convertingPercent }}%)
+              </template>
+            </span>
+            <div class="progress-actions">
+              <button
+                class="progress-cancel-btn"
+                type="button"
+                @click="cancelHlsConversion"
+                :disabled="convertingCanceling"
+              >
+                {{ convertingCanceling ? "Cancelling..." : "Cancel" }}
+              </button>
+            </div>
           </div>
+        </div>
+        <div v-if="convertingPercent != null" class="progress-bar">
+          <div
+            class="progress-bar-fill"
+            :style="{ width: `${convertingPercent}%` }"
+          ></div>
         </div>
       </div>
 
@@ -1404,11 +1426,23 @@ const uploading = ref(false);
 const uploadingFile = ref("");
 const converting = ref(false);
 const convertingFile = ref("");
+const convertingStage = ref<
+  "preparing" | "downloading" | "transcoding" | "adding" | "done" | "cancelling"
+>("preparing");
+const convertingPercent = ref<number | null>(null);
+const convertingCanceling = ref(false);
 const isDragging = ref(false);
 const showUploadMenu = ref(false);
 
 const toast = ref("");
 const toastType = ref<"success" | "error">("success");
+
+const convertingStatusLabel = computed(() => {
+  if (convertingCanceling.value) return "Cancelling…";
+  if (convertingStage.value === "adding") return "Adding HLS files to IPFS…";
+  if (convertingStage.value === "done") return "Finalizing…";
+  return "Building an HLS ladder locally…";
+});
 
 const openInNewTab = inject<((url: string) => void) | null>(
   "openInNewTab",
@@ -2066,6 +2100,7 @@ let urlBarLastValue = "";
 let urlBarLastUserInputAt = 0;
 let tabUrlChangedHandler: ((ev: any) => void) | null = null;
 let tabHistoryStepHandler: ((ev: any) => void) | null = null;
+let hlsProgressUnsub: (() => void) | null = null;
 
 function readUrlBarUrl(): string {
   try {
@@ -2137,6 +2172,29 @@ onMounted(async () => {
   void refreshGatewayOverview();
 
   try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.driveOnHlsProgress === "function") {
+      hlsProgressUnsub = api.driveOnHlsProgress((payload: any) => {
+        const stage = String(payload?.stage || "");
+        if (stage === "downloading") convertingStage.value = "downloading";
+        else if (stage === "transcoding") convertingStage.value = "transcoding";
+        else if (stage === "adding") convertingStage.value = "adding";
+        else if (stage === "done") convertingStage.value = "done";
+
+        if (stage === "transcoding" || stage === "done") {
+          const pct = payload?.percent;
+          if (typeof pct === "number" && Number.isFinite(pct)) {
+            convertingPercent.value = Math.max(
+              0,
+              Math.min(100, Math.round(pct)),
+            );
+          }
+        }
+      });
+    }
+  } catch {}
+
+  try {
     tabUrlChangedHandler = (ev: any) => {
       const detail = ev?.detail || {};
       const url = String(detail?.url || "");
@@ -2197,6 +2255,12 @@ onDeactivated(() => {
 
 onUnmounted(() => {
   stopUrlBarSync();
+  try {
+    hlsProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  hlsProgressUnsub = null;
   try {
     if (tabUrlChangedHandler)
       window.removeEventListener(
@@ -3416,6 +3480,9 @@ async function convertToHls(file: DriveFile) {
 
   converting.value = true;
   convertingFile.value = file.name;
+  convertingStage.value = "preparing";
+  convertingPercent.value = 0;
+  convertingCanceling.value = false;
 
   try {
     const target = contentTargetFor(file);
@@ -3426,7 +3493,12 @@ async function convertToHls(file: DriveFile) {
     });
 
     if (!res?.ok || !res?.cid) {
-      showToast(String(res?.error || "HLS conversion failed"), "error");
+      const err = String(res?.error || "HLS conversion failed");
+      if (err.toLowerCase().includes("cancel")) {
+        showToast("Conversion cancelled.", "success");
+        return;
+      }
+      showToast(err, "error");
       return;
     }
 
@@ -3461,16 +3533,49 @@ async function convertToHls(file: DriveFile) {
     }
   } catch (e: any) {
     console.error("HLS conversion error:", e);
-    showToast(String(e?.message || "HLS conversion error"), "error");
+    const err = String(e?.message || "HLS conversion error");
+    if (err.toLowerCase().includes("cancel")) {
+      showToast("Conversion cancelled.", "success");
+      return;
+    }
+    showToast(err, "error");
   } finally {
     converting.value = false;
     convertingFile.value = "";
+    convertingStage.value = "preparing";
+    convertingPercent.value = null;
+    convertingCanceling.value = false;
   }
 }
 
 function convertSelectedToHls() {
   if (!selectedFile.value) return;
   void convertToHls(selectedFile.value);
+}
+
+async function cancelHlsConversion() {
+  if (!converting.value || convertingCanceling.value) return;
+  convertingCanceling.value = true;
+  convertingStage.value = "cancelling";
+  try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.driveCancelHlsConvert !== "function") {
+      showToast("Cancel is unavailable.", "error");
+      convertingCanceling.value = false;
+      convertingStage.value = "transcoding";
+      return;
+    }
+    const res = await api.driveCancelHlsConvert().catch(() => null);
+    if (!res?.ok) {
+      showToast(String(res?.error || "Cancel failed"), "error");
+      convertingCanceling.value = false;
+      convertingStage.value = "transcoding";
+    }
+  } catch (e: any) {
+    showToast(String(e?.message || "Cancel failed"), "error");
+    convertingCanceling.value = false;
+    convertingStage.value = "transcoding";
+  }
 }
 
 async function downloadFile(file: DriveFile) {
@@ -5701,6 +5806,48 @@ async function reloadForActiveProfileChange() {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+}
+
+.progress-actions {
+  margin-top: 0.35rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.progress-cancel-btn {
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.progress-cancel-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.progress-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.progress-bar {
+  margin-top: 0.65rem;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.25);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent-primary);
+  transition: width 0.2s ease;
 }
 
 /* Fetch Section */

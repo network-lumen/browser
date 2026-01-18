@@ -52,6 +52,21 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsKeyGen: (name) => ipcRenderer.invoke('ipfs:keyGen', name),
   ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
   driveConvertToHls: (payload) => ipcRenderer.invoke('drive:convertToHls', payload || {}),
+  driveCancelHlsConvert: () => ipcRenderer.invoke('drive:cancelHlsConvert'),
+  driveOnHlsProgress: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        callback(payload);
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('drive:hlsProgress', handler);
+    return () => {
+      ipcRenderer.removeListener('drive:hlsProgress', handler);
+    };
+  },
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),
