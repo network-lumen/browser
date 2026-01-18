@@ -3,6 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');
 const { encryptMnemonicLocal, decryptMnemonicLocal, encryptWithPassword, decryptWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
+const {
+  getSessionPassword,
+  isPasswordRequired,
+  setSessionPassword,
+  verifyStoredPassword
+} = require('./security.cjs');
 
 // Lazy loader for @lumen-chain/sdk.createWallet (ESM-friendly)
 let createWalletFn = null;
@@ -46,6 +52,59 @@ function profileJsonPath(id) {
 
 function pqcKeysDir() {
   return userDataPath('pqc_keys');
+}
+
+function pqcKeysFile() {
+  return path.join(pqcKeysDir(), 'keys.json');
+}
+
+function pqcLinksFile() {
+  return path.join(pqcKeysDir(), 'links.json');
+}
+
+function isEncryptedPqcKeysObject(obj) {
+  return !!(
+    obj &&
+    typeof obj === 'object' &&
+    obj.crypto &&
+    (obj._encrypted === true || isPasswordProtected(obj))
+  );
+}
+
+function readPqcKeysForMerge(password) {
+  const keysFile = pqcKeysFile();
+  if (!fs.existsSync(keysFile)) {
+    return { ok: true, keys: {}, encrypted: false };
+  }
+
+  const raw = readJson(keysFile, {}) || {};
+  if (!isEncryptedPqcKeysObject(raw)) {
+    return { ok: true, keys: raw && typeof raw === 'object' ? raw : {}, encrypted: false };
+  }
+
+  if (!password) return { ok: false, error: 'password_required' };
+
+  try {
+    const decrypted = decryptWithPassword(raw, password);
+    const keys = JSON.parse(decrypted);
+    return { ok: true, keys: keys && typeof keys === 'object' ? keys : {}, encrypted: true };
+  } catch {
+    return { ok: false, error: 'invalid_password' };
+  }
+}
+
+function writePqcKeysAfterMerge(keys, encrypted, password) {
+  const keysFile = pqcKeysFile();
+  ensureDir(pqcKeysDir());
+
+  if (encrypted) {
+    const encryptedObj = encryptWithPassword(JSON.stringify(keys || {}), password);
+    encryptedObj._encrypted = true;
+    fs.writeFileSync(keysFile, JSON.stringify(encryptedObj, null, 2), 'utf8');
+    return;
+  }
+
+  fs.writeFileSync(keysFile, JSON.stringify(keys || {}, null, 2), 'utf8');
 }
 
 function loadProfilesFile() {
@@ -209,6 +268,7 @@ function buildProfileBackupObject(p, decryptPassword) {
 
   // Load PQC key for this profile (if any)
   let pqcKey = null;
+  let pqcDecryptFailed = false;
   try {
     const addr = String(p.walletAddress || p.address || '').trim();
     const keysFile = path.join(srcPqcDir, 'keys.json');
@@ -218,13 +278,14 @@ function buildProfileBackupObject(p, decryptPassword) {
       let keysRaw = readJson(keysFile, {});
       
       // If keys.json is password-protected, decrypt it first
-      if (keysRaw && isPasswordProtected(keysRaw)) {
+      if (keysRaw && isEncryptedPqcKeysObject(keysRaw)) {
         if (decryptPassword) {
           try {
             const decrypted = decryptWithPassword(keysRaw, decryptPassword);
             keysRaw = JSON.parse(decrypted);
           } catch {
             keysRaw = {};
+            pqcDecryptFailed = true;
           }
         } else {
           keysRaw = {};
@@ -250,7 +311,7 @@ function buildProfileBackupObject(p, decryptPassword) {
     console.warn('[buildProfileBackupObject] Failed to load PQC key:', e?.message || e);
   }
 
-  return {
+  const backup = {
     version: 1,
     id: p.id,
     name: p.name,
@@ -263,6 +324,8 @@ function buildProfileBackupObject(p, decryptPassword) {
     mnemonic: mnemonicPlain || null,
     pqc: pqcKey
   };
+
+  return { backup, pqcDecryptFailed };
 }
 
 function collectBackupFiles(selectionPath) {
@@ -319,7 +382,7 @@ function collectBackupFiles(selectionPath) {
   return out;
 }
 
-function importOneBackupObject(imported, profiles) {
+function importOneBackupObject(imported, profiles, passwordOverride) {
   if (!imported || typeof imported !== 'object') {
     return { ok: false, error: 'invalid_profile_backup' };
   }
@@ -356,7 +419,46 @@ function importOneBackupObject(imported, profiles) {
     walletAddress
   };
 
-  profiles.push(profile);
+  // Merge PQC key if present (supports both camelCase and snake_case backup fields).
+  const pqc = imported.pqc;
+  const pqcPublicKey = pqc && (pqc.publicKey || pqc.public_key);
+  const pqcPrivateKey = pqc && (pqc.privateKey || pqc.private_key);
+  const pqcScheme = pqc && (pqc.scheme || pqc.Scheme || pqc.schemeName);
+  const pqcCreatedAt = pqc && (pqc.createdAt || pqc.created_at);
+
+  if (pqc && pqcPublicKey && pqcPrivateKey && walletAddress) {
+    const effectivePassword = passwordOverride || getSessionPassword();
+    const readRes = readPqcKeysForMerge(effectivePassword);
+    if (!readRes.ok) {
+      return { ok: false, error: readRes.error, requiresPasswordFor: 'pqc_keys' };
+    }
+
+    const linksFile = pqcLinksFile();
+    let links = {};
+    if (fs.existsSync(linksFile)) links = readJson(linksFile, {}) || {};
+
+    const keyName = String(pqc.name || pqc.keyName || `profile:${id}`);
+    const nextKeys = readRes.keys || {};
+    nextKeys[keyName] = {
+      name: keyName,
+      scheme: pqcScheme || 'dilithium3',
+      publicKey: pqcPublicKey,
+      privateKey: pqcPrivateKey,
+      createdAt: pqcCreatedAt || new Date().toISOString()
+    };
+    links[walletAddress] = keyName;
+
+    ensureDir(pqcKeysDir());
+    writePqcKeysAfterMerge(nextKeys, readRes.encrypted, effectivePassword);
+    fs.writeFileSync(linksFile, JSON.stringify(links, null, 2), 'utf8');
+
+    // Best-effort verification (helps debug cases where links exist but the key isn't persisted).
+    try {
+      const verifyRes = readPqcKeysForMerge(effectivePassword);
+      const exists = !!(verifyRes && verifyRes.ok && verifyRes.keys && verifyRes.keys[keyName]);
+      console.log('[profiles] PQC merge keyName=', keyName, 'exists=', exists, 'encrypted=', !!readRes.encrypted);
+    } catch {}
+  }
 
   // Rebuild keystore from plaintext mnemonic
   try {
@@ -381,32 +483,7 @@ function importOneBackupObject(imported, profiles) {
     }
   } catch {}
 
-  // Merge PQC key if present
-  try {
-    const pqc = imported.pqc;
-    if (pqc && pqc.publicKey && pqc.privateKey && walletAddress) {
-      const keysFile = path.join(pqcKeysDir(), 'keys.json');
-      const linksFile = path.join(pqcKeysDir(), 'links.json');
-      let keys = {};
-      let links = {};
-      if (fs.existsSync(keysFile)) keys = readJson(keysFile, {}) || {};
-      if (fs.existsSync(linksFile)) links = readJson(linksFile, {}) || {};
-
-      const keyName = String(pqc.name || `profile:${id}`);
-      keys[keyName] = {
-        name: keyName,
-        scheme: pqc.scheme || 'dilithium3',
-        publicKey: pqc.publicKey,
-        privateKey: pqc.privateKey,
-        createdAt: pqc.createdAt || new Date().toISOString()
-      };
-      links[walletAddress] = keyName;
-
-      ensureDir(pqcKeysDir());
-      fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2), 'utf8');
-      fs.writeFileSync(linksFile, JSON.stringify(links, null, 2), 'utf8');
-    }
-  } catch {}
+  profiles.push(profile);
 
   return { ok: true, id };
 }
@@ -597,6 +674,7 @@ ipcMain.handle('profiles:getFavourites', async () => {
 
     // Check if we need password to decrypt the data first
     let needsDecryptPassword = false;
+    let needsPqcPassword = false;
     try {
       const ksSrc = path.join(profileDir(p.id), 'keystore.json');
       if (fs.existsSync(ksSrc)) {
@@ -607,17 +685,16 @@ ipcMain.handle('profiles:getFavourites', async () => {
       }
     } catch {}
     
-    if (!needsDecryptPassword) {
-      try {
-        const keysFile = path.join(pqcKeysDir(), 'keys.json');
-        if (fs.existsSync(keysFile)) {
-          const keysRaw = readJson(keysFile, null);
-          if (keysRaw && isPasswordProtected(keysRaw)) {
-            needsDecryptPassword = true;
-          }
+    try {
+      const keysFile = path.join(pqcKeysDir(), 'keys.json');
+      if (fs.existsSync(keysFile)) {
+        const keysRaw = readJson(keysFile, null);
+        if (keysRaw && isEncryptedPqcKeysObject(keysRaw)) {
+          needsDecryptPassword = true;
+          needsPqcPassword = true;
         }
-      } catch {}
-    }
+      }
+    } catch {}
 
     console.log('[exportBackup] needsDecryptPassword:', needsDecryptPassword);
 
@@ -642,12 +719,29 @@ ipcMain.handle('profiles:getFavourites', async () => {
       ensureDir(baseDir);
 
       // Build backup with password to decrypt if needed
-      const backup = buildProfileBackupObject(p, password);
+      const built = buildProfileBackupObject(p, password);
+      const backup = built && built.backup ? built.backup : null;
+      const pqcDecryptFailed = !!(built && built.pqcDecryptFailed);
+      if (!backup) return { ok: false, error: 'backup_failed' };
       
       // Validate that mnemonic was extracted (if keystore exists)
       const ksSrc = path.join(profileDir(p.id), 'keystore.json');
       if (fs.existsSync(ksSrc) && !backup.mnemonic) {
         return { ok: false, error: 'invalid_password' };
+      }
+
+      // If PQC store is encrypted, fail hard on wrong password (otherwise we export a backup with no PQC key).
+      if (needsPqcPassword) {
+        if (pqcDecryptFailed) return { ok: false, error: 'invalid_password' };
+        const addr = String(p.walletAddress || p.address || '').trim();
+        const linksFile = path.join(pqcKeysDir(), 'links.json');
+        if (addr && fs.existsSync(linksFile)) {
+          const links = readJson(linksFile, {}) || {};
+          const keyName = typeof links[addr] === 'string' ? String(links[addr]) : '';
+          if (keyName && !backup.pqc) {
+            return { ok: false, error: 'invalid_password' };
+          }
+        }
       }
 
       let backupPath;
@@ -715,7 +809,9 @@ ipcMain.handle('profiles:getFavourites', async () => {
           ensureDir(dstDir);
 
           const backupPath = path.join(dstDir, 'profile.json');
-          const backup = buildProfileBackupObject(p);
+          const built = buildProfileBackupObject(p);
+          const backup = built && built.backup ? built.backup : null;
+          if (!backup) throw new Error('backup_failed');
           fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
 
           results.push({ id: p.id, ok: true, path: backupPath });
@@ -866,19 +962,41 @@ ipcMain.handle('profiles:getFavourites', async () => {
       }
 
       // Try to decrypt
+      const pwd = String(password || '');
       let decrypted;
       try {
-        const plaintext = decryptWithPassword(encrypted, password);
+        const plaintext = decryptWithPassword(encrypted, pwd);
         decrypted = JSON.parse(plaintext);
       } catch (e) {
         return { ok: false, error: 'invalid_password' };
+      }
+
+      try {
+        const pqc = decrypted && decrypted.pqc;
+        const hasPqc = !!(pqc && (pqc.publicKey || pqc.public_key) && (pqc.privateKey || pqc.private_key));
+        const addr = String(decrypted?.walletAddress || decrypted?.address || '').trim();
+        console.log('[profiles:importEncryptedBackup] decrypted backup:', {
+          hasPqc,
+          hasWalletAddress: !!addr,
+          id: String(decrypted?.id || ''),
+        });
+      } catch {}
+
+      // If the app has password protection enabled, unlock the session so follow-up signing works.
+      // (Also enables merging into encrypted pqc_keys store.)
+      try {
+        if (isPasswordRequired() && verifyStoredPassword(pwd)) {
+          setSessionPassword(pwd);
+        }
+      } catch {
+        // ignore
       }
 
       // Now import the decrypted backup
       const all = loadProfilesFile();
       let profiles = all.profiles.slice();
       
-      const result = importOneBackupObject(decrypted, profiles);
+      const result = importOneBackupObject(decrypted, profiles, pwd);
       if (!result.ok) {
         return { ok: false, error: result.error || 'import_failed' };
       }
@@ -893,8 +1011,81 @@ ipcMain.handle('profiles:getFavourites', async () => {
 
   ipcMain.handle('profiles:delete', async (_evt, id) => {
     const { profiles, activeId } = loadProfilesFile();
-    const targetId = String(id || '');
-    const nextProfiles = profiles.filter((p) => p.id !== targetId);
+    const targetId = String(id || '').trim();
+    if (!targetId) return { ok: false, error: 'missing_profile_id' };
+
+    const target = profiles.find((p) => String(p && p.id ? p.id : '') === targetId) || null;
+    const targetAddr = String(
+      (target && (target.walletAddress || target.address)) || ''
+    ).trim();
+
+    // Clean PQC links + key for this profile.
+    try {
+      const linksPath = pqcLinksFile();
+      let links = {};
+      if (fs.existsSync(linksPath)) links = readJson(linksPath, {}) || {};
+
+      const linkedKeyName =
+        targetAddr && typeof links[targetAddr] === 'string' ? String(links[targetAddr]) : '';
+
+      if (targetAddr && links && typeof links === 'object') {
+        delete links[targetAddr];
+        ensureDir(pqcKeysDir());
+        fs.writeFileSync(linksPath, JSON.stringify(links, null, 2), 'utf8');
+      }
+
+      const candidateNames = Array.from(
+        new Set([linkedKeyName, `profile:${targetId}`].filter(Boolean))
+      );
+
+      if (candidateNames.length) {
+        const keysPath = pqcKeysFile();
+        if (fs.existsSync(keysPath)) {
+          const raw = readJson(keysPath, null);
+          const encrypted = isEncryptedPqcKeysObject(raw);
+          const pwd = getSessionPassword();
+          if (encrypted && !pwd) {
+            return { ok: false, error: 'password_required' };
+          }
+
+          const readRes = readPqcKeysForMerge(pwd);
+          if (!readRes.ok) {
+            return { ok: false, error: readRes.error || 'password_required' };
+          }
+
+          const keys = readRes.keys || {};
+
+          for (const keyName of candidateNames) {
+            if (!keys || typeof keys !== 'object') break;
+            if (!keys[keyName]) continue;
+            const stillUsed = Object.values(links || {}).some((v) => String(v || '') === keyName);
+            if (!stillUsed) {
+              delete keys[keyName];
+            }
+          }
+
+          writePqcKeysAfterMerge(keys, readRes.encrypted, pwd);
+        }
+      }
+    } catch (e) {
+      console.warn('[profiles] failed to cleanup PQC data for profile', targetId, e?.message || e);
+    }
+
+    // Best-effort: remove local keystore folder for this profile.
+    try {
+      const dir = profileDir(targetId);
+      if (fs.existsSync(dir)) {
+        if (typeof fs.rmSync === 'function') {
+          fs.rmSync(dir, { recursive: true, force: true });
+        } else if (typeof fs.rmdirSync === 'function') {
+          fs.rmdirSync(dir, { recursive: true });
+        }
+      }
+    } catch (e) {
+      console.warn('[profiles] failed to remove profile dir', targetId, e?.message || e);
+    }
+
+    const nextProfiles = profiles.filter((p) => String(p && p.id ? p.id : '') !== targetId);
     let nextActive = activeId;
     if (activeId === targetId) {
       nextActive = nextProfiles[0] ? nextProfiles[0].id : '';

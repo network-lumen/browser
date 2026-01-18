@@ -103,7 +103,7 @@
                 <span class="profile-row-name">{{ p.name || p.id }}</span>
               </button>
 
-              <button type="button" class="profile-row-delete" title="Delete profile" @click.stop="onDeleteProfile(p.id)">
+              <button type="button" class="profile-row-delete" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
@@ -276,6 +276,38 @@
       </div>
     </div>
   </Teleport>
+
+  <!-- Delete Profile Confirm Modal -->
+  <Teleport to="body">
+    <div
+      v-if="showDeleteProfileModal"
+      class="export-modal-overlay"
+      @click.self="cancelDeleteProfileModal"
+    >
+      <div class="export-modal">
+        <div class="export-modal-header">
+          <h3>Delete profile?</h3>
+          <button type="button" class="export-modal-close" @click="cancelDeleteProfileModal">×</button>
+        </div>
+
+        <div class="export-modal-body">
+          <p class="export-modal-desc">
+            You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
+            This cannot be recovered.
+          </p>
+
+          <div class="export-modal-actions">
+            <UiButton variant="none" class="export-btn cancel" @click="cancelDeleteProfileModal">
+              Cancel
+            </UiButton>
+            <UiButton variant="none" class="export-btn confirm danger" @click="confirmDeleteProfile">
+              Delete
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -345,6 +377,11 @@ const showImportPasswordModal = ref(false);
 const importPassword = ref('');
 const importError = ref('');
 const pendingEncryptedFile = ref<string | null>(null);
+
+// Delete confirmation modal state
+const showDeleteProfileModal = ref(false);
+const pendingDeleteProfileId = ref('');
+const pendingDeleteProfileName = ref('');
 
 const profiles = profilesState;
 
@@ -726,12 +763,36 @@ function cancelCreateProfile() {
   newProfileName.value = '';
 }
 
-async function onDeleteProfile(id: string) {
-  const ok = await deleteProfile(id);
-  if (!ok) {
-    profileMessage.value = 'Failed to delete profile.';
+function requestDeleteProfile(p: any) {
+  const id = String(p && p.id ? p.id : '').trim();
+  if (!id) return;
+  pendingDeleteProfileId.value = id;
+  pendingDeleteProfileName.value = String(p && (p.name || p.id) ? (p.name || p.id) : id);
+  showDeleteProfileModal.value = true;
+}
+
+function cancelDeleteProfileModal() {
+  showDeleteProfileModal.value = false;
+  pendingDeleteProfileId.value = '';
+  pendingDeleteProfileName.value = '';
+}
+
+async function confirmDeleteProfile() {
+  const id = String(pendingDeleteProfileId.value || '').trim();
+  if (!id) return;
+
+  const res = await deleteProfile(id);
+  if (!res || res.ok !== true) {
+    const err = String((res as any)?.error || 'delete_failed');
+    if (err === 'password_required') {
+      profileMessage.value = 'Unlock your wallet to delete this profile.';
+    } else {
+      profileMessage.value = 'Failed to delete profile.';
+    }
     return;
   }
+
+  cancelDeleteProfileModal();
   profileMessage.value = 'Profile deleted.';
 }
 
@@ -1263,5 +1324,9 @@ onBeforeUnmount(() => {
 
 .export-btn.confirm:hover {
   filter: brightness(1.1);
+}
+
+.export-btn.confirm.danger {
+  background: var(--ios-red, #ff3b30);
 }
 </style>

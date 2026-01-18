@@ -44,7 +44,10 @@ declare global {
             }
           | null
         >;
-        delete: (id: string) => Promise<{ profiles: Profile[]; activeId: string }>;
+        delete: (id: string) => Promise<
+          | { profiles: Profile[]; activeId: string }
+          | { ok: false; error?: string }
+        >;
         getFavourites?: () => Promise<Record<string, string>>;
         setFavourite?: (domain: string, cid: string) => Promise<any>;
         removeFavourite?: (domain: string) => Promise<any>;
@@ -134,15 +137,16 @@ export async function importProfile(json: string): Promise<Profile | null> {
   }
 }
 
-export async function deleteProfile(id: string): Promise<boolean> {
+export async function deleteProfile(id: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const api = getApi();
-    if (!api) return false;
-    await api.delete(id);
+    if (!api) return { ok: false, error: 'profiles_api_unavailable' };
+    const res = await api.delete(id);
+    if (res && (res as any).ok === false) return res as any;
     await initProfiles();
-    return true;
+    return { ok: true };
   } catch {
-    return false;
+    return { ok: false, error: 'delete_failed' };
   }
 }
 

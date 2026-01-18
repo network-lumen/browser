@@ -440,47 +440,33 @@
           </div>
           <p v-else class="setting-hint">No profiles found.</p>
 
-          <div class="setting-item">
-            <div class="setting-info">
-              <span class="setting-label">Backups</span>
-              <span class="setting-desc">Export or import full backup folders (profiles + PQC keys).</span>
-            </div>
-            <div class="setting-control profile-backup-actions">
-              <button
-                class="btn-secondary"
-                type="button"
-                @click="onExportSelectedBackups"
-                :disabled="!selectedProfileIds.length || exportingBackup"
-              >
-                Export selected ({{ selectedProfileIds.length }})
-              </button>
-              <button
-                class="btn-secondary"
-                type="button"
-                @click="onImportBackup"
-                :disabled="importingBackup"
-              >
-                Import from backup folder
-              </button>
-            </div>
-          </div>
-          <p class="setting-hint">
-            Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
-          </p>
-          <p v-if="backupExportSummary" class="setting-hint">{{ backupExportSummary }}</p>
-          <div v-if="backupExportFailures.length" class="backup-failures">
-            <div v-for="f in backupExportFailures" :key="f.id" class="backup-failure">
-              {{ f.id }}: {{ f.error || 'failed' }}
-            </div>
-          </div>
-          <p v-if="backupImportSummary" class="setting-hint">{{ backupImportSummary }}</p>
-          <div v-if="backupImportFailures.length" class="backup-failures">
-            <div v-for="f in backupImportFailures" :key="f.path" class="backup-failure">
-              {{ f.path }}: {{ f.error || 'failed' }}
-            </div>
-          </div>
-        </div>
-      </div>
+           <div class="setting-item">
+             <div class="setting-info">
+               <span class="setting-label">Backups</span>
+               <span class="setting-desc">Export full backup folders (profiles + PQC keys).</span>
+             </div>
+             <div class="setting-control profile-backup-actions">
+               <button
+                 class="btn-secondary"
+                 type="button"
+                 @click="onExportSelectedBackups"
+                 :disabled="!selectedProfileIds.length || exportingBackup"
+               >
+                 Export selected ({{ selectedProfileIds.length }})
+               </button>
+             </div>
+           </div>
+           <p class="setting-hint">
+             Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
+           </p>
+           <p v-if="backupExportSummary" class="setting-hint">{{ backupExportSummary }}</p>
+           <div v-if="backupExportFailures.length" class="backup-failures">
+             <div v-for="f in backupExportFailures" :key="f.id" class="backup-failure">
+               {{ f.id }}: {{ f.error || 'failed' }}
+             </div>
+           </div>
+         </div>
+       </div>
 
       <!-- Developer settings View -->
       <div v-else-if="currentView === 'advanced'" class="settings-section">
@@ -621,7 +607,7 @@ import {
 import { useTheme } from '../../composables/useTheme';
 import { useToast } from '../../composables/useToast';
 import { profilesState, activeProfileId } from '../profilesStore';
-import { exportProfilesBackup, importProfilesFromBackup } from '../profilesStore';
+import { exportProfilesBackup } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
@@ -646,7 +632,6 @@ const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
 const blockTrackers = ref(true);
 const exportingBackup = ref(false);
-const importingBackup = ref(false);
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
@@ -657,16 +642,6 @@ const lastBackupExport = ref<
       ok: boolean;
       baseDir?: string;
       results?: { id: string; ok: boolean; path?: string; error?: string }[];
-      error?: string;
-    }
->(null);
-const lastBackupImport = ref<
-  | null
-  | {
-      ok: boolean;
-      selectedId?: string;
-      imported?: number;
-      results?: { ok: boolean; path: string; id?: string; error?: string }[];
       error?: string;
     }
 >(null);
@@ -687,27 +662,6 @@ const backupExportSummary = computed(() => {
 
 const backupExportFailures = computed(() => {
   const res = lastBackupExport.value;
-  if (!res || !res.ok) return [];
-  const results = Array.isArray(res.results) ? res.results : [];
-  return results.filter((r) => r && r.ok === false);
-});
-
-const backupImportSummary = computed(() => {
-  const res = lastBackupImport.value;
-  if (!res) return '';
-  if (!res.ok) {
-    const err = String(res.error || '');
-    if (err === 'canceled') return 'Backup import canceled.';
-    if (err === 'no_valid_backups_found') return 'No valid backups found.';
-    return 'Backup import failed.';
-  }
-  const count = Number.isFinite(res.imported) ? Number(res.imported) : 0;
-  if (count === 1) return 'Imported 1 profile.';
-  return `Imported ${count} profiles.`;
-});
-
-const backupImportFailures = computed(() => {
-  const res = lastBackupImport.value;
   if (!res || !res.ok) return [];
   const results = Array.isArray(res.results) ? res.results : [];
   return results.filter((r) => r && r.ok === false);
@@ -1052,19 +1006,6 @@ async function onExportSelectedBackups() {
     lastBackupExport.value = { ok: false, error: 'backup_failed' };
   } finally {
     exportingBackup.value = false;
-  }
-}
-
-async function onImportBackup() {
-  if (importingBackup.value) return;
-  importingBackup.value = true;
-  lastBackupImport.value = null;
-  try {
-    lastBackupImport.value = await importProfilesFromBackup();
-  } catch {
-    lastBackupImport.value = { ok: false, error: 'backup_failed' };
-  } finally {
-    importingBackup.value = false;
   }
 }
 
