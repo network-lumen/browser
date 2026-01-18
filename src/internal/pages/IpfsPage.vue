@@ -13,6 +13,17 @@
             <span>Open website</span>
           </button>
           <button
+            v-if="isDir && masterM3u8Entry"
+            class="plans-btn"
+            type="button"
+            @click="openMasterHls"
+            :disabled="!navigate"
+            title="Play HLS video"
+          >
+            <Play :size="16" />
+            <span>Play video</span>
+          </button>
+          <button
             class="plans-btn"
             type="button"
             @click="openSaveModal"
@@ -144,13 +155,18 @@
             @error="onMediaError"
           />
 
-          <video
-            v-else-if="viewKind === 'video'"
-            :src="contentUrl"
-            class="media"
-            controls
-            playsinline
-          ></video>
+          <template v-else-if="viewKind === 'video'">
+            <video
+              ref="videoEl"
+              :src="videoSrc"
+              class="media"
+              controls
+              playsinline
+            ></video>
+            <div v-if="hlsError" class="hls-error">
+              {{ hlsError }}
+            </div>
+          </template>
 
           <audio
             v-else-if="viewKind === 'audio'"
@@ -276,7 +292,7 @@ import {
   ref,
   watch,
 } from "vue";
-import { BookOpen, Check, Copy, Download, File, Folder, Save } from "lucide-vue-next";
+import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
   localIpfsGatewayBase,
@@ -312,10 +328,13 @@ const viewKind = ref<
 >("unknown");
 const textContent = ref("");
 const mediaErrored = ref(false);
+const hlsError = ref("");
 const htmlSrcdoc = ref("");
 const htmlFrameUrl = ref("");
 const siteFrame = ref<HTMLIFrameElement | null>(null);
 const siteWebview = ref<any>(null);
+const videoEl = ref<HTMLVideoElement | null>(null);
+let hlsInstance: any = null;
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
 const pageActive = ref(false);
@@ -538,16 +557,14 @@ const crumbs = computed(() => {
   return out;
 });
 
-const canDownload = computed(
-  () => !!rootCid.value && !isDir.value && !loading.value,
-);
+const canDownload = computed(() => !!rootCid.value && !loading.value);
 
 function guessViewKind(nameOrPath: string): typeof viewKind.value {
   const s = String(nameOrPath || "").toLowerCase();
   const ext = s.split(".").pop() || "";
   if (["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"].includes(ext))
     return "image";
-  if (["mp4", "webm", "mov", "mkv", "avi"].includes(ext)) return "video";
+  if (["mp4", "webm", "mov", "mkv", "avi", "m3u8"].includes(ext)) return "video";
   if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "audio";
   if (["pdf"].includes(ext)) return "pdf";
   if (["epub"].includes(ext)) return "epub";
@@ -593,6 +610,8 @@ async function sniffViewKindFromHead(
     if (ct.startsWith("image/")) return "image";
     if (ct.startsWith("video/")) return "video";
     if (ct.startsWith("audio/")) return "audio";
+    if (ct.includes("application/vnd.apple.mpegurl")) return "video";
+    if (ct.includes("application/x-mpegurl")) return "video";
     if (ct.includes("text/html")) return "html";
     if (ct.includes("application/pdf")) return "pdf";
     if (ct.includes("application/epub+zip")) return "epub";
@@ -691,6 +710,118 @@ const indexHtmlEntry = computed(() => {
     null
   );
 });
+
+const masterM3u8Entry = computed(() => {
+  const candidates = entries.value.filter((e) => e.type === "file");
+  return candidates.find((e) => String(e.name).toLowerCase() === "master.m3u8") || null;
+});
+
+const isHlsManifest = computed(() => {
+  if (viewKind.value !== "video") return false;
+  const p = String(relPath.value || "").toLowerCase();
+  return p.endsWith(".m3u8") || String(contentUrl.value || "").toLowerCase().includes(".m3u8");
+});
+
+const videoSrc = computed(() => {
+  if (!contentUrl.value) return undefined;
+  // For HLS on non-native platforms, we use hls.js which attaches a MediaSource blob URL.
+  // Avoid binding `src` in Vue when HLS is active, otherwise Vue can overwrite the blob URL.
+  return isHlsManifest.value ? undefined : contentUrl.value;
+});
+
+async function ensureHlsStopped() {
+  try {
+    if (hlsInstance && typeof hlsInstance.destroy === "function") hlsInstance.destroy();
+  } catch {
+    // ignore
+  }
+  hlsInstance = null;
+  hlsError.value = "";
+  try {
+    if (videoEl.value) videoEl.value.src = "";
+  } catch {
+    // ignore
+  }
+}
+
+async function ensureHlsPlaying(url: string) {
+  const video = videoEl.value;
+  if (!video) return;
+  hlsError.value = "";
+
+  // Safari (and some platforms) support HLS natively.
+  try {
+    if (typeof video.canPlayType === "function") {
+      const can = video.canPlayType("application/vnd.apple.mpegurl");
+      if (can === "probably" || can === "maybe") {
+        await ensureHlsStopped();
+        video.src = url;
+        void video.play?.().catch?.(() => {});
+        return;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  const { default: Hls } = await import("hls.js");
+  if (!Hls || typeof Hls.isSupported !== "function" || !Hls.isSupported()) {
+    // Last resort: try direct <video src> (may fail on Windows).
+    await ensureHlsStopped();
+    video.src = url;
+    return;
+  }
+
+  const sanitizeHlsUrl = (u: string): string =>
+    String(u || "").replace(/%(?![0-9A-Fa-f]{2})/g, "%25");
+
+  await ensureHlsStopped();
+  hlsInstance = new Hls({
+    lowLatencyMode: true,
+    xhrSetup: (xhr: XMLHttpRequest, rawUrl: string) => {
+      const nextUrl = sanitizeHlsUrl(rawUrl);
+      if (nextUrl === rawUrl) return;
+      try {
+        xhr.open("GET", nextUrl, true);
+      } catch {
+        // ignore
+      }
+    },
+  });
+
+  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+    void video.play?.().catch?.(() => {});
+  });
+  hlsInstance.on(Hls.Events.ERROR, (_evt: any, data: any) => {
+    const url = String(data?.context?.url || data?.frag?.url || data?.url || "");
+    const code = data?.response?.code || data?.response?.status || data?.networkDetails?.status || "";
+    const details = String(data?.details || "");
+    const reason = String(data?.reason || "");
+    const type = String(data?.type || "");
+    const errMsg = String(data?.error?.message || "");
+    const respText = String(data?.response?.text || "");
+    const msg = details || type || "hls_error";
+    const extraBits = [reason, errMsg, respText].map((s) => String(s || "").trim()).filter(Boolean);
+    const extra = extraBits.length ? ` - ${extraBits[0]}` : "";
+    hlsError.value = `HLS ${msg}${extra}${code ? ` (HTTP ${code})` : ""}${url ? `: ${url}` : ""}`;
+    try {
+      if (data?.fatal && data?.type === Hls.ErrorTypes.NETWORK_ERROR) {
+        hlsInstance.startLoad();
+      } else if (data?.fatal && data?.type === Hls.ErrorTypes.MEDIA_ERROR) {
+        hlsInstance.recoverMediaError();
+      }
+    } catch {
+      // ignore
+    }
+  });
+
+  try {
+    hlsInstance.loadSource(url);
+  } catch {}
+  try {
+    hlsInstance.attachMedia(video);
+  } catch {}
+}
 
 function safeInjectIntoHead(html: string, inject: string): string {
   const src = String(html || "");
@@ -947,6 +1078,7 @@ async function load() {
   entries.value = [];
   isDir.value = false;
   viewKind.value = "unknown";
+  await ensureHlsStopped();
   textContent.value = "";
   mediaErrored.value = false;
   htmlSrcdoc.value = "";
@@ -1067,6 +1199,12 @@ function openIndexHtml() {
   navigate(`lumen://ipfs/${rootCid.value}/${encodePath(entry.relPath)}`);
 }
 
+function openMasterHls() {
+  const entry = masterM3u8Entry.value;
+  if (!entry || !navigate) return;
+  navigate(`lumen://ipfs/${rootCid.value}/${encodePath(entry.relPath)}`);
+}
+
 function openEntry(it: Entry) {
   if (!navigate) return;
   const dirSuffix = it.type === "dir" ? "/" : "";
@@ -1151,6 +1289,13 @@ async function resolveCurrentItemCid(): Promise<string> {
   return cid || rootCid.value;
 }
 
+async function resolveSaveTargetCid(): Promise<string> {
+  if (!rootCid.value) throw new Error("Missing CID.");
+  // For HLS, pin the root directory CID so all playlists + segments stay available.
+  if (isHlsManifest.value) return rootCid.value;
+  return resolveCurrentItemCid();
+}
+
 async function openSaveModal() {
   if (!rootCid.value || saving.value || saved.value) return;
   showSaveModal.value = true;
@@ -1160,7 +1305,7 @@ async function openSaveModal() {
 
   savePreparing.value = true;
   try {
-    const cid = await resolveCurrentItemCid();
+    const cid = await resolveSaveTargetCid();
     saveTargetCid.value = cid;
   } catch (e: any) {
     saveModalError.value = String(e?.message || e || "Unable to prepare save.");
@@ -1187,7 +1332,7 @@ async function confirmSaveToDrive() {
 
   saving.value = true;
   try {
-    const cid = saveTargetCid.value || (await resolveCurrentItemCid());
+    const cid = saveTargetCid.value || (await resolveSaveTargetCid());
     const ok = await (window as any).lumen?.ipfsPinAdd?.(cid).catch(() => null);
     if (!ok?.ok) throw new Error(String(ok?.error || "save_failed"));
     setDriveSavedName(cid, name);
@@ -1207,7 +1352,7 @@ async function refreshSavedState() {
     saved.value = false;
     savedCid.value = "";
     if (!rootCid.value) return;
-    const cid = await resolveCurrentItemCid();
+    const cid = await resolveSaveTargetCid();
     savedCid.value = cid;
     const res = await (window as any).lumen?.ipfsPinList?.().catch(() => null);
     const pins =
@@ -1231,21 +1376,38 @@ function formatSize(bytes: number): string {
 
 async function download() {
   if (!canDownload.value) return;
-  const target = relPath.value
-    ? `${rootCid.value}/${relPath.value}`
-    : rootCid.value;
+  const rel = String(relPath.value || "").replace(/^\/+/, "");
+  const isHlsMaster =
+    isHlsManifest.value && rel.toLowerCase().endsWith("master.m3u8");
+
+  // For folders (and for HLS masters), downloading a single file isn't useful.
+  // Use the gateway `?format=tar` so the browser streams a full archive.
+  if (isDir.value || isHlsMaster) {
+    const base = String(resolvedGatewayBase.value || localIpfsGatewayBase())
+      .replace(/\/+$/, "")
+      .trim();
+    if (!base) return;
+
+    const dirRel = isHlsMaster ? "" : rel;
+    const p = dirRel ? `/${encodePath(dirRel)}` : "";
+    const tarUrl = `${base}/ipfs/${rootCid.value}${p}?format=tar`;
+
+    const a = document.createElement("a");
+    a.href = tarUrl;
+    a.rel = "noopener";
+    a.click();
+    return;
+  }
+
+  const target = rel ? `${rootCid.value}/${rel}` : rootCid.value;
   const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-  const got = await (window as any).lumen
-    ?.ipfsGet?.(target, { gateways })
-    .catch(() => null);
+  const got = await (window as any).lumen?.ipfsGet?.(target, { gateways }).catch(() => null);
   if (!got?.ok || !Array.isArray(got.data)) return;
   const bytes = new Uint8Array(got.data);
   const blob = new Blob([bytes]);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  const name = relPath.value
-    ? relPath.value.split("/").pop() || rootCid.value
-    : rootCid.value;
+  const name = rel ? rel.split("/").pop() || rootCid.value : rootCid.value;
   a.href = url;
   a.download = name;
   a.click();
@@ -1254,7 +1416,7 @@ async function download() {
 
 function onMediaError() {
   mediaErrored.value = true;
-  viewKind.value = "unknown";
+  if (!isHlsManifest.value) viewKind.value = "unknown";
 }
 
 function openInNewWindow() {
@@ -1302,7 +1464,20 @@ onBeforeUnmount(() => {
   detachSiteMsgListener();
   stopUrlWatch();
   clearHtmlFrame();
+  void ensureHlsStopped();
 });
+
+watch(
+  () => [viewKind.value, contentUrl.value, isHlsManifest.value, !!videoEl.value],
+  async ([k, url, isHls, hasVideo]) => {
+    if (k === "video" && isHls && url && hasVideo) {
+      await ensureHlsPlaying(String(url));
+    } else {
+      await ensureHlsStopped();
+    }
+  },
+  { flush: "post", immediate: true },
+);
 
 let stopUrlWatchHandle: (() => void) | null = null;
 function startUrlWatch() {
@@ -1701,9 +1876,25 @@ watch(
   background: var(--bg-secondary);
   padding: 1rem;
   min-height: 360px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hls-error {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  background: rgba(254, 202, 202, 0.18);
+  color: var(--ios-red);
+  font-size: 0.875rem;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 
 .media {

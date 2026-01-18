@@ -51,12 +51,15 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsKeyList: () => ipcRenderer.invoke('ipfs:keyList'),
   ipfsKeyGen: (name) => ipcRenderer.invoke('ipfs:keyGen', name),
   ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
+  driveConvertToHls: (payload) => ipcRenderer.invoke('drive:convertToHls', payload || {}),
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),
   httpHead: (url, options) => ipcRenderer.invoke('http:head', url, options || {}),
+  httpGetBytes: (url, options) => ipcRenderer.invoke('http:getBytes', url, options || {}),
   http: {
-    get: (url, options) => ipcRenderer.invoke('http:get', url, options || {})
+    get: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),
+    getBytes: (url, options) => ipcRenderer.invoke('http:getBytes', url, options || {})
   },
   pqc: {
     getParams: () => ipcRenderer.invoke('pqc:getParams'),

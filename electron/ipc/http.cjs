@@ -57,6 +57,53 @@ async function httpGet(url, options = {}) {
   }
 }
 
+async function httpGetBytes(url, options = {}) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return { ok: false, status: 0, error: 'unsupported_scheme' };
+    }
+  } catch (_e) {
+    return { ok: false, status: 0, error: 'invalid_url' };
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutMs =
+      typeof options.timeout === 'number' && options.timeout > 0
+        ? options.timeout
+        : 60000;
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: options.headers || {},
+      signal: controller.signal
+    });
+    clearTimeout(t);
+
+    const buf = await res.arrayBuffer().catch(() => null);
+    const bytes = buf ? Buffer.from(buf) : Buffer.alloc(0);
+
+    return {
+      ok: res.ok,
+      status: res.status,
+      headers: Object.fromEntries(res.headers.entries()),
+      dataB64: bytes.toString('base64')
+    };
+  } catch (e) {
+    const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
+    if (!isTimeout) {
+      console.warn('[electron][http:getBytes] error', e);
+    }
+    return {
+      ok: false,
+      status: 0,
+      error: String(e && e.message ? e.message : e),
+      timeout: isTimeout
+    };
+  }
+}
+
 async function httpHead(url, options = {}) {
   try {
     const parsed = new URL(url);
@@ -104,6 +151,9 @@ function registerHttpIpc() {
   ipcMain.handle('http:get', async (_evt, url, options) => {
     return httpGet(String(url || ''), options || {});
   });
+  ipcMain.handle('http:getBytes', async (_evt, url, options) => {
+    return httpGetBytes(String(url || ''), options || {});
+  });
   ipcMain.handle('http:head', async (_evt, url, options) => {
     return httpHead(String(url || ''), options || {});
   });
@@ -111,6 +161,7 @@ function registerHttpIpc() {
 
 module.exports = {
   httpGet,
+  httpGetBytes,
   httpHead,
   registerHttpIpc
 };

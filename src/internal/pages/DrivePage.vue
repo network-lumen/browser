@@ -218,6 +218,21 @@
         </div>
       </div>
 
+      <!-- HLS Conversion Progress -->
+      <div v-if="converting" class="upload-progress">
+        <div class="progress-content">
+          <UiSpinner size="sm" />
+          <div class="progress-info">
+            <span class="txt-sm txt-weight-strong"
+              >Converting {{ convertingFile }}</span
+            >
+            <span class="txt-xs color-gray-blue"
+              >Building an HLS ladder locally…</span
+            >
+          </div>
+        </div>
+      </div>
+
       <div v-if="showSavedListSpinner" class="listing-loading">
         <div class="drive-spinner" aria-busy="true"></div>
       </div>
@@ -267,6 +282,15 @@
                 }
               "
             ></video>
+            <img
+              v-else-if="isHlsEntry(file)"
+              :src="videoPosterFor(file) || ''"
+              :alt="file.name"
+              class="preview-image"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+            />
             <!-- Show icon for other files -->
             <component
               v-else
@@ -294,6 +318,15 @@
               @click.stop="downloadFile(file)"
             >
               <Download :size="16" />
+            </button>
+            <button
+              v-if="!isDirEntry(file) && isVideoFile(file.name)"
+              class="action-btn"
+              title="Convert to HLS"
+              :disabled="converting || uploading"
+              @click.stop="convertToHls(file)"
+            >
+              <Clapperboard :size="16" />
             </button>
             <button
               class="action-btn"
@@ -363,6 +396,15 @@
               playsinline
               @loadeddata="markVideoThumbReady(file)"
             ></video>
+            <img
+              v-else-if="isHlsEntry(file)"
+              :src="videoPosterFor(file) || ''"
+              :alt="file.name"
+              class="list-thumbnail"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+            />
             <component
               v-else
               :is="getFileIcon(file)"
@@ -390,6 +432,15 @@
               @click.stop="downloadFile(file)"
             >
               <Download :size="14" />
+            </button>
+            <button
+              v-if="!isDirEntry(file) && isVideoFile(file.name)"
+              class="action-btn"
+              title="Convert to HLS"
+              :disabled="converting || uploading"
+              @click.stop="convertToHls(file)"
+            >
+              <Clapperboard :size="14" />
             </button>
             <button
               class="action-btn"
@@ -525,6 +576,13 @@
           muted
           playsinline
         ></video>
+        <img
+          v-else-if="isHlsEntry(selectedFile)"
+          :src="videoPosterFor(selectedFile) || ''"
+          :alt="selectedFile.name"
+          class="detail-preview-image"
+          decoding="async"
+        />
         <!-- Show icon for other files -->
         <component
           v-else
@@ -568,6 +626,16 @@
         >
           <Download :size="16" />
           Download
+        </button>
+        <button
+          v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
+          class="detail-btn"
+          :disabled="converting || uploading"
+          @click="convertSelectedToHls"
+          title="Convert to HLS (creates a new CID)"
+        >
+          <Clapperboard :size="16" />
+          Convert to HLS
         </button>
         <button class="detail-btn" @click="copyLumenLinkFor(selectedFile)">
           <Share2 :size="16" />
@@ -1271,6 +1339,7 @@ import {
   Database,
   Plus,
   Upload,
+  Clapperboard,
   ExternalLink,
   Trash2,
   X,
@@ -1333,6 +1402,8 @@ const itemsPerPage = ref(20);
 
 const uploading = ref(false);
 const uploadingFile = ref("");
+const converting = ref(false);
+const convertingFile = ref("");
 const isDragging = ref(false);
 const showUploadMenu = ref(false);
 
@@ -1579,14 +1650,7 @@ let gatewayPinnedSeq = 0;
 let gatewayUsageSeq = 0;
 
 const isBrowsing = computed(() => !!browseRootCid.value);
-const canRenameSelected = computed(() => {
-  const f = selectedFile.value;
-  if (!f) return false;
-  const rel = String(f.relPath || "")
-    .replace(/^\/+/, "")
-    .replace(/\/+$/, "");
-  return !rel;
-});
+const canRenameSelected = computed(() => canRenameEntry(selectedFile.value));
 
 function encodeIpfsTarget(target: string): string {
   const cleaned = String(target || "")
@@ -1611,19 +1675,44 @@ function contentTargetFor(file: DriveFile): string {
   return String(file?.cid || "").trim();
 }
 
+function isHlsEntry(file: DriveFile | null | undefined): boolean {
+  const rel = String(file?.relPath || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .toLowerCase();
+  if (rel.endsWith(".m3u8")) return true;
+
+  const name = String(file?.name || "").trim();
+  const lower = name.toLowerCase();
+  if (lower.endsWith(".m3u8")) return true;
+  return /\s-\s*hls$/i.test(name);
+}
+
+function openTargetFor(file: DriveFile): string {
+  const target = contentTargetFor(file);
+  if (String(target).toLowerCase().endsWith(".m3u8")) return target;
+  if (!isHlsEntry(file)) return target;
+  const root = String(file?.rootCid || file?.cid || "").trim();
+  if (!root) return target;
+  return `${root}/master.m3u8`;
+}
+
 const rootSavedEntries = computed<DriveFile[]>(() => {
   return activeSavedCids.value.map((cid) => {
     const existing = files.value.find((f) => f.cid === cid);
     const cachedType =
       entryTypeCache.value[String(cid)] || existing?.type || undefined;
+    const rootCid = String(existing?.rootCid || cid);
+    const relPath = String(existing?.relPath || "");
     return {
       cid,
       name: getSavedName(cid),
       size: existing?.size ?? 0,
       uploadedAt: existing?.uploadedAt,
       type: cachedType,
-      rootCid: cid,
-      relPath: "",
+      rootCid,
+      relPath,
     };
   });
 });
@@ -3065,6 +3154,12 @@ function normalizeCidKey(cid: string): string {
   return String(cid || "").trim();
 }
 
+function stripExt(name: string): string {
+  const s = String(name || "").trim();
+  if (!s) return "";
+  return s.replace(/\.[a-z0-9]{1,8}$/i, "");
+}
+
 function getSavedName(cid: string): string {
   const key = normalizeCidKey(cid);
   if (!key) return "Unknown";
@@ -3305,6 +3400,79 @@ async function uploadFile(file: File) {
   }
 }
 
+async function convertToHls(file: DriveFile) {
+  const f = file as any;
+  if (!f || !String(f.cid || "").trim()) return;
+  if (isDirEntry(file)) return;
+  if (!isVideoFile(file.name)) return;
+  if (!ipfsConnected.value) {
+    showToast("IPFS not connected", "error");
+    return;
+  }
+  if (uploading.value || converting.value) {
+    showToast("Another task is already running. Please wait…", "error");
+    return;
+  }
+
+  converting.value = true;
+  convertingFile.value = file.name;
+
+  try {
+    const target = contentTargetFor(file);
+    const res = await (window as any).lumen?.driveConvertToHls?.({
+      cidOrPath: target,
+      name: file.name,
+      audioBitrate: "128k",
+    });
+
+    if (!res?.ok || !res?.cid) {
+      showToast(String(res?.error || "HLS conversion failed"), "error");
+      return;
+    }
+
+    const newCid = String(res.cid);
+    const base = stripExt(file.name) || file.name;
+    const newName = `${base} - HLS`;
+
+    entryTypeCache.value = { ...entryTypeCache.value, [newCid]: "file" };
+    setSavedName(newCid, newName);
+
+    upsertFileMetadata({
+      cid: newCid,
+      name: newName,
+      size: Number(res?.sizeBytes || 0) || 0,
+      uploadedAt: Date.now(),
+      type: "file",
+      rootCid: newCid,
+      relPath: "master.m3u8",
+    });
+
+    if (hosting.value.kind === "gateway") {
+      const pinned = await pinCidToActiveGateway(newCid);
+      if (!pinned.ok) {
+        showToast(pinned.error, "error");
+        return;
+      }
+      showToast(`Converted & pinned to gateway: ${newName}`, "success");
+    } else {
+      loadStats();
+      await loadPinnedFiles();
+      showToast(`Converted to HLS: ${newName}`, "success");
+    }
+  } catch (e: any) {
+    console.error("HLS conversion error:", e);
+    showToast(String(e?.message || "HLS conversion error"), "error");
+  } finally {
+    converting.value = false;
+    convertingFile.value = "";
+  }
+}
+
+function convertSelectedToHls() {
+  if (!selectedFile.value) return;
+  void convertToHls(selectedFile.value);
+}
+
 async function downloadFile(file: DriveFile) {
   try {
     const target = contentTargetFor(file);
@@ -3329,9 +3497,10 @@ async function downloadFile(file: DriveFile) {
 }
 
 function lumenLinkFor(file: DriveFile): string {
-  const target = contentTargetFor(file);
+  const target = openTargetFor(file);
   const encoded = encodeIpfsTarget(target);
-  const isDir = String((file as any)?.type || "") === "dir";
+  const isDir =
+    String((file as any)?.type || "") === "dir" && target === contentTargetFor(file);
   return `lumen://ipfs/${encoded}${isDir ? "/" : ""}`;
 }
 
@@ -3538,6 +3707,18 @@ async function openDirectory(file: DriveFile) {
 
 async function handleEntryClick(file: DriveFile) {
   if (browseLoading.value) return;
+  if (isHlsEntry(file)) {
+    const cid = String(file?.cid || "").trim();
+    if (!cid) return;
+    entryTypeCache.value = { ...entryTypeCache.value, [cid]: "file" };
+    selectedFile.value = {
+      ...file,
+      type: "file",
+      rootCid: String(file?.rootCid || cid),
+      relPath: String(file?.relPath || "master.m3u8"),
+    };
+    return;
+  }
   if (String((file as any)?.type) === "dir") {
     await openDirectory(file);
     return;
@@ -3556,17 +3737,41 @@ async function handleEntryClick(file: DriveFile) {
     (it: any) =>
       it && String(it.name || "").trim() && String(it.cid || "").trim(),
   );
-  const isDirDetected = links.length > 0;
+  const hasHlsMaster = links.some(
+    (it: any) => String(it?.name || "").toLowerCase() === "master.m3u8",
+  );
+  const isDirDetected = links.length > 0 && !hasHlsMaster;
   entryTypeCache.value = {
     ...entryTypeCache.value,
     [cid]: isDirDetected ? "dir" : "file",
   };
 
+  if (hasHlsMaster) {
+    const next: DriveFile = {
+      ...file,
+      type: "file",
+      rootCid: cid,
+      relPath: "master.m3u8",
+    };
+    selectedFile.value = next;
+    upsertFileMetadata({
+      cid,
+      name: file.name,
+      size: file.size,
+      uploadedAt: file.uploadedAt,
+      type: "file",
+      rootCid: cid,
+      relPath: "master.m3u8",
+    });
+    return;
+  }
+
   if (isDirDetected) {
     await openDirectory({ ...file, type: "dir", rootCid: cid, relPath: "" });
-  } else {
-    selectedFile.value = { ...file, type: "file" };
+    return;
   }
+
+  selectedFile.value = { ...file, type: "file" };
 }
 
 function selectFile(file: DriveFile) {
@@ -3663,6 +3868,7 @@ watch(
 );
 
 function isDirEntry(file: DriveFile | null | undefined): boolean {
+  if (isHlsEntry(file)) return false;
   if (String((file as any)?.type || "") === "dir") return true;
   const cid = String((file as any)?.cid || "").trim();
   if (!cid) return false;
@@ -3673,11 +3879,16 @@ function openEntryDetails(file: DriveFile) {
   selectedFile.value = file;
 }
 
-function canRenameEntry(f: DriveFile): boolean {
-  const rel = String(f?.relPath || "")
-    .replace(/^\/+/, "")
-    .replace(/\/+$/, "");
-  return !rel;
+function isRootSavedEntry(f: DriveFile | null | undefined): boolean {
+  if (!f) return false;
+  if (isBrowsing.value) return false;
+  const cid = String(f?.cid || "").trim();
+  if (!cid) return false;
+  return activeSavedCids.value.some((x) => String(x || "").trim() === cid);
+}
+
+function canRenameEntry(f: DriveFile | null | undefined): boolean {
+  return isRootSavedEntry(f);
 }
 
 function saveSelectedName() {
@@ -3691,11 +3902,7 @@ function saveSelectedName() {
 async function removeFile(file: DriveFile) {
   const cid = String(file?.cid || "").trim();
   if (!cid) return;
-
-  const rel = String(file?.relPath || "")
-    .replace(/^\/+/, "")
-    .replace(/\/+$/, "");
-  if (rel) {
+  if (!isRootSavedEntry(file)) {
     showToast("Remove is only available on root saved entries", "error");
     return;
   }
@@ -3767,6 +3974,7 @@ async function removeFile(file: DriveFile) {
 
 function getFileTypeClass(file: DriveFile | null | undefined): string {
   if (isDirEntry(file)) return "type-folder";
+  if (isHlsEntry(file)) return "type-video";
   const name = String(file?.name || "");
   const ext = name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
@@ -3947,6 +4155,7 @@ async function onImageError(file: DriveFile) {
 
 function getFileIcon(file: DriveFile | null | undefined) {
   if (isDirEntry(file)) return Folder;
+  if (isHlsEntry(file)) return FileVideo;
   const name = String(file?.name || "");
   const ext = name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))

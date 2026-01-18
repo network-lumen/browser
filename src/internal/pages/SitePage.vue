@@ -41,8 +41,20 @@
       </div>
 
       <div v-else class="viewer">
+        <template v-if="resolvedHttpUrl && isHlsPath">
+          <video
+            ref="videoEl"
+            class="site-video"
+            controls
+            autoplay
+            playsinline
+          ></video>
+          <div v-if="hlsError" class="hls-error">
+            {{ hlsError }}
+          </div>
+        </template>
         <webview
-          v-if="resolvedHttpUrl"
+          v-else-if="resolvedHttpUrl"
           ref="siteWebview"
           class="site-webview"
           :src="resolvedHttpUrl"
@@ -87,6 +99,9 @@ const error = ref("");
 const statusLine = ref("");
 const resolvedHttpUrl = ref("");
 const siteWebview = ref<any>(null);
+const videoEl = ref<HTMLVideoElement | null>(null);
+const isHlsPath = ref(false);
+const hlsError = ref("");
 
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
@@ -99,6 +114,7 @@ type ActiveState = {
 const active = ref<ActiveState | null>(null);
 
 let suppressNextResolve = false;
+let hlsInstance: any = null;
 
 function parseLumenUrl(raw: string): { host: string; path: string; suffix: string } {
   const s = String(raw || "").trim();
@@ -109,6 +125,99 @@ function parseLumenUrl(raw: string): { host: string; path: string; suffix: strin
   const path = m?.[1] || "";
   const suffix = m?.[2] || "";
   return { host, path: path || "/", suffix };
+}
+
+async function ensureHlsStopped() {
+  try {
+    if (hlsInstance && typeof hlsInstance.destroy === "function") hlsInstance.destroy();
+  } catch {
+    // ignore
+  }
+  hlsInstance = null;
+  hlsError.value = "";
+  try {
+    if (videoEl.value) videoEl.value.src = "";
+  } catch {
+    // ignore
+  }
+}
+
+async function ensureHlsPlaying(url: string) {
+  const video = videoEl.value;
+  if (!video) return;
+  hlsError.value = "";
+
+  // Safari (and some platforms) support HLS natively.
+  try {
+    if (typeof video.canPlayType === "function") {
+      const can = video.canPlayType("application/vnd.apple.mpegurl");
+      if (can === "probably" || can === "maybe") {
+        await ensureHlsStopped();
+        video.src = url;
+        void video.play?.().catch?.(() => {});
+        return;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  const { default: Hls } = await import("hls.js");
+  if (!Hls || typeof Hls.isSupported !== "function" || !Hls.isSupported()) {
+    await ensureHlsStopped();
+    video.src = url;
+    return;
+  }
+
+  const sanitizeHlsUrl = (u: string): string =>
+    String(u || "").replace(/%(?![0-9A-Fa-f]{2})/g, "%25");
+
+  await ensureHlsStopped();
+  hlsInstance = new Hls({
+    lowLatencyMode: true,
+    xhrSetup: (xhr: XMLHttpRequest, rawUrl: string) => {
+      const nextUrl = sanitizeHlsUrl(rawUrl);
+      if (nextUrl === rawUrl) return;
+      try {
+        xhr.open("GET", nextUrl, true);
+      } catch {
+        // ignore
+      }
+    },
+  });
+
+  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+    void video.play?.().catch?.(() => {});
+  });
+  hlsInstance.on(Hls.Events.ERROR, (_evt: any, data: any) => {
+    const url = String(data?.context?.url || data?.frag?.url || data?.url || "");
+    const code = data?.response?.code || data?.response?.status || data?.networkDetails?.status || "";
+    const details = String(data?.details || "");
+    const reason = String(data?.reason || "");
+    const type = String(data?.type || "");
+    const errMsg = String(data?.error?.message || "");
+    const respText = String(data?.response?.text || "");
+    const msg = details || type || "hls_error";
+    const extraBits = [reason, errMsg, respText].map((s) => String(s || "").trim()).filter(Boolean);
+    const extra = extraBits.length ? ` - ${extraBits[0]}` : "";
+    hlsError.value = `HLS ${msg}${extra}${code ? ` (HTTP ${code})` : ""}${url ? `: ${url}` : ""}`;
+    try {
+      if (data?.fatal && data?.type === Hls.ErrorTypes.NETWORK_ERROR) {
+        hlsInstance.startLoad();
+      } else if (data?.fatal && data?.type === Hls.ErrorTypes.MEDIA_ERROR) {
+        hlsInstance.recoverMediaError();
+      }
+    } catch {
+      // ignore
+    }
+  });
+
+  try {
+    hlsInstance.loadSource(url);
+  } catch {}
+  try {
+    hlsInstance.attachMedia(video);
+  } catch {}
 }
 
 function chooseCandidatePaths(p: string): string[] {
@@ -132,6 +241,8 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
   const host = parsed.host;
   const canonicalPath = normalizePath(parsed.path || "/");
   const suffix = parsed.suffix || "";
+
+  isHlsPath.value = canonicalPath.toLowerCase().endsWith(".m3u8");
 
   if (!host) {
     resolvedHttpUrl.value = "";
@@ -352,12 +463,35 @@ watch(
   },
 );
 
+watch(
+  () => [
+    resolvedHttpUrl.value,
+    isHlsPath.value,
+    loading.value,
+    error.value,
+    !!videoEl.value,
+  ],
+  async ([url, isHls, isLoading, err, hasVideo]) => {
+    if (isLoading || err) {
+      await ensureHlsStopped();
+      return;
+    }
+    if (isHls && url && hasVideo) {
+      await ensureHlsPlaying(String(url));
+    } else {
+      await ensureHlsStopped();
+    }
+  },
+  { immediate: true, flush: "post" },
+);
+
 onBeforeUnmount(() => {
   try {
     siteWebview.value?.stop?.();
   } catch {
     // ignore
   }
+  void ensureHlsStopped();
 });
 </script>
 
@@ -486,10 +620,26 @@ onBeforeUnmount(() => {
 }
 
 .site-webview,
+.site-video,
 .site-empty {
   width: 100%;
   height: 100%;
   border: none;
   background: var(--bg-primary);
+}
+
+.hls-error {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  background: rgba(254, 202, 202, 0.18);
+  color: var(--ios-red);
+  font-size: 0.875rem;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 </style>

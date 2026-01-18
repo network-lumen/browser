@@ -18,9 +18,12 @@
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",
     "@cosmjs/encoding": "^0.36.0",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "@lumen-chain/sdk": "^1.3.0",
     "@noble/post-quantum": "^0.5.4",
     "@zxing/library": "^0.21.3",
+    "hls.js": "^1.6.12",
     "kubo": "^0.37.0",
     "lucide-vue-next": "^0.540.0",
     "qrcode": "^1.5.4",
@@ -32,7 +35,7 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "concurrently": "^9.0.0",
     "electron": "^39.2.7",
-    "electron-builder": "^26.0.12",
+    "electron-builder": "^26.4.0",
     "typescript": "^5.5.4",
     "vite": "^6.4.1"
   },
@@ -41,7 +44,9 @@
     "productName": "Lumen Browser",
     "asar": true,
     "asarUnpack": [
-      "node_modules/kubo/kubo/**"
+      "node_modules/kubo/kubo/**",
+      "node_modules/@ffmpeg-installer/**",
+      "node_modules/@ffprobe-installer/**"
     ],
     "files": [
       "dist/**",

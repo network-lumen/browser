@@ -69,6 +69,13 @@ function applyIpfsAddressesConfig(bin, repoPath) {
     setCfgJson('Swarm.RelayClient.Enabled', 'true');
     setCfgJson('Swarm.EnableAutoRelay', 'true');
     setCfgJson('Swarm.EnableHolePunching', 'true');
+
+    // Allow the renderer (http://localhost / app://) to fetch gateway resources (HLS needs this).
+    // Without these, Chromium blocks cross-origin HLS playlist/segment requests (CORS).
+    setCfgJson('Gateway.HTTPHeaders.Access-Control-Allow-Origin', '["*"]');
+    setCfgJson('Gateway.HTTPHeaders.Access-Control-Allow-Methods', '["GET","HEAD","OPTIONS"]');
+    setCfgJson('Gateway.HTTPHeaders.Access-Control-Allow-Headers', '["Range","Origin","Accept","Content-Type","User-Agent"]');
+    setCfgJson('Gateway.HTTPHeaders.Access-Control-Expose-Headers', '["Content-Range","Content-Length","Content-Type"]');
   } catch (e) {
     console.warn('[electron][ipfs] applyIpfsAddressesConfig failed', e);
   }
