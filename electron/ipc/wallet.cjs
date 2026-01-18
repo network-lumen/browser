@@ -1,4 +1,4 @@
-const { ipcMain, app } = require('electron');
+const { ipcMain, app, BrowserWindow } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -19,6 +19,22 @@ try {
 }
 
 let bridge = null;
+
+function broadcastPqcLinked(payload) {
+  try {
+    const wins =
+      typeof BrowserWindow?.getAllWindows === 'function' ? BrowserWindow.getAllWindows() : [];
+    for (const w of wins) {
+      try {
+        w?.webContents?.send?.('profiles:pqcLinked', payload);
+      } catch {
+        // ignore per-window failures
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
 
 async function loadBridge() {
   if (bridge) return bridge;
@@ -453,9 +469,9 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
 }
 
 async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
-  if (!address || !client || !record) return;
+  if (!address || !client || !record) return false;
   const status = await fetchOnChainPqcStatus(client, address);
-  if (status.linked) return;
+  if (status.linked) return false;
 
   const pqcModule = typeof client.pqc === 'function' ? client.pqc() : null;
   if (!pqcModule || !pqcModule.msgLinkAccountPqc) {
@@ -491,6 +507,7 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
   if (res.code !== 0) {
     throw new Error(res.rawLog || `link-account PQC failed (code ${res.code})`);
   }
+  return true;
 }
 
 const WALLET_ACTIVATION_TOOLTIP =
@@ -597,10 +614,30 @@ async function signAndBroadcastWithPqcAutoLink({
     }
 
     try {
+      // The SDK caches the PQC keystore (links/keys) in-memory on first use.
+      // If we mutate pqc_keys via a separate keystore instance, the client would keep using stale links.
+      // Clear the cache before repairing local PQC state so subsequent sign attempts see fresh data.
+      try {
+        if (client && typeof client === 'object') {
+          client.pqcStore = undefined;
+        }
+      } catch {}
+
       const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, address);
+      try {
+        if (pqcLocal && pqcLocal.store && client && typeof client === 'object') {
+          client.pqcStore = pqcLocal.store;
+        }
+      } catch {}
       if (pqcLocal && pqcLocal.record) {
-        await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
-        await waitForPqcLinkCommit(address).catch(() => false);
+        const didLink = await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
+        const committed = didLink ? await waitForPqcLinkCommit(address).catch(() => false) : false;
+        if (didLink && committed) {
+          broadcastPqcLinked({
+            profileId: String(profileId || '').trim(),
+            address: String(address || '').trim()
+          });
+        }
       }
     } catch (linkErr) {
       const linkMsg = String(linkErr && linkErr.message ? linkErr.message : linkErr);

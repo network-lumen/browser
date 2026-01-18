@@ -117,6 +117,7 @@ const activeId = ref<string>('');
 
 const showOnboarding = ref(false);
 const ONBOARDING_KEY_PREFIX = 'lumen_wallet_onboarding_completed_';
+let onboardingSkippedUntilRestart = false;
 
 const hdr = ref<HTMLElement | null>(null);
 const draggingId = ref<string | null>(null);
@@ -609,6 +610,10 @@ function createResizeObserver() {
 
 async function checkOnboardingStatus() {
   try {
+    if (onboardingSkippedUntilRestart) {
+      return;
+    }
+
     const profileId = activeProfileId.value;
     if (!profileId) {
       // No active profile, skip
@@ -656,7 +661,8 @@ function handleOnboardingComplete() {
 }
 
 function handleOnboardingSkip() {
-  // User skipped, but don't mark as complete so it shows again next time
+  // User skipped: don't ask again until next launch.
+  onboardingSkippedUntilRestart = true;
   showOnboarding.value = false;
 }
 </script>

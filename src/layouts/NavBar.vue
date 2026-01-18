@@ -153,7 +153,7 @@
       <div class="export-modal">
         <div class="export-modal-header">
           <h3>Export Profile</h3>
-          <button type="button" class="export-modal-close" @click="cancelExportModal">×</button>
+          <button type="button" class="export-modal-close" @click="cancelExportModal">&times;</button>
         </div>
         
         <div class="export-modal-body">
@@ -239,7 +239,7 @@
       <div class="export-modal">
         <div class="export-modal-header">
           <h3>Encrypted Backup</h3>
-          <button type="button" class="export-modal-close" @click="cancelImportPasswordModal">×</button>
+          <button type="button" class="export-modal-close" @click="cancelImportPasswordModal">&times;</button>
         </div>
         
         <div class="export-modal-body">
@@ -287,7 +287,7 @@
       <div class="export-modal">
         <div class="export-modal-header">
           <h3>Delete profile?</h3>
-          <button type="button" class="export-modal-close" @click="cancelDeleteProfileModal">×</button>
+          <button type="button" class="export-modal-close" @click="cancelDeleteProfileModal">&times;</button>
         </div>
 
         <div class="export-modal-body">
@@ -302,6 +302,38 @@
             </UiButton>
             <UiButton variant="none" class="export-btn confirm danger" @click="confirmDeleteProfile">
               Delete
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- PQC Link Notice -->
+  <Teleport to="body">
+    <div
+      v-if="showPqcLinkedModal"
+      class="export-modal-overlay"
+      @click.self="dismissPqcLinkedModal"
+    >
+      <div class="export-modal">
+        <div class="export-modal-header">
+          <h3>Post-quantum security enabled</h3>
+          <button type="button" class="export-modal-close" @click="dismissPqcLinkedModal">&times;</button>
+        </div>
+
+        <div class="export-modal-body">
+          <p class="export-modal-desc">
+            Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
+            Your wallet is now linked on-chain and uses post-quantum security.
+          </p>
+
+          <div class="export-modal-actions">
+            <UiButton variant="none" class="export-btn cancel" @click="dismissPqcLinkedModal">
+              Ignore
+            </UiButton>
+            <UiButton variant="none" class="export-btn confirm" @click="exportAfterPqcLinked">
+              Export
             </UiButton>
           </div>
         </div>
@@ -383,6 +415,11 @@ const showDeleteProfileModal = ref(false);
 const pendingDeleteProfileId = ref('');
 const pendingDeleteProfileName = ref('');
 
+// PQC link notice state
+const showPqcLinkedModal = ref(false);
+const pqcLinkedProfileId = ref('');
+const pqcLinkedSeen = new Set<string>();
+
 const profiles = profilesState;
 
 const hasProfiles = computed(() => profiles.value.length > 0);
@@ -395,6 +432,13 @@ const isGuestOnly = computed(
 const activeProfileDisplay = computed(
   () => activeProfile.value?.name || activeProfile.value?.id || 'Profile'
 );
+
+const pqcLinkedProfileDisplay = computed(() => {
+  const id = String(pqcLinkedProfileId.value || '').trim();
+  if (!id) return 'your profile';
+  const p = profiles.value.find((x) => String(x?.id || '') === id) || null;
+  return String(p?.name || p?.id || id);
+});
 
 const activeTab = computed<Tab | null>(() => {
   const found = props.tabs.find((t) => t.id === props.tabActive) ?? null;
@@ -777,6 +821,21 @@ function cancelDeleteProfileModal() {
   pendingDeleteProfileName.value = '';
 }
 
+function dismissPqcLinkedModal() {
+  showPqcLinkedModal.value = false;
+  pqcLinkedProfileId.value = '';
+}
+
+async function exportAfterPqcLinked() {
+  const id = String(pqcLinkedProfileId.value || activeProfileId.value || '').trim();
+  dismissPqcLinkedModal();
+  if (!id) return;
+  if (id !== activeProfileId.value) {
+    await setActiveProfile(id);
+  }
+  await onExportProfile();
+}
+
 async function confirmDeleteProfile() {
   const id = String(pendingDeleteProfileId.value || '').trim();
   if (!id) return;
@@ -804,13 +863,42 @@ function onGlobalClick(e: MouseEvent) {
   resetProfileUi();
 }
 
+let detachPqcLinkedListener: null | (() => void) = null;
 onMounted(() => {
   void initProfiles();
   window.addEventListener('click', onGlobalClick);
+
+  try {
+    const api = (window as any).lumen?.profiles;
+    if (api && typeof api.onPqcLinked === 'function') {
+      detachPqcLinkedListener = api.onPqcLinked((payload: any) => {
+        try {
+          const profileId = String(payload?.profileId || '').trim();
+          const address = String(payload?.address || '').trim();
+          if (!profileId) return;
+          const key = address || profileId;
+          if (pqcLinkedSeen.has(key)) return;
+          pqcLinkedSeen.add(key);
+          pqcLinkedProfileId.value = profileId;
+          showPqcLinkedModal.value = true;
+        } catch {
+          // ignore handler errors
+        }
+      });
+    }
+  } catch {
+    // ignore
+  }
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('click', onGlobalClick);
+  try {
+    detachPqcLinkedListener?.();
+  } catch {
+    // ignore
+  }
+  detachPqcLinkedListener = null;
 });
 </script>
 

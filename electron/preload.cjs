@@ -81,7 +81,7 @@ contextBridge.exposeInMainWorld('lumen', {
     getAccount: (address) => ipcRenderer.invoke('pqc:getAccount', address)
   },
   profiles: {
-getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavourite: (domain, cid) => ipcRenderer.invoke('profiles:setFavourite', domain, cid),    removeFavourite: (domain) => ipcRenderer.invoke('profiles:removeFavourite', domain),
+ getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavourite: (domain, cid) => ipcRenderer.invoke('profiles:setFavourite', domain, cid),    removeFavourite: (domain) => ipcRenderer.invoke('profiles:removeFavourite', domain),
     list: () => ipcRenderer.invoke('profiles:list'),
     getActive: () => ipcRenderer.invoke('profiles:getActive'),
     select: (id) => ipcRenderer.invoke('profiles:setActive', id),
@@ -93,7 +93,21 @@ getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavouri
     import: (json) => ipcRenderer.invoke('profiles:import', json),
     importBackup: () => ipcRenderer.invoke('profiles:importBackup'),
     importEncryptedBackup: (filePath, password) => ipcRenderer.invoke('profiles:importEncryptedBackup', filePath, password),
-    delete: (id) => ipcRenderer.invoke('profiles:delete', id)
+    delete: (id) => ipcRenderer.invoke('profiles:delete', id),
+    onPqcLinked: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('profiles:pqcLinked', handler);
+      return () => {
+        ipcRenderer.removeListener('profiles:pqcLinked', handler);
+      };
+    }
   },
   rpc: {
     getHeight: () => ipcRenderer.invoke('rpc:getHeight'),

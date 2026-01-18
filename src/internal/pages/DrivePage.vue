@@ -6952,6 +6952,19 @@ async function reloadForActiveProfileChange() {
   position: relative;
 }
 
+.btn-modal-secondary {
+  flex: 1;
+  padding: 0.875rem;
+  border-radius: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .files-table tbody tr:nth-child(even) {
   background: var(--fill-tertiary);
 }
@@ -6995,6 +7008,7 @@ async function reloadForActiveProfileChange() {
 .btn-modal-secondary:hover:not(:disabled) {
   background: var(--bg-secondary);
   border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .btn-modal-secondary:disabled {
