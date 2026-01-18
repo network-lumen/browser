@@ -207,7 +207,7 @@
                       @click="removeSettingsRecord(idx)"
                       title="Remove row"
                     >
-                      ×
+                      <X :size="14" />
                     </button>
                   </div>
                 </div>
@@ -271,6 +271,7 @@ import {
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import { useToast } from '../../composables/useToast';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
@@ -294,6 +295,22 @@ const activeProfileDisplay = computed(
 const domains = ref<DomainRow[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+const toast = useToast();
+function showToast(
+  message: string,
+  type: 'success' | 'error' | 'warning' | 'info' = 'success'
+) {
+  if (type === 'error') {
+    toast.error(message);
+  } else if (type === 'warning') {
+    toast.warning(message);
+  } else if (type === 'info') {
+    toast.info(message);
+  } else {
+    toast.success(message);
+  }
+}
 
 const showRegisterModal = ref(false);
 const domainAvailable = ref(true);
@@ -753,7 +770,12 @@ async function openSettingsModal(d?: DomainRow) {
   void refreshSettingsFunding();
 }
 
-function closeSettingsModal() {
+function closeSettingsModal(force?: boolean) {
+  const isForce = force === true;
+  if (savingSettings.value && !isForce) {
+    showToast('Update in progress. Please wait...', 'info');
+    return;
+  }
   showSettingsModal.value = false;
   selectedDomain.value = null;
   savingSettings.value = false;
@@ -776,7 +798,7 @@ async function saveSettings() {
   const owner = (profileAddress.value || '').trim();
   const profileId = activeProfileId.value;
   if (!name || !owner || !profileId) {
-    window.alert('Select an active profile with a wallet first.');
+    showToast('Select an active profile with a wallet first.', 'error');
     return;
   }
   const cleaned = settingsRecords.value
@@ -787,7 +809,7 @@ async function saveSettings() {
     .filter((r) => r.key || r.value);
 
   if (!cleaned.length) {
-    window.alert('Add at least one record (key + value) before saving.');
+    showToast('Add at least one record (key + value) before saving.', 'error');
     return;
   }
 
@@ -795,7 +817,7 @@ async function saveSettings() {
     (r) => !r.key && !!r.value
   );
   if (hasEmptyKeyWithValue) {
-    window.alert('Each record needs a non-empty key when a value is set.');
+    showToast('Each record needs a non-empty key when a value is set.', 'error');
     return;
   }
 
@@ -805,14 +827,14 @@ async function saveSettings() {
   }));
 
   if (!hasFundsForSettings.value) {
-    window.alert('Not enough balance to update this domain.');
+    showToast('Not enough balance to update this domain.', 'error');
     return;
   }
 
   const anyWindow = window as any;
   const dnsApi = anyWindow?.lumen?.dns;
   if (!dnsApi || typeof dnsApi.updateDomain !== 'function') {
-    window.alert('Domain update bridge not available.');
+    showToast('Domain update bridge not available.', 'error');
     return;
   }
 
@@ -827,19 +849,20 @@ async function saveSettings() {
     
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
       try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+      showToast('Wallet locked. Unlock to continue.', 'warning');
       return;
     }
     
     if (!res || res.ok === false) {
       const msg = res && res.error ? String(res.error) : 'Domain update failed';
-      window.alert(msg);
+      showToast(msg, 'error');
       return;
     }
-    window.alert('Domain settings updated.');
-    closeSettingsModal();
+    showToast('Domain settings updated.', 'success');
+    closeSettingsModal(true);
   } catch (e) {
     console.error('[domains] saveSettings error', e);
-    window.alert('Unexpected error while updating domain.');
+    showToast('Unexpected error while updating domain.', 'error');
   } finally {
     savingSettings.value = false;
   }
