@@ -51,6 +51,17 @@ function toMbB64(s) {
   return 'm' + Buffer.from(String(s || ''), 'utf8').toString('base64');
 }
 
+function isProbablyMultibase(s) {
+  const str = String(s || '');
+  if (str.length < 2) return false;
+  const tag = str[0];
+  const rest = str.slice(1);
+  if (!rest) return false;
+  if (tag === 'u') return /^[A-Za-z0-9_-]+$/.test(rest);
+  if (tag === 'm') return /^[A-Za-z0-9+/=]+$/.test(rest);
+  return false;
+}
+
 function decodeMultibaseToBuffer(s) {
   try {
     const str = String(s || '');
@@ -86,34 +97,79 @@ async function post(url, body, headers, signal) {
   return res;
 }
 
+async function tryPublishMultipartArg(base, topicArg, body, headers, withArgEnc) {
+  const u = new URL(`${base}/api/v0/pubsub/pub`);
+  u.searchParams.set('arg', topicArg);
+  if (withArgEnc) u.searchParams.set('arg-enc', 'text');
+  const r = await post(u.toString(), body, headers);
+  await r.text().catch(() => '');
+  return !!r.ok;
+}
+
+async function tryPublishLegacyText(base, topicRaw, msgBuf) {
+  // Legacy fallbacks (older kubo builds). Note: message is utf8-encoded.
+  const txt = msgBuf.toString('utf8');
+  const variants = [
+    (() => {
+      const u = new URL(`${base}/api/v0/pubsub/pub`);
+      u.searchParams.set('topic', topicRaw);
+      u.searchParams.set('data', txt);
+      return u.toString();
+    })(),
+    (() => {
+      const u = new URL(`${base}/api/v0/pubsub/pub`);
+      u.searchParams.append('arg', topicRaw);
+      u.searchParams.append('arg', txt);
+      u.searchParams.set('arg-enc', 'text');
+      return u.toString();
+    })(),
+  ];
+
+  for (const url of variants) {
+    try {
+      const r = await post(url);
+      await r.text().catch(() => '');
+      if (r.ok) return true;
+    } catch {}
+  }
+  return false;
+}
+
+async function tryPublishToTopicString(base, topicArg, msgBuf, body, headers) {
+  try {
+    if (await tryPublishMultipartArg(base, topicArg, body, headers, false)) return true;
+  } catch {}
+  try {
+    if (await tryPublishMultipartArg(base, topicArg, body, headers, true)) return true;
+  } catch {}
+  try {
+    if (await tryPublishLegacyText(base, topicArg, msgBuf)) return true;
+  } catch {}
+  return false;
+}
+
 async function tryPublishBuffer(topicRaw, msgBuf) {
   const base = ipfsApiBase();
   const boundary = '----lumenForm-' + crypto.randomBytes(10).toString('hex');
   const body = buildMultipartDataBody(msgBuf, boundary);
   const headers = { 'Content-Type': `multipart/form-data; boundary=${boundary}` };
 
+  // If caller passed an already-multibase topic, only try it as-is. Generating
+  // additional multibase variants from it would create different topic strings.
+  if (isProbablyMultibase(topicRaw)) {
+    return await tryPublishToTopicString(base, topicRaw, msgBuf, body, headers);
+  }
+
   const topicMbU = toMbB64Url(topicRaw);
   const topicMbM = toMbB64(topicRaw);
 
-  const variants = [
-    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicMbU); return u.toString(); })(), body, headers },
-    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicMbM); return u.toString(); })(), body, headers },
-    // If caller passed an already-multibase topic, try it as-is too.
-    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicRaw); return u.toString(); })(), body, headers },
-    // Legacy fallbacks (older kubo builds)
-    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('arg', topicRaw); u.searchParams.set('arg-enc', 'text'); return u.toString(); })(), body, headers },
-    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.set('topic', topicRaw); u.searchParams.set('data', msgBuf.toString('utf8')); return u.toString(); })() },
-    { url: (() => { const u = new URL(`${base}/api/v0/pubsub/pub`); u.searchParams.append('arg', topicRaw); u.searchParams.append('arg', msgBuf.toString('utf8')); u.searchParams.set('arg-enc', 'text'); return u.toString(); })() },
-  ];
-
-  for (const v of variants) {
-    try {
-      const r = await post(v.url, v.body, v.headers);
-      if (r.ok) return true;
-      await r.text().catch(() => '');
-    } catch {}
-  }
-  return false;
+  // Publish to multiple topic encodings for cross-version compatibility:
+  // different kubo builds accept/require different topic encodings.
+  let okAny = false;
+  try { okAny = (await tryPublishToTopicString(base, topicMbU, msgBuf, body, headers)) || okAny; } catch {}
+  try { okAny = (await tryPublishToTopicString(base, topicMbM, msgBuf, body, headers)) || okAny; } catch {}
+  try { okAny = (await tryPublishToTopicString(base, topicRaw, msgBuf, body, headers)) || okAny; } catch {}
+  return okAny;
 }
 
 async function openSubscribeStream(topic, signal) {
@@ -283,7 +339,7 @@ async function routingFindprovs(cid, numProviders, timeoutMs) {
         }
       }
     } catch {}
-    try { reader.cancel(); } catch {}
+    try { await reader.cancel(); } catch {}
   } catch {
     // ignore
   }
@@ -386,7 +442,7 @@ function retainTopicDiscovery(topic) {
       const now = Date.now();
       if (!lastProvideAt || now - lastProvideAt > DISCOVERY_LIMITS.provideEveryMs) {
         lastProvideAt = now;
-        routingProvideBestEffort(cid);
+        void routingProvideBestEffort(cid).catch(() => {});
       }
 
       const found = await routingFindprovs(cid, DISCOVERY_LIMITS.numProviders, DISCOVERY_LIMITS.findprovsTimeoutMs);
@@ -514,7 +570,7 @@ function registerIpfsPubsubIpc() {
       if (stopped) return;
       stopped = true;
       try { if (releaseDiscovery) releaseDiscovery(); } catch {}
-      try { reader.cancel(); } catch {}
+      try { void reader.cancel().catch(() => {}); } catch {}
       try { ac.abort(); } catch {}
     };
 
@@ -610,13 +666,40 @@ function registerIpfsPubsubIpc() {
     if (!wc || wc.isDestroyed()) return { ok: false, error: 'sender_missing' };
     try {
       const t = topic ? normalizeTopic(topic) : '';
-      const u = new URL(`${ipfsApiBase()}/api/v0/pubsub/peers`);
-      if (t) u.searchParams.set('arg', toMbB64Url(t));
-      const r = await post(u.toString());
-      if (!r.ok) return { ok: false, error: 'peers_failed' };
-      const j = await r.json().catch(() => ({}));
-      const peers = Array.isArray(j?.Strings) ? j.Strings : [];
-      return { ok: true, peers };
+
+      const base = ipfsApiBase();
+      const fetchPeers = async (topicArg, withArgEnc) => {
+        const u = new URL(`${base}/api/v0/pubsub/peers`);
+        if (topicArg) u.searchParams.set('arg', topicArg);
+        if (withArgEnc) u.searchParams.set('arg-enc', 'text');
+        const r = await post(u.toString());
+        if (!r.ok) {
+          await r.text().catch(() => '');
+          return [];
+        }
+        const j = await r.json().catch(() => ({}));
+        return Array.isArray(j?.Strings) ? j.Strings : [];
+      };
+
+      const out = new Set();
+      if (!t) {
+        for (const p of await fetchPeers('', false)) out.add(p);
+        return { ok: true, peers: Array.from(out) };
+      }
+
+      if (isProbablyMultibase(t)) {
+        for (const p of await fetchPeers(t, false)) out.add(p);
+        return { ok: true, peers: Array.from(out) };
+      }
+
+      const variants = [toMbB64Url(t), toMbB64(t), t];
+      for (const v of variants) {
+        for (const p of await fetchPeers(v, false)) out.add(p);
+      }
+      // Legacy for raw-text topics.
+      for (const p of await fetchPeers(t, true)) out.add(p);
+
+      return { ok: true, peers: Array.from(out) };
     } catch (e) {
       return { ok: false, error: String(e?.message || e) };
     }
