@@ -1655,8 +1655,26 @@ function registerWalletIpc() {
       const address = String(input && input.address ? input.address : '').trim();
       const pubkeyB64 = input && input.pubkeyB64 ? String(input.pubkeyB64) : '';
 
-      if (!payload || !signatureB64 || !address) return { ok: false, error: 'missing_payload_signature_address' };
-      if (!pubkeyB64) return { ok: false, error: 'missing_pubkeyB64' };
+      if (!payload || !signatureB64 || !address) {
+        return {
+          ok: false,
+          algo,
+          signatureValid: false,
+          addressMatches: false,
+          derivedAddress: '',
+          error: 'missing_payload_signature_address'
+        };
+      }
+      if (!pubkeyB64) {
+        return {
+          ok: false,
+          algo,
+          signatureValid: false,
+          addressMatches: false,
+          derivedAddress: '',
+          error: 'missing_pubkeyB64'
+        };
+      }
 
       const { Secp256k1, Secp256k1Signature } = require('@cosmjs/crypto');
       const pubBytesRaw = Buffer.from(pubkeyB64, 'base64');
@@ -1670,10 +1688,19 @@ function registerWalletIpc() {
 
       const prefix = prefixFromAddress(address);
       const derivedAddr = pubkeyToAddressBech32(pubCompressed, prefix);
-      const ok = !!validSig && derivedAddr === address;
-      return { ok, algo };
+      const signatureValid = !!validSig;
+      const addressMatches = derivedAddr === address;
+      const ok = signatureValid && addressMatches;
+      return { ok, algo, signatureValid, addressMatches, derivedAddress: derivedAddr };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      return {
+        ok: false,
+        algo: String(input && input.algo ? input.algo : 'ADR-036'),
+        signatureValid: false,
+        addressMatches: false,
+        derivedAddress: '',
+        error: String(e && e.message ? e.message : e)
+      };
     }
   });
 }
