@@ -102,6 +102,20 @@ export async function resolveIpnsToCid(name: string): Promise<string | null> {
 export async function resolveDomainTarget(
   host: string
 ): Promise<{ target: DomainTarget; baseDomain: string }> {
+  const normalizeIpfsTarget = async (t: DomainTarget): Promise<DomainTarget> => {
+    if (!t || t.proto !== 'ipfs') return t;
+    const id = String(t.id || '').trim();
+    // CIDv0 -> CIDv1 base32 (required for localhost subdomain gateways).
+    if (!/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(id)) return t;
+
+    const api: any = (window as any).lumen;
+    if (!api || typeof api.ipfsCidToBase32 !== 'function') return t;
+    const res = await api.ipfsCidToBase32(id).catch(() => null);
+    const next = String(res?.cid || '').trim();
+    if (!next) return t;
+    return { ...t, id: next };
+  };
+
   const { baseDomain, recordKey } = splitSubdomain(host);
   const dnsApi = (window as any).lumen?.dns;
   const infoRes =
@@ -121,7 +135,7 @@ export async function resolveDomainTarget(
   if (recordKey && info && Array.isArray(info.records)) {
     const rec = info.records.find((r: any) => String(r?.key || '').toLowerCase() === recordKey);
     const parsed = rec ? parseRecordTarget(rec.value) : null;
-    if (parsed) return { target: parsed, baseDomain };
+    if (parsed) return { target: await normalizeIpfsTarget(parsed), baseDomain };
   }
 
   if (info && Array.isArray(info.records)) {
@@ -129,19 +143,19 @@ export async function resolveDomainTarget(
     for (const k of preferredKeys) {
       const rec = info.records.find((r: any) => String(r?.key || '').toLowerCase() === k);
       const parsed = rec ? parseRecordTarget(rec.value) : null;
-      if (parsed) return { target: parsed, baseDomain };
+      if (parsed) return { target: await normalizeIpfsTarget(parsed), baseDomain };
     }
   }
 
   const cid = info?.cid ? String(info.cid).trim() : '';
   const parsedCid = cid ? parseRecordTarget(cid) : null;
-  if (parsedCid) return { target: parsedCid, baseDomain };
+  if (parsedCid) return { target: await normalizeIpfsTarget(parsedCid), baseDomain };
 
   const ipns = info?.ipns ? String(info.ipns).trim() : '';
   const parsedIpns = ipns ? parseRecordTarget(ipns) : null;
-  if (parsedIpns) return { target: parsedIpns, baseDomain };
+  if (parsedIpns) return { target: await normalizeIpfsTarget(parsedIpns), baseDomain };
 
-  if (isCidLike(baseDomain)) return { target: { proto: 'ipfs', id: baseDomain }, baseDomain };
+  if (isCidLike(baseDomain)) return { target: await normalizeIpfsTarget({ proto: 'ipfs', id: baseDomain }), baseDomain };
 
   throw new Error('Domain is not linked to any IPFS/IPNS content.');
 }
@@ -166,6 +180,23 @@ export function buildCandidateUrl(base: string, target: DomainTarget, path: stri
 
   // Keep explicit trailing slash for directory targets.
   if (effectivePath === '') effectivePath = '/';
+
+  // Local subdomain gateway support to fix absolute-path SPA builds (e.g. /assets/*).
+  // Only enable for CIDv1 base32 (`bafy...`) because CIDv0 is case-sensitive and will be lowercased in DNS.
+  try {
+    const u = new URL(b);
+    const host = String(u.hostname || '').toLowerCase();
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    const isCidV1B32 = target.proto === 'ipfs' && /^bafy[a-z0-9]{20,}$/i.test(target.id);
+    if (isLocal && isCidV1B32) {
+      const port = u.port ? `:${u.port}` : '';
+      const proto = u.protocol || 'http:';
+      const idLower = String(target.id).toLowerCase();
+      const subHost = `${idLower}.ipfs.localhost`;
+      return `${proto}//${subHost}${port}${effectivePath}${suffix || ''}`;
+    }
+  } catch {}
+
   return `${b}/${target.proto}/${target.id}${effectivePath}${suffix || ''}`;
 }
 

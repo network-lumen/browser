@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsCidToBase32, ipfsAdd, ipfsAddDirectory, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings } = require('./settings.cjs');
@@ -40,6 +40,19 @@ function deriveSiteKeyFromHref(href) {
   try {
     const u = new URL(String(href || ''));
     const p = String(u.pathname || '/');
+    const host = String(u.hostname || '').trim();
+
+    // Subdomain gateway: http://<id>.ipfs.localhost:8080/...
+    if (host) {
+      const h = host.toLowerCase();
+      const mSub = h.match(/^([a-z0-9]+)\.(ipfs|ipns)\./i);
+      if (mSub && mSub[1] && mSub[2]) {
+        const id = String(mSub[1] || '').trim();
+        const kind = String(mSub[2] || '').trim().toLowerCase();
+        if (id && (kind === 'ipfs' || kind === 'ipns')) return `${kind}:${id}`;
+      }
+    }
+
     let m = p.match(/^\/ipfs\/([^/]+)(\/.*)?$/i);
     if (m && m[1]) return `ipfs:${m[1]}`;
     m = p.match(/^\/ipns\/([^/]+)(\/.*)?$/i);
@@ -214,6 +227,15 @@ ipcMain.handle('ipfs:add', async (_evt, data, filename) => {
 ipcMain.handle('ipfs:addDirectory', async (_evt, payload) => {
   console.log('[electron][ipc] ipfs:addDirectory requested');
   return ipfsAddDirectory(payload);
+});
+
+ipcMain.handle('ipfs:cidToBase32', async (_evt, cid) => {
+  try {
+    const out = ipfsCidToBase32(cid);
+    return { ok: true, cid: out || '' };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e || 'cid_format_failed') };
+  }
 });
 
 ipcMain.handle('ipfs:get', async (_evt, cid, options) => {

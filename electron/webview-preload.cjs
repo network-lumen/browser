@@ -18,7 +18,13 @@ function isIpfsGatewayUrl(href) {
   try {
     const u = new URL(String(href || ''));
     const p = String(u.pathname || '/');
-    return p === '/ipfs' || p.startsWith('/ipfs/') || p === '/ipns' || p.startsWith('/ipns/');
+    if (p === '/ipfs' || p.startsWith('/ipfs/') || p === '/ipns' || p.startsWith('/ipns/')) return true;
+
+    // Subdomain gateway support (e.g. http://<cid>.ipfs.localhost:8080/)
+    const host = String(u.hostname || '').trim();
+    if (!host) return false;
+    const h = host.toLowerCase();
+    return /^([a-z0-9]+)\.(ipfs|ipns)\./i.test(h);
   } catch {
     return false;
   }

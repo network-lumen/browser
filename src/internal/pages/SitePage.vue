@@ -260,18 +260,6 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
   suppressNextResolve = false;
 
   const prev = active.value;
-  if (
-    !opts.force &&
-    prev &&
-    prev.host === host &&
-    resolvedHttpUrl.value &&
-    !loading.value &&
-    !error.value &&
-    canonicalPath === normalizePath(parsed.path || "/")
-  ) {
-    // If only query/hash changed, let the webview handle it without re-resolving sources.
-    return;
-  }
 
   loading.value = true;
   error.value = "";
@@ -330,9 +318,22 @@ function toLumenFromWebHref(raw: string): string | null {
     if (!proto || !id) return null;
 
     const prefix = `/${proto}/${id}`;
-    if (!pathname.toLowerCase().startsWith(prefix.toLowerCase())) return null;
 
-    let rest = pathname.slice(prefix.length) || "/";
+    let rest = "";
+    const pathLower = pathname.toLowerCase();
+    const prefixLower = prefix.toLowerCase();
+
+    // Path-style gateway: http://127.0.0.1:8080/ipfs/<cid>/...
+    if (pathLower.startsWith(prefixLower)) {
+      rest = pathname.slice(prefix.length) || "/";
+    } else {
+      // Subdomain-style gateway: http://<cid>.ipfs.localhost:8080/...
+      const hostname = String(u.hostname || "").toLowerCase();
+      const idLower = id.toLowerCase();
+      const expectedPrefix = `${idLower}.${proto}.`;
+      if (!hostname.startsWith(expectedPrefix)) return null;
+      rest = pathname || "/";
+    }
     if (!rest.startsWith("/")) rest = "/" + rest;
 
     const basePathRaw = String(ctx.target.basePath || "").trim();
@@ -362,6 +363,20 @@ function toLumenIpfsOrIpnsFromWebHref(raw: string): string | null {
   try {
     const u = new URL(href);
     const pathname = String(u.pathname || "");
+    const hostname = String(u.hostname || "").trim();
+
+    // Subdomain gateway support: http://<cid>.ipfs.localhost:8080/...
+    if (hostname) {
+      const h = hostname.toLowerCase();
+      let mHost = h.match(/^([a-z0-9]+)\.(ipfs|ipns)\./i);
+      if (mHost && mHost[1] && mHost[2]) {
+        const id = mHost[1];
+        const kind = String(mHost[2]).toLowerCase();
+        const rest = pathname || "/";
+        return `lumen://${kind}/${id}${rest}${u.search || ""}${u.hash || ""}`;
+      }
+    }
+
     let m = pathname.match(/^\/ipfs\/([^/]+)(\/.*)?$/i);
     if (m) {
       const cid = m[1] || "";

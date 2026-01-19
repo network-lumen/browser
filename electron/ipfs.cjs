@@ -81,6 +81,44 @@ function applyIpfsAddressesConfig(bin, repoPath) {
   }
 }
 
+function ensureSubdomainGatewayConfig(repoPath) {
+  try {
+    const cfgFile = path.join(repoPath, 'config');
+    if (!fs.existsSync(cfgFile)) return;
+    const raw = fs.readFileSync(cfgFile, 'utf8');
+    const cfg = JSON.parse(raw || '{}');
+
+    cfg.Gateway = cfg.Gateway && typeof cfg.Gateway === 'object' ? cfg.Gateway : {};
+
+    // Enables subdomain gateways like:
+    //   http://<cid>.ipfs.localhost:8080/
+    // so absolute paths (e.g. /assets/...) resolve within the site root.
+    cfg.Gateway.UseSubdomains = true;
+
+    const pg = cfg.Gateway.PublicGateways && typeof cfg.Gateway.PublicGateways === 'object'
+      ? cfg.Gateway.PublicGateways
+      : {};
+
+    const ensurePg = (host) => {
+      const cur = pg[host] && typeof pg[host] === 'object' ? pg[host] : {};
+      const paths = Array.isArray(cur.Paths) ? cur.Paths : [];
+      const nextPaths = Array.from(new Set([...paths, '/ipfs', '/ipns']));
+      pg[host] = { ...cur, Paths: nextPaths, UseSubdomains: true };
+    };
+
+    // `*.localhost` resolves to 127.0.0.1 in modern browsers.
+    ensurePg('localhost');
+    // Keep explicit loopback host config too (doesn't hurt).
+    ensurePg('127.0.0.1');
+
+    cfg.Gateway.PublicGateways = pg;
+
+    fs.writeFileSync(cfgFile, JSON.stringify(cfg, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('[electron][ipfs] ensureSubdomainGatewayConfig failed', e);
+  }
+}
+
 function resolveKuboBin() {
   function unwrapAsarPath(p) {
     const s = String(p || '');
@@ -96,6 +134,21 @@ function resolveKuboBin() {
     // fall through
   }
   return 'ipfs';
+}
+
+function ipfsCidToBase32(cid) {
+  try {
+    const input = String(cid || '').trim();
+    if (!input) return null;
+    const bin = resolveKuboBin();
+    const r = spawnSync(bin, ['cid', 'format', '-v', '1', '-b', 'base32', input], { stdio: 'pipe' });
+    if (r.error) return null;
+    if (r.status !== 0) return null;
+    const out = String(r.stdout || '').trim().split(/\r?\n/).filter(Boolean).pop() || '';
+    return out ? out.trim() : null;
+  } catch {
+    return null;
+  }
 }
 
 function getIpfsRepoPath() {
@@ -141,6 +194,8 @@ function startIpfsDaemon() {
 
   // Make the embedded daemon listen on the configured endpoints.
   applyIpfsAddressesConfig(bin, repoPath);
+  // Enable subdomain gateway support for localhost.
+  ensureSubdomainGatewayConfig(repoPath);
 
   try {
     ipfsProcess = spawn(
@@ -348,7 +403,6 @@ async function ipfsAddDirectory(payload) {
     return { ok: false, error: String(e?.message || e) };
   }
 }
-
 function encodeUrlPathSegments(pathname) {
   const parts = String(pathname || '')
     .split('/')
@@ -861,6 +915,7 @@ module.exports = {
   startIpfsDaemon,
   checkIpfsStatus,
   stopIpfsDaemon,
+  ipfsCidToBase32,
   ipfsAdd,
   ipfsAddDirectory,
   ipfsGet,

@@ -1,6 +1,43 @@
 const { URL } = require('node:url');
 const { ipcMain } = require('electron');
 
+function normalizeHeaders(h) {
+  return h && typeof h === 'object' ? { ...h } : {};
+}
+
+function rewriteLocalhostSubdomain(url, headers) {
+  try {
+    const u = new URL(String(url || ''));
+    const host = String(u.hostname || '').trim();
+    if (!host) return { url: String(url || ''), headers };
+
+    const lower = host.toLowerCase();
+
+    // Browsers treat *.localhost as loopback, but Node/undici does not always resolve it.
+    // Instead of relying on a custom Host header (often restricted), convert subdomain gateway
+    // URLs to path-style gateway URLs which always resolve locally.
+    //
+    //   http://<cid>.ipfs.localhost:8080/path  -> http://127.0.0.1:8080/ipfs/<cid>/path
+    //   http://<name>.ipns.localhost:8080/path -> http://127.0.0.1:8080/ipns/<name>/path
+    const m = lower.match(/^([a-z0-9]+)\.(ipfs|ipns)\.localhost$/i);
+    if (m && m[1] && m[2]) {
+      const id = String(m[1] || '').trim();
+      const kind = String(m[2] || '').trim().toLowerCase();
+      if (!id || (kind !== 'ipfs' && kind !== 'ipns')) return { url: String(url || ''), headers };
+
+      const path = String(u.pathname || '/');
+      const rest = path.startsWith('/') ? path : '/' + path;
+      u.hostname = '127.0.0.1';
+      u.pathname = `/${kind}/${id}${rest}`;
+      return { url: u.toString(), headers: normalizeHeaders(headers) };
+    }
+
+    return { url: String(url || ''), headers };
+  } catch {
+    return { url: String(url || ''), headers };
+  }
+}
+
 async function httpGet(url, options = {}) {
   try {
     const parsed = new URL(url);
@@ -18,9 +55,10 @@ async function httpGet(url, options = {}) {
         ? options.timeout
         : 60000;
     const t = setTimeout(() => controller.abort(), timeoutMs);
-    const res = await fetch(url, {
+    const rewritten = rewriteLocalhostSubdomain(url, options.headers);
+    const res = await fetch(rewritten.url, {
       method: 'GET',
-      headers: options.headers || {},
+      headers: rewritten.headers || {},
       signal: controller.signal
     });
     clearTimeout(t);
@@ -74,9 +112,10 @@ async function httpGetBytes(url, options = {}) {
         ? options.timeout
         : 60000;
     const t = setTimeout(() => controller.abort(), timeoutMs);
-    const res = await fetch(url, {
+    const rewritten = rewriteLocalhostSubdomain(url, options.headers);
+    const res = await fetch(rewritten.url, {
       method: 'GET',
-      headers: options.headers || {},
+      headers: rewritten.headers || {},
       signal: controller.signal
     });
     clearTimeout(t);
@@ -121,9 +160,10 @@ async function httpHead(url, options = {}) {
         ? options.timeout
         : 30000;
     const t = setTimeout(() => controller.abort(), timeoutMs);
-    const res = await fetch(url, {
+    const rewritten = rewriteLocalhostSubdomain(url, options.headers);
+    const res = await fetch(rewritten.url, {
       method: 'HEAD',
-      headers: options.headers || {},
+      headers: rewritten.headers || {},
       signal: controller.signal
     });
     clearTimeout(t);

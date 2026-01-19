@@ -492,7 +492,26 @@ const contentUrl = computed(() => {
   if (!rootCid.value) return "";
   const p = relPath.value ? `/${encodePath(relPath.value)}` : "";
   const base = resolvedGatewayBase.value || localIpfsGatewayBase();
-  return `${String(base).replace(/\/+$/, "")}/ipfs/${rootCid.value}${p}${suffix.value || ""}`;
+
+  const b = String(base).replace(/\/+$/, "");
+  const suf = suffix.value || "";
+
+  // Use localhost subdomain gateway when possible to support absolute paths (e.g. Next.js /_next/*).
+  try {
+    const u = new URL(b);
+    const host = String(u.hostname || "").toLowerCase();
+    const isLocal = host === "localhost" || host === "127.0.0.1";
+    const isCidV1B32 = /^bafy[a-z0-9]{20,}$/i.test(rootCid.value);
+    if (isLocal && isCidV1B32) {
+      const port = u.port ? `:${u.port}` : "";
+      const proto = u.protocol || "http:";
+      const idLower = String(rootCid.value).toLowerCase();
+      const siteHost = `${idLower}.ipfs.localhost`;
+      return `${proto}//${siteHost}${port}${p || "/"}${suf}`;
+    }
+  } catch {}
+
+  return `${b}/ipfs/${rootCid.value}${p}${suf}`;
 });
 
 async function pickGatewayBaseForCurrentTarget(): Promise<string> {
@@ -1014,6 +1033,20 @@ function toLumenFromWebHref(raw: string): string | null {
   try {
     const u = new URL(href);
     const pathname = String(u.pathname || "");
+    const hostname = String(u.hostname || "").trim();
+
+    // Subdomain gateway support: http://<cid>.ipfs.localhost:8080/...
+    if (hostname) {
+      const h = hostname.toLowerCase();
+      const mHost = h.match(/^([a-z0-9]+)\.(ipfs|ipns)\./i);
+      if (mHost && mHost[1] && mHost[2]) {
+        const id = mHost[1] || "";
+        const kind = String(mHost[2] || "").toLowerCase();
+        const rest = pathname || "/";
+        if (kind === "ipfs") return `lumen://ipfs/${id}${rest}${u.search || ""}${u.hash || ""}`;
+        if (kind === "ipns") return `lumen://ipns/${id}${rest}${u.search || ""}${u.hash || ""}`;
+      }
+    }
     let m = pathname.match(/^\/ipfs\/([^/]+)(\/.*)?$/i);
     if (m) {
       const cid = m[1] || "";
@@ -1107,6 +1140,29 @@ function onWebviewIpcMessage(ev: any) {
 async function load() {
   const url = String(currentTabUrl?.value || window.location.href || "");
   const parsed = parseIpfsUrl(url);
+
+  // Auto-convert CIDv0 (Qm...) to CIDv1 base32 (bafy...) so localhost subdomain gateways work.
+  if (/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(parsed.cid)) {
+    const api: any = (window as any).lumen;
+    if (api && typeof api.ipfsCidToBase32 === "function") {
+      const res = await api.ipfsCidToBase32(parsed.cid).catch(() => null);
+      const next = String(res?.cid || "").trim();
+      if (next && next !== parsed.cid) {
+        const raw = String(url || "").trim();
+        const withoutScheme = /^lumen:\/\//i.test(raw) ? raw.slice("lumen://".length) : raw;
+        const isIpfs = withoutScheme.toLowerCase().startsWith("ipfs/");
+        if (navigate && isIpfs) {
+          const rest = withoutScheme.slice("ipfs/".length);
+          const idx = rest.search(/[/?#]/);
+          const tail = idx >= 0 ? rest.slice(idx) : "";
+          const rewritten = `lumen://ipfs/${next}${tail}`;
+          if (rewritten !== raw) navigate(rewritten, { push: false });
+        }
+        parsed.cid = next;
+      }
+    }
+  }
+
   if (
     rootCid.value &&
     viewKind.value === "html" &&
