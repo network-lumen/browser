@@ -239,8 +239,8 @@ async function openSubscribeStreams(topic, signal) {
 const DISCOVERY_LIMITS = {
   tickMs: 5000,
   provideEveryMs: 45_000,
-  findprovsTimeoutMs: 4000,
-  connectTimeoutMs: 2500,
+  findprovsTimeoutMs: 12_000,
+  connectTimeoutMs: 5000,
   numProviders: 20,
   maxNewPeersPerTick: 6,
   maxAddrsPerPeer: 4,
