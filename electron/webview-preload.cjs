@@ -116,56 +116,17 @@ async function pinCid(cidOrUrl, optsMaybe) {
   }
 }
 
-async function readCID(argOrOpts, optsMaybe) {
-  ensureLumenSite();
-
-  const inputObj = argOrOpts && typeof argOrOpts === 'object' ? argOrOpts : null;
-  const arg = safeString(inputObj ? inputObj.arg : argOrOpts, 2048);
-  if (!arg) return { ok: false, error: 'missing_cid' };
-
-  const maxBytesRaw = inputObj ? inputObj.maxBytes : null;
-  const maxBytes =
-    typeof maxBytesRaw === 'number' && Number.isFinite(maxBytesRaw) && maxBytesRaw > 0
-      ? Math.floor(maxBytesRaw)
-      : null;
-
-  const optionsObj = (inputObj ? inputObj : optsMaybe) && typeof (inputObj ? inputObj : optsMaybe) === 'object'
-    ? (inputObj ? inputObj : optsMaybe)
-    : {};
-
-  const options = {
-    timeoutMs: optionsObj.timeoutMs,
-    gateways: optionsObj.gateways
-  };
-
-  const allowed = await requestUserConsent('ReadCID', { cid: arg, options: { timeoutMs: options.timeoutMs, maxBytes } });
-  if (!allowed) return { ok: false, error: 'user_denied' };
-
-  try {
-    const res = await ipcRenderer.invoke('ipfs:get', arg, options || {});
-    if (!res || res.ok === false) return res || { ok: false, error: 'read_failed' };
-    if (!maxBytes) return res;
-    const data = Array.isArray(res.data) ? res.data : [];
-    const sliced = data.length > maxBytes ? data.slice(0, maxBytes) : data;
-    return { ...res, data: sliced, truncated: data.length > maxBytes };
-  } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'read_failed', 512) };
-  }
-}
-
 const lumen = {
   // Minimal "action" API (requested)
   SendToken: sendToken,
   Pin: pinCid,
   Save: pinCid,
-  ReadCID: readCID,
   resolveUrl,
 
   // Preferred camelCase aliases
   sendToken,
   pin: pinCid,
   save: pinCid,
-  readCID,
   resolveUrl,
 
   profiles: {
@@ -227,16 +188,6 @@ const lumen = {
 
       return { subId, topics, unsubscribe };
     },
-
-    ls: async () => {
-      ensureLumenSite();
-      return await ipcRenderer.invoke('ipfs:pubsub:ls');
-    },
-
-    peers: async (topic) => {
-      ensureLumenSite();
-      return await ipcRenderer.invoke('ipfs:pubsub:peers', safeString(topic, 1024));
-    }
   },
 
   wallet: {
@@ -262,19 +213,12 @@ const lumen = {
         address: safeString(a.address, 256),
       });
     }
-  },
-
-  // Legacy-ish surface for compatibility
-  ipfs: { pinAdd: pinCid, cat: readCID, get: readCID, resolveUrl }
+  }
 };
 
 try {
   if (isIpfsGatewayUrl(currentHref())) {
     contextBridge.exposeInMainWorld('lumen', lumen);
-    try {
-      // Helpful flag for debugging / feature-detection
-      Object.defineProperty(window, '__lumenSiteInjected', { value: true, enumerable: false });
-    } catch {}
   }
 } catch {
   // ignore

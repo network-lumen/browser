@@ -323,22 +323,108 @@
       </div>
       
       <!-- Docs View -->
-      <div v-if="currentView === 'docs'" class="content-area">
+      <div v-else-if="currentView === 'docs'" class="content-area">
         <div class="discover">
           <!-- Hero Section -->
           <section class="hero-section">
             <div class="hero-content">
-              <h2 class="hero-title">Introducing <span class="gradient-text">Lumen Browser</span>: The evolution of the browser</h2>
+              <h2 class="hero-title">Developer Documentation: <span class="gradient-text">window.lumen</span></h2>
               <p class="hero-subtitle">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent
-                libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum
-                imperdiet.
+                APIs injected into IPFS/IPNS websites loaded inside Lumen (collapsible reference per call).
               </p>
             </div>
           </section>
 
+          <div class="discover-card docs-note">
+            <div class="discover-ico">
+              <BookOpen :size="20" />
+            </div>
+            <div>
+              <h4>Availability & security model</h4>
+              <p>
+                <span class="mono-inline">window.lumen</span> is only available on websites served from
+                <span class="mono-inline">/ipfs/*</span> or <span class="mono-inline">/ipns/*</span>.
+                Always feature-detect before calling it.
+              </p>
+              <p>
+                Some methods open a user confirmation modal (ex:
+                <span class="mono-inline">sendToken</span>, <span class="mono-inline">pin</span>).
+              </p>
+            </div>
+          </div>
+
+          <div class="docs-api">
+            <section v-for="group in lumenApiGroups" :key="group.key" class="docs-group">
+              <h3 class="docs-group-title">{{ group.title }}</h3>
+              <p v-if="group.description" class="docs-group-subtitle">{{ group.description }}</p>
+
+              <details v-for="item in group.items" :key="item.key" class="api-item">
+                <summary class="api-summary">
+                  <span class="api-title">
+                    <span class="api-name">{{ item.name }}</span>
+                    <span v-if="item.badge" class="api-badge">{{ item.badge }}</span>
+                  </span>
+                  <span class="api-short">{{ item.short }}</span>
+                </summary>
+
+                <div class="api-body">
+                  <p v-if="item.long" class="api-long">{{ item.long }}</p>
+
+                  <div v-if="item.signature" class="api-block">
+                    <div class="api-block-title">Signature</div>
+                    <pre class="api-code"><code>{{ item.signature }}</code></pre>
+                  </div>
+
+                  <div v-if="item.aliases && item.aliases.length" class="api-block">
+                    <div class="api-block-title">Aliases</div>
+                    <div class="api-inline-list">
+                      <span v-for="a in item.aliases" :key="a" class="api-chip">{{ a }}</span>
+                    </div>
+                  </div>
+
+                  <div v-if="item.params && item.params.length" class="api-block">
+                    <div class="api-block-title">Parameters</div>
+                    <ul class="api-list">
+                      <li v-for="p in item.params" :key="p.name">
+                        <span class="mono-inline">{{ p.name }}</span>
+                        <span class="api-param-type">{{ p.type }}</span>
+                        <span class="api-param-desc">{{ p.description }}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div v-if="item.returns && item.returns.length" class="api-block">
+                    <div class="api-block-title">Returns</div>
+                    <ul class="api-list">
+                      <li v-for="r in item.returns" :key="r">{{ r }}</li>
+                    </ul>
+                  </div>
+
+                  <div v-if="item.errors && item.errors.length" class="api-block">
+                    <div class="api-block-title">Errors</div>
+                    <ul class="api-list">
+                      <li v-for="e in item.errors" :key="e">{{ e }}</li>
+                    </ul>
+                  </div>
+
+                  <div v-if="item.example" class="api-block">
+                    <div class="api-block-title">Example</div>
+                    <pre class="api-code"><code>{{ item.example }}</code></pre>
+                  </div>
+
+                  <div v-if="item.notes && item.notes.length" class="api-block">
+                    <div class="api-block-title">Notes</div>
+                    <ul class="api-list">
+                      <li v-for="n in item.notes" :key="n">{{ n }}</li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+            </section>
+          </div>
+
           <!-- Documentation Grid -->
-          <div class="docs-grid">
+          <div class="docs-grid" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
             <div class="discover-card">
               <div class="discover-ico">
@@ -542,6 +628,199 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 
 type HelpView = 'discover' | 'domains' | 'contact' | 'docs';
 
+type ApiParam = { name: string; type: string; description: string };
+type ApiDocItem = {
+  key: string;
+  name: string;
+  short: string;
+  long?: string;
+  badge?: string;
+  signature?: string;
+  aliases?: string[];
+  params?: ApiParam[];
+  returns?: string[];
+  errors?: string[];
+  example?: string;
+  notes?: string[];
+};
+type ApiDocGroup = { key: string; title: string; description?: string; items: ApiDocItem[] };
+
+const lumenApiGroups: ApiDocGroup[] = [
+  {
+    key: 'availability',
+    title: 'Availability',
+    description: 'Feature detection + what pages can access the API.',
+    items: [
+      {
+        key: 'window_lumen',
+        name: 'window.lumen',
+        badge: 'root',
+        short: 'Injected object containing the site API.',
+        signature: `if (!window.lumen) {\n  // Not running inside Lumen, or not an IPFS/IPNS page.\n  return;\n}`,
+        returns: ['object | undefined'],
+        notes: [
+          'Only injected on pages served from /ipfs/* or /ipns/* (local gateway paths).',
+          'Most methods will throw if called on other pages.'
+        ],
+      },
+    ],
+  },
+  {
+    key: 'core',
+    title: 'Core utilities',
+    items: [
+      {
+        key: 'resolveUrl',
+        name: 'lumen.resolveUrl(urlOrPath)',
+        short: 'Resolve lumen://ipfs|ipns URLs and /ipfs|/ipns paths into a local gateway URL.',
+        signature:
+          `const url = await window.lumen.resolveUrl('lumen://ipfs/<cid>/index.html');\n// url => http://127.0.0.1:<port>/ipfs/<cid>/index.html`,
+        params: [
+          { name: 'urlOrPath', type: 'string', description: 'A lumen:// URL, /ipfs|/ipns path, or http(s) URL.' },
+        ],
+        returns: ['string (empty string on failure)'],
+        errors: ['Throws if called outside /ipfs/* or /ipns/* pages.'],
+        notes: ['Uses the browser-configured local gateway base when available.'],
+      },
+    ],
+  },
+  {
+    key: 'profiles',
+    title: 'Profiles',
+    description: 'Access the active wallet profile (read-only).',
+    items: [
+      {
+        key: 'profiles_getActive',
+        name: 'lumen.profiles.getActive()',
+        short: 'Return the active profile (id, name, walletAddress, …) or null.',
+        signature: 'const profile = await window.lumen.profiles.getActive();',
+        returns: ['Profile | null'],
+        errors: ['Throws if called outside /ipfs/* or /ipns/* pages.'],
+      },
+    ],
+  },
+  {
+    key: 'wallet-actions',
+    title: 'Wallet actions (user-approved)',
+    description: 'These methods can open a modal and require explicit user consent.',
+    items: [
+      {
+        key: 'sendToken',
+        name: 'lumen.sendToken({ to, amountLmn, memo })',
+        badge: 'modal',
+        short: 'Request sending LMN tokens from the user wallet.',
+        signature:
+          `const res = await window.lumen.sendToken({\n  to: 'lmn1...',\n  amountLmn: 1.23,\n  memo: 'hello'\n});`,
+        aliases: ['lumen.SendToken', 'lumen.wallet.requestSend'],
+        params: [
+          { name: 'to', type: 'string', description: 'Recipient address.' },
+          { name: 'amountLmn', type: 'number | null', description: 'Amount in LMN (UI may prompt if null).' },
+          { name: 'memo', type: 'string', description: 'Optional memo.' },
+        ],
+        returns: ['{ ok: true, txhash?: string }', '{ ok: false, error: string }'],
+        notes: [
+          'Shows a permission prompt and then a send confirmation modal.',
+          'May fail with errors like user_denied, tab_closed, send_modal_failed, send_failed.'
+        ],
+      },
+      {
+        key: 'pin',
+        name: 'lumen.pin(cidOrUrl, opts?)',
+        badge: 'modal',
+        short: 'Request pinning/saving a CID or URL into the user Drive.',
+        signature:
+          `await window.lumen.pin('bafy...');\nawait window.lumen.pin({ cidOrUrl: 'bafy...', name: 'my_file' });`,
+        aliases: ['lumen.Pin', 'lumen.Save', 'lumen.save'],
+        params: [
+          { name: 'cidOrUrl', type: 'string | { cidOrUrl|cid|url, name? }', description: 'CID or URL to save.' },
+          { name: 'opts', type: '{ name?: string }', description: 'Optional display name (when first arg is a string).' },
+        ],
+        returns: ['{ ok: true, cid?: string }', '{ ok: false, error: string }'],
+        notes: ['Shows a permission prompt and a pin/save modal.'],
+      },
+    ],
+  },
+  {
+    key: 'wallet-crypto',
+    title: 'Wallet cryptography',
+    description: 'Sign and verify arbitrary payloads (ADR-036 by default).',
+    items: [
+      {
+        key: 'wallet_signArbitrary',
+        name: "lumen.wallet.signArbitrary({ payload, algo: 'ADR-036', ... })",
+        short: 'Sign arbitrary data with the active wallet.',
+        signature:
+          `const r = await window.lumen.wallet.signArbitrary({\n  payload: 'hello world',\n  algo: 'ADR-036'\n});\n\nif (r.ok) {\n  console.log(r.address, r.pubkeyB64, r.signatureB64);\n}`,
+        params: [
+          { name: 'payload', type: 'string', description: 'Message/payload to sign (max ~1MB).' },
+          { name: 'algo', type: "string (default 'ADR-036')", description: 'Signing algorithm identifier.' },
+          { name: 'profileId', type: 'string', description: 'Optional: force profile (usually omit).' },
+          { name: 'address', type: 'string', description: 'Optional: expected address (usually omit).' },
+        ],
+        returns: ['{ ok: true, algo, signatureB64, pubkeyB64, address }', '{ ok: false, error: string }'],
+        errors: ['Throws if called outside /ipfs/* or /ipns/* pages.'],
+      },
+      {
+        key: 'wallet_verifyArbitrary',
+        name: "lumen.wallet.verifyArbitrary({ payload, signatureB64, pubkeyB64, address?, algo: 'ADR-036' })",
+        short: 'Verify an ADR-036 signature and optionally check address match.',
+        signature:
+          `const v = await window.lumen.wallet.verifyArbitrary({\n  payload,\n  signatureB64,\n  pubkeyB64,\n  algo: 'ADR-036',\n  address: 'lmn1...'\n});\n\nif (v.ok) {\n  console.log(v.signatureValid, v.addressMatches, v.derivedAddress);\n}`,
+        params: [
+          { name: 'payload', type: 'string', description: 'Message/payload that was signed.' },
+          { name: 'signatureB64', type: 'string', description: 'Base64 signature.' },
+          { name: 'pubkeyB64', type: 'string', description: 'Base64 public key.' },
+          { name: 'address', type: 'string', description: 'Optional: expected bech32 address.' },
+          { name: 'algo', type: "string (default 'ADR-036')", description: 'Verification algorithm identifier.' },
+        ],
+        returns: ['{ ok: true, algo, signatureValid, addressMatches, derivedAddress }', '{ ok: false, error: string }'],
+        errors: ['Throws if called outside /ipfs/* or /ipns/* pages.'],
+      },
+    ],
+  },
+  {
+    key: 'pubsub',
+    title: 'PubSub',
+    description: 'Publish and subscribe to IPFS PubSub topics.',
+    items: [
+      {
+        key: 'pubsub_publish',
+        name: 'lumen.pubsub.publish(topic, data, opts?)',
+        short: 'Publish a text/json/binary message to a topic.',
+        signature: `await window.lumen.pubsub.publish('my-topic', { hello: 'world' }, { encoding: 'json' });`,
+        params: [
+          { name: 'topic', type: 'string', description: 'Topic name (leading "/" is stripped).' },
+          { name: 'data', type: 'string | object | Uint8Array', description: 'Payload.' },
+          { name: 'opts', type: "{ encoding?: 'text'|'json'|'binary' }", description: 'How to encode payload on the wire.' },
+        ],
+        returns: [
+          '{ ok: true }',
+          "{ ok: false, error: 'publish_rate_limited'|'missing_topic'|'missing_dataB64'|'message_too_large'|'publish_failed'|... }",
+        ],
+        notes: ['Publish is rate-limited per tab/webContents (burst + refill).', 'Max message size is enforced (currently 256KB).'],
+      },
+      {
+        key: 'pubsub_subscribe',
+        name: 'lumen.pubsub.subscribe(topic, opts, onMessage)',
+        short: 'Subscribe to a topic and receive messages via callback.',
+        signature:
+          `const sub = await window.lumen.pubsub.subscribe(\n  'my-topic',\n  { encoding: 'json', autoConnect: true },\n  (msg) => console.log(msg.json)\n);\n\n// later\nawait sub.unsubscribe();`,
+        params: [
+          { name: 'topic', type: 'string', description: 'Topic name.' },
+          { name: 'opts', type: "{ encoding?: 'text'|'json'|'binary', autoConnect?: boolean }", description: 'Encoding determines msg.text/msg.json/msg.binary.' },
+          { name: 'onMessage', type: '(payload) => void', description: 'Callback for received messages.' },
+        ],
+        returns: ['{ subId: string, topics?: string[], unsubscribe: () => Promise<void> }'],
+        errors: ["Rejects with Error('too_many_subscriptions') or other subscribe errors.", 'Throws if called outside /ipfs/* or /ipns/* pages.'],
+        notes: [
+          'Max subscriptions per tab is limited (currently 5).',
+          'Callback payload contains: subId, topic, from, seqno, dataB64, plus text/json/binary depending on encoding.'
+        ],
+      },
+    ],
+  },
+];
+
 const currentTabUrl = inject<ComputedRef<string>>(
   'currentTabUrl',
   computed(() => 'lumen://help'),
@@ -643,7 +922,7 @@ function getViewDescription(): string {
     discover: 'A quick overview of the Lumen stack',
     domains: 'Create a domain and link it to Drive content',
     contact: 'Reach out to our team',
-    docs: "Find detailed information about Lumen's features, setup, and usage"
+    docs: 'Website developer docs for window.lumen'
   };
   return descs[currentView.value] || '';
 }
@@ -688,6 +967,190 @@ function getViewDescription(): string {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.9rem;
+}
+
+.docs-api {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.docs-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.docs-group-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 850;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.docs-group-subtitle {
+  margin: -0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.api-item {
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.api-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.95rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  user-select: none;
+}
+
+.api-summary::-webkit-details-marker {
+  display: none;
+}
+
+.api-summary::after {
+  content: '▸';
+  color: var(--text-tertiary);
+  flex: 0 0 auto;
+  transform: translateY(1px);
+  transition: transform var(--transition-fast);
+}
+
+.api-item[open] > .api-summary {
+  border-bottom: var(--border-width) solid var(--border-color);
+  background: var(--fill-tertiary);
+}
+
+.api-item[open] > .api-summary::after {
+  transform: rotate(90deg) translateX(1px);
+}
+
+.api-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.api-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: 850;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.api-badge {
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+}
+
+.api-short {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  text-align: right;
+  max-width: 46ch;
+}
+
+.api-body {
+  padding: 0.95rem 1rem 1rem;
+}
+
+.api-long {
+  margin: 0 0 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+.api-block {
+  margin-top: 0.8rem;
+}
+
+.api-block-title {
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.api-code {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  background: var(--fill-tertiary);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.api-code code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  color: var(--text-primary);
+}
+
+.api-inline-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.api-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: var(--fill-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.api-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.api-list li {
+  margin: 0.25rem 0;
+}
+
+.api-param-type {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.api-param-desc {
+  display: inline;
+  margin-left: 0.5rem;
 }
 
 .discover-card {

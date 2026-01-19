@@ -713,65 +713,6 @@ function registerIpfsPubsubIpc() {
     stopSub(id);
     return { ok: true };
   });
-
-  ipcMain.handle('ipfs:pubsub:ls', async (evt) => {
-    const wc = evt && evt.sender ? evt.sender : null;
-    if (!wc || wc.isDestroyed()) return { ok: false, error: 'sender_missing' };
-    try {
-      const u = new URL(`${ipfsApiBase()}/api/v0/pubsub/ls`);
-      const r = await post(u.toString());
-      if (!r.ok) return { ok: false, error: 'ls_failed' };
-      const j = await r.json().catch(() => ({}));
-      const topics = Array.isArray(j?.Strings) ? j.Strings : [];
-      return { ok: true, topics };
-    } catch (e) {
-      return { ok: false, error: String(e?.message || e) };
-    }
-  });
-
-  ipcMain.handle('ipfs:pubsub:peers', async (evt, topic) => {
-    const wc = evt && evt.sender ? evt.sender : null;
-    if (!wc || wc.isDestroyed()) return { ok: false, error: 'sender_missing' };
-    try {
-      const t = topic ? normalizeTopic(topic) : '';
-
-      const base = ipfsApiBase();
-      const fetchPeers = async (topicArg, withArgEnc) => {
-        const u = new URL(`${base}/api/v0/pubsub/peers`);
-        if (topicArg) u.searchParams.set('arg', topicArg);
-        if (withArgEnc) u.searchParams.set('arg-enc', 'text');
-        const r = await post(u.toString());
-        if (!r.ok) {
-          await r.text().catch(() => '');
-          return [];
-        }
-        const j = await r.json().catch(() => ({}));
-        return Array.isArray(j?.Strings) ? j.Strings : [];
-      };
-
-      const out = new Set();
-      if (!t) {
-        for (const p of await fetchPeers('', false)) out.add(p);
-        return { ok: true, peers: Array.from(out) };
-      }
-
-      if (isProbablyMultibase(t)) {
-        for (const p of await fetchPeers(t, false)) out.add(p);
-        return { ok: true, peers: Array.from(out) };
-      }
-
-      const variants = [toMbB64Url(t), toMbB64(t), t];
-      for (const v of variants) {
-        for (const p of await fetchPeers(v, false)) out.add(p);
-      }
-      // Legacy for raw-text topics.
-      for (const p of await fetchPeers(t, true)) out.add(p);
-
-      return { ok: true, peers: Array.from(out) };
-    } catch (e) {
-      return { ok: false, error: String(e?.message || e) };
-    }
-  });
 }
 
 module.exports = { registerIpfsPubsubIpc };
