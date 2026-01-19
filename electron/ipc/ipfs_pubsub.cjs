@@ -95,6 +95,28 @@ function decodeKuboPubsubDataToBuffer(s) {
   return decodeMultibaseToBuffer(str);
 }
 
+function decodePubsubJsonFromDataRaw(dataRaw) {
+  // Some environments return `data` as base64; others might return multibase.
+  // Try base64 first, then fall back to multibase if JSON parsing fails.
+  try {
+    const b1 = decodeKuboPubsubDataToBuffer(dataRaw);
+    const t1 = b1.toString('utf8');
+    try {
+      const j1 = JSON.parse(t1);
+      return { bin: b1, text: t1, json: j1 };
+    } catch {}
+  } catch {}
+
+  try {
+    const b2 = decodeMultibaseToBuffer(String(dataRaw || ''));
+    const t2 = b2.toString('utf8');
+    const j2 = JSON.parse(t2);
+    return { bin: b2, text: t2, json: j2 };
+  } catch {}
+
+  return { bin: decodeKuboPubsubDataToBuffer(dataRaw), text: '', json: null };
+}
+
 function buildMultipartDataBody(buf, boundary) {
   const pre = Buffer.from(
     `--${boundary}\r\n` +
@@ -650,16 +672,20 @@ function registerIpfsPubsubIpc() {
                 let seqnoHex = '';
                 try { seqnoHex = Buffer.from(seqnoB64, 'base64').toString('hex'); } catch {}
 
-                const bin = decodeKuboPubsubDataToBuffer(dataRaw);
                 let text;
                 let json;
                 let binary;
                 if (encoding === 'binary') {
+                  const bin = decodeKuboPubsubDataToBuffer(dataRaw);
                   binary = Array.from(new Uint8Array(bin));
                 } else {
-                  text = bin.toString('utf8');
                   if (encoding === 'json') {
-                    try { json = JSON.parse(text); } catch {}
+                    const decoded = decodePubsubJsonFromDataRaw(dataRaw);
+                    text = decoded.text || decoded.bin.toString('utf8');
+                    json = decoded.json || undefined;
+                  } else {
+                    const bin = decodeKuboPubsubDataToBuffer(dataRaw);
+                    text = bin.toString('utf8');
                   }
                 }
                 const payload = { subId, topic: topicId, from, seqno: seqnoHex, dataB64: dataRaw, text, json, binary };
