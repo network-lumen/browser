@@ -1629,7 +1629,9 @@ function registerWalletIpc() {
 
       const digest = sha256Utf8(payload);
       const sigObj = await Secp256k1.createSignature(digest, privkey);
-      const signatureFixed = sigObj.toFixedLength();
+      // `Secp256k1.createSignature` returns an ExtendedSecp256k1Signature
+      // (r|s|recovery). For Cosmos/ADR-036 we keep the standard 64-byte (r|s).
+      const signatureFixed = new Uint8Array([...sigObj.r(32), ...sigObj.s(32)]);
 
       const prefix = prefixFromAddress(address);
       const derivedAddr = pubkeyToAddressBech32(pubkeyCompressed, prefix);
@@ -1683,7 +1685,14 @@ function registerWalletIpc() {
 
       const signature = Buffer.from(signatureB64, 'base64');
       const digest = sha256Utf8(payload);
-      const sigObj = Secp256k1Signature.fromFixedLength(signature);
+      let sigObj;
+      try {
+        sigObj = Secp256k1Signature.fromFixedLength(signature);
+      } catch (_e) {
+        // Backward-compat for older code paths that included the recovery param.
+        if (signature.length === 65) sigObj = require('@cosmjs/crypto').ExtendedSecp256k1Signature.fromFixedLength(signature);
+        else throw _e;
+      }
       const validSig = await Secp256k1.verifySignature(sigObj, digest, pubUncompressed);
 
       const prefix = prefixFromAddress(address);
