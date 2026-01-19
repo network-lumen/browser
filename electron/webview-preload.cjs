@@ -201,6 +201,7 @@ const lumen = {
       const res = await ipcRenderer.invoke('ipfs:pubsub:subscribe', { topic: safeString(topic, 1024), encoding, autoConnect });
       if (!res || res.ok === false) throw new Error((res && res.error) ? String(res.error) : 'subscribe_failed');
       const subId = String(res.subId || '');
+      const topics = Array.isArray(res.topics) ? res.topics.map((t) => String(t || '')).filter(Boolean) : undefined;
 
       const hMsg = (_e, payload) => {
         try {
@@ -224,7 +225,7 @@ const lumen = {
         try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
       };
 
-      return { subId, unsubscribe };
+      return { subId, topics, unsubscribe };
     },
 
     ls: async () => {

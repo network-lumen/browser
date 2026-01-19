@@ -81,6 +81,20 @@ function decodeMultibaseToBuffer(s) {
   }
 }
 
+function decodeKuboPubsubDataToBuffer(s) {
+  const str = String(s || '').trim();
+  if (!str) return Buffer.alloc(0);
+
+  // Kubo `/api/v0/pubsub/sub` encodes `data` as base64 (no multibase prefix).
+  // Accept base64url-ish strings too.
+  try { return Buffer.from(str, 'base64'); } catch {}
+  try {
+    const padded = str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4);
+    return Buffer.from(padded, 'base64');
+  } catch {}
+  return decodeMultibaseToBuffer(str);
+}
+
 function buildMultipartDataBody(buf, boundary) {
   const pre = Buffer.from(
     `--${boundary}\r\n` +
@@ -172,7 +186,7 @@ async function tryPublishBuffer(topicRaw, msgBuf) {
   return okAny;
 }
 
-async function openSubscribeStream(topic, signal) {
+async function openSubscribeStreams(topic, signal) {
   const base = ipfsApiBase();
   const makeUrl = (arg, withArgEnc) => {
     const u = new URL(`${base}/api/v0/pubsub/sub`);
@@ -181,27 +195,44 @@ async function openSubscribeStream(topic, signal) {
     u.searchParams.set('discover', 'true');
     return u.toString();
   };
-  const mbU = toMbB64Url(topic);
-  const mbM = toMbB64(topic);
-  const variants = [
-    makeUrl(mbU, false),
-    makeUrl(mbM, false),
-    makeUrl(topic, false),
-    makeUrl(topic, true),
-  ];
-  for (const url of variants) {
+
+  const tryOpen = async (url) => {
+    const res = await fetch(url, { method: 'POST', signal });
+    if (!res.ok) {
+      await res.text().catch(() => '');
+      return null;
+    }
+    const reader = res.body && res.body.getReader ? res.body.getReader() : null;
+    return reader || null;
+  };
+
+  const urls = [];
+  if (isProbablyMultibase(topic)) {
+    urls.push(makeUrl(topic, false));
+  } else {
+    urls.push(makeUrl(toMbB64Url(topic), false));
+    urls.push(makeUrl(toMbB64(topic), false));
+    urls.push(makeUrl(topic, false));
+    urls.push(makeUrl(topic, true));
+  }
+
+  const uniqUrls = Array.from(new Set(urls));
+  const readers = [];
+  const topics = [];
+
+  for (const url of uniqUrls) {
     try {
-      const res = await fetch(url, { method: 'POST', signal });
-      if (!res.ok) {
-        await res.text().catch(() => '');
-        continue;
-      }
-      const reader = res.body && res.body.getReader ? res.body.getReader() : null;
-      if (!reader) continue;
-      return { reader };
+      const r = await tryOpen(url);
+      if (!r) continue;
+      readers.push(r);
+      try {
+        const u = new URL(url);
+        topics.push(String(u.searchParams.get('arg') || '').trim());
+      } catch {}
     } catch {}
   }
-  return { reader: null };
+
+  return { readers, topics };
 }
 
 /* ---------------- Best-effort rendezvous for small-topic PubSub ---------------- */
@@ -561,8 +592,8 @@ function registerIpfsPubsubIpc() {
     const subId = `sub_${Date.now().toString(36)}_${crypto.randomBytes(6).toString('hex')}`;
 
     const ac = new AbortController();
-    const { reader } = await openSubscribeStream(topic, ac.signal);
-    if (!reader) return { ok: false, error: 'subscribe_failed' };
+    const { readers, topics } = await openSubscribeStreams(topic, ac.signal);
+    if (!readers || !readers.length) return { ok: false, error: 'subscribe_failed' };
 
     let stopped = false;
     const releaseDiscovery = autoConnect ? retainTopicDiscovery(topic) : null;
@@ -570,7 +601,9 @@ function registerIpfsPubsubIpc() {
       if (stopped) return;
       stopped = true;
       try { if (releaseDiscovery) releaseDiscovery(); } catch {}
-      try { void reader.cancel().catch(() => {}); } catch {}
+      for (const r of readers) {
+        try { void r.cancel().catch(() => {}); } catch {}
+      }
       try { ac.abort(); } catch {}
     };
 
@@ -583,59 +616,68 @@ function registerIpfsPubsubIpc() {
       });
     } catch {}
 
-    // stream reader -> send ipc events
-    (async () => {
-      const decoder = new TextDecoder();
-      let buf = '';
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done || stopped) break;
-          if (!value || !value.byteLength) continue;
-          buf += decoder.decode(value, { stream: true });
+    let liveReaders = readers.length;
+    const onReaderDone = () => {
+      liveReaders -= 1;
+      if (liveReaders > 0) return;
+      stopSub(subId);
+      try { wc.send('ipfs:pubsub:end', { subId }); } catch {}
+    };
 
-          let idx;
-          while ((idx = buf.indexOf('\n')) >= 0) {
-            const line = buf.slice(0, idx).trim();
-            buf = buf.slice(idx + 1);
-            if (!line) continue;
-            try {
-              const j = JSON.parse(line);
-              const topicId = Array.isArray(j?.topicIDs) && j.topicIDs[0] ? String(j.topicIDs[0]) : topic;
-              const dataRaw = String(j?.data ?? '');
-              const from = String(j?.from || '');
-              const seqnoB64 = String(j?.seqno || '');
-              let seqnoHex = '';
-              try { seqnoHex = Buffer.from(seqnoB64, 'base64').toString('hex'); } catch {}
+    // stream readers -> send ipc events (multiple topic encodings for compatibility)
+    for (const reader of readers) {
+      (async () => {
+        const decoder = new TextDecoder();
+        let buf = '';
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done || stopped) break;
+            if (!value || !value.byteLength) continue;
+            buf += decoder.decode(value, { stream: true });
 
-              const bin = decodeMultibaseToBuffer(dataRaw);
-              let text;
-              let json;
-              let binary;
-              if (encoding === 'binary') {
-                binary = Array.from(new Uint8Array(bin));
-              } else {
-                text = bin.toString('utf8');
-                if (encoding === 'json') {
-                  try { json = JSON.parse(text); } catch {}
+            let idx;
+            while ((idx = buf.indexOf('\n')) >= 0) {
+              const line = buf.slice(0, idx).trim();
+              buf = buf.slice(idx + 1);
+              if (!line) continue;
+              try {
+                const j = JSON.parse(line);
+                const topicId = Array.isArray(j?.topicIDs) && j.topicIDs[0] ? String(j.topicIDs[0]) : topic;
+                const dataRaw = String(j?.data ?? '');
+                const from = String(j?.from || '');
+                const seqnoB64 = String(j?.seqno || '');
+                let seqnoHex = '';
+                try { seqnoHex = Buffer.from(seqnoB64, 'base64').toString('hex'); } catch {}
+
+                const bin = decodeKuboPubsubDataToBuffer(dataRaw);
+                let text;
+                let json;
+                let binary;
+                if (encoding === 'binary') {
+                  binary = Array.from(new Uint8Array(bin));
+                } else {
+                  text = bin.toString('utf8');
+                  if (encoding === 'json') {
+                    try { json = JSON.parse(text); } catch {}
+                  }
                 }
-              }
-              const payload = { subId, topic: topicId, from, seqno: seqnoHex, dataB64: dataRaw, text, json, binary };
-              try { wc.send('ipfs:pubsub:message', payload); } catch {}
-            } catch {}
+                const payload = { subId, topic: topicId, from, seqno: seqnoHex, dataB64: dataRaw, text, json, binary };
+                try { wc.send('ipfs:pubsub:message', payload); } catch {}
+              } catch {}
+            }
           }
+        } catch (e) {
+          if (!stopped) {
+            try { wc.send('ipfs:pubsub:error', { subId, error: String(e?.message || e || 'stream_error') }); } catch {}
+          }
+        } finally {
+          onReaderDone();
         }
-      } catch (e) {
-        if (!stopped) {
-          try { wc.send('ipfs:pubsub:error', { subId, error: String(e?.message || e || 'stream_error') }); } catch {}
-        }
-      } finally {
-        stopSub(subId);
-        try { wc.send('ipfs:pubsub:end', { subId }); } catch {}
-      }
-    })();
+      })();
+    }
 
-    return { ok: true, subId };
+    return { ok: true, subId, topics };
   });
 
   ipcMain.handle('ipfs:pubsub:unsubscribe', async (_evt, subId) => {
