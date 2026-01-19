@@ -279,3 +279,72 @@ try {
 } catch {
   // ignore
 }
+
+function isLumenUrl(input) {
+  return /^lumen:\/\//i.test(safeString(input, 4096));
+}
+
+function closestAnchorWithHref(target) {
+  try {
+    const el =
+      target && target.nodeType === 1
+        ? target
+        : target && target.parentElement
+          ? target.parentElement
+          : null;
+    if (!el || typeof el.closest !== 'function') return null;
+    return el.closest('a[href]');
+  } catch {
+    return null;
+  }
+}
+
+function handleLumenLinkClick(ev) {
+  try {
+    if (!ev || ev.defaultPrevented) return;
+    const button = typeof ev.button === 'number' ? ev.button : 0;
+    if (button !== 0) return;
+
+    const a = closestAnchorWithHref(ev.target);
+    if (!a) return;
+
+    const href = safeString((typeof a.getAttribute === 'function' ? a.getAttribute('href') : '') || a.href || '', 4096);
+    if (!isLumenUrl(href)) return;
+
+    const target = safeString((typeof a.getAttribute === 'function' ? a.getAttribute('target') : '') || a.target || '', 64).toLowerCase();
+    const openInNewTab = target === '_blank';
+
+    try { ev.preventDefault(); } catch {}
+    try { ev.stopImmediatePropagation?.(); } catch {}
+    try { ev.stopPropagation?.(); } catch {}
+
+    if (typeof ipcRenderer.sendToHost === 'function') {
+      ipcRenderer.sendToHost('lumen:navigate', { url: href, openInNewTab });
+    } else {
+      ipcRenderer.send('lumen:navigate', { url: href, openInNewTab });
+    }
+  } catch {
+    // ignore
+  }
+}
+
+try {
+  function attachLumenLinkInterceptor() {
+    try {
+      const key = '__lumenLinkInterceptorAttached';
+      if (document && document[key]) return;
+      if (document) document[key] = true;
+      document.addEventListener('click', handleLumenLinkClick, true);
+    } catch {
+      // ignore
+    }
+  }
+
+  try {
+    window.addEventListener('DOMContentLoaded', attachLumenLinkInterceptor, true);
+  } catch {}
+
+  attachLumenLinkInterceptor();
+} catch {
+  // ignore
+}

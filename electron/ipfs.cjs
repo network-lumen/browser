@@ -526,7 +526,9 @@ async function ipfsPinList() {
     }
 
     const json = await res.json();
-    const pins = Object.keys(json.Keys || {});
+    const pins = Object.keys(json.Keys || {})
+      .map((x) => String(x || '').trim())
+      .filter((x) => x && x.toLowerCase() !== 'unknown');
     console.log('[electron][ipfs] pin list:', pins.length, 'items');
     return { ok: true, pins };
   } catch (e) {

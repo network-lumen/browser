@@ -1097,7 +1097,7 @@ void loadDomains();
 
 .btn.primary {
   background: var(--gradient-primary);
-  color: var(--text-primary);
+  color: #fff;
 }
 
 .btn.primary.ghost {

@@ -12,6 +12,7 @@
       @did-navigate="onDidNavigate"
       @did-navigate-in-page="onDidNavigateInPage"
       @new-window="onNewWindow"
+      @ipc-message="onIpcMessage"
     ></webview>
     <div v-else class="empty"></div>
   </div>
@@ -39,6 +40,27 @@ function isHttpUrl(raw: string): boolean {
 function isAllowedNewTabUrl(raw: string): boolean {
   const s = String(raw || "").trim();
   return isHttpUrl(s) || /^lumen:\/\//i.test(s);
+}
+
+function onIpcMessage(ev: any) {
+  if (!pageActive.value) return;
+  const channel = String(ev?.channel || "");
+  if (channel !== "lumen:navigate") return;
+
+  const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+  const url =
+    typeof payload === "string"
+      ? payload
+      : payload && typeof payload === "object" && typeof (payload as any).url === "string"
+        ? (payload as any).url
+        : "";
+  const href = String(url || "").trim();
+  if (!/^lumen:\/\//i.test(href)) return;
+
+  const openInNewTabFlag =
+    !!(payload && typeof payload === "object" && (payload as any).openInNewTab);
+  if (openInNewTabFlag) openInNewTab?.(href);
+  else navigate?.(href, { push: true });
 }
 
 const currentHttpUrl = computed(() => {
@@ -92,6 +114,11 @@ watch(
 function onWillNavigate(ev: any) {
   if (!pageActive.value) return;
   const href = String(ev?.url || "");
+  if (/^\s*lumen:\/\//i.test(href)) {
+    ev.preventDefault?.();
+    navigate?.(href.trim(), { push: true });
+    return;
+  }
   if (!isHttpUrl(href)) {
     ev.preventDefault?.();
   }

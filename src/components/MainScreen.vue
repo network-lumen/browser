@@ -144,6 +144,29 @@ function nextTabId(): string {
 }
 const GAP = 1;
 
+function normalizeTabUrl(raw: string): string {
+  const v = String(raw || "").trim();
+  if (!v) return "lumen://home";
+  if (/^https?:\/\//i.test(v)) return v;
+  const u = /^lumen:\/\//i.test(v) ? v : `lumen://${v}`;
+
+  // Canonicalize root lumen URLs so history/back doesn't bounce between
+  // `lumen://host` and `lumen://host/`.
+  try {
+    const rest = u.slice("lumen://".length);
+    const m = rest.match(/^([^/?#]+)(.*)$/);
+    const host = (m?.[1] || "").trim();
+    const tail = m?.[2] || "";
+    if (host && (!tail || tail.startsWith("?") || tail.startsWith("#"))) {
+      return `lumen://${host}/${tail}`;
+    }
+  } catch {
+    // ignore
+  }
+
+  return u;
+}
+
 function tabClasses(t: Tab) {
   return {
     'active': t.id === activeId.value,
@@ -242,10 +265,14 @@ function makeTab(partial?: Partial<Tab>): Tab {
   const history = partial?.history || [{ url: defaultUrl, title: defaultTitle }];
   const history_position = partial?.history_position ?? 0;
   const current = history[history_position] || history[0];
+  const normalizedHistory = history.map((h) =>
+    h && typeof h.url === "string" ? { ...h, url: normalizeTabUrl(h.url) } : h,
+  );
+  const normalizedCurrent = normalizedHistory[history_position] || normalizedHistory[0];
   return {
     id,
-    url: current?.url || defaultUrl,
-    history,
+    url: normalizeTabUrl((normalizedCurrent && (normalizedCurrent as any).url) || defaultUrl),
+    history: normalizedHistory,
     history_position,
     loading: false
   };
@@ -280,9 +307,10 @@ function closeTab(id: string) {
 }
 
 function openInNewTab(url: string) {
-  const title = getInternalTitle(url);
-  const t = makeTab({ history: [{ url, title }], history_position: 0 });
-  t.url = url;
+  const normalized = normalizeTabUrl(url);
+  const title = getInternalTitle(normalized);
+  const t = makeTab({ history: [{ url: normalized, title }], history_position: 0 });
+  t.url = normalized;
   tabs.value.push(t);
   activeId.value = t.id;
   nextTick(recalcLabelWidth);

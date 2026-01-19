@@ -187,6 +187,7 @@
             @did-navigate="onWebviewDidNavigate"
             @did-navigate-in-page="onWebviewDidNavigateInPage"
             @new-window="onWebviewNewWindow"
+            @ipc-message="onWebviewIpcMessage"
           ></webview>
 
           <iframe
@@ -1044,6 +1045,11 @@ function syncNavFromWebview(rawUrl: string, opts: { push?: boolean } = {}) {
 function onWebviewWillNavigate(ev: any) {
   if (!pageActive.value) return;
   const href = String(ev?.url || "");
+  if (/^\s*lumen:\/\//i.test(href)) {
+    ev.preventDefault?.();
+    navigate?.(href.trim(), { push: true });
+    return;
+  }
   try {
     const u = new URL(href);
     const proto = (u.protocol || "").replace(":", "").toLowerCase();
@@ -1075,6 +1081,27 @@ function onWebviewNewWindow(ev: any) {
   const lumen = toLumenFromWebHref(href);
   if (lumen) openInNewTab?.(lumen);
   else if (/^\s*https?:\/\//i.test(href)) openInNewTab?.(href.trim());
+}
+
+function onWebviewIpcMessage(ev: any) {
+  if (!pageActive.value) return;
+  const channel = String(ev?.channel || "").trim();
+  if (channel !== "lumen:navigate") return;
+
+  const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+  const url =
+    typeof payload === "string"
+      ? payload
+      : payload && typeof payload === "object" && typeof (payload as any).url === "string"
+        ? (payload as any).url
+        : "";
+  const href = String(url || "").trim();
+  if (!/^lumen:\/\//i.test(href)) return;
+
+  const openInNewTabFlag =
+    !!(payload && typeof payload === "object" && (payload as any).openInNewTab);
+  if (openInNewTabFlag) openInNewTab?.(href);
+  else navigate?.(href, { push: true });
 }
 
 async function load() {

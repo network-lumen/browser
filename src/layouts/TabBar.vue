@@ -85,9 +85,24 @@ function currentUrl(): string {
 function normalizeInternalUrl(raw: string): string {
   const v = String(raw || "").trim();
   if (!v) return "lumen://home";
-  if (/^lumen:\/\//i.test(v)) return v;
   if (/^https?:\/\//i.test(v)) return v;
-  return `lumen://${v}`;
+  const u = /^lumen:\/\//i.test(v) ? v : `lumen://${v}`;
+
+  // Canonicalize root lumen URLs so history/back doesn't bounce between
+  // `lumen://host` and `lumen://host/`.
+  try {
+    const rest = u.slice("lumen://".length);
+    const m = rest.match(/^([^/?#]+)(.*)$/);
+    const host = (m?.[1] || "").trim();
+    const tail = m?.[2] || "";
+    if (host && (!tail || tail.startsWith("?") || tail.startsWith("#"))) {
+      return `lumen://${host}/${tail}`;
+    }
+  } catch {
+    // ignore
+  }
+
+  return u;
 }
 
 function navigateInternal(url: string, opts: { push?: boolean } = {}) {

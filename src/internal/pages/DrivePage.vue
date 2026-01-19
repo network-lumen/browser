@@ -1733,22 +1733,22 @@ function openTargetFor(file: DriveFile): string {
 }
 
 const rootSavedEntries = computed<DriveFile[]>(() => {
-  return activeSavedCids.value.map((cid) => {
-    const existing = files.value.find((f) => f.cid === cid);
-    const cachedType =
-      entryTypeCache.value[String(cid)] || existing?.type || undefined;
-    const rootCid = String(existing?.rootCid || cid);
-    const relPath = String(existing?.relPath || "");
-    return {
-      cid,
-      name: getSavedName(cid),
-      size: existing?.size ?? 0,
-      uploadedAt: existing?.uploadedAt,
-      type: cachedType,
-      rootCid,
-      relPath,
-    };
-  });
+  return activeSavedCids.value
+    .filter((cid) => !isIgnoredCid(cid))
+    .map((cid) => {
+      const existing = files.value.find((f) => f.cid === cid);
+      const displayName = getSavedName(cid);
+      return {
+        cid,
+        name: displayName,
+        size: existing?.size ?? 0,
+        uploadedAt: existing?.uploadedAt,
+        type: entryTypeCache.value[String(cid)] || existing?.type || undefined,
+        rootCid: String(existing?.rootCid || cid),
+        relPath: String(existing?.relPath || ""),
+      };
+    })
+    .filter((f) => String(f.name || "").trim() && String(f.name) !== "Unknown");
 });
 
 // Filtered files (after search)
@@ -2544,7 +2544,9 @@ async function refreshGatewayDetailsData(gatewayId: string) {
     } else {
       const data = pinnedRes.data ?? null;
       const cids = Array.isArray(data?.cids)
-        ? data.cids.map((x: any) => String(x)).filter(Boolean)
+        ? data.cids
+            .map((x: any) => String(x || "").trim())
+            .filter((x: string) => x && !isIgnoredCid(x))
         : [];
       gatewayDetailsPinned.value = Array.from(new Set(cids));
     }
@@ -3001,7 +3003,10 @@ async function loadPinnedFiles() {
   try {
     const result = await anyWin.lumen?.ipfsPinList?.();
     if (result?.ok) {
-      pinnedFiles.value = result.pins || [];
+      const pins = Array.isArray(result.pins) ? result.pins : [];
+      pinnedFiles.value = pins
+        .map((x: any) => String(x || "").trim())
+        .filter((x: string) => x && !isIgnoredCid(x));
     }
   } catch {
     // ignore
@@ -3117,7 +3122,13 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       : [];
 
     const now = Date.now();
-    const server = Array.from(new Set(cids.filter(Boolean)));
+    const server = Array.from(
+      new Set(
+        cids
+          .map((x: any) => String(x || "").trim())
+          .filter((x: string) => x && !isIgnoredCid(x)),
+      ),
+    );
     const serverSet = new Set(server);
     const optimisticMissing: string[] = [];
     const nextOptimistic: Record<string, number> = {};
@@ -3218,6 +3229,11 @@ function normalizeCidKey(cid: string): string {
   return String(cid || "").trim();
 }
 
+function isIgnoredCid(cid: string): boolean {
+  const c = normalizeCidKey(cid).toLowerCase();
+  return !c || c === "unknown";
+}
+
 function stripExt(name: string): string {
   const s = String(name || "").trim();
   if (!s) return "";
@@ -3229,7 +3245,18 @@ function getSavedName(cid: string): string {
   if (!key) return "Unknown";
   const value = localNames.value[key];
   const name = typeof value === "string" ? value.trim() : "";
-  return name || "Unknown";
+  if (name && name.toLowerCase() !== "unknown") return name;
+
+  // Fallback to stored metadata if available (older entries / imported state).
+  try {
+    const meta = files.value.find((f) => String(f?.cid || "").trim() === key) || null;
+    const metaName = String(meta?.name || "").trim();
+    if (metaName && metaName.toLowerCase() !== "unknown") return metaName;
+  } catch {
+    // ignore
+  }
+
+  return "Unknown";
 }
 
 function setSavedName(cid: string, name: string) {

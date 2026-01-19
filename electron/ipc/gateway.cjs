@@ -1737,6 +1737,20 @@ function registerGatewayIpc() {
         return { ok: false, status, error: (data && data.error) || 'wallet_cids_failed' };
       }
 
+      // Some gateway versions may return placeholder strings (e.g. "Unknown").
+      // Filter them so UI doesn't try to treat them as real CIDs.
+      try {
+        const cidsRaw = Array.isArray(data?.cids) ? data.cids : null;
+        if (cidsRaw) {
+          const cids = cidsRaw
+            .map((x) => String(x || '').trim())
+            .filter((x) => x && x.toLowerCase() !== 'unknown');
+          return { ok: true, status, data: { ...data, cids } };
+        }
+      } catch {
+        // ignore and return raw data
+      }
+
       return { ok: true, status, data };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
