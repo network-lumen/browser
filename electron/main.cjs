@@ -8,6 +8,7 @@ const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
 const { registerNetworkIpc } = require('./ipc/network.cjs');
+const { registerReleaseIpc } = require('./ipc/release.cjs');
 const { registerProfilesIpc } = require('./ipc/profiles.cjs');
 const { registerWalletIpc } = require('./ipc/wallet.cjs');
 const { registerGatewayIpc } = require('./ipc/gateway.cjs');
@@ -16,11 +17,13 @@ const { registerSecurityIpc } = require('./ipc/security.cjs');
 const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
 const { registerHlsIpc } = require('./ipc/hls.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
+const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
 
 registerChainIpc();
 registerProfilesIpc();
 registerHttpIpc();
 registerNetworkIpc();
+registerReleaseIpc();
 registerWalletIpc();
 registerGatewayIpc();
 registerAddressBookIpc();
@@ -654,6 +657,7 @@ app.whenReady().then(() => {
 
   createSplashWindow();
   startChainPoller();
+  startReleaseWatcher();
 
   const allowDevtools = !app.isPackaged || String(process.env.DEBUG_LUMEN_ELECTRON || '') === '1';
 
@@ -678,6 +682,7 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     try { stopChainPoller(); } catch {}
+    try { stopReleaseWatcher(); } catch {}
     try { stopIpfsDaemon(); } catch {}
     app.quit();
   }

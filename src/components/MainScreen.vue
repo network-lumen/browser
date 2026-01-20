@@ -77,6 +77,7 @@
       @skip="handleOnboardingSkip"
     />
 
+    <ReleaseUpdatePrompt />
     <LumenSiteModalHost />
   </section>
 </template>
@@ -89,6 +90,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import UiButton from '../ui/UiButton.vue';
   import UiToast from '../ui/UiToast.vue';
   import WalletOnboardingModal from './WalletOnboardingModal.vue';
+  import ReleaseUpdatePrompt from './ReleaseUpdatePrompt.vue';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import { activeProfileId } from '../internal/profilesStore';

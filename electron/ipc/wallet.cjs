@@ -1546,6 +1546,172 @@ function registerWalletIpc() {
     }
   });
 
+  ipcMain.handle('release:publish', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const creator = String(input && input.creator ? input.creator : '').trim();
+      const password = input && input.password ? String(input.password) : null;
+      const release = input && input.release ? input.release : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!creator) return { ok: false, error: 'missing_creator' };
+      if (!release || typeof release !== 'object') return { ok: false, error: 'missing_release' };
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) return { ok: false, error: pwdCheck.error };
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') return { ok: false, error: 'password_required' };
+        return { ok: false, error: errMsg };
+      }
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const creatorStr = String(creator || '');
+      const prefixMatch = creatorStr.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) return { ok: false, error: 'password_required' };
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) return { ok: false, error: 'invalid_password' };
+      }
+
+      try {
+        const relMod = typeof client.releases === 'function' ? client.releases() : client.releases;
+        if (!relMod || typeof relMod.msgPublishRelease !== 'function') {
+          return { ok: false, error: 'release_module_unavailable' };
+        }
+
+        const reSha256Hex = /^[0-9a-f]{64}$/i;
+
+        function parseUrlsInput(value) {
+          if (Array.isArray(value)) {
+            return value.map((u) => String(u || '').trim()).filter(Boolean);
+          }
+          return String(value || '')
+            .split(/[\n,]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+
+        function parseSupersedesInput(value) {
+          if (Array.isArray(value)) {
+            return value
+              .map((v) => Number(v))
+              .filter((n) => Number.isFinite(n) && n > 0)
+              .map((n) => Math.trunc(n));
+          }
+          return String(value || '')
+            .split(/[,\s]+/)
+            .map((v) => Number(v))
+            .filter((n) => Number.isFinite(n) && n > 0)
+            .map((n) => Math.trunc(n));
+        }
+
+        function normalizeArtifactPayload(value, index) {
+          if (!value || typeof value !== 'object') {
+            throw new Error(`artifact[${index}]: missing`);
+          }
+          const platform = String(value.platform ?? '').trim();
+          if (!platform) throw new Error(`artifact[${index}]: platform required`);
+          const kind = String(value.kind ?? '').trim();
+          if (!kind) throw new Error(`artifact[${index}]: kind required`);
+          const sha = String(value.sha256Hex ?? value.sha256_hex ?? value.sha ?? '').trim().toLowerCase();
+          if (!reSha256Hex.test(sha)) throw new Error(`artifact[${index}]: invalid sha256_hex`);
+          const sizeRaw = value.size ?? value.bytes ?? 0;
+          const size = Number(sizeRaw);
+          if (!Number.isFinite(size) || size <= 0) throw new Error(`artifact[${index}]: invalid size`);
+          const cid = String(value.cid ?? '').trim();
+          const urls = parseUrlsInput(value.urls ?? value.urlsText ?? value.url);
+          const out = { platform, kind, sha256Hex: sha, size, urls };
+          if (cid) out.cid = cid;
+          return out;
+        }
+
+        function normalizeReleasePayload(value) {
+          if (!value || typeof value !== 'object') {
+            throw new Error('release payload missing');
+          }
+          const version = String(value.version ?? '').trim();
+          if (!version) throw new Error('version required');
+          const channel = String(value.channel ?? '').trim();
+          if (!channel) throw new Error('channel required');
+          const artifactsInput = Array.isArray(value.artifacts) ? value.artifacts : [];
+          if (!artifactsInput.length) throw new Error('at least one artifact is required');
+          const artifacts = artifactsInput.map((a, idx) => normalizeArtifactPayload(a, idx));
+
+          const out = {
+            version,
+            channel,
+            notes: String(value.notes ?? ''),
+            artifacts,
+          };
+
+          const supersedes = parseSupersedesInput(value.supersedes ?? value.supersedeIds);
+          if (supersedes.length) out.supersedes = supersedes;
+
+          const emergencyOk = typeof value.emergencyOk === 'boolean' ? value.emergencyOk : !!value.emergency_ok;
+          if (emergencyOk) out.emergencyOk = true;
+
+          const emergencyUntilRaw = value.emergencyUntil ?? value.emergency_until;
+          if (emergencyUntilRaw != null && emergencyUntilRaw !== '') {
+            const emergencyUntil = Number(emergencyUntilRaw);
+            if (Number.isFinite(emergencyUntil) && emergencyUntil > 0) {
+              out.emergencyUntil = Math.trunc(emergencyUntil);
+            }
+          }
+          return out;
+        }
+
+        const normalizedRelease = normalizeReleasePayload(release);
+        const msg = relMod.msgPublishRelease(creator, normalizedRelease);
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '550000' }));
+
+        const fee = input && input.fee ? input.fee : zeroFee();
+        const memo = String((input && input.memo) || 'release:publish');
+
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: creator,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'release_publish',
+        });
+
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   // Sign arbitrary payload (ADR-036 style: secp256k1 over sha256(utf8(payload))).
   ipcMain.handle('wallet:signArbitrary', async (_evt, input) => {
     try {

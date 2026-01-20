@@ -135,6 +135,28 @@ contextBridge.exposeInMainWorld('lumen', {
     getValidators: () => ipcRenderer.invoke('net:getValidators'),
     refreshOnChain: () => ipcRenderer.invoke('net:refreshOnChain')
   },
+  release: {
+    getLatestInfo: () => ipcRenderer.invoke('release:getLatestInfo'),
+    getTestOptions: () => ipcRenderer.invoke('release:getTestOptions'),
+    setTestOptions: (opts) => ipcRenderer.invoke('release:setTestOptions', opts || {}),
+    pollNow: () => ipcRenderer.invoke('release:pollNow'),
+    openExternal: (url) => ipcRenderer.invoke('release:openExternal', url),
+    publishRelease: (payload) => ipcRenderer.invoke('release:publish', payload || {}),
+    onUpdateAvailable: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('release:updateAvailable', handler);
+      return () => {
+        ipcRenderer.removeListener('release:updateAvailable', handler);
+      };
+    }
+  },
   dns: {
     getParams: () => ipcRenderer.invoke('dns:getParams'),
     getDomainInfo: (name) => ipcRenderer.invoke('dns:getDomainInfo', name),
