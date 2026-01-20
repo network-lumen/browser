@@ -1,38 +1,38 @@
 <template>
-  <div class="splash-shell">
-    <div class="glass">
-      <section class="body">
-        <div v-if="phase === 'starting' || phase === 'retrying'" class="center">
-          <div class="spinner"></div>
-          <div class="msg">
-            <div class="msg-title">
-              {{ phase === 'retrying' ? 'Reconnecting...' : 'Starting services...' }}
-            </div>
+  <div class="card" role="status" aria-live="polite">
+    <header class="head">
+      <div class="mark" aria-hidden="true">L</div>
+      <div class="brand">
+        <div class="title">Lumen</div>
+        <div class="subtitle">Starting secure services</div>
+      </div>
+    </header>
+
+    <main class="body">
+      <div v-if="phase === 'starting' || phase === 'retrying'" class="center">
+        <div class="spinner" aria-label="Loading"></div>
+      </div>
+
+      <div v-else-if="phase === 'error'" class="center">
+        <div class="warn" aria-hidden="true">!</div>
+        <div class="msg">
+          <div class="msg-title">Unable to start</div>
+          <div class="msg-subtitle">
+            {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
         </div>
-
-        <div v-else-if="phase === 'error'" class="center">
-          <div class="warn">!</div>
-          <div class="msg">
-            <div class="msg-title">Unable to start</div>
-            <div class="msg-subtitle">
-              {{ errorText || 'IPFS daemon did not respond.' }}
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn primary" type="button" :disabled="busy" @click="restartAll">
-              Retry
-            </button>
-          </div>
+        <div class="row">
+          <button class="btn primary" type="button" :disabled="busy" @click="restartAll">
+            Retry
+          </button>
         </div>
-      </section>
-    </div>
+      </div>
+    </main>
 
-    <div class="bg">
-      <div class="blob b1"></div>
-      <div class="blob b2"></div>
-      <div class="blob b3"></div>
-    </div>
+    <footer class="foot">
+      <span v-if="phase !== 'error'" class="hint">This usually takes a few seconds.</span>
+      <span v-else class="hint">If it keeps failing, restart Lumen.</span>
+    </footer>
   </div>
 </template>
 
@@ -46,6 +46,10 @@ const emit = defineEmits<{ (e: 'ready'): void }>();
 const phase = ref<Phase>('starting');
 const errorText = ref('');
 const busy = ref(false);
+
+// TEMP (debug): keep the splash visible long enough to inspect styling.
+const MIN_VISIBLE_MS = 5000;
+let bootStartedAt = 0;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -70,12 +74,15 @@ async function pollOnce(): Promise<boolean> {
 async function bootSequence() {
   phase.value = 'starting';
   errorText.value = '';
+  bootStartedAt = Date.now();
 
   let tries = 15;
   while (tries-- > 0) {
     const ok = await pollOnce();
     if (ok) {
-      await sleep(200);
+      const elapsed = Date.now() - bootStartedAt;
+      const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
+      if (remaining) await sleep(remaining);
       emit('ready');
       return;
     }
@@ -105,69 +112,108 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.splash-shell {
-  position: relative;
-  width: min(720px, 92vw);
-  height: min(420px, 70vh);
-}
-
-.glass {
-  z-index: 1;
-  position: absolute;
-  inset: 10px;
-  border-radius: 15px;
+.card {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: none;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-primary);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+
+.brand {
+  min-width: 0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.2;
 }
 
 .body {
   flex: 1 1 auto;
   display: flex;
-  position: relative;
+  min-height: 0;
 }
 
 .center {
   margin: auto;
-  padding: 32px;
+  padding: 28px 22px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .spinner {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  border: 3px solid rgba(15, 23, 42, 0.1);
-  border-top-color: var(--accent-secondary);
+  border: 3px solid var(--fill-secondary);
+  border-top-color: var(--accent-primary);
   animation: spin 0.9s linear infinite;
 }
 
 .warn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  border: 3px solid rgba(220, 38, 38, 0.2);
+  border: 3px solid rgba(var(--ios-red-rgb), 0.28);
+  background: var(--fill-error);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #b91c1c;
-  font-weight: 700;
+  color: var(--error-red);
+  font-weight: 850;
   font-size: 20px;
 }
 
 .msg-title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 780;
+  letter-spacing: -0.02em;
   margin-bottom: 4px;
 }
 
 .msg-subtitle {
   font-size: 13px;
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
 .row {
@@ -175,21 +221,30 @@ onMounted(async () => {
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
+  margin-top: 4px;
 }
 
 .btn {
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
+  padding: 10px 16px;
+  border-radius: var(--border-radius-md);
+  border: var(--border-width) solid var(--border-color);
   font-size: 13px;
+  font-weight: 650;
   cursor: pointer;
-  background: #ffffff;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .btn.primary {
-  border-color: var(--accent-secondary);
-  background: var(--accent-secondary);
+  border-color: transparent;
+  background: var(--gradient-primary);
   color: #ffffff;
+  box-shadow: var(--shadow-primary);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .btn:disabled {
@@ -197,40 +252,16 @@ onMounted(async () => {
   cursor: default;
 }
 
-.bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.foot {
+  padding: 12px 18px;
+  border-top: var(--border-width) solid var(--border-color);
+  display: flex;
+  justify-content: center;
 }
 
-.blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(22px);
-}
-
-.blob.b1 {
-  width: 200px;
-  height: 200px;
-  left: -30px;
-  top: -30px;
-  background: #93c5fd;
-}
-
-.blob.b2 {
-  width: 220px;
-  height: 220px;
-  right: -40px;
-  bottom: -30px;
-  background: #a5b4fc;
-}
-
-.blob.b3 {
-  width: 160px;
-  height: 160px;
-  left: 20%;
-  top: 60%;
-  background: #6ee7b7;
+.hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
 }
 
 @keyframes spin {

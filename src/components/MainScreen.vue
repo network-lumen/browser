@@ -48,7 +48,7 @@
           ref="addBtn"
           variant="none"
           title="New tab"
-          class="hover-bg-black-a10 margin-left-25 border-radius-circle padding-25 border-none cursor-pointer bg-white-a45"
+          class="add-tab-btn margin-left-25 border-radius-circle padding-25 border-none cursor-pointer"
           @click="addTab"
         >
           <Plus :size="16" />
@@ -728,5 +728,19 @@ function handleOnboardingSkip() {
 
   .tabs-header .tab.active .label {
     color: var(--text-primary, #0f172a);
+  }
+
+  .tabs-header .tab.active :deep(.button-icon) {
+    color: var(--text-primary, #0f172a);
+  }
+
+  .add-tab-btn {
+    background: var(--fill-secondary);
+    color: var(--text-primary);
+  }
+
+  .add-tab-btn:where(:hover, :focus-visible) {
+    background: var(--fill-primary);
+    color: var(--text-primary);
   }
     </style>

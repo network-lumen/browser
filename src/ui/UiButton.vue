@@ -78,9 +78,11 @@ const computedClass = computed(() => [
   border-radius: 50%;
   cursor: pointer;
   padding: .25rem;
+  color: var(--text-secondary);
 }
 .button-icon:where(:hover, :focus-visible) {
   background: var(--white-a25);
+  color: var(--text-primary);
 }
 
 .button-cta {

@@ -1,5 +1,5 @@
 <template>
-  <main class="app-root">
+  <main class="app-root" :class="{ startup: stage === 'startup' }">
     <StartupScreen
       v-if="stage === 'startup'"
       @ready="handleStartupReady"
@@ -66,5 +66,13 @@ watch(stage, (s) => {
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
               radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
               linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
+}
+
+.app-root.startup {
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100vw;
+  height: 100vh;
+  background: var(--card-bg);
 }
 </style>
