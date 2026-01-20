@@ -529,11 +529,15 @@ function onItemClick(key: string, e: MouseEvent) {
 
 const profiles = profilesState;
 const hasProfiles = computed(() => profiles.value.length > 0);
-
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
 function openRoute(key: string) {
   const url = `lumen://${key}`;
+  if (navigate) {
+    navigate(url, { push: true });
+    return;
+  }
   openInNewTab?.(url);
 }
 
