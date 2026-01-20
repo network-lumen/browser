@@ -27,10 +27,12 @@
 
       <div class="tabs">
         <button
-          class="pill"
+          class="pill pill-sites"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
+          :disabled="true"
+          title="Coming soon"
         >
           <Globe :size="16" />
           Sites
@@ -81,6 +83,7 @@
           type="button"
           @click="toggleDebugMode"
           :title="debugMode ? 'Disable debug' : 'Enable debug'"
+          v-if="selectedType === 'site'"
         >
           <Bug :size="14" />
           Debug
@@ -404,7 +407,7 @@ const openInNewTab = inject<((url: string) => void) | null>(
 );
 
 const q = ref("");
-const selectedType = ref<SearchType>("site");
+const selectedType = ref<SearchType>("");
 const touched = ref(false);
 const loading = ref(false);
 const errorMsg = ref("");
@@ -412,7 +415,7 @@ const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
 const page = ref(1);
 const activeQuery = ref("");
-const activeType = ref<SearchType>("site");
+const activeType = ref<SearchType>("");
 const gatewayHasMore = ref(false);
 const gatewayPageSize = 12;
 
@@ -603,7 +606,7 @@ function goto(url: string, opts?: { push?: boolean }) {
 
 function parseSearchUrl(raw: string): { q: string; type: SearchType; page: number } {
   const value = String(raw || "").trim();
-  if (!value) return { q: "", type: "site", page: 1 };
+  if (!value) return { q: "", type: "", page: 1 };
   try {
     const u = new URL(value);
     const qs = u.searchParams.get("q") || "";
@@ -615,7 +618,7 @@ function parseSearchUrl(raw: string): { q: string; type: SearchType; page: numbe
     const p = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     return { q: qs, type: t, page: p };
   } catch {
-    return { q: "", type: "site", page: 1 };
+    return { q: "", type: "", page: 1 };
   }
 }
 
@@ -1228,7 +1231,7 @@ async function searchGateways(
   query: string,
   type: SearchType,
   seq: number,
-  opts: { limit: number; offset: number },
+  opts: { pageSize: number; page: number },
 ): Promise<GatewaySearchResult> {
   const gwApi = (window as any).lumen?.gateway;
   if (!gwApi || typeof gwApi.searchPq !== "function") return { items: [], maybeHasMore: false };
@@ -1240,10 +1243,20 @@ async function searchGateways(
     ? gateways
     : [{ id: "default", endpoint: "", regions: [] }];
 
+  const safePage = clampPage(opts.page);
+  const pageSizeRaw = Number(opts.pageSize);
+  const pageSize = Number.isFinite(pageSizeRaw) && pageSizeRaw > 0
+    ? Math.min(Math.floor(pageSizeRaw), 50)
+    : 12;
+
+  const start = (safePage - 1) * pageSize;
+  const end = start + pageSize;
+
   type GatewayBatch = { items: ResultItem[]; rawCount: number };
 
   const wantedType = normalizeGatewayType(type);
   const wantedMode = wantedType === "site" ? "sites" : "";
+  const fetchLimit = wantedType === "image" ? 50 : Math.min(end, 50);
   const tasks = list.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
       .searchPq({
@@ -1251,8 +1264,8 @@ async function searchGateways(
         endpoint: g.endpoint,
         query,
         lang: "en",
-        limit: opts.limit,
-        offset: opts.offset,
+        limit: fetchLimit,
+        offset: 0,
         mode: wantedMode,
         type: wantedType,
       })
@@ -1330,7 +1343,6 @@ async function searchGateways(
   const lists = await Promise.all(tasks);
   if (seq !== searchSeq) return { items: [], maybeHasMore: false };
 
-  const maybeHasMore = lists.some((l) => l.rawCount >= opts.limit);
   const flat = lists.flatMap((l) => l.items);
 
   const seen = new Set<string>();
@@ -1341,7 +1353,10 @@ async function searchGateways(
     seen.add(key);
     unique.push(r);
   }
-  return { items: unique, maybeHasMore };
+
+  const pageItems = unique.slice(start, end);
+  const maybeHasMore = unique.length > end || lists.some((l) => l.rawCount >= fetchLimit);
+  return { items: pageItems, maybeHasMore };
 }
 
 async function fetchTagsForCid(
@@ -1567,8 +1582,8 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
     const gatewayPromise = searchGateways(profileId || "", clean, type, seq, {
-      limit: gatewayPageSize,
-      offset: (safePage - 1) * gatewayPageSize,
+      pageSize: gatewayPageSize,
+      page: safePage,
     });
 
     const [bestDomain, gw] = await Promise.all([
@@ -1906,6 +1921,14 @@ const imageResults = computed(() =>
 
 .pill.active svg {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.pill.pill-sites:not(.active) {
+  color: var(--text-tertiary);
+}
+
+.pill.pill-sites:not(.active) svg {
+  opacity: 0.85;
 }
 
 .results {
@@ -2274,7 +2297,7 @@ const imageResults = computed(() =>
 }
 
 .image-badge {
-  font-size: 0.5rem;
+  font-size: 0.67rem;
   line-height: 1;
   padding: 0.25rem 0.4rem;
   border-radius: 999px;
@@ -2285,7 +2308,7 @@ const imageResults = computed(() =>
 }
 
 .image-badge-more {
-  font-size: 0.5rem;
+  font-size: 0.67rem;
   line-height: 1;
   padding: 0.25rem 0.4rem;
   border-radius: 999px;

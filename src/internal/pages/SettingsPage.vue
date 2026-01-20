@@ -17,6 +17,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'content' }"
+            @click="currentView = 'content'"
+          >
+            <EyeOff :size="18" />
+            <span>Content</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'privacy' }"
             disabled
             style="opacity:0.5; cursor:not-allowed;"
@@ -145,6 +154,51 @@
               />
               <span class="brightness-value">{{ brightness }}%</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content View -->
+      <div v-else-if="currentView === 'content'" class="settings-section">
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Show sexual content</span>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" v-model="showSexualContent" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Show violent / gore content</span>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" v-model="showViolentContent" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Show disturbing imagery</span>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" v-model="showDisturbingImagery" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-hint">
+            Sensitive content is blurred by default. You can choose what to reveal.
           </div>
         </div>
       </div>
@@ -592,6 +646,7 @@ import {
   Settings,
   Palette,
   Shield,
+  EyeOff,
   Globe,
   Database,
   Code2,
@@ -626,7 +681,7 @@ function openInNewTabSafe(url: string) {
   navigate?.(url, { push: true });
 }
 
-const currentView = ref<'appearance' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'about'>('appearance');
+const currentView = ref<'appearance' | 'content' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
@@ -671,6 +726,35 @@ const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
+
+const showSexualContent = ref(!!appSettingsState.value.showSexualContent);
+const showViolentContent = ref(!!appSettingsState.value.showViolentContent);
+const showDisturbingImagery = ref(!!appSettingsState.value.showDisturbingImagery);
+const contentSaving = ref(false);
+
+watch(
+  () => appSettingsState.value,
+  (next) => {
+    showSexualContent.value = !!next.showSexualContent;
+    showViolentContent.value = !!next.showViolentContent;
+    showDisturbingImagery.value = !!next.showDisturbingImagery;
+  },
+  { deep: true },
+);
+
+watch([showSexualContent, showViolentContent, showDisturbingImagery], async () => {
+  if (contentSaving.value) return;
+  contentSaving.value = true;
+  try {
+    await setAppSettings({
+      showSexualContent: !!showSexualContent.value,
+      showViolentContent: !!showViolentContent.value,
+      showDisturbingImagery: !!showDisturbingImagery.value,
+    });
+  } finally {
+    contentSaving.value = false;
+  }
+});
 
 // Security state
 const securityStatus = ref<{ enabled: boolean }>({ enabled: false });
@@ -936,6 +1020,7 @@ async function saveDevSettings() {
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     appearance: 'Appearance',
+    content: 'Content Settings',
     privacy: 'Privacy & Security',
     security: 'Security',
     profiles: 'Profiles & backups',
@@ -948,6 +1033,7 @@ function getViewTitle(): string {
 function getViewDescription(): string {
   const descs: Record<string, string> = {
     appearance: 'Customize the look and feel',
+    content: 'Control sensitive content visibility',
     privacy: 'Manage your privacy settings',
     security: 'Password protection for wallet operations',
     profiles: 'Backup or restore profiles and PQC keys',
@@ -1402,6 +1488,12 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   padding: 0.375rem;
   border-radius: 10px;
   border: 1px solid var(--border-color);
+}
+
+.setting-hint {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
 }
 
 .theme-option {

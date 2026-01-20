@@ -3,11 +3,17 @@ import { ref } from "vue";
 export type AppSettings = {
   localGatewayBase: string;
   ipfsApiBase: string;
+  showSexualContent: boolean;
+  showViolentContent: boolean;
+  showDisturbingImagery: boolean;
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
   localGatewayBase: "http://127.0.0.1:8080",
   ipfsApiBase: "http://127.0.0.1:5001",
+  showSexualContent: false,
+  showViolentContent: false,
+  showDisturbingImagery: false,
 });
 
 export const appSettingsState = ref<AppSettings>({ ...DEFAULT_APP_SETTINGS });
@@ -39,6 +45,9 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
       String(p.ipfsApiBase ?? cur.ipfsApiBase),
       DEFAULT_APP_SETTINGS.ipfsApiBase,
     ),
+    showSexualContent: Boolean(p.showSexualContent ?? cur.showSexualContent),
+    showViolentContent: Boolean(p.showViolentContent ?? cur.showViolentContent),
+    showDisturbingImagery: Boolean(p.showDisturbingImagery ?? cur.showDisturbingImagery),
   };
 }
 

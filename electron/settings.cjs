@@ -5,6 +5,10 @@ const path = require('node:path');
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8080',
   ipfsApiBase: 'http://127.0.0.1:5001',
+  // Content settings
+  showSexualContent: false,
+  showViolentContent: false,
+  showDisturbingImagery: false,
   // Security settings
   securityPasswordEnabled: false,
   securityPasswordHash: null // { hash, salt, algorithm, params }
@@ -75,6 +79,9 @@ function getSettings() {
   const settings = {
     localGatewayBase: normalizeBaseUrl(disk.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase),
     ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase),
+    showSexualContent: !!disk.showSexualContent,
+    showViolentContent: !!disk.showViolentContent,
+    showDisturbingImagery: !!disk.showDisturbingImagery,
     securityPasswordEnabled: !!disk.securityPasswordEnabled,
     securityPasswordHash: disk.securityPasswordHash || null
   };
@@ -110,6 +117,16 @@ function setSettings(partial) {
     const r = tryNormalizeBaseUrl(p.ipfsApiBase);
     if (!r.ok) return { ok: false, error: 'invalid_ipfsApiBase' };
     next.ipfsApiBase = r.value;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(p, 'showSexualContent')) {
+    next.showSexualContent = !!p.showSexualContent;
+  }
+  if (Object.prototype.hasOwnProperty.call(p, 'showViolentContent')) {
+    next.showViolentContent = !!p.showViolentContent;
+  }
+  if (Object.prototype.hasOwnProperty.call(p, 'showDisturbingImagery')) {
+    next.showDisturbingImagery = !!p.showDisturbingImagery;
   }
 
   next.localGatewayBase = normalizeBaseUrl(next.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase);
