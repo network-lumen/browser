@@ -20,13 +20,14 @@ type LatestPayload = {
 
 const REMIND_INTERVAL_MS = 10 * 60 * 1000;
 const STORAGE_SNOOZE_UNTIL = 'lumen:release:snoozeUntil';
-const STORAGE_SKIP_VERSION = 'lumen:release:skipVersion';
 
 const latest = ref<LatestPayload | null>(null);
 const shouldPrompt = ref(false);
 const busy = ref(false);
+const updateProgress = ref<any | null>(null);
 const initialized = ref(false);
 let unsub: null | (() => void) = null;
+let unsubProgress: null | (() => void) = null;
 
 function getCurrentVersion(): string {
   return String((pkg as any)?.version || '');
@@ -48,22 +49,6 @@ function writeSnoozeUntil(ts: number) {
   } catch {}
 }
 
-function readSkipVersion(): string | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_SKIP_VERSION);
-    return raw ? String(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeSkipVersion(v: string | null) {
-  try {
-    if (!v) localStorage.removeItem(STORAGE_SKIP_VERSION);
-    else localStorage.setItem(STORAGE_SKIP_VERSION, String(v));
-  } catch {}
-}
-
 function evaluatePrompt() {
   const info = latest.value;
   const currentVersion = getCurrentVersion();
@@ -72,11 +57,6 @@ function evaluatePrompt() {
     return;
   }
   if (info.version === currentVersion) {
-    shouldPrompt.value = false;
-    return;
-  }
-  const skipVersion = readSkipVersion();
-  if (skipVersion && skipVersion === info.version) {
     shouldPrompt.value = false;
     return;
   }
@@ -104,10 +84,14 @@ async function fetchSnapshot() {
 
 function handleReleaseEvent(payload: any) {
   if (!payload || !payload.version) return;
-  // A new version should override any old skip/snooze.
-  writeSkipVersion(null);
+  // A new version should override any old snooze.
   writeSnoozeUntil(0);
   updateLatest(payload);
+}
+
+function handleProgressEvent(payload: any) {
+  if (!payload || typeof payload !== 'object') return;
+  updateProgress.value = payload;
 }
 
 async function initReleaseUpdates() {
@@ -119,6 +103,11 @@ async function initReleaseUpdates() {
   } catch {
     unsub = null;
   }
+  try {
+    unsubProgress = (window as any).lumen?.release?.onUpdateProgress?.(handleProgressEvent) || null;
+  } catch {
+    unsubProgress = null;
+  }
 }
 
 async function updateNow() {
@@ -127,14 +116,29 @@ async function updateNow() {
   if (!url) return;
   busy.value = true;
   try {
-    await (window as any).lumen?.release?.openExternal?.(url);
-  } catch {
-    // ignore
+    const sha256Hex = latest.value.artifact?.sha256Hex || null;
+    const sizeBytes = latest.value.artifact?.size ?? null;
+    const api = (window as any).lumen?.release?.downloadAndInstall;
+    if (typeof api === 'function') {
+      updateProgress.value = { stage: 'starting' };
+      const res = await api({ url, sha256Hex, sizeBytes, silent: false, label: latest.value.version });
+      if (res && res.ok === false) {
+        throw new Error(String(res.error || 'Update failed'));
+      }
+      // If we reach here, the installer was launched; the app will quit shortly.
+      shouldPrompt.value = false;
+      return;
+    } else {
+      await (window as any).lumen?.release?.openExternal?.(url);
+      // External install flow: avoid re-prompting immediately, but don't permanently skip.
+      writeSnoozeUntil(Date.now() + REMIND_INTERVAL_MS);
+      evaluatePrompt();
+    }
+  } catch (e: any) {
+    updateProgress.value = { stage: 'error', error: String(e?.message || e || 'Update failed') };
   } finally {
     busy.value = false;
   }
-  writeSkipVersion(latest.value.version);
-  shouldPrompt.value = false;
 }
 
 function remindLater() {
@@ -151,7 +155,11 @@ export function useReleaseUpdates() {
     currentVersion: computed(() => getCurrentVersion()),
     updateNow,
     remindLater,
-    busy: computed(() => busy.value)
+    busy: computed(() => busy.value),
+    updateProgress: computed(() => updateProgress.value),
+    clearUpdateProgress: () => {
+      updateProgress.value = null;
+    }
   };
 }
 
@@ -168,4 +176,3 @@ export function formatReleaseSize(size?: number | null) {
   }
   return `${v.toFixed(idx === 0 ? 0 : 1)} ${units[idx]}`;
 }
-

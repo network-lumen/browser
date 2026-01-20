@@ -6,6 +6,7 @@ const {
   setReleaseTestOptions,
   pollNow
 } = require('../services/release_watcher.cjs');
+const { downloadAndInstall } = require('../services/release_installer.cjs');
 
 function registerReleaseIpc() {
   ipcMain.handle('release:getLatestInfo', async () => {
@@ -22,6 +23,10 @@ function registerReleaseIpc() {
 
   ipcMain.handle('release:pollNow', async () => {
     return pollNow();
+  });
+
+  ipcMain.handle('release:downloadAndInstall', async (evt, input) => {
+    return downloadAndInstall({ ...(input || {}), senderWebContents: evt?.sender });
   });
 
   ipcMain.handle('release:openExternal', async (_evt, url) => {

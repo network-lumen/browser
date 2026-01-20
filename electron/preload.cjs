@@ -140,6 +140,7 @@ contextBridge.exposeInMainWorld('lumen', {
     getTestOptions: () => ipcRenderer.invoke('release:getTestOptions'),
     setTestOptions: (opts) => ipcRenderer.invoke('release:setTestOptions', opts || {}),
     pollNow: () => ipcRenderer.invoke('release:pollNow'),
+    downloadAndInstall: (payload) => ipcRenderer.invoke('release:downloadAndInstall', payload || {}),
     openExternal: (url) => ipcRenderer.invoke('release:openExternal', url),
     publishRelease: (payload) => ipcRenderer.invoke('release:publish', payload || {}),
     onUpdateAvailable: (callback) => {
@@ -154,6 +155,20 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.on('release:updateAvailable', handler);
       return () => {
         ipcRenderer.removeListener('release:updateAvailable', handler);
+      };
+    },
+    onUpdateProgress: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('release:updateProgress', handler);
+      return () => {
+        ipcRenderer.removeListener('release:updateProgress', handler);
       };
     }
   },

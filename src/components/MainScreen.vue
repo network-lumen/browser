@@ -78,6 +78,7 @@
     />
 
     <ReleaseUpdatePrompt />
+    <ReleaseUpdateOverlay />
     <LumenSiteModalHost />
   </section>
 </template>
@@ -91,6 +92,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import UiToast from '../ui/UiToast.vue';
   import WalletOnboardingModal from './WalletOnboardingModal.vue';
   import ReleaseUpdatePrompt from './ReleaseUpdatePrompt.vue';
+  import ReleaseUpdateOverlay from './ReleaseUpdateOverlay.vue';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import { activeProfileId } from '../internal/profilesStore';
