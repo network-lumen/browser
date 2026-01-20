@@ -62,6 +62,8 @@
           type="button"
           :class="{ active: selectedType === '' }"
           @click="setType('')"
+          :disabled="true"
+          title="Disabled"
         >
           <Compass :size="16" />
           Explore everything
@@ -151,6 +153,15 @@
               class="safe-thumb"
               :class="{ blurred: shouldBlurThumb(r) }"
             >
+              <button
+                v-if="showHideIcon(r)"
+                type="button"
+                class="safe-thumb-hide"
+                title="Hide content"
+                @click.stop.prevent="hideThumb(r)"
+              >
+                <EyeOff :size="16" />
+              </button>
               <img
                 class="image-thumb"
                 :src="r.thumbUrl"
@@ -167,7 +178,7 @@
                   class="safe-thumb-reveal"
                   @click.stop.prevent="revealThumb(r)"
                 >
-                  This image may contain sensitive content. Click to reveal.
+                  {{ thumbBlurNoticeText(r) }}
                 </div>
               </div>
             </div>
@@ -218,6 +229,15 @@
                 :class="{ blurred: shouldBlurThumb(r) }"
                 @click="onCompactThumbClick(r, $event)"
               >
+                <button
+                  v-if="showHideIcon(r)"
+                  type="button"
+                  class="safe-thumb-hide safe-thumb-hide--compact"
+                  title="Hide content"
+                  @click.stop.prevent="hideThumb(r)"
+                >
+                  <EyeOff :size="14" />
+                </button>
                 <img
                   class="thumb"
                   :src="r.thumbUrl"
@@ -398,6 +418,7 @@ import {
   Bug,
   Bookmark,
   Compass,
+  EyeOff,
   Film,
   Globe,
   Hash,
@@ -416,9 +437,11 @@ import { appSettingsState } from "../services/appSettings";
 import { useToast } from "../../composables/useToast";
 import {
   getThumbSafetyService,
+  blockedCategories,
   isBlockedBySettings,
   isGreyZoneByTags,
-  shouldSkipAnalysisAndRenderClear,
+  shouldSkipAnalysisAndRenderClear,shouldBlurImmediatelyByTags,
+  type ThumbSafetyBlockedCategory,
   type ThumbSafetyScores,
 } from "./searchSafety/thumbSafetyService";
 
@@ -455,7 +478,7 @@ const openInNewTab = inject<((url: string) => void) | null>(
 );
 
 const q = ref("");
-const selectedType = ref<SearchType>("");
+const selectedType = ref<SearchType>("image");
 const touched = ref(false);
 const loading = ref(false);
 const errorMsg = ref("");
@@ -493,6 +516,8 @@ const thumbSafetyById = ref<
 const thumbAnalyzeStarted = ref<Record<string, true>>({});
 const thumbAnalyzeUrlById = ref<Record<string, string>>({});
 const thumbCorsDisabledById = ref<Record<string, true>>({});
+const hiddenThumbHashes = ref<Record<string, true>>({});
+const hiddenThumbUrls = ref<Record<string, true>>({});
 
 function isSearchImageThumb(r: ResultItem): boolean {
   return r.media === "image" && !!r.thumbUrl;
@@ -516,30 +541,121 @@ function imageThumbFetchPriority(idx: number): "high" | "auto" {
   return idx < IMAGE_HIGH_PRIORITY_COUNT ? "high" : "auto";
 }
 
+function blockedCatLabel(cat: ThumbSafetyBlockedCategory): string {
+  switch (cat) {
+    case "sexual":
+      return "sexual content";
+    case "violence":
+      return "violence / gore";
+    case "disturbing":
+      return "disturbing imagery";
+  }
+}
+
+function thumbBlurNoticeText(r: ResultItem): string {
+  if (!isSearchImageThumb(r)) {
+    return "This image may contain sensitive content. Click to reveal.";
+  }
+  const url = r.thumbUrl || "";
+  const fromId = thumbSafetyById.value[r.id]?.scores || null;
+  const fromCache = url ? thumbSafety.getCachedScoresByUrl(url)?.scores || null : null;
+  const scores = fromId || fromCache;
+  if (!scores) return "This image may contain sensitive content. Click to reveal.";
+
+  const cats = blockedCategories(scores, appSettingsState.value);
+  if (!cats.length) return "This image may contain sensitive content. Click to reveal.";
+  const labels = cats.map(blockedCatLabel);
+  if (labels.length === 1) {
+    return `This image may contain ${labels[0]}. Click to reveal.`;
+  }
+  if (labels.length === 2) {
+    return `This image may contain ${labels[0]} or ${labels[1]}. Click to reveal.`;
+  }
+  return `This image may contain ${labels.slice(0, -1).join(", ")}, or ${labels[labels.length - 1]}. Click to reveal.`;
+}
+
 function shouldBlurThumb(r: ResultItem): boolean {
   if (!isSearchImageThumb(r)) return false;
-  if (revealedThumbIds.value[r.id]) return false;
 
-  const url = r.thumbUrl || "";
-  const cached = url ? thumbSafety.getCachedScoresByUrl(url) : null;
+  const thumbUrl = r.thumbUrl || "";
+  const cached = thumbUrl ? thumbSafety.getCachedScoresByUrl(thumbUrl) : null;
   const hash = thumbSafetyById.value[r.id]?.hash || cached?.hash || "";
+
+  if (hash && hiddenThumbHashes.value[hash]) return true;
+  if (r.url && hiddenThumbUrls.value[r.url]) return true;
+  // Back-compat: older hides stored the thumbnail URL.
+  if (thumbUrl && hiddenThumbUrls.value[thumbUrl]) return true;
+  if (revealedThumbIds.value[r.id]) return false;
   if (hash && thumbSafety.isRevealedForSession(hash)) return false;
 
   if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return false;
   if (grantedClearThumbIds.value[r.id]) return false;
+
+  return true;
+}
+
+
+function thumbHashFor(r: ResultItem): string {
+  if (!isSearchImageThumb(r)) return "";
+  const url = r.thumbUrl || "";
+  return (
+    thumbSafetyById.value[r.id]?.hash ||
+    (url ? thumbSafety.getCachedHashForUrl(url) : null) ||
+    ""
+  );
+}
+
+function showHideIcon(r: ResultItem): boolean {
+  if (!isSearchImageThumb(r)) return false;
+  if (shouldBlurThumb(r)) return false;
+  if (!isGreyZoneByTags(r.badges || [])) return false;
   return true;
 }
 
 function revealThumb(r: ResultItem): void {
   if (!isSearchImageThumb(r)) return;
+  const thumbUrl = r.thumbUrl || "";
+  const key = String(r.url || "").trim();
+  const h = thumbHashFor(r);
+  if (h && hiddenThumbHashes.value[h]) {
+    const next = { ...hiddenThumbHashes.value };
+    delete next[h];
+    hiddenThumbHashes.value = next;
+    thumbSafety.unhideHash(h);
+  }
+  if (key && hiddenThumbUrls.value[key]) {
+    const next = { ...hiddenThumbUrls.value };
+    delete next[key];
+    hiddenThumbUrls.value = next;
+    thumbSafety.unhideUrl(key);
+  }
+  if (thumbUrl && hiddenThumbUrls.value[thumbUrl]) {
+    const next = { ...hiddenThumbUrls.value };
+    delete next[thumbUrl];
+    hiddenThumbUrls.value = next;
+    thumbSafety.unhideUrl(thumbUrl);
+  }
   revealedThumbIds.value = { ...revealedThumbIds.value, [r.id]: true };
 
-  const url = r.thumbUrl || "";
   const hash =
     thumbSafetyById.value[r.id]?.hash ||
-    (url ? thumbSafety.getCachedHashForUrl(url) : null) ||
+    (thumbUrl ? thumbSafety.getCachedHashForUrl(thumbUrl) : null) ||
     "";
   if (hash) thumbSafety.markRevealedForSession(hash);
+}
+
+function hideThumb(r: ResultItem): void {
+  if (!isSearchImageThumb(r)) return;
+  const key = String(r.url || "").trim();
+  const h = thumbHashFor(r);
+  if (h) {
+    hiddenThumbHashes.value = { ...hiddenThumbHashes.value, [h]: true };
+    thumbSafety.hideHash(h);
+  } else {
+    if (!key) return;
+    hiddenThumbUrls.value = { ...hiddenThumbUrls.value, [key]: true };
+    thumbSafety.hideUrl(key);
+  }
 }
 
 function onCompactThumbClick(r: ResultItem, ev: MouseEvent): void {
@@ -598,6 +714,18 @@ function scheduleThumbAnalysis(r: ResultItem, imgEl: HTMLImageElement): void {
         ...thumbSafetyById.value,
         [r.id]: { hash: res.hash, scores: res.scores },
       };
+
+      const key = String(r.url || "").trim();
+      if ((key && hiddenThumbUrls.value[key]) || hiddenThumbUrls.value[url]) {
+        hiddenThumbHashes.value = { ...hiddenThumbHashes.value, [res.hash]: true };
+        thumbSafety.hideHash(res.hash);
+        const next = { ...hiddenThumbUrls.value };
+        if (key) delete next[key];
+        delete next[url];
+        hiddenThumbUrls.value = next;
+        if (key) thumbSafety.unhideUrl(key);
+        thumbSafety.unhideUrl(url);
+      }
 
       if (revealedThumbIds.value[r.id]) thumbSafety.markRevealedForSession(res.hash);
 
@@ -765,6 +893,16 @@ onMounted(() => {
     debugMode.value = false;
   }
 
+  try {
+    const hh = thumbSafety.getHiddenHashes();
+    hiddenThumbHashes.value = Object.fromEntries(hh.map((h) => [h, true]));
+    const hu = thumbSafety.getHiddenUrls();
+    hiddenThumbUrls.value = Object.fromEntries(hu.map((u) => [u, true]));
+  } catch {
+    hiddenThumbHashes.value = {};
+    hiddenThumbUrls.value = {};
+  }
+
   void refreshPinnedCids();
 });
 
@@ -830,19 +968,19 @@ function goto(url: string, opts?: { push?: boolean }) {
 
 function parseSearchUrl(raw: string): { q: string; type: SearchType; page: number } {
   const value = String(raw || "").trim();
-  if (!value) return { q: "", type: "", page: 1 };
+  if (!value) return { q: "", type: "image", page: 1 };
   try {
     const u = new URL(value);
     const qs = u.searchParams.get("q") || "";
     const type = (u.searchParams.get("type") || "") as SearchType;
     const t: SearchType =
-      type === "site" || type === "image" || type === "" ? type : "site";
+      type === "site" || type === "image" ? type : "image";
     const pageRaw = u.searchParams.get("page") || "";
     const parsedPage = Number.parseInt(pageRaw, 10);
     const p = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     return { q: qs, type: t, page: p };
   } catch {
-    return { q: "", type: "", page: 1 };
+    return { q: "", type: "image", page: 1 };
   }
 }
 
@@ -858,6 +996,7 @@ function makeSearchUrl(query: string, type: SearchType, page = 1): string {
 
 function setType(t: SearchType) {
   if (t === "video") return;
+  if (t === "") return;
   selectedType.value = t;
   const s = q.value.trim();
   if (!s) return;
@@ -1224,6 +1363,7 @@ function mapGatewayHitToResult(
 
   if (filterType === "image" && !isImage) return null;
   if (filterType === "video" && !isVideo) return null;
+  if (isImage && extractedTags.length === 0) return null;
   const thumbUrl = isImage
     ? `${localIpfsGatewayBase()}/ipfs/${cid}${path}`
     : undefined;
@@ -1480,7 +1620,13 @@ async function searchGateways(
 
   const wantedType = normalizeGatewayType(type);
   const wantedMode = wantedType === "site" ? "sites" : "";
-  const fetchLimit = wantedType === "image" ? 50 : Math.min(end, 50);
+  // For image results, gateways sometimes return many non-images in the top N,
+  // and some images have missing `mime/resourceType` (we infer from extension).
+  // Fetch more upfront so the UI page stays filled without extra round-trips.
+  const fetchLimit =
+    wantedType === "image"
+      ? Math.min(Math.max(end * 4, 50), 300)
+      : Math.min(end, 50);
   const tasks = list.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
       .searchPq({
@@ -2507,6 +2653,35 @@ const imageResults = computed(() =>
 
 .safe-thumb--compact {
   border-radius: 0.5rem;
+}
+
+.safe-thumb-hide {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.safe-thumb-hide:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.safe-thumb-hide--compact {
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.65rem;
+  height: 1.65rem;
 }
 
 .image-grid {

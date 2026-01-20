@@ -10,16 +10,22 @@ export type ThumbSafetySettings = {
   showDisturbingImagery: boolean;
 };
 
+export type ThumbSafetyBlockedCategory = "sexual" | "violence" | "disturbing";
+
 type PersistedCacheV1 = {
   v: 1;
   at: number;
   urls: Record<string, string>;
   hashes: Record<string, ThumbSafetyScores & { at: number }>;
+  hiddenHashes?: Record<string, number>;
+  hiddenUrls?: Record<string, number>;
 };
 
-const LS_KEY = "lumen-search-thumb-safety-v1";
+const LS_KEY = "lumen-search-thumb-safety-v1.2";
 const MAX_HASHES = 1200;
 const MAX_URLS = 1600;
+const MAX_HIDDEN_HASHES = 2500;
+const MAX_HIDDEN_URLS = 2500;
 
 function clamp01(x: number): number {
   if (!Number.isFinite(x)) return 0;
@@ -44,15 +50,33 @@ function tagHasAny(tags: string[], needles: string[]): boolean {
 }
 
 export function isGreyZoneByTags(tagsRaw: string[] | null | undefined): boolean {
+  if (!tagsRaw || tagsRaw.length === 0) return true;
+
   const tags = Array.isArray(tagsRaw) ? tagsRaw : [];
 
   const human = tagHasAny(tags, ["human", "person", "people", "man", "woman", "child", "boy", "girl", "baby"]);
   const face = tagHasAny(tags, ["face"]);
-  const body = tagHasAny(tags, ["body", "nude", "naked", "breast", "butt", "genital", "underwear", "lingerie"]);
-  const indoor = tagHasAny(tags, ["indoor", "bedroom", "bathroom", "shower", "toilet", "kitchen", "living"]);
   const portrait = tagHasAny(tags, ["portrait", "selfie", "headshot", "closeup", "close-up"]);
+  const indoor = tagHasAny(tags, ["indoor", "bedroom", "bathroom", "shower", "toilet", "kitchen", "living"]);
 
-  return human || face || body || indoor || portrait;
+  return human || face || portrait || indoor;
+}
+export function shouldBlurImmediatelyByTags(tagsRaw: string[] | null | undefined): boolean {
+  if (!tagsRaw || tagsRaw.length === 0) return false;
+
+  const tags = Array.isArray(tagsRaw) ? tagsRaw : [];
+
+  return tagHasAny(tags, [
+    "nsfw",
+    "sexual",
+    "explicit",
+    "porn",
+    "adult",
+    "nude",
+    "gore",
+    "blood",
+    "violence",
+  ]);
 }
 
 export function shouldSkipAnalysisAndRenderClear(tags: string[] | null | undefined): boolean {
@@ -60,10 +84,18 @@ export function shouldSkipAnalysisAndRenderClear(tags: string[] | null | undefin
 }
 
 export function isBlockedBySettings(scores: ThumbSafetyScores, settings: ThumbSafetySettings): boolean {
-  const sexualBlocked = !settings.showSexualContent && scores.sexual > 0.65;
-  const violenceBlocked = !settings.showViolentContent && scores.violence > 0.55;
-  const disturbingBlocked = !settings.showDisturbingImagery && scores.disturbing > 0.55;
-  return sexualBlocked || violenceBlocked || disturbingBlocked;
+  return blockedCategories(scores, settings).length > 0;
+}
+
+export function blockedCategories(
+  scores: ThumbSafetyScores,
+  settings: ThumbSafetySettings,
+): ThumbSafetyBlockedCategory[] {
+  const out: ThumbSafetyBlockedCategory[] = [];
+  if (!settings.showSexualContent && scores.sexual > 0.95) out.push("sexual");
+  if (!settings.showViolentContent && scores.violence > 0.95) out.push("violence");
+  if (!settings.showDisturbingImagery && scores.disturbing > 0.95) out.push("disturbing");
+  return out;
 }
 
 function safeJsonParse(raw: string): any {
@@ -84,9 +116,15 @@ function loadPersisted(): PersistedCacheV1 {
       at: Number(parsed.at || Date.now()),
       urls: parsed.urls && typeof parsed.urls === "object" ? parsed.urls : {},
       hashes: parsed.hashes && typeof parsed.hashes === "object" ? parsed.hashes : {},
+      hiddenHashes:
+        parsed.hiddenHashes && typeof parsed.hiddenHashes === "object"
+          ? parsed.hiddenHashes
+          : {},
+      hiddenUrls:
+        parsed.hiddenUrls && typeof parsed.hiddenUrls === "object" ? parsed.hiddenUrls : {},
     };
   } catch {
-    return { v: 1, at: Date.now(), urls: {}, hashes: {} };
+    return { v: 1, at: Date.now(), urls: {}, hashes: {}, hiddenHashes: {}, hiddenUrls: {} };
   }
 }
 
@@ -107,6 +145,30 @@ function prunePersisted(cache: PersistedCacheV1): void {
       delete cache.urls[urlKeys[i]!]!;
     }
   }
+
+  const hiddenHashes = cache.hiddenHashes || {};
+  const hhEntries = Object.entries(hiddenHashes);
+  if (hhEntries.length > MAX_HIDDEN_HASHES) {
+    hhEntries.sort((a, b) => Number(a[1] || 0) - Number(b[1] || 0));
+    const toDrop = hhEntries.length - MAX_HIDDEN_HASHES;
+    for (let i = 0; i < toDrop; i++) {
+      const h = hhEntries[i]![0];
+      delete hiddenHashes[h];
+    }
+  }
+  cache.hiddenHashes = hiddenHashes;
+
+  const hiddenUrls = cache.hiddenUrls || {};
+  const huEntries = Object.entries(hiddenUrls);
+  if (huEntries.length > MAX_HIDDEN_URLS) {
+    huEntries.sort((a, b) => Number(a[1] || 0) - Number(b[1] || 0));
+    const toDrop = huEntries.length - MAX_HIDDEN_URLS;
+    for (let i = 0; i < toDrop; i++) {
+      const u = huEntries[i]![0];
+      delete hiddenUrls[u];
+    }
+  }
+  cache.hiddenUrls = hiddenUrls;
 }
 
 function savePersisted(cache: PersistedCacheV1): void {
@@ -140,6 +202,52 @@ class ThumbSafetyService {
   private persisted: PersistedCacheV1 = loadPersisted();
   private pendingByUrl = new Map<string, Pending>();
   private revealedHashesSession = new Set<string>();
+
+  getHiddenHashes(): string[] {
+    return Object.keys(this.persisted.hiddenHashes || {});
+  }
+
+  getHiddenUrls(): string[] {
+    return Object.keys(this.persisted.hiddenUrls || {});
+  }
+
+  hideHash(hash: string): void {
+    const h = String(hash || "");
+    if (!h) return;
+    const hh = this.persisted.hiddenHashes || {};
+    hh[h] = Date.now();
+    this.persisted.hiddenHashes = hh;
+    savePersisted(this.persisted);
+  }
+
+  unhideHash(hash: string): void {
+    const h = String(hash || "");
+    if (!h) return;
+    const hh = this.persisted.hiddenHashes || {};
+    if (!hh[h]) return;
+    delete hh[h];
+    this.persisted.hiddenHashes = hh;
+    savePersisted(this.persisted);
+  }
+
+  hideUrl(url: string): void {
+    const u = String(url || "");
+    if (!u) return;
+    const hu = this.persisted.hiddenUrls || {};
+    hu[u] = Date.now();
+    this.persisted.hiddenUrls = hu;
+    savePersisted(this.persisted);
+  }
+
+  unhideUrl(url: string): void {
+    const u = String(url || "");
+    if (!u) return;
+    const hu = this.persisted.hiddenUrls || {};
+    if (!hu[u]) return;
+    delete hu[u];
+    this.persisted.hiddenUrls = hu;
+    savePersisted(this.persisted);
+  }
 
   getCachedHashForUrl(url: string): string | null {
     const u = String(url || "");
@@ -255,4 +363,3 @@ export function getThumbSafetyService(): ThumbSafetyService {
   if (!singleton) singleton = new ThumbSafetyService();
   return singleton;
 }
-
