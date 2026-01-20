@@ -160,6 +160,96 @@ class PeerPool {
     };
   }
 
+  listPeers() {
+    return Array.from(this.peersByRpc.values());
+  }
+
+  getPeerByRpc(rpc) {
+    const key = normalizeEndpoint(rpc);
+    return key ? this.peersByRpc.get(key) || null : null;
+  }
+
+  pickPeers(kind, count, options = {}) {
+    const now = nowMs();
+    this._resurrectExpired(now);
+    const exclude = options && options.exclude ? options.exclude : null;
+    const requireAlive = options && Object.prototype.hasOwnProperty.call(options, 'requireAlive')
+      ? !!options.requireAlive
+      : true;
+
+    const peers = [];
+    for (const p of this.peersByRpc.values()) {
+      if (exclude && exclude.has && exclude.has(p.rpc)) continue;
+      if (kind === 'rest' && !p.rest) continue;
+      if (p.deathUntil > now) continue;
+      if (this.networkChainId && p.chainId && p.chainId !== this.networkChainId) continue;
+      if (requireAlive) {
+        if (!this._isAlive(p, now)) continue;
+      } else {
+        if (p.lastSeenAt && now - p.lastSeenAt > this.opts.staleTtlMs) continue;
+      }
+      peers.push(p);
+    }
+
+    // Prefer non-slow peers, but never exclude if we don't have enough.
+    const fast = peers.filter((p) => !(p.slowUntil > now));
+    const base = fast.length >= (count | 0) ? fast : peers;
+    return pickRandom(base, count);
+  }
+
+  async pingPeer(peer) {
+    return this._pingPeer(peer);
+  }
+
+  markSuspect(peer, ttlMs) {
+    const p = peer && typeof peer === 'object' ? peer : this.getPeerByRpc(peer);
+    if (!p) return false;
+    const until = nowMs() + clampInt(ttlMs || this.opts.slowTtlMs, 1_000, this.opts.deathTtlMs);
+    p.suspectUntil = Math.max(p.suspectUntil || 0, until);
+    return true;
+  }
+
+  markFailure(peer, meta = {}) {
+    const p = peer && typeof peer === 'object' ? peer : this.getPeerByRpc(peer);
+    if (!p) return false;
+    const latencyMs = typeof meta.latencyMs === 'number' ? meta.latencyMs : null;
+    const timeout = !!meta.timeout;
+    this._markFailure(p, { latencyMs, timeout });
+    return true;
+  }
+
+  async requestOnPeer(kind, peer, path, options = {}) {
+    this.start();
+    const p = peer && typeof peer === 'object' ? peer : this.getPeerByRpc(peer);
+    if (!p) return { ok: false, status: 0, error: 'peer_missing' };
+    const base = kind === 'rest' ? p.rest : p.rpc;
+    if (!base) return { ok: false, status: 0, error: 'missing_endpoint' };
+
+    const timeout = clampInt(
+      options && options.timeout ? options.timeout : this.opts.requestTimeoutMs,
+      1000,
+      120_000
+    );
+    const cleanPath = String(path || '').trim();
+    const suffix = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+    const url = `${trimSlash(base)}${suffix}`;
+
+    const start = nowMs();
+    const res = await httpGet(url, { timeout });
+    const latencyMs = nowMs() - start;
+
+    if (res && res.ok) {
+      p.lastSeenAt = nowMs();
+      p.latencyMs = latencyMs;
+      return { ...res, peer: { rpc: p.rpc, rest: p.rest || null, grpc: p.grpc || null } };
+    }
+
+    if (shouldCountAsPeerFailure(res)) {
+      this._markFailure(p, { latencyMs, timeout: !!(res && res.timeout) });
+    }
+    return { ...(res || { ok: false, status: 0, error: 'request_failed' }), peer: { rpc: p.rpc, rest: p.rest || null, grpc: p.grpc || null } };
+  }
+
   getBestPeer(kind = 'rpc') {
     const now = nowMs();
     const peers = Array.from(this.peersByRpc.values()).filter((p) => {

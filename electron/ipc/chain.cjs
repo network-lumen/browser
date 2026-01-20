@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { httpGet } = require('./http.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
+const { readState } = require('../network/network_middleware.cjs');
 
 // Cache to reduce log spam
 let _cachedPeersFilePath = null;
@@ -120,8 +121,7 @@ async function pollChainOnce() {
   chainState.polling = true;
 
   try {
-    const pool = getNetworkPool();
-    const res = await pool.rpcGet('/status', { timeout: 7000 });
+    const res = await readState('/status', { kind: 'rpc', timeout: 7000 });
 
     if (!res || !res.ok) {
       chainState.rpcBase = null;

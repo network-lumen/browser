@@ -130,6 +130,7 @@ contextBridge.exposeInMainWorld('lumen', {
   net: {
     rpcGet: (path, options) => ipcRenderer.invoke('net:rpcGet', path, options || {}),
     restGet: (path, options) => ipcRenderer.invoke('net:restGet', path, options || {}),
+    broadcastTx: (txBytes, options) => ipcRenderer.invoke('net:broadcastTx', txBytes, options || {}),
     getState: () => ipcRenderer.invoke('net:getState'),
     getValidators: () => ipcRenderer.invoke('net:getValidators'),
     refreshOnChain: () => ipcRenderer.invoke('net:refreshOnChain')

@@ -5,8 +5,8 @@ const os = require('os');
 const crypto = require('crypto');
 const { Buffer } = require('buffer');
 const Long = require('long');
-const { httpGet } = require('./http.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
+const { readState, broadcastTx } = require('../network/network_middleware.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
@@ -20,6 +20,72 @@ try {
 }
 
 let bridge = null;
+
+function isHtmlInsteadOfJsonError(e) {
+  const msg = String(e && e.message ? e.message : e || '');
+  return (
+    msg.includes("Unexpected token '<'") ||
+    msg.includes('is not valid JSON') ||
+    msg.toLowerCase().includes('<html') ||
+    msg.toLowerCase().includes('text/html')
+  );
+}
+
+async function connectSigningClientWithFailover(mod, signer, connectArgs, { timeoutMs = 15_000 } = {}) {
+  const pool = getNetworkPool();
+  pool.start();
+
+  const exclude = new Set();
+  let candidates = pool.pickPeers('rpc', 3, { requireAlive: true, exclude });
+  if (!candidates.length) {
+    candidates = pool.pickPeers('rpc', 3, { requireAlive: false, exclude });
+    for (const p of candidates) {
+      await pool.pingPeer(p).catch(() => {});
+    }
+    candidates = pool.pickPeers('rpc', 3, { requireAlive: true, exclude });
+  }
+  if (!candidates.length) {
+    const best = pool.getBestPeer('rpc');
+    if (best) candidates = [best];
+  }
+
+  let lastErr = null;
+  for (const peer of candidates) {
+    exclude.add(peer.rpc);
+    const rpcBase = peer.rpc;
+    if (!rpcBase) continue;
+
+    const restBase = peer.rest || null;
+    const endpoints = {
+      rpc: rpcBase,
+      rest: restBase || rpcBase,
+      rpcEndpoint: rpcBase,
+      restEndpoint: restBase || rpcBase
+    };
+
+    try {
+      const connectPromise = mod.LumenSigningClient.connectWithSigner(
+        signer,
+        endpoints,
+        undefined,
+        connectArgs
+      );
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Connection timeout after ${timeoutMs}ms`)), timeoutMs)
+      );
+      return await Promise.race([connectPromise, timeoutPromise]);
+    } catch (e) {
+      lastErr = e;
+      if (isHtmlInsteadOfJsonError(e)) {
+        pool.markSuspect(peer);
+      } else {
+        pool.markFailure(peer, { timeout: /timeout/i.test(String(e && e.message ? e.message : e)) });
+      }
+    }
+  }
+
+  throw lastErr || new Error('connect_failed');
+}
 
 function broadcastPqcLinked(payload) {
   try {
@@ -457,10 +523,22 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
     pubKey: record.publicKey,
     powNonce
   });
-  const res = await runWithRpcRetry(
-    () => client.signAndBroadcast(address, [msg], zeroFee()),
-    'pqc_link'
-  );
+  const signAndBroadcastOnce = async () => {
+    if (client && typeof client.sign === 'function') {
+      const { TxRaw } = require('cosmjs-types/cosmos/tx/v1beta1/tx');
+      const txRaw = await client.sign(address, [msg], zeroFee(), '');
+      const txBytes = TxRaw.encode(txRaw).finish();
+      const r = await broadcastTx(txBytes, { confirmTimeoutMs: 60_000 });
+      if (!r || !r.ok) {
+        const err = new Error(String((r && (r.rawLog || r.error)) || 'pqc_link_broadcast_failed'));
+        err.txhash = r && r.transactionHash ? r.transactionHash : '';
+        throw err;
+      }
+      return { ...r, code: r.code || 0, rawLog: r.rawLog || '', transactionHash: r.transactionHash };
+    }
+    return client.signAndBroadcast(address, [msg], zeroFee());
+  };
+  const res = await runWithRpcRetry(() => signAndBroadcastOnce(), 'pqc_link');
   if (res.code !== 0) {
     throw new Error(res.rawLog || `link-account PQC failed (code ${res.code})`);
   }
@@ -509,19 +587,17 @@ function sanitizePqcErrorMessage(text) {
 }
 
 async function waitForPqcLinkCommit(address, timeoutMs = 15_000) {
-  const restBase = getRestBaseUrl();
-  const base = String(restBase || '').replace(/\/+$/, '');
-  if (!base) return false;
-
   const addr = String(address || '').trim();
   if (!addr) return false;
 
   const deadline = Date.now() + Math.max(0, Number(timeoutMs) || 0);
-  const url = `${base}/lumen/pqc/v1/accounts/${encodeURIComponent(addr)}`;
 
   while (Date.now() < deadline) {
     try {
-      const res = await httpGet(url, { timeout: 6000 });
+      const res = await readState(`/lumen/pqc/v1/accounts/${encodeURIComponent(addr)}`, {
+        kind: 'rest',
+        timeout: 6000
+      });
       if (res && res.ok) {
         const data = res.json || null;
         const account = (data && (data.account || data)) || null;
@@ -552,6 +628,20 @@ async function signAndBroadcastWithPqcAutoLink({
   label,
 }) {
   const broadcastOnce = async () => {
+    if (client && typeof client.sign === 'function') {
+      const { TxRaw } = require('cosmjs-types/cosmos/tx/v1beta1/tx');
+      const txRaw = await client.sign(address, msgs, fee, memo);
+      const txBytes = TxRaw.encode(txRaw).finish();
+      const r = await broadcastTx(txBytes, { confirmTimeoutMs: 60_000 });
+      if (!r || !r.ok) {
+        const raw = (r && (r.rawLog || r.error)) || 'broadcast_failed';
+        const err = new Error(String(raw));
+        err.txhash = r && r.transactionHash ? r.transactionHash : '';
+        throw err;
+      }
+      return { ...r, code: r.code || 0, rawLog: r.rawLog || '', transactionHash: r.transactionHash };
+    }
+
     const res = await client.signAndBroadcast(address, msgs, fee, memo);
     if (res && typeof res.code === 'number' && res.code !== 0) {
       const raw = res.rawLog || `broadcast failed (code ${res.code})`;
@@ -677,29 +767,17 @@ function registerWalletIpc() {
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const connectPromise = mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
-        pqc: {
-          homeDir: resolvePqcHome()
-        }
-      });
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout after 15 seconds')), 15000)
-      );
-      
       console.log('[wallet:sendTokens] connecting to client...');
-      const client = await Promise.race([connectPromise, timeoutPromise]);
+      const client = await connectSigningClientWithFailover(
+        mod,
+        signer,
+        {
+          pqc: {
+            homeDir: resolvePqcHome()
+          }
+        },
+        { timeoutMs: 15_000 }
+      );
       console.log('[wallet:sendTokens] connected, client:', client ? 'ok' : 'null');
 
       // Temporarily decrypt PQC keys if password-protected
@@ -820,29 +898,11 @@ function registerWalletIpc() {
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) {
-        return { ok: false, error: 'rpc_base_missing' };
-      }
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const client = await mod.LumenSigningClient.connectWithSigner(
-        signer,
-        endpoints,
-        undefined,
-        {
-          pqc: {
-            homeDir: resolvePqcHome()
-          }
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: {
+          homeDir: resolvePqcHome()
         }
-      );
+      });
 
       // Temporarily decrypt PQC keys if password-protected
       let cleanupPqc = null;
@@ -969,29 +1029,11 @@ function registerWalletIpc() {
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) {
-        return { ok: false, error: 'rpc_base_missing' };
-      }
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const client = await mod.LumenSigningClient.connectWithSigner(
-        signer,
-        endpoints,
-        undefined,
-        {
-          pqc: {
-            homeDir: resolvePqcHome()
-          }
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: {
+          homeDir: resolvePqcHome()
         }
-      );
+      });
 
       // Temporarily decrypt PQC keys if password-protected
       let cleanupPqc = null;
@@ -1030,9 +1072,7 @@ function registerWalletIpc() {
 
         let powBits = 0;
         try {
-          const rest = restBase || rpcBase;
-          const url = `${String(rest).replace(/\/+$/, '')}/lumen/dns/v1/params`;
-          const prs = await httpGet(url, { timeout: 5000 });
+          const prs = await readState('/lumen/dns/v1/params', { kind: 'rest', timeout: 5000 });
           if (prs && prs.ok && prs.json) {
             const raw = prs.json;
             const params =
@@ -1163,18 +1203,7 @@ function registerWalletIpc() {
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+      const client = await connectSigningClientWithFailover(mod, signer, {
         pqc: { homeDir: resolvePqcHome() }
       });
 
@@ -1270,18 +1299,7 @@ function registerWalletIpc() {
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+      const client = await connectSigningClientWithFailover(mod, signer, {
         pqc: { homeDir: resolvePqcHome() }
       });
 
@@ -1378,18 +1396,7 @@ function registerWalletIpc() {
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+      const client = await connectSigningClientWithFailover(mod, signer, {
         pqc: { homeDir: resolvePqcHome() }
       });
 
@@ -1485,18 +1492,7 @@ function registerWalletIpc() {
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
 
-      const rpcBase = getRpcBaseUrl();
-      const restBase = getRestBaseUrl();
-      if (!rpcBase) return { ok: false, error: 'rpc_base_missing' };
-
-      const endpoints = {
-        rpc: rpcBase,
-        rest: restBase || rpcBase,
-        rpcEndpoint: rpcBase,
-        restEndpoint: restBase || rpcBase
-      };
-
-      const client = await mod.LumenSigningClient.connectWithSigner(signer, endpoints, undefined, {
+      const client = await connectSigningClientWithFailover(mod, signer, {
         pqc: { homeDir: resolvePqcHome() }
       });
 
