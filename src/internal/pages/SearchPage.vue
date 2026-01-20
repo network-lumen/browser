@@ -124,7 +124,7 @@
 
       <div v-else-if="selectedType === 'image'" class="image-grid">
         <div
-          v-for="r in imageResults"
+          v-for="(r, idx) in imageResults"
           :key="r.id"
           class="image-card"
         >
@@ -146,14 +146,39 @@
             @click="openResult(r)"
             :title="r.url"
           >
+            <div
+              v-if="isSearchImageThumb(r)"
+              class="safe-thumb"
+              :class="{ blurred: shouldBlurThumb(r) }"
+            >
+              <img
+                class="image-thumb"
+                :src="r.thumbUrl"
+                alt=""
+                :loading="imageThumbLoading(idx)"
+                decoding="async"
+                :fetchpriority="imageThumbFetchPriority(idx)"
+                :crossorigin="corsAttrForThumb(r)"
+                @load="onThumbLoad(r, $event)"
+                @error="onThumbError(r)"
+              />
+              <div v-if="shouldBlurThumb(r)" class="safe-thumb-overlay">
+                <div
+                  class="safe-thumb-reveal"
+                  @click.stop.prevent="revealThumb(r)"
+                >
+                  This image may contain sensitive content. Click to reveal.
+                </div>
+              </div>
+            </div>
             <img
-              v-if="r.thumbUrl"
+              v-else-if="r.thumbUrl"
               class="image-thumb"
               :src="r.thumbUrl"
               alt=""
-              loading="lazy"
+              :loading="imageThumbLoading(idx)"
               decoding="async"
-              fetchpriority="low"
+              :fetchpriority="imageThumbFetchPriority(idx)"
             />
             <div v-else class="image-fallback">
               <Image :size="18" />
@@ -162,7 +187,7 @@
           <div class="image-meta">
             <div v-if="r.badges?.length" class="image-tags">
               <span
-                v-for="(b, idx) in r.badges.slice(0, 4)"
+                v-for="(b, bIdx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
                 class="image-badge"
                 >{{ b }}</span
@@ -187,8 +212,23 @@
             @click="openResult(r)"
           >
             <div class="result-icon" :class="`icon-${r.kind}`">
+              <div
+                v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
+                class="safe-thumb safe-thumb--compact"
+                :class="{ blurred: shouldBlurThumb(r) }"
+                @click="onCompactThumbClick(r, $event)"
+              >
+                <img
+                  class="thumb"
+                  :src="r.thumbUrl"
+                  alt=""
+                  :crossorigin="corsAttrForThumb(r)"
+                  @load="onThumbLoad(r, $event)"
+                  @error="onListThumbError(r)"
+                />
+              </div>
               <img
-                v-if="r.thumbUrl && !brokenThumbs[r.id]"
+                v-else-if="r.thumbUrl && !brokenThumbs[r.id]"
                 class="thumb"
                 :src="r.thumbUrl"
                 alt=""
@@ -372,7 +412,15 @@ import {
   Sparkles,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
+import { appSettingsState } from "../services/appSettings";
 import { useToast } from "../../composables/useToast";
+import {
+  getThumbSafetyService,
+  isBlockedBySettings,
+  isGreyZoneByTags,
+  shouldSkipAnalysisAndRenderClear,
+  type ThumbSafetyScores,
+} from "./searchSafety/thumbSafetyService";
 
 const toast = useToast();
 
@@ -434,6 +482,182 @@ const gatewaysCache = ref<{ at: number; items: GatewayView[] }>({
 });
 
 const pinnedCids = ref<string[]>([]);
+
+// SearchPage-only: safe-by-default thumbnail rendering for image results.
+const thumbSafety = getThumbSafetyService();
+const revealedThumbIds = ref<Record<string, true>>({});
+const grantedClearThumbIds = ref<Record<string, true>>({});
+const thumbSafetyById = ref<
+  Record<string, { hash: string; scores: ThumbSafetyScores }>
+>({});
+const thumbAnalyzeStarted = ref<Record<string, true>>({});
+const thumbAnalyzeUrlById = ref<Record<string, string>>({});
+const thumbCorsDisabledById = ref<Record<string, true>>({});
+
+function isSearchImageThumb(r: ResultItem): boolean {
+  return r.media === "image" && !!r.thumbUrl;
+}
+
+function corsAttrForThumb(r: ResultItem): string | null {
+  if (!isSearchImageThumb(r)) return null;
+  if (!isGreyZoneByTags(r.badges || [])) return null;
+  if (thumbCorsDisabledById.value[r.id]) return null;
+  return "anonymous";
+}
+
+const IMAGE_EAGER_COUNT = 18;
+const IMAGE_HIGH_PRIORITY_COUNT = 8;
+
+function imageThumbLoading(idx: number): "eager" | "lazy" {
+  return idx < IMAGE_EAGER_COUNT ? "eager" : "lazy";
+}
+
+function imageThumbFetchPriority(idx: number): "high" | "auto" {
+  return idx < IMAGE_HIGH_PRIORITY_COUNT ? "high" : "auto";
+}
+
+function shouldBlurThumb(r: ResultItem): boolean {
+  if (!isSearchImageThumb(r)) return false;
+  if (revealedThumbIds.value[r.id]) return false;
+
+  const url = r.thumbUrl || "";
+  const cached = url ? thumbSafety.getCachedScoresByUrl(url) : null;
+  const hash = thumbSafetyById.value[r.id]?.hash || cached?.hash || "";
+  if (hash && thumbSafety.isRevealedForSession(hash)) return false;
+
+  if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return false;
+  if (grantedClearThumbIds.value[r.id]) return false;
+  return true;
+}
+
+function revealThumb(r: ResultItem): void {
+  if (!isSearchImageThumb(r)) return;
+  revealedThumbIds.value = { ...revealedThumbIds.value, [r.id]: true };
+
+  const url = r.thumbUrl || "";
+  const hash =
+    thumbSafetyById.value[r.id]?.hash ||
+    (url ? thumbSafety.getCachedHashForUrl(url) : null) ||
+    "";
+  if (hash) thumbSafety.markRevealedForSession(hash);
+}
+
+function onCompactThumbClick(r: ResultItem, ev: MouseEvent): void {
+  if (!shouldBlurThumb(r)) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  revealThumb(r);
+}
+
+function maybeApplyCachedDecision(r: ResultItem): void {
+  if (!isSearchImageThumb(r)) return;
+  if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return;
+  const url = r.thumbUrl || "";
+  if (!url) return;
+
+  const cached = thumbSafety.getCachedScoresByUrl(url);
+  if (!cached) return;
+
+  thumbSafetyById.value = {
+    ...thumbSafetyById.value,
+    [r.id]: { hash: cached.hash, scores: cached.scores },
+  };
+
+  if (
+    thumbSafety.isRevealedForSession(cached.hash) ||
+    revealedThumbIds.value[r.id]
+  ) {
+    grantedClearThumbIds.value = { ...grantedClearThumbIds.value, [r.id]: true };
+    return;
+  }
+
+  if (!isBlockedBySettings(cached.scores, appSettingsState.value)) {
+    grantedClearThumbIds.value = { ...grantedClearThumbIds.value, [r.id]: true };
+  }
+}
+
+function scheduleThumbAnalysis(r: ResultItem, imgEl: HTMLImageElement): void {
+  if (!isSearchImageThumb(r)) return;
+  if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return;
+
+  const url = r.thumbUrl || "";
+  if (!url) return;
+
+  if (thumbAnalyzeStarted.value[r.id]) return;
+  thumbAnalyzeStarted.value = { ...thumbAnalyzeStarted.value, [r.id]: true };
+  thumbAnalyzeUrlById.value = { ...thumbAnalyzeUrlById.value, [r.id]: url };
+
+  const run = async () => {
+    try {
+      const bitmap = await createImageBitmap(imgEl);
+      const res = await thumbSafety.analyzeUrlWithBitmap(url, bitmap);
+      if (!res) return;
+      if (thumbAnalyzeUrlById.value[r.id] !== url) return;
+
+      thumbSafetyById.value = {
+        ...thumbSafetyById.value,
+        [r.id]: { hash: res.hash, scores: res.scores },
+      };
+
+      if (revealedThumbIds.value[r.id]) thumbSafety.markRevealedForSession(res.hash);
+
+      if (
+        thumbSafety.isRevealedForSession(res.hash) ||
+        revealedThumbIds.value[r.id]
+      ) {
+        grantedClearThumbIds.value = { ...grantedClearThumbIds.value, [r.id]: true };
+        return;
+      }
+
+      if (!isBlockedBySettings(res.scores, appSettingsState.value)) {
+        grantedClearThumbIds.value = { ...grantedClearThumbIds.value, [r.id]: true };
+      }
+    } catch {
+      // Keep blurred on any analysis failure (safe-by-default).
+    }
+  };
+
+  const ric = (window as any)?.requestIdleCallback as
+    | ((cb: () => void, opts?: { timeout?: number }) => number)
+    | undefined;
+  if (typeof ric === "function") {
+    ric(() => void run(), { timeout: 1500 });
+  } else {
+    setTimeout(() => void run(), 0);
+  }
+}
+
+function onThumbLoad(r: ResultItem, ev: Event): void {
+  if (!isSearchImageThumb(r)) return;
+  if (!isGreyZoneByTags(r.badges || [])) return;
+
+  maybeApplyCachedDecision(r);
+  if (grantedClearThumbIds.value[r.id]) return;
+
+  const imgEl = ev.target as HTMLImageElement | null;
+  if (!imgEl || !imgEl.complete || imgEl.naturalWidth <= 0) return;
+  scheduleThumbAnalysis(r, imgEl);
+}
+
+function onThumbError(r: ResultItem): void {
+  // If the gateway doesn't support CORS, retry without it (thumbnail stays blurred).
+  if (!isSearchImageThumb(r)) return;
+  if (corsAttrForThumb(r) === "anonymous") {
+    thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
+  }
+}
+
+function onListThumbError(r: ResultItem): void {
+  if (!isSearchImageThumb(r)) {
+    markThumbBroken(r.id);
+    return;
+  }
+  if (corsAttrForThumb(r) === "anonymous") {
+    thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
+    return;
+  }
+  markThumbBroken(r.id);
+}
 
 function extractCidFromUrl(url: string): string | null {
   const lower = url.toLowerCase();
@@ -2227,6 +2451,62 @@ const imageResults = computed(() =>
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.safe-thumb {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.safe-thumb.blurred img {
+  filter: blur(14px) saturate(0.85) brightness(0.85);
+  transform: scale(1.06);
+  transition: filter 180ms ease, transform 180ms ease;
+}
+
+.safe-thumb:not(.blurred) img {
+  filter: none;
+  transform: none;
+  transition: filter 180ms ease, transform 180ms ease;
+}
+
+.safe-thumb-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.45rem 0.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.02),
+    rgba(0, 0, 0, 0.55)
+  );
+}
+
+.safe-thumb-reveal {
+  width: 100%;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.safe-thumb-reveal:hover {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.safe-thumb--compact {
+  border-radius: 0.5rem;
 }
 
 .image-grid {
