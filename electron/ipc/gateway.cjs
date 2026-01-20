@@ -13,6 +13,7 @@ const {
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { getSessionPassword } = require('./security.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
+const { getNetworkPool } = require('../network/pool_singleton.cjs');
 
 // Cache to reduce log spam
 let _gwCachedPeersFilePath = null;
@@ -679,37 +680,11 @@ function loadPeersFromFile(filePath) {
 }
 
 function getRestBaseUrl() {
-  const peersFile = resolvePeersFilePath();
-  if (!peersFile) return null;
-
-  const peers = loadPeersFromFile(peersFile);
-  if (!peers.length) return null;
-
-  const first = peers[0];
-  if (!first) return null;
-
-  let rest = first.rest || '';
-  const ensureHttp = (u) => {
-    const trimmed = String(u || '').replace(/\/+$/, '');
-    return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
-  };
-
-  if (rest) {
-    return ensureHttp(rest);
-  }
-
-  if (!first.rpc) return null;
-  const rpcBase = ensureHttp(first.rpc);
   try {
-    const u = new URL(rpcBase);
-    const port = Number(u.port || '');
-    if (port === 26657) {
-      u.port = '1317';
-    }
-    const derived = trimSlash(u.toString());
-    return derived;
+    const peer = getNetworkPool().getBestPeer('rest');
+    return peer && peer.rest ? String(peer.rest) : null;
   } catch {
-    return rpcBase;
+    return null;
   }
 }
 

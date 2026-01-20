@@ -856,8 +856,7 @@ const txTypeFilter = ref<'all' | 'send' | 'delegate' | 'vote' | 'other'>('all');
 const txStatusFilter = ref<'all' | 'success' | 'failed'>('all');
 const txHashFilter = ref('');
 
-const rpcBase = ref('http://142.132.201.187:26657');
-const restBase = ref('http://142.132.201.187:1317');
+
 
 const latestBlock = ref(0);
 const totalTxs = ref(0);
@@ -1012,7 +1011,7 @@ async function fetchBlocks() {
       const height = startHeight - i;
       if (height > 0) {
         blockPromises.push(
-          lumen.http.get(`${rpcBase.value}/block?height=${height}`)
+          lumen.net.rpcGet(`/block?height=${height}`)
         );
       }
     }
@@ -1061,11 +1060,11 @@ async function fetchTransactions() {
     const txList: Transaction[] = [];
     
     for (const block of blocks.value.slice(0, 10)) {
-      const blockRes = await lumen.http.get(`${rpcBase.value}/block?height=${block.height}`);
+      const blockRes = await lumen.net.rpcGet(`/block?height=${block.height}`);
       
       if (blockRes.ok && blockRes.json?.result?.block?.data?.txs) {
         const txs = blockRes.json.result.block.data.txs;
-        const blockResultsRes = await lumen.http.get(`${rpcBase.value}/block_results?height=${block.height}`);
+        const blockResultsRes = await lumen.net.rpcGet(`/block_results?height=${block.height}`);
         
         for (let i = 0; i < txs.length; i++) {
           const txData = txs[i];
@@ -1117,7 +1116,7 @@ async function fetchValidators() {
   if (!lumen?.http?.get) return;
   
   try {
-    const valSetRes = await lumen.http.get(`${rpcBase.value}/validators`);
+    const valSetRes = await lumen.net.rpcGet('/validators');
     if (valSetRes.ok && valSetRes.json?.result?.validators) {
       const valSet = valSetRes.json.result.validators;
       
@@ -1130,14 +1129,14 @@ async function fetchValidators() {
       }
     }
     
-    const res = await lumen.http.get(
-      `${restBase.value}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
+    const res = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
     );
     
     if (res.ok && res.json?.validators) {
       const validatorsList = res.json.validators;
       
-      const valSet2Res = await lumen.http.get(`${rpcBase.value}/validators`);
+      const valSet2Res = await lumen.net.rpcGet('/validators');
       const validatorSet = valSet2Res.ok && valSet2Res.json?.result?.validators 
         ? valSet2Res.json.result.validators 
         : [];

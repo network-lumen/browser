@@ -134,8 +134,6 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 const loading = ref(true);
 const error = ref('');
 const block = ref<any>(null);
-const rpcBase = ref('http://142.132.201.187:26657');
-const restBase = ref('http://142.132.201.187:1317');
 
 const lumen = (window as any).lumen;
 
@@ -249,7 +247,7 @@ async function loadBlockData() {
     return;
   }
   
-  if (!lumen?.http?.get) {
+  if (!lumen?.net?.rpcGet) {
     error.value = 'HTTP service not available';
     loading.value = false;
     return;
@@ -258,7 +256,7 @@ async function loadBlockData() {
   try {
     await buildProposerMap();
     
-    const response = await lumen.http.get(`${rpcBase.value}/block?height=${height}`);
+    const response = await lumen.net.rpcGet(`/block?height=${height}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch block: ${response.error || 'Unknown error'}`);
@@ -302,7 +300,7 @@ async function loadBlockData() {
 
 async function buildProposerMap() {
   try {
-    const valSetRes = await lumen.http.get(`${rpcBase.value}/validators`);
+    const valSetRes = await lumen.net.rpcGet('/validators');
     if (!valSetRes.ok || !valSetRes.json?.result?.validators) return;
     
     const valSet = valSetRes.json.result.validators;
@@ -315,15 +313,15 @@ async function buildProposerMap() {
       };
     }
     
-    const res = await lumen.http.get(
-      `${restBase.value}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
+    const res = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
     );
     
     if (!res.ok || !res.json?.validators) return;
     
     const validatorsList = res.json.validators;
     
-    const valSet2Res = await lumen.http.get(`${rpcBase.value}/validators`);
+    const valSet2Res = await lumen.net.rpcGet('/validators');
     const validatorSet = valSet2Res.ok && valSet2Res.json?.result?.validators 
       ? valSet2Res.json.result.validators 
       : [];

@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { Buffer } = require('buffer');
 const Long = require('long');
 const { httpGet } = require('./http.cjs');
+const { getNetworkPool } = require('../network/pool_singleton.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
@@ -159,65 +160,21 @@ function resolvePeersFilePath() {
 }
 
 function getRestBaseUrl() {
-  // Reuse same peers.txt logic as chain.cjs, but inline minimal version here
-  // to avoid circular dependencies.
-  let rpc = null;
-  let rest = null;
-  const peersFile = resolvePeersFilePath();
-  if (!peersFile) return '';
   try {
-    const raw = fs.readFileSync(peersFile, 'utf8');
-    for (const line of raw.split(/\r?\n/)) {
-      const asStr = String(line || '');
-      const hashPos = asStr.indexOf('#');
-      const cleaned = (hashPos >= 0 ? asStr.slice(0, hashPos) : asStr).trim();
-      if (!cleaned) continue;
-      const parts = cleaned.split(/[\s,]+/).filter(Boolean);
-      if (!parts.length) continue;
-      rpc = parts[0] || null;
-      rest = parts[1] || null;
-      break;
-    }
-  } catch {}
-  const ensureHttp = (u) => {
-    const trimmed = String(u || '').replace(/\/+$/, '');
-    if (!trimmed) return '';
-    return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
-  };
-  if (rest) return ensureHttp(rest);
-  if (!rpc) return '';
-  try {
-    const base = ensureHttp(rpc);
-    const url = new URL(base);
-    const port = Number(url.port || '');
-    if (port === 26657) {
-      url.port = '1317';
-    }
-    return String(url.toString()).replace(/\/+$/, '');
+    const peer = getNetworkPool().getBestPeer('rest');
+    return peer && peer.rest ? String(peer.rest) : '';
   } catch {
-    return ensureHttp(rpc);
+    return '';
   }
 }
 
 function getRpcBaseUrl() {
-  const peersFile = resolvePeersFilePath();
-  if (!peersFile) return '';
   try {
-    const raw = fs.readFileSync(peersFile, 'utf8');
-    for (const line of raw.split(/\r?\n/)) {
-      const asStr = String(line || '');
-      const hashPos = asStr.indexOf('#');
-      const cleaned = (hashPos >= 0 ? asStr.slice(0, hashPos) : asStr).trim();
-      if (!cleaned) continue;
-      const parts = cleaned.split(/[\s,]+/).filter(Boolean);
-      if (!parts.length) continue;
-      const rpc = parts[0] || null;
-      if (!rpc) continue;
-      const trimmed = String(rpc || '').replace(/\/+$/, '');
-      return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
-    }
-  } catch {}
-  return '';
+    const peer = getNetworkPool().getBestPeer('rpc');
+    return peer && peer.rpc ? String(peer.rpc) : '';
+  } catch {
+    return '';
+  }
 }
 
 function hashHex(data) {

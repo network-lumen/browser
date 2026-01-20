@@ -144,7 +144,6 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 const loading = ref(true);
 const error = ref('');
 const address = ref<any>(null);
-const restBase = ref('http://142.132.201.187:1317');
 
 const lumen = (window as any).lumen;
 
@@ -236,8 +235,8 @@ async function loadAddressData() {
     loading.value = true;
     error.value = '';
 
-    const accountResponse = await lumen.http.get(
-      `${restBase.value}/cosmos/auth/v1beta1/accounts/${accountAddress.value}`
+    const accountResponse = await lumen.net.restGet(
+      `/cosmos/auth/v1beta1/accounts/${accountAddress.value}`
     );
     
     if (!accountResponse.ok) {
@@ -247,14 +246,14 @@ async function loadAddressData() {
     const accountData = accountResponse.json;
     const account = accountData.account;
 
-    const balancesResponse = await lumen.http.get(
-      `${restBase.value}/cosmos/bank/v1beta1/balances/${accountAddress.value}`
+    const balancesResponse = await lumen.net.restGet(
+      `/cosmos/bank/v1beta1/balances/${accountAddress.value}`
     );
     
     const balances = balancesResponse.ok ? balancesResponse.json.balances || [] : [];
 
-    const delegationsResponse = await lumen.http.get(
-      `${restBase.value}/cosmos/staking/v1beta1/delegations/${accountAddress.value}`
+    const delegationsResponse = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/delegations/${accountAddress.value}`
     );
     
     const delegations = delegationsResponse.ok ? delegationsResponse.json.delegation_responses || [] : [];

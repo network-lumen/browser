@@ -252,7 +252,7 @@
       </div>
       </template>
 
-      <NetworkParamsPanel v-else :restBase="restBase" />
+      <NetworkParamsPanel v-else />
     </div>
   </div>
 </template>
@@ -270,8 +270,7 @@ const lumen = (window as any).lumen;
 const activeView = ref<'status' | 'params'>('status');
 
 // RPC endpoints
-const rpcBase = ref('http://142.132.201.187:26657');
-const restBase = ref('http://142.132.201.187:1317');
+
 
 // Network data
 const blockHeight = ref(0);
@@ -484,7 +483,7 @@ async function fetchValidators() {
     if (!lumen?.http?.get) return;
     
     // Fetch validator set from RPC
-    const valSetRes = await lumen.http.get(`${rpcBase.value}/validators`);
+    const valSetRes = await lumen.net.rpcGet('/validators');
     if (valSetRes.ok && valSetRes.json?.result?.validators) {
       const valSet = valSetRes.json.result.validators;
       
@@ -498,8 +497,8 @@ async function fetchValidators() {
     }
     
     // Fetch validators from REST API
-    const res = await lumen.http.get(
-      `${restBase.value}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=200`
+    const res = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=200`
     );
     
     if (res.ok && res.json?.validators) {
@@ -514,7 +513,7 @@ async function fetchValidators() {
       };
       
       // Build proposer map with validator info
-      const valSet2Res = await lumen.http.get(`${rpcBase.value}/validators`);
+      const valSet2Res = await lumen.net.rpcGet('/validators');
       const validatorSet = valSet2Res.ok && valSet2Res.json?.result?.validators 
         ? valSet2Res.json.result.validators 
         : [];
@@ -555,7 +554,7 @@ async function fetchRecentBlocks() {
       const height = blockHeight.value - i;
       if (height > 0) {
         promises.push(
-          lumen.http.get(`${rpcBase.value}/block?height=${height}`)
+          lumen.net.rpcGet(`/block?height=${height}`)
         );
       }
     }
@@ -591,7 +590,7 @@ async function fetchNetStats() {
     if (!lumen?.http?.get) return;
     
     // Fetch net_info for peer count
-    const netInfoRes = await lumen.http.get(`${rpcBase.value}/net_info`);
+    const netInfoRes = await lumen.net.rpcGet('/net_info');
     if (netInfoRes.ok && netInfoRes.json?.result?.n_peers) {
       peers.value = parseInt(netInfoRes.json.result.n_peers);
     }

@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { httpGet } = require('./http.cjs');
+const { getNetworkPool } = require('../network/pool_singleton.cjs');
 
 // Cache to reduce log spam
 let _cachedPeersFilePath = null;
@@ -86,109 +87,20 @@ function loadPeersFromFile(filePath) {
 }
 
 function getRpcBaseUrl() {
-  if (_cachedRpcBaseUrl !== null) return _cachedRpcBaseUrl || null;
-
-  const peersFile = resolvePeersFilePath();
-  if (!peersFile) {
-    if (!_loggedRpcBase) {
-      console.warn('[rpc] peers file not found');
-      _loggedRpcBase = true;
-    }
-    _cachedRpcBaseUrl = '';
+  try {
+    const peer = getNetworkPool().getBestPeer('rpc');
+    return peer ? peer.rpc : null;
+  } catch {
     return null;
   }
-
-  const peers = loadPeersFromFile(peersFile);
-  if (!peers.length) {
-    if (!_loggedRpcBase) {
-      console.warn('[rpc] no valid peers found in', peersFile);
-      _loggedRpcBase = true;
-    }
-    _cachedRpcBaseUrl = '';
-    return null;
-  }
-
-  const first = peers[0];
-  if (!first || !first.rpc) {
-    _cachedRpcBaseUrl = '';
-    return null;
-  }
-
-  const base = ensureHttp(first.rpc);
-  if (!_loggedRpcBase) {
-    console.log('[rpc] using base endpoint from peers file:', base);
-    _loggedRpcBase = true;
-  }
-  _cachedRpcBaseUrl = base;
-  return base;
 }
 
 function getRestBaseUrl() {
-  if (_cachedRestBaseUrl !== null) return _cachedRestBaseUrl || null;
-
-  const peersFile = resolvePeersFilePath();
-  if (!peersFile) {
-    if (!_loggedRestBase) {
-      console.warn('[dns] peers file not found');
-      _loggedRestBase = true;
-    }
-    _cachedRestBaseUrl = '';
-    return null;
-  }
-
-  const peers = loadPeersFromFile(peersFile);
-  if (!peers.length) {
-    if (!_loggedRestBase) {
-      console.warn('[dns] no valid peers found in', peersFile);
-      _loggedRestBase = true;
-    }
-    _cachedRestBaseUrl = '';
-    return null;
-  }
-
-  const first = peers[0];
-  if (!first) {
-    _cachedRestBaseUrl = '';
-    return null;
-  }
-
-  let rest = first.rest || '';
-  if (rest) {
-    const base = ensureHttp(rest);
-    if (!_loggedRestBase) {
-      console.log('[dns] using REST endpoint from peers file:', base);
-      _loggedRestBase = true;
-    }
-    _cachedRestBaseUrl = base;
-    return base;
-  }
-
-  // Derive REST from RPC as a fallback (e.g. 26657 -> 1317)
-  if (!first.rpc) {
-    _cachedRestBaseUrl = '';
-    return null;
-  }
-  const rpcBase = ensureHttp(first.rpc);
   try {
-    const u = new URL(rpcBase);
-    const port = Number(u.port || '');
-    if (port === 26657) {
-      u.port = '1317';
-    }
-    const derived = trimSlash(u.toString());
-    if (!_loggedRestBase) {
-      console.log('[dns] derived REST endpoint from RPC:', derived);
-      _loggedRestBase = true;
-    }
-    _cachedRestBaseUrl = derived;
-    return derived;
+    const peer = getNetworkPool().getBestPeer('rest');
+    return peer ? peer.rest : null;
   } catch {
-    if (!_loggedRestBase) {
-      console.warn('[dns] failed to derive REST endpoint from RPC, falling back to RPC base');
-      _loggedRestBase = true;
-    }
-    _cachedRestBaseUrl = rpcBase;
-    return rpcBase;
+    return null;
   }
 }
 
@@ -208,29 +120,21 @@ async function pollChainOnce() {
   chainState.polling = true;
 
   try {
-    const base = getRpcBaseUrl();
-    if (!base) {
+    const pool = getNetworkPool();
+    const res = await pool.rpcGet('/status', { timeout: 7000 });
+
+    if (!res || !res.ok) {
       chainState.rpcBase = null;
       chainState.height = null;
       chainState.status = 'error';
-      chainState.error = 'rpc_base_missing';
+      chainState.error = res && res.error ? String(res.error) : 'rpc_unavailable';
       chainState.lastUpdated = Date.now();
       return;
     }
 
-    chainState.rpcBase = base;
+    chainState.rpcBase = res.peer && res.peer.rpc ? res.peer.rpc : null;
 
-    const url = `${trimSlash(base)}/status`;
-    const res = await httpGet(url, { timeout: 7000 });
-
-    let data = res && res.json ? res.json : null;
-    if (!data && res && typeof res.text === 'string' && res.text) {
-      try {
-        data = JSON.parse(res.text);
-      } catch {
-        data = null;
-      }
-    }
+    const data = res && res.json ? res.json : null;
 
     const raw =
       data &&

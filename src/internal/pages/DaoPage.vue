@@ -386,8 +386,7 @@ const proposalForm = ref({
 });
 
 const isLoading = ref(true);
-const rpcBase = ref('http://142.132.201.187:26657');
-const restBase = ref('http://142.132.201.187:1317');
+
 
 const activeProposalsCount = ref(0);
 const totalMembers = ref(0);
@@ -556,7 +555,7 @@ async function fetchProposals() {
   if (!lumen?.http?.get) return;
   
   try {
-    const res = await lumen.http.get(`${restBase.value}/cosmos/gov/v1beta1/proposals`);
+    const res = await lumen.net.restGet(`/cosmos/gov/v1beta1/proposals`);
     
     if (res.ok && res.json?.proposals) {
       const rawProposals = res.json.proposals;
@@ -591,8 +590,8 @@ async function fetchMembers() {
   if (!lumen?.http?.get) return;
   
   try {
-    const res = await lumen.http.get(
-      `${restBase.value}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
+    const res = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
     );
     
     if (res.ok && res.json?.validators) {
@@ -652,7 +651,7 @@ async function fetchTreasury() {
   if (!lumen?.http?.get) return;
   
   try {
-    const res = await lumen.http.get(`${restBase.value}/cosmos/distribution/v1beta1/community_pool`);
+    const res = await lumen.net.restGet(`/cosmos/distribution/v1beta1/community_pool`);
     
     if (res.ok && res.json?.pool) {
       treasuryAssets.value = res.json.pool.map((asset: any) => ({

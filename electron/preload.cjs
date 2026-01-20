@@ -127,6 +127,13 @@ contextBridge.exposeInMainWorld('lumen', {
       };
     }
   },
+  net: {
+    rpcGet: (path, options) => ipcRenderer.invoke('net:rpcGet', path, options || {}),
+    restGet: (path, options) => ipcRenderer.invoke('net:restGet', path, options || {}),
+    getState: () => ipcRenderer.invoke('net:getState'),
+    getValidators: () => ipcRenderer.invoke('net:getValidators'),
+    refreshOnChain: () => ipcRenderer.invoke('net:refreshOnChain')
+  },
   dns: {
     getParams: () => ipcRenderer.invoke('dns:getParams'),
     getDomainInfo: (name) => ipcRenderer.invoke('dns:getDomainInfo', name),

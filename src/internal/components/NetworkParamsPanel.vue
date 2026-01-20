@@ -105,13 +105,11 @@ type ParamSection = {
   extract?: (json: any) => any;
 };
 
-const DEFAULT_REST_BASE = 'http://142.132.201.187:1317';
-
 const props = defineProps<{
   restBase?: string;
 }>();
 
-const restBase = computed(() => String(props.restBase || '').trim() || DEFAULT_REST_BASE);
+const restBase = computed(() => String(props.restBase || '').trim());
 
 const lumen = (window as any).lumen;
 
@@ -260,11 +258,15 @@ function statusLabel(s: ParamSection): string {
 }
 
 async function loadSection(s: ParamSection) {
-  if (!lumen?.http?.get) throw new Error('HTTP client unavailable');
+  if (!lumen?.net?.restGet && (!restBase.value || !lumen?.http?.get)) {
+    throw new Error('Network client unavailable');
+  }
   s.loading = true;
   s.error = '';
   try {
-    const res = await lumen.http.get(`${restBase.value}${s.path}`);
+    const res = restBase.value
+      ? await lumen.http.get(`${restBase.value}${s.path}`)
+      : await lumen.net.restGet(s.path);
     if (!res?.ok) {
       const msg = res?.error || `Request failed (${s.path})`;
       throw new Error(msg);
@@ -281,8 +283,8 @@ async function loadSection(s: ParamSection) {
 
 async function refreshAll() {
   fatalError.value = '';
-  if (!lumen?.http?.get) {
-    fatalError.value = 'Lumen HTTP bridge is not available in this context.';
+  if (!lumen?.net?.restGet && !lumen?.http?.get) {
+    fatalError.value = 'Lumen network bridge is not available in this context.';
     return;
   }
   await Promise.all(sections.value.map((s) => loadSection(s)));

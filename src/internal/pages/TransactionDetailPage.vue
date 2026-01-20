@@ -132,7 +132,6 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 const loading = ref(true);
 const error = ref('');
 const transaction = ref<any>(null);
-const rpcBase = ref('http://142.132.201.187:26657');
 
 const lumen = (window as any).lumen;
 
@@ -197,7 +196,7 @@ async function loadTransactionData() {
 
     const upperHash = txHash.value.toUpperCase();
     
-    const response = await lumen.http.get(`${rpcBase.value}/tx?hash=0x${upperHash}`);
+    const response = await lumen.net.rpcGet(`/tx?hash=0x${upperHash}`);
     
     if (!response.ok) {
       if (response.json && response.json.error) {
