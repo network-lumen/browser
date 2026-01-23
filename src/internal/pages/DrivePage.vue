@@ -5229,12 +5229,15 @@ async function reloadForActiveProfileChange() {
 .plans-list {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
 .plan-row {
   display: flex;
   flex-direction: column;
+  flex-basis: 100%;
+  
   gap: 0.5rem;
   padding: 1rem;
   border-radius: 12px;
@@ -5491,7 +5494,8 @@ async function reloadForActiveProfileChange() {
 }
 
 .plans-grid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 0.75rem;
   margin-top: 0.75rem;
