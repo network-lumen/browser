@@ -11,10 +11,6 @@
           <p>Human links to your content on the Lumen network.</p>
         </div>
         <div class="header-actions">
-          <button class="btn secondary" type="button" @click="reloadDomains">
-            <RefreshCw :size="16" />
-            <span>Reload</span>
-          </button>
           <button class="btn primary" type="button" @click="openRegisterModal">
             <Plus :size="16" />
             <span>Buy domain</span>
@@ -80,6 +76,14 @@
                 @click="openSettingsModal(d)"
               >
                 <Settings :size="16" />
+              </button>
+              <button
+                class="icon-btn"
+                type="button"
+                title="Transfer domain"
+                @click="openTransferModal(d)"
+              >
+                <Send :size="16" />
               </button>
             </div>
           </li>
@@ -251,6 +255,66 @@
           </div>
         </div>
       </Transition>
+
+      <!-- Transfer Modal -->
+      <Transition name="fade">
+        <div v-if="showTransferModal" class="modal-overlay" @click="closeTransferModal">
+          <div class="modal" @click.stop>
+            <header class="modal-header">
+              <h3>Transfer domain</h3>
+              <button class="modal-close" type="button" @click="closeTransferModal">
+                <X :size="16" />
+              </button>
+            </header>
+            <div class="modal-body">
+              <p class="modal-desc">Transfer ownership of this domain to another address.</p>
+              
+              <div class="info-card">
+                <div class="info-name">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="info-expiry">
+                  {{ transferDomain ? expiryText(transferDomain) : 'Expires: unknown' }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>New Owner Address</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  v-model="transferForm.newOwner"
+                  placeholder="lumen1..."
+                />
+                <p class="form-hint">Enter the Lumen address of the new owner</p>
+              </div>
+
+              <div class="warning-box">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-content">
+                  <strong>Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <button class="btn secondary full" type="button" @click="closeTransferModal">
+                  Cancel
+                </button>
+                <button
+                  class="btn primary full danger"
+                  type="button"
+                  @click="confirmTransfer"
+                  :disabled="!canTransfer || transferring"
+                >
+                  <span v-if="!transferring">
+                    <Send :size="16" />
+                    Transfer domain
+                  </span>
+                  <span v-else class="spinner"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </main>
 
   </div>
@@ -267,7 +331,8 @@ import {
   Settings,
   RefreshCw,
   X,
-  User
+  User,
+  Send
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -330,6 +395,13 @@ const settingsRecords = ref<SettingsRecord[]>([]);
 const settingsPqcParams = ref<any | null>(null);
 const settingsWalletBalanceLMN = ref<number | null>(null);
 const savingSettings = ref(false);
+
+const showTransferModal = ref(false);
+const transferDomain = ref<DomainRow | null>(null);
+const transferForm = ref({
+  newOwner: ''
+});
+const transferring = ref(false);
 
 function coinToLmn(coin: any): number | null {
   if (!coin) return null;
@@ -396,6 +468,18 @@ const canSaveSettings = computed(() => {
   });
   if (!hasValidRecord) return false;
   if (!hasFundsForSettings.value) return false;
+  return true;
+});
+
+const canTransfer = computed(() => {
+  if (!transferDomain.value) return false;
+  if (!profileAddress.value) return false;
+  const newOwner = (transferForm.value.newOwner || '').trim();
+  if (!newOwner) return false;
+  // Basic validation: should start with lumen or lmn
+  if (!newOwner.startsWith('lumen') && !newOwner.startsWith('lmn')) return false;
+  // Should not transfer to self
+  if (newOwner === profileAddress.value) return false;
   return true;
 });
 
@@ -571,10 +655,10 @@ async function copyDomainUrl(d: DomainRow) {
   const url = `lumen://${d.name}`;
   try {
     await navigator.clipboard.writeText(url);
-    window.alert('Domain URL copied to clipboard.');
+    showToast('Domain URL copied to clipboard', 'success');
   } catch (e) {
     console.error('[domains] copyDomainUrl error', e);
-    window.alert('Failed to copy domain URL.');
+    showToast('Failed to copy domain URL', 'error');
   }
 }
 
@@ -702,14 +786,14 @@ async function confirmRegister() {
   const anyWindow = window as any;
   const dnsApi = anyWindow?.lumen?.dns;
   if (!dnsApi || typeof dnsApi.createDomain !== 'function') {
-    window.alert('Domain registration bridge not available.');
+    showToast('Domain registration bridge not available', 'error');
     return;
   }
 
   const profileId = activeProfileId.value;
   const owner = (profileAddress.value || '').trim();
   if (!profileId || !owner) {
-    window.alert('Select or create a profile with a wallet address first.');
+    showToast('Select or create a profile with a wallet address first', 'warning');
     return;
   }
 
@@ -729,15 +813,15 @@ async function confirmRegister() {
     
     if (!res || res.ok === false) {
       const msg = res && res.error ? String(res.error) : 'Registration failed';
-      window.alert(msg);
+      showToast(msg, 'error');
       return;
     }
-    window.alert('Domain registration submitted.');
+    showToast('Domain registration submitted successfully', 'success');
     closeRegisterModal();
     await loadDomains();
   } catch (e) {
     console.error('[domains] confirmRegister error', e);
-    window.alert('Unexpected error while submitting registration.');
+    showToast('Unexpected error while submitting registration', 'error');
   } finally {
     registering.value = false;
   }
@@ -865,6 +949,74 @@ async function saveSettings() {
     showToast('Unexpected error while updating domain.', 'error');
   } finally {
     savingSettings.value = false;
+  }
+}
+
+function openTransferModal(d: DomainRow) {
+  transferDomain.value = d;
+  transferForm.value.newOwner = '';
+  showTransferModal.value = true;
+}
+
+function closeTransferModal() {
+  if (transferring.value) {
+    showToast('Transfer in progress. Please wait...', 'info');
+    return;
+  }
+  showTransferModal.value = false;
+  transferDomain.value = null;
+  transferForm.value.newOwner = '';
+}
+
+async function confirmTransfer() {
+  if (!canTransfer.value || transferring.value) return;
+  
+  const name = transferDomain.value?.name;
+  const newOwner = (transferForm.value.newOwner || '').trim();
+  const currentOwner = (profileAddress.value || '').trim();
+  const profileId = activeProfileId.value;
+  
+  if (!name || !newOwner || !currentOwner || !profileId) {
+    showToast('Missing required information for transfer', 'error');
+    return;
+  }
+
+  const anyWindow = window as any;
+  const dnsApi = anyWindow?.lumen?.dns;
+  if (!dnsApi || typeof dnsApi.transferDomain !== 'function') {
+    showToast('Domain transfer bridge not available', 'error');
+    return;
+  }
+
+  transferring.value = true;
+  try {
+    const res = await dnsApi.transferDomain({
+      profileId,
+      owner: currentOwner,
+      name,
+      newOwner,
+    });
+    
+    if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
+      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+      showToast('Wallet locked. Unlock to continue.', 'warning');
+      return;
+    }
+    
+    if (!res || res.ok === false) {
+      const msg = res && res.error ? String(res.error) : 'Domain transfer failed';
+      showToast(msg, 'error');
+      return;
+    }
+    
+    showToast(`Domain ${name} transferred successfully`, 'success');
+    closeTransferModal();
+    await loadDomains();
+  } catch (e) {
+    console.error('[domains] confirmTransfer error', e);
+    showToast('Unexpected error while transferring domain', 'error');
+  } finally {
+    transferring.value = false;
   }
 }
 
@@ -1298,6 +1450,7 @@ void loadDomains();
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
 .modal-header {
@@ -1328,6 +1481,9 @@ void loadDomains();
 
 .modal-body {
   padding: 1.1rem 1.25rem 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal-desc {
@@ -1492,5 +1648,44 @@ void loadDomains();
   .main-content {
     padding: 1.5rem;
   }
+}
+
+.warning-box {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  margin: 1rem 0;
+}
+
+.warning-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.warning-content strong {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.btn.danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 0.375rem;
 }
 </style>

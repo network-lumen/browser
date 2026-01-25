@@ -1,11 +1,15 @@
 # Default peer endpoints
 # Format: rpc rest [grpc]
 # Lines beginning with # are ignored.
+
+# Primary endpoints (verified working)
 http://142.132.201.187:26657 http://142.132.201.187:1317 http://142.132.201.187:9190
 https://lumen-rpc.linknode.org        https://lumen-api.linknode.org        lumen-grpc.linknode.org:443
-https://rpc.lumen.chaintools.tech     https://api.lumen.chaintools.tech:443
 https://lumen.blocksync.me/rpc        https://lumen.blocksync.me/api        lumen-grpc.blocksync.me:443
 https://lumen-mainnet-rpc.mekonglabs.tech https://lumen-mainnet-api.mekonglabs.tech lumen-mainnet-grpc.mekonglabs.tech:35090
 https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
-# test
-# ignore
+
+# Disabled - DNS not found (ENOTFOUND)
+# https://lumen-rpc.chaintools.tech     https://lumen-api.chaintools.tech
+# https://rpc.lumen.chaintools.tech     https://api.lumen.chaintools.tech:443
+# https://rpc.lumen.node9x.com          https://api.lumen.node9x.com

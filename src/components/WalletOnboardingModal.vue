@@ -73,6 +73,42 @@
             </div>
           </div>
 
+          <div v-else-if="step === 'creating-wallet'" class="onboarding-step">
+            <div class="success-box" v-if="passwordSet">
+              <CheckCircle :size="20" class="color-success" />
+              <p class="txt-sm margin-0">Password set successfully!</p>
+            </div>
+
+            <div class="creating-wallet-box">
+              <div v-if="creatingWallet" class="wallet-creating">
+                <UiSpinner size="lg" />
+                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">Creating Your Wallet</h3>
+                <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+                  Generating secure keys and wallet address...
+                </p>
+              </div>
+
+              <div v-else-if="walletCreated" class="wallet-created">
+                <CheckCircle :size="48" class="color-success" />
+                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">Wallet Created!</h3>
+                <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+                  Your wallet is ready. Let's back it up to keep it safe.
+                </p>
+              </div>
+
+              <div v-else-if="walletError" class="wallet-error">
+                <AlertCircle :size="48" class="color-red-base" />
+                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">Wallet Creation Failed</h3>
+                <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+                  {{ walletError }}
+                </p>
+                <button class="btn-retry margin-top-100" @click="createWallet">
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div v-else-if="step === 'backup'" class="onboarding-step">
             <div class="success-box" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
@@ -192,7 +228,7 @@ import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-nex
 import UiSpinner from '../ui/UiSpinner.vue';
 import { activeProfileId } from '../internal/profilesStore';
 
-type OnboardingStep = 'intro' | 'password' | 'backup' | 'complete';
+type OnboardingStep = 'intro' | 'password' | 'creating-wallet' | 'backup' | 'complete';
 
 const props = defineProps<{
   visible: boolean;
@@ -209,6 +245,9 @@ const confirmPassword = ref('');
 const passwordError = ref('');
 const passwordSet = ref(false);
 const settingPassword = ref(false);
+const creatingWallet = ref(false);
+const walletCreated = ref(false);
+const walletError = ref('');
 const backupError = ref('');
 const backupSuccess = ref('');
 const exportingBackup = ref(false);
@@ -250,7 +289,12 @@ async function handlePasswordSubmit() {
       passwordSet.value = true;
       password.value = '';
       confirmPassword.value = '';
-      step.value = 'backup';
+      
+      // Move to wallet creation step instead of directly to backup
+      step.value = 'creating-wallet';
+      
+      // Automatically trigger wallet creation
+      await createWallet();
     } else {
       passwordError.value = result?.error || 'Failed to set password.';
     }
@@ -258,6 +302,60 @@ async function handlePasswordSubmit() {
     passwordError.value = e?.message || 'Failed to set password.';
   } finally {
     settingPassword.value = false;
+  }
+}
+
+async function createWallet() {
+  creatingWallet.value = true;
+  walletError.value = '';
+  walletCreated.value = false;
+
+  try {
+    const anyWindow = window as any;
+    const profileId = activeProfileId.value;
+
+    if (!profileId) {
+      walletError.value = 'No active profile found.';
+      return;
+    }
+
+    // Check if wallet already exists
+    const walletCheck = await anyWindow.lumen.profiles.isWalletFullyCreated(profileId);
+    
+    if (walletCheck?.ok) {
+      // Wallet already exists
+      walletCreated.value = true;
+      step.value = 'backup';
+      return;
+    }
+
+    // Get the current profile to trigger wallet creation
+    const profile = await anyWindow.lumen.profiles.getActive();
+    
+    if (!profile) {
+      walletError.value = 'Failed to load profile.';
+      return;
+    }
+
+    // Refresh profile list to trigger wallet creation (ensureWalletForProfile)
+    await anyWindow.lumen.profiles.list();
+
+    // Wait a bit for wallet creation to complete
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Verify wallet was created
+    const verifyCheck = await anyWindow.lumen.profiles.isWalletFullyCreated(profileId);
+    
+    if (verifyCheck?.ok) {
+      walletCreated.value = true;
+      step.value = 'backup';
+    } else {
+      walletError.value = verifyCheck?.error || 'Wallet creation failed. Please try again.';
+    }
+  } catch (e: any) {
+    walletError.value = e?.message || 'Failed to create wallet.';
+  } finally {
+    creatingWallet.value = false;
   }
 }
 
@@ -272,6 +370,22 @@ async function handleExportBackup() {
 
     if (!profileId) {
       backupError.value = 'No active profile found.';
+      return;
+    }
+
+    // CRITICAL: Validate wallet is fully created before allowing backup
+    const walletCheck = await anyWindow.lumen.profiles.isWalletFullyCreated(profileId);
+    
+    if (!walletCheck?.ok) {
+      const errorMessages: Record<string, string> = {
+        'guest_profile_no_wallet': 'Guest profiles cannot be backed up. Please create a user profile.',
+        'wallet_address_missing': 'No wallet found. Please create a wallet first.',
+        'keystore_missing': 'Wallet not fully created. Please complete wallet setup.',
+        'keystore_invalid': 'Wallet data is corrupted. Please create a new wallet.',
+        'keystore_read_failed': 'Unable to read wallet data. Please try again.'
+      };
+      
+      backupError.value = errorMessages[walletCheck.error] || 'Wallet is not ready for backup.';
       return;
     }
 
@@ -292,7 +406,19 @@ async function handleExportBackup() {
         step.value = 'complete';
       }, 1500);
     } else {
-      backupError.value = result?.error || 'Failed to export backup.';
+      // Handle specific error messages from backend
+      if (result?.message) {
+        backupError.value = result.message;
+      } else {
+        const errorMessages: Record<string, string> = {
+          'wallet_not_created': 'No wallet found. Please create a wallet first.',
+          'wallet_incomplete': 'Wallet creation is incomplete. Please try again.',
+          'invalid_password': 'Invalid password. Please try again.',
+          'password_required_for_export': 'Password is required to export backup.',
+          'canceled': 'Backup export was canceled.'
+        };
+        backupError.value = errorMessages[result?.error] || 'Failed to export backup.';
+      }
     }
   } catch (e: any) {
     backupError.value = e?.message || 'Failed to export backup.';
@@ -329,7 +455,7 @@ function handleComplete() {
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-primary, white);
   border-radius: 16px;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -358,7 +484,7 @@ function handleComplete() {
 
 .modal-subtitle {
   font-size: 0.875rem;
-  color: var(--gray-blue, #6b7280);
+  color: var(--text-secondary, #6b7280);
   margin: 0;
 }
 
@@ -368,8 +494,16 @@ function handleComplete() {
   overflow-y: auto;
 }
 
+.modal-body p {
+  color: var(--text-primary, #111827);
+}
+
 .onboarding-step {
   animation: fadeIn 0.3s ease-in-out;
+}
+
+.onboarding-step p {
+  color: var(--text-primary, #111827);
 }
 
 @keyframes fadeIn {
@@ -387,14 +521,19 @@ function handleComplete() {
   display: flex;
   gap: 0.75rem;
   padding: 1rem;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 8px;
   margin-bottom: 1.5rem;
 }
 
 .warning-content {
   flex: 1;
+  color: var(--text-primary, #111827);
+}
+
+.warning-content p {
+  color: var(--text-primary, #111827);
 }
 
 .success-box {
@@ -402,9 +541,14 @@ function handleComplete() {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #d1fae5;
-  border: 1px solid #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 8px;
+  color: var(--text-primary, #111827);
+}
+
+.success-box p {
+  color: var(--text-primary, #111827);
 }
 
 .success-box-large {
@@ -424,6 +568,12 @@ function handleComplete() {
   border-radius: 12px;
   text-align: center;
   transition: all 0.2s;
+  background: var(--bg-secondary, transparent);
+}
+
+.info-card h4,
+.info-card p {
+  color: var(--text-primary, #111827);
 }
 
 .info-card:hover {
@@ -447,28 +597,36 @@ function handleComplete() {
   border-radius: 8px;
   font-size: 0.875rem;
   transition: all 0.2s;
+  background: var(--card-bg, white);
+  color: var(--text-primary, #111827);
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary, #9ca3af);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary, #3b82f6);
+  border-color: var(--accent-primary, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .error-message {
   display: block;
   padding: 0.75rem;
-  background: #fee2e2;
-  border: 1px solid #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 6px;
+  color: var(--text-primary, #111827);
 }
 
 .success-message {
   display: block;
   padding: 0.75rem;
-  background: #d1fae5;
-  border: 1px solid #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 6px;
+  color: var(--text-primary, #111827);
 }
 
 .reminder-box {
@@ -478,6 +636,11 @@ function handleComplete() {
   border-radius: 12px;
 }
 
+.reminder-box p,
+.reminder-list {
+  color: var(--text-primary, #111827);
+}
+
 .reminder-list {
   margin: 0;
   padding-left: 1.5rem;
@@ -485,6 +648,7 @@ function handleComplete() {
 
 .reminder-list li {
   margin-bottom: 0.5rem;
+  color: var(--text-primary, #111827);
 }
 
 .reminder-list li:last-child {
