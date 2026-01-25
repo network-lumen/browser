@@ -895,16 +895,35 @@ async function sendGatewayAuthPq(params) {
   });
 
   const url = `${base}${params.path}`;
-  const res = await fetch(url, {
-    method: params.method,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Lumen-PQ': 'v1',
-      'X-Lumen-KEM': 'kyber768',
-      'X-Lumen-KeyId': keyId,
-    },
-    body,
-  });
+
+  const timeoutMsRaw = Number(params.timeoutMs ?? 0);
+  const timeoutMs =
+    Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 0;
+  const controller = timeoutMs ? new AbortController() : null;
+  const timeoutId = timeoutMs
+    ? setTimeout(() => {
+        try {
+          controller.abort();
+        } catch {}
+      }, timeoutMs)
+    : null;
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: params.method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Lumen-PQ': 'v1',
+        'X-Lumen-KEM': 'kyber768',
+        'X-Lumen-KeyId': keyId,
+      },
+      body,
+      ...(controller ? { signal: controller.signal } : {}),
+    });
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 
   const status = res.status;
   const text = await res.text().catch(() => '');
@@ -1918,8 +1937,16 @@ function registerGatewayIpc() {
   ipcMain.handle('gateway:searchPq', async (_e, input) => {
     try {
       const profileId = String(input?.profileId || '').trim();
+
+      const mode = typeof input?.mode === 'string' ? String(input.mode) : '';
+      const type = typeof input?.type === 'string' ? String(input.type) : '';
+      const allowEmptyQuery =
+        String(type || '').trim().toLowerCase() === 'site' ||
+        String(type || '').trim().toLowerCase() === 'image' ||
+        String(mode || '').trim().toLowerCase() === 'sites';
+
       const query = String(input?.query || '').trim();
-      if (!query) return { ok: false, error: 'missing_query' };
+      if (!query && !allowEmptyQuery) return { ok: false, error: 'missing_query' };
 
       const endpoint =
         typeof input?.endpoint === 'string'
@@ -2005,8 +2032,11 @@ function registerGatewayIpc() {
       const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 50) : 10;
       const offsetRaw = input?.offset != null ? Number(input.offset) : 0;
       const offset = Number.isFinite(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
-      const mode = typeof input?.mode === 'string' ? String(input.mode) : '';
-      const type = typeof input?.type === 'string' ? String(input.type) : '';
+      const timeoutMsRaw = input?.timeoutMs != null ? Number(input.timeoutMs) : 15_000;
+      const timeoutMs =
+        Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
+          ? Math.min(timeoutMsRaw, 60_000)
+          : 15_000;
 
       console.log('[gateway] searchPq', {
         profileId: profileId || 'guest',
@@ -2024,6 +2054,7 @@ function registerGatewayIpc() {
         method: 'POST',
         wallet,
         mnemonic,
+        timeoutMs,
         payload: {
           q: query,
           lang,

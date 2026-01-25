@@ -18,7 +18,10 @@
             class="search-btn"
             type="button"
             @click="submit"
-            :disabled="loading || (!q.trim() && selectedType !== 'site')"
+            :disabled="
+              loading ||
+              (!q.trim() && selectedType !== 'site' && selectedType !== 'image')
+            "
           >
             Search
           </button>
@@ -78,16 +81,6 @@
             <template v-else>No results</template>
           </span>
         </div>
-        <button
-          class="debug-toggle txt-xs"
-          type="button"
-          @click="toggleDebugMode"
-          :title="debugMode ? 'Disable debug' : 'Enable debug'"
-          v-if="selectedType === 'site'"
-        >
-          <Bug :size="14" />
-          Debug
-        </button>
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
@@ -109,7 +102,18 @@
         <div class="empty-content">
           <h3 class="empty-title">No results found</h3>
           <p class="empty-subtitle">
-            We couldn't find anything matching "<strong>{{ q }}</strong>"
+            <template v-if="q.trim()">
+              We couldn't find anything matching "<strong>{{ q }}</strong>"
+            </template>
+            <template v-else-if="selectedType === 'site'">
+              We couldn't find any sites yet.
+            </template>
+            <template v-else-if="selectedType === 'image'">
+              We couldn't find any images yet.
+            </template>
+            <template v-else>
+              We couldn't find anything.
+            </template>
           </p>
           <div class="empty-suggestions">
             <span class="suggestion-label">Try:</span>
@@ -147,7 +151,7 @@
             :title="r.url"
           >
             <div
-              v-if="isSearchImageThumb(r)"
+              v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
               class="safe-thumb"
               :class="{ blurred: shouldBlurThumb(r) }"
             >
@@ -162,6 +166,7 @@
               </button>
               <img
                 class="image-thumb"
+                :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                 :src="r.thumbUrl"
                 alt=""
                 :loading="imageThumbLoading(idx)"
@@ -179,6 +184,9 @@
                   {{ thumbBlurNoticeText(r) }}
                 </div>
               </div>
+            </div>
+            <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="image-fallback">
+              <Image :size="18" />
             </div>
             <img
               v-else-if="r.thumbUrl"
@@ -238,6 +246,7 @@
                 </button>
                 <img
                   class="thumb"
+                  :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
                   :crossorigin="corsAttrForThumb(r)"
@@ -291,17 +300,6 @@
                 >
               </div>
             </div>
-            <span
-              v-if="debugMode && canDebugResult(r)"
-              class="debug-btn"
-              role="button"
-              tabindex="0"
-              title="Show raw JSON"
-              @click.stop.prevent="openDebugForResult(r)"
-              @keydown.enter.stop.prevent="openDebugForResult(r)"
-            >
-              <Bug :size="16" />
-            </span>
             <ArrowUpRight :size="18" class="result-open" />
           </button>
         </li>
@@ -404,28 +402,6 @@
       </div>
     </section>
 
-    <div
-      v-if="debugOpen"
-      class="debug-modal"
-      role="dialog"
-      aria-modal="true"
-      @click.self="closeDebug"
-    >
-      <div class="debug-panel">
-        <div class="debug-head">
-          <div class="debug-title mono">{{ debugTitle }}</div>
-          <div class="debug-actions">
-            <button class="debug-action" type="button" @click="copyDebug">
-              Copy
-            </button>
-            <button class="debug-action" type="button" @click="closeDebug">
-              Close
-            </button>
-          </div>
-        </div>
-        <pre class="debug-pre mono">{{ debugText }}</pre>
-      </div>
-    </div>
   </main>
 </template>
 
@@ -433,7 +409,6 @@
 import { computed, inject, onMounted, ref, watch } from "vue";
 import {
   ArrowUpRight,
-  Bug,
   Bookmark,
   Compass,
   EyeOff,
@@ -504,7 +479,7 @@ const openInNewTab = inject<((url: string) => void) | null>(
 );
 
 const q = ref("");
-const selectedType = ref<SearchType>("image");
+const selectedType = ref<SearchType>("site");
 const touched = ref(false);
 const loading = ref(false);
 const errorMsg = ref("");
@@ -515,12 +490,6 @@ const activeQuery = ref("");
 const activeType = ref<SearchType>("");
 const gatewayHasMore = ref(false);
 const gatewayPageSize = 12;
-
-const debugMode = ref(false);
-const debugOpen = ref(false);
-const debugTitle = ref("");
-const debugText = ref("");
-const debugByDomain = ref<Record<string, any>>({});
 
 const lastRunKey = ref("");
 let searchSeq = 0;
@@ -798,7 +767,9 @@ function onThumbError(r: ResultItem): void {
   if (!isSearchImageThumb(r)) return;
   if (corsAttrForThumb(r) === "anonymous") {
     thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
+    return;
   }
+  markThumbBroken(r.id);
 }
 
 function onListThumbError(r: ResultItem): void {
@@ -1065,9 +1036,6 @@ async function togglePinImage(result: ResultItem) {
       }
     }
   } catch (e: any) {
-    if (debugMode.value) {
-      console.error("[search][local-save] exception:", e);
-    }
     toast.error(String(e?.message || "Operation failed"));
   }
 }
@@ -1078,13 +1046,6 @@ function focusInput() {
 
 onMounted(() => {
   setTimeout(focusInput, 60);
-
-  try {
-    const saved = localStorage.getItem("lumen-search-debug") || "";
-    debugMode.value = saved === "1";
-  } catch {
-    debugMode.value = false;
-  }
 
   try {
     const hh = thumbSafety.getHiddenHashes();
@@ -1098,15 +1059,6 @@ onMounted(() => {
 
   void refreshPinnedCids();
 });
-
-function toggleDebugMode() {
-  debugMode.value = !debugMode.value;
-  try {
-    localStorage.setItem("lumen-search-debug", debugMode.value ? "1" : "0");
-  } catch {
-    // ignore
-  }
-}
 
 function iconFor(kind: ResultKind, media?: ResultItem["media"]) {
   switch (kind) {
@@ -1231,19 +1183,19 @@ function goto(url: string, opts?: { push?: boolean }) {
 
 function parseSearchUrl(raw: string): { q: string; type: SearchType; page: number } {
   const value = String(raw || "").trim();
-  if (!value) return { q: "", type: "image", page: 1 };
+  if (!value) return { q: "", type: "site", page: 1 };
   try {
     const u = new URL(value);
     const qs = u.searchParams.get("q") || "";
     const type = (u.searchParams.get("type") || "") as SearchType;
     const t: SearchType =
-      type === "site" || type === "image" ? type : "image";
+      type === "site" || type === "image" ? type : "site";
     const pageRaw = u.searchParams.get("page") || "";
     const parsedPage = Number.parseInt(pageRaw, 10);
     const p = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     return { q: qs, type: t, page: p };
   } catch {
-    return { q: "", type: "image", page: 1 };
+    return { q: "", type: "site", page: 1 };
   }
 }
 
@@ -1263,19 +1215,30 @@ function setType(t: SearchType) {
   selectedType.value = t;
   page.value = 1;
   const s = q.value.trim();
-  if (!s && t !== "site") return;
-  goto(makeSearchUrl(s, t, 1), { push: false });
+  const nextUrl = makeSearchUrl(s, t, 1);
+  const curUrl = String(currentTabUrl?.value || "").trim();
+  if (curUrl && curUrl === nextUrl) {
+    activeQuery.value = s;
+    activeType.value = t;
+    runSearch(s, t, 1);
+    return;
+  }
+  goto(nextUrl, { push: false });
 }
 
 function submit() {
   const s = q.value.trim();
-  if (!s && selectedType.value !== "site") return;
-  touched.value = true;
-  errorMsg.value = "";
-  results.value = [];
-  loading.value = true;
+  if (!s && selectedType.value !== "site" && selectedType.value !== "image") return;
   page.value = 1;
-  goto(makeSearchUrl(s, selectedType.value, 1), { push: true });
+  const nextUrl = makeSearchUrl(s, selectedType.value, 1);
+  const curUrl = String(currentTabUrl?.value || "").trim();
+  if (curUrl && curUrl === nextUrl) {
+    activeQuery.value = s;
+    activeType.value = selectedType.value;
+    runSearch(s, selectedType.value, 1);
+    return;
+  }
+  goto(nextUrl, { push: true });
 }
 
 async function openResult(r: ResultItem) {
@@ -1845,37 +1808,6 @@ function domainKeyFromUrl(url: string): string | null {
   return host;
 }
 
-function canDebugResult(r: ResultItem): boolean {
-  if (!r || r.kind !== "site") return false;
-  const domain = (r.site?.domain || domainKeyFromUrl(r.url) || "").trim().toLowerCase();
-  if (!domain) return false;
-  return !!debugByDomain.value[domain];
-}
-
-function openDebugForResult(r: ResultItem) {
-  const domain = (r.site?.domain || domainKeyFromUrl(r.url) || "").trim().toLowerCase();
-  const payload = domain ? debugByDomain.value[domain] : null;
-  debugTitle.value = domain || r.url || r.id;
-  try {
-    debugText.value = JSON.stringify(payload ?? null, null, 2);
-  } catch {
-    debugText.value = String(payload ?? "");
-  }
-  debugOpen.value = true;
-}
-
-function closeDebug() {
-  debugOpen.value = false;
-}
-
-async function copyDebug() {
-  try {
-    await navigator.clipboard.writeText(debugText.value || "");
-  } catch {
-    // ignore
-  }
-}
-
 function isExactDomainMatch(query: string, domain: string): boolean {
   const q = String(query || "").trim().toLowerCase();
   const d = String(domain || "").trim().toLowerCase();
@@ -2184,28 +2116,6 @@ async function searchGateways(
             owned,
           },
         });
-
-        if (domain) {
-          const key = domain.toLowerCase();
-          const prev = debugByDomain.value[key] || { domain: key, sources: [] };
-          const next = {
-            ...prev,
-            sources: [
-              ...(Array.isArray(prev.sources) ? prev.sources : []),
-              {
-                source: "gateway",
-                gateway: { id: g.id, endpoint: g.endpoint, regions: g.regions },
-                response: {
-                  ok: true,
-                  status: resp?.status,
-                  baseUrl: resp?.baseUrl,
-                },
-                site: s,
-              },
-            ],
-          };
-          debugByDomain.value = { ...debugByDomain.value, [key]: next };
-        }
       }
       return { items: out, rawCount: rawCountSite };
     }
@@ -2251,12 +2161,11 @@ async function fetchTagsForCid(
   profileId: string,
   cid: string,
   seq: number,
-): Promise<{ tags: string[]; debug: any }> {
+): Promise<string[]> {
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.searchPq !== "function") return { tags: [], debug: { error: "gateway_api_missing" } };
+  if (!gwApi || typeof gwApi.searchPq !== "function") return [];
   const gateways = await loadGatewaysForSearch(profileId);
-  if (seq !== searchSeq) return { tags: [], debug: { canceled: true } };
-  const attempts: any[] = [];
+  if (seq !== searchSeq) return [];
   for (const g of gateways) {
     const resp = await gwApi
       .searchPq({
@@ -2269,16 +2178,6 @@ async function fetchTagsForCid(
         type: "",
       })
       .catch(() => null);
-    attempts.push({
-      gateway: { id: g.id, endpoint: g.endpoint, regions: g.regions },
-      ok: !!resp && resp.ok !== false,
-      status: resp?.status,
-      baseUrl: resp?.baseUrl,
-      hasHits: Array.isArray(resp?.data?.hits) ? resp.data.hits.length : undefined,
-      ui: resp?.data?.ui ?? null,
-      params: resp?.data?.params ?? null,
-      analysis: resp?.data?.analysis ?? null,
-    });
     if (!resp || resp.ok === false) continue;
     const data = resp.data || {};
     const hits = Array.isArray(data.hits)
@@ -2289,9 +2188,9 @@ async function fetchTagsForCid(
     const first = hits[0];
     if (!first) continue;
     const tags = extractSearchTags(first);
-    if (tags.length) return { tags, debug: { attempts, matched: { gatewayId: g.id, endpoint: g.endpoint } } };
+    if (tags.length) return tags;
   }
-  return { tags: [], debug: { attempts } };
+  return [];
 }
 
 function buildFastResults(query: string): ResultItem[] {
@@ -2364,7 +2263,7 @@ function clampPage(value: any): number {
 
 function gotoPage(targetPage: number) {
   const s = activeQuery.value.trim();
-  if (!s) return;
+  if (!s && activeType.value !== "site" && activeType.value !== "image") return;
   const p = clampPage(targetPage);
   goto(makeSearchUrl(s, activeType.value, p), { push: true });
 }
@@ -2380,7 +2279,7 @@ function prevPage() {
 
 const showPager = computed(() => {
   if (!touched.value) return false;
-  if (!activeQuery.value.trim() && activeType.value !== "site") return false;
+  if (!activeQuery.value.trim() && activeType.value !== "site" && activeType.value !== "image") return false;
   return page.value > 1 || gatewayHasMore.value;
 });
 
@@ -2441,7 +2340,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   const clean = String(query || "").trim();
   const safePage = clampPage(pageParam);
   const runKey = `${type}::${clean}::page=${safePage}`;
-  const allowEmptyQuery = type === "site";
+  const allowEmptyQuery = type === "site" || type === "image";
   if (!clean && !allowEmptyQuery) {
     touched.value = false;
     loading.value = false;
@@ -2451,14 +2350,16 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
     gatewayHasMore.value = false;
     return;
   }
-  if (runKey === lastRunKey.value && results.value.length) return;
+  if (runKey === lastRunKey.value && results.value.length) {
+    loading.value = false;
+    return;
+  }
   lastRunKey.value = runKey;
 
   touched.value = true;
   loading.value = true;
   errorMsg.value = "";
   results.value = [];
-  debugByDomain.value = {};
   gatewayHasMore.value = false;
 
   try {
@@ -2486,25 +2387,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
 
     let domainTags: string[] = [];
     if (safePage === 1 && bestDomain?.cid && profileId) {
-      const tagRes = await fetchTagsForCid(profileId, bestDomain.cid, seq);
-      domainTags = tagRes.tags;
-      const key = String(bestDomain.name || "").trim().toLowerCase();
-      if (key) {
-        const prev = debugByDomain.value[key] || { domain: key, sources: [] };
-        const next = {
-          ...prev,
-          sources: [
-            ...(Array.isArray(prev.sources) ? prev.sources : []),
-            {
-              source: "tags_lookup",
-              cid: bestDomain.cid,
-              profileId,
-              debug: tagRes.debug,
-            },
-          ],
-        };
-        debugByDomain.value = { ...debugByDomain.value, [key]: next };
-      }
+      domainTags = await fetchTagsForCid(profileId, bestDomain.cid, seq);
     }
     if (seq !== searchSeq) return;
 
@@ -2526,25 +2409,6 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
           owned: true,
         },
       });
-
-      const key = String(bestDomain.name || "").trim().toLowerCase();
-      if (key) {
-        const prev = debugByDomain.value[key] || { domain: key, sources: [] };
-        const next = {
-          ...prev,
-          sources: [
-            ...(Array.isArray(prev.sources) ? prev.sources : []),
-            {
-              source: "dns",
-              query: clean,
-              candidates: bestDomain.candidates || null,
-              picked: { name: bestDomain.name, cid: bestDomain.cid, score: bestDomain.score },
-              infoRes: bestDomain.infoRes || null,
-            },
-          ],
-        };
-        debugByDomain.value = { ...debugByDomain.value, [key]: next };
-      }
     }
 
     if (safePage === 1 && !profileId && (type === "image" || type === "")) {
@@ -2833,14 +2697,6 @@ const imageResults = computed(() =>
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
-.pill.pill-sites:not(.active) {
-  color: var(--text-tertiary);
-}
-
-.pill.pill-sites:not(.active) svg {
-  opacity: 0.85;
-}
-
 .results {
   width: min(920px, 100%);
   margin: 3rem auto 0;
@@ -2945,26 +2801,6 @@ const imageResults = computed(() =>
   color: var(--text-secondary);
   margin-left: 0.5rem;
   white-space: nowrap;
-}
-
-.debug-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 999px;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--bg-primary, #ffffff);
-  color: var(--text-secondary, #64748b);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.debug-toggle:hover {
-  color: var(--accent-primary);
-  border-color: var(--primary-a30);
-  background: var(--primary-a08);
 }
 
 .error {
@@ -3422,29 +3258,6 @@ const imageResults = computed(() =>
   opacity: 0.5;
 }
 
-.debug-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  margin-top: 0.05rem;
-  color: var(--text-secondary, #64748b);
-  background: transparent;
-  border: 1px solid transparent;
-  cursor: pointer;
-  opacity: 0.75;
-  transition: all 0.2s ease;
-}
-
-.debug-btn:hover {
-  opacity: 1;
-  color: var(--accent-primary);
-  border-color: var(--primary-a20);
-  background: var(--primary-a08);
-}
-
 .result-card:hover .result-open {
   color: var(--accent-primary);
   transform: translate(4px, -4px) scale(1.1);
@@ -3624,80 +3437,6 @@ const imageResults = computed(() =>
   100% {
     background-position: -200% 0;
   }
-}
-
-.debug-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(2, 6, 23, 0.55);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.debug-panel {
-  width: min(980px, 96vw);
-  max-height: 80vh;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 18px 50px rgba(2, 6, 23, 0.35);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.debug-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 0.9rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.debug-title {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #0f172a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.debug-actions {
-  display: inline-flex;
-  gap: 0.5rem;
-  flex: 0 0 auto;
-}
-
-.debug-action {
-  padding: 0.35rem 0.65rem;
-  border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.55);
-  background: rgba(255, 255, 255, 0.95);
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: #334155;
-}
-
-.debug-action:hover {
-  border-color: var(--primary-a30);
-  color: var(--accent-primary);
-  background: var(--primary-a08);
-}
-
-.debug-pre {
-  padding: 0.9rem;
-  margin: 0;
-  overflow: auto;
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: #0f172a;
 }
 
 @media (max-width: 640px) {
