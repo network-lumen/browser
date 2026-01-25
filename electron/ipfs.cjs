@@ -12,7 +12,11 @@ function ipfsApiBase() {
 }
 
 function localGatewayBase() {
-  return String(getSetting('localGatewayBase') || 'http://127.0.0.1:8080').replace(/\/+$/, '');
+  const setting = getSetting('localGatewayBase');
+  const defaultValue = 'http://127.0.0.1:8088';
+  const result = String(setting || defaultValue).replace(/\/+$/, '');
+  console.log('[electron][ipfs] localGatewayBase - setting:', setting, 'default:', defaultValue, 'result:', result);
+  return result;
 }
 
 function multiaddrForHttpBase(rawBase) {
@@ -20,7 +24,13 @@ function multiaddrForHttpBase(rawBase) {
     const u = new URL(String(rawBase || '').trim());
     const host = String(u.hostname || '').trim();
     const port = Number(u.port || '');
-    if (!host || !Number.isFinite(port) || port <= 0 || port > 65535) return null;
+    
+    console.log('[electron][ipfs] multiaddrForHttpBase - rawBase:', rawBase, 'hostname:', host, 'port:', u.port, 'parsed port:', port);
+    
+    if (!host || !Number.isFinite(port) || port <= 0 || port > 65535) {
+      console.log('[electron][ipfs] multiaddrForHttpBase - invalid host or port');
+      return null;
+    }
 
     const isIpv6 = host.includes(':') && !host.includes('.');
     const isIpv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
@@ -29,10 +39,16 @@ function multiaddrForHttpBase(rawBase) {
     const addrHost = isLocalhost ? '127.0.0.1' : host;
     const family = isIpv6 ? 'ip6' : 'ip4';
 
-    if (!isIpv6 && !isIpv4 && !isLocalhost) return null;
+    if (!isIpv6 && !isIpv4 && !isLocalhost) {
+      console.log('[electron][ipfs] multiaddrForHttpBase - not valid IP format');
+      return null;
+    }
 
-    return `/${family}/${addrHost}/tcp/${port}`;
-  } catch {
+    const result = `/${family}/${addrHost}/tcp/${port}`;
+    console.log('[electron][ipfs] multiaddrForHttpBase - result:', result);
+    return result;
+  } catch (e) {
+    console.log('[electron][ipfs] multiaddrForHttpBase - error:', e);
     return null;
   }
 }
@@ -41,21 +57,33 @@ function applyIpfsAddressesConfig(bin, repoPath) {
   try {
     const apiAddr = multiaddrForHttpBase(ipfsApiBase());
     const gwAddr = multiaddrForHttpBase(localGatewayBase());
-    if (!apiAddr || !gwAddr) return;
+    
+    console.log('[electron][ipfs] Applying config - API:', apiAddr, 'Gateway:', gwAddr);
+    
+    if (!apiAddr || !gwAddr) {
+      console.warn('[electron][ipfs] Invalid addresses, skipping config');
+      return;
+    }
 
     const env = { ...process.env, IPFS_PATH: repoPath };
     const setCfg = (key, value) => {
       const r = spawnSync(bin, ['config', key, value], { env, stdio: 'pipe' });
-      if (r.error) console.warn('[electron][ipfs] ipfs config error', key, r.error);
-      else if (r.status !== 0) {
+      if (r.error) {
+        console.warn('[electron][ipfs] ipfs config error', key, r.error);
+      } else if (r.status !== 0) {
         console.warn('[electron][ipfs] ipfs config failed', key, r.status, String(r.stderr || ''));
+      } else {
+        console.log('[electron][ipfs] ipfs config success', key, value);
       }
     };
     const setCfgJson = (key, value) => {
       const r = spawnSync(bin, ['config', '--json', key, value], { env, stdio: 'pipe' });
-      if (r.error) console.warn('[electron][ipfs] ipfs config error', key, r.error);
-      else if (r.status !== 0) {
+      if (r.error) {
+        console.warn('[electron][ipfs] ipfs config error', key, r.error);
+      } else if (r.status !== 0) {
         console.warn('[electron][ipfs] ipfs config failed', key, r.status, String(r.stderr || ''));
+      } else {
+        console.log('[electron][ipfs] ipfs config --json success', key);
       }
     };
 

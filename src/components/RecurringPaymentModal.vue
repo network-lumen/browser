@@ -182,7 +182,7 @@
             <strong>{{ formatDate(form.startDate) }}</strong>
           </div>
           <div class="summary-row" v-if="estimatedTotal">
-            <span>Estimated total (1 year):</span>
+            <span>{{ estimatedTotalLabel }}:</span>
             <strong>{{ estimatedTotal }} LMN</strong>
           </div>
         </div>
@@ -273,22 +273,126 @@ const frequencyLabel = computed(() => {
   return labels[form.value.frequency];
 });
 
+/**
+ * Calculate the number of payments based on date range, frequency, and max payments
+ * @param startDate - Payment start date
+ * @param endDate - Optional payment end date
+ * @param frequency - Payment frequency
+ * @param maxPayments - Optional maximum number of payments
+ * @returns Number of payments that will occur
+ */
+function calculatePaymentCount(
+  startDate: Date,
+  endDate: Date | undefined,
+  frequency: PaymentFrequency,
+  maxPayments: number | undefined
+): number {
+  let countByDate: number | null = null;
+  
+  // Calculate count based on date range if end date exists
+  if (endDate) {
+    // Validate date range
+    if (endDate < startDate) {
+      return 0;
+    }
+    
+    const daysDiff = Math.floor(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    
+    switch (frequency) {
+      case 'daily':
+        countByDate = daysDiff + 1; // Include start day
+        break;
+      case 'weekly':
+        countByDate = Math.floor(daysDiff / 7) + 1;
+        break;
+      case 'biweekly':
+        countByDate = Math.floor(daysDiff / 14) + 1;
+        break;
+      case 'monthly':
+        // Calculate months between dates
+        const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 
+          + (endDate.getMonth() - startDate.getMonth());
+        countByDate = Math.max(1, months + 1);
+        break;
+      case 'quarterly':
+        const quarters = Math.floor(
+          ((endDate.getFullYear() - startDate.getFullYear()) * 12 
+          + (endDate.getMonth() - startDate.getMonth())) / 3
+        );
+        countByDate = Math.max(1, quarters + 1);
+        break;
+      case 'yearly':
+        const years = endDate.getFullYear() - startDate.getFullYear();
+        countByDate = Math.max(1, years + 1);
+        break;
+    }
+  }
+  
+  // Determine final count - use minimum of constraints
+  if (countByDate !== null && maxPayments !== undefined && maxPayments > 0) {
+    return Math.min(countByDate, maxPayments);
+  } else if (countByDate !== null) {
+    return countByDate;
+  } else if (maxPayments !== undefined && maxPayments > 0) {
+    return maxPayments;
+  } else {
+    // Default to 1 year estimate
+    const paymentsPerYear: Record<PaymentFrequency, number> = {
+      daily: 365,
+      weekly: 52,
+      biweekly: 26,
+      monthly: 12,
+      quarterly: 4,
+      yearly: 1,
+    };
+    return paymentsPerYear[frequency];
+  }
+}
+
 const estimatedTotal = computed(() => {
   const amount = parseFloat(form.value.amount);
-  if (!amount || isNaN(amount)) return null;
+  if (!amount || isNaN(amount) || !form.value.startDate) return null;
 
-  const paymentsPerYear: Record<PaymentFrequency, number> = {
-    daily: 365,
-    weekly: 52,
-    biweekly: 26,
-    monthly: 12,
-    quarterly: 4,
-    yearly: 1,
-  };
+  const startDate = new Date(form.value.startDate);
+  const endDate = form.value.endDate ? new Date(form.value.endDate) : undefined;
+  const maxPayments = form.value.maxPayments ? parseInt(form.value.maxPayments) : undefined;
 
-  const count = paymentsPerYear[form.value.frequency];
-  const total = amount * count;
+  const paymentCount = calculatePaymentCount(
+    startDate,
+    endDate,
+    form.value.frequency,
+    maxPayments
+  );
+
+  const total = amount * paymentCount;
   return total.toFixed(6).replace(/\.?0+$/, '');
+});
+
+const estimatedTotalLabel = computed(() => {
+  if (!form.value.startDate) return 'Estimated total';
+
+  const endDate = form.value.endDate ? new Date(form.value.endDate) : undefined;
+  const maxPayments = form.value.maxPayments ? parseInt(form.value.maxPayments) : undefined;
+
+  if (endDate && maxPayments && maxPayments > 0) {
+    // Both constraints - determine which is limiting
+    const startDate = new Date(form.value.startDate);
+    const countByDate = calculatePaymentCount(startDate, endDate, form.value.frequency, undefined);
+    
+    if (maxPayments <= countByDate) {
+      return `Estimated total (${maxPayments} payment${maxPayments !== 1 ? 's' : ''})`;
+    } else {
+      return `Estimated total (until ${formatDate(form.value.endDate)})`;
+    }
+  } else if (endDate) {
+    return `Estimated total (until ${formatDate(form.value.endDate)})`;
+  } else if (maxPayments && maxPayments > 0) {
+    return `Estimated total (${maxPayments} payment${maxPayments !== 1 ? 's' : ''})`;
+  } else {
+    return 'Estimated total (1 year)';
+  }
 });
 
 const isFormValid = computed(() => {
@@ -375,7 +479,7 @@ defineExpose({
   align-items: center;
   justify-content: space-between;
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h2 {
@@ -445,11 +549,13 @@ defineExpose({
 .form-input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
   transition: all 0.2s;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .form-input:focus {
@@ -467,6 +573,23 @@ textarea.form-input {
   min-height: 60px;
 }
 
+/* Dark mode support for date and select inputs */
+.form-input[type="date"],
+.form-input[type="number"],
+select.form-input {
+  color-scheme: light dark;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: var(--icon-filter, none);
+  cursor: pointer;
+}
+
+/* Ensure select dropdown arrow is visible in dark mode */
+select.form-input {
+  background-image: none;
+}
+
 .input-with-button {
   display: flex;
   gap: 8px;
@@ -478,15 +601,15 @@ textarea.form-input {
 
 .input-btn {
   padding: 10px 16px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .input-btn:hover {
@@ -574,7 +697,7 @@ textarea.form-input {
   justify-content: flex-end;
   gap: 12px;
   padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn {

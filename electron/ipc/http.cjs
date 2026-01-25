@@ -83,7 +83,10 @@ async function httpGet(url, options = {}) {
     };
   } catch (e) {
     const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
-    if (!isTimeout) {
+    const isDnsError = e.cause && (e.cause.code === 'ENOTFOUND' || e.cause.code === 'EAI_AGAIN');
+    
+    // Only log non-timeout and non-DNS errors
+    if (!isTimeout && !isDnsError) {
       console.warn('[electron][http:get] error', e);
     }
     return {
@@ -131,7 +134,10 @@ async function httpGetBytes(url, options = {}) {
     };
   } catch (e) {
     const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
-    if (!isTimeout) {
+    const isDnsError = e.cause && (e.cause.code === 'ENOTFOUND' || e.cause.code === 'EAI_AGAIN');
+    
+    // Only log non-timeout and non-DNS errors
+    if (!isTimeout && !isDnsError) {
       console.warn('[electron][http:getBytes] error', e);
     }
     return {

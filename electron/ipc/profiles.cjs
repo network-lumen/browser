@@ -156,6 +156,68 @@ function hasKeystore(id) {
   }
 }
 
+/**
+ * Validates that a profile has a fully created wallet with all required components.
+ * @param {string} profileId - The profile ID to validate
+ * @param {object} profile - The profile object (optional, will be loaded if not provided)
+ * @returns {object} { ok: boolean, error?: string, details?: object }
+ */
+function isWalletFullyCreated(profileId, profile = null) {
+  try {
+    // Load profile if not provided
+    if (!profile) {
+      const { profiles } = loadProfilesFile();
+      profile = profiles.find(p => p.id === profileId);
+      if (!profile) {
+        return { ok: false, error: 'profile_not_found' };
+      }
+    }
+
+    // Guest profiles don't have wallets
+    if (profile.role === 'guest') {
+      return { ok: false, error: 'guest_profile_no_wallet' };
+    }
+
+    // Check if wallet address exists
+    const walletAddress = profile.walletAddress || profile.address;
+    if (!walletAddress || typeof walletAddress !== 'string' || !walletAddress.trim()) {
+      return { ok: false, error: 'wallet_address_missing' };
+    }
+
+    // Check if keystore exists
+    const ksPath = keystorePath(profileId);
+    if (!fs.existsSync(ksPath)) {
+      return { ok: false, error: 'keystore_missing' };
+    }
+
+    // Validate keystore has crypto data
+    try {
+      const ks = readJson(ksPath, null);
+      if (!ks || !ks.crypto) {
+        return { ok: false, error: 'keystore_invalid' };
+      }
+    } catch (e) {
+      return { ok: false, error: 'keystore_read_failed' };
+    }
+
+    // All checks passed
+    return { 
+      ok: true, 
+      details: {
+        hasAddress: true,
+        hasKeystore: true,
+        address: walletAddress
+      }
+    };
+  } catch (e) {
+    return { 
+      ok: false, 
+      error: 'validation_failed',
+      message: e?.message || String(e)
+    };
+  }
+}
+
 async function ensureWalletForProfile(profile) {
   const id = String(profile.id || '').trim();
   if (!id) {
@@ -672,6 +734,27 @@ ipcMain.handle('profiles:getFavourites', async () => {
     const p = profiles.find((x) => x.id === id);
     if (!p) return { ok: false, error: 'profile_not_found' };
 
+    // CRITICAL FIX: Validate wallet is fully created before allowing export
+    const walletValidation = isWalletFullyCreated(id, p);
+    if (!walletValidation.ok) {
+      console.log('[exportBackup] Wallet validation failed:', walletValidation.error);
+      
+      // Return user-friendly error messages
+      const errorMessages = {
+        'guest_profile_no_wallet': 'Guest profiles do not have wallets. Please create a user profile first.',
+        'wallet_address_missing': 'No wallet found. Please create a wallet before backing up.',
+        'keystore_missing': 'Wallet not fully created. Please complete wallet setup first.',
+        'keystore_invalid': 'Wallet data is corrupted. Please create a new wallet.',
+        'keystore_read_failed': 'Unable to read wallet data. Please try again.'
+      };
+      
+      return { 
+        ok: false, 
+        error: walletValidation.error,
+        message: errorMessages[walletValidation.error] || 'Wallet is not ready for backup.'
+      };
+    }
+
     // Check if we need password to decrypt the data first
     let needsDecryptPassword = false;
     let needsPqcPassword = false;
@@ -724,10 +807,29 @@ ipcMain.handle('profiles:getFavourites', async () => {
       const pqcDecryptFailed = !!(built && built.pqcDecryptFailed);
       if (!backup) return { ok: false, error: 'backup_failed' };
       
-      // Validate that mnemonic was extracted (if keystore exists)
+      // CRITICAL FIX: Validate that mnemonic was extracted (if keystore exists)
       const ksSrc = path.join(profileDir(p.id), 'keystore.json');
-      if (fs.existsSync(ksSrc) && !backup.mnemonic) {
-        return { ok: false, error: 'invalid_password' };
+      if (fs.existsSync(ksSrc)) {
+        if (!backup.mnemonic || typeof backup.mnemonic !== 'string' || !backup.mnemonic.trim()) {
+          console.log('[exportBackup] Mnemonic is null or empty after extraction');
+          return { 
+            ok: false, 
+            error: needsDecryptPassword ? 'invalid_password' : 'mnemonic_extraction_failed',
+            message: needsDecryptPassword 
+              ? 'Invalid password. Please try again.' 
+              : 'Failed to extract wallet mnemonic. Wallet may be corrupted.'
+          };
+        }
+      }
+
+      // CRITICAL FIX: Validate wallet address in backup
+      if (!backup.walletAddress || typeof backup.walletAddress !== 'string' || !backup.walletAddress.trim()) {
+        console.log('[exportBackup] Wallet address is null or empty in backup');
+        return { 
+          ok: false, 
+          error: 'wallet_address_missing_in_backup',
+          message: 'Wallet address is missing. Cannot create backup.'
+        };
       }
 
       // If PQC store is encrypted, fail hard on wrong password (otherwise we export a backup with no PQC key).
@@ -757,9 +859,11 @@ ipcMain.handle('profiles:getFavourites', async () => {
         fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
       }
 
+      console.log('[exportBackup] Backup created successfully:', backupPath);
       return { ok: true, path: backupPath };
     } catch (e) {
       const errMsg = String(e && e.message ? e.message : e);
+      console.error('[exportBackup] Export failed:', errMsg);
       if (errMsg.includes('Unsupported state') || errMsg.includes('bad decrypt') || errMsg.includes('authentication')) {
         return { ok: false, error: 'invalid_password' };
       }

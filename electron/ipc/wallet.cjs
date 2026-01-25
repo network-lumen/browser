@@ -842,9 +842,26 @@ function registerWalletIpc() {
         }
       }
     } catch (e) {
-      console.error('[wallet:sendTokens] error:', e);
-      console.error('[wallet:sendTokens] stack:', e && e.stack ? e.stack : 'no stack');
       const raw = String(e && e.message ? e.message : e);
+      
+      // Handle transaction indexing disabled error
+      if (raw.includes('transaction indexing is disabled')) {
+        console.warn('[wallet:sendTokens] Transaction indexing disabled on node - transaction may have succeeded but cannot be queried');
+        return { 
+          ok: false, 
+          error: 'indexing_disabled',
+          message: 'Transaction may have been broadcast but node indexing is disabled. Please check your balance after a few moments.'
+        };
+      }
+      
+      // Log error without stack trace for expected errors
+      console.error('[wallet:sendTokens] error:', e);
+      
+      // Only log stack trace for unexpected errors
+      if (!raw.includes('404') && !raw.includes('transaction indexing')) {
+        console.error('[wallet:sendTokens] stack:', e && e.stack ? e.stack : 'no stack');
+      }
+      
       return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
   });

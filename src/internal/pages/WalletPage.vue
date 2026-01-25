@@ -55,10 +55,6 @@
         </div>
 
         <div class="header-actions">
-          <button class="action-btn secondary" @click="refreshWallet">
-            <RefreshCw :size="16" />
-            <span>Refresh</span>
-          </button>
           <button class="action-btn primary" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
             <span>Connect Wallet</span>
@@ -181,13 +177,12 @@
               <select v-model="txFilterStatus" class="filter-select">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
-                <option value="pending">Pending</option>
                 <option value="failed">Failed</option>
               </select>
               <input
                 v-model="txSearchQuery"
                 type="text"
-                placeholder="Search hash or address..."
+                placeholder="Search by hash..."
                 class="search-input"
               />
             </div>
@@ -220,6 +215,12 @@
           </div>
           <h3>Unable to load transactions</h3>
           <p>{{ activitiesError }}</p>
+          <div class="info-banner warning" style="margin-top: 1rem; max-width: 500px;">
+            <span>
+              💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
+              Your balance is still accurate and transactions are recorded on-chain.
+            </span>
+          </div>
         </div>
 
         <div v-else-if="!activities.length" class="empty-state">
@@ -227,7 +228,31 @@
             <ArrowLeftRight :size="32" />
           </div>
           <h3>No recent transactions</h3>
-          <p>Any sends, receives, or domain operations will show up here.</p>
+          <p>Transaction history is not available because indexing is disabled on all RPC nodes.</p>
+          <div class="info-banner warning" style="margin-top: 1rem; max-width: 600px;">
+            <div style="margin-bottom: 0.75rem;">
+              <strong>💡 Why can't I see my transactions?</strong>
+            </div>
+            <div style="margin-bottom: 0.5rem;">
+              All Lumen Network RPC nodes currently have transaction indexing disabled. This means:
+            </div>
+            <ul style="margin: 0.5rem 0 0.75rem 1.5rem; text-align: left;">
+              <li>Your balance is still accurate and updated</li>
+              <li>All transactions are recorded on-chain</li>
+              <li>Transaction history cannot be queried via API</li>
+            </ul>
+            <div style="margin-top: 0.75rem;">
+              <strong>Alternative:</strong> Use a block explorer to view your transaction history:
+              <br>
+              <a 
+                :href="`https://explorer.lumen.network/account/${address}`" 
+                target="_blank" 
+                style="color: var(--accent-primary); text-decoration: underline; margin-top: 0.25rem; display: inline-block;"
+              >
+                View on Lumen Explorer →
+              </a>
+            </div>
+          </div>
         </div>
 
         <div v-else class="activities-list">
@@ -257,22 +282,40 @@
 
             <div class="col-amount">
               <span class="amount-value" :class="tx.type">
-                <template v-if="tx.amounts && tx.amounts.length">
-                  {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} LMN
+                <template v-if="tx.amounts && tx.amounts.length && tx.amounts[0].amount">
+                  {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount) / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} {{ formatDenom(tx.amounts[0].denom) }}
                 </template>
-                <template v-else>-</template>
+                <template v-else>
+                  <span class="text-muted">N/A</span>
+                </template>
               </span>
             </div>
 
             <div class="col-from">
-              <span class="address-value" :title="tx.from || address">
-                {{ (tx.from || address || '').slice(0, 8) }}…{{ (tx.from || address || '').slice(-6) }}
+              <span class="address-value" :title="tx.from || '-'">
+                <template v-if="tx.from && tx.from.length > 10">
+                  {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
+                </template>
+                <template v-else-if="tx.from">
+                  {{ tx.from }}
+                </template>
+                <template v-else>
+                  <span class="text-muted">-</span>
+                </template>
               </span>
             </div>
 
             <div class="col-to">
               <span class="address-value" :title="tx.to || '-'">
-                {{ tx.to ? tx.to.slice(0, 8) + '…' + tx.to.slice(-6) : '-' }}
+                <template v-if="tx.to && tx.to.length > 10">
+                  {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
+                </template>
+                <template v-else-if="tx.to">
+                  {{ tx.to }}
+                </template>
+                <template v-else>
+                  <span class="text-muted">-</span>
+                </template>
               </span>
             </div>
 
@@ -346,19 +389,19 @@
             <p class="contact-note" v-if="contact.note">{{ contact.note }}</p>
             <div class="contact-actions">
               <button class="contact-btn send" @click="sendToContact(contact)">
-                <Send :size="14" />
+                <Send :size="16" />
                 <span>Send</span>
               </button>
               <button class="contact-btn copy" @click="copyToClipboard(contact.address, 'Address copied!')">
-                <Copy :size="14" />
+                <Copy :size="16" />
                 <span>Copy</span>
               </button>
               <button class="contact-btn edit" @click="editContact(contact)">
-                <Edit :size="14" />
+                <Edit :size="16" />
                 <span>Edit</span>
               </button>
               <button class="contact-btn delete" @click="deleteContact(contact)">
-                <Trash2 :size="14" />
+                <Trash2 :size="16" />
                 <span>Delete</span>
               </button>
             </div>
@@ -626,6 +669,42 @@
       @scan="handleQrScan"
       :title="qrScannerTitle"
     />
+
+    <!-- Delete Confirmation Modal -->
+    <Transition name="fade">
+      <div v-if="showDeleteConfirmModal" class="modal-overlay" @click="cancelDeleteContact">
+        <div class="modal-content delete-confirm-modal" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title-wrapper">
+              <div class="modal-icon delete">
+                <Trash2 :size="20" />
+              </div>
+              <h3>Delete Contact</h3>
+            </div>
+            <button class="modal-close" @click="cancelDeleteContact">
+              <X :size="18" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="confirm-message">
+              Are you sure you want to delete <strong>{{ contactToDelete?.name }}</strong>?
+            </p>
+            <p class="confirm-submessage">
+              This action cannot be undone.
+            </p>
+            <div class="modal-actions">
+              <button class="btn-modal-secondary" @click="cancelDeleteContact">
+                Cancel
+              </button>
+              <button class="btn-modal-danger" @click="confirmDeleteContact">
+                <Trash2 :size="18" />
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -638,7 +717,6 @@ import {
   LayoutDashboard,
   Coins,
   ArrowLeftRight,
-  RefreshCw,
   Link,
   Send,
   Eye,
@@ -718,6 +796,8 @@ watch([address, showReceiveModal], async ([newAddress, isModalOpen]) => {
 const contacts = ref<any[]>([]);
 const contactsLoading = ref(false);
 const showContactModal = ref(false);
+const showDeleteConfirmModal = ref(false);
+const contactToDelete = ref<any>(null);
 const showContactPicker = ref(false);
 const editingContact = ref<any>(null);
 const savingContact = ref(false);
@@ -778,27 +858,37 @@ const enhancedActivities = computed(() => {
   if (!userAddr) return activities.value;
   
   let filtered = activities.value.map(tx => {
-    const fromAddr = tx.from || tx.sender;
-    const toAddr = tx.to || tx.recipient;
+    // Use from/to from backend data
+    const fromAddr = (tx.from || tx.sender || '').trim();
+    const toAddr = (tx.to || tx.recipient || '').trim();
     
     const from = fromAddr?.toLowerCase();
     const to = toAddr?.toLowerCase();
     
+    // Determine type based on user address
     let actualType: ActivityType = tx.type || 'unknown';
     
+    // Override type based on actual from/to addresses
     if (from && to) {
-      if (to === userAddr) {
+      if (from === userAddr && to !== userAddr) {
+        actualType = 'send';
+      } else if (to === userAddr && from !== userAddr) {
         actualType = 'receive';
-      } else if (from === userAddr) {
+      } else if (from === userAddr && to === userAddr) {
+        // Self-transfer
         actualType = 'send';
       }
+    } else if (from === userAddr) {
+      actualType = 'send';
+    } else if (to === userAddr) {
+      actualType = 'receive';
     }
     
     return { 
       ...tx, 
       type: actualType, 
-      from: fromAddr, 
-      to: toAddr 
+      from: fromAddr || undefined, 
+      to: toAddr || undefined 
     };
   });
 
@@ -817,14 +907,12 @@ const enhancedActivities = computed(() => {
     });
   }
 
-  // Apply search query
+  // Apply search query (hash only)
   if (txSearchQuery.value.trim()) {
     const query = txSearchQuery.value.toLowerCase().trim();
     filtered = filtered.filter(tx => {
       const hash = (tx.txhash || '').toLowerCase();
-      const from = (tx.from || '').toLowerCase();
-      const to = (tx.to || '').toLowerCase();
-      return hash.includes(query) || from.includes(query) || to.includes(query);
+      return hash.includes(query);
     });
   }
 
@@ -1208,6 +1296,20 @@ function formatLmnAmount(value: number): string {
   return fixed.replace(/\.?0+$/, '');
 }
 
+function formatDenom(denom: string): string {
+  // Convert micro denoms to display format
+  // ulmn -> LMN, ulumen -> LUMEN, etc.
+  if (!denom) return '';
+  const lower = denom.toLowerCase();
+  if (lower === 'ulmn') return 'LMN';
+  if (lower === 'ulumen') return 'LUMEN';
+  if (lower.startsWith('u')) {
+    // Generic micro denom: utoken -> TOKEN
+    return denom.slice(1).toUpperCase();
+  }
+  return denom.toUpperCase();
+}
+
 const sendSummary = computed(() => {
   const amount = Number(sendForm.value.amount || '0') || 0;
   const rate = tokenomicsTaxRate.value ?? 0;
@@ -1291,6 +1393,19 @@ async function confirmSendPreview() {
         showToast('Wallet locked. Unlock to continue.', 'warning');
         return;
       }
+      
+      // Handle indexing disabled error
+      if (err === 'indexing_disabled') {
+        showToast(res?.message || 'Transaction may have been sent but node indexing is disabled. Check your balance in a moment.', 'warning');
+        closeSendModal();
+        // Still try to refresh after a delay
+        setTimeout(async () => {
+          await refreshWallet();
+          await refreshActivities();
+        }, 3000);
+        return;
+      }
+      
       showToast(`Send failed: ${res?.error || 'unknown error'}`, 'error');
       return;
     }
@@ -1418,10 +1533,15 @@ async function saveContact() {
 }
 
 async function deleteContact(contact: any) {
-  if (!confirm(`Delete ${contact.name}?`)) return;
+  contactToDelete.value = contact;
+  showDeleteConfirmModal.value = true;
+}
+
+async function confirmDeleteContact() {
+  if (!contactToDelete.value) return;
   
   try {
-    const result = await (window as any).lumen.addressBook.delete(contact.id);
+    const result = await (window as any).lumen.addressBook.delete(contactToDelete.value.id);
     if (result.ok) {
       showToast('Contact deleted', 'success');
       await loadContacts();
@@ -1430,7 +1550,15 @@ async function deleteContact(contact: any) {
     }
   } catch (err: any) {
     showToast(err?.message || 'Failed to delete contact', 'error');
+  } finally {
+    showDeleteConfirmModal.value = false;
+    contactToDelete.value = null;
   }
+}
+
+function cancelDeleteContact() {
+  showDeleteConfirmModal.value = false;
+  contactToDelete.value = null;
 }
 
 function sendToContact(contact: any) {
@@ -1486,6 +1614,11 @@ function exportTransactions() {
 </script>
 
 <style scoped>
+.text-muted {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
 .sidebar {
   width: 260px;
   min-width: 260px;
@@ -1976,6 +2109,9 @@ function exportTransactions() {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .recurring-section {
@@ -2168,11 +2304,12 @@ function exportTransactions() {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
+  width: 100%;
 }
 
 .table-header {
   display: grid;
-  grid-template-columns: 100px 140px 200px 200px 200px 90px 140px;
+  grid-template-columns: 90px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
   gap: 1rem;
   padding: 0.875rem 1.25rem;
   background: var(--bg-secondary);
@@ -2182,11 +2319,13 @@ function exportTransactions() {
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .activity-row {
   display: grid;
-  grid-template-columns: 100px 140px 200px 200px 200px 90px 140px;
+  grid-template-columns: 90px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-light);
@@ -2433,6 +2572,21 @@ function exportTransactions() {
   font-size: 0.875rem;
   color: var(--text-primary, var(--accent-primary));
   line-height: 1.5;
+}
+
+.info-banner.warning {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: var(--text-primary);
+}
+
+.info-banner ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.info-banner li {
+  margin: 0.25rem 0;
 }
 
 .modal-desc {
@@ -2921,6 +3075,79 @@ function exportTransactions() {
 
 .contact-modal {
   max-width: 480px;
+}
+
+.delete-confirm-modal {
+  max-width: 420px;
+}
+
+.modal-icon.delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.confirm-message {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.confirm-submessage {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn-modal-secondary {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-modal-secondary:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent-primary);
+}
+
+.btn-modal-danger {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-modal-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
 }
 
 .form-textarea {

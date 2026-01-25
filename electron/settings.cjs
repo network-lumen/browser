@@ -3,15 +3,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DEFAULT_SETTINGS = Object.freeze({
-  localGatewayBase: 'http://127.0.0.1:8080',
+  localGatewayBase: 'http://127.0.0.1:8088',
   ipfsApiBase: 'http://127.0.0.1:5001',
-  // Content settings
   showSexualContent: false,
   showViolentContent: false,
   showDisturbingImagery: false,
-  // Security settings
   securityPasswordEnabled: false,
-  securityPasswordHash: null // { hash, salt, algorithm, params }
+  securityPasswordHash: null
 });
 
 let cached = null;

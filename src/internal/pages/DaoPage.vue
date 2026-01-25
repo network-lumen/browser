@@ -552,7 +552,7 @@ function formatTokens(tokens: string): string {
 }
 
 async function fetchProposals() {
-  if (!lumen?.http?.get) return;
+  if (!lumen?.net?.restGet) return;
   
   try {
     const res = await lumen.net.restGet(`/cosmos/gov/v1beta1/proposals`);
@@ -587,7 +587,7 @@ async function fetchProposals() {
 }
 
 async function fetchMembers() {
-  if (!lumen?.http?.get) return;
+  if (!lumen?.net?.restGet) return;
   
   try {
     const res = await lumen.net.restGet(
@@ -648,7 +648,7 @@ async function fetchKeybaseAvatars() {
 }
 
 async function fetchTreasury() {
-  if (!lumen?.http?.get) return;
+  if (!lumen?.net?.restGet) return;
   
   try {
     const res = await lumen.net.restGet(`/cosmos/distribution/v1beta1/community_pool`);

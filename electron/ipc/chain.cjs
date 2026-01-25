@@ -289,7 +289,9 @@ async function walletListSendTxs(input) {
       u1.searchParams.set('order_by', 'ORDER_BY_DESC');
       u1.searchParams.set('page', '1');
       u1.searchParams.set('limit', String(Math.min(100, Math.max(1, limit | 0))));
+      
       const res1 = await httpGet(u1.toString(), { timeout: 15000 });
+      
       if (res1 && res1.ok) {
         const data = res1.json || {};
         txs = Array.isArray(data.tx_responses) ? data.tx_responses : [];
@@ -300,23 +302,26 @@ async function walletListSendTxs(input) {
         u2.searchParams.set('order_by', 'ORDER_BY_DESC');
         u2.searchParams.set('page', '1');
         u2.searchParams.set('limit', String(Math.min(100, Math.max(1, limit | 0))));
+        
         const res2 = await httpGet(u2.toString(), { timeout: 15000 });
+        
         if (!res2 || !res2.ok) {
-          console.warn(
-            '[wallet] listSendTxs lcdTxSearch error',
-            entry.filter,
-            res1 && res1.status,
-            res2 && res2.status,
-            res1 && res1.error,
-            res2 && res2.error
-          );
+          // Suppress 404 (no transactions) and 500 (indexer issues) errors
+          if (res2 && res2.status !== 404 && res2.status !== 500) {
+            console.warn(
+              '[wallet] listSendTxs error',
+              entry.filter,
+              'status:',
+              res2.status
+            );
+          }
           continue;
         }
         const data2 = res2.json || {};
         txs = Array.isArray(data2.tx_responses) ? data2.tx_responses : [];
       }
     } catch (e) {
-      console.warn('[wallet] listSendTxs lcdTxSearch exception', entry.filter, e && e.message ? e.message : e);
+      // Silently continue on errors
       continue;
     }
 
@@ -355,27 +360,36 @@ async function walletListSendTxs(input) {
     let inDenom = '';
 
     const logs = Array.isArray(tx.logs) ? tx.logs : [];
+    
     for (const log of logs) {
       const events = Array.isArray(log && log.events ? log.events : []) ? log.events : [];
+      
       for (const ev of events) {
         if (!ev || ev.type !== 'transfer') continue;
         const attrs = Array.isArray(ev.attributes) ? ev.attributes : [];
+        
         let sender = '';
         let recipient = '';
         let amountRaw = '';
         for (const a of attrs) {
           const key = String(a && a.key ? a.key : '').toLowerCase();
           const val = String(a && a.value ? a.value : '');
+          
           if (key === 'sender') sender = val;
           else if (key === 'recipient') recipient = val;
           else if (key === 'amount') amountRaw = val;
         }
+        
         if (!amountRaw) continue;
         const first = String(amountRaw.split(',')[0] || '').trim();
         const m = first.match(/^(\d+)([a-zA-Z0-9/]+)$/);
         if (!m) continue;
         const amt = BigInt(m[1]);
         const denom = m[2];
+
+        // Always capture from/to addresses for display
+        if (!from && sender) from = sender;
+        if (!to && recipient) to = recipient;
 
         if (sender === address) {
           from = sender;
@@ -388,6 +402,54 @@ async function walletListSendTxs(input) {
           inAmount += amt;
           if (!inDenom) inDenom = denom;
         }
+      }
+    }
+
+    // Fallback: Try to extract from/to from tx body messages if not found in events
+    if ((!from || !to) && tx.tx && tx.tx.body) {
+      try {
+        const body = tx.tx.body;
+        const messages = Array.isArray(body.messages) ? body.messages : [];
+        
+        for (const msg of messages) {
+          if (!msg) continue;
+          
+          // MsgSend: /cosmos.bank.v1beta1.MsgSend
+          if (msg['@type'] === '/cosmos.bank.v1beta1.MsgSend' || msg.typeUrl === '/cosmos.bank.v1beta1.MsgSend') {
+            const fromAddr = msg.from_address || msg.fromAddress;
+            const toAddr = msg.to_address || msg.toAddress;
+            const amounts = Array.isArray(msg.amount) ? msg.amount : [];
+            
+            if (!from && fromAddr) from = String(fromAddr);
+            if (!to && toAddr) to = String(toAddr);
+            
+            // Extract amount if not already found
+            if (amounts.length > 0 && outAmount === 0n && inAmount === 0n) {
+              const coin = amounts[0];
+              const amt = BigInt(coin.amount || '0');
+              const denom = String(coin.denom || '');
+              
+              if (fromAddr === address) {
+                outAmount = amt;
+                outDenom = denom;
+              } else if (toAddr === address) {
+                inAmount = amt;
+                inDenom = denom;
+              }
+            }
+          }
+          
+          // Other message types
+          const fromAddr = msg.from_address || msg.fromAddress || msg.delegator_address || msg.delegatorAddress || msg.sender;
+          const toAddr = msg.to_address || msg.toAddress || msg.validator_address || msg.validatorAddress || msg.recipient;
+          
+          if (!from && fromAddr) from = String(fromAddr);
+          if (!to && toAddr) to = String(toAddr);
+          
+          if (from && to) break;
+        }
+      } catch (e) {
+        // Silently ignore fallback errors
       }
     }
 
@@ -411,8 +473,8 @@ async function walletListSendTxs(input) {
       timestamp,
       height,
       amounts,
-      from,
-      to,
+      from: from || undefined,
+      to: to || undefined,
       memo
     });
   }
