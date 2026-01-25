@@ -178,7 +178,8 @@ contextBridge.exposeInMainWorld('lumen', {
     listByOwnerDetailed: (owner) => ipcRenderer.invoke('dns:listByOwnerDetailed', owner),
     estimateRegisterPrice: (input) => ipcRenderer.invoke('dns:estimateRegisterPrice', input || {}),
     createDomain: (input) => ipcRenderer.invoke('dns:createDomain', input || {}),
-    updateDomain: (input) => ipcRenderer.invoke('dns:updateDomain', input || {})
+    updateDomain: (input) => ipcRenderer.invoke('dns:updateDomain', input || {}),
+    transferDomain: (input) => ipcRenderer.invoke('dns:transferDomain', input || {})
   },
   wallet: {
     getBalance: (address, opts) => ipcRenderer.invoke('wallet:getBalance', { address, ...(opts || {}) }),

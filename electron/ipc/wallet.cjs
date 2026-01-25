@@ -1178,6 +1178,144 @@ function registerWalletIpc() {
     }
   });
 
+  ipcMain.handle('dns:transferDomain', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const nameRaw =
+        (input && (input.fqdn || input.name)) ? (input.fqdn || input.name) : '';
+      const name = String(nameRaw || '').trim();
+      const owner = String(input && (input.owner || input.address) ? (input.owner || input.address) : '').trim();
+      const newOwner = String(input && (input.newOwner || input.to) ? (input.newOwner || input.to) : '').trim();
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!name) return { ok: false, error: 'missing_name' };
+      if (!owner) return { ok: false, error: 'missing_owner' };
+      if (!newOwner) return { ok: false, error: 'missing_newOwner' };
+
+      // Check password if security is enabled
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const ownerStr = String(owner || '');
+      const prefixMatch = ownerStr.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      let sender = owner;
+      try {
+        if (signer && typeof signer.getAccounts === 'function') {
+          const accounts = await signer.getAccounts();
+          const addr = String(accounts && accounts[0] && accounts[0].address ? accounts[0].address : '').trim();
+          if (addr) sender = addr;
+        }
+      } catch {
+        // ignore
+      }
+
+      if (owner && sender && owner !== sender) {
+        return { ok: false, error: 'this profile is not the domain owner', detail: { owner, sender } };
+      }
+
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: {
+          homeDir: resolvePqcHome()
+        }
+      });
+
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
+      try {
+        const dnsMod =
+          typeof client.dns === 'function' ? client.dns() : client.dns;
+        if (!dnsMod || typeof dnsMod.msgTransfer !== 'function') {
+          return { ok: false, error: 'dns_module_unavailable' };
+        }
+
+        let domain = '';
+        let ext = '';
+        const m = name.match(/^([^\.]+)\.([^\.]+)$/);
+        if (m) {
+          domain = m[1];
+          ext = m[2];
+        } else {
+          domain = name;
+          ext = 'lmn';
+        }
+
+        let msg = null;
+        try {
+          msg = await dnsMod.msgTransfer(sender, { domain, ext, to: newOwner });
+        } catch {
+          msg = null;
+        }
+        const needsFix = !msg || !msg.typeUrl || !msg.value || !('newOwner' in msg.value) || !msg.value.newOwner;
+        if (needsFix) {
+          msg = {
+            typeUrl: '/lumen.dns.v1.MsgTransfer',
+            value: { creator: sender, domain, ext, newOwner }
+          };
+        }
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '250000' }));
+
+        const memo = String((input && input.memo) || 'dns:transfer');
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: sender,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'dns_transferDomain',
+        });
+
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
+    }
+  });
+
   // Staking operations
   ipcMain.handle('wallet:delegate', async (_evt, input) => {
     try {
