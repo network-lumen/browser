@@ -2049,6 +2049,7 @@ function registerGatewayIpc() {
       console.log('[gateway] searchPq ok', {
         status,
         hits: Array.isArray(data?.hits) ? data.hits.length : undefined,
+        results: Array.isArray(data?.results) ? data.results.length : undefined,
       });
       return { ok: true, status, data, baseUrl: trimSlash(baseUrl) };
     } catch (e) {

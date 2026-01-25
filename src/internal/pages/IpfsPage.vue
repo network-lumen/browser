@@ -1,7 +1,7 @@
 <template>
-  <div class="ipfs-page">
+  <div class="ipfs-page" :class="{ 'ipfs-page--bare': isBareHtmlView }">
     <main class="main-content">
-      <header class="content-header">
+      <header v-if="!isBareHtmlView" class="content-header">
         <div class="header-actions">
           <button
             v-if="isDir && indexHtmlEntry"
@@ -146,7 +146,7 @@
           </div>
         </div>
 
-        <div v-else class="viewer">
+        <div v-else class="viewer" :class="{ 'viewer--bare': isBareHtmlView }">
           <img
             v-if="viewKind === 'image'"
             :src="contentUrl"
@@ -180,6 +180,7 @@
             ref="siteWebview"
             :src="contentUrl"
             class="embed"
+            :class="{ 'embed--bare': isBareHtmlView }"
             partition="persist:lumen"
             allowpopups
             :webpreferences="webprefs"
@@ -339,6 +340,7 @@ let hlsInstance: any = null;
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
 const pageActive = ref(false);
+const isBareHtmlView = ref(false);
 
 const rootCid = ref("");
 const relPath = ref("");
@@ -657,6 +659,20 @@ async function detectViaMagicBytes(
     const bytes = new Uint8Array(got.data);
     if (bytes.length < 12) return "unknown";
 
+    const magicKind = detectMagicKindFromBytes(bytes);
+    if (magicKind !== "unknown") return magicKind;
+
+    return "unknown";
+  } catch (err) {
+    console.warn("[ipfs-page] magic bytes detection failed:", err);
+    return "unknown";
+  }
+}
+
+function detectMagicKindFromBytes(bytes: Uint8Array): typeof viewKind.value {
+  try {
+    if (!bytes || bytes.length < 12) return "unknown";
+
     // EPUB: ZIP container that contains a `mimetype` entry with content "application/epub+zip".
     // When the `mimetype` entry is stored uncompressed, that string typically appears very early.
     if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
@@ -716,8 +732,7 @@ async function detectViaMagicBytes(
       return "pdf";
 
     return "unknown";
-  } catch (err) {
-    console.warn("[ipfs-page] magic bytes detection failed:", err);
+  } catch {
     return "unknown";
   }
 }
@@ -1137,6 +1152,46 @@ function onWebviewIpcMessage(ev: any) {
   else navigate?.(href, { push: true });
 }
 
+function isHtmlLikePath(pathValue: string): boolean {
+  const p = String(pathValue || "").toLowerCase();
+  return p.endsWith(".html") || p.endsWith(".htm") || p.endsWith(".xhtml");
+}
+
+async function precheckHtmlDocument(url: string): Promise<boolean> {
+  const target = String(url || "").trim();
+  if (!target) return false;
+  try {
+    const anyWin: any = window as any;
+    const httpHead = anyWin?.lumen?.httpHead;
+    let status = 0;
+    let ct = "";
+
+    if (typeof httpHead === "function") {
+      const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
+      status = Number(res?.status || 0);
+      const headers =
+        res && res.headers && typeof res.headers === "object" ? res.headers : {};
+      const headerKey = Object.keys(headers).find(
+        (k) => String(k || "").toLowerCase() === "content-type",
+      );
+      ct = headerKey ? String(headers[headerKey] || "") : "";
+    } else {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(target, { method: "HEAD", signal: controller.signal });
+      clearTimeout(t);
+      status = Number(res.status || 0);
+      ct = String(res.headers.get("content-type") || "");
+    }
+
+    if (status !== 200 && status !== 206) return false;
+    const lower = String(ct || "").toLowerCase();
+    return lower.includes("text/html") || lower.includes("application/xhtml+xml");
+  } catch {
+    return false;
+  }
+}
+
 async function load() {
   const url = String(currentTabUrl?.value || window.location.href || "");
   const parsed = parseIpfsUrl(url);
@@ -1184,6 +1239,7 @@ async function load() {
   entries.value = [];
   isDir.value = false;
   viewKind.value = "unknown";
+  isBareHtmlView.value = false;
   await ensureHlsStopped();
   textContent.value = "";
   mediaErrored.value = false;
@@ -1248,7 +1304,12 @@ async function load() {
           .catch(() => null);
         if (got?.ok && Array.isArray(got.data)) {
           const bytes = new Uint8Array(got.data);
-          if (bytes.byteLength > 2_000_000) {
+          const magicKind = detectMagicKindFromBytes(bytes);
+          if (magicKind !== "unknown" && magicKind !== "text") {
+            // Content-type can be wrong for extension-less CIDs. Avoid showing raw PDF binaries as text.
+            viewKind.value = magicKind;
+            textContent.value = "";
+          } else if (bytes.byteLength > 2_000_000) {
             viewKind.value = "unknown";
           } else {
             textContent.value = new TextDecoder("utf-8", {
@@ -1261,6 +1322,13 @@ async function load() {
       }
 
       if (viewKind.value === "html") {
+        // If this is a real HTML file, render it full-bleed (like domain sites) instead
+        // of inside the framed IPFS viewer.
+        if (!wantsDir.value && relPath.value && isHtmlLikePath(relPath.value)) {
+          const ok = await precheckHtmlDocument(contentUrl.value);
+          if (ok) isBareHtmlView.value = true;
+        }
+
         const gateways = await loadWhitelistedGatewayBases().catch(() => []);
         const got = await (window as any).lumen
           ?.ipfsGet?.(target, { gateways })
@@ -1618,6 +1686,15 @@ watch(
   width: 100%;
   height: 100%;
   background: var(--bg-primary);
+}
+
+.ipfs-page--bare {
+  background: var(--bg-tertiary);
+}
+
+.ipfs-page--bare .main-content {
+  padding: 0;
+  overflow: hidden;
 }
 
 .fade-enter-active,
@@ -1988,6 +2065,15 @@ watch(
   justify-content: center;
 }
 
+.viewer--bare {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
 .hls-error {
   position: absolute;
   left: 1rem;
@@ -2021,6 +2107,12 @@ watch(
   border-radius: 12px;
   border: 1px solid var(--border-color);
   background: var(--bg-primary);
+}
+
+.embed--bare {
+  height: 100%;
+  border: none;
+  border-radius: 0;
 }
 
 .text {

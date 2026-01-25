@@ -18,7 +18,7 @@
             class="search-btn"
             type="button"
             @click="submit"
-            :disabled="loading || !q.trim()"
+            :disabled="loading || (!q.trim() && selectedType !== 'site')"
           >
             Search
           </button>
@@ -31,8 +31,6 @@
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
-          :disabled="true"
-          title="Coming soon"
         >
           <Globe :size="16" />
           Sites
@@ -252,7 +250,7 @@
                 class="thumb"
                 :src="r.thumbUrl"
                 alt=""
-                @error="markThumbBroken(r.id)"
+                @error="onFaviconError(r)"
               />
               <component v-else :is="iconFor(r.kind, r.media)" :size="20" />
             </div>
@@ -262,15 +260,35 @@
                   {{ formatKind(r.kind, r.media) }}
                 </span>
               </div>
-              <div v-if="r.title" class="result-title">{{ r.title }}</div>
-              <div class="result-url mono">{{ r.url }}</div>
-              <div v-if="r.description" class="result-desc">
-                {{ r.description }}
+              <div
+                v-if="displayTitle(r)"
+                class="result-title"
+                :class="{ 'result-title--placeholder': isNoTitlePlaceholder(r) }"
+              >
+                {{ displayTitle(r) }}
+              </div>
+              <div v-if="shouldShowResultUrl(r)" class="result-url mono">{{ r.url }}</div>
+              <div
+                v-if="displayDescription(r)"
+                class="result-desc"
+                :class="{ 'result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
+                :title="displayDescription(r)"
+              >
+                {{ displayDescription(r) }}
               </div>
               <div v-if="r.badges?.length" class="badges">
-                <span v-for="b in r.badges" :key="b" class="badge">{{
-                  b
-                }}</span>
+                <span
+                  v-for="b in visibleBadges(r)"
+                  :key="`${r.id}:${b}`"
+                  class="badge"
+                  >{{ b }}</span
+                >
+                <span
+                  v-if="hiddenBadges(r).length"
+                  class="badge badge-more"
+                  :title="hiddenBadges(r).join(', ')"
+                  >+{{ hiddenBadges(r).length }}</span
+                >
               </div>
             </div>
             <span
@@ -459,6 +477,14 @@ type ResultItem = {
   thumbUrl?: string;
   media?: "image" | "video" | "audio" | "unknown";
   score?: number;
+  site?: {
+    domain?: string | null;
+    cid?: string | null;
+    entryCid?: string | null;
+    entryPath?: string | null;
+    wallet?: string | null;
+    owned?: boolean;
+  };
 };
 
 type GatewayView = {
@@ -799,6 +825,173 @@ function extractCidFromUrl(url: string): string | null {
   return null;
 }
 
+function parseLumenIpfsUrl(url: string): { cid: string; subpath: string } | null {
+  const raw = String(url || "").trim();
+  const m = raw.match(/^lumen:\/\/ipfs\/([^\/?#]+)(\/[^?#]*)?$/i);
+  if (!m) return null;
+  const cid = String(m[1] || "").trim();
+  const subpath = String(m[2] || "")
+    .replace(/^\/+/, "")
+    .trim();
+  if (!cid) return null;
+  return { cid, subpath };
+}
+
+function isHtmlFileName(name: string): boolean {
+  const n = String(name || "").trim().toLowerCase();
+  return n.endsWith(".html") || n.endsWith(".htm");
+}
+
+function pickBestHtmlAtLevel(entries: any[]): string | null {
+  const files = (Array.isArray(entries) ? entries : []).filter(
+    (e) => e && String(e.type || "") === "file" && String(e.name || ""),
+  );
+  if (!files.length) return null;
+
+  const names = files.map((e) => String(e.name || "")).filter(Boolean);
+  const index =
+    names.find((n) => n.toLowerCase() === "index.html") ||
+    names.find((n) => n.toLowerCase() === "index.htm") ||
+    null;
+  if (index) return index;
+
+  const anyHtml = names.find((n) => isHtmlFileName(n)) || null;
+  return anyHtml;
+}
+
+async function resolveHtmlEntryForCidRoot(
+  cid: string,
+): Promise<{ isDir: boolean; entryPath: string | null }> {
+  const api: any = (window as any).lumen || null;
+  if (!api || typeof api.ipfsLs !== "function") return { isDir: false, entryPath: null };
+
+  const root = String(cid || "").trim();
+  if (!root) return { isDir: false, entryPath: null };
+
+  const resRoot = await api.ipfsLs(root).catch(() => null);
+  const rootEntries = Array.isArray(resRoot?.entries) ? resRoot.entries : [];
+  const isDir = rootEntries.length > 0;
+  if (!isDir) return { isDir: false, entryPath: null };
+
+  const bestAtRoot = pickBestHtmlAtLevel(rootEntries);
+  if (bestAtRoot) return { isDir: true, entryPath: bestAtRoot };
+
+  const visited = new Set<string>();
+  const queue: Array<{ prefix: string; depth: number }> = [];
+
+  for (const e of rootEntries) {
+    if (!e || String(e.type || "") !== "dir") continue;
+    const name = String(e.name || "").trim();
+    if (!name) continue;
+    queue.push({ prefix: name, depth: 1 });
+    visited.add(name.toLowerCase());
+    if (queue.length >= 15) break;
+  }
+
+  const maxDepth = 2;
+  const maxDirs = 25;
+  let processedDirs = 0;
+
+  while (queue.length) {
+    const cur = queue.shift();
+    if (!cur) break;
+    processedDirs += 1;
+    if (processedDirs > maxDirs) break;
+
+    const resDir = await api.ipfsLs(`${root}/${cur.prefix}`).catch(() => null);
+    const dirEntries = Array.isArray(resDir?.entries) ? resDir.entries : [];
+    const best = pickBestHtmlAtLevel(dirEntries);
+    if (best) return { isDir: true, entryPath: `${cur.prefix}/${best}` };
+
+    if (cur.depth >= maxDepth) continue;
+
+    for (const e of dirEntries) {
+      if (!e || String(e.type || "") !== "dir") continue;
+      const name = String(e.name || "").trim();
+      if (!name) continue;
+      const nextPrefix = `${cur.prefix}/${name}`;
+      const key = nextPrefix.toLowerCase();
+      if (visited.has(key)) continue;
+      visited.add(key);
+      queue.push({ prefix: nextPrefix, depth: cur.depth + 1 });
+      if (queue.length >= 50) break;
+    }
+  }
+
+  return { isDir: true, entryPath: null };
+}
+
+async function enrichSiteResultsWithEntryPaths(
+  items: ResultItem[],
+  seq: number,
+): Promise<void> {
+  const list = Array.isArray(items) ? items : [];
+  if (!list.length) return;
+
+  const out: ResultItem[] = [];
+  for (const r of list) {
+    if (seq !== searchSeq) return;
+    if (!r || r.kind !== "site") continue;
+
+    // Domain sites are handled by SitePage (it already tries /index.html).
+    const domain = String(r.site?.domain || "").trim();
+    if (domain) {
+      out.push(r);
+      continue;
+    }
+
+    const parsed = parseLumenIpfsUrl(r.url);
+    if (!parsed) {
+      out.push(r);
+      continue;
+    }
+    if (parsed.subpath) {
+      out.push(r);
+      continue;
+    }
+
+    const cid = String(r.site?.entryCid || r.site?.cid || parsed.cid || "").trim();
+    if (!cid) {
+      out.push(r);
+      continue;
+    }
+
+    const resolved = await resolveHtmlEntryForCidRoot(cid);
+    if (seq !== searchSeq) return;
+
+    // Directory with no HTML => not a "site" result.
+    if (resolved.isDir && !resolved.entryPath) {
+      continue;
+    }
+
+    if (resolved.entryPath) {
+      const encoded = encodeUrlPath(resolved.entryPath);
+      const url = encoded ? `lumen://ipfs/${cid}/${encoded}` : `lumen://ipfs/${cid}`;
+      const faviconCid = String(r.site?.cid || cid).trim();
+      const thumbUrl =
+        r.thumbUrl ||
+        (faviconCid ? `${localIpfsGatewayBase()}/ipfs/${faviconCid}/favicon.ico` : undefined);
+      out.push({
+        ...r,
+        url,
+        thumbUrl,
+        site: {
+          ...(r.site || {}),
+          entryCid: cid,
+          entryPath: resolved.entryPath,
+        },
+      });
+      continue;
+    }
+
+    // Treat as a file CID (unknown), keep as-is.
+    out.push(r);
+  }
+
+  if (seq !== searchSeq) return;
+  results.value = out;
+}
+
 function isPinnedImage(result: ResultItem): boolean {
   const cid = extractCidFromUrl(result.url);
   return cid ? pinnedCids.value.includes(cid) : false;
@@ -958,6 +1151,76 @@ function formatKind(kind: ResultKind, media?: ResultItem["media"]): string {
   }
 }
 
+function isCidTitle(titleValue: any): boolean {
+  const t = String(titleValue || "").trim();
+  return /^cid\b/i.test(t);
+}
+
+function displayTitle(r: ResultItem): string | null {
+  if (!r) return null;
+  const title = String(r.title || "").trim();
+
+  if (r.kind === "site") {
+    if (title && !isCidTitle(title) && !/^\/ipfs\//i.test(title)) return title;
+    return "No title";
+  }
+
+  return title || null;
+}
+
+function isNoTitlePlaceholder(r: ResultItem): boolean {
+  if (!r) return false;
+  if (r.kind !== "site") return false;
+  const title = String(r.title || "").trim();
+  return !title || isCidTitle(title) || /^\/ipfs\//i.test(title);
+}
+
+function shouldShowResultUrl(r: ResultItem): boolean {
+  if (!r) return false;
+  const url = String(r.url || "").trim();
+  if (!url) return false;
+  // Sites tab: the URL line is redundant (clicking opens it), keep the list compact.
+  if (r.kind === "site") return false;
+  // Hide the raw lumen://ipfs/... line for "CID ..." results (it’s redundant/noisy in UI).
+  if (r.kind === "site" && isCidTitle(r.title)) return false;
+  return true;
+}
+
+function visibleBadges(r: ResultItem): string[] {
+  const list = Array.isArray(r?.badges) ? r.badges : [];
+  return list.slice(0, 5);
+}
+
+function hiddenBadges(r: ResultItem): string[] {
+  const list = Array.isArray(r?.badges) ? r.badges : [];
+  return list.slice(5);
+}
+
+function formatResultDescription(descValue: any): string {
+  const raw = String(descValue || "").replace(/\s+/g, " ").trim();
+  if (!raw) return "";
+  const max = 250;
+  if (raw.length <= max) return raw;
+  const clipped = raw.slice(0, max);
+  const lastSpace = clipped.lastIndexOf(" ");
+  const safe = lastSpace > 120 ? clipped.slice(0, lastSpace) : clipped;
+  return `${safe.trimEnd()}…`;
+}
+
+function displayDescription(r: ResultItem): string | null {
+  if (!r) return null;
+  const raw = String(r.description || "").trim();
+  if (raw) return formatResultDescription(raw);
+  if (r.kind === "site") return "No description available";
+  return null;
+}
+
+function isNoDescriptionPlaceholder(r: ResultItem): boolean {
+  if (!r) return false;
+  if (r.kind !== "site") return false;
+  return !String(r.description || "").trim();
+}
+
 function goto(url: string, opts?: { push?: boolean }) {
   if (navigate) {
     navigate(url, opts);
@@ -998,15 +1261,15 @@ function setType(t: SearchType) {
   if (t === "video") return;
   if (t === "") return;
   selectedType.value = t;
-  const s = q.value.trim();
-  if (!s) return;
   page.value = 1;
+  const s = q.value.trim();
+  if (!s && t !== "site") return;
   goto(makeSearchUrl(s, t, 1), { push: false });
 }
 
 function submit() {
   const s = q.value.trim();
-  if (!s) return;
+  if (!s && selectedType.value !== "site") return;
   touched.value = true;
   errorMsg.value = "";
   results.value = [];
@@ -1015,11 +1278,36 @@ function submit() {
   goto(makeSearchUrl(s, selectedType.value, 1), { push: true });
 }
 
-function openResult(r: ResultItem) {
+async function openResult(r: ResultItem) {
   const wantsNewTab =
     selectedType.value === "" ||
     selectedType.value === "image" ||
     (selectedType.value === "site" && r.kind === "site");
+
+  if (selectedType.value === "site" && r && r.kind === "site") {
+    const domain = String(r.site?.domain || "").trim();
+    const parsed = parseLumenIpfsUrl(r.url);
+    if (!domain && parsed && !parsed.subpath) {
+      const cid = String(r.site?.entryCid || r.site?.cid || parsed.cid || "").trim();
+      if (cid) {
+        const resolved = await resolveHtmlEntryForCidRoot(cid);
+        if (resolved.isDir && resolved.entryPath) {
+          const encoded = encodeUrlPath(resolved.entryPath);
+          const nextUrl = encoded ? `lumen://ipfs/${cid}/${encoded}` : `lumen://ipfs/${cid}`;
+          if (wantsNewTab) {
+            if (openInNewTab) openInNewTab(nextUrl);
+            else goto(nextUrl, { push: true });
+          } else {
+            goto(nextUrl, { push: true });
+          }
+          return;
+        }
+        if (resolved.isDir && !resolved.entryPath) {
+          toast.error("No HTML/HTM page found in this CID");
+        }
+      }
+    }
+  }
 
   if (wantsNewTab) {
     if (openInNewTab) openInNewTab(r.url);
@@ -1031,12 +1319,58 @@ function openResult(r: ResultItem) {
 }
 
 const brokenThumbs = ref<Record<string, true>>({});
+const faviconFallbackById = ref<Record<string, number>>({});
 
 function markThumbBroken(id: string) {
   const key = String(id || "").trim();
   if (!key) return;
   if (brokenThumbs.value[key]) return;
   brokenThumbs.value = { ...brokenThumbs.value, [key]: true };
+}
+
+function cidForFavicon(r: ResultItem): string | null {
+  const cid = String(r?.site?.cid || "").trim();
+  if (cid) return cid;
+  const entryCid = String(r?.site?.entryCid || "").trim();
+  if (entryCid) return entryCid;
+  return null;
+}
+
+function tryNextFavicon(r: ResultItem): boolean {
+  if (!r || r.kind !== "site") return false;
+  const cid = cidForFavicon(r);
+  if (!cid) return false;
+
+  const seq = [
+    "favicon.ico",
+    "favicon",
+    "favicon.png",
+    "favicon.svg",
+    "favicon.jpg",
+    "favicon.jpeg",
+  ];
+
+  const cur = String(r.thumbUrl || "").trim();
+  const currentIdx = Number(faviconFallbackById.value[r.id] ?? 0);
+  let nextIdx = currentIdx;
+
+  // If the current URL doesn't match the expected attempt, try to sync.
+  if (cur) {
+    const matched = seq.findIndex((s) => cur.toLowerCase().endsWith(`/${s}`));
+    if (matched >= 0) nextIdx = matched;
+  }
+
+  nextIdx += 1;
+  if (nextIdx >= seq.length) return false;
+
+  faviconFallbackById.value = { ...faviconFallbackById.value, [r.id]: nextIdx };
+  r.thumbUrl = `${localIpfsGatewayBase()}/ipfs/${cid}/${seq[nextIdx]}`;
+  return true;
+}
+
+function onFaviconError(r: ResultItem) {
+  if (tryNextFavicon(r)) return;
+  markThumbBroken(r.id);
 }
 
 function isCidLike(v: string): boolean {
@@ -1322,9 +1656,14 @@ type GatewaySiteSearchResult = {
   domain?: string;
   rootDomain?: string;
   cid?: string;
+  entry_cid?: string;
+  entry_path?: string;
   wallet?: string;
   score?: number;
   tags?: any;
+  owned?: boolean;
+  title?: string;
+  snippet?: string;
 };
 
 function safePathSuffix(pathValue: any): string {
@@ -1332,6 +1671,52 @@ function safePathSuffix(pathValue: any): string {
   if (!p) return "";
   if (p.startsWith("/")) return p;
   return `/${p}`;
+}
+
+function encodeUrlPath(pathValue: any): string {
+  const raw = String(pathValue ?? "").trim();
+  if (!raw) return "";
+  const withoutLeading = raw.startsWith("/") ? raw.slice(1) : raw;
+  if (!withoutLeading) return "";
+  return withoutLeading
+    .split("/")
+    .filter((seg) => seg.length > 0)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+}
+
+function safeEncodedPathSuffix(pathValue: any): string {
+  const encoded = encodeUrlPath(pathValue);
+  return encoded ? `/${encoded}` : "";
+}
+
+function lumenUrlHostAndRest(url: string): { host: string; rest: string } | null {
+  const raw = String(url || "").trim();
+  if (!/^lumen:\/\//i.test(raw)) return null;
+  const without = raw.slice("lumen://".length);
+  const idx = without.indexOf("/");
+  if (idx === -1) return null;
+  const host = (without.slice(0, idx) || "").trim().toLowerCase();
+  const rest = (without.slice(idx + 1) || "").trim();
+  if (!host) return null;
+  return { host, rest };
+}
+
+function lumenUrlHasEntryPath(url: string): boolean {
+  const parsed = lumenUrlHostAndRest(url);
+  if (!parsed) return false;
+
+  const parts = parsed.rest
+    .split("/")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (parsed.host === "ipfs" || parsed.host === "ipns") {
+    // `lumen://ipfs/<cid>` has no "entry path"; `lumen://ipfs/<cid>/<path>` does.
+    return parts.length > 1;
+  }
+
+  return parts.length > 0;
 }
 
 function mapGatewayHitToResult(
@@ -1455,18 +1840,20 @@ function domainKeyFromUrl(url: string): string | null {
   const without = raw.slice("lumen://".length);
   const host = (without.split(/[\/?#]/, 1)[0] || "").trim().toLowerCase();
   if (!host || host === "search") return null;
+  // Non-site routes (CID navigation, explorer, etc.)
+  if (host === "ipfs" || host === "ipns" || host === "explorer") return null;
   return host;
 }
 
 function canDebugResult(r: ResultItem): boolean {
   if (!r || r.kind !== "site") return false;
-  const domain = domainKeyFromUrl(r.url);
+  const domain = (r.site?.domain || domainKeyFromUrl(r.url) || "").trim().toLowerCase();
   if (!domain) return false;
   return !!debugByDomain.value[domain];
 }
 
 function openDebugForResult(r: ResultItem) {
-  const domain = domainKeyFromUrl(r.url);
+  const domain = (r.site?.domain || domainKeyFromUrl(r.url) || "").trim().toLowerCase();
   const payload = domain ? debugByDomain.value[domain] : null;
   debugTitle.value = domain || r.url || r.id;
   try {
@@ -1522,10 +1909,13 @@ function mergeBadges(a: string[] = [], b: string[] = [], limit = 20): string[] {
 }
 
 function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
-  const byDomain = new Map<
+  const byKey = new Map<
     string,
     {
-      domain: string;
+      key: string;
+      domain: string | null;
+      cid: string | null;
+      owned: boolean;
       result: ResultItem;
       gwScore: number;
     }
@@ -1533,19 +1923,44 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
 
   for (const r of items) {
     if (!r || r.kind !== "site") continue;
-    const domain = domainKeyFromUrl(r.url);
-    if (!domain) continue;
+
+    const domain = String(r.site?.domain || domainKeyFromUrl(r.url) || "")
+      .trim()
+      .toLowerCase();
+    const cid = String(r.site?.cid || "").trim();
+    const key = domain ? `d:${domain}` : cid ? `c:${cid}` : "";
+    if (!key) continue;
 
     const gwScore = Number.isFinite(Number(r.score)) ? Number(r.score) : 0;
-    const existing = byDomain.get(domain);
+    const owned = !!(r.site?.owned || r.site?.wallet);
+
+    const existing = byKey.get(key);
     if (!existing) {
-      byDomain.set(domain, {
-        domain,
+      const title =
+        r.title ||
+        (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
+      const url =
+        String(r.url || "").trim() ||
+        (domain ? `lumen://${domain}` : cid ? `lumen://ipfs/${cid}` : "");
+
+      byKey.set(key, {
+        key,
+        domain: domain || null,
+        cid: cid || null,
+        owned,
         result: {
           ...r,
-          title: r.title || domain,
-          url: r.url || `lumen://${domain}`,
+          title,
+          url,
           badges: Array.isArray(r.badges) ? r.badges.slice(0, 20) : [],
+          site: {
+            domain: domain || null,
+            cid: cid || null,
+            entryCid: r.site?.entryCid || null,
+            entryPath: r.site?.entryPath || null,
+            wallet: r.site?.wallet || null,
+            owned,
+          },
         },
         gwScore,
       });
@@ -1553,28 +1968,80 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
     }
 
     existing.gwScore = Math.max(existing.gwScore, gwScore);
+    existing.owned = existing.owned || owned;
     existing.result.thumbUrl = existing.result.thumbUrl || r.thumbUrl;
     existing.result.badges = mergeBadges(
       existing.result.badges || [],
       r.badges || [],
       20,
     );
+    existing.result.description = existing.result.description || r.description;
+
+    const nextDomain = existing.domain || domain || null;
+    const nextCid = existing.cid || cid || null;
+    const nextWallet = existing.result.site?.wallet || r.site?.wallet || null;
+    const nextEntryCid = existing.result.site?.entryCid || r.site?.entryCid || null;
+    const nextEntryPath = existing.result.site?.entryPath || r.site?.entryPath || null;
+
+    existing.domain = nextDomain;
+    existing.cid = nextCid;
+    existing.result.site = {
+      domain: nextDomain,
+      cid: nextCid,
+      entryCid: nextEntryCid,
+      entryPath: nextEntryPath,
+      wallet: nextWallet,
+      owned: existing.owned,
+    };
+
+    const incomingUrl = String(r.url || "").trim();
+    if (
+      !lumenUrlHasEntryPath(existing.result.url) &&
+      incomingUrl &&
+      lumenUrlHasEntryPath(incomingUrl)
+    ) {
+      existing.result.url = incomingUrl;
+    } else if (!existing.result.url && incomingUrl) {
+      existing.result.url = incomingUrl;
+    }
+
+    // Only normalize to a domain/CID URL if we don't already have a concrete entry path.
+    if (!lumenUrlHasEntryPath(existing.result.url)) {
+      if (nextDomain) {
+        existing.result.url = `lumen://${nextDomain}`;
+        if (!existing.result.title) existing.result.title = nextDomain;
+      } else if (nextCid) {
+        existing.result.url = `lumen://ipfs/${nextCid}`;
+        if (!existing.result.title) existing.result.title = `CID ${nextCid.slice(0, 8)}…`;
+      }
+    }
   }
 
-  const merged = Array.from(byDomain.values()).map((x) => {
-    const dnsScore = clamp01(scoreDomainMatch(query, x.domain));
-    const exactBoost = isExactDomainMatch(query, x.domain) ? 0.2 : 0;
+  const merged = Array.from(byKey.values()).map((x) => {
+    const dnsScore = x.domain ? clamp01(scoreDomainMatch(query, x.domain)) : 0;
+    const exactBoost = x.domain && isExactDomainMatch(query, x.domain) ? 0.2 : 0;
     const finalScore = clamp01(0.75 * x.gwScore + 0.25 * dnsScore + exactBoost);
     x.result.score = finalScore;
+    x.result.site = {
+      ...(x.result.site || {}),
+      owned: x.owned,
+      domain: x.domain,
+      cid: x.cid,
+      wallet: x.result.site?.wallet || null,
+    };
     return x.result;
   });
 
   merged.sort((a, b) => {
-    const da = domainKeyFromUrl(a.url) || "";
-    const db = domainKeyFromUrl(b.url) || "";
-    const aExact = isExactDomainMatch(query, da) ? 1 : 0;
-    const bExact = isExactDomainMatch(query, db) ? 1 : 0;
+    const da = (a.site?.domain || domainKeyFromUrl(a.url) || "").trim().toLowerCase();
+    const db = (b.site?.domain || domainKeyFromUrl(b.url) || "").trim().toLowerCase();
+    const aExact = da ? (isExactDomainMatch(query, da) ? 1 : 0) : 0;
+    const bExact = db ? (isExactDomainMatch(query, db) ? 1 : 0) : 0;
     if (aExact !== bExact) return bExact - aExact;
+
+    const ao = a.site?.owned ? 1 : 0;
+    const bo = b.site?.owned ? 1 : 0;
+    if (ao !== bo) return bo - ao;
 
     const as = Number.isFinite(Number(a.score)) ? Number(a.score) : 0;
     const bs = Number.isFinite(Number(b.score)) ? Number(b.score) : 0;
@@ -1584,7 +2051,9 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
     const bt = (b.badges || []).length;
     if (bt !== at) return bt - at;
 
-    return da.localeCompare(db);
+    const ak = da || (a.site?.cid ? `cid:${a.site.cid}` : a.url);
+    const bk = db || (b.site?.cid ? `cid:${b.site.cid}` : b.url);
+    return ak.localeCompare(bk);
   });
 
   return merged;
@@ -1626,7 +2095,9 @@ async function searchGateways(
   const fetchLimit =
     wantedType === "image"
       ? Math.min(Math.max(end * 4, 50), 300)
-      : Math.min(end, 50);
+      : wantedType === "site"
+        ? Math.min(Math.max(end * 3, 50), 200)
+        : Math.min(end, 50);
   const tasks = list.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
       .searchPq({
@@ -1649,49 +2120,92 @@ async function searchGateways(
       ? data.results
       : [];
     const rawCountSite = siteResults.length;
+
     const sites = siteResults.filter((s) => {
       const t = String(s?.type || "").trim().toLowerCase();
       const domain = String(s?.domain || "").trim();
-      return t === "site" && !!domain;
+      const cid = String(s?.cid || "").trim();
+      return t === "site" && (!!domain || !!cid);
     });
 
     if (wantedType === "site" && sites.length > 0) {
       for (const s of sites) {
-        const domain = String(s.domain || "").trim();
-        if (!domain) continue;
+        const domainRaw = String(s.domain || "").trim();
+        const domain = domainRaw ? domainRaw.toLowerCase() : "";
         const cid = String(s?.cid || "").trim();
-        const tags = extractSiteTags(s);
+        const entryCidRaw = String(s?.entry_cid || "").trim();
+        const entryCid = entryCidRaw || cid;
+        const entryPath = String(s?.entry_path || "").trim();
+        const entrySuffix = safeEncodedPathSuffix(entryPath);
+        const wallet = String(s?.wallet || "").trim();
+        const owned = !!wallet || !!s.owned;
 
-        const id = `site:${g.id}:${domain}`;
+        const tags = extractSiteTags(s);
+        const badges = [
+          ...(owned ? ["Owned"] : []),
+          ...(tags.length ? tags.slice(0, 20) : []),
+        ];
+
+        const title =
+          String(s.title || "").trim() ||
+          (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
+        const snippet = String(s.snippet || "").trim();
+
+        let url = "";
+        if (domain && (!entryCidRaw || entryCid === cid)) {
+          url = `lumen://${domain}${entrySuffix}`;
+        } else if (entryCid) {
+          url = `lumen://ipfs/${entryCid}${entrySuffix}`;
+        } else if (domain) {
+          url = `lumen://${domain}${entrySuffix}`;
+        }
+        if (!url) continue;
+
+        const id = `site:${g.id}:${domain || cid}`;
         out.push({
           id,
-          title: domain,
-          url: `lumen://${domain}`,
+          title,
+          url,
           kind: "site",
-          badges: tags.length ? tags.slice(0, 20) : [],
-          thumbUrl: cid ? faviconUrlForCid(cid) || undefined : undefined,
+          description: snippet || (domain && cid ? `CID ${cid}` : undefined),
+          badges,
+          thumbUrl: cid
+            ? faviconUrlForCid(cid) || undefined
+            : entryCid
+              ? faviconUrlForCid(entryCid) || undefined
+              : undefined,
           score: Number.isFinite(Number(s?.score)) ? Number(s.score) : 0,
+          site: {
+            domain: domain || null,
+            cid: cid || null,
+            entryCid: entryCid || null,
+            entryPath: entryPath || null,
+            wallet: wallet || null,
+            owned,
+          },
         });
 
-        const key = domain.toLowerCase();
-        const prev = debugByDomain.value[key] || { domain: key, sources: [] };
-        const next = {
-          ...prev,
-          sources: [
-            ...(Array.isArray(prev.sources) ? prev.sources : []),
-            {
-              source: "gateway",
-              gateway: { id: g.id, endpoint: g.endpoint, regions: g.regions },
-              response: {
-                ok: true,
-                status: resp?.status,
-                baseUrl: resp?.baseUrl,
+        if (domain) {
+          const key = domain.toLowerCase();
+          const prev = debugByDomain.value[key] || { domain: key, sources: [] };
+          const next = {
+            ...prev,
+            sources: [
+              ...(Array.isArray(prev.sources) ? prev.sources : []),
+              {
+                source: "gateway",
+                gateway: { id: g.id, endpoint: g.endpoint, regions: g.regions },
+                response: {
+                  ok: true,
+                  status: resp?.status,
+                  baseUrl: resp?.baseUrl,
+                },
+                site: s,
               },
-              site: s,
-            },
-          ],
-        };
-        debugByDomain.value = { ...debugByDomain.value, [key]: next };
+            ],
+          };
+          debugByDomain.value = { ...debugByDomain.value, [key]: next };
+        }
       }
       return { items: out, rawCount: rawCountSite };
     }
@@ -1714,6 +2228,10 @@ async function searchGateways(
   if (seq !== searchSeq) return { items: [], maybeHasMore: false };
 
   const flat = lists.flatMap((l) => l.items);
+  if (wantedType === "site") {
+    const maybeHasMore = lists.some((l) => l.rawCount >= fetchLimit);
+    return { items: flat, maybeHasMore };
+  }
 
   const seen = new Set<string>();
   const unique: ResultItem[] = [];
@@ -1862,7 +2380,7 @@ function prevPage() {
 
 const showPager = computed(() => {
   if (!touched.value) return false;
-  if (!activeQuery.value.trim()) return false;
+  if (!activeQuery.value.trim() && activeType.value !== "site") return false;
   return page.value > 1 || gatewayHasMore.value;
 });
 
@@ -1923,7 +2441,8 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   const clean = String(query || "").trim();
   const safePage = clampPage(pageParam);
   const runKey = `${type}::${clean}::page=${safePage}`;
-  if (!clean) {
+  const allowEmptyQuery = type === "site";
+  if (!clean && !allowEmptyQuery) {
     touched.value = false;
     loading.value = false;
     errorMsg.value = "";
@@ -1948,7 +2467,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      safePage === 1 && (type === "site" || type === "")
+      safePage === 1 && clean && (type === "site" || type === "")
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
     const gatewayPromise = searchGateways(profileId || "", clean, type, seq, {
@@ -1997,8 +2516,15 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
         title: bestDomain.name,
         url,
         thumbUrl: favicon || undefined,
+        description: bestDomain.cid ? `CID ${bestDomain.cid}` : undefined,
         badges: domainTags.length ? domainTags.slice(0, 20) : [],
         kind: "site",
+        site: {
+          domain: bestDomain.name.toLowerCase(),
+          cid: bestDomain.cid || null,
+          wallet: null,
+          owned: true,
+        },
       });
 
       const key = String(bestDomain.name || "").trim().toLowerCase();
@@ -2031,12 +2557,26 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       });
     }
 
+    if (safePage === 1 && !profileId && type === "site") {
+      base.push({
+        id: `hint:profile`,
+        title: "Create a profile to enable gateway site search",
+        url: "lumen://home",
+        description: "Gateway site search requires a profile (wallet + signer).",
+        kind: "link",
+      });
+    }
+
     const merged = [...base, ...gwResults];
 
     if (type === "site") {
-      const sites = mergeAndRankSites(clean, merged);
-      const nonSites = merged.filter((r) => r.kind !== "site");
-      results.value = [...sites, ...nonSites];
+      const sitesAll = mergeAndRankSites(clean, merged);
+      const start = (safePage - 1) * gatewayPageSize;
+      const end = start + gatewayPageSize;
+      const sites = sitesAll.slice(start, end);
+      results.value = sites;
+      void enrichSiteResultsWithEntryPaths(sites, seq);
+      gatewayHasMore.value = sitesAll.length > end || gw.maybeHasMore;
     } else {
       results.value = merged;
     }
@@ -2828,6 +3368,14 @@ const imageResults = computed(() =>
   transition: color 0.2s ease;
 }
 
+.result-title--placeholder {
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.65;
+  letter-spacing: 0;
+}
+
 .result-card:hover .result-title {
   color: var(--accent-primary);
 }
@@ -2858,6 +3406,12 @@ const imageResults = computed(() =>
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.result-desc--placeholder {
+  font-size: 0.75rem;
+  font-style: italic;
+  opacity: 0.6;
 }
 
 .result-open {
@@ -2913,6 +3467,10 @@ const imageResults = computed(() =>
   color: var(--accent-primary);
   border: 1px solid var(--primary-a20);
   transition: all 0.2s ease;
+}
+
+.badge-more {
+  opacity: 0.85;
 }
 
 .result-card:hover .badge {
