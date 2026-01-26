@@ -1045,6 +1045,13 @@ function onSiteMessage(evt: MessageEvent) {
 function toLumenFromWebHref(raw: string): string | null {
   const href = String(raw || "").trim();
   if (!href) return null;
+
+  const normalizeDirRest = (rest: string): string => {
+    const r = String(rest || "");
+    if (!r || r === "/") return "";
+    return r.endsWith("/") ? r.slice(0, -1) : r;
+  };
+
   try {
     const u = new URL(href);
     const pathname = String(u.pathname || "");
@@ -1057,7 +1064,7 @@ function toLumenFromWebHref(raw: string): string | null {
       if (mHost && mHost[1] && mHost[2]) {
         const id = mHost[1] || "";
         const kind = String(mHost[2] || "").toLowerCase();
-        const rest = pathname || "/";
+        const rest = normalizeDirRest(pathname || "/");
         if (kind === "ipfs") return `lumen://ipfs/${id}${rest}${u.search || ""}${u.hash || ""}`;
         if (kind === "ipns") return `lumen://ipns/${id}${rest}${u.search || ""}${u.hash || ""}`;
       }
@@ -1065,13 +1072,13 @@ function toLumenFromWebHref(raw: string): string | null {
     let m = pathname.match(/^\/ipfs\/([^/]+)(\/.*)?$/i);
     if (m) {
       const cid = m[1] || "";
-      const rest = m[2] || "";
+      const rest = normalizeDirRest(m[2] || "");
       return `lumen://ipfs/${cid}${rest}${u.search || ""}${u.hash || ""}`;
     }
     m = pathname.match(/^\/ipns\/([^/]+)(\/.*)?$/i);
     if (m) {
       const name = m[1] || "";
-      const rest = m[2] || "";
+      const rest = normalizeDirRest(m[2] || "");
       return `lumen://ipns/${name}${rest}${u.search || ""}${u.hash || ""}`;
     }
     return null;
@@ -1283,6 +1290,24 @@ async function load() {
     );
     entries.value = mapped;
     isDir.value = wantsDir.value || mapped.length > 0;
+
+    // Web-like behavior: if navigating to a directory path without an explicit trailing slash,
+    // auto-open `index.html` / `index.htm` when present.
+    if (!wantsDir.value && isDir.value && navigate) {
+      const idx =
+        mapped.find((e) => e.type === "file" && String(e.name).toLowerCase() === "index.html") ||
+        mapped.find((e) => e.type === "file" && String(e.name).toLowerCase() === "index.htm") ||
+        null;
+
+      if (idx) {
+        const next = `lumen://ipfs/${rootCid.value}/${encodePath(idx.relPath)}${suffix.value || ""}`;
+        const cur = String(currentTabUrl?.value || "").trim();
+        if (cur !== next) {
+          navigate(next, { push: false });
+          return;
+        }
+      }
+    }
 
     if (!isDir.value) {
       resolvedGatewayBase.value = await pickGatewayBaseForCurrentTarget();
