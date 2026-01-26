@@ -20,7 +20,7 @@
             @click="submit"
             :disabled="
               loading ||
-              (!q.trim() && selectedType !== 'site' && selectedType !== 'image')
+              (!q.trim() && selectedType !== 'site' && selectedType !== 'image' && selectedType !== 'all')
             "
           >
             Search
@@ -61,10 +61,8 @@
         <button
           class="pill"
           type="button"
-          :class="{ active: selectedType === '' }"
-          @click="setType('')"
-          :disabled="true"
-          title="Disabled"
+          :class="{ active: selectedType === 'all' }"
+          @click="setType('all')"
         >
           <Compass :size="16" />
           Explore everything
@@ -110,6 +108,9 @@
             </template>
             <template v-else-if="selectedType === 'image'">
               We couldn't find any images yet.
+            </template>
+            <template v-else-if="selectedType === 'all'">
+              We couldn't find any content yet.
             </template>
             <template v-else>
               We couldn't find anything.
@@ -224,7 +225,11 @@
         <li v-for="r in results" :key="r.id" class="result-item">
           <button 
             class="result-card" 
-            :class="[`result-${r.kind}`, r.media ? `media-${r.media}` : '']"
+            :class="[
+              `result-${r.kind}`,
+              r.media ? `media-${r.media}` : '',
+              r.fileKind ? `file-${r.fileKind}` : ''
+            ]"
             type="button" 
             @click="openResult(r)"
           >
@@ -261,12 +266,16 @@
                 alt=""
                 @error="onFaviconError(r)"
               />
-              <component v-else :is="iconFor(r.kind, r.media)" :size="20" />
+              <component v-else :is="iconFor(r)" :size="20" />
             </div>
             <div class="result-body">
               <div class="result-header">
-                <span v-if="r.kind !== 'site'" class="result-type-badge" :class="`type-${r.kind}`">
-                  {{ formatKind(r.kind, r.media) }}
+                <span
+                  v-if="r.kind !== 'site'"
+                  class="result-type-badge"
+                  :class="typeBadgeClass(r)"
+                >
+                  {{ typeBadgeLabel(r) }}
                 </span>
               </div>
               <div
@@ -440,7 +449,7 @@ import {
 
 const toast = useToast();
 
-type SearchType = "site" | "video" | "image" | "";
+type SearchType = "site" | "video" | "image" | "all";
 type ResultKind = "site" | "ipfs" | "tx" | "block" | "address" | "link";
 type ResultItem = {
   id: string;
@@ -451,6 +460,7 @@ type ResultItem = {
   badges?: string[];
   thumbUrl?: string;
   media?: "image" | "video" | "audio" | "unknown";
+  fileKind?: "image" | "pdf" | "html" | "txt" | "epub" | "docx" | "video" | "audio" | "unknown";
   score?: number;
   site?: {
     domain?: string | null;
@@ -487,7 +497,7 @@ const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
 const page = ref(1);
 const activeQuery = ref("");
-const activeType = ref<SearchType>("");
+const activeType = ref<SearchType>("site");
 const gatewayHasMore = ref(false);
 const gatewayPageSize = 12;
 
@@ -1060,15 +1070,70 @@ onMounted(() => {
   void refreshPinnedCids();
 });
 
-function iconFor(kind: ResultKind, media?: ResultItem["media"]) {
-  switch (kind) {
+function fileKindLabel(k: ResultItem["fileKind"]): string {
+  switch (k) {
+    case "pdf":
+      return "PDF";
+    case "docx":
+      return "DOCX";
+    case "epub":
+      return "EPUB";
+    case "html":
+      return "HTML";
+    case "txt":
+      return "Text";
+    case "image":
+      return "Image";
+    case "video":
+      return "Video";
+    case "audio":
+      return "Audio";
+    default:
+      return "IPFS";
+  }
+}
+
+function typeBadgeLabel(r: ResultItem): string {
+  if (!r) return "";
+  switch (r.kind) {
+    case "ipfs":
+      return fileKindLabel(r.fileKind || "unknown");
+    case "tx":
+      return "Transaction";
+    case "block":
+      return "Block";
+    case "address":
+      return "Address";
+    case "link":
+      return "Link";
+    case "site":
+    default:
+      return "Site";
+  }
+}
+
+function typeBadgeClass(r: ResultItem): string {
+  if (!r) return "type-ipfs";
+  if (r.kind === "ipfs") {
+    const fk = r.fileKind || "unknown";
+    if (fk && fk !== "unknown") return `type-${fk}`;
+  }
+  return `type-${r.kind}`;
+}
+
+function iconFor(r: ResultItem) {
+  if (!r) return Layers;
+  switch (r.kind) {
     case "site":
       return Globe;
-    case "ipfs":
-      if (media === "video") return Film;
-      if (media === "audio") return Music;
-      if (media === "image") return Image;
+    case "ipfs": {
+      const fk = r.fileKind || "unknown";
+      if (fk === "image" || r.media === "image") return Image;
+      if (fk === "video" || r.media === "video") return Film;
+      if (fk === "audio" || r.media === "audio") return Music;
+      if (fk === "pdf" || fk === "docx" || fk === "epub" || fk === "html" || fk === "txt") return FileText;
       return Layers;
+    }
     case "tx":
       return Hash;
     case "block":
@@ -1078,28 +1143,6 @@ function iconFor(kind: ResultKind, media?: ResultItem["media"]) {
     case "link":
     default:
       return ExternalLink;
-  }
-}
-
-function formatKind(kind: ResultKind, media?: ResultItem["media"]): string {
-  switch (kind) {
-    case "site":
-      return "Site";
-    case "ipfs":
-      if (media === "video") return "Video";
-      if (media === "audio") return "Audio";
-      if (media === "image") return "Image";
-      return "IPFS";
-    case "tx":
-      return "Transaction";
-    case "block":
-      return "Block";
-    case "address":
-      return "Address";
-    case "link":
-      return "Link";
-    default:
-      return kind;
   }
 }
 
@@ -1117,20 +1160,33 @@ function displayTitle(r: ResultItem): string | null {
     return "No title";
   }
 
+  if (selectedType.value === "all") {
+    if (!title) return "No title";
+    if (isCidTitle(title) || isCidLike(title) || /^\/ipfs\//i.test(title)) return "No title";
+  }
+
   return title || null;
 }
 
 function isNoTitlePlaceholder(r: ResultItem): boolean {
   if (!r) return false;
-  if (r.kind !== "site") return false;
   const title = String(r.title || "").trim();
-  return !title || isCidTitle(title) || /^\/ipfs\//i.test(title);
+  if (r.kind === "site") {
+    return !title || isCidTitle(title) || /^\/ipfs\//i.test(title);
+  }
+
+  if (selectedType.value === "all") {
+    return !title || isCidTitle(title) || isCidLike(title) || /^\/ipfs\//i.test(title);
+  }
+
+  return false;
 }
 
 function shouldShowResultUrl(r: ResultItem): boolean {
   if (!r) return false;
   const url = String(r.url || "").trim();
   if (!url) return false;
+  if (selectedType.value === "all") return false;
   // Sites tab: the URL line is redundant (clicking opens it), keep the list compact.
   if (r.kind === "site") return false;
   // Hide the raw lumen://ipfs/... line for "CID ..." results (it’s redundant/noisy in UI).
@@ -1189,7 +1245,7 @@ function parseSearchUrl(raw: string): { q: string; type: SearchType; page: numbe
     const qs = u.searchParams.get("q") || "";
     const type = (u.searchParams.get("type") || "") as SearchType;
     const t: SearchType =
-      type === "site" || type === "image" ? type : "site";
+      type === "site" || type === "image" || type === "all" ? type : "site";
     const pageRaw = u.searchParams.get("page") || "";
     const parsedPage = Number.parseInt(pageRaw, 10);
     const p = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
@@ -1211,7 +1267,6 @@ function makeSearchUrl(query: string, type: SearchType, page = 1): string {
 
 function setType(t: SearchType) {
   if (t === "video") return;
-  if (t === "") return;
   selectedType.value = t;
   page.value = 1;
   const s = q.value.trim();
@@ -1228,7 +1283,7 @@ function setType(t: SearchType) {
 
 function submit() {
   const s = q.value.trim();
-  if (!s && selectedType.value !== "site" && selectedType.value !== "image") return;
+  if (!s && selectedType.value !== "site" && selectedType.value !== "image" && selectedType.value !== "all") return;
   page.value = 1;
   const nextUrl = makeSearchUrl(s, selectedType.value, 1);
   const curUrl = String(currentTabUrl?.value || "").trim();
@@ -1243,7 +1298,7 @@ function submit() {
 
 async function openResult(r: ResultItem) {
   const wantsNewTab =
-    selectedType.value === "" ||
+    selectedType.value === "all" ||
     selectedType.value === "image" ||
     (selectedType.value === "site" && r.kind === "site");
 
@@ -1605,9 +1660,12 @@ async function loadGatewaysForSearch(
 
 type GatewaySearchHit = {
   cid?: string;
+  root_cid?: string;
   path?: string;
   title?: string;
+  kind?: string;
   mime?: string;
+  ext_guess?: string;
   resourceType?: string;
   tags_json?: any;
   topics?: any;
@@ -1689,18 +1747,22 @@ function mapGatewayHitToResult(
 ): ResultItem | null {
   const cid = String(hit?.cid || "").trim();
   if (!cid) return null;
+  const rootCid = String(hit?.root_cid || "").trim();
   const path = safePathSuffix(hit?.path);
   const mime = String(hit?.mime || "").trim();
   const rType = String(hit?.resourceType || "").trim();
+  const extGuess = String(hit?.ext_guess || "").trim().toLowerCase();
+  const pathLower = String(path || "").trim().toLowerCase();
+  const mimeLower = String(mime || "").trim().toLowerCase();
 
   const extractedTags = extractSearchTags(hit);
 
   const isImage =
-    rType.toLowerCase() === "image" || mime.toLowerCase().startsWith("image/");
+    rType.toLowerCase() === "image" || mimeLower.startsWith("image/");
   const isVideo =
-    rType.toLowerCase() === "video" || mime.toLowerCase().startsWith("video/");
+    rType.toLowerCase() === "video" || mimeLower.startsWith("video/");
   const isAudio =
-    rType.toLowerCase() === "audio" || mime.toLowerCase().startsWith("audio/");
+    rType.toLowerCase() === "audio" || mimeLower.startsWith("audio/");
   const media: ResultItem["media"] = isImage
     ? "image"
     : isVideo
@@ -1711,9 +1773,41 @@ function mapGatewayHitToResult(
 
   if (filterType === "image" && !isImage) return null;
   if (filterType === "video" && !isVideo) return null;
-  if (isImage && extractedTags.length === 0) return null;
+  if (filterType === "image" && isImage && extractedTags.length === 0) return null;
+
+  let fileKind: ResultItem["fileKind"] = "unknown";
+  if (isImage) fileKind = "image";
+  else if (isVideo) fileKind = "video";
+  else if (isAudio) fileKind = "audio";
+  else if (extGuess === "pdf" || mimeLower.includes("pdf") || pathLower.endsWith(".pdf")) fileKind = "pdf";
+  else if (extGuess === "epub" || mimeLower.includes("epub") || pathLower.endsWith(".epub")) fileKind = "epub";
+  else if (
+    extGuess === "docx" ||
+    pathLower.endsWith(".docx") ||
+    mimeLower.includes("wordprocessingml") ||
+    mimeLower.includes("officedocument.wordprocessingml")
+  ) fileKind = "docx";
+  else if (
+    extGuess === "html" ||
+    extGuess === "htm" ||
+    pathLower.endsWith(".html") ||
+    pathLower.endsWith(".htm") ||
+    mimeLower.includes("text/html") ||
+    mimeLower.includes("application/xhtml+xml")
+  ) fileKind = "html";
+  else if (extGuess === "txt" || pathLower.endsWith(".txt") || mimeLower.startsWith("text/plain")) fileKind = "txt";
+
+  // When the indexer provides a `root_cid` + `path`, the leaf `cid` is often the file CID.
+  // Opening `lumen://ipfs/<leaf>/<path>` is invalid; prefer root+path.
+  const hasPath = !!path && path !== "/";
+  const openUrl =
+    hasPath && rootCid && rootCid !== cid
+      ? `lumen://ipfs/${rootCid}${path}`
+      : `lumen://ipfs/${cid}${hasPath ? path : ""}`;
+
+  // For thumbnails, prefer the leaf CID to avoid path issues and keep requests simple.
   const thumbUrl = isImage
-    ? `${localIpfsGatewayBase()}/ipfs/${cid}${path}`
+    ? `${localIpfsGatewayBase()}/ipfs/${cid}`
     : undefined;
 
   const title =
@@ -1736,12 +1830,13 @@ function mapGatewayHitToResult(
   return {
     id: `gw:${gateway.id}:${cid}:${path || ""}`,
     title,
-    url: `lumen://ipfs/${cid}${path}`,
+    url: openUrl,
     kind: "ipfs",
     description: snippet || undefined,
     badges,
     thumbUrl,
     media,
+    fileKind,
   };
 }
 
@@ -2020,7 +2115,7 @@ async function searchGateways(
   type GatewayBatch = { items: ResultItem[]; rawCount: number };
 
   const wantedType = normalizeGatewayType(type);
-  const wantedMode = wantedType === "site" ? "sites" : "";
+  const wantedMode = wantedType === "site" ? "sites" : type === "all" ? "everything" : "";
   // For image results, gateways sometimes return many non-images in the top N,
   // and some images have missing `mime/resourceType` (we infer from extension).
   // Fetch more upfront so the UI page stays filled without extra round-trips.
@@ -2029,6 +2124,8 @@ async function searchGateways(
       ? Math.min(Math.max(end * 4, 50), 300)
       : wantedType === "site"
         ? Math.min(Math.max(end * 3, 50), 200)
+        : type === "all"
+          ? Math.min(Math.max(end * 3, 50), 200)
         : Math.min(end, 50);
   const tasks = list.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
@@ -2263,7 +2360,7 @@ function clampPage(value: any): number {
 
 function gotoPage(targetPage: number) {
   const s = activeQuery.value.trim();
-  if (!s && activeType.value !== "site" && activeType.value !== "image") return;
+  if (!s && activeType.value !== "site" && activeType.value !== "image" && activeType.value !== "all") return;
   const p = clampPage(targetPage);
   goto(makeSearchUrl(s, activeType.value, p), { push: true });
 }
@@ -2279,7 +2376,7 @@ function prevPage() {
 
 const showPager = computed(() => {
   if (!touched.value) return false;
-  if (!activeQuery.value.trim() && activeType.value !== "site" && activeType.value !== "image") return false;
+  if (!activeQuery.value.trim() && activeType.value !== "site" && activeType.value !== "image" && activeType.value !== "all") return false;
   return page.value > 1 || gatewayHasMore.value;
 });
 
@@ -2340,7 +2437,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   const clean = String(query || "").trim();
   const safePage = clampPage(pageParam);
   const runKey = `${type}::${clean}::page=${safePage}`;
-  const allowEmptyQuery = type === "site" || type === "image";
+  const allowEmptyQuery = type === "site" || type === "image" || type === "all";
   if (!clean && !allowEmptyQuery) {
     touched.value = false;
     loading.value = false;
@@ -2368,7 +2465,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      safePage === 1 && clean && (type === "site" || type === "")
+      safePage === 1 && clean && (type === "site" || type === "all")
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
     const gatewayPromise = searchGateways(profileId || "", clean, type, seq, {
@@ -2411,7 +2508,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       });
     }
 
-    if (safePage === 1 && !profileId && (type === "image" || type === "")) {
+    if (safePage === 1 && !profileId && (type === "image" || type === "all")) {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway search",
@@ -2932,6 +3029,36 @@ const imageResults = computed(() =>
   color: var(--ios-green);
 }
 
+.type-image {
+  background: rgba(48, 209, 88, 0.12);
+  color: var(--ios-green);
+}
+
+.type-html {
+  background: rgba(0, 122, 255, 0.12);
+  color: var(--ios-blue);
+}
+
+.type-pdf {
+  background: rgba(255, 59, 48, 0.12);
+  color: var(--ios-red);
+}
+
+.type-txt {
+  background: rgba(142, 142, 147, 0.12);
+  color: var(--ios-gray, #8e8e93);
+}
+
+.type-epub {
+  background: rgba(175, 82, 222, 0.12);
+  color: var(--ios-purple, #af52de);
+}
+
+.type-docx {
+  background: rgba(90, 200, 250, 0.12);
+  color: var(--ios-teal, #5ac8fa);
+}
+
 .type-tx {
   background: rgba(255, 159, 10, 0.12);
   color: var(--ios-orange);
@@ -2967,6 +3094,26 @@ const imageResults = computed(() =>
 
 .result-ipfs::before {
   background: linear-gradient(180deg, var(--ios-green) 0%, rgba(48, 209, 88, 0.5) 100%);
+}
+
+.result-ipfs.file-html::before {
+  background: linear-gradient(180deg, var(--ios-blue) 0%, rgba(0, 122, 255, 0.5) 100%);
+}
+
+.result-ipfs.file-pdf::before {
+  background: linear-gradient(180deg, var(--ios-red) 0%, rgba(255, 59, 48, 0.5) 100%);
+}
+
+.result-ipfs.file-txt::before {
+  background: linear-gradient(180deg, var(--ios-gray, #8e8e93) 0%, rgba(142, 142, 147, 0.5) 100%);
+}
+
+.result-ipfs.file-epub::before {
+  background: linear-gradient(180deg, var(--ios-purple, #af52de) 0%, rgba(175, 82, 222, 0.5) 100%);
+}
+
+.result-ipfs.file-docx::before {
+  background: linear-gradient(180deg, var(--ios-teal, #5ac8fa) 0%, rgba(90, 200, 250, 0.5) 100%);
 }
 
 .thumb {

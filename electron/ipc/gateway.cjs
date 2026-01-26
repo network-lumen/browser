@@ -1943,7 +1943,8 @@ function registerGatewayIpc() {
       const allowEmptyQuery =
         String(type || '').trim().toLowerCase() === 'site' ||
         String(type || '').trim().toLowerCase() === 'image' ||
-        String(mode || '').trim().toLowerCase() === 'sites';
+        String(mode || '').trim().toLowerCase() === 'sites' ||
+        String(mode || '').trim().toLowerCase() === 'everything';
 
       const query = String(input?.query || '').trim();
       if (!query && !allowEmptyQuery) return { ok: false, error: 'missing_query' };
