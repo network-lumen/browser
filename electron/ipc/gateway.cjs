@@ -688,6 +688,15 @@ function getRestBaseUrl() {
   }
 }
 
+function getRpcBaseUrl() {
+  try {
+    const peer = getNetworkPool().getBestPeer('rpc');
+    return peer && peer.rpc ? String(peer.rpc) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
   let msArg = timeoutMs;
   let opts = options;
@@ -1237,6 +1246,53 @@ function coerceGatewayEndpoint(input) {
   return head.replace(/\/+$/, '').trim().toLowerCase();
 }
 
+function sanitizeGatewayRegions(input) {
+  const source = Array.isArray(input)
+    ? input
+    : typeof input === 'string'
+    ? String(input)
+        .split(/[\s,\n]+/)
+        .filter(Boolean)
+    : [];
+
+  return source
+    .map((r) => String(r || '').trim())
+    .filter(Boolean)
+    .map((r) => (r.length > 32 ? r.slice(0, 32) : r));
+}
+
+function normalizeGatewayEndpoint(input) {
+  const raw = String(input ?? '').trim();
+  if (!raw) return '';
+  const value = raw.toLowerCase();
+  if (value.length > 120) throw new Error('Invalid endpoint: too long');
+  if (!/^[a-z0-9.-]+$/.test(value)) throw new Error('Invalid endpoint: characters');
+  if (value.includes('..')) throw new Error('Invalid endpoint: empty label');
+  const labels = value.split('.');
+  if (labels.length < 2) throw new Error('Invalid endpoint: format');
+  const ext = labels.pop();
+  if (!/^[a-z]{2,14}$/.test(ext)) throw new Error('Invalid endpoint: extension format');
+  for (const label of labels) {
+    if (!label) throw new Error('Invalid endpoint: empty label');
+    if (!/^[a-z0-9-]{1,63}$/.test(label)) throw new Error('Invalid endpoint: domain format');
+  }
+  const domain = labels.join('.');
+  if (!domain) throw new Error('Invalid endpoint: format');
+  return `${domain}.${ext}`;
+}
+
+function buildGatewayMetadata(opts) {
+  const meta = {};
+  if (opts?.endpoint) meta.endpoint = opts.endpoint;
+  if (Array.isArray(opts?.regions)) meta.regions = opts.regions;
+  if (opts?.extras && typeof opts.extras === 'object') {
+    for (const [k, v] of Object.entries(opts.extras)) {
+      if (meta[k] === undefined) meta[k] = v;
+    }
+  }
+  return Object.keys(meta).length ? JSON.stringify(meta) : '';
+}
+
 function decorateGateway(raw) {
   const meta = parseGatewayMetadata(
     raw?.metadata ?? raw?.meta ?? raw?.MetaData ?? raw?.info
@@ -1286,6 +1342,15 @@ function extractPinGateways(data) {
 }
 
 async function fetchGatewaysFromRest(limit, timeoutMs) {
+  let opts = null;
+  if (timeoutMs && typeof timeoutMs === 'object') {
+    opts = timeoutMs;
+    timeoutMs = opts?.timeoutMs;
+  } else if (arguments.length >= 3) {
+    opts = arguments[2];
+  }
+  const ignoreWhitelist = !!opts?.ignoreWhitelist;
+
   const restBase = getRestBaseUrl();
   if (!restBase) {
     return { gateways: [], error: 'rest_base_missing' };
@@ -1325,9 +1390,17 @@ async function fetchGatewaysFromRest(limit, timeoutMs) {
       json && (json.gateways ? json : json.data?.gateways ? json.data : json);
     let list = extractPinGateways(payload || json);
 
-    const whitelistIds = new Set(loadGatewaysWhitelistIds().map((x) => String(x).trim()).filter(Boolean));
-    if (whitelistIds.size) {
-      list = list.filter((g) => whitelistIds.has(String(g?.id ?? g?.gatewayId ?? '').trim()));
+    if (!ignoreWhitelist) {
+      const whitelistIds = new Set(
+        loadGatewaysWhitelistIds()
+          .map((x) => String(x).trim())
+          .filter(Boolean)
+      );
+      if (whitelistIds.size) {
+        list = list.filter((g) =>
+          whitelistIds.has(String(g?.id ?? g?.gatewayId ?? '').trim())
+        );
+      }
     }
 
     if (Array.isArray(list) && list.length) {
@@ -2283,6 +2356,263 @@ function registerGatewayIpc() {
       }
     } catch (e) {
       mark('error', { error: String(e && e.message ? e.message : e) });
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('gateway:listGateways', async (_e, input) => {
+    try {
+      const lim = Math.min(Math.max(Number(input?.limit || 200), 1), 1000);
+      const ms = Math.max(500, Number(input?.timeoutMs || 8000));
+      const ignoreWhitelist = input?.ignoreWhitelist !== false;
+      const { gateways, error } = await fetchGatewaysFromRest(lim, ms, { ignoreWhitelist });
+      if (!gateways.length && error) return { ok: false, error };
+      return { ok: true, gateways, total: gateways.length };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('gateway:getParams', async () => {
+    try {
+      const restBase = getRestBaseUrl();
+      if (!restBase) return { ok: false, error: 'rest_base_missing' };
+
+      const url = new URL('/lumen/gateway/v1/params', trimSlash(restBase));
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 8000);
+      let res;
+      try {
+        res = await fetch(url.toString(), { method: 'GET', signal: controller.signal });
+      } finally {
+        try { clearTimeout(t); } catch {}
+      }
+
+      if (!res.ok) {
+        const text = (await res.text().catch(() => '')).trim();
+        const statusLabel = res.status ? `HTTP ${res.status}` : 'HTTP error';
+        const msg = text ? `${statusLabel}: ${text.slice(0, 180)}` : statusLabel;
+        return { ok: false, error: msg };
+      }
+
+      const json = await res.json().catch(() => null);
+      const params = json?.params || json?.data?.params || json?.data || json;
+      return { ok: true, params };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('gateway:registerGateway', async (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (isGuestProfile(profileId)) return { ok: false, error: 'guest_profile' };
+
+      const walletAddr = getWalletAddressForProfile(profileId);
+      if (!walletAddr) return { ok: false, error: 'wallet_unavailable' };
+
+      const endpoint = normalizeGatewayEndpoint(input?.endpoint);
+      if (!endpoint) return { ok: false, error: 'missing_endpoint' };
+      const payout = String(input?.payout || walletAddr).trim();
+      const regions = sanitizeGatewayRegions(input?.regions);
+      const metadataExtras = typeof input?.metadata === 'object' ? input.metadata : undefined;
+      const metadata = buildGatewayMetadata({
+        endpoint,
+        regions: regions.length ? regions : undefined,
+        extras: metadataExtras,
+      });
+
+      const mnemonic = loadMnemonic(profileId);
+      const bech32Prefix = walletAddr.startsWith('lmn') ? 'lmn' : 'lumen';
+
+      const restBase = getRestBaseUrl();
+      const rpcBase = getRpcBaseUrl();
+      const endpoints = {
+        rpc: rpcBase || undefined,
+        rest: restBase || undefined,
+        rpcEndpoint: rpcBase || undefined,
+        restEndpoint: restBase || undefined,
+      };
+      if (!endpoints.rpcEndpoint && !endpoints.restEndpoint) {
+        return { ok: false, error: 'endpoints_unavailable' };
+      }
+
+      const bridgeMod = await loadBridge();
+      if (!bridgeMod || !bridgeMod.walletFromMnemonic || !bridgeMod.LumenSigningClient) {
+        return { ok: false, error: 'bridge_unavailable' };
+      }
+
+      const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
+      const chainId = input?.chainId || 'lumen';
+
+      const client = await bridgeMod.LumenSigningClient.connectWithSigner(
+        signer,
+        endpoints,
+        chainId,
+        { pqc: { homeDir: resolvePqcHome() } }
+      ).catch(() => null);
+      if (!client || !client.signAndBroadcast) {
+        return { ok: false, error: 'client_not_available' };
+      }
+
+      let cleanupPqc = null;
+      const effectivePassword = input?.password ? String(input.password) : getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) return { ok: false, error: 'password_required' };
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) return { ok: false, error: 'invalid_password' };
+      }
+
+      try {
+        const gatewayMod = client.gateways?.();
+        let msg = null;
+        if (gatewayMod?.msgRegisterGateway) {
+          msg = await gatewayMod.msgRegisterGateway(walletAddr, { payout, metadata });
+        }
+        if (!msg) {
+          msg = {
+            typeUrl: '/lumen.gateway.v1.MsgRegisterGateway',
+            value: { operator: walletAddr, payout, metadata },
+          };
+        }
+
+        const zeroFee =
+          (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
+          (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '250000' }));
+        const fee = zeroFee();
+        const memo = String(input?.memo || 'gateway:register');
+
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod,
+          client,
+          profileId,
+          address: walletAddr,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'gateway_registerGateway',
+        });
+        const txhash = String(res?.transactionHash || res?.txhash || res?.hash || '');
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('gateway:updateGateway', async (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (isGuestProfile(profileId)) return { ok: false, error: 'guest_profile' };
+
+      const walletAddr = getWalletAddressForProfile(profileId);
+      if (!walletAddr) return { ok: false, error: 'wallet_unavailable' };
+
+      const gatewayIdRaw = input?.gatewayId ?? input?.id;
+      const gatewayIdNum = Number(gatewayIdRaw);
+      if (!gatewayIdNum) return { ok: false, error: 'missing_gatewayId' };
+
+      const payout = String(input?.payout || '').trim();
+      const regionsInputProvided = Array.isArray(input?.regions) || typeof input?.regions === 'string';
+      const regions = sanitizeGatewayRegions(input?.regions);
+      const endpointRaw = String(input?.endpoint || '').trim();
+      const endpoint = endpointRaw ? normalizeGatewayEndpoint(endpointRaw) : '';
+      const activeToggleExplicit = typeof input?.active === 'boolean';
+      const metadataExtras = typeof input?.metadata === 'object' ? input.metadata : undefined;
+      const metadata = buildGatewayMetadata({
+        endpoint,
+        regions: regionsInputProvided ? regions : undefined,
+        extras: metadataExtras,
+      });
+
+      if (!payout && !regionsInputProvided && !endpoint && !activeToggleExplicit && !metadataExtras) {
+        return { ok: false, error: 'nothing_to_update' };
+      }
+
+      const mnemonic = loadMnemonic(profileId);
+      const bech32Prefix = walletAddr.startsWith('lmn') ? 'lmn' : 'lumen';
+
+      const restBase = getRestBaseUrl();
+      const rpcBase = getRpcBaseUrl();
+      const endpoints = {
+        rpc: rpcBase || undefined,
+        rest: restBase || undefined,
+        rpcEndpoint: rpcBase || undefined,
+        restEndpoint: restBase || undefined,
+      };
+      if (!endpoints.rpcEndpoint && !endpoints.restEndpoint) {
+        return { ok: false, error: 'endpoints_unavailable' };
+      }
+
+      const bridgeMod = await loadBridge();
+      if (!bridgeMod || !bridgeMod.walletFromMnemonic || !bridgeMod.LumenSigningClient) {
+        return { ok: false, error: 'bridge_unavailable' };
+      }
+
+      const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
+      const chainId = input?.chainId || 'lumen';
+
+      const client = await bridgeMod.LumenSigningClient.connectWithSigner(
+        signer,
+        endpoints,
+        chainId,
+        { pqc: { homeDir: resolvePqcHome() } }
+      ).catch(() => null);
+      if (!client || !client.signAndBroadcast) {
+        return { ok: false, error: 'client_not_available' };
+      }
+
+      let cleanupPqc = null;
+      const effectivePassword = input?.password ? String(input.password) : getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) return { ok: false, error: 'password_required' };
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) return { ok: false, error: 'invalid_password' };
+      }
+
+      try {
+        const payload = { operator: walletAddr, gatewayId: gatewayIdNum, id: gatewayIdNum };
+        if (payout) payload.payout = payout;
+        if (metadata) payload.metadata = metadata;
+        if (activeToggleExplicit) payload.active = !!input.active;
+
+        const gatewayMod = client.gateways?.();
+        let msg = null;
+        if (gatewayMod?.msgUpdateGateway) {
+          msg = await gatewayMod.msgUpdateGateway(walletAddr, payload);
+        }
+        if (!msg) {
+          msg = { typeUrl: '/lumen.gateway.v1.MsgUpdateGateway', value: payload };
+        }
+
+        const zeroFee =
+          (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
+          (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '200000' }));
+        const fee = zeroFee();
+        const memo = String(input?.memo || 'gateway:update');
+
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod,
+          client,
+          profileId,
+          address: walletAddr,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'gateway_updateGateway',
+        });
+        const txhash = String(res?.transactionHash || res?.txhash || res?.hash || '');
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });

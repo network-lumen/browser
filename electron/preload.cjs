@@ -201,11 +201,15 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.invoke('gateway:getBaseUrl', { profileId, baseUrl }),
     getPlansOverview: (profileId, options) =>
       ipcRenderer.invoke('gateway:getPlansOverview', { profileId, ...(options || {}) }),
+    getParams: () => ipcRenderer.invoke('gateway:getParams'),
+    listGateways: (options) => ipcRenderer.invoke('gateway:listGateways', options || {}),
     searchPq: (payload) => ipcRenderer.invoke('gateway:searchPq', payload || {}),
     pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
     unpinCid: (payload) => ipcRenderer.invoke('gateway:unpinCid', payload || {}),
     subscribePlan: (payload) =>
-      ipcRenderer.invoke('gateway:subscribePlan', payload || {})
+      ipcRenderer.invoke('gateway:subscribePlan', payload || {}),
+    registerGateway: (payload) => ipcRenderer.invoke('gateway:registerGateway', payload || {}),
+    updateGateway: (payload) => ipcRenderer.invoke('gateway:updateGateway', payload || {})
   },
   addressBook: {
     list: () => ipcRenderer.invoke('addressbook:list'),

@@ -8,20 +8,10 @@
           <button
             type="button"
             class="lsb-item"
-            :class="{ active: currentView === 'list' }"
-            @click="currentView = 'list'"
+            :class="{ active: true }"
           >
             <List :size="18" />
-            <span>Gateway plans</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item"
-            :class="{ active: currentView === 'add' }"
-            @click="currentView = 'add'"
-          >
-            <Plus :size="18" />
-            <span>Advanced</span>
+            <span>My gateways</span>
           </button>
         </div>
       </nav>
@@ -32,117 +22,224 @@
       <!-- Header -->
       <header class="content-header">
         <div>
-          <h1>{{ getViewTitle() }}</h1>
-          <p>{{ getViewDescription() }}</p>
+          <h1>My gateways</h1>
+          <p>Register and update on-chain gateway settings.</p>
+          <p v-if="gatewayParams" class="content-fees">
+            Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
+          </p>
         </div>
-        <button
-          v-if="currentView === 'list'"
-          class="btn-primary"
-          @click="refreshPlans"
-          :disabled="loading"
-        >
-          <span v-if="!loading">Refresh</span>
-          <span v-else>Loading…</span>
-        </button>
+        <div class="manage-head-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="refreshManage"
+            :disabled="gatewaysLoading"
+          >
+            Refresh
+          </button>
+          <button
+            type="button"
+            class="btn-primary"
+            @click="openCreateModal"
+            :disabled="gatewaysLoading || !hasProfile"
+          >
+            Create gateway
+          </button>
+        </div>
       </header>
 
-      <!-- List View: on-chain gateway plans -->
-      <div v-if="currentView === 'list'" class="content-area">
+      <!-- Advanced gateway management -->
+      <div class="content-area">
         <div v-if="!hasProfile" class="empty-state-card">
           <h2 class="empty-title">No active profile</h2>
           <p class="empty-sub">
-            Select or create a profile to view gateway plans.
+            Select or create a profile to manage gateways.
           </p>
         </div>
 
-        <div v-else-if="loading" class="empty-state-card">
-          <div class="spinner"></div>
-          <p class="empty-sub">Loading available gateway plans…</p>
-        </div>
+        <div v-else class="manage-wrap">
+          <div v-if="gatewaysLoading" class="empty-state-card">
+            <div class="spinner"></div>
+            <p class="empty-sub">Loading gateways…</p>
+          </div>
 
-        <div v-else-if="error" class="empty-state-card">
-          <h2 class="empty-title">Unable to load plans</h2>
-          <p class="empty-sub">{{ error }}</p>
-          <button class="btn-secondary" @click="refreshPlans">Try again</button>
-        </div>
+          <div v-else-if="gatewaysError" class="empty-state-card">
+            <h2 class="empty-title">Unable to load gateways</h2>
+            <p class="empty-sub">{{ gatewaysError }}</p>
+            <button class="btn-secondary" @click="refreshManage">Try again</button>
+          </div>
 
-        <div v-else-if="!plans.length" class="empty-state-card">
-          <h2 class="empty-title">No plans found</h2>
-          <p class="empty-sub">
-            Gateways have not published plans yet. Check back later.
-          </p>
-        </div>
+          <div v-else-if="!myGateways.length" class="empty-state-card">
+            <h2 class="empty-title">No gateways yet</h2>
+            <p class="empty-sub">
+              Use “Create gateway” to register your first gateway.
+            </p>
+          </div>
 
-        <div v-else class="gateways-list">
-          <div
-            v-for="plan in plans"
-            :key="plan.id"
-            class="gateway-card"
-            :class="{ default: planStatus(plan) === 'active' }"
-          >
-            <div
-              class="gateway-status"
-              :class="{
-                online:
-                  planStatus(plan) === 'active' ||
-                  planStatus(plan) === 'pending'
-              }"
-            ></div>
-            <div class="gateway-info">
-              <div class="gateway-header">
-                <span class="gateway-name">{{ planDisplayName(plan) }}</span>
-                <span
-                  v-if="planStatus(plan) !== 'none'"
-                  class="gateway-badge"
-                  :class="statusClass(planStatus(plan))"
-                >
-                  {{ planStatusLabel(plan) }}
-                </span>
+          <div v-else class="manage-list">
+            <section v-for="gw in myGateways" :key="gw.id" class="manage-card">
+              <header class="manage-card-head">
+                <div class="manage-card-title">
+                  <div class="gateway-status-dot" :class="{ ok: gw.active }"></div>
+                  <span class="manage-card-name" :title="gw.endpoint || `Gateway #${gw.id}`">
+                    {{ gw.endpoint || `Gateway #${gw.id}` }}
+                  </span>
+                  <span class="manage-card-id mono">#{{ gw.id }}</span>
+                </div>
+                <div class="manage-card-badges">
+                  <span class="gateway-badge" :class="gw.active ? 'badge-success' : 'badge-warn'">
+                    {{ gw.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+              </header>
+
+              <div class="manage-grid" v-if="editMap[gw.id]">
+                <div class="form-group">
+                  <label class="form-label">Endpoint</label>
+                  <input v-model="editMap[gw.id].endpoint" class="form-input" placeholder="gateway.city" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Regions</label>
+                  <input
+                    v-model="editMap[gw.id].regions"
+                    class="form-input"
+                    placeholder="us-east, eu-west"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Payout address</label>
+                  <input v-model="editMap[gw.id].payout" class="form-input mono" placeholder="lmn1..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Active</label>
+                  <label class="toggle">
+                    <input v-model="editMap[gw.id].active" type="checkbox" />
+                    <span class="toggle-ui"></span>
+                  </label>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">Metadata (JSON object)</label>
+                  <textarea
+                    v-model="editMap[gw.id].metadata"
+                    class="form-input mono"
+                    rows="7"
+                    placeholder='{\n  "name": "My gateway"\n}'
+                  ></textarea>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">Memo</label>
+                  <input v-model="editMap[gw.id].memo" class="form-input" placeholder="Optional memo" />
+                </div>
               </div>
-              <span class="gateway-url">
-                {{ plan.gatewayName }}
-                <template v-if="plan.gatewayEndpoint">
-                  · {{ plan.gatewayEndpoint }}
-                </template>
-              </span>
-              <div class="gateway-stats">
-                <span class="stat">
-                  Storage:
-                  <strong>
-                    {{
-                      plan.storageGbPerMonth
-                        ? `${plan.storageGbPerMonth} GB / month`
-                        : 'Not specified'
-                    }}
-                  </strong>
-                </span>
-                <span class="stat">
-                  Egress:
-                  <strong>
-                    {{
-                      plan.networkGbPerMonth
-                        ? `${plan.networkGbPerMonth} GB / month`
-                        : 'Fair usage'
-                    }}
-                  </strong>
-                </span>
-                <span class="stat">
-                  Price:
-                  <strong>{{ formatPrice(plan.priceUlmn) }}</strong>
-                </span>
+
+              <div v-if="editMap[gw.id]?.error" class="inline-error">
+                {{ editMap[gw.id].error }}
+              </div>
+              <div v-if="editMap[gw.id]?.txhash" class="inline-success mono">
+                tx: {{ editMap[gw.id].txhash }}
+              </div>
+
+              <footer class="manage-card-actions">
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  @click="resetEdit(gw.id)"
+                  :disabled="editMap[gw.id].busy"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="btn-primary"
+                  @click="updateGateway(gw.id)"
+                  :disabled="editMap[gw.id].busy || !isDirty(gw.id)"
+                >
+                  <span v-if="!editMap[gw.id].busy">Save changes</span>
+                  <span v-else>Submitting…</span>
+                </button>
+              </footer>
+            </section>
+          </div>
+
+          <Transition name="modal">
+            <div
+              v-if="showCreateModal"
+              class="modal-overlay"
+              @click="closeCreateModal"
+            >
+              <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                  <div>
+                    <h2 class="modal-title">Create gateway</h2>
+                    <p class="modal-sub">Register a new gateway for the active profile.</p>
+                  </div>
+                  <button type="button" class="icon-btn" @click="closeCreateModal" :disabled="registerState.busy">
+                    ×
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label class="form-label">Endpoint</label>
+                    <input v-model="registerForm.endpoint" class="form-input" placeholder="gateway.city" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Regions</label>
+                    <input
+                      v-model="registerForm.regions"
+                      class="form-input"
+                      placeholder="us-east, eu-west"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Payout address</label>
+                    <input v-model="registerForm.payout" class="form-input mono" placeholder="lmn1..." />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Metadata (JSON object)</label>
+                    <textarea
+                      v-model="registerForm.metadata"
+                      class="form-input mono"
+                      rows="7"
+                      placeholder='{\n  "name": "My gateway"\n}'
+                    ></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Memo</label>
+                    <input v-model="registerForm.memo" class="form-input" placeholder="Optional memo" />
+                  </div>
+
+                  <div v-if="registerState.error" class="inline-error">
+                    {{ registerState.error }}
+                  </div>
+                  <div v-if="registerState.txhash" class="inline-success mono">
+                    tx: {{ registerState.txhash }}
+                  </div>
+                </div>
+
+                <div class="modal-actions">
+                  <button type="button" class="btn-secondary" @click="closeCreateModal" :disabled="registerState.busy">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-primary"
+                    @click="registerGateway"
+                    :disabled="registerState.busy || !canRegister"
+                  >
+                    <span v-if="!registerState.busy">Create</span>
+                    <span v-else>Submitting…</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </Transition>
 
-      <!-- Advanced / placeholder view -->
-      <div v-else-if="currentView === 'add'" class="content-area">
-        <div class="empty-state-card">
-          <h2 class="empty-title">Advanced gateway configuration</h2>
-          <p class="empty-sub">
-            Custom gateway management will be available in a future update.
-          </p>
+          <Transition name="toast">
+            <div v-if="toast.show" class="toast" :class="toast.kind">
+              {{ toast.message }}
+            </div>
+          </Transition>
         </div>
       </div>
     </main>
@@ -150,235 +247,499 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, inject } from 'vue';
-import { Server, List, Plus } from 'lucide-vue-next';
+import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
+import { Server, List } from 'lucide-vue-next';
+import { profilesState, activeProfileId } from '../profilesStore';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
-const currentView = ref<'list' | 'add'>('list');
-
-type PlanView = {
-  id: string;
-  planId: string;
-  gatewayId: string;
-  gatewayName: string;
-  gatewayEndpoint?: string;
-  priceUlmn: number;
-  priceLabel?: string;
-  storageGbPerMonth?: number;
-  networkGbPerMonth?: number;
-  monthsTotal: number;
-  description?: string;
-};
-
-type SubscriptionView = {
-  id: string;
-  gatewayId: string;
-  status: string;
-  metadata?: Record<string, any>;
-  nextPayoutTime?: number;
-  startTime?: number;
-  raw?: any;
-};
-
-const plans = ref<PlanView[]>([]);
-const subscriptions = ref<SubscriptionView[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-const activeProfileId = ref<string>('');
+const profiles = profilesState;
+const activeProfile = computed(
+  () => profiles.value.find((p) => p.id === activeProfileId.value) || null
+);
 const hasProfile = computed(() => !!activeProfileId.value);
+const activeAddress = computed(
+  () => String(activeProfile.value?.walletAddress || activeProfile.value?.address || '').trim()
+);
 
-async function resolveActiveProfile() {
+// ---------------------------------------------------------------------------
+// Advanced gateway management (register/update)
+// ---------------------------------------------------------------------------
+
+type GatewayParamsView = {
+  registerFeeUlmn: string;
+  actionFeeUlmn: string;
+};
+
+type GatewayRecord = {
+  id: string;
+  endpoint: string;
+  operator: string;
+  payout?: string;
+  regions?: string[];
+  active: boolean;
+  metadata?: Record<string, any>;
+};
+
+type GatewayEditState = {
+  endpoint: string;
+  regions: string;
+  payout: string;
+  metadata: string;
+  active: boolean;
+  memo: string;
+  error: string;
+  txhash: string;
+  busy: boolean;
+  original: {
+    endpoint: string;
+    regions: string[];
+    payout: string;
+    extras: Record<string, any>;
+    active: boolean;
+  };
+};
+
+const gatewayParams = ref<GatewayParamsView | null>(null);
+const gateways = ref<GatewayRecord[]>([]);
+const gatewaysLoading = ref(false);
+const gatewaysError = ref('');
+
+const showCreateModal = ref(false);
+
+const registerForm = reactive({
+  endpoint: '',
+  regions: '',
+  payout: '',
+  metadata: '',
+  memo: ''
+});
+
+const registerState = reactive({
+  busy: false,
+  error: '',
+  txhash: ''
+});
+
+const toast = reactive({
+  show: false,
+  message: '',
+  kind: 'success' as 'success' | 'error' | 'info'
+});
+let toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+function notify(message: string, kind: 'success' | 'error' | 'info' = 'success', ms = 2200) {
+  toast.show = true;
+  toast.message = message;
+  toast.kind = kind;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.show = false;
+  }, ms);
+}
+
+const myGateways = computed(() => {
+  const me = activeAddress.value.trim().toLowerCase();
+  if (!me) return [];
+  return gateways.value.filter((g) => String(g.operator || '').trim().toLowerCase() === me);
+});
+
+const editMap = reactive<Record<string, GatewayEditState>>({});
+
+const registerFeeLabel = computed(() => formatUlmnToLmn(gatewayParams.value?.registerFeeUlmn));
+const updateFeeLabel = computed(() => formatUlmnToLmn(gatewayParams.value?.actionFeeUlmn));
+
+watch(activeAddress, (addr) => {
+  if (!registerForm.payout) registerForm.payout = addr || '';
+  syncEditMap();
+});
+
+function openCreateModal() {
+  if (!hasProfile.value) return;
+  resetRegister();
+  showCreateModal.value = true;
+}
+
+function closeCreateModal() {
+  if (registerState.busy) return;
+  showCreateModal.value = false;
+  resetRegister();
+}
+
+function resetRegister() {
+  registerForm.endpoint = '';
+  registerForm.regions = '';
+  registerForm.metadata = '';
+  registerForm.memo = '';
+  registerState.error = '';
+  registerState.txhash = '';
+  registerForm.payout = activeAddress.value || '';
+}
+
+const canRegister = computed(() => {
+  return !!registerForm.endpoint.trim() && !!registerForm.payout.trim();
+});
+
+function getGwApi(): any {
+  const api: any = (window as any).lumen;
+  return api?.gateway;
+}
+
+async function loadGatewayParams() {
+  const gwApi = getGwApi();
+  if (!gwApi || !gwApi.getParams) return;
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    if (!profilesApi) {
-      activeProfileId.value = '';
-      return;
-    }
-    const active = await profilesApi.getActive?.().catch(() => null);
-    activeProfileId.value = active?.id || '';
+    const res: any = await gwApi.getParams().catch(() => null);
+    if (!res || res.ok === false) return;
+    const params = res.params || res;
+    if (!params) return;
+    gatewayParams.value = {
+      registerFeeUlmn: String(
+        params?.register_gateway_fee_ulmn ?? params?.registerGatewayFeeUlmn ?? '0'
+      ),
+      actionFeeUlmn: String(params?.action_fee_ulmn ?? params?.actionFeeUlmn ?? '0')
+    };
   } catch {
-    activeProfileId.value = '';
+    // ignore
   }
 }
 
-async function loadPlansOverview() {
-  loading.value = true;
-  error.value = null;
-  plans.value = [];
-  subscriptions.value = [];
+function normalizeGateway(raw: any): GatewayRecord {
+  const meta =
+    raw?.metadata && typeof raw.metadata === 'object'
+      ? { ...raw.metadata }
+      : typeof raw?.metadata === 'string'
+      ? (() => {
+          try {
+            const parsed = JSON.parse(raw.metadata);
+            return parsed && typeof parsed === 'object' ? parsed : undefined;
+          } catch {
+            return undefined;
+          }
+        })()
+      : undefined;
 
+  const endpointMeta = meta?.endpoint ? String(meta.endpoint) : '';
+  const endpointRaw = raw?.endpoint ? String(raw.endpoint) : '';
+  const endpoint = (endpointMeta || endpointRaw).trim();
+  const metaRegions = Array.isArray(meta?.regions)
+    ? meta.regions.map((r: any) => String(r || '')).filter(Boolean)
+    : undefined;
+  const regions = Array.isArray(raw?.regions)
+    ? raw.regions.map((r: any) => String(r || '')).filter(Boolean)
+    : metaRegions || [];
+
+  return {
+    id: String(raw?.id ?? raw?.gatewayId ?? ''),
+    endpoint: endpoint || '',
+    operator: String(raw?.operator ?? ''),
+    payout: String(raw?.payout ?? ''),
+    regions,
+    active: !!raw?.active,
+    metadata: meta
+  };
+}
+
+async function loadGateways() {
+  gatewaysLoading.value = true;
+  gatewaysError.value = '';
   try {
-    const api: any = (window as any).lumen;
-    const gwApi = api?.gateway;
-    if (!gwApi || !gwApi.getPlansOverview) {
-      error.value = 'Gateway plans API unavailable.';
+    const gwApi = getGwApi();
+    if (!gwApi || !gwApi.listGateways) {
+      gateways.value = [];
+      gatewaysError.value = 'Gateway registry API unavailable.';
       return;
     }
-    if (!hasProfile.value) {
-      return;
-    }
-
     const res: any = await gwApi
-      .getPlansOverview(activeProfileId.value)
+      .listGateways({ limit: 800, timeoutMs: 8000, ignoreWhitelist: true })
       .catch(() => null);
     if (!res || res.ok === false) {
-      error.value = String(res?.error || 'Unable to load plans.');
+      gateways.value = [];
+      gatewaysError.value = normalizeError(res?.error || res?.message || 'Unable to load gateways.');
       return;
     }
-
-    const list = Array.isArray(res.plans) ? res.plans : [];
-    plans.value = list
-      .map((p: any) => ({
-        id: String(p?.id ?? ''),
-        planId: String(p?.planId ?? p?.id ?? ''),
-        gatewayId: String(p?.gatewayId ?? ''),
-        gatewayName: String(
-          p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ''}`
-        ),
-        gatewayEndpoint: p?.gatewayEndpoint,
-        priceUlmn: Number(p?.priceUlmn ?? 0),
-        priceLabel: p?.priceLabel,
-        storageGbPerMonth:
-          p?.storageGbPerMonth != null
-            ? Number(p.storageGbPerMonth)
-            : undefined,
-        networkGbPerMonth:
-          p?.networkGbPerMonth != null
-            ? Number(p.networkGbPerMonth)
-            : undefined,
-        monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
-        description: p?.description ?? '',
-      }))
-      .filter((p: PlanView) => p.planId && p.gatewayId);
-
-    const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
-    subscriptions.value = subsRaw.map((s: any) => ({
-      id: String(s?.id ?? ''),
-      gatewayId: String(s?.gatewayId ?? s?.gateway_id ?? ''),
-      status: String(s?.status ?? '').toLowerCase(),
-      metadata:
-        typeof s?.metadata === 'object'
-          ? s.metadata
-          : undefined,
-      nextPayoutTime:
-        typeof s?.nextPayoutTime === 'number'
-          ? s.nextPayoutTime
-          : typeof s?.nextPayout_time === 'number'
-          ? s.nextPayout_time
-          : undefined,
-      startTime:
-        typeof s?.startTime === 'number'
-          ? s.startTime
-          : typeof s?.start_time === 'number'
-          ? s.start_time
-          : undefined,
-      raw: s,
-    }));
+    const list = Array.isArray(res?.gateways) ? res.gateways : [];
+    gateways.value = list.map(normalizeGateway).filter((g: GatewayRecord) => !!g.id);
+    syncEditMap();
   } catch (e: any) {
-    error.value = e?.message || 'Unable to load plans.';
+    gateways.value = [];
+    gatewaysError.value = String(e?.message || 'Unable to load gateways.');
   } finally {
-    loading.value = false;
+    gatewaysLoading.value = false;
   }
 }
 
-function refreshPlans() {
-  void loadPlansOverview();
+function refreshManage() {
+  void loadGatewayParams();
+  void loadGateways();
 }
 
-function getViewTitle(): string {
-  return currentView.value === 'list' ? 'Gateway plans' : 'Advanced gateway';
+function extrasFromGateway(gateway: GatewayRecord): Record<string, any> {
+  const meta = gateway.metadata && typeof gateway.metadata === 'object' ? { ...gateway.metadata } : {};
+  delete meta.endpoint;
+  delete meta.regions;
+  delete meta.score;
+  delete (meta as any).base_url;
+  return meta;
 }
 
-function getViewDescription(): string {
-  return currentView.value === 'list'
-    ? 'View on-chain storage plans published by gateways.'
-    : 'Custom gateway management (coming soon).';
+function createEditState(gateway: GatewayRecord): GatewayEditState {
+  const extras = extrasFromGateway(gateway);
+  const extrasText = Object.keys(extras).length ? JSON.stringify(extras, null, 2) : '';
+  return reactive({
+    endpoint: gateway.endpoint || '',
+    regions: (gateway.regions || []).join(', '),
+    payout: gateway.payout || '',
+    metadata: extrasText,
+    active: !!gateway.active,
+    memo: '',
+    error: '',
+    txhash: '',
+    busy: false,
+    original: {
+      endpoint: gateway.endpoint || '',
+      regions: [...(gateway.regions || [])],
+      payout: gateway.payout || '',
+      extras,
+      active: !!gateway.active
+    }
+  });
 }
 
-function planKey(plan: PlanView): string {
-  return `${plan.gatewayId}:${plan.planId}`.toLowerCase();
-}
-
-function subscriptionMap() {
-  const map = new Map<string, SubscriptionView[]>();
-  for (const sub of subscriptions.value) {
-    const metaPlanId = String(sub.metadata?.planId ?? '').toLowerCase();
-    const key = metaPlanId
-      ? `${sub.gatewayId}:${metaPlanId}`.toLowerCase()
-      : `${sub.gatewayId}`.toLowerCase();
-    if (!map.has(key)) map.set(key, []);
-    map.get(key)!.push(sub);
+function syncEditMap() {
+  const seen = new Set<string>();
+  for (const gateway of myGateways.value) {
+    seen.add(gateway.id);
+    editMap[gateway.id] = createEditState(gateway);
   }
-  return map;
-}
-
-const planSubscriptions = computed(() => subscriptionMap());
-
-function planStatus(plan: PlanView): string {
-  const key = planKey(plan);
-  const candidates = planSubscriptions.value.get(key);
-  if (candidates && candidates.length) {
-    const active = candidates.find((s) => s.status === 'active');
-    if (active) return 'active';
-    const pending = candidates.find((s) => s.status === 'pending');
-    if (pending) return 'pending';
-    return candidates[0].status || 'unknown';
-  }
-  const fallback = planSubscriptions.value.get(plan.gatewayId.toLowerCase());
-  if (fallback && fallback.length) return fallback[0].status || 'unknown';
-  return 'none';
-}
-
-function planStatusLabel(plan: PlanView): string {
-  const status = planStatus(plan);
-  switch (status) {
-    case 'active':
-      return 'Subscribed';
-    case 'pending':
-      return 'Pending';
-    case 'cancelled':
-    case 'canceled':
-      return 'Cancelled';
-    case 'completed':
-      return 'Completed';
-    default:
-      return 'Not subscribed';
+  for (const id of Object.keys(editMap)) {
+    if (!seen.has(id)) delete editMap[id];
   }
 }
 
-function statusClass(status: string): string {
-  if (status === 'active') return 'badge-success';
-  if (status === 'pending') return 'badge-warn';
-  return '';
+function resetEdit(id: string) {
+  const gateway = gateways.value.find((g) => g.id === id);
+  if (!gateway) return;
+  editMap[id] = createEditState(gateway);
 }
 
-function planDisplayName(plan: PlanView): string {
-  return plan.planId?.split(':').pop() || 'Plan';
+function arraysEqual(a: string[], b: string[]): boolean {
+  const aa = [...a].map((v) => v.toLowerCase());
+  const bb = [...b].map((v) => v.toLowerCase());
+  aa.sort();
+  bb.sort();
+  return aa.length === bb.length && aa.every((v, i) => v === bb[i]);
 }
 
-function formatPrice(ulmn: number): string {
-  const lmn = ulmn / 1_000_000;
-  if (!ulmn) return 'Free';
-  return `${lmn.toFixed(lmn >= 10 ? 0 : 2)} LMN / mo`;
+function deepEqual(a: Record<string, any>, b: Record<string, any>): boolean {
+  const keysA = Object.keys(a || {}).sort();
+  const keysB = Object.keys(b || {}).sort();
+  if (keysA.length !== keysB.length) return false;
+  for (let i = 0; i < keysA.length; i++) {
+    const key = keysA[i];
+    if (key !== keysB[i]) return false;
+    const valA = (a as any)[key];
+    const valB = (b as any)[key];
+    if (typeof valA === 'object' && typeof valB === 'object') {
+      if (!deepEqual(valA ?? {}, valB ?? {})) return false;
+    } else if (String(valA) !== String(valB)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function parseRegions(input: string): string[] {
+  return input
+    .split(/[\s,\n]+/)
+    .map((r) => r.trim())
+    .filter(Boolean);
+}
+
+function parseExtras(text: string): { ok: boolean; value?: Record<string, any>; error?: string } {
+  const trimmed = text.trim();
+  if (!trimmed) return { ok: true, value: undefined };
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ok: false, error: 'Metadata must be a JSON object.' };
+    }
+    return { ok: true, value: parsed as Record<string, any> };
+  } catch (e: any) {
+    const raw = e && e.message ? String(e.message) : '';
+    const msg = raw.replace(/\s+/g, ' ').trim();
+    return { ok: false, error: msg ? `Metadata JSON is invalid: ${msg}` : 'Metadata JSON is invalid.' };
+  }
+}
+
+function isDirty(id: string): boolean {
+  const state = editMap[id];
+  if (!state) return false;
+  const extras = parseExtras(state.metadata);
+  if (!extras.ok && state.metadata.trim()) return true;
+  const regions = parseRegions(state.regions);
+  return (
+    state.endpoint.trim() !== state.original.endpoint.trim() ||
+    !arraysEqual(regions, state.original.regions) ||
+    state.payout.trim() !== state.original.payout.trim() ||
+    !deepEqual(extras.value ?? {}, state.original.extras) ||
+    state.active !== state.original.active
+  );
+}
+
+async function registerGateway() {
+  if (!hasProfile.value || registerState.busy || !canRegister.value) return;
+  const extras = parseExtras(registerForm.metadata);
+  if (!extras.ok) {
+    registerState.error = extras.error || 'Invalid metadata.';
+    notify(registerState.error, 'error');
+    return;
+  }
+
+  registerState.busy = true;
+  registerState.error = '';
+  registerState.txhash = '';
+  try {
+    const gwApi = getGwApi();
+    if (!gwApi || !gwApi.registerGateway) {
+      throw new Error('Gateway register API unavailable.');
+    }
+    const result: any = await gwApi.registerGateway({
+      profileId: activeProfileId.value,
+      payout: registerForm.payout.trim(),
+      endpoint: registerForm.endpoint.trim(),
+      regions: parseRegions(registerForm.regions),
+      metadata: extras.value ?? undefined,
+      memo: registerForm.memo || undefined
+    });
+    if (!result || result.ok === false) {
+      const errorMessage = normalizeError(result?.error || result?.message || 'Registration failed.');
+      registerState.error = errorMessage;
+      notify(errorMessage, 'error');
+      return;
+    }
+    registerState.txhash = String(result.txhash || '');
+    notify('Gateway registration submitted', 'success');
+    await loadGateways();
+    registerForm.endpoint = '';
+    registerForm.regions = '';
+    registerForm.metadata = '';
+    registerForm.memo = '';
+  } catch (e: any) {
+    const msg = normalizeError(e?.message || e);
+    registerState.error = msg;
+    notify(msg, 'error');
+  } finally {
+    registerState.busy = false;
+  }
+}
+
+async function updateGateway(id: string) {
+  const state = editMap[id];
+  const gateway = gateways.value.find((g) => g.id === id);
+  if (!state || !gateway || state.busy || !hasProfile.value) return;
+  const gatewayId = Number(id);
+  if (!gatewayId) {
+    state.error = 'Gateway identifier missing.';
+    notify(state.error, 'error');
+    return;
+  }
+  const extras = parseExtras(state.metadata);
+  if (!extras.ok) {
+    state.error = extras.error || 'Invalid metadata.';
+    notify(state.error, 'error');
+    return;
+  }
+  state.busy = true;
+  state.error = '';
+  state.txhash = '';
+  try {
+    const gwApi = getGwApi();
+    if (!gwApi || !gwApi.updateGateway) {
+      throw new Error('Gateway update API unavailable.');
+    }
+    const payload: any = {
+      profileId: activeProfileId.value,
+      gatewayId,
+      payout: state.payout.trim() || undefined,
+      endpoint: state.endpoint.trim() || undefined,
+      regions: parseRegions(state.regions),
+      metadata: extras.value ?? undefined,
+      active: state.active,
+      memo: state.memo || undefined
+    };
+    const result: any = await gwApi.updateGateway(payload);
+    if (!result || result.ok === false) {
+      const errorMessage = normalizeError(result?.error || result?.message || 'Update failed.');
+      state.error = errorMessage;
+      notify(errorMessage, 'error');
+      return;
+    }
+    state.txhash = String(result.txhash || '');
+    notify('Gateway update submitted', 'success');
+    await loadGateways();
+  } catch (e: any) {
+    const msg = normalizeError(e?.message || e);
+    state.error = msg;
+    notify(msg, 'error');
+  } finally {
+    state.busy = false;
+  }
+}
+
+function formatUlmnToLmn(value?: string | number | bigint | null): string {
+  const num = Number(value ?? 0);
+  if (!Number.isFinite(num) || num <= 0) return '0 LMN';
+  return `${(num / 1_000_000).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6
+  })} LMN`;
+}
+
+function normalizeError(value: any): string {
+  const raw = typeof value === 'string' ? value : value?.message || '';
+  const message = String(raw || '').replace(/\s+/g, ' ').trim();
+  if (!message) return 'Operation failed. Please try again.';
+  const low = message.toLowerCase();
+  if (low.includes('password_required')) return 'Unlock your wallet (password required) and try again.';
+  if (low.includes('invalid_password')) return 'Invalid password. Unlock your wallet and try again.';
+  if (low.includes('wallet_unavailable')) return 'Select an active profile with a wallet first.';
+  if (low.includes('guest_profile')) return 'Guest profiles cannot submit on-chain transactions.';
+  if (low.includes('missing_profileid')) return 'Select a profile before submitting.';
+  if (low.includes('missing_gatewayid')) return 'Gateway identifier missing.';
+  if (low.includes('missing_endpoint')) return 'Endpoint is required.';
+  if (low.includes('invalid endpoint: format'))
+    return 'Invalid endpoint. Use a valid domain or subdomain (e.g. gateway.city or gtw.gateway.city).';
+  if (low.includes('invalid endpoint: domain format')) return 'Domain can include letters, numbers, or hyphens only.';
+  if (low.includes('invalid endpoint: extension format')) return 'Extension must be 2-14 lowercase letters.';
+  if (low.includes('invalid endpoint: characters')) return 'Endpoint may only contain letters, numbers, dots, and hyphens.';
+  if (low.includes('invalid endpoint: empty label')) return 'Endpoint labels cannot be empty.';
+  if (low.includes('keystore')) return 'Unlock your wallet and try again.';
+  return message;
 }
 
 // Watch for refresh signal from navbar
 watch(
   () => currentTabRefresh?.value,
   async () => {
-    await resolveActiveProfile();
-    await loadPlansOverview();
+    refreshManage();
   }
 );
 
 onMounted(async () => {
-  await resolveActiveProfile();
-  await loadPlansOverview();
+  refreshManage();
 });
+
+watch(
+  () => activeProfileId.value,
+  () => {
+    for (const key of Object.keys(editMap)) delete editMap[key];
+    showCreateModal.value = false;
+    resetRegister();
+    refreshManage();
+  }
+);
 </script>
 
 <style scoped>
@@ -512,6 +873,12 @@ onMounted(async () => {
   margin: 0.25rem 0 0;
 }
 
+.content-fees {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-top: 0.35rem;
+}
+
 .btn-primary {
   display: flex;
   align-items: center;
@@ -553,60 +920,296 @@ onMounted(async () => {
   color: var(--text-primary);
 }
 
-.content-area {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.gateways-list {
+.manage-wrap {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.gateway-card {
+.manage-head-actions {
+  display: inline-flex;
+  gap: 0.75rem;
+  flex: 0 0 auto;
+}
+
+.manage-list {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
-  padding: 1.5rem;
+}
+
+.manage-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.manage-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.manage-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.manage-card-name {
+  font-weight: 800;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 520px;
+}
+
+.manage-card-id {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  flex: 0 0 auto;
+}
+
+.manage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
   border-radius: 12px;
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
-.gateway-card.default {
+.form-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.form-input:focus {
+  outline: none;
   border-color: var(--accent-primary);
-  background: var(--card-bg);
+  box-shadow: 0 0 0 2px var(--primary-a15);
 }
 
-.gateway-status {
-  width: 12px;
-  height: 12px;
+.manage-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.gateway-status-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--text-tertiary);
+  flex: 0 0 auto;
 }
 
-.gateway-status.online {
+.gateway-status-dot.ok {
   background: var(--ios-green);
 }
 
-.gateway-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.inline-error {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--ios-red-rgb), 0.25);
+  background: rgba(var(--ios-red-rgb), 0.08);
+  color: var(--ios-red);
+  font-size: 0.85rem;
+}
+
+.inline-success {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--ios-green-rgb), 0.25);
+  background: rgba(var(--ios-green-rgb), 0.08);
+  color: var(--ios-green);
+  font-size: 0.85rem;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.gateway-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.toggle input {
+  width: 16px;
+  height: 16px;
 }
 
-.gateway-name {
-  font-size: 1rem;
-  font-weight: 600;
+.toggle-ui {
+  display: none;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  width: min(760px, 100%);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-primary-lg);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: var(--text-primary);
+}
+
+.modal-sub {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.modal-body {
+  padding: 1rem 1.25rem 0.25rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.modal-body .form-group:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+.modal-actions {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.icon-btn:hover:enabled {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.icon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  z-index: 110;
+  box-shadow: var(--shadow-primary-lg);
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.toast.error {
+  background: rgba(var(--ios-red-rgb), 0.9);
+}
+
+.toast.info {
+  background: rgba(59, 130, 246, 0.9);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .gateway-badge {
@@ -624,23 +1227,6 @@ onMounted(async () => {
 .badge-warn {
   background: rgba(255, 204, 0, 0.15);
   color: var(--ios-orange);
-}
-
-.gateway-url {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  font-family: monospace;
-}
-
-.gateway-stats {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.stat {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
 }
 
 .empty-state-card {
@@ -729,6 +1315,14 @@ onMounted(async () => {
   .main-content {
     margin: 0 0.5rem 0.5rem 0.5rem;
     padding: 1.5rem;
+  }
+
+  .manage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-body {
+    grid-template-columns: 1fr;
   }
 }
 </style>
