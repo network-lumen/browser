@@ -228,7 +228,8 @@
             :class="[
               `result-${r.kind}`,
               r.media ? `media-${r.media}` : '',
-              r.fileKind ? `file-${r.fileKind}` : ''
+              r.fileKind ? `file-${r.fileKind}` : '',
+              selectedType === 'all' && r.media === 'image' ? 'explore-image' : ''
             ]"
             type="button" 
             @click="openResult(r)"
@@ -286,8 +287,15 @@
                 {{ displayTitle(r) }}
               </div>
               <div v-if="shouldShowResultUrl(r)" class="result-url mono">{{ r.url }}</div>
+              <pre
+                v-if="displayTextPreviewList(r)"
+                class="result-desc result-desc--code"
+                :class="{ 'result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
+                :title="displayTextPreviewHover(r)"
+                v-text="displayTextPreviewList(r)"
+              ></pre>
               <div
-                v-if="displayDescription(r)"
+                v-else-if="displayDescription(r)"
                 class="result-desc"
                 :class="{ 'result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
                 :title="displayDescription(r)"
@@ -429,6 +437,11 @@ import {
   Search,
   Wallet,
   FileText,
+  FileCode,
+  FileType,
+  File,
+  FileQuestion,
+  BookOpen,
   Music,
   Box,
   ExternalLink,
@@ -902,6 +915,101 @@ async function resolveHtmlEntryForCidRoot(
   return { isDir: true, entryPath: null };
 }
 
+function parseHtmlHeadMeta(html: string): { title: string | null; description: string | null } {
+  const raw = String(html || "");
+  if (!raw) return { title: null, description: null };
+
+  const titleMatch = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const titleRaw = titleMatch ? String(titleMatch[1] || "") : "";
+  const title = titleRaw.replace(/\s+/g, " ").trim();
+
+  const metaMatch = raw.match(
+    /<meta[^>]+name=[\"']description[\"'][^>]+content=[\"']([^\"']*)[\"'][^>]*>/i,
+  );
+  const descRaw = metaMatch ? String(metaMatch[1] || "") : "";
+  const description = descRaw.replace(/\s+/g, " ").trim();
+
+  const clip = (v: string, max: number) => {
+    const s = String(v || "").replace(/\s+/g, " ").trim();
+    if (!s) return null;
+    if (s.length <= max) return s;
+    return `${s.slice(0, max).trimEnd()}…`;
+  };
+
+  return {
+    title: clip(title, 120),
+    description: clip(description, 250),
+  };
+}
+
+async function fetchHtmlHeadMetaForCidPath(
+  cid: string,
+  entryPath: string,
+  { timeoutMs = 2500, maxBytes = 64 * 1024 } = {},
+): Promise<{ title: string | null; description: string | null }> {
+  const c = String(cid || "").trim();
+  const p = String(entryPath || "").trim();
+  if (!c || !p) return { title: null, description: null };
+
+  const encoded = encodeUrlPath(p);
+  const url = encoded
+    ? `${localIpfsGatewayBase()}/ipfs/${c}/${encoded}`
+    : `${localIpfsGatewayBase()}/ipfs/${c}`;
+
+  const httpGet = (window as any).lumen?.httpGet;
+  const range = `bytes=0-${Math.max(0, Math.floor(maxBytes) - 1)}`;
+
+  try {
+    if (typeof httpGet === "function") {
+      const res = await httpGet(url, { timeout: timeoutMs, headers: { Range: range } }).catch(
+        () => null,
+      );
+      const bytes = res && Array.isArray(res.data) ? new Uint8Array(res.data) : null;
+      if (bytes && bytes.byteLength) {
+        const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+        return parseHtmlHeadMeta(text);
+      }
+      return { title: null, description: null };
+    }
+
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    const resp = await fetch(url, { headers: { Range: range }, signal: controller.signal });
+    clearTimeout(t);
+    if (!resp.ok) return { title: null, description: null };
+    const buf = await resp.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    return parseHtmlHeadMeta(text);
+  } catch {
+    return { title: null, description: null };
+  }
+}
+
+async function enrichFastCidResult(
+  base: ResultItem[],
+  cid: string,
+  seq: number,
+): Promise<void> {
+  const c = String(cid || "").trim();
+  if (!c) return;
+  const item = base.find((r) => r && r.kind === "ipfs" && r.id === `ipfs:${c}`);
+  if (!item) return;
+
+  const resolved = await resolveHtmlEntryForCidRoot(c).catch(() => null);
+  if (seq !== searchSeq) return;
+  if (!resolved || !resolved.isDir || !resolved.entryPath) return;
+
+  const encoded = encodeUrlPath(resolved.entryPath);
+  item.url = encoded ? `lumen://ipfs/${c}/${encoded}` : `lumen://ipfs/${c}`;
+
+  const meta = await fetchHtmlHeadMetaForCidPath(c, resolved.entryPath);
+  if (seq !== searchSeq) return;
+
+  if (meta.title) item.title = meta.title;
+  if (meta.description) item.description = meta.description;
+}
+
 async function enrichSiteResultsWithEntryPaths(
   items: ResultItem[],
   seq: number,
@@ -1131,8 +1239,12 @@ function iconFor(r: ResultItem) {
       if (fk === "image" || r.media === "image") return Image;
       if (fk === "video" || r.media === "video") return Film;
       if (fk === "audio" || r.media === "audio") return Music;
-      if (fk === "pdf" || fk === "docx" || fk === "epub" || fk === "html" || fk === "txt") return FileText;
-      return Layers;
+      if (fk === "pdf") return File;
+      if (fk === "docx") return FileType;
+      if (fk === "epub") return BookOpen;
+      if (fk === "html") return FileCode;
+      if (fk === "txt") return FileText;
+      return FileQuestion;
     }
     case "tx":
       return Hash;
@@ -1151,6 +1263,13 @@ function isCidTitle(titleValue: any): boolean {
   return /^cid\b/i.test(t);
 }
 
+function isExploreImageResult(r: ResultItem): boolean {
+  if (!r) return false;
+  if (selectedType.value !== "all") return false;
+  if (r.kind !== "ipfs") return false;
+  return r.media === "image" || r.fileKind === "image";
+}
+
 function displayTitle(r: ResultItem): string | null {
   if (!r) return null;
   const title = String(r.title || "").trim();
@@ -1161,8 +1280,12 @@ function displayTitle(r: ResultItem): string | null {
   }
 
   if (selectedType.value === "all") {
-    if (!title) return "No title";
-    if (isCidTitle(title) || isCidLike(title) || /^\/ipfs\//i.test(title)) return "No title";
+    if (isExploreImageResult(r)) return null;
+    const isText = r.kind === "ipfs" && r.fileKind === "txt";
+    if (!title) return isText ? "Title unavailable" : "No title";
+    if (isCidTitle(title) || isCidLike(title) || /^\/ipfs\//i.test(title)) {
+      return isText ? "Title unavailable" : "No title";
+    }
   }
 
   return title || null;
@@ -1215,8 +1338,61 @@ function formatResultDescription(descValue: any): string {
   return `${safe.trimEnd()}…`;
 }
 
+function isExploreTextPreviewResult(r: ResultItem): boolean {
+  if (!r) return false;
+  if (selectedType.value !== "all") return false;
+  if (r.kind !== "ipfs") return false;
+  return r.fileKind === "txt";
+}
+
+function formatCodePreviewHover(descValue: any): string {
+  const raw = String(descValue || "").replace(/\r/g, "\n");
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const max = 250;
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max).trimEnd()}…`;
+}
+
+function formatCodePreviewList(descValue: any): string {
+  const raw = String(descValue || "").replace(/\r/g, "\n");
+  if (!raw.trim()) return "";
+
+  const lines = raw
+    .split("\n")
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+  const joined = lines.join(". ").trim();
+  if (!joined) return "";
+
+  const max = 250;
+  if (joined.length <= max) return joined;
+  const clipped = joined.slice(0, max);
+  const lastSpace = clipped.lastIndexOf(" ");
+  const safe = lastSpace > 120 ? clipped.slice(0, lastSpace) : clipped;
+  return `${safe.trimEnd()}…`;
+}
+
+function displayTextPreviewList(r: ResultItem): string | null {
+  if (!isExploreTextPreviewResult(r)) return null;
+  const raw = String(r.description || "");
+  const formatted = formatCodePreviewList(raw);
+  if (formatted) return formatted;
+  return "No preview available";
+}
+
+function displayTextPreviewHover(r: ResultItem): string | null {
+  if (!isExploreTextPreviewResult(r)) return null;
+  const raw = String(r.description || "");
+  const formatted = formatCodePreviewHover(raw);
+  if (formatted) return formatted;
+  return "No preview available";
+}
+
 function displayDescription(r: ResultItem): string | null {
   if (!r) return null;
+  if (isExploreTextPreviewResult(r)) return null;
   const raw = String(r.description || "").trim();
   if (raw) return formatResultDescription(raw);
   if (r.kind === "site") return "No description available";
@@ -1226,6 +1402,11 @@ function displayDescription(r: ResultItem): string | null {
 function isNoDescriptionPlaceholder(r: ResultItem): boolean {
   if (!r) return false;
   if (r.kind !== "site") return false;
+  return !String(r.description || "").trim();
+}
+
+function isNoTextPreviewPlaceholder(r: ResultItem): boolean {
+  if (!isExploreTextPreviewResult(r)) return false;
   return !String(r.description || "").trim();
 }
 
@@ -1301,6 +1482,27 @@ async function openResult(r: ResultItem) {
     selectedType.value === "all" ||
     selectedType.value === "image" ||
     (selectedType.value === "site" && r.kind === "site");
+
+  if (r && r.kind === "ipfs") {
+    const parsed = parseLumenIpfsUrl(r.url);
+    if (parsed && !parsed.subpath) {
+      const cid = String(parsed.cid || "").trim();
+      if (cid) {
+        const resolved = await resolveHtmlEntryForCidRoot(cid).catch(() => null);
+        if (resolved && resolved.isDir && resolved.entryPath) {
+          const encoded = encodeUrlPath(resolved.entryPath);
+          const nextUrl = encoded ? `lumen://ipfs/${cid}/${encoded}` : `lumen://ipfs/${cid}`;
+          if (wantsNewTab) {
+            if (openInNewTab) openInNewTab(nextUrl);
+            else goto(nextUrl, { push: true });
+          } else {
+            goto(nextUrl, { push: true });
+          }
+          return;
+        }
+      }
+    }
+  }
 
   if (selectedType.value === "site" && r && r.kind === "site") {
     const domain = String(r.site?.domain || "").trim();
@@ -1810,10 +2012,13 @@ function mapGatewayHitToResult(
     ? `${localIpfsGatewayBase()}/ipfs/${cid}`
     : undefined;
 
+  const hitTitle = hit?.title != null ? String(hit.title).trim() : "";
   const title =
-    (hit?.title != null && String(hit.title).trim()) ||
-    (path ? path.split("/").filter(Boolean).slice(-1)[0] : "") ||
-    (isImage ? "" : `CID ${cid.slice(0, 10)}…`);
+    filterType === "all" && fileKind === "txt"
+      ? hitTitle
+      : hitTitle ||
+        (path ? path.split("/").filter(Boolean).slice(-1)[0] : "") ||
+        (isImage ? "" : `CID ${cid.slice(0, 10)}…`);
 
   const snippet = hit?.snippet != null ? String(hit.snippet).trim() : "";
 
@@ -2460,7 +2665,11 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   gatewayHasMore.value = false;
 
   try {
-    const base = buildFastResults(clean);
+    // In the Images tab, keep results strictly image-only (avoid "fast actions" like open link/CID
+    // that would inflate counts without showing anything in the image grid).
+    const base = type === "image" ? [] : buildFastResults(clean);
+    const cidMetaPromise =
+      safePage === 1 && clean && isCidLike(clean) ? enrichFastCidResult(base, clean, seq) : Promise.resolve();
 
     const profileId = await getActiveProfileId();
 
@@ -2473,9 +2682,16 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       page: safePage,
     });
 
-    const [bestDomain, gw] = await Promise.all([
+    const cidSitePromise =
+      safePage === 1 && type === "all" && clean && isCidLike(clean) && !!profileId
+        ? searchGateways(profileId || "", clean, "site", seq, { pageSize: 1, page: 1 })
+        : Promise.resolve(null);
+
+    const [bestDomain, gw, _cidMetaDone, cidSite] = await Promise.all([
       domainPromise,
       gatewayPromise,
+      cidMetaPromise,
+      cidSitePromise,
     ]);
     if (seq !== searchSeq) return;
 
@@ -2508,7 +2724,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       });
     }
 
-    if (safePage === 1 && !profileId && (type === "image" || type === "all")) {
+    if (safePage === 1 && !profileId && type === "all") {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway search",
@@ -2528,7 +2744,56 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       });
     }
 
-    const merged = [...base, ...gwResults];
+    let merged = [...base, ...gwResults];
+
+    // Explore: when querying a raw CID, prefer the "Sites" entrypoint (gateway-derived) over the generic
+    // "IPFS content" quick action + a duplicate HTML hit.
+    if (safePage === 1 && type === "all" && clean && isCidLike(clean)) {
+      const siteCandidate =
+        cidSite && typeof cidSite === "object" && Array.isArray((cidSite as any).items)
+          ? ((cidSite as any).items as ResultItem[]).find((r) => r && r.kind === "site")
+          : null;
+
+      if (siteCandidate) {
+        const parsed = parseLumenIpfsUrl(siteCandidate.url);
+        const best =
+          parsed && parsed.cid
+            ? ({
+                id: `cid:${clean}`,
+                title: siteCandidate.title,
+                url: siteCandidate.url,
+                description: siteCandidate.description,
+                kind: "ipfs",
+                badges: siteCandidate.badges,
+                thumbUrl: siteCandidate.thumbUrl,
+                media: "unknown",
+                fileKind: "html",
+              } as ResultItem)
+            : siteCandidate;
+
+        // Remove the generic "Open content by CID" quick action.
+        merged = merged.filter((r) => !(r && r.kind === "ipfs" && r.id === `ipfs:${clean}`));
+
+        // Remove HTML hits that still point at the raw CID root (we replace them with the entrypoint).
+        merged = merged.filter((r) => {
+          if (!r || r.kind !== "ipfs") return true;
+          if (r.fileKind !== "html") return true;
+          return !String(r.url || "").toLowerCase().startsWith(`lumen://ipfs/${clean.toLowerCase()}`);
+        });
+
+        // De-dupe by URL.
+        const seen = new Set<string>();
+        const out: ResultItem[] = [];
+        for (const r of [best, ...merged]) {
+          const key = String(r?.url || "").trim();
+          if (!key) continue;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          out.push(r);
+        }
+        merged = out;
+      }
+    }
 
     if (type === "site") {
       const sitesAll = mergeAndRankSites(clean, merged);
@@ -2974,6 +3239,46 @@ const imageResults = computed(() =>
   box-shadow: 0 4px 12px var(--primary-a20);
 }
 
+.result-card.explore-image {
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+  min-height: 132px;
+  max-height: 132px;
+}
+
+.result-card.explore-image .result-icon {
+  width: 160px;
+  height: auto;
+  align-self: stretch;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.result-card.explore-image .safe-thumb--compact {
+  border-radius: 0;
+}
+
+.result-card.explore-image .result-body {
+  overflow: hidden;
+  padding: 1.25rem 1.5rem;
+}
+
+.result-card.explore-image .badges {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.result-card.explore-image .badge {
+  white-space: nowrap;
+}
+
+.result-card.explore-image:hover .result-icon {
+  transform: none;
+  box-shadow: 0 10px 30px var(--primary-a18);
+}
+
 /* Result type-specific icon colors */
 .icon-site {
   background: linear-gradient(135deg, rgba(0, 122, 255, 0.12) 0%, rgba(88, 86, 214, 0.12) 100%);
@@ -3395,6 +3700,19 @@ const imageResults = computed(() =>
   font-size: 0.75rem;
   font-style: italic;
   opacity: 0.6;
+}
+
+.result-desc--code {
+  margin: 0.5rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--primary-a06);
+  border: 1px solid var(--primary-a12);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  line-height: 1.45;
 }
 
 .result-open {

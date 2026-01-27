@@ -1294,17 +1294,26 @@ async function load() {
     // Web-like behavior: if navigating to a directory path without an explicit trailing slash,
     // auto-open `index.html` / `index.htm` when present.
     if (!wantsDir.value && isDir.value && navigate) {
-      const idx =
-        mapped.find((e) => e.type === "file" && String(e.name).toLowerCase() === "index.html") ||
-        mapped.find((e) => e.type === "file" && String(e.name).toLowerCase() === "index.htm") ||
-        null;
+      // If the current path already looks like an explicit HTML file, do not treat it as a "directory route"
+      // and append another `/index.html` (avoids `/index.html/index.html` in weird DAGs).
+      const allowAutoIndex = !(relPath.value && isHtmlLikePath(relPath.value));
+      if (allowAutoIndex) {
+        const idx =
+          mapped.find(
+            (e) => e.type === "file" && String(e.name).toLowerCase() === "index.html",
+          ) ||
+          mapped.find(
+            (e) => e.type === "file" && String(e.name).toLowerCase() === "index.htm",
+          ) ||
+          null;
 
-      if (idx) {
-        const next = `lumen://ipfs/${rootCid.value}/${encodePath(idx.relPath)}${suffix.value || ""}`;
-        const cur = String(currentTabUrl?.value || "").trim();
-        if (cur !== next) {
-          navigate(next, { push: false });
-          return;
+        if (idx) {
+          const next = `lumen://ipfs/${rootCid.value}/${encodePath(idx.relPath)}${suffix.value || ""}`;
+          const cur = String(currentTabUrl?.value || "").trim();
+          if (cur !== next) {
+            navigate(next, { push: false });
+            return;
+          }
         }
       }
     }
