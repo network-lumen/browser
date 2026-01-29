@@ -3,14 +3,10 @@
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
       <nav class="lsb-nav">
         <div class="lsb-section">
-          <span class="lsb-label">Publisher</span>
-          <button type="button" class="lsb-item" :disabled="loading" @click="refreshAll">
-            <RefreshCw :size="18" />
-            <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
-          </button>
-          <button type="button" class="lsb-item" :disabled="loading || !allowed" @click="openPublishModal">
-            <Plus :size="18" />
-            <span>Publish release</span>
+          <span class="lsb-label">Manage</span>
+          <button type="button" class="lsb-item" :class="{ active: true }">
+            <Rocket :size="18" />
+            <span>Publisher</span>
           </button>
         </div>
       </nav>
@@ -19,41 +15,58 @@
     <main class="main-content">
       <header class="content-header">
         <div class="header-left">
-          <h1>Publisher workspace</h1>
-          <p v-if="allowed">You are on the release allowlist. Publish releases from this app.</p>
-          <p v-else>Checking publisher permissions…</p>
+          <h1>Releases</h1>
+          <p v-if="allowed">Publisher access enabled for the active profile.</p>
+          <p v-else-if="loading">Checking publisher permissions…</p>
+          <p v-else>Publisher access required.</p>
+          <p v-if="pendingTtlSeconds" class="header-meta">
+            Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
+          </p>
         </div>
-        <div class="header-right">
-          <div v-if="testMode.enabled" class="pill">
-            <span class="pill-label">Update test</span>
-            <label class="pill-check">
-              <input type="checkbox" v-model="testMode.forcePrompt" @change="applyTestMode" :disabled="loading" />
-              <span class="pill-check-label">Force prompt</span>
-            </label>
-            <label class="pill-check">
-              <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
-              <span class="pill-check-label">Allow pending (stable)</span>
-            </label>
-            <UiButton variant="ghost" size="sm" @click="pollNow" :disabled="loading">Re-check</UiButton>
-          </div>
-          <div class="pill">
-            <span class="pill-label">Channel</span>
-            <select v-model="channelFilter" class="pill-input" :disabled="loading">
-              <option value="all">All</option>
-              <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
-            </select>
-          </div>
-          <div class="pill">
-            <span class="pill-label">Search</span>
-            <input
-              v-model.trim="searchTerm"
-              class="pill-input"
-              placeholder="Version, publisher, ID…"
-              :disabled="loading"
-            />
-          </div>
+        <div class="header-actions">
+          <button type="button" class="btn-secondary" :disabled="loading" @click="refreshAll">
+            <RefreshCw :size="18" />
+            <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
+          </button>
+          <button type="button" class="btn-primary" :disabled="loading || !allowed" @click="openPublishModal">
+            <Plus :size="18" />
+            <span>Publish release</span>
+          </button>
         </div>
       </header>
+
+      <section class="toolbar" aria-label="Filters">
+        <div class="filter">
+          <label class="filter-label">Channel</label>
+          <select v-model="channelFilter" class="form-input" :disabled="loading">
+            <option value="all">All</option>
+            <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="filter grow">
+          <label class="filter-label">Search</label>
+          <input
+            v-model.trim="searchTerm"
+            class="form-input"
+            placeholder="Version, publisher, ID…"
+            :disabled="loading"
+          />
+        </div>
+
+        <div v-if="testMode.enabled" class="test-tools" aria-label="Update test tools">
+          <span class="test-label">Update test</span>
+          <label class="test-check">
+            <input type="checkbox" v-model="testMode.forcePrompt" @change="applyTestMode" :disabled="loading" />
+            <span>Force prompt</span>
+          </label>
+          <label class="test-check">
+            <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
+            <span>Allow pending (stable)</span>
+          </label>
+          <button type="button" class="btn-secondary" @click="pollNow" :disabled="loading">Re-check</button>
+        </div>
+      </section>
 
       <section v-if="!allowed && !loading" class="no-access">
         <p>Redirecting…</p>
@@ -103,6 +116,15 @@
           <div class="panel-title">
             <span>Release #{{ selectedRelease.id }}</span>
             <span class="muted">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
+          </div>
+
+          <div v-if="selectedRelease.status === 'PENDING'" class="detail-actions">
+            <button type="button" class="btn-primary" :disabled="submittingDao" @click="openDaoModal('validate')">
+              Send to DAO (validate)
+            </button>
+            <button type="button" class="btn-secondary" :disabled="submittingDao" @click="openDaoModal('reject')">
+              Send to DAO (reject)
+            </button>
           </div>
 
           <div class="detail-grid">
@@ -168,6 +190,54 @@
       </section>
     </main>
 
+    <div v-if="daoModalOpen" class="modal-overlay" @click.self="closeDaoModal">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Send to DAO</h2>
+          <button type="button" class="modal-close" @click="closeDaoModal">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-grid">
+            <label class="field">
+              <span class="label">Action</span>
+              <select v-model="daoForm.kind" class="input">
+                <option value="validate">Validate release</option>
+                <option value="reject">Reject release</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="label">Deposit (LMN)</span>
+              <input v-model.trim="daoForm.depositLmn" class="input" placeholder="0" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span class="label">Title</span>
+            <input v-model.trim="daoForm.title" class="input" />
+          </label>
+
+          <label class="field">
+            <span class="label">Summary</span>
+            <textarea v-model="daoForm.summary" class="input" rows="3" />
+          </label>
+
+          <label v-if="daoForm.kind === 'reject'" class="field">
+            <span class="label">Reason (optional)</span>
+            <textarea v-model="daoForm.reason" class="input" rows="3" placeholder="Why should this release be rejected?" />
+          </label>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn-secondary" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
+          <button type="button" class="btn-primary" @click="submitDaoProposal" :disabled="submittingDao">
+            <span v-if="submittingDao" class="inline-spinner"><UiSpinner size="sm" /> Sending…</span>
+            <span v-else>Broadcast proposal</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="publishModalOpen" class="modal-overlay" @click.self="closePublishModal">
       <div class="modal">
         <div class="modal-head">
@@ -209,13 +279,20 @@
           <div class="artifacts-builder">
             <div class="builder-head">
               <h3>Artifacts</h3>
-              <UiButton variant="ghost" size="sm" @click="addArtifact">Add artifact</UiButton>
+              <button type="button" class="btn-secondary btn-sm" @click="addArtifact">Add artifact</button>
             </div>
 
             <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="artifact-draft">
               <div class="artifact-draft-head">
                 <div class="muted">Artifact #{{ idx + 1 }}</div>
-                <UiButton v-if="draft.artifacts.length > 1" variant="ghost" size="sm" @click="removeArtifact(idx)">Remove</UiButton>
+                <button
+                  v-if="draft.artifacts.length > 1"
+                  type="button"
+                  class="btn-secondary btn-sm"
+                  @click="removeArtifact(idx)"
+                >
+                  Remove
+                </button>
               </div>
 
               <div class="form-grid">
@@ -253,11 +330,11 @@
         </div>
 
         <div class="modal-foot">
-          <UiButton variant="ghost" @click="closePublishModal" :disabled="submitting">Cancel</UiButton>
-          <UiButton variant="primary" @click="submitRelease" :disabled="submitting">
-            <template v-if="submitting"><UiSpinner size="sm" /> Publishing…</template>
-            <template v-else>Publish</template>
-          </UiButton>
+          <button type="button" class="btn-secondary" @click="closePublishModal" :disabled="submitting">Cancel</button>
+          <button type="button" class="btn-primary" @click="submitRelease" :disabled="submitting">
+            <span v-if="submitting" class="inline-spinner"><UiSpinner size="sm" /> Publishing…</span>
+            <span v-else>Publish</span>
+          </button>
         </div>
       </div>
     </div>
@@ -268,7 +345,6 @@
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue';
 import { Plus, RefreshCw, Rocket } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import UiButton from '../../ui/UiButton.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
@@ -281,6 +357,7 @@ type ReleaseParams = {
   maxUrlsPerArt: number;
   maxSigsPerArt: number;
   maxNotesLen: number;
+  maxPendingTtl: string;
   publishFeeUlmn: string;
 };
 
@@ -329,6 +406,18 @@ const channelFilter = ref<'all' | string>('all');
 
 const publishModalOpen = ref(false);
 const submitting = ref(false);
+
+type DaoKind = 'validate' | 'reject';
+
+const daoModalOpen = ref(false);
+const submittingDao = ref(false);
+const daoForm = reactive({
+  kind: 'validate' as DaoKind,
+  title: '',
+  summary: '',
+  depositLmn: '0',
+  reason: ''
+});
 
 const testMode = reactive({
   enabled: false,
@@ -426,6 +515,7 @@ async function fetchParams() {
     maxUrlsPerArt: Number(p.max_urls_per_art ?? p.maxUrlsPerArt ?? 0) || 0,
     maxSigsPerArt: Number(p.max_sigs_per_art ?? p.maxSigsPerArt ?? 0) || 0,
     maxNotesLen: Number(p.max_notes_len ?? p.maxNotesLen ?? 0) || 0,
+    maxPendingTtl: String(p.max_pending_ttl ?? p.maxPendingTtl ?? '0'),
     publishFeeUlmn: String(p.publish_fee_ulmn ?? p.publishFeeUlmn ?? '0')
   };
 }
@@ -462,6 +552,11 @@ const allowed = computed(() => {
 });
 
 const channelOptions = computed(() => (params.value?.channels?.length ? params.value.channels : ['stable', 'beta']));
+const pendingTtlSeconds = computed(() => {
+  const raw = params.value?.maxPendingTtl ?? '0';
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? Math.trunc(n) : 0;
+});
 
 watch(channelOptions, (next) => {
   if (!draft.channel) draft.channel = next[0] || 'beta';
@@ -505,6 +600,75 @@ function openPublishModal() {
 function closePublishModal() {
   publishModalOpen.value = false;
   resetDraft();
+}
+
+function openDaoModal(kind: DaoKind) {
+  if (!selectedRelease.value) return;
+  daoForm.kind = kind;
+  daoForm.depositLmn = '0';
+  daoForm.reason = '';
+  const r = selectedRelease.value;
+  const id = Math.trunc(r.id);
+  const ver = r.version ? ` · ${r.version}` : '';
+  const chan = r.channel ? ` (${r.channel})` : '';
+  daoForm.title =
+    kind === 'reject' ? `Reject release #${id}${chan}` : `Validate release #${id}${chan}`;
+  daoForm.summary =
+    kind === 'reject'
+      ? `Reject pending release #${id}${ver}${chan}.`
+      : `Validate pending release #${id}${ver}${chan}.`;
+  daoModalOpen.value = true;
+}
+
+function closeDaoModal() {
+  if (submittingDao.value) return;
+  daoModalOpen.value = false;
+}
+
+async function submitDaoProposal() {
+  if (submittingDao.value) return;
+  const r = selectedRelease.value;
+  if (!r) return;
+
+  const active = getActiveProfile() as any;
+  const profileId = String(active?.id || '').trim();
+  const proposer = activeAddress.value;
+  if (!profileId || !proposer) {
+    addToast('error', 'Select a profile with a wallet first.');
+    return;
+  }
+
+  const api = (window as any).lumen?.release?.submitToDao;
+  if (typeof api !== 'function') {
+    addToast('error', 'DAO submission API unavailable.');
+    return;
+  }
+
+  submittingDao.value = true;
+  try {
+    const reason = String(daoForm.reason || '').trim();
+    const summary = reason && daoForm.kind === 'reject'
+      ? `${daoForm.summary.trim()}\n\nReason: ${reason}`
+      : daoForm.summary.trim();
+
+    const res = await api({
+      profileId,
+      proposer,
+      kind: daoForm.kind,
+      releaseId: r.id,
+      title: daoForm.title.trim(),
+      summary,
+      depositLmn: daoForm.depositLmn.trim() || '0'
+    });
+    if (!res?.ok) throw new Error(String(res?.error || 'Broadcast failed'));
+    addToast('success', `Proposal broadcasted${res?.txhash ? ` (${res.txhash})` : ''}`);
+    daoModalOpen.value = false;
+    await fetchReleases();
+  } catch (e: any) {
+    addToast('error', String(e?.message || e || 'Broadcast failed'));
+  } finally {
+    submittingDao.value = false;
+  }
 }
 
 function resetDraft() {
@@ -683,6 +847,21 @@ function statusClass(r: ReleaseRecord) {
   return 'pending';
 }
 
+function formatDuration(seconds: number) {
+  const s = Math.max(0, Number(seconds) || 0);
+  if (!s) return '0s';
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const remS = s % 60;
+  if (m < 60) return remS ? `${m}m ${remS}s` : `${m}m`;
+  const h = Math.floor(m / 60);
+  const remM = m % 60;
+  if (h < 48) return remM ? `${h}h ${remM}m` : `${h}h`;
+  const d = Math.floor(h / 24);
+  const remH = h % 24;
+  return remH ? `${d}d ${remH}h` : `${d}d`;
+}
+
 onMounted(async () => {
   resetDraft();
   await loadTestMode();
@@ -694,6 +873,16 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 2rem 2.5rem;
+  background: var(--bg-secondary);
+}
+
 .content-header {
   display: flex;
   align-items: flex-start;
@@ -704,63 +893,173 @@ onMounted(async () => {
 }
 .header-left h1 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: var(--text-primary);
 }
 .header-left p {
-  margin: 0.25rem 0 0 0;
+  margin: 0.35rem 0 0 0;
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
-.header-right {
-  display: flex;
+.header-meta {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+}
+
+.header-actions {
+  display: inline-flex;
+  align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
-  align-items: center;
+  flex: 0 0 auto;
 }
-.pill {
-  display: flex;
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--border-primary, rgba(0,0,0,0.08));
-  background: var(--bg-primary, #fff);
-  border-radius: 12px;
-  padding: 0.35rem 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease,
+    background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
-.pill-label {
-  color: var(--text-tertiary);
-  font-size: 0.75rem;
-}
-.pill-input {
+
+.btn-primary {
   border: none;
-  background: transparent;
-  outline: none;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  min-width: 150px;
+  color: white;
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-primary);
 }
-.pill-check {
+
+.btn-primary:hover:enabled {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary-lg);
+}
+
+.btn-secondary {
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover:enabled {
+  background: var(--primary-a08);
+  border-color: var(--primary-a15);
+  color: var(--accent-primary);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-sm {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+
+.inline-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.9rem 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 220px;
+}
+
+.filter.grow {
+  flex: 1 1 320px;
+  min-width: 260px;
+}
+
+.filter-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--primary-a15);
+}
+
+.test-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.test-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.test-check {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
 }
-.pill-check-label {
-  white-space: nowrap;
-}
+
 .grid {
+  flex: 1;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 1rem;
   min-height: 0;
+  overflow: hidden;
 }
 .panel {
   background: var(--bg-primary);
-  border: 1px solid var(--border-primary, rgba(0,0,0,0.08));
-  border-radius: 14px;
-  box-shadow: var(--shadow-sm, 0 4px 12px rgba(0,0,0,0.08));
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-primary);
   padding: 0.75rem;
   min-height: 0;
   overflow: auto;
@@ -811,11 +1110,11 @@ onMounted(async () => {
   transition: background 0.12s ease, border-color 0.12s ease;
 }
 .row:hover {
-  background: var(--bg-secondary, rgba(0,0,0,0.03));
+  background: var(--hover-bg);
 }
 .row.active {
-  background: rgba(0, 122, 255, 0.08);
-  border-color: rgba(0, 122, 255, 0.25);
+  background: var(--primary-a08);
+  border-color: var(--primary-a15);
 }
 .row-top {
   display: flex;
@@ -845,8 +1144,8 @@ onMounted(async () => {
   font-size: 0.72rem;
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(0,0,0,0.03);
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
 }
 .chip.success {
   border-color: rgba(48, 209, 88, 0.25);
@@ -868,6 +1167,13 @@ onMounted(async () => {
   background: rgba(0, 122, 255, 0.12);
   color: rgba(30, 64, 175, 1);
 }
+
+.detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1rem;
+}
 .detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -884,7 +1190,7 @@ onMounted(async () => {
   margin-top: 0.2rem;
 }
 .notes {
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid var(--border-light);
   padding-top: 0.75rem;
   margin-top: 0.75rem;
 }
@@ -898,11 +1204,11 @@ onMounted(async () => {
   white-space: pre-wrap;
 }
 .artifact-card {
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 0.75rem;
   margin-top: 0.75rem;
-  background: var(--bg-secondary, rgba(0,0,0,0.02));
+  background: var(--bg-secondary);
 }
 .artifact-head {
   display: flex;
@@ -917,7 +1223,9 @@ onMounted(async () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -929,17 +1237,17 @@ onMounted(async () => {
   max-height: 92vh;
   overflow: auto;
   background: var(--bg-primary);
-  border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.10);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-primary-lg);
+  padding: 1.25rem;
 }
 .modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--border-light);
   padding-bottom: 0.75rem;
 }
 .modal-head h2 {
@@ -947,11 +1255,20 @@ onMounted(async () => {
   font-size: 1.2rem;
 }
 .modal-close {
-  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
   background: transparent;
-  font-size: 1.6rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.modal-close:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 .modal-body {
   padding: 0.75rem 0;
@@ -963,7 +1280,7 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid var(--border-light);
   padding-top: 0.75rem;
 }
 .form-grid {
@@ -981,11 +1298,16 @@ onMounted(async () => {
   color: var(--text-tertiary);
 }
 .input {
-  border: 1px solid rgba(0,0,0,0.10);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 0.55rem 0.65rem;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   color: var(--text-primary);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--primary-a15);
 }
 .checkbox-field .checkbox-row {
   display: flex;
@@ -1001,11 +1323,11 @@ onMounted(async () => {
   margin-top: 0.5rem;
 }
 .artifact-draft {
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 0.75rem;
   margin-top: 0.75rem;
-  background: var(--bg-secondary, rgba(0,0,0,0.02));
+  background: var(--bg-primary);
 }
 .artifact-draft-head {
   display: flex;
@@ -1014,6 +1336,9 @@ onMounted(async () => {
   margin-bottom: 0.5rem;
 }
 @media (max-width: 1000px) {
+  .main-content {
+    padding: 1.5rem;
+  }
   .grid {
     grid-template-columns: 1fr;
   }

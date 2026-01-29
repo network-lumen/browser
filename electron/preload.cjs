@@ -143,6 +143,7 @@ contextBridge.exposeInMainWorld('lumen', {
     downloadAndInstall: (payload) => ipcRenderer.invoke('release:downloadAndInstall', payload || {}),
     openExternal: (url) => ipcRenderer.invoke('release:openExternal', url),
     publishRelease: (payload) => ipcRenderer.invoke('release:publish', payload || {}),
+    submitToDao: (payload) => ipcRenderer.invoke('release:submitToDao', payload || {}),
     onUpdateAvailable: (callback) => {
       if (typeof callback !== 'function') return () => {};
       const handler = (_event, payload) => {

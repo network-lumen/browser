@@ -1867,6 +1867,162 @@ function registerWalletIpc() {
     }
   });
 
+  ipcMain.handle('release:submitToDao', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const proposer = String(input && input.proposer ? input.proposer : input?.creator ? input.creator : '').trim();
+      const releaseId = Number(input && input.releaseId != null ? input.releaseId : 0);
+      const kind = String(input && input.kind ? input.kind : '').trim().toLowerCase();
+      const title = String(input && input.title ? input.title : '').trim();
+      const summary = String(input && input.summary ? input.summary : '').trim();
+      const metadata = String(input && input.metadata ? input.metadata : '').trim();
+      const depositLmnRaw = input && input.depositLmn != null ? String(input.depositLmn) : '0';
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!proposer) return { ok: false, error: 'missing_proposer' };
+      if (!Number.isFinite(releaseId) || releaseId <= 0) return { ok: false, error: 'missing_releaseId' };
+      if (kind !== 'validate' && kind !== 'reject') return { ok: false, error: 'invalid_kind' };
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) return { ok: false, error: pwdCheck.error };
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') return { ok: false, error: 'password_required' };
+        if (errMsg === 'invalid_password') return { ok: false, error: 'invalid_password' };
+        return { ok: false, error: errMsg };
+      }
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefix = prefixFromAddress(proposer);
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      // Temporarily decrypt PQC keys if password-protected
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) return { ok: false, error: 'password_required' };
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) return { ok: false, error: 'invalid_password' };
+      }
+
+      try {
+        const relMod = typeof client.releases === 'function' ? client.releases() : client.releases;
+        const govMod = typeof client.gov === 'function' ? client.gov() : client.gov;
+        if (!relMod) return { ok: false, error: 'release_module_unavailable' };
+        if (!govMod || typeof govMod.msgSubmitProposal !== 'function') return { ok: false, error: 'gov_module_unavailable' };
+
+        function getRegistryForEncode(c) {
+          const candidates = [
+            c?._registry,
+            c?.registry,
+            c?.protoRegistry,
+            c?.signing?.protoRegistry,
+            c?.stargate?.registry,
+            c?.signingClient?.registry,
+            c?.client?.registry
+          ].filter(Boolean);
+          return candidates.find((r) => typeof r.encode === 'function') || null;
+        }
+
+        const registry = getRegistryForEncode(client);
+        if (!registry) return { ok: false, error: 'registry_unavailable' };
+
+        function moduleAddressBech32(moduleName, bech32Prefix) {
+          const bech32 = require('bech32');
+          if (!bech32 || typeof bech32.encode !== 'function' || typeof bech32.toWords !== 'function') {
+            throw new Error('bech32_unavailable');
+          }
+          const hash = crypto
+            .createHash('sha256')
+            .update(Buffer.from(String(moduleName || ''), 'utf8'))
+            .digest()
+            .subarray(0, 20);
+          return bech32.encode(String(bech32Prefix || 'lmn'), bech32.toWords(hash));
+        }
+
+        const authority = moduleAddressBech32('gov', prefix);
+        const actionMsg =
+          kind === 'reject'
+            ? (typeof relMod.msgRejectRelease === 'function'
+                ? relMod.msgRejectRelease(authority, { id: Math.trunc(releaseId) })
+                : { typeUrl: '/lumen.release.v1.MsgRejectRelease', value: { authority, id: Math.trunc(releaseId) } })
+            : (typeof relMod.msgValidateRelease === 'function'
+                ? relMod.msgValidateRelease(authority, { id: Math.trunc(releaseId) })
+                : { typeUrl: '/lumen.release.v1.MsgValidateRelease', value: { authority, id: Math.trunc(releaseId) } });
+
+        const { Any } = require('cosmjs-types/google/protobuf/any.js');
+        const actionBytes = registry.encode(actionMsg);
+        const actionAny = Any.fromPartial({ typeUrl: actionMsg.typeUrl, value: actionBytes });
+
+        const depositLmn = Number(String(depositLmnRaw || '0').replace(',', '.'));
+        if (!Number.isFinite(depositLmn) || depositLmn < 0) return { ok: false, error: 'invalid_deposit' };
+        const depositUlmn = String(Math.round(depositLmn * 1_000_000));
+        const initialDeposit =
+          depositUlmn !== '0'
+            ? [{ denom: String(input?.depositDenom || 'ulmn'), amount: depositUlmn }]
+            : [];
+
+        const defaultTitle =
+          kind === 'reject'
+            ? `Reject release #${Math.trunc(releaseId)}`
+            : `Validate release #${Math.trunc(releaseId)}`;
+        const defaultSummary =
+          kind === 'reject'
+            ? `Reject pending release #${Math.trunc(releaseId)}.`
+            : `Validate pending release #${Math.trunc(releaseId)}.`;
+
+        const proposalMsg = govMod.msgSubmitProposal(proposer, {
+          messages: [actionAny],
+          initialDeposit,
+          metadata,
+          title: title || defaultTitle,
+          summary: summary || defaultSummary
+        });
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '500000' }));
+
+        const fee = input && input.fee ? input.fee : zeroFee();
+        if (!fee.gas) fee.gas = '500000';
+        const memo = String((input && input.memo) || `dao:${kind}:release`);
+
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: proposer,
+          msgs: [proposalMsg],
+          fee,
+          memo,
+          label: `release_submitToDao_${kind}`,
+        });
+
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   // Sign arbitrary payload (ADR-036 style: secp256k1 over sha256(utf8(payload))).
   ipcMain.handle('wallet:signArbitrary', async (_evt, input) => {
     try {
