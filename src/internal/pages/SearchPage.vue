@@ -18,10 +18,7 @@
             class="search-btn"
             type="button"
             @click="submit"
-            :disabled="
-              loading ||
-              (!q.trim() && selectedType !== 'site' && selectedType !== 'image' && selectedType !== 'all')
-            "
+            :disabled="loading"
           >
             Search
           </button>
@@ -37,17 +34,6 @@
         >
           <Globe :size="16" />
           Sites
-        </button>
-        <button
-          class="pill"
-          type="button"
-          :class="{ active: selectedType === 'video' }"
-          @click="setType('video')"
-          :disabled="true"
-          title="Coming soon"
-        >
-          <Film :size="16" />
-          Videos
         </button>
         <button
           class="pill"
@@ -429,7 +415,6 @@ import {
   Bookmark,
   Compass,
   EyeOff,
-  Film,
   Globe,
   Hash,
   Image,
@@ -442,7 +427,6 @@ import {
   File,
   FileQuestion,
   BookOpen,
-  Music,
   Box,
   ExternalLink,
   Sparkles,
@@ -462,7 +446,7 @@ import {
 
 const toast = useToast();
 
-type SearchType = "site" | "video" | "image" | "all";
+type SearchType = "site" | "image" | "all";
 type ResultKind = "site" | "ipfs" | "tx" | "block" | "address" | "link";
 type ResultItem = {
   id: string;
@@ -472,8 +456,8 @@ type ResultItem = {
   kind: ResultKind;
   badges?: string[];
   thumbUrl?: string;
-  media?: "image" | "video" | "audio" | "unknown";
-  fileKind?: "image" | "pdf" | "html" | "txt" | "epub" | "docx" | "video" | "audio" | "unknown";
+  media?: "image" | "unknown";
+  fileKind?: "image" | "pdf" | "html" | "txt" | "epub" | "docx" | "unknown";
   score?: number;
   site?: {
     domain?: string | null;
@@ -1192,10 +1176,6 @@ function fileKindLabel(k: ResultItem["fileKind"]): string {
       return "Text";
     case "image":
       return "Image";
-    case "video":
-      return "Video";
-    case "audio":
-      return "Audio";
     default:
       return "IPFS";
   }
@@ -1237,8 +1217,6 @@ function iconFor(r: ResultItem) {
     case "ipfs": {
       const fk = r.fileKind || "unknown";
       if (fk === "image" || r.media === "image") return Image;
-      if (fk === "video" || r.media === "video") return Film;
-      if (fk === "audio" || r.media === "audio") return Music;
       if (fk === "pdf") return File;
       if (fk === "docx") return FileType;
       if (fk === "epub") return BookOpen;
@@ -1276,16 +1254,13 @@ function displayTitle(r: ResultItem): string | null {
 
   if (r.kind === "site") {
     if (title && !isCidTitle(title) && !/^\/ipfs\//i.test(title)) return title;
-    return "No title";
+    return null;
   }
 
   if (selectedType.value === "all") {
     if (isExploreImageResult(r)) return null;
-    const isText = r.kind === "ipfs" && r.fileKind === "txt";
-    if (!title) return isText ? "Title unavailable" : "No title";
-    if (isCidTitle(title) || isCidLike(title) || /^\/ipfs\//i.test(title)) {
-      return isText ? "Title unavailable" : "No title";
-    }
+    if (!title) return null;
+    if (isCidTitle(title) || isCidLike(title) || /^\/ipfs\//i.test(title)) return null;
   }
 
   return title || null;
@@ -1447,7 +1422,6 @@ function makeSearchUrl(query: string, type: SearchType, page = 1): string {
 }
 
 function setType(t: SearchType) {
-  if (t === "video") return;
   selectedType.value = t;
   page.value = 1;
   const s = q.value.trim();
@@ -1464,7 +1438,6 @@ function setType(t: SearchType) {
 
 function submit() {
   const s = q.value.trim();
-  if (!s && selectedType.value !== "site" && selectedType.value !== "image" && selectedType.value !== "all") return;
   page.value = 1;
   const nextUrl = makeSearchUrl(s, selectedType.value, 1);
   const curUrl = String(currentTabUrl?.value || "").trim();
@@ -1956,31 +1929,25 @@ function mapGatewayHitToResult(
   const extGuess = String(hit?.ext_guess || "").trim().toLowerCase();
   const pathLower = String(path || "").trim().toLowerCase();
   const mimeLower = String(mime || "").trim().toLowerCase();
+  const rTypeLower = String(rType || "").trim().toLowerCase();
+
+  // Search policy: never surface audio/video results in this UI.
+  if (rTypeLower === "video" || rTypeLower === "audio") return null;
+  if (mimeLower.startsWith("video/") || mimeLower.startsWith("audio/")) return null;
 
   const extractedTags = extractSearchTags(hit);
 
   const isImage =
-    rType.toLowerCase() === "image" || mimeLower.startsWith("image/");
-  const isVideo =
-    rType.toLowerCase() === "video" || mimeLower.startsWith("video/");
-  const isAudio =
-    rType.toLowerCase() === "audio" || mimeLower.startsWith("audio/");
+    rTypeLower === "image" || mimeLower.startsWith("image/");
   const media: ResultItem["media"] = isImage
     ? "image"
-    : isVideo
-      ? "video"
-      : isAudio
-        ? "audio"
-        : "unknown";
+    : "unknown";
 
   if (filterType === "image" && !isImage) return null;
-  if (filterType === "video" && !isVideo) return null;
   if (filterType === "image" && isImage && extractedTags.length === 0) return null;
 
   let fileKind: ResultItem["fileKind"] = "unknown";
   if (isImage) fileKind = "image";
-  else if (isVideo) fileKind = "video";
-  else if (isAudio) fileKind = "audio";
   else if (extGuess === "pdf" || mimeLower.includes("pdf") || pathLower.endsWith(".pdf")) fileKind = "pdf";
   else if (extGuess === "epub" || mimeLower.includes("epub") || pathLower.endsWith(".epub")) fileKind = "epub";
   else if (

@@ -655,6 +655,17 @@ async function ipfsPinAdd(cidOrPath) {
         } catch {}
       }
     }
+
+    // Fallback: if the response body isn't parseable / doesn't include Pins (happens on some gateways),
+    // confirm what was pinned by querying pin/ls for the same arg. This is important because callers
+    // persist metadata (names) keyed by the pinned CID, and Kubo may pin the resolved leaf CID when
+    // arg is a path like /ipfs/<root>/<file>.
+    if (!pins.length) {
+      const check = await ipfsPinLs(arg, 'recursive').catch(() => null);
+      const keys = check?.ok && Array.isArray(check.keys) ? check.keys : [];
+      pins = keys.map((k) => String(k || '')).filter(Boolean);
+    }
+
     return pins.length ? { ok: true, pins, pinnedCid: pins[0] } : { ok: true };
   } catch (e) {
     console.error('[electron][ipfs] pin add error:', e);

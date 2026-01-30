@@ -396,8 +396,20 @@ const bibiOrigin = computed(() =>
   ),
 );
 
+// For EPUB parsing, prefer a path-style gateway URL.
+// The localhost subdomain gateway (`<cid>.ipfs.localhost`) is great for websites with absolute paths,
+// but some EPUB readers/tools are more reliable with `/ipfs/<cid>` URLs.
+const epubBookUrl = computed(() => {
+  if (!rootCid.value) return "";
+  const p = relPath.value ? `/${encodePath(relPath.value)}` : "";
+  const base = resolvedGatewayBase.value || localIpfsGatewayBase();
+  const b = String(base).replace(/\/+$/, "");
+  const suf = suffix.value || "";
+  return `${b}/ipfs/${rootCid.value}${p}${suf}`;
+});
+
 const epubReaderUrl = computed(() => {
-  const book = String(contentUrl.value || "").trim();
+  const book = String(epubBookUrl.value || "").trim();
   if (!book) return "";
   const bibi = String(bibiOrigin.value || "").replace(/\/+$/, "");
   if (!bibi) return "";
