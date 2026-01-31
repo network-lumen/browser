@@ -24,6 +24,7 @@
     "@noble/post-quantum": "^0.5.4",
     "@zxing/library": "^0.21.3",
     "hls.js": "^1.6.12",
+    "jszip": "^3.10.1",
     "kubo": "^0.37.0",
     "lucide-vue-next": "^0.540.0",
     "qrcode": "^1.5.4",

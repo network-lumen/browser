@@ -189,6 +189,14 @@
             </div>
           </button>
           <div class="image-meta">
+            <span
+              v-if="r.uniqueViews7d != null"
+              class="result-metric image-metric"
+              :title="`Unique views (7d): ${r.uniqueViews7d}`"
+            >
+              <Eye :size="14" />
+              {{ formatCompactCount(r.uniqueViews7d) }} views
+            </span>
             <div v-if="r.badges?.length" class="image-tags">
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
@@ -263,6 +271,14 @@
                   :class="typeBadgeClass(r)"
                 >
                   {{ typeBadgeLabel(r) }}
+                </span>
+                <span
+                  v-if="r.uniqueViews7d != null"
+                  class="result-metric"
+                  :title="`Unique views (7d): ${r.uniqueViews7d}`"
+                >
+                  <Eye :size="14" />
+                  {{ formatCompactCount(r.uniqueViews7d) }} views
                 </span>
               </div>
               <div
@@ -414,6 +430,7 @@ import {
   ArrowUpRight,
   Bookmark,
   Compass,
+  Eye,
   EyeOff,
   Globe,
   Hash,
@@ -459,6 +476,9 @@ type ResultItem = {
   media?: "image" | "unknown";
   fileKind?: "image" | "pdf" | "html" | "txt" | "epub" | "docx" | "unknown";
   score?: number;
+  uniqueViews7d?: number;
+  viewCid?: string;
+  gateway?: { id: string; endpoint: string };
   site?: {
     domain?: string | null;
     cid?: string | null;
@@ -1450,7 +1470,52 @@ function submit() {
   goto(nextUrl, { push: true });
 }
 
+function cidForViewPing(r: ResultItem): string | null {
+  const direct = String((r as any)?.viewCid || "").trim();
+  if (direct) return direct;
+
+  const cidFromUrl = extractCidFromUrl(String(r?.url || ""));
+  if (cidFromUrl) return cidFromUrl;
+
+  const siteCid = String(r?.site?.cid || r?.site?.entryCid || "").trim();
+  if (siteCid) return siteCid;
+
+  return null;
+}
+
+function pingGatewayViewFromSearch(r: ResultItem) {
+  try {
+    const gwApi = (window as any).lumen?.gateway;
+    if (!gwApi || typeof gwApi.pingViewPq !== "function") return;
+
+    const cid = cidForViewPing(r);
+    if (!cid) return;
+
+    const endpoint = String(r?.gateway?.endpoint || "").trim();
+
+    // Defer the IPC work so opening the result stays instant.
+    setTimeout(() => {
+      try {
+        void getActiveProfileId()
+          .then((profileId) => {
+            const pid = String(profileId || "").trim();
+            if (!pid) return;
+            gwApi.pingViewPq({ profileId: pid, endpoint, cid, timeoutMs: 2500 });
+          })
+          .catch(() => {});
+      } catch {
+        // ignore
+      }
+    }, 0);
+  } catch {
+    // ignore
+  }
+}
+
 async function openResult(r: ResultItem) {
+  // Open via native lumen:// routes (as before), but ping the gateway in PQ to record a signed view (best-effort).
+  pingGatewayViewFromSearch(r);
+
   const wantsNewTab =
     selectedType.value === "all" ||
     selectedType.value === "image" ||
@@ -1845,6 +1910,9 @@ type GatewaySearchHit = {
   tags_json?: any;
   topics?: any;
   snippet?: string;
+  views_unique_7d?: number;
+  linked_domain?: string;
+  rank_signals?: any;
 };
 
 type GatewaySiteSearchResult = {
@@ -1856,11 +1924,24 @@ type GatewaySiteSearchResult = {
   entry_path?: string;
   wallet?: string;
   score?: number;
+  views_unique_7d?: number;
   tags?: any;
   owned?: boolean;
   title?: string;
   snippet?: string;
 };
+
+function formatCompactCount(value: any): string {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return "0";
+  if (n < 1000) return String(Math.floor(n));
+  if (n < 1_000_000) {
+    const k = n / 1000;
+    return k >= 10 ? `${Math.floor(k)}k` : `${k.toFixed(1)}k`;
+  }
+  const m = n / 1_000_000;
+  return m >= 10 ? `${Math.floor(m)}M` : `${m.toFixed(1)}M`;
+}
 
 function safePathSuffix(pathValue: any): string {
   const p = String(pathValue ?? "").trim();
@@ -1989,9 +2070,28 @@ function mapGatewayHitToResult(
 
   const snippet = hit?.snippet != null ? String(hit.snippet).trim() : "";
 
+  const viewsRaw = Number((hit as any)?.views_unique_7d);
+  const uniqueViews7d = Number.isFinite(viewsRaw)
+    ? Math.max(0, Math.floor(viewsRaw))
+    : 0;
+
   const badges: string[] = [];
   const badgeLimit =
     filterType === "image" && isImage ? Number.POSITIVE_INFINITY : 6;
+
+  const linkedDomainRaw = (hit as any)?.linked_domain;
+  const linkedDomain =
+    typeof linkedDomainRaw === "string" ? linkedDomainRaw.trim().toLowerCase() : "";
+  const onchainSignal = String((hit as any)?.rank_signals?.onchain || "")
+    .trim()
+    .toLowerCase();
+  if (linkedDomain) {
+    badges.push("Linked");
+    badges.push(linkedDomain);
+  } else if (onchainSignal === "linked") {
+    badges.push("Linked");
+  }
+
   for (const t of extractedTags) {
     if (badges.length >= badgeLimit) break;
     if (!badges.includes(t)) badges.push(t);
@@ -2009,6 +2109,9 @@ function mapGatewayHitToResult(
     thumbUrl,
     media,
     fileKind,
+    uniqueViews7d,
+    viewCid: rootCid || cid,
+    gateway: { id: gateway.id, endpoint: gateway.endpoint },
   };
 }
 
@@ -2107,6 +2210,179 @@ function mergeBadges(a: string[] = [], b: string[] = [], limit = 20): string[] {
   return out;
 }
 
+function leafCidFromResult(r: ResultItem): string | null {
+  if (!r) return null;
+
+  const id = String((r as any).id || "").trim();
+  if (id.startsWith("gw:")) {
+    const parts = id.split(":");
+    const cid = parts.length >= 3 ? String(parts[2] || "").trim() : "";
+    if (cid && isCidLike(cid)) return cid;
+  }
+
+  if (id.startsWith("ipfs:")) {
+    const cid = id.slice("ipfs:".length).trim();
+    if (cid && isCidLike(cid)) return cid;
+  }
+
+  const fromUrl = extractCidFromUrl(String((r as any).url || ""));
+  if (fromUrl && isCidLike(fromUrl)) return fromUrl;
+
+  return null;
+}
+
+function isPlaceholderTitle(titleValue: any): boolean {
+  const t = String(titleValue || "").trim();
+  if (!t) return true;
+  if (/^cid\s+[a-z0-9]{6,}\S*$/i.test(t)) return true;
+  if (isCidLike(t)) return true;
+  if (/^\/ipfs\//i.test(t)) return true;
+  return false;
+}
+
+function choosePreferredIpfsUrl(aUrl: any, bUrl: any, leafCid: string | null): string {
+  const a = String(aUrl || "").trim();
+  const b = String(bUrl || "").trim();
+  if (!a) return b;
+  if (!b) return a;
+
+  const aHasPath = lumenUrlHasEntryPath(a);
+  const bHasPath = lumenUrlHasEntryPath(b);
+  if (aHasPath !== bHasPath) return bHasPath ? b : a;
+
+  if (leafCid) {
+    const pa = parseLumenIpfsUrl(a);
+    const pb = parseLumenIpfsUrl(b);
+    const aRootCtx = !!(pa && pa.cid && pa.cid !== leafCid && aHasPath);
+    const bRootCtx = !!(pb && pb.cid && pb.cid !== leafCid && bHasPath);
+    if (aRootCtx !== bRootCtx) return bRootCtx ? b : a;
+  }
+
+  // Prefer shorter canonical URLs to reduce noisy variants (but keep stable if equal).
+  if (a.length !== b.length) return a.length < b.length ? a : b;
+  return a;
+}
+
+function mergeResultInPlace(base: ResultItem, incoming: ResultItem, leafCid: string | null) {
+  if (!base || !incoming) return;
+
+  const baseViews = Number.isFinite(Number(base.uniqueViews7d)) ? Number(base.uniqueViews7d) : 0;
+  const incViews = Number.isFinite(Number(incoming.uniqueViews7d)) ? Number(incoming.uniqueViews7d) : 0;
+  base.uniqueViews7d = Math.max(baseViews, incViews);
+
+  base.badges = mergeBadges(Array.isArray(base.badges) ? base.badges : [], Array.isArray(incoming.badges) ? incoming.badges : [], 20);
+
+  if (!base.thumbUrl && incoming.thumbUrl) base.thumbUrl = incoming.thumbUrl;
+
+  const baseTitle = String(base.title || "").trim();
+  const incTitle = String(incoming.title || "").trim();
+  if (isPlaceholderTitle(baseTitle) && incTitle && !isPlaceholderTitle(incTitle)) {
+    base.title = incTitle;
+  }
+
+  const baseDesc = String((base as any).description || "").trim();
+  const incDesc = String((incoming as any).description || "").trim();
+  if (!baseDesc && incDesc) {
+    (base as any).description = incDesc;
+  } else if (incDesc && incDesc.length > baseDesc.length + 24) {
+    // Prefer a meaningfully longer snippet.
+    (base as any).description = incDesc;
+  }
+
+  if (base.kind === "ipfs" && incoming.kind === "ipfs") {
+    base.url = choosePreferredIpfsUrl(base.url, incoming.url, leafCid);
+  } else if (!base.url && incoming.url) {
+    base.url = incoming.url;
+  }
+
+  // Prefer a root viewCid (site context) when we are de-duping by leaf cid.
+  const baseViewCid = String((base as any).viewCid || "").trim();
+  const incViewCid = String((incoming as any).viewCid || "").trim();
+  if (incViewCid && isCidLike(incViewCid)) {
+    const baseIsLeaf = !!(leafCid && baseViewCid && baseViewCid === leafCid);
+    const incIsRoot = !!(leafCid && incViewCid !== leafCid);
+    if (!baseViewCid || (baseIsLeaf && incIsRoot)) {
+      (base as any).viewCid = incViewCid;
+    }
+  }
+
+  if (!(base as any).gateway && (incoming as any).gateway) {
+    (base as any).gateway = (incoming as any).gateway;
+  }
+}
+
+function dedupeAllResults(items: ResultItem[]): ResultItem[] {
+  const order: string[] = [];
+  const byKey = new Map<string, { result: ResultItem; leafCid: string | null }>();
+
+  for (const r of items || []) {
+    if (!r) continue;
+
+    if (r.kind === "ipfs") {
+      const leaf = leafCidFromResult(r);
+      const key = leaf ? `ipfs:${leaf}` : `ipfs:url:${String(r.url || "").trim().toLowerCase()}`;
+      const existing = byKey.get(key);
+      if (!existing) {
+        byKey.set(key, { result: r, leafCid: leaf });
+        order.push(key);
+        continue;
+      }
+
+      const leafCid = existing.leafCid || leaf;
+      const cur = existing.result;
+
+      const curViews = Number.isFinite(Number(cur.uniqueViews7d)) ? Number(cur.uniqueViews7d) : 0;
+      const nextViews = Number.isFinite(Number((r as any).uniqueViews7d)) ? Number((r as any).uniqueViews7d) : 0;
+      const curHasPath = lumenUrlHasEntryPath(String(cur.url || ""));
+      const nextHasPath = lumenUrlHasEntryPath(String(r.url || ""));
+      const curRootCtx = !!(leafCid && String((cur as any).viewCid || "").trim() && String((cur as any).viewCid || "").trim() !== leafCid);
+      const nextRootCtx = !!(leafCid && String((r as any).viewCid || "").trim() && String((r as any).viewCid || "").trim() !== leafCid);
+
+      const shouldReplace =
+        (nextHasPath && !curHasPath) ||
+        (nextRootCtx && !curRootCtx) ||
+        (nextViews > curViews + 0.5);
+
+      if (shouldReplace) {
+        existing.result = r;
+        mergeResultInPlace(existing.result, cur, leafCid);
+      } else {
+        mergeResultInPlace(existing.result, r, leafCid);
+      }
+
+      existing.leafCid = leafCid;
+      continue;
+    }
+
+    if (r.kind === "site") {
+      const domain = String(r.site?.domain || domainKeyFromUrl(r.url) || "").trim().toLowerCase();
+      const cid = String(r.site?.cid || "").trim();
+      const key = domain ? `site:d:${domain}` : cid ? `site:c:${cid}` : `site:url:${String(r.url || "").trim().toLowerCase()}`;
+      const existing = byKey.get(key);
+      if (!existing) {
+        byKey.set(key, { result: r, leafCid: null });
+        order.push(key);
+        continue;
+      }
+      mergeResultInPlace(existing.result, r, null);
+      continue;
+    }
+
+    // Default: de-dupe by URL when possible.
+    const urlKey = String(r.url || "").trim().toLowerCase();
+    const key = urlKey ? `${r.kind}:url:${urlKey}` : `${r.kind}:id:${String(r.id || "").trim()}`;
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, { result: r, leafCid: null });
+      order.push(key);
+      continue;
+    }
+    mergeResultInPlace(existing.result, r, null);
+  }
+
+  return order.map((k) => byKey.get(k)!.result);
+}
+
 function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
   const byKey = new Map<
     string,
@@ -2152,6 +2428,10 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
           title,
           url,
           badges: Array.isArray(r.badges) ? r.badges.slice(0, 20) : [],
+          uniqueViews7d: (() => {
+            const v = Number((r as any)?.uniqueViews7d);
+            return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+          })(),
           site: {
             domain: domain || null,
             cid: cid || null,
@@ -2169,6 +2449,16 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
     existing.gwScore = Math.max(existing.gwScore, gwScore);
     existing.owned = existing.owned || owned;
     existing.result.thumbUrl = existing.result.thumbUrl || r.thumbUrl;
+    existing.result.uniqueViews7d = Math.max(
+      Number.isFinite(Number(existing.result.uniqueViews7d))
+        ? Number(existing.result.uniqueViews7d)
+        : 0,
+      Number.isFinite(Number((r as any).uniqueViews7d))
+        ? Number((r as any).uniqueViews7d)
+        : 0,
+    );
+    existing.result.gateway = existing.result.gateway || (r as any).gateway;
+    existing.result.viewCid = existing.result.viewCid || (r as any).viewCid;
     existing.result.badges = mergeBadges(
       existing.result.badges || [],
       r.badges || [],
@@ -2343,6 +2633,7 @@ async function searchGateways(
 
         const tags = extractSiteTags(s);
         const badges = [
+          ...(domain ? ["Linked", domain] : []),
           ...(owned ? ["Owned"] : []),
           ...(tags.length ? tags.slice(0, 20) : []),
         ];
@@ -2376,6 +2667,12 @@ async function searchGateways(
               ? faviconUrlForCid(entryCid) || undefined
               : undefined,
           score: Number.isFinite(Number(s?.score)) ? Number(s.score) : 0,
+          uniqueViews7d: (() => {
+            const v = Number((s as any)?.views_unique_7d);
+            return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+          })(),
+          viewCid: cid || entryCid || undefined,
+          gateway: { id: g.id, endpoint: g.endpoint },
           site: {
             domain: domain || null,
             cid: cid || null,
@@ -2608,7 +2905,8 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   const seq = ++searchSeq;
   const clean = String(query || "").trim();
   const safePage = clampPage(pageParam);
-  const runKey = `${type}::${clean}::page=${safePage}`;
+  const refreshTick = Number(currentTabRefresh?.value || 0);
+  const runKey = `${type}::${clean}::page=${safePage}::r=${refreshTick}`;
   const allowEmptyQuery = type === "site" || type === "image" || type === "all";
   if (!clean && !allowEmptyQuery) {
     touched.value = false;
@@ -2760,6 +3058,10 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
         }
         merged = out;
       }
+    }
+
+    if (type === "all") {
+      merged = dedupeAllResults(merged);
     }
 
     if (type === "site") {
@@ -3296,6 +3598,17 @@ const imageResults = computed(() =>
   border-radius: 4px;
 }
 
+.result-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: rgba(142, 142, 147, 0.1);
+}
+
 .type-ipfs {
   background: rgba(48, 209, 88, 0.12);
   color: var(--ios-green);
@@ -3536,6 +3849,11 @@ const imageResults = computed(() =>
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
+}
+
+.image-metric {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .image-tags {

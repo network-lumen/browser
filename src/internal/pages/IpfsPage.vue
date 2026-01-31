@@ -204,6 +204,10 @@
             allow="fullscreen"
           ></iframe>
 
+          <pre v-else-if="viewKind === 'docx'" class="text">{{
+            docxContent
+          }}</pre>
+
           <pre v-else-if="viewKind === 'text'" class="text">{{
             textContent
           }}</pre>
@@ -294,6 +298,7 @@ import {
   ref,
   watch,
 } from "vue";
+import JSZip from "jszip";
 import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
@@ -326,9 +331,10 @@ const error = ref("");
 const entries = ref<Entry[]>([]);
 const isDir = ref(false);
 const viewKind = ref<
-  "image" | "video" | "audio" | "html" | "pdf" | "epub" | "text" | "unknown"
+  "image" | "video" | "audio" | "html" | "pdf" | "epub" | "docx" | "text" | "unknown"
 >("unknown");
 const textContent = ref("");
+const docxContent = ref("");
 const mediaErrored = ref(false);
 const hlsError = ref("");
 const htmlSrcdoc = ref("");
@@ -602,6 +608,7 @@ function guessViewKind(nameOrPath: string): typeof viewKind.value {
   if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "audio";
   if (["pdf"].includes(ext)) return "pdf";
   if (["epub"].includes(ext)) return "epub";
+  if (["docx"].includes(ext)) return "docx";
   if (["html", "htm"].includes(ext)) return "html";
   if (["txt", "md", "json", "xml", "csv", "log"].includes(ext)) return "text";
   return "unknown";
@@ -649,6 +656,7 @@ async function sniffViewKindFromHead(
     if (ct.includes("text/html")) return "html";
     if (ct.includes("application/pdf")) return "pdf";
     if (ct.includes("application/epub+zip")) return "epub";
+    if (ct.includes("officedocument.wordprocessingml")) return "docx";
     if (ct.startsWith("text/")) return "text";
     if (ct.includes("application/json") || ct.includes("application/xml"))
       return "text";
@@ -685,18 +693,25 @@ function detectMagicKindFromBytes(bytes: Uint8Array): typeof viewKind.value {
   try {
     if (!bytes || bytes.length < 12) return "unknown";
 
-    // EPUB: ZIP container that contains a `mimetype` entry with content "application/epub+zip".
-    // When the `mimetype` entry is stored uncompressed, that string typically appears very early.
     if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
+      // DOCX: ZIP container with `word/` parts.
+      try {
+        const sample = bytes.subarray(0, Math.min(bytes.length, 16_384));
+        const enc = new TextEncoder();
+        const hasWord = includesBytes(sample, enc.encode("word/"));
+        const hasContentTypes = includesBytes(sample, enc.encode("[Content_Types].xml"));
+        const hasWordDoc = includesBytes(sample, enc.encode("word/document.xml"));
+        if (hasWord && (hasContentTypes || hasWordDoc)) return "docx";
+      } catch {
+        // ignore
+      }
+
+      // EPUB: ZIP container that contains a `mimetype` entry with content "application/epub+zip".
+      // When the `mimetype` entry is stored uncompressed, that string typically appears very early.
       try {
         const needle = new TextEncoder().encode("application/epub+zip");
         const sample = bytes.subarray(0, Math.min(bytes.length, 2048));
-        outer: for (let i = 0; i <= sample.length - needle.length; i++) {
-          for (let j = 0; j < needle.length; j++) {
-            if (sample[i + j] !== needle[j]) continue outer;
-          }
-          return "epub";
-        }
+        if (includesBytes(sample, needle)) return "epub";
       } catch {
         // ignore
       }
@@ -747,6 +762,91 @@ function detectMagicKindFromBytes(bytes: Uint8Array): typeof viewKind.value {
   } catch {
     return "unknown";
   }
+}
+
+function includesBytes(haystack: Uint8Array, needle: Uint8Array): boolean {
+  if (!haystack?.length || !needle?.length) return false;
+  if (needle.length > haystack.length) return false;
+  outer: for (let i = 0; i <= haystack.length - needle.length; i++) {
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) continue outer;
+    }
+    return true;
+  }
+  return false;
+}
+
+function decodeEntities(input: string): string {
+  const s = String(input || "");
+  if (!s) return "";
+  const basic = s
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, "\"")
+    .replace(/&#39;/gi, "'");
+
+  return basic
+    .replace(/&#x([0-9a-f]+);/gi, (_m, hex) => {
+      try {
+        const code = Number.parseInt(String(hex), 16);
+        if (!Number.isFinite(code) || code <= 0) return " ";
+        return String.fromCodePoint(code);
+      } catch {
+        return " ";
+      }
+    })
+    .replace(/&#([0-9]+);/g, (_m, dec) => {
+      try {
+        const code = Number.parseInt(String(dec), 10);
+        if (!Number.isFinite(code) || code <= 0) return " ";
+        return String.fromCodePoint(code);
+      } catch {
+        return " ";
+      }
+    });
+}
+
+function squeezeWhitespace(text: string): string {
+  return String(text || "")
+    .replace(/\r/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function extractDocxTextFromXml(xml: string): string {
+  const raw = String(xml || "");
+  if (!raw) return "";
+
+  const paras = raw.match(/<w:p[\s\S]*?<\/w:p>/g) || [];
+  const out: string[] = [];
+  for (const para of paras) {
+    const parts: string[] = [];
+    const matches = para.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g);
+    for (const m of matches) {
+      const v = decodeEntities(m[1] || "");
+      if (v) parts.push(v);
+    }
+    const joined = parts.join("");
+    if (joined.trim()) out.push(joined.trim());
+  }
+
+  if (!out.length) {
+    return squeezeWhitespace(decodeEntities(raw.replace(/<[^>]+>/g, " ")));
+  }
+
+  return squeezeWhitespace(out.join("\n"));
+}
+
+async function extractDocxTextFromBytes(bytes: Uint8Array): Promise<string> {
+  const zip = await JSZip.loadAsync(bytes);
+  const file = zip.file("word/document.xml");
+  if (!file) return "";
+  const xml = await file.async("string");
+  return extractDocxTextFromXml(xml);
 }
 
 const indexHtmlEntry = computed(() => {
@@ -1261,6 +1361,7 @@ async function load() {
   isBareHtmlView.value = false;
   await ensureHlsStopped();
   textContent.value = "";
+  docxContent.value = "";
   mediaErrored.value = false;
   htmlSrcdoc.value = "";
   clearHtmlFrame();
@@ -1361,6 +1462,33 @@ async function load() {
             textContent.value = new TextDecoder("utf-8", {
               fatal: false,
             }).decode(bytes);
+          }
+        } else {
+          viewKind.value = "unknown";
+        }
+      }
+
+      if (viewKind.value === "docx") {
+        const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+        const got = await (window as any).lumen
+          ?.ipfsGet?.(target, { gateways, timeoutMs: 20000 })
+          .catch(() => null);
+        if (got?.ok && Array.isArray(got.data)) {
+          const bytes = new Uint8Array(got.data);
+          if (bytes.byteLength > 20_000_000) {
+            viewKind.value = "unknown";
+          } else {
+            try {
+              const text = await extractDocxTextFromBytes(bytes);
+              const trimmed = String(text || "").trim();
+              if (!trimmed) {
+                viewKind.value = "unknown";
+              } else {
+                docxContent.value = trimmed.slice(0, 200_000);
+              }
+            } catch {
+              viewKind.value = "unknown";
+            }
           }
         } else {
           viewKind.value = "unknown";

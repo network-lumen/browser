@@ -27,6 +27,13 @@ try {
   pqcWorker = null;
 }
 
+let viewPingWorker = null;
+try {
+  viewPingWorker = require('../utils/view-ping-worker.cjs');
+} catch {
+  viewPingWorker = null;
+}
+
 const {
   Bip39,
   EnglishMnemonic,
@@ -494,7 +501,30 @@ function loadProfilesFile() {
   return { profiles, activeId };
 }
 
+const MNEMONIC_CACHE_TTL_MS = 2 * 60 * 1000;
+const mnemonicCache = new Map(); // profileId -> { mnemonic, at, mode, sessionKey? }
+
 function loadMnemonic(profileId) {
+  try {
+    const now = Date.now();
+    const cached = mnemonicCache.get(profileId);
+    if (cached && now - Number(cached.at || 0) < MNEMONIC_CACHE_TTL_MS) {
+      if (cached.mode === 'local' && cached.mnemonic) {
+        return cached.mnemonic;
+      }
+      if (cached.mode === 'password' && cached.mnemonic && cached.sessionKey) {
+        const pwd = getSessionPassword();
+        if (!pwd) throw new Error('password_required');
+        const key = createHash('sha256').update(pwd).digest('hex');
+        if (key === cached.sessionKey) {
+          return cached.mnemonic;
+        }
+      }
+    }
+  } catch {
+    // ignore cache errors
+  }
+
   const file = keystoreFile(profileId);
   const raw = existsSync(file) ? readJson(file, null) : null;
   if (!raw) throw new Error(`No keystore for profileId=${profileId}`);
@@ -506,14 +536,22 @@ function loadMnemonic(profileId) {
     const mnemonic = decryptMnemonicWithPassword(raw, pwd);
     if (!mnemonic) {
       console.warn('[gateway] mnemonic decrypt failed for profileId=', profileId);
+      mnemonicCache.delete(profileId);
       throw new Error('invalid_password');
     }
+    mnemonicCache.set(profileId, {
+      mnemonic,
+      at: Date.now(),
+      mode: 'password',
+      sessionKey: createHash('sha256').update(pwd).digest('hex'),
+    });
     return mnemonic;
   }
 
   // Legacy local-secret keystore (v1)
   const mnemonic = decryptMnemonicLocal(raw);
   if (!mnemonic) throw new Error('Failed to decrypt keystore');
+  mnemonicCache.set(profileId, { mnemonic, at: Date.now(), mode: 'local' });
   return mnemonic;
 }
 
@@ -2163,6 +2201,97 @@ function registerGatewayIpc() {
     }
   });
 
+  ipcMain.on('gateway:pingViewPq', (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      if (!profileId) return;
+      if (isGuestProfile(profileId)) return;
+
+      const cid = String(input?.cid || '').trim();
+      if (!cid) return;
+
+      const endpoint =
+        typeof input?.endpoint === 'string'
+          ? String(input.endpoint).trim()
+          : typeof input?.gatewayEndpoint === 'string'
+          ? String(input.gatewayEndpoint).trim()
+          : '';
+
+      const baseHint =
+        typeof input?.baseUrl === 'string'
+          ? String(input.baseUrl).trim()
+          : endpoint;
+
+      const timeoutMsRaw = input?.timeoutMs != null ? Number(input.timeoutMs) : 2500;
+      const timeoutMs =
+        Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
+          ? Math.min(timeoutMsRaw, 10_000)
+          : 2500;
+
+      // Fire-and-forget: offload PQ crypto + HTTP to a worker so the main process stays responsive.
+      setImmediate(() => {
+        try {
+          const wallet = getWalletAddressForProfile(profileId);
+          if (!wallet) return;
+
+          let mnemonic;
+          try {
+            mnemonic = loadMnemonic(profileId);
+          } catch {
+            return;
+          }
+
+          (async () => {
+            try {
+              let resolvedBase = null;
+              if (baseHint) {
+                resolvedBase =
+                  (await resolveGatewayBaseFromEndpoint(baseHint, timeoutMs, { quiet: true }).catch(
+                    () => null,
+                  )) || baseHint;
+              } else {
+                resolvedBase = await resolveGatewayBaseUrlFromPlans(
+                  profileId,
+                  defaultGatewayBase(),
+                ).catch(() => null);
+              }
+
+              let baseUrl = String(resolvedBase || '').trim();
+              if (!baseUrl) return;
+              if (!/^https?:\/\//i.test(baseUrl)) {
+                // If it's not a DNS-resolved http(s) base, treat it as a raw host[:port] and default to http://.
+                baseUrl = `http://${baseUrl}`;
+              }
+              baseUrl = trimSlash(baseUrl);
+
+              if (viewPingWorker && typeof viewPingWorker.enqueueViewPing === 'function') {
+                viewPingWorker.enqueueViewPing({ baseUrl, wallet, mnemonic, cid, timeoutMs });
+                return;
+              }
+
+              void sendGatewayAuthPq({
+                baseUrl,
+                path: '/pq/view',
+                method: 'POST',
+                wallet,
+                mnemonic,
+                timeoutMs,
+                payload: { cid },
+              }).catch(() => {});
+            } catch {
+              // ignore
+            }
+          })();
+
+        } catch {
+          // ignore
+        }
+      });
+    } catch {
+      // ignore
+    }
+  });
+
   ipcMain.handle('gateway:getPlansOverview', async (_e, input) => {
     try {
       const profileId = String(input?.profileId || '').trim();
@@ -2241,7 +2370,7 @@ function registerGatewayIpc() {
       const bech32Prefix = walletAddr.startsWith('lmn') ? 'lmn' : 'lumen';
 
       const restBase = getRestBaseUrl();
-      const rpcBase = restBase ? restBase.replace(':1317', ':26657') : null;
+      const rpcBase = getRpcBaseUrl();
       const endpoints = {
         rpc: rpcBase || undefined,
         rest: restBase || rpcBase || undefined,
@@ -2266,8 +2395,12 @@ function registerGatewayIpc() {
         endpoints,
         chainId,
         { pqc: { homeDir: resolvePqcHome() } }
-      ).catch(() => null);
+      ).catch((err) => {
+        console.log(err)
+        return null
+      });
       if (!client || !client.signAndBroadcast) {
+        console.log(client)
         return { ok: false, error: 'client_not_available' };
       }
       mark('connectWithSigner.done');

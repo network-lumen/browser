@@ -205,6 +205,13 @@ contextBridge.exposeInMainWorld('lumen', {
     getParams: () => ipcRenderer.invoke('gateway:getParams'),
     listGateways: (options) => ipcRenderer.invoke('gateway:listGateways', options || {}),
     searchPq: (payload) => ipcRenderer.invoke('gateway:searchPq', payload || {}),
+    pingViewPq: (payload) => {
+      try {
+        ipcRenderer.send('gateway:pingViewPq', payload || {});
+      } catch {
+        // ignore
+      }
+    },
     pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
     unpinCid: (payload) => ipcRenderer.invoke('gateway:unpinCid', payload || {}),
     subscribePlan: (payload) =>
