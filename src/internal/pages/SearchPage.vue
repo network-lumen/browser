@@ -141,6 +141,7 @@
               v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
               class="safe-thumb"
               :class="{ blurred: shouldBlurThumb(r) }"
+              @click="onCompactThumbClick(r, $event)"
             >
               <button
                 v-if="showHideIcon(r)"
@@ -189,14 +190,6 @@
             </div>
           </button>
           <div class="image-meta">
-            <span
-              v-if="r.uniqueViews7d != null"
-              class="result-metric image-metric"
-              :title="`Unique views (7d): ${r.uniqueViews7d}`"
-            >
-              <Eye :size="14" />
-              {{ formatCompactCount(r.uniqueViews7d) }} views
-            </span>
             <div v-if="r.badges?.length" class="image-tags">
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
@@ -287,6 +280,14 @@
                 :class="{ 'result-title--placeholder': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
+              </div>
+              <div
+                v-if="r.kind === 'site' && r.site?.domain"
+                class="site-domain mono"
+                :title="r.site.domain"
+              >
+                <Globe :size="14" />
+                {{ r.site.domain }}
               </div>
               <div v-if="shouldShowResultUrl(r)" class="result-url mono">{{ r.url }}</div>
               <pre
@@ -2632,11 +2633,7 @@ async function searchGateways(
         const owned = !!wallet || !!s.owned;
 
         const tags = extractSiteTags(s);
-        const badges = [
-          ...(domain ? ["Linked", domain] : []),
-          ...(owned ? ["Owned"] : []),
-          ...(tags.length ? tags.slice(0, 20) : []),
-        ];
+        const badges = tags.length ? tags.slice(0, 20) : [];
 
         const title =
           String(s.title || "").trim() ||
@@ -2644,7 +2641,8 @@ async function searchGateways(
         const snippet = String(s.snippet || "").trim();
 
         let url = "";
-        if (domain && (!entryCidRaw || entryCid === cid)) {
+        if (domain) {
+          // Prefer the canonical on-chain domain route when present (better UX + reduces "copy" confusion).
           url = `lumen://${domain}${entrySuffix}`;
         } else if (entryCid) {
           url = `lumen://ipfs/${entryCid}${entrySuffix}`;
@@ -3792,6 +3790,11 @@ const imageResults = computed(() =>
   height: 1.65rem;
 }
 
+.image-card .safe-thumb-hide {
+  left: 0.5rem;
+  right: auto;
+}
+
 .image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -3963,6 +3966,21 @@ const imageResults = computed(() =>
   font-weight: 500;
   opacity: 0.85;
   transition: opacity 0.2s ease;
+}
+
+.site-domain {
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--accent-primary);
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.site-domain svg {
+  flex: 0 0 auto;
 }
 
 .result-card:hover .result-url {
