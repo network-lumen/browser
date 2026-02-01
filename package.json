@@ -1,19 +1,19 @@
 {
   "name": "lumen-browser",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
     "dev:renderer": "vite",
-    "dev:electron": "electron electron/main.cjs",
+    "dev:electron": "electron .",
     "build": "vite build",
     "preview": "vite preview",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder --publish=never",
     "dist:win": "npm run build && electron-builder --win nsis",
-    "electron": "electron electron/main.cjs"
+    "electron": "electron ."
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",

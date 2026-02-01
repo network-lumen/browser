@@ -75,7 +75,22 @@ function updateLatest(payload: LatestPayload | null) {
 
 async function fetchSnapshot() {
   try {
-    const info = await (window as any).lumen?.release?.getLatestInfo?.();
+    const api = (window as any).lumen?.release;
+    if (!api) return;
+
+    // `getLatestInfo()` is backed by the main-process watcher cache. On cold start (or if the first
+    // poll failed), the cache can be empty until the next polling tick.
+    // To keep UX snappy, do a best-effort `pollNow()` once when the cache is empty.
+    const currentVersion = getCurrentVersion();
+    let info = await api.getLatestInfo?.();
+    if (!info || !info.version) {
+      info = await api.pollNow?.();
+    } else if (currentVersion && String(info.version) === currentVersion) {
+      // If the watcher cache says "same version", it can still be stale (e.g. the first poll happened
+      // before the newest release propagated). Do a single best-effort refresh on startup.
+      info = (await api.pollNow?.()) || info;
+    }
+
     if (info && info.version) updateLatest(info);
   } catch {
     // ignore

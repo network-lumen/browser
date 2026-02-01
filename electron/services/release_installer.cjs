@@ -6,6 +6,25 @@ const http = require('http');
 const https = require('https');
 const { spawn } = require('child_process');
 
+function currentAppVersion() {
+  const vElectron = String((process.versions && process.versions.electron) || '').trim();
+  let v = '';
+  try {
+    v = app && typeof app.getVersion === 'function' ? String(app.getVersion() || '').trim() : '';
+  } catch {
+    v = '';
+  }
+  if (v && vElectron && v !== vElectron) return v;
+  try {
+    // electron/services -> electron -> app root
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    const pkg = require('../../package.json');
+    const pv = String(pkg && pkg.version ? pkg.version : '').trim();
+    if (pv) return pv;
+  } catch {}
+  return v || '';
+}
+
 function isValidSha256Hex(value) {
   return /^[0-9a-f]{64}$/i.test(String(value || '').trim());
 }
@@ -48,7 +67,7 @@ async function downloadToFile({ url, targetPath, expectedSha256Hex, expectedSize
       u,
       {
         headers: {
-          'User-Agent': `LumenBrowser/${String(app.getVersion ? app.getVersion() : '')}`.trim() || 'LumenBrowser'
+          'User-Agent': `LumenBrowser/${currentAppVersion()}`.trim() || 'LumenBrowser'
         }
       },
       (res) => {

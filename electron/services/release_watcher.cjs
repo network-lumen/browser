@@ -1,5 +1,61 @@
 const { BrowserWindow, shell, app } = require('electron');
+const fs = require('fs');
+const path = require('path');
 const { readState } = require('../network/network_middleware.cjs');
+
+const DEBUG_RELEASE =
+  String(process.env.DEBUG_LUMEN_RELEASE || '') === '1' ||
+  (() => {
+    try {
+      return !(app && app.isPackaged);
+    } catch {
+      return false;
+    }
+  })();
+
+function dbg(...args) {
+  if (!DEBUG_RELEASE) return;
+  try {
+    // eslint-disable-next-line no-console
+    console.log('[release]', ...args);
+  } catch {}
+}
+
+function currentAppVersion() {
+  const vElectron = String((process.versions && process.versions.electron) || '').trim();
+  let v = '';
+  try {
+    v = app && typeof app.getVersion === 'function' ? String(app.getVersion() || '').trim() : '';
+  } catch {
+    v = '';
+  }
+
+  // In dev, Electron can report its own version here (e.g. when launched with a direct main script
+  // path instead of the app directory).
+  if (v && vElectron && v !== vElectron) return v;
+
+  const candidates = [];
+  try {
+    const appPath = app && typeof app.getAppPath === 'function' ? String(app.getAppPath() || '') : '';
+    if (appPath) candidates.push(path.join(appPath, 'package.json'));
+  } catch {}
+  candidates.push(path.join(__dirname, '..', '..', 'package.json'));
+  candidates.push(path.join(process.cwd(), 'package.json'));
+
+  for (const pkgPath of candidates) {
+    try {
+      if (!pkgPath || !fs.existsSync(pkgPath)) continue;
+      const raw = fs.readFileSync(pkgPath, 'utf8');
+      const json = JSON.parse(raw);
+      const pv = String(json && json.version ? json.version : '').trim();
+      if (pv) return pv;
+    } catch {
+      // ignore
+    }
+  }
+
+  return v || '';
+}
 
 const DEFAULT_CHANNEL = String(process.env.LUMEN_RELEASE_CHANNEL || 'beta');
 const DEFAULT_KIND = String(process.env.LUMEN_RELEASE_KIND || 'browser');
@@ -126,6 +182,8 @@ function broadcastUpdate(payload) {
 
 async function pollReleaseOnce() {
   try {
+    dbg('poll', { channel: DEFAULT_CHANNEL, platform: DEFAULT_PLATFORM, kind: DEFAULT_KIND });
+
     const canonPath = `/lumen/release/latest/${encodeURIComponent(DEFAULT_CHANNEL)}/${encodeURIComponent(DEFAULT_PLATFORM)}/${encodeURIComponent(DEFAULT_KIND)}`;
     let res = await readState(canonPath, { kind: 'rest', timeout: 12_000 });
 
@@ -135,7 +193,43 @@ async function pollReleaseOnce() {
       qs.set('platform', DEFAULT_PLATFORM);
       qs.set('kind', DEFAULT_KIND);
       res = await readState(`/lumen/release/latest?${qs.toString()}`, { kind: 'rest', timeout: 12_000 });
-      if (!res || !res.ok) return;
+      if (!res || !res.ok) {
+        // Some networks may not expose /latest endpoints reliably. Fall back to scanning /releases.
+        dbg('latest endpoint unavailable, falling back to list', { ok: res?.ok, error: res?.error, status: res?.status });
+        const fallback = await findLatestFromList().catch(() => null);
+        if (!fallback) return;
+
+        const payload = {
+          version: String(fallback.release && fallback.release.version ? fallback.release.version : ''),
+          channel: String(fallback.release && fallback.release.channel ? fallback.release.channel : DEFAULT_CHANNEL),
+          platform: fallback.artifact.platform,
+          kind: fallback.artifact.kind,
+          release: fallback.release,
+          artifact: fallback.artifact,
+          downloadUrl: pickDownloadUrl(fallback.artifact)
+        };
+
+        cached = payload;
+        dbg('cached (list fallback)', { version: payload.version, status: fallback.status, downloadUrl: payload.downloadUrl });
+
+        const currentVersion = currentAppVersion();
+
+        if (!payload.version) return;
+        if (!testOptions.forcePrompt) {
+          if (!currentVersion || payload.version === currentVersion) {
+            dbg('no prompt (same version or unknown current)', { currentVersion, latestVersion: payload.version });
+            return;
+          }
+        }
+
+        const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
+        if (broadcastKey !== lastBroadcastKey) {
+          lastBroadcastKey = broadcastKey;
+          dbg('broadcast updateAvailable', { currentVersion, latestVersion: payload.version });
+          broadcastUpdate(payload);
+        }
+        return;
+      }
     }
 
     const data = res.json || null;
@@ -176,14 +270,9 @@ async function pollReleaseOnce() {
     };
 
     cached = payload;
+    dbg('cached', { version: payload.version, status, downloadUrl: payload.downloadUrl });
 
-    const currentVersion = (() => {
-      try {
-        return app && typeof app.getVersion === 'function' ? String(app.getVersion() || '') : '';
-      } catch {
-        return '';
-      }
-    })();
+    const currentVersion = currentAppVersion();
 
     if (!payload.version) return;
     if (!testOptions.forcePrompt) {
@@ -193,6 +282,7 @@ async function pollReleaseOnce() {
     const broadcastKey = `${payload.version}|${artifact.sha256Hex || ''}`;
     if (broadcastKey !== lastBroadcastKey) {
       lastBroadcastKey = broadcastKey;
+      dbg('broadcast updateAvailable', { currentVersion, latestVersion: payload.version });
       broadcastUpdate(payload);
     }
   } catch {
