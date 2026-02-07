@@ -1,5 +1,14 @@
 <template>
   <main class="search-page" @keydown.slash.prevent="focusInput">
+          <button
+        type="button"
+        class="help-icon-btn"
+        title="How search works"
+        aria-label="How search works"
+        @click="openHowSearchWorks"
+      >
+        <HelpCircle :size="18" />
+      </button>
     <section class="hero">
       <div class="brand">Lumen</div>
 
@@ -54,6 +63,8 @@
           Explore everything
         </button>
       </div>
+
+
     </section>
 
     <section v-if="touched" class="results">
@@ -140,7 +151,7 @@
             <div
               v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
               class="safe-thumb"
-              :class="{ blurred: shouldBlurThumb(r) }"
+              :class="{ blurred: shouldBlurThumb(r), 'thumb-loading': !thumbLoadedById[r.id] }"
               @click="onCompactThumbClick(r, $event)"
             >
               <button
@@ -184,6 +195,7 @@
               :loading="imageThumbLoading(idx)"
               decoding="async"
               :fetchpriority="imageThumbFetchPriority(idx)"
+              @load="markThumbLoaded(r.id)"
             />
             <div v-else class="image-fallback">
               <Image :size="18" />
@@ -225,7 +237,7 @@
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="safe-thumb safe-thumb--compact"
-                :class="{ blurred: shouldBlurThumb(r) }"
+                :class="{ blurred: shouldBlurThumb(r), 'thumb-loading': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
@@ -422,6 +434,113 @@
       </div>
     </section>
 
+    <Transition name="modal">
+      <div
+        v-if="showHowSearchWorks"
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-label="How search works"
+        @click="closeHowSearchWorks"
+      >
+        <div class="modal-content help-modal" @click.stop>
+          <header class="modal-header help-header">
+            <div class="help-header-left">
+              <div class="help-header-icon" aria-hidden="true">
+                <HelpCircle :size="18" />
+              </div>
+              <div>
+                <h2 class="modal-title">How search works</h2>
+                <p class="modal-sub">Indexing, ranking, and how to get discovered.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="icon-btn help-close"
+              aria-label="Close"
+              @click="closeHowSearchWorks"
+            >
+              <X :size="18" />
+            </button>
+          </header>
+
+          <div class="help-body">
+            <div class="help-grid">
+              <section class="help-card">
+                <h3 class="help-h3">What gets indexed</h3>
+                <p class="help-p">
+                  Search results come from content indexed in the Lumen Cloud. When content is
+                  uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
+                  keywords.
+                </p>
+                <div class="help-callout">
+                  <Sparkles :size="16" class="help-callout-icon" />
+                  <div class="help-callout-text">
+                    Local-only content on your machine stays private and won’t appear in network
+                    search.
+                  </div>
+                </div>
+              </section>
+
+              <section class="help-card">
+                <h3 class="help-h3">How to get indexed</h3>
+                <ol class="help-steps">
+                  <li>
+                    <span class="help-step-text">
+                      Upload your content to the cloud (Drive / cloud upload).
+                    </span>
+                  </li>
+                  <li>
+                    <span class="help-step-text">
+                      Indexing is async — it can take a bit before results show up.
+                    </span>
+                  </li>
+                  <li>
+                    <span class="help-step-text">
+                      For websites: publish a folder with an <code>index.html</code> entrypoint.
+                    </span>
+                  </li>
+                </ol>
+              </section>
+
+              <section class="help-card">
+                <h3 class="help-h3">How queries work</h3>
+                <ul class="help-list">
+                  <li>
+                    Queries are tokenized; the index uses an inverted map (token → content) to find
+                    matches efficiently.
+                  </li>
+                  <li>
+                    Very short queries can behave like “Explore” (show recent content) instead of
+                    strict keyword matching.
+                  </li>
+                  <li>
+                    Tabs switch mode: <strong>Sites</strong>, <strong>Images</strong>, or
+                    <strong>Explore everything</strong>.
+                  </li>
+                </ul>
+              </section>
+
+              <section class="help-card">
+                <h3 class="help-h3">How results are ranked</h3>
+                <ul class="help-list">
+                  <li><strong>Relevance</strong>: token matches in extracted tags/text.</li>
+                  <li><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
+                  <li><strong>Popularity</strong>: signals like views and saves.</li>
+                  <li><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
+                  <li><strong>Verified sites</strong>: linked domains can be boosted.</li>
+                </ul>
+              </section>
+
+              <p class="help-note">
+                Results can vary while indexing is in progress and as the network evolves.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </main>
 </template>
 
@@ -448,6 +567,8 @@ import {
   Box,
   ExternalLink,
   Sparkles,
+  HelpCircle,
+  X,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";
@@ -474,6 +595,7 @@ type ResultItem = {
   kind: ResultKind;
   badges?: string[];
   thumbUrl?: string;
+  thumbCid?: string;
   media?: "image" | "unknown";
   fileKind?: "image" | "pdf" | "html" | "txt" | "epub" | "docx" | "unknown";
   score?: number;
@@ -493,6 +615,7 @@ type ResultItem = {
 type GatewayView = {
   id: string;
   endpoint: string;
+  baseUrl?: string;
   regions?: string[];
 };
 
@@ -513,6 +636,7 @@ const loading = ref(false);
 const errorMsg = ref("");
 const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
+const showHowSearchWorks = ref(false);
 const page = ref(1);
 const activeQuery = ref("");
 const activeType = ref<SearchType>("site");
@@ -539,6 +663,10 @@ const thumbSafetyById = ref<
 const thumbAnalyzeStarted = ref<Record<string, true>>({});
 const thumbAnalyzeUrlById = ref<Record<string, string>>({});
 const thumbCorsDisabledById = ref<Record<string, true>>({});
+const thumbCorsDisabledByOrigin = ref<Record<string, true>>({});
+const thumbCorsProbeById = new Set<string>();
+const thumbLocalFallbackTriedById = new Set<string>();
+const thumbLoadedById = ref<Record<string, true>>({});
 const hiddenThumbHashes = ref<Record<string, true>>({});
 const hiddenThumbUrls = ref<Record<string, true>>({});
 
@@ -546,15 +674,107 @@ function isSearchImageThumb(r: ResultItem): boolean {
   return r.media === "image" && !!r.thumbUrl;
 }
 
+function markThumbLoaded(id: string): void {
+  const key = String(id || "").trim();
+  if (!key) return;
+  if (thumbLoadedById.value[key]) return;
+  thumbLoadedById.value = { ...thumbLoadedById.value, [key]: true };
+}
+
+function originFromUrl(input: string): string | null {
+  const raw = String(input || "").trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeBaseUrlLike(input: string): string | null {
+  const raw = String(input || "").trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    u.hash = "";
+    u.search = "";
+    return u.toString().replace(/\/+$/, "");
+  } catch {
+    return null;
+  }
+}
+
+function imageThumbUrlForGateway(gateway: GatewayView, cid: string): string {
+  const cleanCid = String(cid || "").trim();
+  const localBase = localIpfsGatewayBase().replace(/\/+$/, "");
+
+  const directBase = normalizeBaseUrlLike(gateway?.baseUrl || "");
+  if (directBase) return `${directBase}/ipfs/${cleanCid}`;
+
+  const endpoint = String(gateway?.endpoint || "").trim();
+  if (!endpoint) return `${localBase}/ipfs/${cleanCid}`;
+
+  try {
+    const u = new URL(endpoint);
+    if (u.protocol !== "http:" && u.protocol !== "https:") {
+      return `${localBase}/ipfs/${cleanCid}`;
+    }
+    const path = String(u.pathname || "");
+    // If the endpoint includes a path (e.g. `/api`), use origin as a best-effort guess.
+    const base = path && path !== "/" ? originFromUrl(endpoint) : normalizeBaseUrlLike(endpoint);
+    return `${String(base || localBase).replace(/\/+$/, "")}/ipfs/${cleanCid}`;
+  } catch {
+    return `${localBase}/ipfs/${cleanCid}`;
+  }
+}
+
+function extractIpfsCidFromHttpUrl(url: string): string | null {
+  const raw = String(url || "").trim();
+  if (!raw) return null;
+  const m = raw.match(/\/ipfs\/([^/?#]+)/i);
+  return m && m[1] ? String(m[1]).trim() : null;
+}
+
+function switchThumbToLocalGateway(r: ResultItem): boolean {
+  if (!r || !r.thumbUrl) return false;
+
+  const cid = String(r.thumbCid || extractIpfsCidFromHttpUrl(r.thumbUrl) || "").trim();
+  if (!cid) return false;
+
+  const localBase = localIpfsGatewayBase().replace(/\/+$/, "");
+  const desired = `${localBase}/ipfs/${cid}`;
+
+  const cur = String(r.thumbUrl || "").trim();
+  if (!cur) return false;
+  if (cur === desired) return false;
+  if (cur.startsWith(`${localBase}/ipfs/`)) return false;
+
+  r.thumbUrl = desired;
+
+  // Retry CORS once on the local gateway (it may be configured).
+  if (thumbCorsDisabledById.value[r.id]) {
+    const next = { ...thumbCorsDisabledById.value };
+    delete next[r.id];
+    thumbCorsDisabledById.value = next;
+  }
+
+  return true;
+}
+
 function corsAttrForThumb(r: ResultItem): string | null {
   if (!isSearchImageThumb(r)) return null;
   if (!isGreyZoneByTags(r.badges || [])) return null;
   if (thumbCorsDisabledById.value[r.id]) return null;
+  const origin = originFromUrl(r.thumbUrl || "");
+  if (origin && thumbCorsDisabledByOrigin.value[origin]) return null;
   return "anonymous";
 }
 
-const IMAGE_EAGER_COUNT = 18;
-const IMAGE_HIGH_PRIORITY_COUNT = 8;
+const IMAGE_EAGER_COUNT = 10;
+const IMAGE_HIGH_PRIORITY_COUNT = 6;
 
 function imageThumbLoading(idx: number): "eager" | "lazy" {
   return idx < IMAGE_EAGER_COUNT ? "eager" : "lazy";
@@ -780,12 +1000,26 @@ function scheduleThumbAnalysis(r: ResultItem, imgEl: HTMLImageElement): void {
 
 function onThumbLoad(r: ResultItem, ev: Event): void {
   if (!isSearchImageThumb(r)) return;
+  markThumbLoaded(r.id);
   if (!isGreyZoneByTags(r.badges || [])) return;
+
+  const imgEl = ev.target as HTMLImageElement | null;
+  if (thumbCorsProbeById.has(r.id)) {
+    thumbCorsProbeById.delete(r.id);
+    // Only disable origin-wide CORS if we successfully loaded the image without a CORS attribute.
+    // This avoids breaking safe analysis when the gateway actually supports CORS.
+    const corsAttr = imgEl?.getAttribute("crossorigin");
+    if (!corsAttr) {
+      const origin = originFromUrl(r.thumbUrl || "");
+      if (origin) {
+        thumbCorsDisabledByOrigin.value = { ...thumbCorsDisabledByOrigin.value, [origin]: true };
+      }
+    }
+  }
 
   maybeApplyCachedDecision(r);
   if (grantedClearThumbIds.value[r.id]) return;
 
-  const imgEl = ev.target as HTMLImageElement | null;
   if (!imgEl || !imgEl.complete || imgEl.naturalWidth <= 0) return;
   scheduleThumbAnalysis(r, imgEl);
 }
@@ -794,7 +1028,12 @@ function onThumbError(r: ResultItem): void {
   // If the gateway doesn't support CORS, retry without it (thumbnail stays blurred).
   if (!isSearchImageThumb(r)) return;
   if (corsAttrForThumb(r) === "anonymous") {
+    thumbCorsProbeById.add(r.id);
     thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
+    return;
+  }
+  if (!thumbLocalFallbackTriedById.has(r.id) && switchThumbToLocalGateway(r)) {
+    thumbLocalFallbackTriedById.add(r.id);
     return;
   }
   markThumbBroken(r.id);
@@ -806,7 +1045,12 @@ function onListThumbError(r: ResultItem): void {
     return;
   }
   if (corsAttrForThumb(r) === "anonymous") {
+    thumbCorsProbeById.add(r.id);
     thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
+    return;
+  }
+  if (!thumbLocalFallbackTriedById.has(r.id) && switchThumbToLocalGateway(r)) {
+    thumbLocalFallbackTriedById.add(r.id);
     return;
   }
   markThumbBroken(r.id);
@@ -1165,6 +1409,14 @@ async function togglePinImage(result: ResultItem) {
 
 function focusInput() {
   inputEl.value?.focus();
+}
+
+function openHowSearchWorks() {
+  showHowSearchWorks.value = true;
+}
+
+function closeHowSearchWorks() {
+  showHowSearchWorks.value = false;
 }
 
 onMounted(() => {
@@ -1888,14 +2140,49 @@ async function loadGatewaysForSearch(
     if (!id || seen.has(id)) continue;
     const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
     if (!endpoint) continue;
+    const baseUrlHint = String(g?.baseUrl ?? "").trim();
     const regions = Array.isArray(g?.regions)
       ? g.regions.map((r: any) => String(r || "")).filter(Boolean)
       : [];
-    items.push({ id, endpoint, regions });
+    items.push({
+      id,
+      endpoint,
+      baseUrl: normalizeBaseUrlLike(baseUrlHint) || undefined,
+      regions,
+    });
     seen.add(id);
   }
 
   gatewaysCache.value = { at: now, items };
+  // Best-effort: resolve gateway HTTP base URLs in the background so image thumbnails can load
+  // from a fast/pinned source without delaying search results.
+  if (typeof gwApi.getBaseUrl === "function") {
+    void Promise.all(
+      items.map(async (g) => {
+        if (g.baseUrl) return;
+        const endpoint = String(g.endpoint || "").trim();
+        if (!endpoint) return;
+
+        // If the endpoint looks like a plain base URL, keep it (no extra IPC).
+        try {
+          const u = new URL(endpoint);
+          const path = String(u.pathname || "");
+          if (!path || path === "/") {
+            g.baseUrl = normalizeBaseUrlLike(endpoint) || undefined;
+            return;
+          }
+        } catch {
+          // ignore
+        }
+
+        const res = await gwApi.getBaseUrl(profileId, endpoint).catch(() => null);
+        if (!res || res.ok === false) return;
+        const base = String(res?.baseUrl ?? res?.base_url ?? "").trim();
+        const normalized = normalizeBaseUrlLike(base);
+        if (normalized) g.baseUrl = normalized;
+      }),
+    ).catch(() => {});
+  }
   return items;
 }
 
@@ -2058,7 +2345,7 @@ function mapGatewayHitToResult(
 
   // For thumbnails, prefer the leaf CID to avoid path issues and keep requests simple.
   const thumbUrl = isImage
-    ? `${localIpfsGatewayBase()}/ipfs/${cid}`
+    ? imageThumbUrlForGateway(gateway, cid)
     : undefined;
 
   const hitTitle = hit?.title != null ? String(hit.title).trim() : "";
@@ -2108,6 +2395,7 @@ function mapGatewayHitToResult(
     description: snippet || undefined,
     badges,
     thumbUrl,
+    thumbCid: isImage ? cid : undefined,
     media,
     fileKind,
     uniqueViews7d,
@@ -2926,6 +3214,9 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   errorMsg.value = "";
   results.value = [];
   gatewayHasMore.value = false;
+  thumbCorsProbeById.clear();
+  thumbLocalFallbackTriedById.clear();
+  thumbLoadedById.value = {};
 
   try {
     // In the Images tab, keep results strictly image-only (avoid "fast actions" like open link/CID
@@ -3272,6 +3563,283 @@ const imageResults = computed(() =>
   justify-content: center;
   gap: 0.625rem;
   margin-top: 0.75rem;
+}
+
+.help-icon-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.help-icon-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.help-icon-btn:active {
+  transform: translateY(0);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  width: min(760px, 100%);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-primary-lg);
+}
+
+.help-modal {
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.help-header {
+  padding-top: 1.15rem;
+}
+
+.help-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.help-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+  background: var(--primary-a08);
+  color: var(--text-primary);
+  flex: 0 0 auto;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.modal-sub {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.icon-btn:hover:enabled {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.help-close {
+  flex: 0 0 auto;
+}
+
+.help-body {
+  padding: 1rem 1.25rem 1.25rem;
+  color: var(--text-primary);
+  max-height: min(72vh, 720px);
+  overflow-y: auto;
+}
+
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+@media (max-width: 760px) {
+  .help-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-card {
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 0.95rem 1rem 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.help-h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.help-p {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.help-callout {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  background: rgba(99, 102, 241, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.help-callout-icon {
+  color: var(--text-primary);
+  opacity: 0.85;
+  flex: 0 0 auto;
+  margin-top: 0.05rem;
+}
+
+.help-callout-text {
+  color: var(--text-secondary);
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+
+.help-list {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.help-list li {
+  position: relative;
+  padding-left: 1.05rem;
+  margin: 0.45rem 0;
+}
+
+.help-list li::before {
+  content: "";
+  position: absolute;
+  left: 0.2rem;
+  top: 0.65rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+.help-steps {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: helpstep;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.help-steps li {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.help-steps li::before {
+  counter-increment: helpstep;
+  content: counter(helpstep);
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+  background: var(--card-bg);
+  color: var(--text-tertiary);
+  font-weight: 800;
+  font-size: 0.75rem;
+  flex: 0 0 auto;
+  margin-top: 0.05rem;
+}
+
+.help-step-text {
+  min-width: 0;
+}
+
+.help-note {
+  grid-column: 1 / -1;
+  margin: 0.2rem 0 0;
+  padding: 0.75rem 0.95rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-primary);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .pill {
@@ -3711,6 +4279,17 @@ const imageResults = computed(() =>
   height: 100%;
   overflow: hidden;
   background: var(--bg-secondary);
+}
+
+.safe-thumb.thumb-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.15) 0%,
+    rgba(148, 163, 184, 0.25) 50%,
+    rgba(148, 163, 184, 0.15) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 .safe-thumb.blurred img {
