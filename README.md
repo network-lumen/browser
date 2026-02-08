@@ -31,6 +31,10 @@ npm run build
 
 This generates a static bundle in `dist/` that `electron/main.cjs` can load in production.
 
+## Publishing on-chain releases
+
+See `RELEASE.md` for the full end-to-end workflow (publisher UI at `lumen://release`, DAO validation, artifacts, and troubleshooting).
+
 ## Mac launch
 
 sudo xattr -rd com.apple.quarantine /Applications/Lumen\ Browser.app

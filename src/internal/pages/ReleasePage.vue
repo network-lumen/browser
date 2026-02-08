@@ -351,7 +351,6 @@ import { getActiveProfile } from '../profilesStore';
 
 type ReleaseParams = {
   allowedPublishers: string[];
-  daoPublishers: string[];
   channels: string[];
   maxArtifacts: number;
   maxUrlsPerArt: number;
@@ -509,7 +508,6 @@ async function fetchParams() {
   const p = data?.params || data || {};
   params.value = {
     allowedPublishers: Array.isArray(p.allowed_publishers ?? p.allowedPublishers) ? (p.allowed_publishers ?? p.allowedPublishers) : [],
-    daoPublishers: Array.isArray(p.dao_publishers ?? p.daoPublishers) ? (p.dao_publishers ?? p.daoPublishers) : [],
     channels: Array.isArray(p.channels) ? p.channels : ['stable', 'beta'],
     maxArtifacts: Number(p.max_artifacts ?? p.maxArtifacts ?? 0) || 0,
     maxUrlsPerArt: Number(p.max_urls_per_art ?? p.maxUrlsPerArt ?? 0) || 0,
@@ -548,7 +546,7 @@ const allowed = computed(() => {
   if (!addr) return false;
   const p = params.value;
   if (!p) return false;
-  return p.allowedPublishers.includes(addr) || p.daoPublishers.includes(addr);
+  return p.allowedPublishers.includes(addr);
 });
 
 const channelOptions = computed(() => (params.value?.channels?.length ? params.value.channels : ['stable', 'beta']));
