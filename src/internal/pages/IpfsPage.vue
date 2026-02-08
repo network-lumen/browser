@@ -50,6 +50,7 @@
             class="plans-btn"
             type="button"
             @click="download"
+            v-if="!isPreviewUnavailable"
             :disabled="!canDownload"
           >
             <Download :size="16" />
@@ -216,19 +217,6 @@
             <div class="unsupported-content">
               <h3>Preview not available</h3>
               <p>This content type cannot be previewed directly.</p>
-              <div class="unsupported-actions">
-                <button class="btn-download" @click="download">
-                  <Download :size="16" />
-                  <span>Download file</span>
-                </button>
-                <button class="btn-secondary" @click="openInNewWindow">
-                  <span>Open in new window</span>
-                </button>
-              </div>
-              <p class="unsupported-hint">
-                <strong>CID:</strong> {{ rootCid }}<br />
-                <strong>Path:</strong> {{ relPath || "/" }}
-              </p>
             </div>
           </div>
         </div>
@@ -598,6 +586,9 @@ const crumbs = computed(() => {
 });
 
 const canDownload = computed(() => !!rootCid.value && !loading.value);
+const isPreviewUnavailable = computed(
+  () => !loading.value && !!rootCid.value && !isDir.value && viewKind.value === "unknown",
+);
 
 function guessViewKind(nameOrPath: string): typeof viewKind.value {
   const s = String(nameOrPath || "").toLowerCase();
