@@ -707,45 +707,53 @@ function normalizeBaseUrlLike(input: string): string | null {
   }
 }
 
-function imageThumbUrlForGateway(gateway: GatewayView, cid: string): string {
+function imageThumbUrlForGateway(gateway: GatewayView, cid: string, pathSuffix = ""): string {
   const cleanCid = String(cid || "").trim();
   const localBase = localIpfsGatewayBase().replace(/\/+$/, "");
+  const suffix = safeEncodedPathSuffix(pathSuffix);
 
   const directBase = normalizeBaseUrlLike(gateway?.baseUrl || "");
-  if (directBase) return `${directBase}/ipfs/${cleanCid}`;
+  if (directBase) return `${directBase}/ipfs/${cleanCid}${suffix}`;
 
   const endpoint = String(gateway?.endpoint || "").trim();
-  if (!endpoint) return `${localBase}/ipfs/${cleanCid}`;
+  if (!endpoint) return `${localBase}/ipfs/${cleanCid}${suffix}`;
 
   try {
     const u = new URL(endpoint);
     if (u.protocol !== "http:" && u.protocol !== "https:") {
-      return `${localBase}/ipfs/${cleanCid}`;
+      return `${localBase}/ipfs/${cleanCid}${suffix}`;
     }
     const path = String(u.pathname || "");
     // If the endpoint includes a path (e.g. `/api`), use origin as a best-effort guess.
     const base = path && path !== "/" ? originFromUrl(endpoint) : normalizeBaseUrlLike(endpoint);
-    return `${String(base || localBase).replace(/\/+$/, "")}/ipfs/${cleanCid}`;
+    return `${String(base || localBase).replace(/\/+$/, "")}/ipfs/${cleanCid}${suffix}`;
   } catch {
-    return `${localBase}/ipfs/${cleanCid}`;
+    return `${localBase}/ipfs/${cleanCid}${suffix}`;
   }
 }
 
-function extractIpfsCidFromHttpUrl(url: string): string | null {
+function extractIpfsCidAndSubpathFromHttpUrl(
+  url: string,
+): { cid: string; subpath: string } | null {
   const raw = String(url || "").trim();
   if (!raw) return null;
-  const m = raw.match(/\/ipfs\/([^/?#]+)/i);
-  return m && m[1] ? String(m[1]).trim() : null;
+  const m = raw.match(/\/ipfs\/([^/?#]+)(\/[^?#]*)?/i);
+  if (!m || !m[1]) return null;
+  const cid = String(m[1]).trim();
+  const subpath = String(m[2] || "").trim();
+  return cid ? { cid, subpath } : null;
 }
 
 function switchThumbToLocalGateway(r: ResultItem): boolean {
   if (!r || !r.thumbUrl) return false;
 
-  const cid = String(r.thumbCid || extractIpfsCidFromHttpUrl(r.thumbUrl) || "").trim();
+  const parsed = extractIpfsCidAndSubpathFromHttpUrl(r.thumbUrl);
+  const cid = String(r.thumbCid || parsed?.cid || "").trim();
   if (!cid) return false;
+  const subpath = parsed?.cid === cid ? parsed.subpath : "";
 
   const localBase = localIpfsGatewayBase().replace(/\/+$/, "");
-  const desired = `${localBase}/ipfs/${cid}`;
+  const desired = `${localBase}/ipfs/${cid}${subpath}`;
 
   const cur = String(r.thumbUrl || "").trim();
   if (!cur) return false;
@@ -1078,6 +1086,62 @@ function parseLumenIpfsUrl(url: string): { cid: string; subpath: string } | null
     .trim();
   if (!cid) return null;
   return { cid, subpath };
+}
+
+function parseIpfsLikeQuery(input: string): { cid: string; subpath: string } | null {
+  const raw = String(input || "").trim();
+  if (!raw) return null;
+
+  const lumenParsed = parseLumenIpfsUrl(raw);
+  if (lumenParsed) {
+    const cid = String(lumenParsed.cid || "").trim();
+    const subpath = lumenParsed.subpath ? `/${lumenParsed.subpath}` : "";
+    return cid ? { cid, subpath } : null;
+  }
+
+  const m = raw.match(/^\/?ipfs\/([^\/?#]+)(\/[^?#]*)?$/i);
+  if (!m || !m[1]) return null;
+
+  const cid = String(m[1]).trim();
+  const subpathRaw = String(m[2] || "").trim();
+  const subpath = subpathRaw === "/" ? "" : subpathRaw;
+  return cid ? { cid, subpath } : null;
+}
+
+function normalizeQueryForGatewaySearch(input: string): {
+  raw: string;
+  gatewayQuery: string;
+  cidForDirect: string | null;
+  ipfsLike: { cid: string; subpath: string } | null;
+} {
+  const raw = String(input || "").trim();
+  if (!raw) {
+    return { raw: "", gatewayQuery: "", cidForDirect: null, ipfsLike: null };
+  }
+
+  if (isCidLike(raw)) {
+    return { raw, gatewayQuery: raw, cidForDirect: raw, ipfsLike: null };
+  }
+
+  const ipfsLike = parseIpfsLikeQuery(raw);
+  if (!ipfsLike || !isCidLike(ipfsLike.cid)) {
+    return { raw, gatewayQuery: raw, cidForDirect: null, ipfsLike: null };
+  }
+
+  if (!ipfsLike.subpath) {
+    return {
+      raw,
+      gatewayQuery: ipfsLike.cid,
+      cidForDirect: ipfsLike.cid,
+      ipfsLike,
+    };
+  }
+
+  const encodedPath = encodeUrlPath(ipfsLike.subpath);
+  const gatewayQuery = encodedPath
+    ? `lumen://ipfs/${ipfsLike.cid}/${encodedPath}`
+    : `lumen://ipfs/${ipfsLike.cid}`;
+  return { raw, gatewayQuery, cidForDirect: null, ipfsLike };
 }
 
 function isHtmlFileName(name: string): boolean {
@@ -2246,7 +2310,14 @@ function encodeUrlPath(pathValue: any): string {
   return withoutLeading
     .split("/")
     .filter((seg) => seg.length > 0)
-    .map((seg) => encodeURIComponent(seg))
+    .map((seg) => {
+      const s = String(seg || "");
+      try {
+        return encodeURIComponent(decodeURIComponent(s));
+      } catch {
+        return encodeURIComponent(s);
+      }
+    })
     .join("/");
 }
 
@@ -2344,8 +2415,11 @@ function mapGatewayHitToResult(
       : `lumen://ipfs/${cid}${hasPath ? path : ""}`;
 
   // For thumbnails, prefer the leaf CID to avoid path issues and keep requests simple.
+  const thumbBaseCid = hasPath && rootCid ? rootCid : cid;
   const thumbUrl = isImage
-    ? imageThumbUrlForGateway(gateway, cid)
+    ? hasPath
+      ? imageThumbUrlForGateway(gateway, thumbBaseCid, path)
+      : imageThumbUrlForGateway(gateway, cid)
     : undefined;
 
   const hitTitle = hit?.title != null ? String(hit.title).trim() : "";
@@ -2395,7 +2469,7 @@ function mapGatewayHitToResult(
     description: snippet || undefined,
     badges,
     thumbUrl,
-    thumbCid: isImage ? cid : undefined,
+    thumbCid: isImage ? (hasPath ? thumbBaseCid : cid) : undefined,
     media,
     fileKind,
     uniqueViews7d,
@@ -3051,7 +3125,11 @@ function buildFastResults(query: string): ResultItem[] {
 
   const list: ResultItem[] = [];
 
-  if (/^lumen:\/\//i.test(s)) {
+  const ipfsLike = parseIpfsLikeQuery(s);
+  const ipfsCid = String(ipfsLike?.cid || "").trim();
+  const ipfsCidOk = ipfsCid ? isCidLike(ipfsCid) : false;
+
+  if (/^lumen:\/\//i.test(s) && !(ipfsLike && ipfsCidOk)) {
     list.push({
       id: `link:${s}`,
       title: "Open Lumen link",
@@ -3061,7 +3139,21 @@ function buildFastResults(query: string): ResultItem[] {
     });
   }
 
-  if (isCidLike(s)) {
+  if (ipfsLike && ipfsCidOk) {
+    const encoded = encodeUrlPath(ipfsLike.subpath || "");
+    const url = encoded
+      ? `lumen://ipfs/${ipfsCid}/${encoded}`
+      : `lumen://ipfs/${ipfsCid}`;
+    const title = ipfsLike.subpath ? "IPFS path" : "IPFS content";
+    list.push({
+      id: `ipfs:${ipfsCid}`,
+      title,
+      url,
+      description: ipfsLike.subpath ? "Open IPFS path" : "Open content by CID",
+      kind: "ipfs",
+      badges: ["IPFS"],
+    });
+  } else if (isCidLike(s)) {
     list.push({
       id: `ipfs:${s}`,
       title: "IPFS content",
@@ -3190,6 +3282,9 @@ const pageInfoText = computed(() => {
 async function runSearch(query: string, type: SearchType, pageParam = 1) {
   const seq = ++searchSeq;
   const clean = String(query || "").trim();
+  const normalizedQuery = normalizeQueryForGatewaySearch(clean);
+  const gatewayQuery = normalizedQuery.gatewayQuery;
+  const cidForDirect = normalizedQuery.cidForDirect;
   const safePage = clampPage(pageParam);
   const refreshTick = Number(currentTabRefresh?.value || 0);
   const runKey = `${type}::${clean}::page=${safePage}::r=${refreshTick}`;
@@ -3223,22 +3318,22 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
     // that would inflate counts without showing anything in the image grid).
     const base = type === "image" ? [] : buildFastResults(clean);
     const cidMetaPromise =
-      safePage === 1 && clean && isCidLike(clean) ? enrichFastCidResult(base, clean, seq) : Promise.resolve();
+      safePage === 1 && cidForDirect ? enrichFastCidResult(base, cidForDirect, seq) : Promise.resolve();
 
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      safePage === 1 && clean && (type === "site" || type === "all")
+      safePage === 1 && clean && !cidForDirect && !normalizedQuery.ipfsLike && (type === "site" || type === "all")
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
-    const gatewayPromise = searchGateways(profileId || "", clean, type, seq, {
+    const gatewayPromise = searchGateways(profileId || "", gatewayQuery, type, seq, {
       pageSize: gatewayPageSize,
       page: safePage,
     });
 
     const cidSitePromise =
-      safePage === 1 && type === "all" && clean && isCidLike(clean) && !!profileId
-        ? searchGateways(profileId || "", clean, "site", seq, { pageSize: 1, page: 1 })
+      safePage === 1 && type === "all" && !!cidForDirect && !!profileId
+        ? searchGateways(profileId || "", cidForDirect, "site", seq, { pageSize: 1, page: 1 })
         : Promise.resolve(null);
 
     const [bestDomain, gw, _cidMetaDone, cidSite] = await Promise.all([
@@ -3302,7 +3397,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
 
     // Explore: when querying a raw CID, prefer the "Sites" entrypoint (gateway-derived) over the generic
     // "IPFS content" quick action + a duplicate HTML hit.
-    if (safePage === 1 && type === "all" && clean && isCidLike(clean)) {
+    if (safePage === 1 && type === "all" && cidForDirect) {
       const siteCandidate =
         cidSite && typeof cidSite === "object" && Array.isArray((cidSite as any).items)
           ? ((cidSite as any).items as ResultItem[]).find((r) => r && r.kind === "site")
@@ -3313,7 +3408,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
         const best =
           parsed && parsed.cid
             ? ({
-                id: `cid:${clean}`,
+                id: `cid:${cidForDirect}`,
                 title: siteCandidate.title,
                 url: siteCandidate.url,
                 description: siteCandidate.description,
@@ -3326,13 +3421,13 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
             : siteCandidate;
 
         // Remove the generic "Open content by CID" quick action.
-        merged = merged.filter((r) => !(r && r.kind === "ipfs" && r.id === `ipfs:${clean}`));
+        merged = merged.filter((r) => !(r && r.kind === "ipfs" && r.id === `ipfs:${cidForDirect}`));
 
         // Remove HTML hits that still point at the raw CID root (we replace them with the entrypoint).
         merged = merged.filter((r) => {
           if (!r || r.kind !== "ipfs") return true;
           if (r.fileKind !== "html") return true;
-          return !String(r.url || "").toLowerCase().startsWith(`lumen://ipfs/${clean.toLowerCase()}`);
+          return !String(r.url || "").toLowerCase().startsWith(`lumen://ipfs/${cidForDirect.toLowerCase()}`);
         });
 
         // De-dupe by URL.
