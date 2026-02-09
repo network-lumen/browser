@@ -270,6 +270,77 @@ async function walletListSendTxs(input) {
   const base = trimSlash(restBase);
   const limit = Number(input && input.limit ? input.limit : 50) || 50;
 
+  function collectTxEvents(tx) {
+    const out = [];
+    if (tx && Array.isArray(tx.events)) out.push(...tx.events);
+    if (tx && tx.tx_result && Array.isArray(tx.tx_result.events)) out.push(...tx.tx_result.events);
+    const logs = tx && Array.isArray(tx.logs) ? tx.logs : [];
+    for (const log of logs) {
+      const events = Array.isArray(log && log.events ? log.events : []) ? log.events : [];
+      out.push(...events);
+    }
+    return out;
+  }
+
+  function findEventAttr(events, type, key) {
+    const typeLower = String(type || '').toLowerCase();
+    const keyLower = String(key || '').toLowerCase();
+    const list = Array.isArray(events) ? events : [];
+
+    for (const ev of list) {
+      const evType = String(ev && ev.type ? ev.type : '').toLowerCase();
+      if (!evType || evType !== typeLower) continue;
+
+      const attrs = Array.isArray(ev && ev.attributes ? ev.attributes : []) ? ev.attributes : [];
+      for (const a of attrs) {
+        const k = String(a && a.key ? a.key : '').toLowerCase();
+        if (k !== keyLower) continue;
+        const v = a && a.value != null ? String(a.value) : '';
+        if (v) return v;
+      }
+    }
+    return '';
+  }
+
+  function extractPrimaryActionAndDnsName(tx) {
+    let action = '';
+    let dnsName = '';
+
+    try {
+      const messages =
+        tx && tx.tx && tx.tx.body && Array.isArray(tx.tx.body.messages) ? tx.tx.body.messages : [];
+      for (const msg of messages) {
+        if (!msg) continue;
+        const msgType = String(msg['@type'] || msg.typeUrl || msg.type_url || '').trim();
+        if (!action && msgType) action = msgType;
+
+        if (msgType === '/lumen.dns.v1.MsgUpdate') {
+          const fqdn = msg.name || msg.fqdn;
+          if (fqdn) {
+            dnsName = String(fqdn);
+          } else if (msg.domain && msg.ext) {
+            dnsName = `${String(msg.domain)}.${String(msg.ext)}`;
+          } else if (msg.domain) {
+            dnsName = String(msg.domain);
+          }
+          action = msgType;
+          break;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    const events = collectTxEvents(tx);
+    if (!action) action = findEventAttr(events, 'message', 'action');
+    if (action === '/lumen.dns.v1.MsgUpdate') {
+      const evName = findEventAttr(events, 'dns_update', 'name');
+      if (evName) dnsName = evName;
+    }
+
+    return { action, dnsName };
+  }
+
   const filters = [
     { key: 'sent', filter: `message.sender='${address}'`, type: 'send' },
     { key: 'signed', filter: `message.signer='${address}'`, type: 'send' },
@@ -359,49 +430,54 @@ async function walletListSendTxs(input) {
     let outDenom = '';
     let inDenom = '';
 
-    const logs = Array.isArray(tx.logs) ? tx.logs : [];
-    
-    for (const log of logs) {
-      const events = Array.isArray(log && log.events ? log.events : []) ? log.events : [];
-      
-      for (const ev of events) {
-        if (!ev || ev.type !== 'transfer') continue;
-        const attrs = Array.isArray(ev.attributes) ? ev.attributes : [];
-        
-        let sender = '';
-        let recipient = '';
-        let amountRaw = '';
-        for (const a of attrs) {
-          const key = String(a && a.key ? a.key : '').toLowerCase();
-          const val = String(a && a.value ? a.value : '');
-          
-          if (key === 'sender') sender = val;
-          else if (key === 'recipient') recipient = val;
-          else if (key === 'amount') amountRaw = val;
-        }
-        
-        if (!amountRaw) continue;
-        const first = String(amountRaw.split(',')[0] || '').trim();
-        const m = first.match(/^(\d+)([a-zA-Z0-9/]+)$/);
-        if (!m) continue;
-        const amt = BigInt(m[1]);
-        const denom = m[2];
+    const eventsForTransfers = (() => {
+      const logs = Array.isArray(tx.logs) ? tx.logs : [];
+      const fromLogs = [];
+      for (const log of logs) {
+        const events = Array.isArray(log && log.events ? log.events : []) ? log.events : [];
+        fromLogs.push(...events);
+      }
+      if (fromLogs.length) return fromLogs;
+      return Array.isArray(tx.events) ? tx.events : [];
+    })();
 
-        // Always capture from/to addresses for display
-        if (!from && sender) from = sender;
-        if (!to && recipient) to = recipient;
+    for (const ev of eventsForTransfers) {
+      if (!ev || ev.type !== 'transfer') continue;
+      const attrs = Array.isArray(ev.attributes) ? ev.attributes : [];
 
-        if (sender === address) {
-          from = sender;
-          to = recipient || to;
-          outAmount += amt;
-          if (!outDenom) outDenom = denom;
-        } else if (recipient === address) {
-          from = from || sender;
-          to = recipient;
-          inAmount += amt;
-          if (!inDenom) inDenom = denom;
-        }
+      let sender = '';
+      let recipient = '';
+      let amountRaw = '';
+      for (const a of attrs) {
+        const key = String(a && a.key ? a.key : '').toLowerCase();
+        const val = String(a && a.value ? a.value : '');
+
+        if (key === 'sender') sender = val;
+        else if (key === 'recipient') recipient = val;
+        else if (key === 'amount') amountRaw = val;
+      }
+
+      if (!amountRaw) continue;
+      const first = String(amountRaw.split(',')[0] || '').trim();
+      const m = first.match(/^(\d+)([a-zA-Z0-9/]+)$/);
+      if (!m) continue;
+      const amt = BigInt(m[1]);
+      const denom = m[2];
+
+      // Always capture from/to addresses for display
+      if (!from && sender) from = sender;
+      if (!to && recipient) to = recipient;
+
+      if (sender === address) {
+        from = sender;
+        to = recipient || to;
+        outAmount += amt;
+        if (!outDenom) outDenom = denom;
+      } else if (recipient === address) {
+        from = from || sender;
+        to = recipient;
+        inAmount += amt;
+        if (!inDenom) inDenom = denom;
       }
     }
 
@@ -465,6 +541,16 @@ async function walletListSendTxs(input) {
     const memo =
       tx.tx && tx.tx.body && typeof tx.tx.body.memo === 'string' ? tx.tx.body.memo : '';
 
+    const { action, dnsName } = extractPrimaryActionAndDnsName(tx);
+
+    const codeRaw = tx.code ?? (tx.tx_result ? tx.tx_result.code : undefined);
+    const code =
+      typeof codeRaw === 'number'
+        ? codeRaw
+        : typeof codeRaw === 'string'
+          ? Number.parseInt(codeRaw, 10)
+          : undefined;
+
     const id = txhash || `${timestamp || ''}-${height || 0}`;
     out.push({
       id,
@@ -472,10 +558,13 @@ async function walletListSendTxs(input) {
       type,
       timestamp,
       height,
+      code,
       amounts,
       from: from || undefined,
       to: to || undefined,
-      memo
+      memo,
+      action: action || undefined,
+      dnsName: dnsName || undefined
     });
   }
 

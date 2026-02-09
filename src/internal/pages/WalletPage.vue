@@ -272,11 +272,15 @@
             class="activity-row"
           >
             <div class="col-type">
-              <div class="type-badge" :class="tx.type">
-                <ArrowUpRight v-if="tx.type === 'send'" :size="14" />
+              <div class="type-badge" :class="getActivityBadgeClass(tx)">
+                <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
+                <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
-                <span>{{ tx.type === 'send' ? 'Send' : 'Receive' }}</span>
+                <div class="type-text">
+                  <span class="type-main">{{ getActivityLabel(tx) }}</span>
+                  <span v-if="isDnsUpdateTx(tx) && tx.dnsName" class="type-sub" :title="tx.dnsName">{{ tx.dnsName }}</span>
+                </div>
               </div>
             </div>
 
@@ -828,6 +832,7 @@ const contactForm = ref({
 const activities = ref<Activity[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref('');
+const txMetaByHash = ref<Record<string, { action?: string; dnsName?: string }>>({});
 
 // Transaction Filters
 const txFilterType = ref<'all' | 'send' | 'receive'>('all');
@@ -876,6 +881,7 @@ const enhancedActivities = computed(() => {
   if (!userAddr) return activities.value;
   
   let filtered = activities.value.map(tx => {
+    const meta = tx.txhash ? txMetaByHash.value[tx.txhash] : undefined;
     // Use from/to from backend data
     const fromAddr = (tx.from || tx.sender || '').trim();
     const toAddr = (tx.to || tx.recipient || '').trim();
@@ -902,11 +908,12 @@ const enhancedActivities = computed(() => {
       actualType = 'receive';
     }
     
-    return { 
-      ...tx, 
-      type: actualType, 
-      from: fromAddr || undefined, 
-      to: toAddr || undefined 
+    return {
+      ...tx,
+      ...(meta || {}),
+      type: actualType,
+      from: fromAddr || undefined,
+      to: toAddr || undefined
     };
   });
 
@@ -936,6 +943,107 @@ const enhancedActivities = computed(() => {
 
   return filtered;
 });
+
+function findEventAttr(events: any, type: string, key: string): string {
+  const list: any[] = Array.isArray(events) ? events : [];
+  const typeLower = String(type || '').toLowerCase();
+  const keyLower = String(key || '').toLowerCase();
+
+  for (const ev of list) {
+    const evType = String(ev && ev.type ? ev.type : '').toLowerCase();
+    if (!evType || evType !== typeLower) continue;
+
+    const attrs: any[] = Array.isArray(ev && ev.attributes ? ev.attributes : []) ? ev.attributes : [];
+    for (const a of attrs) {
+      const k = String(a && a.key ? a.key : '').toLowerCase();
+      if (k !== keyLower) continue;
+      const v = a && a.value != null ? String(a.value) : '';
+      if (v) return v;
+    }
+  }
+  return '';
+}
+
+async function hydrateTxMeta(list: Activity[]) {
+  try {
+    const net = (window as any)?.lumen?.net;
+    if (!net || typeof net.restGet !== 'function') return;
+
+    const candidates = (Array.isArray(list) ? list : []).filter((tx) => {
+      const h = String(tx?.txhash || '').trim();
+      if (!h) return false;
+      if (txMetaByHash.value[h]) return false;
+      if (tx.action && tx.action !== '/lumen.dns.v1.MsgUpdate') return false;
+      if (tx.action === '/lumen.dns.v1.MsgUpdate' && tx.dnsName) return false;
+      return true;
+    });
+
+    const queue = candidates.map((tx) => String(tx.txhash).trim());
+    if (!queue.length) return;
+
+    const concurrency = 4;
+    let idx = 0;
+
+    async function worker() {
+      while (idx < queue.length) {
+        const hash = queue[idx++];
+        try {
+          const r = await net.restGet(`/cosmos/tx/v1beta1/txs/${hash}`, { timeout: 15000 });
+          if (!r || r.ok === false) continue;
+          const txResp = r?.json?.tx_response;
+          if (!txResp) continue;
+
+          let action = findEventAttr(txResp.events, 'message', 'action');
+          if (!action) {
+            action = String(txResp?.tx?.body?.messages?.[0]?.['@type'] || '').trim();
+          }
+
+          let dnsName = '';
+          if (action === '/lumen.dns.v1.MsgUpdate') {
+            dnsName = findEventAttr(txResp.events, 'dns_update', 'name');
+            if (!dnsName) {
+              const msg = txResp?.tx?.body?.messages?.find?.((m: any) => m?.['@type'] === '/lumen.dns.v1.MsgUpdate') || null;
+              if (msg?.name) dnsName = String(msg.name);
+              else if (msg?.fqdn) dnsName = String(msg.fqdn);
+              else if (msg?.domain && msg?.ext) dnsName = `${String(msg.domain)}.${String(msg.ext)}`;
+              else if (msg?.domain) dnsName = String(msg.domain);
+            }
+          }
+
+          if (action || dnsName) {
+            txMetaByHash.value = {
+              ...txMetaByHash.value,
+              [hash]: { action: action || undefined, dnsName: dnsName || undefined }
+            };
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, () => worker()));
+  } catch {
+    // ignore
+  }
+}
+
+function isDnsUpdateTx(tx: Activity): boolean {
+  const action = String(tx.action ?? '').trim();
+  return action === '/lumen.dns.v1.MsgUpdate' || action === 'lumen.dns.v1.MsgUpdate';
+}
+
+function getActivityLabel(tx: Activity): string {
+  if (isDnsUpdateTx(tx)) return 'Dns update';
+  if (tx.type === 'send') return 'Send';
+  if (tx.type === 'receive') return 'Receive';
+  return 'Unknown';
+}
+
+function getActivityBadgeClass(tx: Activity): string {
+  if (isDnsUpdateTx(tx)) return 'dns-update';
+  return tx.type;
+}
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
@@ -969,6 +1077,7 @@ async function refreshActivities() {
     }
     const list = await fetchActivities({ walletId: address.value, limit: 20, offset: 0 });
     activities.value = list;
+    void hydrateTxMeta(list);
   } catch (e: any) {
     activitiesError.value = String(e?.message || e || 'Failed to load activities');
     activities.value = [];
@@ -1600,7 +1709,7 @@ function exportTransactions() {
     const date = new Date(tx.timestamp);
     const dateStr = date.toLocaleDateString('en-US');
     const timeStr = date.toLocaleTimeString('en-US');
-    const type = tx.type === 'send' ? 'Send' : 'Receive';
+    const type = isDnsUpdateTx(tx) && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
     const from = tx.from || address.value || '-';
     const to = tx.to || '-';
     const amount = tx.amounts && tx.amounts.length 
@@ -2327,7 +2436,7 @@ function exportTransactions() {
 
 .table-header {
   display: grid;
-  grid-template-columns: 90px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
+  grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
   gap: 1rem;
   padding: 0.875rem 1.25rem;
   background: var(--bg-secondary);
@@ -2348,7 +2457,7 @@ function exportTransactions() {
 
 .activity-row {
   display: grid;
-  grid-template-columns: 90px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
+  grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-light);
@@ -2368,13 +2477,18 @@ function exportTransactions() {
 
 .type-badge {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.375rem;
   padding: 0.375rem 0.625rem;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.type-badge.dns-update {
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--ios-purple);
 }
 
 .type-badge.send {
@@ -2385,6 +2499,24 @@ function exportTransactions() {
 .type-badge.receive {
   background: rgba(34, 197, 94, 0.1);
   color: var(--ios-green);
+}
+
+.type-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.type-sub {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
 }
 
 .amount-value {

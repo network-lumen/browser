@@ -15,6 +15,8 @@ export interface Activity {
   id: string;
   txhash: string;
   type: ActivityType;
+  action?: string;
+  dnsName?: string;
   timestamp: string;
   height?: number;
   code?: number;
@@ -75,6 +77,8 @@ function normalizeFromIndexer(item: any): Activity {
   const timestamp: string =
     item?.timestamp ?? item?.time ?? item?.datetime ?? item?.date ?? '';
   const type = toActivityType(item?.type ?? item?.action ?? item?.event);
+  const action: string = item?.action ?? item?.msgType ?? item?.msg_type ?? '';
+  const dnsName: string = item?.dnsName ?? item?.dns_name ?? item?.name ?? '';
   const id =
     item?.id ??
     txhash ??
@@ -115,6 +119,8 @@ function normalizeFromIndexer(item: any): Activity {
     id: String(id),
     txhash: String(txhash || id),
     type,
+    action: action ? String(action) : undefined,
+    dnsName: dnsName ? String(dnsName) : undefined,
     timestamp: String(timestamp || ''),
     height: Number.isFinite(height as number) ? (height as number) : undefined,
     code,
@@ -180,7 +186,9 @@ export async function fetchActivities(params: ListActivitiesParams): Promise<Act
       amounts: item.amounts,
       from: item.from,
       to: item.to,
-      memo: item.memo
+      memo: item.memo,
+      action: item.action,
+      dnsName: item.dnsName
     })
   );
   const sorted = sortDescByTime(normalized);
