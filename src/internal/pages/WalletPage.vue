@@ -303,6 +303,15 @@
                   <span class="text-muted">-</span>
                 </template>
               </span>
+              <button
+                v-if="tx.from"
+                class="action-icon copy-btn"
+                @click.stop="copyToClipboard(tx.from, 'Address copied!')"
+                title="Copy address"
+                aria-label="Copy from address"
+              >
+                <Copy :size="14" />
+              </button>
             </div>
 
             <div class="col-to">
@@ -317,6 +326,15 @@
                   <span class="text-muted">-</span>
                 </template>
               </span>
+              <button
+                v-if="tx.to"
+                class="action-icon copy-btn"
+                @click.stop="copyToClipboard(tx.to, 'Address copied!')"
+                title="Copy address"
+                aria-label="Copy to address"
+              >
+                <Copy :size="14" />
+              </button>
             </div>
 
             <div class="col-hash">
@@ -2323,6 +2341,11 @@ function exportTransactions() {
   box-sizing: border-box;
 }
 
+.table-header > div,
+.activity-row > div {
+  min-width: 0;
+}
+
 .activity-row {
   display: grid;
   grid-template-columns: 90px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
@@ -2383,6 +2406,24 @@ function exportTransactions() {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8125rem;
   color: var(--text-secondary);
+}
+
+.col-from,
+.col-to {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.col-from .address-value,
+.col-to .address-value {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hash-value {
@@ -2845,7 +2886,7 @@ function exportTransactions() {
   letter-spacing: 0.05em;
 }
 
-.address-value {
+.address-box .address-value {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   font-size: 0.9375rem;
   word-break: break-all;
