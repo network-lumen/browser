@@ -314,7 +314,11 @@ async function walletListSendTxs(input) {
         const msgType = String(msg['@type'] || msg.typeUrl || msg.type_url || '').trim();
         if (!action && msgType) action = msgType;
 
-        if (msgType === '/lumen.dns.v1.MsgUpdate' || msgType === '/lumen.dns.v1.MsgTransfer') {
+        if (
+          msgType === '/lumen.dns.v1.MsgUpdate' ||
+          msgType === '/lumen.dns.v1.MsgTransfer' ||
+          msgType === '/lumen.dns.v1.MsgRegister'
+        ) {
           const fqdn = msg.name || msg.fqdn;
           if (fqdn) {
             dnsName = String(fqdn);
@@ -338,6 +342,9 @@ async function walletListSendTxs(input) {
       if (evName) dnsName = evName;
     } else if (action === '/lumen.dns.v1.MsgTransfer') {
       const evName = findEventAttr(events, 'dns_transfer', 'name');
+      if (evName) dnsName = evName;
+    } else if (action === '/lumen.dns.v1.MsgRegister') {
+      const evName = findEventAttr(events, 'dns_register', 'name');
       if (evName) dnsName = evName;
     }
 
@@ -552,6 +559,12 @@ async function walletListSendTxs(input) {
       const dnsTo = findEventAttr(events, 'dns_transfer', 'to');
       if (dnsFrom) from = dnsFrom;
       if (dnsTo) to = dnsTo;
+    } else if (action === '/lumen.dns.v1.MsgRegister') {
+      const events = collectTxEvents(tx);
+      const createdBy = findEventAttr(events, 'dns_register', 'created_by');
+      const owner = findEventAttr(events, 'dns_register', 'owner');
+      if (createdBy) from = createdBy;
+      if (owner) to = owner;
     }
 
     const codeRaw = tx.code ?? (tx.tx_result ? tx.tx_result.code : undefined);

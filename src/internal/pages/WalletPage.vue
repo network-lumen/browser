@@ -275,13 +275,14 @@
               <div class="type-badge" :class="getActivityBadgeClass(tx)">
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
                 <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
+                <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
                 <div class="type-text">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
-                    v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx)) && tx.dnsName"
+                    v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx)) && tx.dnsName"
                     class="type-sub"
                     :title="tx.dnsName"
                   >{{ tx.dnsName }}</span>
@@ -986,10 +987,13 @@ async function hydrateTxMeta(list: Activity[]) {
         action === '/lumen.dns.v1.MsgUpdate' || action === 'lumen.dns.v1.MsgUpdate';
       const isDnsTransfer =
         action === '/lumen.dns.v1.MsgTransfer' || action === 'lumen.dns.v1.MsgTransfer';
+      const isDnsRegister =
+        action === '/lumen.dns.v1.MsgRegister' || action === 'lumen.dns.v1.MsgRegister';
 
-      if (action && !isDnsUpdate && !isDnsTransfer) return false;
+      if (action && !isDnsUpdate && !isDnsTransfer && !isDnsRegister) return false;
       if (isDnsUpdate && tx.dnsName) return false;
       if (isDnsTransfer && tx.dnsName && tx.from && tx.to) return false;
+      if (isDnsRegister && tx.dnsName && tx.from && tx.to) return false;
       return true;
     });
 
@@ -1052,6 +1056,33 @@ async function hydrateTxMeta(list: Activity[]) {
                 else if (msg?.recipient) overrideTo = String(msg.recipient);
               }
             }
+          } else if (action === '/lumen.dns.v1.MsgRegister') {
+            dnsName = findEventAttr(txResp.events, 'dns_register', 'name');
+            overrideFrom = findEventAttr(txResp.events, 'dns_register', 'created_by');
+            overrideTo = findEventAttr(txResp.events, 'dns_register', 'owner');
+
+            if (!dnsName || !overrideFrom || !overrideTo) {
+              const msg =
+                txResp?.tx?.body?.messages?.find?.((m: any) => m?.['@type'] === '/lumen.dns.v1.MsgRegister') || null;
+
+              if (!dnsName) {
+                if (msg?.name) dnsName = String(msg.name);
+                else if (msg?.fqdn) dnsName = String(msg.fqdn);
+                else if (msg?.domain && msg?.ext) dnsName = `${String(msg.domain)}.${String(msg.ext)}`;
+                else if (msg?.domain) dnsName = String(msg.domain);
+              }
+
+              if (!overrideFrom) {
+                if (msg?.created_by) overrideFrom = String(msg.created_by);
+                else if (msg?.createdBy) overrideFrom = String(msg.createdBy);
+                else if (msg?.creator) overrideFrom = String(msg.creator);
+                else if (msg?.sender) overrideFrom = String(msg.sender);
+              }
+
+              if (!overrideTo) {
+                if (msg?.owner) overrideTo = String(msg.owner);
+              }
+            }
           }
 
           if (action || dnsName || overrideFrom || overrideTo) {
@@ -1087,9 +1118,15 @@ function isDnsTransferTx(tx: Activity): boolean {
   return action === '/lumen.dns.v1.MsgTransfer' || action === 'lumen.dns.v1.MsgTransfer';
 }
 
+function isDnsRegisterTx(tx: Activity): boolean {
+  const action = String(tx.action ?? '').trim();
+  return action === '/lumen.dns.v1.MsgRegister' || action === 'lumen.dns.v1.MsgRegister';
+}
+
 function getActivityLabel(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'Dns update';
   if (isDnsTransferTx(tx)) return 'Dns transfer';
+  if (isDnsRegisterTx(tx)) return 'Dns register';
   if (tx.type === 'send') return 'Send';
   if (tx.type === 'receive') return 'Receive';
   return 'Unknown';
@@ -1098,6 +1135,7 @@ function getActivityLabel(tx: Activity): string {
 function getActivityBadgeClass(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'dns-update';
   if (isDnsTransferTx(tx)) return 'dns-transfer';
+  if (isDnsRegisterTx(tx)) return 'dns-register';
   return tx.type;
 }
 
@@ -1765,7 +1803,7 @@ function exportTransactions() {
     const date = new Date(tx.timestamp);
     const dateStr = date.toLocaleDateString('en-US');
     const timeStr = date.toLocaleTimeString('en-US');
-    const isDns = isDnsUpdateTx(tx) || isDnsTransferTx(tx);
+    const isDns = isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx);
     const type = isDns && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
     const from = tx.from || address.value || '-';
     const to = tx.to || '-';
@@ -2551,6 +2589,11 @@ function exportTransactions() {
 .type-badge.dns-transfer {
   background: rgba(59, 130, 246, 0.1);
   color: var(--ios-blue);
+}
+
+.type-badge.dns-register {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--ios-orange);
 }
 
 .type-badge.send {
