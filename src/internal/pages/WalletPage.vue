@@ -274,12 +274,17 @@
             <div class="col-type">
               <div class="type-badge" :class="getActivityBadgeClass(tx)">
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
+                <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
                 <div class="type-text">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
-                  <span v-if="isDnsUpdateTx(tx) && tx.dnsName" class="type-sub" :title="tx.dnsName">{{ tx.dnsName }}</span>
+                  <span
+                    v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx)) && tx.dnsName"
+                    class="type-sub"
+                    :title="tx.dnsName"
+                  >{{ tx.dnsName }}</span>
                 </div>
               </div>
             </div>
@@ -832,7 +837,9 @@ const contactForm = ref({
 const activities = ref<Activity[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref('');
-const txMetaByHash = ref<Record<string, { action?: string; dnsName?: string }>>({});
+const txMetaByHash = ref<
+  Record<string, { action?: string; dnsName?: string; overrideFrom?: string; overrideTo?: string }>
+>({});
 
 // Transaction Filters
 const txFilterType = ref<'all' | 'send' | 'receive'>('all');
@@ -883,8 +890,8 @@ const enhancedActivities = computed(() => {
   let filtered = activities.value.map(tx => {
     const meta = tx.txhash ? txMetaByHash.value[tx.txhash] : undefined;
     // Use from/to from backend data
-    const fromAddr = (tx.from || tx.sender || '').trim();
-    const toAddr = (tx.to || tx.recipient || '').trim();
+    const fromAddr = (meta?.overrideFrom || tx.from || tx.sender || '').trim();
+    const toAddr = (meta?.overrideTo || tx.to || tx.recipient || '').trim();
     
     const from = fromAddr?.toLowerCase();
     const to = toAddr?.toLowerCase();
@@ -973,8 +980,16 @@ async function hydrateTxMeta(list: Activity[]) {
       const h = String(tx?.txhash || '').trim();
       if (!h) return false;
       if (txMetaByHash.value[h]) return false;
-      if (tx.action && tx.action !== '/lumen.dns.v1.MsgUpdate') return false;
-      if (tx.action === '/lumen.dns.v1.MsgUpdate' && tx.dnsName) return false;
+
+      const action = String(tx.action ?? '').trim();
+      const isDnsUpdate =
+        action === '/lumen.dns.v1.MsgUpdate' || action === 'lumen.dns.v1.MsgUpdate';
+      const isDnsTransfer =
+        action === '/lumen.dns.v1.MsgTransfer' || action === 'lumen.dns.v1.MsgTransfer';
+
+      if (action && !isDnsUpdate && !isDnsTransfer) return false;
+      if (isDnsUpdate && tx.dnsName) return false;
+      if (isDnsTransfer && tx.dnsName && tx.from && tx.to) return false;
       return true;
     });
 
@@ -999,6 +1014,9 @@ async function hydrateTxMeta(list: Activity[]) {
           }
 
           let dnsName = '';
+          let overrideFrom = '';
+          let overrideTo = '';
+
           if (action === '/lumen.dns.v1.MsgUpdate') {
             dnsName = findEventAttr(txResp.events, 'dns_update', 'name');
             if (!dnsName) {
@@ -1008,12 +1026,43 @@ async function hydrateTxMeta(list: Activity[]) {
               else if (msg?.domain && msg?.ext) dnsName = `${String(msg.domain)}.${String(msg.ext)}`;
               else if (msg?.domain) dnsName = String(msg.domain);
             }
+          } else if (action === '/lumen.dns.v1.MsgTransfer') {
+            dnsName = findEventAttr(txResp.events, 'dns_transfer', 'name');
+            overrideFrom = findEventAttr(txResp.events, 'dns_transfer', 'from');
+            overrideTo = findEventAttr(txResp.events, 'dns_transfer', 'to');
+
+            if (!dnsName || !overrideFrom || !overrideTo) {
+              const msg = txResp?.tx?.body?.messages?.find?.((m: any) => m?.['@type'] === '/lumen.dns.v1.MsgTransfer') || null;
+
+              if (!dnsName) {
+                if (msg?.name) dnsName = String(msg.name);
+                else if (msg?.fqdn) dnsName = String(msg.fqdn);
+                else if (msg?.domain && msg?.ext) dnsName = `${String(msg.domain)}.${String(msg.ext)}`;
+                else if (msg?.domain) dnsName = String(msg.domain);
+              }
+
+              if (!overrideFrom) {
+                if (msg?.from) overrideFrom = String(msg.from);
+                else if (msg?.creator) overrideFrom = String(msg.creator);
+                else if (msg?.sender) overrideFrom = String(msg.sender);
+              }
+
+              if (!overrideTo) {
+                if (msg?.to) overrideTo = String(msg.to);
+                else if (msg?.recipient) overrideTo = String(msg.recipient);
+              }
+            }
           }
 
-          if (action || dnsName) {
+          if (action || dnsName || overrideFrom || overrideTo) {
             txMetaByHash.value = {
               ...txMetaByHash.value,
-              [hash]: { action: action || undefined, dnsName: dnsName || undefined }
+              [hash]: {
+                action: action || undefined,
+                dnsName: dnsName || undefined,
+                overrideFrom: overrideFrom || undefined,
+                overrideTo: overrideTo || undefined
+              }
             };
           }
         } catch {
@@ -1033,8 +1082,14 @@ function isDnsUpdateTx(tx: Activity): boolean {
   return action === '/lumen.dns.v1.MsgUpdate' || action === 'lumen.dns.v1.MsgUpdate';
 }
 
+function isDnsTransferTx(tx: Activity): boolean {
+  const action = String(tx.action ?? '').trim();
+  return action === '/lumen.dns.v1.MsgTransfer' || action === 'lumen.dns.v1.MsgTransfer';
+}
+
 function getActivityLabel(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'Dns update';
+  if (isDnsTransferTx(tx)) return 'Dns transfer';
   if (tx.type === 'send') return 'Send';
   if (tx.type === 'receive') return 'Receive';
   return 'Unknown';
@@ -1042,6 +1097,7 @@ function getActivityLabel(tx: Activity): string {
 
 function getActivityBadgeClass(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'dns-update';
+  if (isDnsTransferTx(tx)) return 'dns-transfer';
   return tx.type;
 }
 
@@ -1709,7 +1765,8 @@ function exportTransactions() {
     const date = new Date(tx.timestamp);
     const dateStr = date.toLocaleDateString('en-US');
     const timeStr = date.toLocaleTimeString('en-US');
-    const type = isDnsUpdateTx(tx) && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
+    const isDns = isDnsUpdateTx(tx) || isDnsTransferTx(tx);
+    const type = isDns && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
     const from = tx.from || address.value || '-';
     const to = tx.to || '-';
     const amount = tx.amounts && tx.amounts.length 
@@ -2489,6 +2546,11 @@ function exportTransactions() {
 .type-badge.dns-update {
   background: rgba(124, 58, 237, 0.1);
   color: var(--ios-purple);
+}
+
+.type-badge.dns-transfer {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--ios-blue);
 }
 
 .type-badge.send {
