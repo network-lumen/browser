@@ -346,6 +346,20 @@ async function walletListSendTxs(input) {
     } else if (action === '/lumen.dns.v1.MsgRegister') {
       const evName = findEventAttr(events, 'dns_register', 'name');
       if (evName) dnsName = evName;
+    } else if (action === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward') {
+      const validator = findEventAttr(events, 'withdraw_rewards', 'validator');
+      if (validator) dnsName = validator;
+    } else if (action === '/lumen.release.v1.MsgPublishRelease') {
+      const version = findEventAttr(events, 'release_publish', 'version');
+      const channel = findEventAttr(events, 'release_publish', 'channel');
+      const id = findEventAttr(events, 'release_publish', 'id');
+
+      let details = '';
+      if (version && channel) details = `${version} • ${channel}`;
+      else details = version || channel || '';
+      if (id) details = details ? `${details} (#${id})` : `#${id}`;
+
+      if (details) dnsName = details;
     }
 
     return { action, dnsName };
@@ -551,7 +565,7 @@ async function walletListSendTxs(input) {
     const memo =
       tx.tx && tx.tx.body && typeof tx.tx.body.memo === 'string' ? tx.tx.body.memo : '';
 
-    const { action, dnsName } = extractPrimaryActionAndDnsName(tx);
+    let { action, dnsName } = extractPrimaryActionAndDnsName(tx);
 
     if (action === '/lumen.dns.v1.MsgTransfer') {
       const events = collectTxEvents(tx);
@@ -565,6 +579,20 @@ async function walletListSendTxs(input) {
       const owner = findEventAttr(events, 'dns_register', 'owner');
       if (createdBy) from = createdBy;
       if (owner) to = owner;
+    } else if (action === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward') {
+      const events = collectTxEvents(tx);
+      const validator = findEventAttr(events, 'withdraw_rewards', 'validator');
+      const delegator = findEventAttr(events, 'withdraw_rewards', 'delegator');
+
+      if (validator) {
+        from = validator;
+        if (!dnsName) dnsName = validator;
+      }
+      if (delegator) to = delegator;
+    } else if (action === '/lumen.release.v1.MsgPublishRelease') {
+      const events = collectTxEvents(tx);
+      const publisher = findEventAttr(events, 'release_publish', 'publisher');
+      if (publisher) from = publisher;
     }
 
     const codeRaw = tx.code ?? (tx.tx_result ? tx.tx_result.code : undefined);

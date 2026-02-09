@@ -276,13 +276,15 @@
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
                 <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
                 <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />
+                <TrendingUp v-else-if="isWithdrawRewardsTx(tx)" :size="14" />
+                <Upload v-else-if="isPublishReleaseTx(tx)" :size="14" />
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
                 <div class="type-text">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
-                    v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx)) && tx.dnsName"
+                    v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
                     class="type-sub"
                     :title="tx.dnsName"
                   >{{ tx.dnsName }}</span>
@@ -764,6 +766,7 @@ import {
   Edit,
   Trash2,
   Download,
+  Upload,
   QrCode,
   Calendar
 } from 'lucide-vue-next';
@@ -989,11 +992,36 @@ async function hydrateTxMeta(list: Activity[]) {
         action === '/lumen.dns.v1.MsgTransfer' || action === 'lumen.dns.v1.MsgTransfer';
       const isDnsRegister =
         action === '/lumen.dns.v1.MsgRegister' || action === 'lumen.dns.v1.MsgRegister';
+      const isWithdrawRewards =
+        action === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' ||
+        action === 'cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
+      const isPublishRelease =
+        action === '/lumen.release.v1.MsgPublishRelease' ||
+        action === 'lumen.release.v1.MsgPublishRelease';
 
-      if (action && !isDnsUpdate && !isDnsTransfer && !isDnsRegister) return false;
+      if (
+        action &&
+        !isDnsUpdate &&
+        !isDnsTransfer &&
+        !isDnsRegister &&
+        !isWithdrawRewards &&
+        !isPublishRelease
+      ) {
+        return false;
+      }
       if (isDnsUpdate && tx.dnsName) return false;
       if (isDnsTransfer && tx.dnsName && tx.from && tx.to) return false;
       if (isDnsRegister && tx.dnsName && tx.from && tx.to) return false;
+      if (
+        isWithdrawRewards &&
+        tx.dnsName &&
+        tx.from &&
+        tx.to &&
+        String(tx.from).startsWith('lmnvaloper')
+      ) {
+        return false;
+      }
+      if (isPublishRelease && tx.dnsName && tx.from) return false;
       return true;
     });
 
@@ -1083,6 +1111,68 @@ async function hydrateTxMeta(list: Activity[]) {
                 if (msg?.owner) overrideTo = String(msg.owner);
               }
             }
+          } else if (action === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward') {
+            dnsName = findEventAttr(txResp.events, 'withdraw_rewards', 'validator');
+            overrideFrom = dnsName;
+            overrideTo = findEventAttr(txResp.events, 'withdraw_rewards', 'delegator');
+
+            if (!dnsName || !overrideFrom || !overrideTo) {
+              const msg =
+                txResp?.tx?.body?.messages?.find?.(
+                  (m: any) => m?.['@type'] === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward'
+                ) || null;
+
+              if (!dnsName) {
+                if (msg?.validator_address) dnsName = String(msg.validator_address);
+                else if (msg?.validatorAddress) dnsName = String(msg.validatorAddress);
+              }
+
+              if (!overrideFrom) overrideFrom = dnsName;
+
+              if (!overrideTo) {
+                if (msg?.delegator_address) overrideTo = String(msg.delegator_address);
+                else if (msg?.delegatorAddress) overrideTo = String(msg.delegatorAddress);
+              }
+            }
+          } else if (action === '/lumen.release.v1.MsgPublishRelease') {
+            const version = findEventAttr(txResp.events, 'release_publish', 'version');
+            const channel = findEventAttr(txResp.events, 'release_publish', 'channel');
+            const id = findEventAttr(txResp.events, 'release_publish', 'id');
+            const publisher = findEventAttr(txResp.events, 'release_publish', 'publisher');
+
+            let details = '';
+            if (version && channel) details = `${version} • ${channel}`;
+            else details = version || channel || '';
+            if (id) details = details ? `${details} (#${id})` : `#${id}`;
+
+            dnsName = details;
+            overrideFrom = publisher;
+
+            if (!dnsName || !overrideFrom) {
+              const msg =
+                txResp?.tx?.body?.messages?.find?.(
+                  (m: any) => m?.['@type'] === '/lumen.release.v1.MsgPublishRelease'
+                ) || null;
+
+              if (!overrideFrom) {
+                if (msg?.publisher) overrideFrom = String(msg.publisher);
+                else if (msg?.sender) overrideFrom = String(msg.sender);
+                else if (msg?.creator) overrideFrom = String(msg.creator);
+              }
+
+              if (!dnsName) {
+                const msgVersion = msg?.version ? String(msg.version) : '';
+                const msgChannel = msg?.channel ? String(msg.channel) : '';
+                const msgId = msg?.id != null ? String(msg.id) : '';
+
+                let msgDetails = '';
+                if (msgVersion && msgChannel) msgDetails = `${msgVersion} • ${msgChannel}`;
+                else msgDetails = msgVersion || msgChannel || '';
+                if (msgId) msgDetails = msgDetails ? `${msgDetails} (#${msgId})` : `#${msgId}`;
+
+                dnsName = msgDetails;
+              }
+            }
           }
 
           if (action || dnsName || overrideFrom || overrideTo) {
@@ -1123,10 +1213,28 @@ function isDnsRegisterTx(tx: Activity): boolean {
   return action === '/lumen.dns.v1.MsgRegister' || action === 'lumen.dns.v1.MsgRegister';
 }
 
+function isWithdrawRewardsTx(tx: Activity): boolean {
+  const action = String(tx.action ?? '').trim();
+  return (
+    action === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' ||
+    action === 'cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward'
+  );
+}
+
+function isPublishReleaseTx(tx: Activity): boolean {
+  const action = String(tx.action ?? '').trim();
+  return (
+    action === '/lumen.release.v1.MsgPublishRelease' ||
+    action === 'lumen.release.v1.MsgPublishRelease'
+  );
+}
+
 function getActivityLabel(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'Dns update';
   if (isDnsTransferTx(tx)) return 'Dns transfer';
   if (isDnsRegisterTx(tx)) return 'Dns register';
+  if (isWithdrawRewardsTx(tx)) return 'Withdraw rewards';
+  if (isPublishReleaseTx(tx)) return 'Publish release';
   if (tx.type === 'send') return 'Send';
   if (tx.type === 'receive') return 'Receive';
   return 'Unknown';
@@ -1136,6 +1244,8 @@ function getActivityBadgeClass(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'dns-update';
   if (isDnsTransferTx(tx)) return 'dns-transfer';
   if (isDnsRegisterTx(tx)) return 'dns-register';
+  if (isWithdrawRewardsTx(tx)) return 'withdraw-rewards';
+  if (isPublishReleaseTx(tx)) return 'publish-release';
   return tx.type;
 }
 
@@ -1803,8 +1913,13 @@ function exportTransactions() {
     const date = new Date(tx.timestamp);
     const dateStr = date.toLocaleDateString('en-US');
     const timeStr = date.toLocaleTimeString('en-US');
-    const isDns = isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx);
-    const type = isDns && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
+    const isSpecial =
+      isDnsUpdateTx(tx) ||
+      isDnsTransferTx(tx) ||
+      isDnsRegisterTx(tx) ||
+      isWithdrawRewardsTx(tx) ||
+      isPublishReleaseTx(tx);
+    const type = isSpecial && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
     const from = tx.from || address.value || '-';
     const to = tx.to || '-';
     const amount = tx.amounts && tx.amounts.length 
@@ -2594,6 +2709,16 @@ function exportTransactions() {
 .type-badge.dns-register {
   background: rgba(245, 158, 11, 0.1);
   color: var(--ios-orange);
+}
+
+.type-badge.withdraw-rewards {
+  background: rgba(255, 204, 0, 0.1);
+  color: var(--ios-yellow);
+}
+
+.type-badge.publish-release {
+  background: rgba(var(--ios-indigo-rgb), 0.12);
+  color: var(--ios-indigo);
 }
 
 .type-badge.send {
