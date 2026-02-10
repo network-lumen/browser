@@ -58,19 +58,26 @@
           }"
         >
           <button
-            class="hosting-main"
-            type="button"
-            @click="selectGateway(sub.gatewayId)"
-          >
-            <span class="hosting-dot" :class="sub.statusDot"></span>
-            <span class="hosting-title" :title="sub.hoverTitle">{{
-              sub.label
-            }}</span>
-            <span class="hosting-tags" v-if="sub.planTags.length">
-              <span v-for="p in sub.planTags" :key="p" class="hosting-tag">{{
-                p
+              class="hosting-main"
+              type="button"
+              @click="selectGateway(sub.gatewayId)"
+            >
+              <span class="hosting-dot" :class="sub.statusDot"></span>
+              <span class="hosting-title" :title="sub.hoverTitle">{{
+                sub.label
               }}</span>
-            </span>
+              <span
+                v-if="sub.regionLabel"
+                class="hosting-region"
+                :title="sub.regionTitle"
+              >
+                {{ sub.regionLabel }}
+              </span>
+              <span class="hosting-tags" v-if="sub.planTags.length">
+                <span v-for="p in sub.planTags" :key="p" class="hosting-tag">{{
+                  p
+                }}</span>
+              </span>
           </button>
           <button
             class="hosting-details"
@@ -1048,9 +1055,13 @@
                     <div class="gateway-meta">
                       <span
                         v-if="group.gateway.regions.length"
-                        class="gateway-meta-item"
+                        class="gateway-region"
+                        :title="formatRegionsTitle(group.gateway.regions)"
                       >
-                        {{ group.gateway.regions.join(", ") }}
+                        <MapPin :size="14" class="gateway-region-ico" />
+                        <span class="gateway-region-text">{{
+                          formatRegionsLabel(group.gateway.regions)
+                        }}</span>
                       </span>
                       <span class="gateway-plan-chips">
                         <span
@@ -1398,6 +1409,7 @@ import {
   LayoutGrid,
   List,
   TableProperties,
+  MapPin,
   User,
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
@@ -1949,6 +1961,29 @@ function deriveGatewayStatus(
   return "off";
 }
 
+function normalizeRegions(input: string[] | null | undefined): string[] {
+  const list = Array.isArray(input) ? input : [];
+  return list
+    .map((r) => String(r || "").trim())
+    .filter((r) => r);
+}
+
+function formatRegionsTitle(input: string[] | null | undefined): string {
+  return normalizeRegions(input).join(", ");
+}
+
+function formatRegionsLabel(
+  input: string[] | null | undefined,
+  max = 2,
+): string {
+  const regions = normalizeRegions(input);
+  if (!regions.length) return "";
+  const cap =
+    typeof max === "number" && Number.isFinite(max) && max > 0 ? Math.floor(max) : 2;
+  if (regions.length <= cap) return regions.join(" · ");
+  return `${regions.slice(0, cap).join(" · ")} +${regions.length - cap}`;
+}
+
 const subscriptionRows = computed(() => {
   const byGateway = new Map<string, SubscriptionView[]>();
   for (const sub of planSubscriptionsRaw.value) {
@@ -1969,7 +2004,9 @@ const subscriptionRows = computed(() => {
       (gw?.operator ? `Gateway ${gw.operator}` : `Gateway ${gatewayId}`);
     const label = labelBase.replace(/^gtw\./i, "");
     const hoverTitle = endpoint || labelBase;
-    const region = gw?.regions?.[0] || "";
+    const regions = normalizeRegions(gw?.regions);
+    const regionLabel = formatRegionsLabel(regions, 1);
+    const regionTitle = formatRegionsTitle(regions);
     const planTags = Array.from(
       new Set(
         subs
@@ -1994,7 +2031,8 @@ const subscriptionRows = computed(() => {
       gatewayId,
       label,
       hoverTitle,
-      region,
+      regionLabel,
+      regionTitle,
       status,
       statusDot,
       planTags,
@@ -4795,7 +4833,7 @@ async function reloadForActiveProfileChange() {
 .hosting-main {
   flex: 1;
   display: grid;
-  grid-template-columns: 10px 1fr;
+  grid-template-columns: 10px 1fr auto;
   align-items: center;
   column-gap: 0.65rem;
   row-gap: 0.3rem;
@@ -4818,6 +4856,20 @@ async function reloadForActiveProfileChange() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.hosting-region {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 7.5rem;
 }
 
 .hosting-dot {
@@ -5836,6 +5888,30 @@ async function reloadForActiveProfileChange() {
 .gateway-meta-item {
   font-size: 0.75rem;
   color: var(--text-secondary);
+}
+
+.gateway-region {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  max-width: 220px;
+}
+
+.gateway-region-ico {
+  opacity: 0.7;
+  flex: 0 0 auto;
+}
+
+.gateway-region-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gateway-plans {
