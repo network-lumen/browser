@@ -176,21 +176,22 @@
             class="audio"
           ></audio>
 
-          <webview
-            v-else-if="viewKind === 'html'"
-            ref="siteWebview"
-            :src="contentUrl"
-            class="embed"
-            :class="{ 'embed--bare': isBareHtmlView }"
-            partition="persist:lumen"
-            allowpopups
-            :webpreferences="webprefs"
-            @will-navigate="onWebviewWillNavigate"
-            @did-navigate="onWebviewDidNavigate"
-            @did-navigate-in-page="onWebviewDidNavigateInPage"
-            @new-window="onWebviewNewWindow"
-            @ipc-message="onWebviewIpcMessage"
-          ></webview>
+           <webview
+             v-else-if="viewKind === 'html'"
+             ref="siteWebview"
+             :src="contentUrl"
+             class="embed"
+             :class="{ 'embed--bare': isBareHtmlView }"
+             partition="persist:lumen"
+             allowpopups
+             :webpreferences="webprefs"
+             @will-navigate="onWebviewWillNavigate"
+             @did-navigate="onWebviewDidNavigate"
+             @did-navigate-in-page="onWebviewDidNavigateInPage"
+             @new-window="onWebviewNewWindow"
+             @ipc-message="onWebviewIpcMessage"
+             @dom-ready="onWebviewDomReady"
+           ></webview>
 
           <iframe
             v-else-if="viewKind === 'pdf'"
@@ -276,9 +277,10 @@
 </template>
 
 <script setup lang="ts">
-import {
+ import {
   computed,
   inject,
+  nextTick,
   onActivated,
   onBeforeUnmount,
   onDeactivated,
@@ -304,15 +306,20 @@ type Entry = {
   relPath: string;
 };
 
-const currentTabUrl = inject<any>("currentTabUrl", null);
-const currentTabRefresh = inject<any>("currentTabRefresh", null);
-const openInNewTab = inject<((url: string) => void) | null>(
-  "openInNewTab",
-  null,
-);
-const navigate = inject<
-  ((url: string, opts?: { push?: boolean }) => void) | null
->("navigate", null);
+ const currentTabUrl = inject<any>("currentTabUrl", null);
+ const currentTabId = inject<any>("currentTabId", null);
+ const currentTabRefresh = inject<any>("currentTabRefresh", null);
+ const openInNewTab = inject<((url: string) => void) | null>(
+   "openInNewTab",
+   null,
+ );
+ const navigate = inject<
+   ((url: string, opts?: { push?: boolean }) => void) | null
+ >("navigate", null);
+ const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
+   "findRegisterTarget",
+   null,
+ );
 
 const loading = ref(false);
 const error = ref("");
@@ -325,16 +332,55 @@ const textContent = ref("");
 const docxContent = ref("");
 const mediaErrored = ref(false);
 const hlsError = ref("");
-const htmlSrcdoc = ref("");
-const htmlFrameUrl = ref("");
-const siteFrame = ref<HTMLIFrameElement | null>(null);
-const siteWebview = ref<any>(null);
-const videoEl = ref<HTMLVideoElement | null>(null);
-let hlsInstance: any = null;
-const webprefs =
-  "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
-const pageActive = ref(false);
-const isBareHtmlView = ref(false);
+ const htmlSrcdoc = ref("");
+ const htmlFrameUrl = ref("");
+ const siteFrame = ref<HTMLIFrameElement | null>(null);
+ const siteWebview = ref<any>(null);
+ const videoEl = ref<HTMLVideoElement | null>(null);
+ let hlsInstance: any = null;
+ const webprefs =
+   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
+ const pageActive = ref(false);
+ const isBareHtmlView = ref(false);
+
+ function getWebviewWebContentsId(): number | null {
+   const w: any = siteWebview.value;
+   if (!w || typeof w.getWebContentsId !== "function") return null;
+   try {
+     const id = w.getWebContentsId();
+     return typeof id === "number" && Number.isFinite(id) ? id : null;
+   } catch {
+     return null;
+   }
+ }
+
+ function registerFindTargetOnce(): number | null {
+   const tabId = String(currentTabId?.value || "").trim();
+   if (!tabId) return null;
+   if (typeof registerFindTarget !== "function") return null;
+
+   const id = viewKind.value === "html" ? getWebviewWebContentsId() : null;
+   try {
+     registerFindTarget(tabId, id);
+   } catch {
+     // ignore
+   }
+   return id;
+ }
+
+function registerFindTargetWithRetry(attempts = 40) {
+  const id = registerFindTargetOnce();
+  if (id != null) return;
+  if (attempts <= 0) return;
+  if (viewKind.value !== "html") return;
+  window.setTimeout(() => {
+    registerFindTargetWithRetry(attempts - 1);
+  }, 50);
+}
+
+function onWebviewDomReady() {
+  void nextTick(() => registerFindTargetWithRetry());
+}
 
 const rootCid = ref("");
 const relPath = ref("");
@@ -1787,16 +1833,24 @@ onMounted(() => {
   pageActive.value = true;
   attachSiteMsgListener();
   startUrlWatch();
+  void nextTick(() => registerFindTargetWithRetry());
 });
 onActivated(() => {
   pageActive.value = true;
   attachSiteMsgListener();
   startUrlWatch();
+  void nextTick(() => registerFindTargetWithRetry());
 });
 onDeactivated(() => {
   pageActive.value = false;
   detachSiteMsgListener();
   stopUrlWatch();
+  try {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
+  } catch {
+    // ignore
+  }
 });
 onBeforeUnmount(() => {
   pageActive.value = false;
@@ -1804,6 +1858,12 @@ onBeforeUnmount(() => {
   stopUrlWatch();
   clearHtmlFrame();
   void ensureHlsStopped();
+  try {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
+  } catch {
+    // ignore
+  }
 });
 
 watch(
@@ -1814,6 +1874,27 @@ watch(
     } else {
       await ensureHlsStopped();
     }
+  },
+  { flush: "post", immediate: true },
+);
+
+watch(
+  () => [viewKind.value, contentUrl.value],
+  async ([k, url]) => {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (!tabId || typeof registerFindTarget !== "function") return;
+
+    if (k !== "html" || !url) {
+      try {
+        registerFindTarget(tabId, null);
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    await nextTick();
+    registerFindTargetWithRetry();
   },
   { flush: "post", immediate: true },
 );

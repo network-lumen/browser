@@ -67,6 +67,11 @@ provide(
   computed(() => tabState.value?.refreshTick ?? 0),
 );
 
+provide(
+  "currentTabIsActive",
+  computed(() => !!props.active),
+);
+
 provide("navigate", (url: string, opts?: { push?: boolean }) => {
   navigateInternal(url, opts || {});
 });

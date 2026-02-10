@@ -25,14 +25,16 @@
         :tab="t"
         :active="t.id === tabActive"
       />
+      <FindBar />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, provide, reactive, watch } from "vue";
 import NavBar from "./NavBar.vue";
 import TabPane from "./TabPane.vue";
+import FindBar from "../components/FindBar.vue";
 import {
   getInternalTitle,
 } from "../internal/routes";
@@ -64,6 +66,42 @@ const activeTab = computed<Tab | undefined>(() =>
     const found = props.tabs.find((t) => t.id === props.tabActive);
     return found ? (reactive(found as any) as Tab) : undefined;
   })(),
+);
+
+type RegisterFindTargetFn = (tabId: string, targetWebContentsId: number | null) => void;
+
+const findTargets = reactive<Record<string, number | null>>({});
+
+function safeNumber(v: any): number | null {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+provide("findRegisterTarget", ((tabId: string, targetIdMaybe: number | null) => {
+  const id = String(tabId || "").trim();
+  if (!id) return;
+  const targetId = safeNumber(targetIdMaybe);
+  findTargets[id] = targetId;
+}) as RegisterFindTargetFn);
+
+const activeFindTarget = computed<number | null>(() => {
+  const id = findTargets[String(props.tabActive || "").trim()];
+  return safeNumber(id);
+});
+
+provide("findActiveTargetWebContentsId", activeFindTarget);
+
+watch(
+  () => activeFindTarget.value,
+  (targetId) => {
+    try {
+      const api: any = (window as any).lumen?.find;
+      api?.setActiveTarget?.(targetId ?? null);
+    } catch {
+      // ignore
+    }
+  },
+  { immediate: true },
 );
 
 function currentUrl(): string {

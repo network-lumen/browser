@@ -21,6 +21,47 @@ contextBridge.exposeInMainWorld('lumen', {
     ipcRenderer.send('tabs:state', ids);
     return true;
   },
+  find: {
+    setOpen: (open) => {
+      ipcRenderer.send('find:setOpen', !!open);
+      return true;
+    },
+    setActiveTarget: (targetWebContentsId) => {
+      ipcRenderer.send('find:setActiveTarget', targetWebContentsId ?? null);
+      return true;
+    },
+    findInPage: (payload) => ipcRenderer.invoke('find:findInPage', payload || {}),
+    stopFindInPage: (payload) => ipcRenderer.invoke('find:stopFindInPage', payload || {}),
+    focusTarget: (targetWebContentsId) => ipcRenderer.invoke('find:focusTarget', targetWebContentsId),
+    onAction: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('find:action', handler);
+      return () => {
+        ipcRenderer.removeListener('find:action', handler);
+      };
+    },
+    onResult: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('find:result', handler);
+      return () => {
+        ipcRenderer.removeListener('find:result', handler);
+      };
+    }
+  },
   settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
   settingsSet: (partial) => ipcRenderer.invoke('settings:set', partial || {}),
   settingsOnChanged: (callback) => {

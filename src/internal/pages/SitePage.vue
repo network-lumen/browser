@@ -60,21 +60,22 @@
           :src="resolvedHttpUrl"
           partition="persist:lumen"
           allowpopups
-          :webpreferences="webprefs"
-          @will-navigate="onWillNavigate"
-          @did-navigate="onDidNavigate"
-          @did-navigate-in-page="onDidNavigateInPage"
-          @new-window="onNewWindow"
-          @ipc-message="onIpcMessage"
-        ></webview>
-        <div v-else class="site-empty"></div>
-      </div>
-    </main>
+           :webpreferences="webprefs"
+           @will-navigate="onWillNavigate"
+           @did-navigate="onDidNavigate"
+           @did-navigate-in-page="onDidNavigateInPage"
+           @new-window="onNewWindow"
+           @ipc-message="onIpcMessage"
+           @dom-ready="onDomReady"
+         ></webview>
+         <div v-else class="site-empty"></div>
+       </div>
+     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, onBeforeUnmount, ref, watch } from "vue";
+import { inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { RefreshCw } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
@@ -86,12 +87,17 @@ import {
 } from "../services/contentResolver";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
+const currentTabId = inject<any>("currentTabId", null);
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const navigate = inject<
   ((url: string, opts?: { push?: boolean }) => void) | null
 >("navigate", null);
 const openInNewTab = inject<((url: string) => void) | null>(
   "openInNewTab",
+  null,
+);
+const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
+  "findRegisterTarget",
   null,
 );
 
@@ -106,6 +112,44 @@ const hlsError = ref("");
 
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
+
+function getWebviewWebContentsId(): number | null {
+  const w: any = siteWebview.value;
+  if (!w || typeof w.getWebContentsId !== "function") return null;
+  try {
+    const id = w.getWebContentsId();
+    return typeof id === "number" && Number.isFinite(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+function registerFindTargetOnce(): number | null {
+  const tabId = String(currentTabId?.value || "").trim();
+  if (!tabId) return null;
+  if (typeof registerFindTarget !== "function") return null;
+  const id = getWebviewWebContentsId();
+  try {
+    registerFindTarget(tabId, id);
+  } catch {
+    // ignore
+  }
+  return id;
+}
+
+function registerFindTargetWithRetry(attempts = 40) {
+  const id = registerFindTargetOnce();
+  if (id != null) return;
+  if (attempts <= 0) return;
+  if (!resolvedHttpUrl.value || isHlsPath.value) return;
+  window.setTimeout(() => {
+    registerFindTargetWithRetry(attempts - 1);
+  }, 50);
+}
+
+function onDomReady() {
+  void nextTick(() => registerFindTargetWithRetry());
+}
 
 type ActiveState = {
   host: string;
@@ -526,6 +570,42 @@ watch(
   { immediate: true, flush: "post" },
 );
 
+watch(
+  () => [resolvedHttpUrl.value, isHlsPath.value],
+  async ([url, isHls]) => {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (!tabId || typeof registerFindTarget !== "function") return;
+
+    if (!url || isHls) {
+      try {
+        registerFindTarget(tabId, null);
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    await nextTick();
+    registerFindTargetWithRetry();
+  },
+  { immediate: true, flush: "post" },
+);
+
+onMounted(() => {
+  void nextTick(() => registerFindTargetWithRetry());
+});
+onActivated(() => {
+  void nextTick(() => registerFindTargetWithRetry());
+});
+onDeactivated(() => {
+  try {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
+  } catch {
+    // ignore
+  }
+});
+
 onBeforeUnmount(() => {
   try {
     siteWebview.value?.stop?.();
@@ -533,6 +613,12 @@ onBeforeUnmount(() => {
     // ignore
   }
   void ensureHlsStopped();
+  try {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
+  } catch {
+    // ignore
+  }
 });
 </script>
 
