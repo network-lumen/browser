@@ -20,6 +20,8 @@ let _gwCachedPeersFilePath = null;
 let _gwLoggedPeersPath = false;
 let _gwResolvedEndpointsLogged = new Set();
 
+const ACTIVE_GATEWAY_PINS = new Map(); // wcId -> { abort: () => void }
+
 let pqcWorker = null;
 try {
   pqcWorker = require('../utils/pqc-worker.cjs');
@@ -837,7 +839,7 @@ async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
   }
 }
 
-async function resolveKyberKeyForGatewayBase(baseUrlHint) {
+async function resolveKyberKeyForGatewayBase(baseUrlHint, opts = {}) {
   const initial = String(baseUrlHint || '').trim();
   const resolvedBase = await resolveGatewayBaseFromEndpoint(initial);
   const trimmedBase = resolvedBase ? resolvedBase : String(initial).replace(/\/+$/, '');
@@ -855,8 +857,9 @@ async function resolveKyberKeyForGatewayBase(baseUrlHint) {
   let httpKeyId = 'gw-2025-01';
   let httpAlg = 'kyber768';
   try {
+    const signal = opts?.signal;
     const url = `${trimmedBase}/pq/pub`;
-    const res = await fetch(url, { method: 'GET' });
+    const res = await fetch(url, { method: 'GET', ...(signal ? { signal } : {}) });
     if (res.ok) {
       const text = await res.text().catch(() => '');
       let data = null;
@@ -890,7 +893,40 @@ async function sendGatewayAuthPq(params) {
   const base = String(params.baseUrl || '').replace(/\/+$/, '');
   if (!base) throw new Error('gateway_base_missing');
 
-  const { alg, keyId, pubKey } = await resolveKyberKeyForGatewayBase(base);
+  const timeoutMsRaw = Number(params.timeoutMs ?? 0);
+  const timeoutMs =
+    Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 0;
+  const outerSignal = params?.signal;
+
+  const controller = timeoutMs || outerSignal ? new AbortController() : null;
+  const timeoutId = controller && timeoutMs
+    ? setTimeout(() => {
+        try {
+          controller.abort();
+        } catch {}
+      }, timeoutMs)
+    : null;
+
+  if (controller && outerSignal) {
+    try {
+      if (outerSignal.aborted) controller.abort();
+      else {
+        outerSignal.addEventListener(
+          'abort',
+          () => {
+            try {
+              controller.abort();
+            } catch {}
+          },
+          { once: true },
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const { alg, keyId, pubKey } = await resolveKyberKeyForGatewayBase(base, controller ? { signal: controller.signal } : {});
   if (alg !== 'kyber768') throw new Error('unsupported_kyber_alg');
 
   const payload = params.payload ?? null;
@@ -942,18 +978,6 @@ async function sendGatewayAuthPq(params) {
   });
 
   const url = `${base}${params.path}`;
-
-  const timeoutMsRaw = Number(params.timeoutMs ?? 0);
-  const timeoutMs =
-    Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 0;
-  const controller = timeoutMs ? new AbortController() : null;
-  const timeoutId = timeoutMs
-    ? setTimeout(() => {
-        try {
-          controller.abort();
-        } catch {}
-      }, timeoutMs)
-    : null;
 
   let res;
   try {
@@ -1882,8 +1906,66 @@ function registerGatewayIpc() {
     }
   });
 
+  ipcMain.handle('gateway:cancelPinCid', async (evt) => {
+    const wcId = String(evt?.sender?.id || '');
+    const job = wcId ? ACTIVE_GATEWAY_PINS.get(wcId) : null;
+    if (!job) return { ok: false, error: 'no_active_job' };
+    try {
+      job.abort?.();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: String(e?.message || e || 'cancel_failed') };
+    }
+  });
+
   ipcMain.handle('gateway:pinCid', async (_e, input) => {
     try {
+      const wcId = String(_e?.sender?.id || '');
+      if (wcId && ACTIVE_GATEWAY_PINS.has(wcId)) {
+        return { ok: false, error: 'pin_in_progress' };
+      }
+
+      const controller = new AbortController();
+      const abort = () => {
+        try {
+          controller.abort();
+        } catch {}
+      };
+      if (wcId) ACTIVE_GATEWAY_PINS.set(wcId, { abort });
+
+      const sendProgress = (() => {
+        let lastAt = 0;
+        let lastPct = -1;
+        let lastSent = -1;
+        return (payload) => {
+          try {
+            const stage = String(payload?.stage || '');
+            const sent = typeof payload?.sentBytes === 'number' && Number.isFinite(payload.sentBytes) ? payload.sentBytes : null;
+            const total = typeof payload?.totalBytes === 'number' && Number.isFinite(payload.totalBytes) ? payload.totalBytes : null;
+            const pctRaw = payload?.percent;
+            const pct =
+              typeof pctRaw === 'number' && Number.isFinite(pctRaw)
+                ? Math.max(0, Math.min(100, Math.round(pctRaw)))
+                : null;
+
+            const now = Date.now();
+            const shouldEmit = stage === 'done' || stage === 'preflight' || stage === 'exporting' ||
+              pct !== lastPct || sent !== lastSent || now - lastAt >= 120;
+            if (!shouldEmit) return;
+            lastAt = now;
+            lastPct = pct == null ? -1 : pct;
+            lastSent = sent == null ? -1 : sent;
+
+            _e?.sender?.send?.('gateway:ingestProgress', {
+              stage,
+              percent: pct,
+              sentBytes: sent,
+              totalBytes: total,
+            });
+          } catch {}
+        };
+      })();
+
       const profileId = String(input?.profileId || '').trim();
       const cid = String(input?.cid || '').trim();
       if (!profileId) return { ok: false, error: 'missing_profileId' };
@@ -1903,6 +1985,7 @@ function registerGatewayIpc() {
       const mnemonic = loadMnemonic(profileId);
 
       // Preflight: check auth + plan (PQ-protected)
+      sendProgress({ stage: 'preflight', percent: 0 });
       const preflight = await sendGatewayAuthPq({
         baseUrl,
         path: '/wallet/usage',
@@ -1910,6 +1993,7 @@ function registerGatewayIpc() {
         wallet,
         mnemonic,
         payload: null,
+        signal: controller.signal,
       });
       if (preflight.status < 200 || preflight.status >= 300) {
         return {
@@ -1924,7 +2008,7 @@ function registerGatewayIpc() {
       try {
         const statRes = await fetch(
           `${ipfsApiBase()}/api/v0/dag/stat?arg=${encodeURIComponent(cid)}&enc=json`,
-          { method: 'POST' }
+          { method: 'POST', signal: controller.signal }
         );
         if (statRes.ok) {
           const j = await statRes.json().catch(() => null);
@@ -1948,6 +2032,7 @@ function registerGatewayIpc() {
           planId: planId || null,
           estBytes: dagSize,
         },
+        signal: controller.signal,
       });
 
       const uploadToken =
@@ -1969,18 +2054,66 @@ function registerGatewayIpc() {
         return { ok: false, status: init.status, error: details };
       }
 
+      sendProgress({ stage: 'exporting', percent: 0 });
       const exportUrl = `${ipfsApiBase()}/api/v0/dag/export?arg=${encodeURIComponent(cid)}`;
-      const exportRes = await fetch(exportUrl, { method: 'POST' });
+      const exportRes = await fetch(exportUrl, { method: 'POST', signal: controller.signal });
       if (!exportRes.ok) {
         return { ok: false, status: exportRes.status, error: 'ipfs_dag_export_failed' };
       }
+      if (!exportRes.body) {
+        return { ok: false, status: exportRes.status, error: 'ipfs_dag_export_no_body' };
+      }
+
+      const totalBytes = (() => {
+        try {
+          const h = exportRes.headers?.get?.('content-length');
+          const n = h ? Number(h) : NaN;
+          if (Number.isFinite(n) && n > 0) return n;
+        } catch {}
+        if (typeof dagSize === 'number' && Number.isFinite(dagSize) && dagSize > 0) return dagSize;
+        return null;
+      })();
+
+      let sentBytes = 0;
+      const reader = exportRes.body.getReader();
+      const uploadStream = new ReadableStream({
+        async pull(streamController) {
+          try {
+            if (controller.signal.aborted) {
+              streamController.error(new Error('cancelled'));
+              return;
+            }
+            const { value, done } = await reader.read();
+            if (done) {
+              streamController.close();
+              return;
+            }
+            const chunk = value instanceof Uint8Array ? value : new Uint8Array(value || []);
+            sentBytes += chunk.byteLength;
+            const pct =
+              totalBytes && totalBytes > 0
+                ? Math.max(0, Math.min(99, Math.floor((sentBytes / totalBytes) * 100)))
+                : null;
+            sendProgress({ stage: 'uploading', sentBytes, totalBytes, percent: pct });
+            streamController.enqueue(chunk);
+          } catch (e) {
+            streamController.error(e);
+          }
+        },
+        cancel() {
+          try {
+            reader.cancel();
+          } catch {}
+        },
+      });
 
       const ingestUrl = `${trimSlash(baseUrl)}/ingest/car?token=${encodeURIComponent(uploadToken)}`;
       const upResp = await fetch(ingestUrl, {
         method: 'POST',
-        body: exportRes.body,
+        body: uploadStream,
         // Required by Node fetch for streaming request bodies
         duplex: 'half',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/octet-stream',
         },
@@ -1993,9 +2126,23 @@ function registerGatewayIpc() {
       }
 
       await upResp.text().catch(() => '');
+      sendProgress({ stage: 'done', percent: 100 });
       return { ok: true, cid, baseUrl: trimSlash(baseUrl) };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      const msg = String(e && e.message ? e.message : e);
+      const lower = msg.toLowerCase();
+      if (
+        lower.includes('abort') ||
+        lower.includes('aborted') ||
+        lower.includes('cancel') ||
+        String(e?.name || '') === 'AbortError'
+      ) {
+        return { ok: false, error: 'cancelled' };
+      }
+      return { ok: false, error: msg };
+    } finally {
+      const wcId = String(_e?.sender?.id || '');
+      if (wcId) ACTIVE_GATEWAY_PINS.delete(wcId);
     }
   });
 

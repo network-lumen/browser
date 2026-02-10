@@ -334,6 +334,260 @@ async function ipfsAdd(data, filename) {
   }
 }
 
+function toSafeAbortError(e) {
+  const msg = String(e?.message || e || '');
+  const name = String(e?.name || '');
+  const lower = msg.toLowerCase();
+  if (name === 'AbortError') return true;
+  return lower.includes('abort') || lower.includes('aborted') || lower.includes('cancel');
+}
+
+function makeProgressReporter(onProgress, totalBytes) {
+  const cb = typeof onProgress === 'function' ? onProgress : null;
+  const total = typeof totalBytes === 'number' && Number.isFinite(totalBytes) && totalBytes > 0 ? totalBytes : 0;
+  let lastAt = 0;
+  let lastPct = -1;
+  let lastSent = -1;
+
+  return (sentBytes, force = false) => {
+    if (!cb) return;
+    const sent = typeof sentBytes === 'number' && Number.isFinite(sentBytes) && sentBytes >= 0 ? sentBytes : 0;
+    const pct = total ? Math.max(0, Math.min(100, Math.floor((sent / total) * 100))) : null;
+
+    const now = Date.now();
+    const shouldEmit =
+      force ||
+      pct !== lastPct ||
+      sent !== lastSent ||
+      now - lastAt >= 120;
+
+    if (!shouldEmit) return;
+    lastAt = now;
+    lastPct = pct == null ? -1 : pct;
+    lastSent = sent;
+
+    try {
+      cb({
+        stage: 'uploading',
+        sentBytes: sent,
+        totalBytes: total || null,
+        percent: pct,
+      });
+    } catch {
+      // ignore callback errors
+    }
+  };
+}
+
+function makeBuffersStream(buffers, opts = {}) {
+  const list = Array.isArray(buffers) ? buffers.filter(Boolean) : [];
+  const totalBytes =
+    typeof opts.totalBytes === 'number' && Number.isFinite(opts.totalBytes) && opts.totalBytes > 0
+      ? opts.totalBytes
+      : list.reduce((acc, b) => acc + (b?.length || 0), 0);
+  const signal = opts.signal;
+  const chunkSize =
+    typeof opts.chunkSize === 'number' && Number.isFinite(opts.chunkSize) && opts.chunkSize > 0
+      ? Math.floor(opts.chunkSize)
+      : 64 * 1024;
+
+  const report = makeProgressReporter(opts.onProgress, totalBytes);
+  let bufIndex = 0;
+  let offset = 0;
+  let sent = 0;
+
+  report(0, true);
+
+  const stream = new ReadableStream({
+    pull(controller) {
+      try {
+        if (signal?.aborted) {
+          controller.error(new Error('cancelled'));
+          return;
+        }
+
+        while (bufIndex < list.length) {
+          const buf = list[bufIndex];
+          const len = buf?.length || 0;
+          if (!len || offset >= len) {
+            bufIndex += 1;
+            offset = 0;
+            continue;
+          }
+
+          const end = Math.min(len, offset + chunkSize);
+          const chunk = buf.subarray(offset, end);
+          offset = end;
+          sent += chunk.length;
+          report(sent, false);
+          controller.enqueue(chunk);
+          return;
+        }
+
+        report(sent, true);
+        controller.close();
+      } catch (e) {
+        controller.error(e);
+      }
+    },
+    cancel() {
+      // no-op (fetch signal handles cancellation)
+    },
+  });
+
+  return { stream, totalBytes };
+}
+
+async function ipfsAddWithProgress(data, filename, opts = {}) {
+  const signal = opts?.signal;
+  const onProgress = opts?.onProgress;
+
+  try {
+    const dataBuf = toBufferPayload(data);
+    console.log('[electron][ipfs] adding file (progress):', filename, 'size:', dataBuf.length);
+
+    const boundary = '----LumenIPFS' + Date.now();
+    const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename || 'file'}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
+    const footer = `\r\n--${boundary}--\r\n`;
+
+    const headerBuf = Buffer.from(header, 'utf8');
+    const footerBuf = Buffer.from(footer, 'utf8');
+    const totalBytes = headerBuf.length + dataBuf.length + footerBuf.length;
+
+    const { stream } = makeBuffersStream([headerBuf, dataBuf, footerBuf], {
+      signal,
+      totalBytes,
+      onProgress,
+    });
+
+    const res = await fetch(`${ipfsApiBase()}/api/v0/add?pin=true`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+      },
+      body: stream,
+      // Required by Node fetch for streaming request bodies
+      duplex: 'half',
+      ...(signal ? { signal } : {}),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn('[electron][ipfs] add failed:', res.status, errText);
+      return { ok: false, error: 'http_' + res.status };
+    }
+
+    const json = await res.json();
+    console.log('[electron][ipfs] add success:', json.Hash);
+    return { ok: true, cid: json.Hash, name: json.Name, size: json.Size };
+  } catch (e) {
+    if (signal?.aborted || toSafeAbortError(e)) {
+      return { ok: false, error: 'cancelled' };
+    }
+    console.error('[electron][ipfs] add error:', e);
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+async function ipfsAddDirectoryWithProgress(payload, opts = {}) {
+  const signal = opts?.signal;
+  const onProgress = opts?.onProgress;
+
+  try {
+    const filesRaw = Array.isArray(payload?.files) ? payload.files : [];
+    if (!filesRaw.length) return { ok: false, error: 'no_files' };
+    const rootName = String(payload?.rootName ?? '').trim();
+
+    const boundary = '----LumenIPFS' + Date.now();
+    const buffers = [];
+    let dataBytes = 0;
+    let totalBodyBytes = 0;
+
+    for (const f of filesRaw) {
+      const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
+      const fullName = rel;
+      const dataBuf = toBufferPayload(f?.data);
+      dataBytes += dataBuf.length;
+      if (dataBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
+
+      const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
+      const footer = `\r\n`;
+      const headerBuf = Buffer.from(header, 'utf8');
+      const footerBuf = Buffer.from(footer, 'utf8');
+
+      totalBodyBytes += headerBuf.length + dataBuf.length + footerBuf.length;
+      buffers.push(headerBuf, dataBuf, footerBuf);
+    }
+
+    const closing = Buffer.from(`--${boundary}--\r\n`, 'utf8');
+    totalBodyBytes += closing.length;
+    buffers.push(closing);
+
+    const { stream } = makeBuffersStream(buffers, {
+      signal,
+      totalBytes: totalBodyBytes,
+      onProgress,
+    });
+
+    const url = new URL(`${ipfsApiBase()}/api/v0/add`);
+    url.searchParams.set('pin', 'true');
+
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` },
+      body: stream,
+      // Required by Node fetch for streaming request bodies
+      duplex: 'half',
+      ...(signal ? { signal } : {}),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn('[electron][ipfs] add directory failed:', res.status, errText);
+      return { ok: false, error: 'http_' + res.status };
+    }
+
+    const text = await res.text().catch(() => '');
+    const lines = String(text)
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    const entries = [];
+    for (const line of lines) {
+      try {
+        const j = JSON.parse(line);
+        if (j && j.Hash) entries.push({ cid: j.Hash, name: j.Name, size: j.Size });
+      } catch {
+        // ignore bad lines
+      }
+    }
+
+    const last = entries[entries.length - 1] || null;
+    const rootNameFromPaths = (() => {
+      const first = filesRaw[0];
+      const rel = sanitizeRelativePath(first?.path ?? first?.name ?? 'file');
+      const seg = rel.split('/').filter(Boolean)[0] || '';
+      return seg;
+    })();
+    const expectedRoot = rootName || rootNameFromPaths;
+    const rootEntry = expectedRoot
+      ? entries.find((e) => String(e?.name || '') === expectedRoot) || null
+      : null;
+    const rootCid = (rootEntry?.cid ? String(rootEntry.cid) : '') || (last?.cid ? String(last.cid) : '');
+    if (!rootCid) return { ok: false, error: 'no_root_cid' };
+
+    console.log('[electron][ipfs] add directory success:', rootCid, 'name:', expectedRoot || '', 'files:', filesRaw.length);
+    return { ok: true, cid: rootCid, name: expectedRoot || '', entries };
+  } catch (e) {
+    if (signal?.aborted || toSafeAbortError(e)) {
+      return { ok: false, error: 'cancelled' };
+    }
+    console.error('[electron][ipfs] add directory error:', e);
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
 function toBufferPayload(data) {
   if (Buffer.isBuffer(data)) return data;
   if (data instanceof ArrayBuffer) return Buffer.from(data);
@@ -956,7 +1210,9 @@ module.exports = {
   stopIpfsDaemon,
   ipfsCidToBase32,
   ipfsAdd,
+  ipfsAddWithProgress,
   ipfsAddDirectory,
+  ipfsAddDirectoryWithProgress,
   ipfsGet,
   ipfsLs,
   ipfsPinList,

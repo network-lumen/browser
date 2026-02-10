@@ -80,7 +80,26 @@ contextBridge.exposeInMainWorld('lumen', {
   },
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
+  ipfsAddWithProgress: (data, filename) =>
+    ipcRenderer.invoke('ipfs:addWithProgress', data, filename),
   ipfsAddDirectory: (payload) => ipcRenderer.invoke('ipfs:addDirectory', payload || {}),
+  ipfsAddDirectoryWithProgress: (payload) =>
+    ipcRenderer.invoke('ipfs:addDirectoryWithProgress', payload || {}),
+  ipfsCancelAdd: () => ipcRenderer.invoke('ipfs:cancelAdd'),
+  ipfsOnAddProgress: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        callback(payload);
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('ipfs:addProgress', handler);
+    return () => {
+      ipcRenderer.removeListener('ipfs:addProgress', handler);
+    };
+  },
   ipfsCidToBase32: (cid) => ipcRenderer.invoke('ipfs:cidToBase32', cid),
   ipfsGet: (cid, options) => ipcRenderer.invoke('ipfs:get', cid, options || {}),
   ipfsLs: (cidOrPath) => ipcRenderer.invoke('ipfs:ls', cidOrPath),
@@ -254,6 +273,21 @@ contextBridge.exposeInMainWorld('lumen', {
       }
     },
     pinCid: (payload) => ipcRenderer.invoke('gateway:pinCid', payload || {}),
+    cancelPinCid: () => ipcRenderer.invoke('gateway:cancelPinCid'),
+    onIngestProgress: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('gateway:ingestProgress', handler);
+      return () => {
+        ipcRenderer.removeListener('gateway:ingestProgress', handler);
+      };
+    },
     unpinCid: (payload) => ipcRenderer.invoke('gateway:unpinCid', payload || {}),
     subscribePlan: (payload) =>
       ipcRenderer.invoke('gateway:subscribePlan', payload || {}),

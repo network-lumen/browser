@@ -211,10 +211,29 @@
             <span class="txt-sm txt-weight-strong"
               >Uploading {{ uploadingFile }}</span
             >
-            <span class="txt-xs color-gray-blue"
-              >Adding to IPFS network...</span
-            >
+            <span class="txt-xs color-gray-blue">
+              {{ uploadingStatusLabel
+              }}<template v-if="uploadingPercent != null">
+                ({{ uploadingPercent }}%)
+              </template>
+            </span>
+            <div class="progress-actions">
+              <button
+                class="progress-cancel-btn"
+                type="button"
+                @click="cancelUpload"
+                :disabled="uploadingCanceling"
+              >
+                {{ uploadingCanceling ? "Cancelling..." : "Cancel" }}
+              </button>
+            </div>
           </div>
+        </div>
+        <div v-if="uploadingPercent != null" class="progress-bar">
+          <div
+            class="progress-bar-fill"
+            :style="{ width: `${uploadingPercent}%` }"
+          ></div>
         </div>
       </div>
 
@@ -1424,6 +1443,17 @@ const itemsPerPage = ref(20);
 
 const uploading = ref(false);
 const uploadingFile = ref("");
+const uploadingStage = ref<
+  | "preparing"
+  | "adding"
+  | "gateway-preflight"
+  | "gateway-export"
+  | "gateway-upload"
+  | "done"
+  | "cancelling"
+>("preparing");
+const uploadingPercent = ref<number | null>(null);
+const uploadingCanceling = ref(false);
 const converting = ref(false);
 const convertingFile = ref("");
 const convertingStage = ref<
@@ -1436,6 +1466,16 @@ const showUploadMenu = ref(false);
 
 const toast = ref("");
 const toastType = ref<"success" | "error">("success");
+
+const uploadingStatusLabel = computed(() => {
+  if (uploadingCanceling.value) return "Cancelling…";
+  if (uploadingStage.value === "adding") return "Adding to local IPFS…";
+  if (uploadingStage.value === "gateway-preflight") return "Preparing gateway upload…";
+  if (uploadingStage.value === "gateway-export") return "Exporting DAG…";
+  if (uploadingStage.value === "gateway-upload") return "Uploading to gateway…";
+  if (uploadingStage.value === "done") return "Finalizing…";
+  return "Preparing upload…";
+});
 
 const convertingStatusLabel = computed(() => {
   if (convertingCanceling.value) return "Cancelling…";
@@ -2101,6 +2141,8 @@ let urlBarLastUserInputAt = 0;
 let tabUrlChangedHandler: ((ev: any) => void) | null = null;
 let tabHistoryStepHandler: ((ev: any) => void) | null = null;
 let hlsProgressUnsub: (() => void) | null = null;
+let ipfsAddProgressUnsub: (() => void) | null = null;
+let gatewayIngestProgressUnsub: (() => void) | null = null;
 
 function readUrlBarUrl(): string {
   try {
@@ -2195,6 +2237,46 @@ onMounted(async () => {
   } catch {}
 
   try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.ipfsOnAddProgress === "function") {
+      ipfsAddProgressUnsub = api.ipfsOnAddProgress((payload: any) => {
+        if (!uploading.value) return;
+        if (String(uploadingStage.value).startsWith("gateway-")) return;
+        if (!uploadingCanceling.value) uploadingStage.value = "adding";
+        const pct = payload?.percent;
+        if (typeof pct === "number" && Number.isFinite(pct)) {
+          uploadingPercent.value = Math.max(0, Math.min(100, Math.round(pct)));
+        } else {
+          uploadingPercent.value = null;
+        }
+      });
+    }
+  } catch {}
+
+  try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.gateway?.onIngestProgress === "function") {
+      gatewayIngestProgressUnsub = api.gateway.onIngestProgress((payload: any) => {
+        if (!uploading.value) return;
+        const stage = String(payload?.stage || "");
+        if (!uploadingCanceling.value) {
+          if (stage === "preflight") uploadingStage.value = "gateway-preflight";
+          else if (stage === "exporting") uploadingStage.value = "gateway-export";
+          else if (stage === "uploading") uploadingStage.value = "gateway-upload";
+          else if (stage === "done") uploadingStage.value = "done";
+        }
+
+        const pct = payload?.percent;
+        if (typeof pct === "number" && Number.isFinite(pct)) {
+          uploadingPercent.value = Math.max(0, Math.min(100, Math.round(pct)));
+        } else {
+          uploadingPercent.value = null;
+        }
+      });
+    }
+  } catch {}
+
+  try {
     tabUrlChangedHandler = (ev: any) => {
       const detail = ev?.detail || {};
       const url = String(detail?.url || "");
@@ -2261,6 +2343,18 @@ onUnmounted(() => {
     // ignore
   }
   hlsProgressUnsub = null;
+  try {
+    ipfsAddProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  ipfsAddProgressUnsub = null;
+  try {
+    gatewayIngestProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  gatewayIngestProgressUnsub = null;
   try {
     if (tabUrlChangedHandler)
       window.removeEventListener(
@@ -2396,10 +2490,12 @@ async function handleDrop(e: DragEvent) {
     }
 
     for (const f of rootFiles) {
-      await uploadFile(f);
+      const res = await uploadFile(f);
+      if ((res as any)?.cancelled) return;
     }
     for (const [rootName, files] of folderGroups.entries()) {
-      await uploadDirectory(rootName, files);
+      const res = await uploadDirectory(rootName, files);
+      if ((res as any)?.cancelled) return;
     }
     return;
   }
@@ -2407,7 +2503,8 @@ async function handleDrop(e: DragEvent) {
   const droppedFiles = dt.files;
   if (droppedFiles?.length) {
     for (const file of Array.from(droppedFiles)) {
-      await uploadFile(file);
+      const res = await uploadFile(file);
+      if ((res as any)?.cancelled) break;
     }
   }
 }
@@ -3284,7 +3381,8 @@ async function handleFileUpload(e: Event) {
   }
 
   for (const file of Array.from(input.files)) {
-    await uploadFile(file);
+    const res = await uploadFile(file);
+    if ((res as any)?.cancelled) break;
   }
   input.value = "";
 }
@@ -3311,7 +3409,8 @@ async function handleFolderUpload(e: Event) {
   }
 
   for (const [rootName, list] of groups.entries()) {
-    await uploadDirectory(rootName, list);
+    const res = await uploadDirectory(rootName, list);
+    if ((res as any)?.cancelled) break;
   }
 
   input.value = "";
@@ -3327,7 +3426,10 @@ function upsertFileMetadata(next: DriveFile) {
   saveFiles();
 }
 
-async function pinCidToActiveGateway(cid: string) {
+async function pinCidToActiveGateway(cid: string): Promise<
+  | { ok: true }
+  | { ok: false; error: string; cancelled?: boolean }
+> {
   if (hosting.value.kind !== "gateway") return { ok: true as const };
 
   const api: any = (window as any).lumen;
@@ -3363,9 +3465,18 @@ async function pinCidToActiveGateway(cid: string) {
     .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
 
   if (!res || res.ok === false) {
+    const err = String(res?.error || "Gateway pin failed");
+    const lower = err.toLowerCase();
+    if (
+      lower.includes("cancel") ||
+      lower.includes("abort") ||
+      lower.includes("aborted")
+    ) {
+      return { ok: false as const, error: "cancelled", cancelled: true };
+    }
     return {
       ok: false as const,
-      error: String(res?.error || "Gateway pin failed"),
+      error: err,
     };
   }
 
@@ -3381,12 +3492,15 @@ async function pinCidToActiveGateway(cid: string) {
 async function uploadDirectory(
   rootName: string,
   list: { path: string; file: File }[],
-) {
+): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
   const name = String(rootName || "").trim() || "folder";
-  if (!list.length) return;
+  if (!list.length) return { ok: false };
 
   uploading.value = true;
   uploadingFile.value = name;
+  uploadingStage.value = "preparing";
+  uploadingPercent.value = 0;
+  uploadingCanceling.value = false;
 
   try {
     const payloadFiles: { path: string; data: Uint8Array }[] = [];
@@ -3402,14 +3516,31 @@ async function uploadDirectory(
       payloadFiles.push({ path: rel, data: bytes });
     }
 
-    const result = await (window as any).lumen?.ipfsAddDirectory?.({
+    uploadingStage.value = "adding";
+    uploadingPercent.value = 0;
+    const api: any = (window as any).lumen;
+    const addDirFn =
+      typeof api?.ipfsAddDirectoryWithProgress === "function"
+        ? api.ipfsAddDirectoryWithProgress
+        : api?.ipfsAddDirectory;
+    if (typeof addDirFn !== "function") {
+      showToast("Upload unavailable", "error");
+      return { ok: false };
+    }
+
+    const result = await addDirFn({
       rootName: name,
       files: payloadFiles,
     });
 
     if (!result?.ok || !result?.cid) {
+      const err = String(result?.error || "");
+      if (err.toLowerCase().includes("cancel")) {
+        showToast("Upload cancelled.", "success");
+        return { ok: false, cancelled: true };
+      }
       showToast(`Failed to upload folder: ${name}`, "error");
-      return;
+      return { ok: false };
     }
 
     const cid = String(result.cid);
@@ -3425,10 +3556,16 @@ async function uploadDirectory(
     });
 
     if (hosting.value.kind === "gateway") {
+      uploadingStage.value = "gateway-preflight";
+      uploadingPercent.value = 0;
       const pinned = await pinCidToActiveGateway(cid);
       if (!pinned.ok) {
+        if ((pinned as any).cancelled) {
+          showToast("Upload cancelled.", "success");
+          return { ok: false, cancelled: true };
+        }
         showToast(pinned.error, "error");
-        return;
+        return { ok: false };
       }
       showToast(`Uploaded folder to gateway: ${name}`, "success");
     } else {
@@ -3436,24 +3573,47 @@ async function uploadDirectory(
       await loadPinnedFiles();
       showToast(`Uploaded folder: ${name}`, "success");
     }
+
+    return { ok: true };
   } catch (err) {
     console.error("Folder upload error:", err);
+    const msg = String((err as any)?.message || err || "");
+    if (msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("abort")) {
+      showToast("Upload cancelled.", "success");
+      return { ok: false, cancelled: true };
+    }
     showToast(`Error uploading folder: ${name}`, "error");
+    return { ok: false };
   } finally {
     uploading.value = false;
     uploadingFile.value = "";
+    uploadingStage.value = "preparing";
+    uploadingPercent.value = null;
+    uploadingCanceling.value = false;
   }
 }
 
-async function uploadFile(file: File) {
+async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
   uploading.value = true;
   uploadingFile.value = file.name;
+  uploadingStage.value = "preparing";
+  uploadingPercent.value = 0;
+  uploadingCanceling.value = false;
 
   try {
     const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
 
-    const result = await (window as any).lumen?.ipfsAdd?.(bytes, file.name);
+    uploadingStage.value = "adding";
+    uploadingPercent.value = 0;
+    const api: any = (window as any).lumen;
+    const addFn =
+      typeof api?.ipfsAddWithProgress === "function" ? api.ipfsAddWithProgress : api?.ipfsAdd;
+    if (typeof addFn !== "function") {
+      showToast("Upload unavailable", "error");
+      return { ok: false };
+    }
+    const result = await addFn(bytes, file.name);
 
     if (result?.cid) {
       const cid = String(result.cid);
@@ -3468,10 +3628,16 @@ async function uploadFile(file: File) {
       });
 
       if (hosting.value.kind === "gateway") {
+        uploadingStage.value = "gateway-preflight";
+        uploadingPercent.value = 0;
         const pinned = await pinCidToActiveGateway(cid);
         if (!pinned.ok) {
+          if ((pinned as any).cancelled) {
+            showToast("Upload cancelled.", "success");
+            return { ok: false, cancelled: true };
+          }
           showToast(pinned.error, "error");
-          return;
+          return { ok: false };
         }
         showToast(`Uploaded to gateway: ${file.name}`, "success");
       } else {
@@ -3479,15 +3645,32 @@ async function uploadFile(file: File) {
         await loadPinnedFiles();
         showToast(`Uploaded: ${file.name}`, "success");
       }
+
+      return { ok: true };
     } else {
+      const err = String(result?.error || "");
+      if (err.toLowerCase().includes("cancel")) {
+        showToast("Upload cancelled.", "success");
+        return { ok: false, cancelled: true };
+      }
       showToast(`Failed to upload: ${file.name}`, "error");
+      return { ok: false };
     }
   } catch (err) {
     console.error("Upload error:", err);
+    const msg = String((err as any)?.message || err || "");
+    if (msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("abort")) {
+      showToast("Upload cancelled.", "success");
+      return { ok: false, cancelled: true };
+    }
     showToast(`Error uploading: ${file.name}`, "error");
+    return { ok: false };
   } finally {
     uploading.value = false;
     uploadingFile.value = "";
+    uploadingStage.value = "preparing";
+    uploadingPercent.value = null;
+    uploadingCanceling.value = false;
   }
 }
 
@@ -3578,6 +3761,47 @@ async function convertToHls(file: DriveFile) {
 function convertSelectedToHls() {
   if (!selectedFile.value) return;
   void convertToHls(selectedFile.value);
+}
+
+async function cancelUpload() {
+  if (!uploading.value || uploadingCanceling.value) return;
+
+  const prevStage = uploadingStage.value;
+  uploadingCanceling.value = true;
+  uploadingStage.value = "cancelling";
+
+  try {
+    const api: any = (window as any).lumen;
+    const cancelers: Promise<any>[] = [];
+
+    if (typeof api?.ipfsCancelAdd === "function") {
+      cancelers.push(api.ipfsCancelAdd().catch(() => null));
+    }
+    if (typeof api?.gateway?.cancelPinCid === "function") {
+      cancelers.push(api.gateway.cancelPinCid().catch(() => null));
+    }
+
+    if (!cancelers.length) {
+      showToast("Cancel is unavailable.", "error");
+      uploadingCanceling.value = false;
+      uploadingStage.value = prevStage;
+      return;
+    }
+
+    const results = await Promise.allSettled(cancelers);
+    const ok = results.some(
+      (r) => r.status === "fulfilled" && r.value && r.value.ok === true,
+    );
+    if (!ok) {
+      showToast("Cancel failed", "error");
+      uploadingCanceling.value = false;
+      uploadingStage.value = prevStage;
+    }
+  } catch (e: any) {
+    showToast(String(e?.message || "Cancel failed"), "error");
+    uploadingCanceling.value = false;
+    uploadingStage.value = prevStage;
+  }
 }
 
 async function cancelHlsConversion() {
