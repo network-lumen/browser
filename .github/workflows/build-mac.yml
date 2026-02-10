@@ -1,4 +1,4 @@
-name: Build macOS app
+name: Build desktop apps
 
 on:
   push:
@@ -20,10 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build renderer (Vite)
         run: npm run build
@@ -38,3 +39,95 @@ jobs:
         with:
           name: lumen-browser-mac-${{ matrix.arch }}
           path: release/*.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows installer (NSIS)
+        run: npm run dist:win
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumen-browser-windows-x64
+          path: |
+            release/*.exe
+            !release/*.blockmap
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Linux deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 || sudo apt-get install -y libfuse2t64 || sudo apt-get install -y fuse
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer (Vite)
+        run: npm run build
+
+      - name: Build Linux AppImage (x64)
+        run: npx electron-builder --linux AppImage --x64 --publish=never
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumen-browser-linux-x64
+          path: |
+            release/*.AppImage
+            !release/*.blockmap
+
+  checksums:
+    needs: [build-mac, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lumen-browser-*
+          path: artifacts
+
+      - name: Build SHA256SUMS.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts -type f \( -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' \) -print0 \
+            | sort -z \
+            | while IFS= read -r -d '' file; do
+                rel="${file#artifacts/}"
+                sha="$(sha256sum "$file" | awk '{print $1}')"
+                echo "${sha}  ${rel}"
+              done > SHA256SUMS.txt
+
+      - name: Upload SHA256SUMS.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumen-browser-SHA256SUMS
+          path: SHA256SUMS.txt
