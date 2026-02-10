@@ -94,6 +94,16 @@ Useful scripts in `contributor/browser/package.json`:
 - `npm run dist` → build + `electron-builder` (default target for your OS)
 - `npm run dist:win` → build + Windows NSIS installer
 
+### GitHub Actions (recommended)
+If you prefer not to build locally, you can let CI build **Windows + macOS + Linux** for you:
+1. Bump `version` in `contributor/browser/package.json` (e.g. `0.2.6`) and push it.
+2. Create a git tag that contains the same version (e.g. `v0.2.6`) and push the tag.
+3. CI creates/updates a GitHub Release for that tag and uploads:
+   - Windows installer (`.exe`)
+   - macOS DMG (`.dmg`)
+   - Linux AppImage (`.AppImage`)
+   - `SHA256SUMS.txt`
+
 Example:
 
 ```bash
@@ -259,7 +269,7 @@ Implementation:
 
 ### Download / install
 - Windows: download + SHA256 check + launch NSIS installer, then quit the app.
-- macOS/Linux: **no automatic install** in the current client (the update action returns `unsupported_platform`). Plan for a manual install flow.
+- macOS/Linux: **no automatic install** in the current client. Clicking “Update now” opens the artifact download URL for a manual install.
 
 Implementation:
 - `contributor/browser/electron/services/release_installer.cjs`

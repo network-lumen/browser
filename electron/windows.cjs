@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('node:path');
+const { markStartupSuccess } = require('./services/startup_health.cjs');
 
 let splashWindow = null;
 let mainWindow = null;
@@ -133,6 +134,9 @@ function createMainWindow() {
     try {
       mainWindow.center();
       mainWindow.show();
+    } catch {}
+    try {
+      markStartupSuccess().catch(() => {});
     } catch {}
   });
 

@@ -19,6 +19,7 @@ const { registerHlsIpc } = require('./ipc/hls.cjs');
 const { registerFindIpc } = require('./ipc/find.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
 const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
+const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
 
 registerChainIpc();
 registerProfilesIpc();
@@ -651,6 +652,12 @@ app.whenReady().then(() => {
     console.warn('[electron] failed to set userData path', e);
   }
 
+  // Startup health: mark this launch as "in progress". If the previous launch didn't reach success
+  // and didn't exit gracefully, it will be counted as a crash.
+  try {
+    recordLaunchStart().catch(() => {});
+  } catch {}
+
   // Preload for <webview partition="persist:lumen"> sites (demo websites, IPFS HTML, etc.).
   try {
     const preloadPath = path.join(__dirname, 'webview-preload.cjs');
@@ -750,4 +757,10 @@ app.on('window-all-closed', () => {
     try { stopIpfsDaemon(); } catch {}
     app.quit();
   }
+});
+
+app.on('before-quit', () => {
+  try {
+    markGracefulExit().catch(() => {});
+  } catch {}
 });

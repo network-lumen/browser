@@ -2,6 +2,7 @@ const { BrowserWindow, shell, app } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { readState } = require('../network/network_middleware.cjs');
+const { isVersionUnstable } = require('./startup_health.cjs');
 
 const DEBUG_RELEASE =
   String(process.env.DEBUG_LUMEN_RELEASE || '') === '1' ||
@@ -62,6 +63,7 @@ const DEFAULT_KIND = String(process.env.LUMEN_RELEASE_KIND || 'browser');
 const DEFAULT_PLATFORM = String(process.env.LUMEN_RELEASE_PLATFORM || detectPlatform());
 const POLL_INTERVAL_MS = Number(process.env.LUMEN_RELEASE_POLL_MS || 10 * 60_000);
 const TEST_MODE = String(process.env.LUMEN_RELEASE_TEST_MODE || '') === '1';
+const UNSTABLE_VERSION_MESSAGE = 'This version seems unstable on your system. Please try again later.';
 
 let timer = null;
 let cached = null;
@@ -132,6 +134,20 @@ function selectArtifact(list, platform, kind) {
   );
   if (exact) return exact;
   return list.find((art) => String(art && art.platform ? art.platform : '').toLowerCase() === platform.toLowerCase()) || null;
+}
+
+async function applyStartupHealthBlock(payload) {
+  try {
+    const v = String(payload && payload.version ? payload.version : '').trim();
+    if (!v) return payload;
+    const unstable = await isVersionUnstable(v);
+    if (unstable) {
+      payload.blocked = true;
+      payload.blockedReason = 'unstable_version';
+      payload.blockedMessage = UNSTABLE_VERSION_MESSAGE;
+    }
+  } catch {}
+  return payload;
 }
 
 async function findLatestFromList() {
@@ -209,6 +225,7 @@ async function pollReleaseOnce() {
           downloadUrl: pickDownloadUrl(fallback.artifact)
         };
 
+        await applyStartupHealthBlock(payload);
         cached = payload;
         dbg('cached (list fallback)', { version: payload.version, status: fallback.status, downloadUrl: payload.downloadUrl });
 
@@ -269,6 +286,7 @@ async function pollReleaseOnce() {
       downloadUrl: pickDownloadUrl(artifact)
     };
 
+    await applyStartupHealthBlock(payload);
     cached = payload;
     dbg('cached', { version: payload.version, status, downloadUrl: payload.downloadUrl });
 
