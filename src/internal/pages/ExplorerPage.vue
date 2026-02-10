@@ -102,8 +102,8 @@
           <span class="stat-value">{{ formatNumber(latestBlock) }}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">Total Transactions</span>
-          <span class="stat-value">{{ formatNumber(totalTxs) }}</span>
+          <span class="stat-label">Txs (last {{ txHistoryWindow }} blocks)</span>
+          <span class="stat-value">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">Validators</span>
@@ -111,7 +111,7 @@
         </div>
         <div class="stat-item">
           <span class="stat-label">Avg Block Time</span>
-          <span class="stat-value">{{ avgBlockTime.toFixed(2) }}s</span>
+          <span class="stat-value">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
@@ -136,27 +136,27 @@
               <div class="chart-header">
                 <h3>{{ txHistoryTitle }}</h3>
                 <div class="time-filters">
-                  <span class="filter-label">Total: 6</span>
+                  <span class="filter-label">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
                     class="time-filter-btn" 
-                    :class="{ active: txTimeFilter === '1D' }"
-                    @click="txTimeFilter = '1D'"
-                  >1D</button>
+                    :class="{ active: txHistoryWindow === 5 }"
+                    @click="txHistoryWindow = 5"
+                  >5B</button>
                   <button 
                     class="time-filter-btn" 
-                    :class="{ active: txTimeFilter === '7D' }"
-                    @click="txTimeFilter = '7D'"
-                  >7D</button>
+                    :class="{ active: txHistoryWindow === 10 }"
+                    @click="txHistoryWindow = 10"
+                  >10B</button>
                   <button 
                     class="time-filter-btn" 
-                    :class="{ active: txTimeFilter === '30D' }"
-                    @click="txTimeFilter = '30D'"
-                  >30D</button>
+                    :class="{ active: txHistoryWindow === 15 }"
+                    @click="txHistoryWindow = 15"
+                  >15B</button>
                   <button 
                     class="time-filter-btn" 
-                    :class="{ active: txTimeFilter === '1Y' }"
-                    @click="txTimeFilter = '1Y'"
-                  >1Y</button>
+                    :class="{ active: txHistoryWindow === 20 }"
+                    @click="txHistoryWindow = 20"
+                  >20B</button>
                 </div>
               </div>
               <div class="chart-container">
@@ -172,7 +172,7 @@
                 <div class="chart-donut-wrapper">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
                   <div class="chart-center-label">
-                    <div class="center-value">{{ bondedRatio }}%</div>
+                    <div class="center-value">{{ bondedRatioLabel }}</div>
                     <div class="center-label">Bonded</div>
                   </div>
                 </div>
@@ -246,7 +246,7 @@
                       </div>
                       <div class="proposer-stat">
                         <span class="stat-label">Block Time</span>
-                        <span class="stat-value">~{{ avgBlockTime.toFixed(1) }}s</span>
+                        <span class="stat-value">{{ avgBlockTimeLabelShort }}</span>
                       </div>
                     </div>
                   </div>
@@ -487,7 +487,7 @@
                   <span class="block-link clickable" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
                 <div class="td td-fee">
-                  <span class="fee-amount">{{ tx.fee || '0.000000 LMN' }}</span>
+                  <span class="fee-amount">{{ tx.fee || '—' }}</span>
                 </div>
                 <div class="td td-time">
                   <span class="time-text">{{ formatTimeAgo(tx.time) }}</span>
@@ -512,8 +512,6 @@
               <div class="th th-changes">24H CHANGES</div>
               <div class="th th-cumulative">CUMULATIVE SHARE %</div>
               <div class="th th-commission">COMM. %</div>
-              <div class="th th-score">SCORE</div>
-              <div class="th th-delegators">DELEGATORS %</div>
               <div class="th th-uptime">UPTIME %</div>
               <div class="th th-actions">ACTIONS</div>
             </div>
@@ -545,7 +543,7 @@
                   </div>
                 </div>
                 <div class="td td-changes">
-                  <span class="changes-value positive">+{{ Math.floor(Math.random() * 2000) }}</span>
+                  <span class="changes-value">—</span>
                 </div>
                 <div class="td td-cumulative">
                   <div class="cumulative-container">
@@ -556,7 +554,7 @@
                         fill="none" 
                         stroke="var(--accent-primary)" 
                         stroke-width="4"
-                        :stroke-dasharray="`${getCumulativeProgress(index)} 100`"
+                        :stroke-dasharray="getCumulativeDashArray(index)"
                         transform="rotate(-90 25 25)"
                         stroke-linecap="round"
                       ></circle>
@@ -567,14 +565,8 @@
                 <div class="td td-commission">
                   <span class="commission-value">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
                 </div>
-                <div class="td td-score">
-                  <span class="score-badge" :class="getScoreClass(index)">{{ getScore(index) }}</span>
-                </div>
-                <div class="td td-delegators">
-                  <span class="delegators-value">-</span>
-                </div>
                 <div class="td td-uptime">
-                  <span class="uptime-value">100.00%</span>
+                  <span class="uptime-value">{{ getUptimeLabel(validator.address) }}</span>
                 </div>
                 <div class="td td-actions">
                   <button 
@@ -786,6 +778,7 @@ import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { LayoutGrid } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
+import { fromBase64, toBech32 } from '@cosmjs/encoding';
 
 const toast = useToast();
 const lumen = (window as any).lumen;
@@ -859,9 +852,20 @@ const txHashFilter = ref('');
 
 
 const latestBlock = ref(0);
-const totalTxs = ref(0);
 const validatorCount = ref(0);
-const avgBlockTime = ref(6.5);
+const avgBlockTime = ref<number | null>(null);
+
+const avgBlockTimeLabel = computed(() => {
+  const v = avgBlockTime.value;
+  if (v == null || !Number.isFinite(v) || v <= 0) return '—';
+  return `${v.toFixed(2)}s`;
+});
+
+const avgBlockTimeLabelShort = computed(() => {
+  const v = avgBlockTime.value;
+  if (v == null || !Number.isFinite(v) || v <= 0) return '—';
+  return `~${v.toFixed(1)}s`;
+});
 
 interface Block {
   height: number;
@@ -889,6 +893,7 @@ interface Validator {
   jailed: boolean;
   avatar?: string;
   keybaseId?: string;
+  consensusPubkeyB64?: string;
 }
 
 const blocks = ref<Block[]>([]);
@@ -913,10 +918,39 @@ const txMessage = ref('');
 const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 const txHash = ref('');
 
-const bondedTokens = ref(114760000);
-const unbondedTokens = ref(385240000);
-const totalSupply = ref(500000000);
-const bondedRatio = computed(() => ((bondedTokens.value / totalSupply.value) * 100).toFixed(1));
+const bondedTokens = ref<number | null>(null);
+const unbondedTokens = ref<number | null>(null);
+const totalSupply = ref<number | null>(null);
+
+const bondedRatioPct = computed<number | null>(() => {
+  const bonded = bondedTokens.value;
+  const supply = totalSupply.value;
+  if (bonded == null || supply == null) return null;
+  if (!Number.isFinite(bonded) || !Number.isFinite(supply) || supply <= 0) return null;
+  const pct = (bonded / supply) * 100;
+  if (!Number.isFinite(pct) || pct < 0) return null;
+  return Math.min(100, pct);
+});
+
+const bondedRatioLabel = computed(() => {
+  const pct = bondedRatioPct.value;
+  if (pct == null) return '—';
+  return `${pct.toFixed(1)}%`;
+});
+
+type TxHistoryWindow = 5 | 10 | 15 | 20;
+const txHistoryWindow = ref<TxHistoryWindow>(10);
+
+const txHistoryPoints = computed(() => {
+  const windowSize = txHistoryWindow.value;
+  const slice = blocks.value.slice(0, windowSize);
+  // Oldest -> newest for a nicer left-to-right chart.
+  return slice.map((b) => Number(b?.txCount || 0) || 0).reverse();
+});
+
+const txHistoryTotal = computed(() => txHistoryPoints.value.reduce((sum, n) => sum + n, 0));
+
+const txHistoryTitle = computed(() => `Txs per block (last ${txHistoryWindow.value} blocks)`);
 const topValidatorsPower = ref<Array<{ moniker: string; percentage: string }>>([]);
 
 // Filtered data computed properties
@@ -975,15 +1009,6 @@ const filteredTransactions = computed(() => {
   return result;
 });
 
-const txHistoryTitle = computed(() => {
-  const titles = {
-    '1D': 'Transaction History (1 Day)',
-    '7D': 'Transaction History (1 Week)',
-    '30D': 'Transaction History (1 Month)',
-    '1Y': 'Transaction History (1 Year)'
-  };
-  return titles[txTimeFilter.value];
-});
 const othersPercentage = computed(() => {
   const top5Total = topValidatorsPower.value.slice(0, 5).reduce((sum, vp) => sum + parseFloat(vp.percentage), 0);
   return (100 - top5Total).toFixed(2);
@@ -992,9 +1017,195 @@ const latestProposer = ref({ moniker: 'Unknown', avatar: '', blockHeight: 0 });
 const txHistoryChart = ref<HTMLCanvasElement | null>(null);
 const bondedSupplyChart = ref<HTMLCanvasElement | null>(null);
 const votingPowerChart = ref<HTMLCanvasElement | null>(null);
-const txTimeFilter = ref<'1D' | '7D' | '30D' | '1Y'>('1D');
 const copiedText = ref('');
 const showCopyNotification = ref(false);
+
+const CUMULATIVE_RADIUS = 20;
+const CUMULATIVE_CIRCUMFERENCE = 2 * Math.PI * CUMULATIVE_RADIUS;
+
+function getCumulativeDashArray(index: number): string {
+  const pct = getCumulativeProgress(index);
+  const clamped = Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 0));
+  const filled = (clamped / 100) * CUMULATIVE_CIRCUMFERENCE;
+  return `${filled} ${CUMULATIVE_CIRCUMFERENCE}`;
+}
+
+const validatorUptimePctByValoper = ref<Record<string, string>>({});
+const uptimeLoading = ref(false);
+let lastUptimeFetchAt = 0;
+const UPTIME_REFRESH_MS = 60_000;
+const UPTIME_RETRY_MS = 15_000;
+
+async function valconsAddressFromPubkeyBase64(pubKeyB64: string): Promise<string | null> {
+  const key = String(pubKeyB64 || '').trim();
+  if (!key) return null;
+  try {
+    const pub = fromBase64(key);
+    const digest = await crypto.subtle.digest('SHA-256', pub);
+    const hash = new Uint8Array(digest).slice(0, 20);
+    return toBech32('lmnvalcons', hash);
+  } catch {
+    return null;
+  }
+}
+
+function getUptimeLabel(valoper: string): string {
+  const key = String(valoper || '').trim();
+  if (!key) return '—';
+  const label = validatorUptimePctByValoper.value?.[key];
+  if (label) return label;
+  return uptimeLoading.value ? '…' : '—';
+}
+
+async function fetchValidatorUptime({ force = false } = {}) {
+  if (uptimeLoading.value) return;
+  if (!lumen?.net?.restGet) return;
+  if (!validators.value.length) return;
+
+  const now = Date.now();
+  const hasCached = Object.keys(validatorUptimePctByValoper.value || {}).length > 0;
+  const throttleMs = hasCached ? UPTIME_REFRESH_MS : UPTIME_RETRY_MS;
+  if (!force && lastUptimeFetchAt && now - lastUptimeFetchAt < throttleMs) return;
+  lastUptimeFetchAt = now;
+
+  uptimeLoading.value = true;
+  try {
+    const paramsRes = await lumen.net.restGet('/cosmos/slashing/v1beta1/params', { timeout: 15000 });
+    const windowRaw =
+      paramsRes?.json?.params?.signed_blocks_window ??
+      paramsRes?.json?.params?.signedBlocksWindow ??
+      null;
+    const window = safeBigInt(windowRaw);
+    if (!paramsRes?.ok || window <= 0n) return;
+
+    const valoperToCons = new Map<string, string>();
+    const needed = new Set<string>();
+
+    await Promise.all(
+      validators.value.map(async (v) => {
+        const pubKeyB64 = String(v.consensusPubkeyB64 || '').trim();
+        if (!pubKeyB64) return;
+        const cons = await valconsAddressFromPubkeyBase64(pubKeyB64);
+        if (!cons) return;
+        valoperToCons.set(v.address, cons);
+        needed.add(cons);
+      })
+    );
+
+    if (!needed.size) return;
+
+    const missedByCons = new Map<string, bigint>();
+    let nextKey: string | null = null;
+
+    for (let page = 0; page < 10 && needed.size; page++) {
+      let path = '/cosmos/slashing/v1beta1/signing_infos?pagination.limit=2000';
+      if (nextKey) path += `&pagination.key=${encodeURIComponent(nextKey)}`;
+
+      const infosRes = await lumen.net.restGet(path, { timeout: 15000 });
+      if (!infosRes?.ok) break;
+
+      const infos = Array.isArray(infosRes.json?.info)
+        ? infosRes.json.info
+        : Array.isArray(infosRes.json?.signing_infos)
+          ? infosRes.json.signing_infos
+          : Array.isArray(infosRes.json?.signingInfos)
+            ? infosRes.json.signingInfos
+            : [];
+
+      for (const info of infos) {
+        const addr = String(info?.address || '').trim();
+        if (!addr || !needed.has(addr)) continue;
+        const missedRaw = info?.missed_blocks_counter ?? info?.missedBlocksCounter ?? '0';
+        missedByCons.set(addr, safeBigInt(missedRaw));
+        needed.delete(addr);
+      }
+
+      const nk = infosRes.json?.pagination?.next_key ?? infosRes.json?.pagination?.nextKey ?? null;
+      nextKey = typeof nk === 'string' && nk ? nk : null;
+      if (!nextKey) break;
+    }
+
+    const out: Record<string, string> = {};
+    for (const [valoper, cons] of valoperToCons.entries()) {
+      const missed = missedByCons.get(cons);
+      if (missed == null) continue;
+      const m = missed > window ? window : missed;
+      const signed = window - m;
+      const bp = (signed * 10000n) / window;
+      out[valoper] = `${(Number(bp) / 100).toFixed(2)}%`;
+    }
+    validatorUptimePctByValoper.value = out;
+  } finally {
+    uptimeLoading.value = false;
+  }
+}
+
+function recomputeAvgBlockTimeFromBlocks() {
+  const list = blocks.value;
+  if (!Array.isArray(list) || list.length < 2) {
+    avgBlockTime.value = null;
+    return;
+  }
+
+  const diffs: number[] = [];
+  for (let i = 0; i < list.length - 1; i++) {
+    const t0 = Date.parse(String(list[i]?.time || ''));
+    const t1 = Date.parse(String(list[i + 1]?.time || ''));
+    if (!Number.isFinite(t0) || !Number.isFinite(t1)) continue;
+    const diffSec = (t0 - t1) / 1000;
+    // Ignore bogus gaps.
+    if (diffSec > 0 && diffSec < 600) diffs.push(diffSec);
+  }
+
+  if (!diffs.length) {
+    avgBlockTime.value = null;
+    return;
+  }
+
+  avgBlockTime.value = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+}
+
+function maybeDecodeBase64(input: any): string {
+  const raw = String(input || '');
+  if (!raw) return '';
+  // Tendermint RPC often base64-encodes event attributes. Keep a conservative heuristic to avoid mangling.
+  if (!/^[A-Za-z0-9+/=]+$/.test(raw) || raw.length < 4 || raw.length % 4 !== 0) return raw;
+  try {
+    const decoded = atob(raw);
+    if (!decoded) return raw;
+    // If decoded contains lots of control characters, treat as not base64.
+    let printable = 0;
+    for (let i = 0; i < decoded.length; i++) {
+      const c = decoded.charCodeAt(i);
+      if (c === 9 || c === 10 || c === 13 || (c >= 32 && c < 127)) printable += 1;
+    }
+    if (printable / decoded.length < 0.85) return raw;
+    return decoded;
+  } catch {
+    return raw;
+  }
+}
+
+function inferTxType(txResult: any): string {
+  try {
+    const events = Array.isArray(txResult?.events) ? txResult.events : [];
+    for (const ev of events) {
+      const attrs = Array.isArray(ev?.attributes) ? ev.attributes : [];
+      for (const a of attrs) {
+        const key = maybeDecodeBase64(a?.key).toLowerCase();
+        if (key !== 'action') continue;
+        const valRaw = String(maybeDecodeBase64(a?.value) || '').trim();
+        if (!valRaw) continue;
+        const s1 = valRaw.split('/').filter(Boolean).pop() || valRaw;
+        const s2 = s1.split('.').filter(Boolean).pop() || s1;
+        return s2 || 'Tx';
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return 'Tx';
+}
 
 async function fetchBlocks() {
   if (!lumen?.http?.get) return;
@@ -1038,6 +1249,7 @@ async function fetchBlocks() {
     }
 
     blocks.value = newBlocks.sort((a, b) => b.height - a.height);
+    recomputeAvgBlockTimeFromBlocks();
     
     if (newBlocks.length > 0) {
       const latestBlockData = newBlocks[0];
@@ -1074,11 +1286,10 @@ async function fetchTransactions() {
           
           txList.push({
             hash: txHash,
-            type: 'Transfer',
+            type: inferTxType(txResult),
             height: block.height,
             success: !txResult || txResult.code === 0,
             time: block.time,
-            fee: '0.000000 LMN'
           });
         }
       }
@@ -1087,7 +1298,6 @@ async function fetchTransactions() {
     }
     
     transactions.value = txList.slice(0, 20);
-    totalTxs.value = latestBlock.value * 5; // Estimate
     
   } catch (e) {
     console.error('Failed to fetch transactions:', e);
@@ -1168,7 +1378,8 @@ async function fetchValidators() {
             commission: v.commission?.commission_rates?.rate || '0',
             jailed: v.jailed || false,
             avatar: avatarCache.value[keybaseId] || undefined,
-            keybaseId: keybaseId
+            keybaseId: keybaseId,
+            consensusPubkeyB64: String(v.consensus_pubkey?.key || '')
           };
         });
       
@@ -1181,6 +1392,9 @@ async function fetchValidators() {
       }));
       
       fetchKeybaseAvatars();
+      if (currentView.value === 'validators') {
+        void fetchValidatorUptime({ force: true });
+      }
     }
   } catch (e) {
     console.error('Failed to fetch validators:', e);
@@ -1229,13 +1443,83 @@ async function fetchKeybaseAvatars() {
   }
 }
 
+const ULMN_PER_LMN = 1_000_000n;
+const SUPPLY_REFRESH_MS = 60_000;
+const SUPPLY_RETRY_MS = 15_000;
+let lastSupplyFetchAt = 0;
+
+function ulmnStringToLmnNumber(input: any): number | null {
+  const raw = String(input ?? '').trim();
+  if (!raw) return null;
+  try {
+    const ulmn = BigInt(raw);
+    const whole = ulmn / ULMN_PER_LMN;
+    const frac = ulmn % ULMN_PER_LMN;
+    return Number(whole) + Number(frac) / 1_000_000;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchSupplyStats({ force = false } = {}) {
+  if (!lumen?.net?.restGet) return;
+
+  const now = Date.now();
+  const hasAnyCached = bondedTokens.value != null || totalSupply.value != null;
+  const throttleMs = hasAnyCached ? SUPPLY_REFRESH_MS : SUPPLY_RETRY_MS;
+  if (!force && lastSupplyFetchAt && now - lastSupplyFetchAt < throttleMs) return;
+  lastSupplyFetchAt = now;
+
+  let bondedLmn: number | null = null;
+  try {
+    const poolRes = await lumen.net.restGet('/cosmos/staking/v1beta1/pool', { timeout: 15000 });
+    const pool = poolRes?.json?.pool || poolRes?.json?.Pool || null;
+    const bondedRaw = pool?.bonded_tokens ?? pool?.bondedTokens ?? null;
+    bondedLmn = ulmnStringToLmnNumber(bondedRaw);
+    if (bondedLmn != null && Number.isFinite(bondedLmn)) bondedTokens.value = bondedLmn;
+  } catch {
+    // ignore
+  }
+
+  let supplyLmn: number | null = null;
+  const supplyPaths = [
+    '/cosmos/bank/v1beta1/supply/by_denom?denom=ulmn',
+    '/cosmos/bank/v1beta1/supply/by_denom/ulmn',
+  ];
+
+  for (const p of supplyPaths) {
+    try {
+      const supplyRes = await lumen.net.restGet(p, { timeout: 15000 });
+      if (!supplyRes?.ok) continue;
+      const amount = supplyRes?.json?.amount || supplyRes?.json?.supply || null;
+      const supplyRaw = amount?.amount ?? amount?.Amount ?? null;
+      supplyLmn = ulmnStringToLmnNumber(supplyRaw);
+      if (supplyLmn != null && Number.isFinite(supplyLmn)) {
+        totalSupply.value = supplyLmn;
+        break;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const bonded = bondedTokens.value;
+  const supply = totalSupply.value;
+  if (bonded != null && supply != null && Number.isFinite(bonded) && Number.isFinite(supply)) {
+    unbondedTokens.value = Math.max(0, supply - bonded);
+  } else {
+    unbondedTokens.value = null;
+  }
+}
+
 async function fetchAllData() {
   isLoading.value = true;
   
   try {
     await fetchValidators();
     await fetchBlocks();
-    if (currentView.value === 'transactions') {
+    await fetchSupplyStats({ force: true });
+    if (currentView.value === 'transactions' || currentView.value === 'overview') {
       await fetchTransactions();
     }
   } finally {
@@ -1265,9 +1549,11 @@ function performSearch() {
   }
 }
 
-function formatNumber(num: number): string {
-  if (!num) return '0';
-  return new Intl.NumberFormat().format(num);
+function formatNumber(num: number | null | undefined): string {
+  if (num == null) return '—';
+  const n = Number(num);
+  if (!Number.isFinite(n)) return '—';
+  return new Intl.NumberFormat().format(n);
 }
 
 function formatTimeAgo(timestamp: string): string {
@@ -1310,31 +1596,35 @@ function getVotingPowerColor(index: number): string {
   return colors[index % colors.length];
 }
 
+function safeBigInt(input: any): bigint {
+  const raw = String(input ?? '').trim();
+  if (!raw) return 0n;
+  try {
+    return BigInt(raw);
+  } catch {
+    return 0n;
+  }
+}
+
+const totalVotingPowerUlmn = computed(() => validators.value.reduce((sum, v) => sum + safeBigInt(v.tokens), 0n));
+
 function getVotingPowerPercentage(tokens: string): string {
-  const totalVotingPower = validators.value.reduce((sum, v) => sum + parseFloat(v.tokens), 0);
-  const percentage = (parseFloat(tokens) / totalVotingPower) * 100;
-  return percentage.toFixed(2);
+  const total = totalVotingPowerUlmn.value;
+  if (total <= 0n) return '0.00';
+  const t = safeBigInt(tokens);
+  const bp = (t * 10000n) / total; // basis points
+  return (Number(bp) / 100).toFixed(2);
 }
 
 function getCumulativeProgress(index: number): number {
-  let cumulative = 0;
-  for (let i = 0; i <= index; i++) {
-    const totalVotingPower = validators.value.reduce((sum, v) => sum + parseFloat(v.tokens), 0);
-    cumulative += (parseFloat(validators.value[i].tokens) / totalVotingPower) * 100;
+  const total = totalVotingPowerUlmn.value;
+  if (total <= 0n) return 0;
+  let cum = 0n;
+  for (let i = 0; i <= index && i < validators.value.length; i++) {
+    cum += safeBigInt(validators.value[i]?.tokens);
   }
-  return cumulative;
-}
-
-function getScore(index: number): number {
-  if (index < 5) return 95;
-  if (index < 15) return 85;
-  return 75;
-}
-
-function getScoreClass(index: number): string {
-  if (index < 5) return 'score-high';
-  if (index < 15) return 'score-medium';
-  return 'score-low';
+  const bp = (cum * 10000n) / total;
+  return Number(bp) / 100;
 }
 
 function manageValidator(validator: Validator) {
@@ -1623,27 +1913,24 @@ function initializeCharts() {
         ctx.fillStyle = gradient;
         ctx.strokeStyle = 'rgba(59, 130, 246, 1)';
         ctx.lineWidth = 2;
-        
-        const dataByFilter = {
-          '1D': [2, 3, 5, 4, 6, 8, 5, 7, 9, 8],
-          '7D': [3, 4, 3, 5, 6, 5, 7, 6, 8, 7],
-          '30D': [4, 5, 6, 5, 7, 8, 7, 9, 8, 9],
-          '1Y': [5, 6, 7, 6, 8, 9, 8, 10, 9, 10]
-        };
-        const points = dataByFilter[txTimeFilter.value];
-        ctx.beginPath();
-        points.forEach((point, i) => {
-          const x = (i / (points.length - 1)) * txHistoryChart.value!.width;
-          const y = 120 - (point / 10) * 100;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-        
-        ctx.lineTo(txHistoryChart.value.width, 120);
-        ctx.lineTo(0, 120);
-        ctx.closePath();
-        ctx.fill();
+
+        const points = txHistoryPoints.value;
+        if (points.length >= 2) {
+          const maxPoint = Math.max(...points, 1);
+          ctx.beginPath();
+          points.forEach((point, i) => {
+            const x = (i / (points.length - 1)) * txHistoryChart.value!.width;
+            const y = 120 - (point / maxPoint) * 100;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+
+          ctx.lineTo(txHistoryChart.value.width, 120);
+          ctx.lineTo(0, 120);
+          ctx.closePath();
+          ctx.fill();
+        }
       }
     }
 
@@ -1658,38 +1945,50 @@ function initializeCharts() {
         const centerY = 60;
         const radius = 50;
         const innerRadius = 35;
-        
-        const bondedPercentage = parseFloat(bondedRatio.value) / 100;
+
+        const pct = bondedRatioPct.value;
         const startAngle = -Math.PI / 2;
-        const bondedAngle = bondedPercentage * 2 * Math.PI;
-        
+
         ctx.clearRect(0, 0, 120, 120);
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, startAngle, startAngle + bondedAngle, false);
-        ctx.lineTo(
-          centerX + Math.cos(startAngle + bondedAngle) * innerRadius,
-          centerY + Math.sin(startAngle + bondedAngle) * innerRadius
-        );
-        ctx.arc(centerX, centerY, innerRadius, startAngle + bondedAngle, startAngle, true);
-        ctx.closePath();
-        
-        const gradient = ctx.createLinearGradient(0, 0, 120, 120);
-        gradient.addColorStop(0, '#ec4899');
-        gradient.addColorStop(1, '#8b5cf6');
-        ctx.fillStyle = gradient;
-        ctx.fill();
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, startAngle + bondedAngle, startAngle + 2 * Math.PI, false);
-        ctx.lineTo(
-          centerX + Math.cos(startAngle) * innerRadius,
-          centerY + Math.sin(startAngle) * innerRadius
-        );
-        ctx.arc(centerX, centerY, innerRadius, startAngle + 2 * Math.PI, startAngle + bondedAngle, true);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(139, 92, 246, 0.2)';
-        ctx.fill();
+
+        if (pct == null) {
+          // Unknown ratio: render a neutral ring (avoid implying 0% bonded).
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+          ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.18)';
+          ctx.fill();
+        } else {
+          const bondedPercentage = pct / 100;
+          const bondedAngle = bondedPercentage * 2 * Math.PI;
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, startAngle, startAngle + bondedAngle, false);
+          ctx.lineTo(
+            centerX + Math.cos(startAngle + bondedAngle) * innerRadius,
+            centerY + Math.sin(startAngle + bondedAngle) * innerRadius
+          );
+          ctx.arc(centerX, centerY, innerRadius, startAngle + bondedAngle, startAngle, true);
+          ctx.closePath();
+
+          const gradient = ctx.createLinearGradient(0, 0, 120, 120);
+          gradient.addColorStop(0, '#ec4899');
+          gradient.addColorStop(1, '#8b5cf6');
+          ctx.fillStyle = gradient;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, startAngle + bondedAngle, startAngle + 2 * Math.PI, false);
+          ctx.lineTo(
+            centerX + Math.cos(startAngle) * innerRadius,
+            centerY + Math.sin(startAngle) * innerRadius
+          );
+          ctx.arc(centerX, centerY, innerRadius, startAngle + 2 * Math.PI, startAngle + bondedAngle, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(139, 92, 246, 0.2)';
+          ctx.fill();
+        }
       }
     }
 
@@ -1772,6 +2071,7 @@ onMounted(() => {
         fetchTransactions();
       }
       if (currentView.value === 'overview') {
+        void fetchSupplyStats();
         initializeCharts();
       }
     }
@@ -1784,7 +2084,13 @@ onUnmounted(() => {
   }
 });
 
-watch(txTimeFilter, () => {
+watch(currentView, (v) => {
+  if (v === 'validators') {
+    void fetchValidatorUptime({ force: true });
+  }
+});
+
+watch(txHistoryWindow, () => {
   if (currentView.value === 'overview') {
     initializeCharts();
   }
@@ -3267,7 +3573,7 @@ watch(
 
 .table-header {
   display: grid;
-  grid-template-columns: 50px 220px 200px 120px 160px 100px 90px 110px 110px 120px;
+  grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
   gap: 1rem;
   padding: 1.25rem 1.75rem;
   background: rgba(0, 0, 0, 0.02);
@@ -3288,7 +3594,7 @@ watch(
 
 .table-row {
   display: grid;
-  grid-template-columns: 50px 220px 200px 120px 160px 100px 90px 110px 110px 120px;
+  grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
   gap: 1rem;
   padding: 1.25rem 1.75rem;
   border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
@@ -3434,13 +3740,20 @@ watch(
 
 .circular-progress {
   filter: none;
+  display: block;
 }
 
 .cumulative-text {
   position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.6875rem;
   font-weight: 700;
   color: var(--text-primary);
+  line-height: 1;
+  pointer-events: none;
 }
 
 .commission-value {
@@ -3472,6 +3785,12 @@ watch(
 .score-badge.score-low {
   background: var(--ios-purple);
   color: white;
+}
+
+.score-badge.score-na {
+  background: rgba(148, 163, 184, 0.22);
+  color: var(--text-secondary);
+  border: 0.5px solid rgba(148, 163, 184, 0.28);
 }
 
 .delegators-value,
