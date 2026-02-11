@@ -139,6 +139,7 @@ jobs:
           TAG="v${VERSION}-draft${GITHUB_RUN_NUMBER}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Draft release tag: ${TAG}"
 
           mkdir -p release_assets
 
@@ -195,6 +196,7 @@ jobs:
 
       - name: Create / update draft GitHub release
         if: steps.tagcheck.outputs.enabled == 'true'
+        id: draft_release
         uses: ncipollo/release-action@v1
         with:
           token: ${{ github.token }}
@@ -208,3 +210,13 @@ jobs:
           artifacts: |
             release_assets/*
             SHA256SUMS.txt
+
+      - name: Release summary
+        if: steps.tagcheck.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Draft release created/updated:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tag: \`${{ steps.meta.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: ${{ steps.draft_release.outputs.html_url }}" >> "$GITHUB_STEP_SUMMARY"
