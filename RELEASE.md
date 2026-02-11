@@ -157,7 +157,10 @@ Best practices:
 - The on-chain `sha256` must match the served file exactly.
 - Optional: add an `ipfs://<cid>` URL as a fallback.
 
-Note: automatic “download + install” is implemented **only on Windows** in the current client. On macOS/Linux, URLs are still useful (manual download), but don’t rely on an automatic installer flow.
+Note:
+- **Windows**: automatic download + installer launch.
+- **Linux**: automatic download + relaunch is implemented for **AppImage** artifacts.
+- **macOS**: automatic download + **opens the DMG**, but the final “drag to Applications” step is user-driven.
 
 ### Expected `platform` values (Lumen Browser)
 They must match the client auto-detect:
@@ -273,7 +276,7 @@ Implementation:
 
 ### Download / install
 - Windows: download + SHA256 check + launch NSIS installer, then quit the app.
-- macOS/Linux: **no automatic install** in the current client. Clicking “Update now” opens the artifact download URL for a manual install.
+- macOS/Linux: the client downloads the artifact and then launches the appropriate install flow (Linux AppImage relaunch, macOS opens the DMG).
 
 Implementation:
 - `contributor/browser/electron/services/release_installer.cjs`

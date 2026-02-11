@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -42,14 +42,34 @@ function broadcast(channel, payload) {
   } catch {}
 }
 
+function isRootUser() {
+  try {
+    return typeof process.getuid === 'function' && process.getuid() === 0;
+  } catch {
+    return false;
+  }
+}
+
+function needsNoSandboxArg() {
+  if (!isRootUser()) return false;
+  const argv = Array.isArray(process.argv) ? process.argv : [];
+  return !argv.includes('--no-sandbox');
+}
+
 function safeFilename(input) {
   const s = String(input || '').trim();
-  if (!s) return 'update.exe';
-  return s.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').slice(0, 180) || 'update.exe';
+  if (!s) return 'update.bin';
+  return s.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').slice(0, 180) || 'update.bin';
 }
 
 function getHttpModule(url) {
   return url.protocol === 'http:' ? http : https;
+}
+
+function shQuote(value) {
+  const s = String(value ?? '');
+  if (!s) return "''";
+  return `'${s.replace(/'/g, `'\\''`)}'`;
 }
 
 async function ensureDir(dirPath) {
@@ -182,6 +202,39 @@ function launchInstaller(installerPath, { silent }) {
   });
 }
 
+async function ensureExecutable(filePath) {
+  try {
+    // rwxr-xr-x
+    await fs.promises.chmod(filePath, 0o755);
+  } catch {
+    // ignore chmod failures (e.g. on filesystems that don't support it)
+  }
+}
+
+function spawnDetached(cmd, args = [], options = {}) {
+  const child = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true, ...(options || {}) });
+  child.unref();
+  return child;
+}
+
+function spawnAfterExitPosix({ waitPid, command, args = [], env = {} }) {
+  const pid = Number(waitPid) || process.pid;
+  const cmd = shQuote(command);
+  const quotedArgs = Array.isArray(args) ? args.map(shQuote).join(' ') : '';
+  const exports = Object.entries(env || {})
+    .filter(([k]) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(String(k || '')))
+    .map(([k, v]) => `${k}=${shQuote(String(v ?? ''))}`)
+    .join(' ');
+
+  const script = [
+    `pid=${pid}`,
+    'while kill -0 "$pid" 2>/dev/null; do sleep 0.2; done',
+    `${exports ? `${exports} ` : ''}${cmd}${quotedArgs ? ` ${quotedArgs}` : ''} >/dev/null 2>&1 &`
+  ].join('; ');
+
+  return spawnDetached('sh', ['-c', script]);
+}
+
 async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, label, senderWebContents }) {
   const u = new URL(String(url || ''));
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
@@ -190,10 +243,14 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
   const expectedSha = String(sha256Hex || '').trim().toLowerCase();
   if (expectedSha && !isValidSha256Hex(expectedSha)) return { ok: false, error: 'invalid_sha256' };
 
-  if (process.platform !== 'win32') return { ok: false, error: 'unsupported_platform' };
-
   const updatesDir = path.join(app.getPath('userData'), 'updates');
-  const filenameFromUrl = safeFilename(path.basename(u.pathname || '') || 'LumenBrowser-Setup.exe');
+  const defaultName =
+    process.platform === 'win32'
+      ? 'LumenBrowser-Setup.exe'
+      : process.platform === 'darwin'
+        ? 'LumenBrowser.dmg'
+        : 'LumenBrowser.AppImage';
+  const filenameFromUrl = safeFilename(path.basename(u.pathname || '') || defaultName);
   const targetPath = path.join(updatesDir, filenameFromUrl);
 
   const notify = (payload) => {
@@ -225,11 +282,90 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
 
     notify({ stage: 'installing', path: dl.path, label: label || null });
     notify({ stage: 'launching_installer', path: dl.path, silent: !!silent, label: label || null });
-    const launched = await launchInstaller(dl.path, { silent: !!silent });
-    if (!launched || launched.ok === false) {
-      const errMsg = String(launched?.error || 'installer_launch_failed');
-      notify({ stage: 'error', error: errMsg, label: label || null });
-      return { ok: false, error: errMsg };
+
+    if (process.platform === 'win32') {
+      const launched = await launchInstaller(dl.path, { silent: !!silent });
+      if (!launched || launched.ok === false) {
+        const errMsg = String(launched?.error || 'installer_launch_failed');
+        notify({ stage: 'error', error: errMsg, label: label || null });
+        return { ok: false, error: errMsg };
+      }
+    } else if (process.platform === 'linux') {
+      await ensureExecutable(dl.path);
+
+      const extraArgs = [];
+      if (needsNoSandboxArg()) extraArgs.push('--no-sandbox');
+
+      // Best-effort: if running from an AppImage and we can write next to it,
+      // replace it on disk so the next launch uses the updated binary.
+      const currentAppImage = String(process.env.APPIMAGE || '').trim();
+      const looksLikeAppImage = /\.appimage$/i.test(dl.path);
+      const canSwapInPlace =
+        looksLikeAppImage &&
+        currentAppImage &&
+        currentAppImage !== dl.path &&
+        fs.existsSync(currentAppImage);
+
+      if (canSwapInPlace) {
+        // Use a helper so we can swap after this process exits (avoids running two versions at once).
+        const src = dl.path;
+        const dst = currentAppImage;
+        const script = [
+          `pid=${process.pid}`,
+          `src=${shQuote(src)}`,
+          `dst=${shQuote(dst)}`,
+          'while kill -0 "$pid" 2>/dev/null; do sleep 0.2; done',
+          'chmod +x "$src" 2>/dev/null || true',
+          'if [ -w "$(dirname \"$dst\")" ]; then',
+          '  ts=$(date +%s 2>/dev/null || echo 0)',
+          '  if [ -f "$dst" ]; then mv "$dst" "${dst}.bak-$ts" 2>/dev/null || true; fi',
+          '  mv "$src" "$dst" 2>/dev/null || cp "$src" "$dst"',
+          '  chmod +x "$dst" 2>/dev/null || true',
+          `  "$dst"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''} >/dev/null 2>&1 &`,
+          'else',
+          `  "$src"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''} >/dev/null 2>&1 &`,
+          'fi'
+        ].join('; ');
+
+        spawnDetached('sh', ['-c', script]);
+      } else {
+        // Relaunch the downloaded AppImage after exit.
+        spawnAfterExitPosix({ waitPid: process.pid, command: dl.path, args: extraArgs });
+      }
+
+      // Quit so we don't keep ports/resources busy (IPFS, etc.).
+      setTimeout(() => {
+        try {
+          app.quit();
+        } catch {}
+      }, 800);
+
+      return { ok: true };
+    } else if (process.platform === 'darwin') {
+      // DMG install is user-driven. We download+verify, then open the DMG.
+      try {
+        const err = await shell.openPath(dl.path);
+        if (err) throw new Error(err);
+      } catch (e) {
+        const msg = String(e && e.message ? e.message : e);
+        notify({ stage: 'error', error: msg || 'open_failed', label: label || null });
+        return { ok: false, error: msg || 'open_failed' };
+      }
+
+      // Quit so the user can replace the app in /Applications if needed.
+      setTimeout(() => {
+        try {
+          app.quit();
+        } catch {}
+      }, 1500);
+
+      return { ok: true };
+    } else {
+      // Unknown platform: open download URL in external browser.
+      try {
+        await shell.openExternal(u.toString());
+      } catch {}
+      return { ok: false, error: 'unsupported_platform' };
     }
 
     // Give the renderer a moment to paint the "installing" state.

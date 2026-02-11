@@ -207,8 +207,38 @@ async function initReleaseUpdates() {
 }
 
 async function openExternalAndSnooze(url: string) {
-  await (window as any).lumen?.release?.openExternal?.(url);
-  // External install flow: avoid re-prompting immediately, but don't permanently skip.
+  let opened = false;
+
+  try {
+    const res = await (window as any).lumen?.release?.openExternal?.(url);
+    if (res && res.ok) opened = true;
+  } catch {
+    opened = false;
+  }
+
+  if (!opened) {
+    try {
+      // Fallback: open inside the app (useful in headless/container environments where openExternal fails).
+      window.open(url, '_blank', 'noopener');
+      opened = true;
+      addToast('info', 'Opened download link in-app.');
+    } catch {
+      opened = false;
+    }
+  }
+
+  if (!opened) {
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+    } catch {
+      copied = false;
+    }
+    addToast('warning', copied ? 'Could not open download link. URL copied to clipboard.' : 'Could not open download link.');
+  }
+
+  // External/manual install flow: avoid re-prompting immediately, but don't permanently skip.
   writeSnoozeUntil(Date.now() + REMIND_INTERVAL_MS);
   evaluatePrompt();
 }

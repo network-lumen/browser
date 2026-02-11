@@ -40,7 +40,7 @@
             <span>{{ busyLabel }}</span>
           </template>
           <template v-else>
-            <span>Update now</span>
+            <span>{{ primaryLabel }}</span>
           </template>
         </UiButton>
         <UiButton
@@ -84,6 +84,12 @@ const sizeLabel = computed(() => formatReleaseSize(latest.value?.artifact?.size 
 const notesOpen = ref(false);
 const fullNotes = computed(() => String(latest.value?.release?.notes || '').trim());
 const hasNotes = computed(() => !!fullNotes.value);
+const primaryLabel = computed(() => {
+  const p = String(latest.value?.platform || '').toLowerCase();
+  if (p.startsWith('darwin-')) return 'Open installer';
+  if (p.startsWith('windows-') || p.startsWith('linux-')) return 'Update now';
+  return 'Download';
+});
 
 const shaFull = computed(() => String(latest.value?.artifact?.sha256Hex || '').trim());
 const shaShort = computed(() => {
