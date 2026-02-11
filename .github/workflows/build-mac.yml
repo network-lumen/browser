@@ -136,7 +136,7 @@ jobs:
             exit 1
           fi
 
-          TAG="v${VERSION}"
+          TAG="v${VERSION}-draft${GITHUB_RUN_NUMBER}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
@@ -193,9 +193,8 @@ jobs:
 
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 
-      - name: Create / update draft GitHub release (best effort)
+      - name: Create / update draft GitHub release
         if: steps.tagcheck.outputs.enabled == 'true'
-        continue-on-error: true
         uses: ncipollo/release-action@v1
         with:
           token: ${{ github.token }}
