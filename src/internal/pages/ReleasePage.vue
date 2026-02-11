@@ -246,6 +246,31 @@
         </div>
 
         <div class="modal-body">
+          <div class="import-box">
+            <div class="builder-head">
+              <h3>Import from GitHub release</h3>
+              <button
+                type="button"
+                class="btn-secondary btn-sm"
+                :disabled="importingGithub || !githubReleaseUrl.trim()"
+                @click="importFromGithubRelease"
+              >
+                <span v-if="importingGithub" class="inline-spinner"><UiSpinner size="sm" /> Importing…</span>
+                <span v-else>Auto-fill</span>
+              </button>
+            </div>
+
+            <label class="field">
+              <span class="label">GitHub release URL</span>
+              <input
+                v-model.trim="githubReleaseUrl"
+                class="input mono"
+                placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8"
+              />
+              <span class="muted small">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
+            </label>
+          </div>
+
           <div class="form-grid">
             <label class="field">
               <span class="label">Version</span>
@@ -433,6 +458,9 @@ const draft = reactive({
   artifacts: [] as ArtifactDraft[]
 });
 
+const githubReleaseUrl = ref('');
+const importingGithub = ref(false);
+
 function randomId() {
   return Math.random().toString(36).slice(2, 10);
 }
@@ -454,6 +482,12 @@ function parseSupersedes(value: string) {
     .map((n) => Number(n))
     .filter((n) => Number.isFinite(n) && n > 0)
     .map((n) => Math.trunc(n));
+}
+
+function safeString(v: any, maxLen = 4096) {
+  const s = String(v ?? '').trim();
+  if (!s) return '';
+  return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
 function normalizeStatus(value: any): string {
@@ -501,6 +535,19 @@ async function restGet(path: string) {
   const res = await api(path);
   if (!res?.ok) throw new Error(String(res?.error || `Request failed (${path})`));
   return res.json ?? null;
+}
+
+async function httpGet(url: string, options: any = {}) {
+  const api = (window as any).lumen?.httpGet || (window as any).lumen?.http?.get;
+  if (typeof api !== 'function') throw new Error('HTTP API unavailable');
+  const res = await api(String(url || ''), options || {});
+  if (!res) throw new Error('HTTP request failed');
+  if (!res.ok) {
+    const status = Number(res.status || 0);
+    const msg = safeString(res.error || res.text || '', 256);
+    throw new Error(msg ? `HTTP ${status || 0}: ${msg}` : `HTTP ${status || 0}`);
+  }
+  return res;
 }
 
 async function fetchParams() {
@@ -676,6 +723,7 @@ function resetDraft() {
   draft.supersedes = '';
   draft.emergencyOk = false;
   draft.artifacts.splice(0, draft.artifacts.length, makeArtifactDraft());
+  githubReleaseUrl.value = '';
 }
 
 function addArtifact() {
@@ -688,6 +736,205 @@ function removeArtifact(idx: number) {
     return;
   }
   draft.artifacts.splice(idx, 1);
+}
+
+function parseGithubReleaseUrl(input: string): { owner: string; repo: string; tag: string } | null {
+  const raw = String(input || '').trim();
+  if (!raw) return null;
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return null;
+  }
+
+  const host = String(u.hostname || '').toLowerCase();
+  if (host !== 'github.com' && host !== 'www.github.com') return null;
+
+  const parts = String(u.pathname || '')
+    .split('/')
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  // /<owner>/<repo>/releases/tag/<tag>
+  if (parts.length >= 5 && parts[2] === 'releases' && parts[3] === 'tag') {
+    const [owner, repo, _releases, _tag, tag] = parts;
+    if (!owner || !repo || !tag) return null;
+    return { owner, repo, tag };
+  }
+
+  // /<owner>/<repo>/releases/download/<tag>/<file>
+  if (parts.length >= 5 && parts[2] === 'releases' && parts[3] === 'download') {
+    const [owner, repo, _releases, _download, tag] = parts;
+    if (!owner || !repo || !tag) return null;
+    return { owner, repo, tag };
+  }
+
+  return null;
+}
+
+function versionFromTag(tag: string): string {
+  const t = String(tag || '').trim();
+  if (!t) return '';
+  const m = t.match(/(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)/);
+  if (m && m[1]) return m[1];
+  return t.startsWith('v') || t.startsWith('V') ? t.slice(1) : t;
+}
+
+function inferPlatformFromAssetName(name: string): string | null {
+  const lower = String(name || '').toLowerCase();
+  if (!lower) return null;
+
+  const has = (s: string) => lower.includes(s);
+  const arch = () => {
+    if (has('arm64') || has('aarch64')) return 'arm64';
+    if (has('ia32') || has('x86') || has('386')) return '386';
+    if (has('x64') || has('amd64')) return 'amd64';
+    return '';
+  };
+
+  if (has('windows') || lower.endsWith('.exe') || lower.endsWith('.msi')) {
+    const a = arch();
+    return `windows-${a || 'amd64'}`;
+  }
+
+  if (has('linux') || lower.endsWith('.appimage') || lower.endsWith('.deb') || lower.endsWith('.rpm')) {
+    const a = arch();
+    return `linux-${a || 'amd64'}`;
+  }
+
+  if (has('darwin') || has('mac') || lower.endsWith('.dmg')) {
+    const a = arch();
+    if (a === 'arm64') return 'darwin-arm64';
+    if (a === '386') return null;
+    return 'darwin-amd64';
+  }
+
+  return null;
+}
+
+function parseSha256Sums(text: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  const raw = String(text || '');
+  const lines = raw.split(/\r?\n/);
+  for (const line of lines) {
+    const s = line.trim();
+    if (!s) continue;
+    const m = s.match(/^([0-9a-fA-F]{64})\s+\*?(.+)$/);
+    if (!m || !m[1] || !m[2]) continue;
+    const hash = m[1].toLowerCase();
+    const filename = String(m[2]).trim().replace(/^\.?\/*/, '');
+    if (!filename) continue;
+    out[filename] = hash;
+    const base = filename.split(/[\\/]/).pop() || '';
+    if (base) out[base] = hash;
+  }
+  return out;
+}
+
+function sortArtifactsByPlatform(a: ArtifactDraft, b: ArtifactDraft) {
+  const order = ['windows-amd64', 'windows-arm64', 'darwin-amd64', 'darwin-arm64', 'linux-amd64', 'linux-arm64'];
+  const ai = order.indexOf(a.platform);
+  const bi = order.indexOf(b.platform);
+  if (ai !== -1 || bi !== -1) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  return a.platform.localeCompare(b.platform);
+}
+
+async function importFromGithubRelease() {
+  const parsed = parseGithubReleaseUrl(githubReleaseUrl.value);
+  if (!parsed) {
+    addToast('error', 'Paste a valid GitHub release URL (…/releases/tag/vX.Y.Z).');
+    return;
+  }
+
+  importingGithub.value = true;
+  try {
+    const { owner, repo, tag } = parsed;
+    const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/releases/tags/${encodeURIComponent(tag)}`;
+    const res = await httpGet(apiUrl, {
+      timeout: 30_000,
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'LumenBrowser'
+      }
+    });
+
+    const release = res.json || null;
+    const tagName = safeString(release?.tag_name || tag, 256);
+    const version = versionFromTag(tagName);
+    if (version) draft.version = version;
+
+    const body = safeString(release?.body || '', 50_000);
+    if (body) {
+      const maxNotes = params.value?.maxNotesLen || 0;
+      if (maxNotes && body.length > maxNotes) {
+        draft.notes = body.slice(0, maxNotes);
+        addToast('warning', `Notes truncated to ${maxNotes} chars.`);
+      } else {
+        draft.notes = body;
+      }
+    }
+
+    const assetsRaw = Array.isArray(release?.assets) ? release.assets : [];
+    if (!assetsRaw.length) throw new Error('No assets found on this GitHub release.');
+
+    const shaAsset =
+      assetsRaw.find((a: any) => String(a?.name || '').toLowerCase() === 'sha256sums.txt') ||
+      assetsRaw.find((a: any) => String(a?.name || '').toLowerCase() === 'sha256sums');
+
+    let shaMap: Record<string, string> = {};
+    if (shaAsset?.browser_download_url) {
+      const shaRes = await httpGet(String(shaAsset.browser_download_url), { timeout: 30_000 });
+      shaMap = parseSha256Sums(String(shaRes.text || ''));
+    } else {
+      addToast('warning', 'SHA256SUMS.txt not found in assets; SHA fields will be empty.');
+    }
+
+    const next: ArtifactDraft[] = [];
+    for (const a of assetsRaw) {
+      const name = safeString(a?.name || '', 256);
+      const url = safeString(a?.browser_download_url || '', 2048);
+      const size = Number(a?.size ?? 0) || 0;
+      if (!name || !url) continue;
+
+      const lower = name.toLowerCase();
+      if (lower === 'sha256sums.txt' || lower === 'sha256sums') continue;
+
+      const platform = inferPlatformFromAssetName(name);
+      if (!platform) continue;
+
+      const sha256Hex = shaMap[name] || '';
+      next.push({
+        id: randomId(),
+        platform,
+        kind: 'browser',
+        cid: '',
+        sha256Hex,
+        size: size > 0 ? String(size) : '',
+        urlsText: url
+      });
+    }
+
+    if (!next.length) throw new Error('No compatible artifacts found on this release.');
+
+    const missingSha = next
+      .filter((a) => !/^[0-9a-f]{64}$/i.test(String(a.sha256Hex || '').trim()))
+      .map((a) => a.platform);
+    if (missingSha.length) addToast('warning', `Missing SHA-256 for: ${missingSha.join(', ')}.`);
+
+    const missingSize = next
+      .filter((a) => !(Number.isFinite(Number(a.size)) && Number(a.size) > 0))
+      .map((a) => a.platform);
+    if (missingSize.length) addToast('warning', `Missing size for: ${missingSize.join(', ')}.`);
+
+    next.sort(sortArtifactsByPlatform);
+    draft.artifacts.splice(0, draft.artifacts.length, ...next);
+    addToast('success', `Imported ${next.length} artifact(s) from ${owner}/${repo}@${tagName}.`);
+  } catch (e: any) {
+    addToast('error', String(e?.message || e || 'Import failed'));
+  } finally {
+    importingGithub.value = false;
+  }
 }
 
 function buildReleasePayload() {
@@ -962,6 +1209,14 @@ onMounted(async () => {
   padding: 0.55rem 0.85rem;
   font-size: 0.82rem;
   border-radius: 10px;
+}
+
+.import-box {
+  margin-bottom: 1rem;
+  padding: 0.9rem 0.9rem 0.25rem 0.9rem;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
 .inline-spinner {

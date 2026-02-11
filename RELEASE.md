@@ -175,6 +175,7 @@ If you publish an artifact with a different platform string, the watcher won’t
 
 1. Open `lumen://release`.
 2. Click **Publish release**.
+2b. (Optional) Paste a **GitHub release URL** (e.g. `https://github.com/network-lumen/browser/releases/tag/v0.2.8`) and click **Auto-fill** to populate version/notes/artifacts from GitHub + `SHA256SUMS.txt`.
 3. Fill:
    - **Version**: semver (e.g. `0.2.6`) — must match the built app’s `package.json` version.
    - **Channel**: usually `beta` first, then `stable` after validation.
