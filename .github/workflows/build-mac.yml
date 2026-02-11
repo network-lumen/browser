@@ -5,6 +5,9 @@ on:
     branches: [ beta ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-mac:
     runs-on: macos-latest
@@ -64,7 +67,8 @@ jobs:
         with:
           name: lumen-browser-windows-x64
           path: |
-            release/*.exe
+            release/*Setup*.exe
+            !release/*.__uninstaller.exe
             !release/*.blockmap
 
   build-linux:
@@ -108,26 +112,105 @@ jobs:
     needs: [build-mac, build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: lumen-browser-*
           path: artifacts
 
+      - name: Prepare release assets
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(python - <<'PY'
+import json
+with open('package.json','r',encoding='utf-8') as f:
+  print(json.load(f).get('version',''))
+PY
+          )"
+          VERSION="$(echo "$VERSION" | tr -d '[:space:]')"
+          if [ -z "$VERSION" ]; then
+            echo "Missing version in package.json" >&2
+            exit 1
+          fi
+
+          TAG="v${VERSION}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+          mkdir -p release_assets
+
+          mac_x64="$(ls -1t artifacts/lumen-browser-mac-x64/*.dmg 2>/dev/null | head -n 1 || true)"
+          mac_arm64="$(ls -1t artifacts/lumen-browser-mac-arm64/*.dmg 2>/dev/null | head -n 1 || true)"
+          win_x64="$(ls -1t artifacts/lumen-browser-windows-x64/*Setup*.exe 2>/dev/null | head -n 1 || true)"
+          linux_x64="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage 2>/dev/null | head -n 1 || true)"
+
+          if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_x64" ] || [ -z "$linux_x64" ]; then
+            echo "Missing one or more platform artifacts:" >&2
+            echo "mac_x64=$mac_x64" >&2
+            echo "mac_arm64=$mac_arm64" >&2
+            echo "win_x64=$win_x64" >&2
+            echo "linux_x64=$linux_x64" >&2
+            exit 1
+          fi
+
+          cp "$mac_x64" "release_assets/Lumen-Browser-${VERSION}-mac-x64.dmg"
+          cp "$mac_arm64" "release_assets/Lumen-Browser-${VERSION}-mac-arm64.dmg"
+          cp "$win_x64" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64.exe"
+          cp "$linux_x64" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage"
+
       - name: Build SHA256SUMS.txt
         shell: bash
         run: |
           set -euo pipefail
-          find artifacts -type f \( -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' \) -print0 \
-            | sort -z \
-            | while IFS= read -r -d '' file; do
-                rel="${file#artifacts/}"
-                sha="$(sha256sum "$file" | awk '{print $1}')"
-                echo "${sha}  ${rel}"
-              done > SHA256SUMS.txt
+          (cd release_assets && sha256sum * ) > SHA256SUMS.txt
 
       - name: Upload SHA256SUMS.txt
         uses: actions/upload-artifact@v4
         with:
           name: lumen-browser-SHA256SUMS
           path: SHA256SUMS.txt
+
+      - name: Validate release tag (avoid mismatched tag commit)
+        id: tagcheck
+        shell: bash
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+            tag_commit="$(git rev-list -n 1 "${TAG}")"
+            if [ "${tag_commit}" != "${GITHUB_SHA}" ]; then
+              echo "Tag ${TAG} already exists but points to ${tag_commit}, not this commit (${GITHUB_SHA})." >&2
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create / update draft GitHub release (best effort)
+        if: steps.tagcheck.outputs.enabled == 'true'
+        continue-on-error: true
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.meta.outputs.tag }}
+          commit: ${{ github.sha }}
+          name: Lumen Browser ${{ steps.meta.outputs.tag }}
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          replacesArtifacts: true
+          artifacts: |
+            release_assets/*
+            SHA256SUMS.txt
