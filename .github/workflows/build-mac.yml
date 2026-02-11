@@ -129,12 +129,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION="$(python - <<'PY'
-import json
-with open('package.json','r',encoding='utf-8') as f:
-  print(json.load(f).get('version',''))
-PY
-          )"
+          VERSION="$(python -c "import json; print(json.load(open('package.json','r',encoding='utf-8')).get('version',''))")"
           VERSION="$(echo "$VERSION" | tr -d '[:space:]')"
           if [ -z "$VERSION" ]; then
             echo "Missing version in package.json" >&2
