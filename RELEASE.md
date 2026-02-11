@@ -199,11 +199,14 @@ API=http://127.0.0.1:1317
 # Params
 curl -s "$API/lumen/release/params"
 
-# Latest (what the watcher tries first; VALIDATED-only)
+# Latest (VALIDATED-only; used for stable channel)
 curl -s "$API/lumen/release/latest?channel=beta&platform=windows-amd64&kind=browser"
 
 # Canonical latest path (same semantics)
 curl -s "$API/lumen/release/latest/beta/windows-amd64/browser"
+
+# List (includes PENDING; used for beta channel)
+curl -s "$API/lumen/release/releases?channel=beta&limit=50"
 
 # By version
 curl -s "$API/lumen/release/by_version/0.2.6"

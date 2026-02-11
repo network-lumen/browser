@@ -22,6 +22,61 @@ function dbg(...args) {
   } catch {}
 }
 
+function parseSemver(input) {
+  const s = String(input || '').trim();
+  if (!s) return null;
+  const m = s.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+([0-9A-Za-z.-]+))?$/);
+  if (!m) return null;
+  const major = Number(m[1]);
+  const minor = Number(m[2]);
+  const patch = Number(m[3]);
+  if (![major, minor, patch].every((n) => Number.isFinite(n) && n >= 0)) return null;
+  const pre = m[4] ? String(m[4]).split('.').filter(Boolean) : [];
+  return { major, minor, patch, pre };
+}
+
+function compareSemver(a, b) {
+  const va = parseSemver(a);
+  const vb = parseSemver(b);
+  if (!va || !vb) return 0;
+  if (va.major !== vb.major) return va.major > vb.major ? 1 : -1;
+  if (va.minor !== vb.minor) return va.minor > vb.minor ? 1 : -1;
+  if (va.patch !== vb.patch) return va.patch > vb.patch ? 1 : -1;
+
+  const aPre = va.pre;
+  const bPre = vb.pre;
+  if (!aPre.length && !bPre.length) return 0;
+  if (!aPre.length) return 1; // release > prerelease
+  if (!bPre.length) return -1;
+
+  const len = Math.max(aPre.length, bPre.length);
+  for (let i = 0; i < len; i += 1) {
+    const ai = aPre[i];
+    const bi = bPre[i];
+    if (ai == null && bi == null) return 0;
+    if (ai == null) return -1; // shorter prerelease has lower precedence
+    if (bi == null) return 1;
+    if (ai === bi) continue;
+    const aNum = /^[0-9]+$/.test(ai) ? Number(ai) : null;
+    const bNum = /^[0-9]+$/.test(bi) ? Number(bi) : null;
+    if (aNum != null && bNum != null) return aNum > bNum ? 1 : -1;
+    if (aNum != null) return -1; // numeric < non-numeric
+    if (bNum != null) return 1;
+    return ai > bi ? 1 : -1;
+  }
+
+  return 0;
+}
+
+function isNewerVersion(latest, current) {
+  if (!latest || !current) return false;
+  const va = parseSemver(latest);
+  const vb = parseSemver(current);
+  if (va && vb) return compareSemver(latest, current) > 0;
+  // Fall back to strict inequality (legacy behavior) for non-semver versions.
+  return String(latest) !== String(current);
+}
+
 function currentAppVersion() {
   const vElectron = String((process.versions && process.versions.electron) || '').trim();
   let v = '';
@@ -167,6 +222,8 @@ async function findLatestFromList() {
   const sorted = [...list].sort((a, b) => Number(b && b.id ? b.id : 0) - Number(a && a.id ? a.id : 0));
   for (const entry of sorted) {
     if (!entry || entry.yanked) continue;
+    const entryChannel = String(entry.channel || '').trim().toLowerCase();
+    if (entryChannel !== DEFAULT_CHANNEL.toLowerCase()) continue;
     const statusRaw = String(entry.status || '').toUpperCase();
     const emergencyOk = !!(entry.emergencyOk ?? entry.emergency_ok);
     if (DEFAULT_CHANNEL === 'stable' && statusRaw !== 'VALIDATED' && !emergencyOk) {
@@ -199,6 +256,45 @@ function broadcastUpdate(payload) {
 async function pollReleaseOnce() {
   try {
     dbg('poll', { channel: DEFAULT_CHANNEL, platform: DEFAULT_PLATFORM, kind: DEFAULT_KIND });
+
+    // /latest is VALIDATED-only; for non-stable channels we want the newest release even if PENDING.
+    // Prefer scanning /releases and fall back to /latest only if needed.
+    if (DEFAULT_CHANNEL !== 'stable') {
+      const fallback = await findLatestFromList().catch(() => null);
+      if (fallback) {
+        const payload = {
+          version: String(fallback.release && fallback.release.version ? fallback.release.version : ''),
+          channel: String(fallback.release && fallback.release.channel ? fallback.release.channel : DEFAULT_CHANNEL),
+          platform: fallback.artifact.platform,
+          kind: fallback.artifact.kind,
+          release: fallback.release,
+          artifact: fallback.artifact,
+          downloadUrl: pickDownloadUrl(fallback.artifact)
+        };
+
+        await applyStartupHealthBlock(payload);
+        cached = payload;
+        dbg('cached (list primary)', { version: payload.version, status: fallback.status, downloadUrl: payload.downloadUrl });
+
+        const currentVersion = currentAppVersion();
+
+        if (!payload.version) return;
+        if (!testOptions.forcePrompt) {
+          if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) {
+            dbg('no prompt (not newer or unknown current)', { currentVersion, latestVersion: payload.version });
+            return;
+          }
+        }
+
+        const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
+        if (broadcastKey !== lastBroadcastKey) {
+          lastBroadcastKey = broadcastKey;
+          dbg('broadcast updateAvailable', { currentVersion, latestVersion: payload.version });
+          broadcastUpdate(payload);
+        }
+        return;
+      }
+    }
 
     const canonPath = `/lumen/release/latest/${encodeURIComponent(DEFAULT_CHANNEL)}/${encodeURIComponent(DEFAULT_PLATFORM)}/${encodeURIComponent(DEFAULT_KIND)}`;
     let res = await readState(canonPath, { kind: 'rest', timeout: 12_000 });
@@ -233,8 +329,8 @@ async function pollReleaseOnce() {
 
         if (!payload.version) return;
         if (!testOptions.forcePrompt) {
-          if (!currentVersion || payload.version === currentVersion) {
-            dbg('no prompt (same version or unknown current)', { currentVersion, latestVersion: payload.version });
+          if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) {
+            dbg('no prompt (not newer or unknown current)', { currentVersion, latestVersion: payload.version });
             return;
           }
         }
@@ -294,7 +390,7 @@ async function pollReleaseOnce() {
 
     if (!payload.version) return;
     if (!testOptions.forcePrompt) {
-      if (!currentVersion || payload.version === currentVersion) return;
+      if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) return;
     }
 
     const broadcastKey = `${payload.version}|${artifact.sha256Hex || ''}`;

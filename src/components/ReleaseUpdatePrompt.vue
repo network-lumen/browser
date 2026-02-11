@@ -17,6 +17,7 @@
 
       <ul class="meta txt-xxs margin-top-25">
         <li><strong>Platform:</strong> {{ latest.platform }}</li>
+        <li><strong>Channel:</strong> {{ latest.channel }}</li>
         <li><strong>Artifact:</strong> {{ latest.artifact.kind }}</li>
         <li v-if="sizeLabel"><strong>Size:</strong> ~{{ sizeLabel }}</li>
         <li v-if="shaFull">

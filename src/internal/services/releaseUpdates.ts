@@ -34,6 +34,60 @@ let unsub: null | (() => void) = null;
 let unsubProgress: null | (() => void) = null;
 let lastBlockedToastKey = '';
 
+type SemverParts = { major: number; minor: number; patch: number; pre: string[] };
+
+function parseSemver(input: string): SemverParts | null {
+  const s = String(input || '').trim();
+  if (!s) return null;
+  const m = s.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+([0-9A-Za-z.-]+))?$/);
+  if (!m) return null;
+  const major = Number(m[1]);
+  const minor = Number(m[2]);
+  const patch = Number(m[3]);
+  if (![major, minor, patch].every((n) => Number.isFinite(n) && n >= 0)) return null;
+  const pre = m[4] ? String(m[4]).split('.').filter(Boolean) : [];
+  return { major, minor, patch, pre };
+}
+
+function compareSemver(a: string, b: string): number | null {
+  const va = parseSemver(a);
+  const vb = parseSemver(b);
+  if (!va || !vb) return null;
+  if (va.major !== vb.major) return va.major > vb.major ? 1 : -1;
+  if (va.minor !== vb.minor) return va.minor > vb.minor ? 1 : -1;
+  if (va.patch !== vb.patch) return va.patch > vb.patch ? 1 : -1;
+
+  const aPre = va.pre;
+  const bPre = vb.pre;
+  if (!aPre.length && !bPre.length) return 0;
+  if (!aPre.length) return 1;
+  if (!bPre.length) return -1;
+
+  const len = Math.max(aPre.length, bPre.length);
+  for (let i = 0; i < len; i += 1) {
+    const ai = aPre[i];
+    const bi = bPre[i];
+    if (ai == null && bi == null) return 0;
+    if (ai == null) return -1;
+    if (bi == null) return 1;
+    if (ai === bi) continue;
+    const aNum = /^[0-9]+$/.test(ai) ? Number(ai) : null;
+    const bNum = /^[0-9]+$/.test(bi) ? Number(bi) : null;
+    if (aNum != null && bNum != null) return aNum > bNum ? 1 : -1;
+    if (aNum != null) return -1;
+    if (bNum != null) return 1;
+    return ai > bi ? 1 : -1;
+  }
+
+  return 0;
+}
+
+function isNewerVersion(latest: string, current: string): boolean {
+  const cmp = compareSemver(latest, current);
+  if (cmp != null) return cmp > 0;
+  return String(latest) !== String(current);
+}
+
 function getCurrentVersion(): string {
   return String((pkg as any)?.version || '');
 }
@@ -65,7 +119,7 @@ function evaluatePrompt() {
     shouldPrompt.value = false;
     return;
   }
-  if (info.version === currentVersion) {
+  if (!isNewerVersion(info.version, currentVersion)) {
     shouldPrompt.value = false;
     return;
   }
