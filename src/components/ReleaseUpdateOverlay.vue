@@ -36,8 +36,9 @@ const { latest, busy, updateProgress, clearUpdateProgress } = useReleaseUpdates(
 
 const stage = computed(() => String((updateProgress.value as any)?.stage || ''));
 const active = computed(() => {
-  if (!busy.value) return false;
   const s = stage.value.toLowerCase();
+  if (s === 'error') return true;
+  if (!busy.value) return false;
   return ['starting', 'downloading', 'verifying', 'installing', 'launching_installer'].includes(s);
 });
 

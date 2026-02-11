@@ -217,6 +217,105 @@ function spawnDetached(cmd, args = [], options = {}) {
   return child;
 }
 
+function isoNow() {
+  try {
+    return new Date().toISOString();
+  } catch {
+    return String(Date.now());
+  }
+}
+
+async function appendUpdateLog(logPath, message) {
+  if (!logPath) return;
+  try {
+    await ensureDir(path.dirname(logPath));
+  } catch {}
+  try {
+    const line = `[${isoNow()}] ${String(message || '').trim()}\n`;
+    await fs.promises.appendFile(logPath, line, 'utf8');
+  } catch {}
+}
+
+function isInSystemdAppScope() {
+  if (process.platform !== 'linux') return false;
+  try {
+    const raw = fs.readFileSync('/proc/self/cgroup', 'utf8');
+    return /app\.slice\/.+\.scope/.test(raw);
+  } catch {
+    return false;
+  }
+}
+
+function pickSystemdRunBinary() {
+  const candidates = ['/usr/bin/systemd-run', '/bin/systemd-run'];
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c)) return c;
+    } catch {}
+  }
+  return 'systemd-run';
+}
+
+function collectSystemdSetenvArgs() {
+  const keys = ['DISPLAY', 'WAYLAND_DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS', 'XDG_RUNTIME_DIR', 'LANG', 'LC_ALL'];
+  const args = [];
+  for (const k of keys) {
+    const v = String(process.env[k] || '').trim();
+    if (!v) continue;
+    // Avoid absurdly long env values in argv.
+    if (v.length > 4096) continue;
+    args.push(`--setenv=${k}=${v}`);
+  }
+  return args;
+}
+
+async function runCommandForExit(cmd, args, { timeoutMs = 3500 } = {}) {
+  return new Promise((resolve) => {
+    let stdout = '';
+    let stderr = '';
+    let settled = false;
+    const cap = (s) => (s.length > 6000 ? s.slice(0, 6000) : s);
+    const done = (payload) => {
+      if (settled) return;
+      settled = true;
+      resolve({ ...(payload || {}), stdout, stderr });
+    };
+
+    try {
+      const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+      if (child.stdout) {
+        child.stdout.on('data', (d) => {
+          stdout = cap(stdout + String(d));
+        });
+      }
+      if (child.stderr) {
+        child.stderr.on('data', (d) => {
+          stderr = cap(stderr + String(d));
+        });
+      }
+
+      const t = setTimeout(() => {
+        try {
+          child.kill('SIGKILL');
+        } catch {}
+        done({ ok: false, error: 'timeout' });
+      }, timeoutMs);
+
+      child.once('error', (err) => {
+        clearTimeout(t);
+        done({ ok: false, error: String(err && err.message ? err.message : err) });
+      });
+      child.once('close', (code) => {
+        clearTimeout(t);
+        const ok = Number(code) === 0;
+        done({ ok, code: Number.isFinite(Number(code)) ? Number(code) : null, error: ok ? null : `exit_${code}` });
+      });
+    } catch (e) {
+      done({ ok: false, error: String(e && e.message ? e.message : e) });
+    }
+  });
+}
+
 function spawnAfterExitPosix({ waitPid, command, args = [], env = {} }) {
   const pid = Number(waitPid) || process.pid;
   const cmd = shQuote(command);
@@ -296,6 +395,12 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
       const extraArgs = [];
       if (needsNoSandboxArg()) extraArgs.push('--no-sandbox');
 
+      const relaunchLogPath = path.join(updatesDir, 'update_relaunch.log');
+      await appendUpdateLog(
+        relaunchLogPath,
+        `linux_update start pid=${process.pid} appImage=${String(process.env.APPIMAGE || '').trim() || 'n/a'} downloaded=${dl.path}`
+      );
+
       // Best-effort: if running from an AppImage and we can write next to it,
       // replace it on disk so the next launch uses the updated binary.
       const currentAppImage = String(process.env.APPIMAGE || '').trim();
@@ -306,31 +411,98 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
         currentAppImage !== dl.path &&
         fs.existsSync(currentAppImage);
 
-      if (canSwapInPlace) {
-        // Use a helper so we can swap after this process exits (avoids running two versions at once).
-        const src = dl.path;
-        const dst = currentAppImage;
-        const script = [
-          `pid=${process.pid}`,
-          `src=${shQuote(src)}`,
-          `dst=${shQuote(dst)}`,
-          'while kill -0 "$pid" 2>/dev/null; do sleep 0.2; done',
-          'chmod +x "$src" 2>/dev/null || true',
-          'if [ -w "$(dirname \"$dst\")" ]; then',
-          '  ts=$(date +%s 2>/dev/null || echo 0)',
-          '  if [ -f "$dst" ]; then mv "$dst" "${dst}.bak-$ts" 2>/dev/null || true; fi',
-          '  mv "$src" "$dst" 2>/dev/null || cp "$src" "$dst"',
-          '  chmod +x "$dst" 2>/dev/null || true',
-          `  "$dst"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''} >/dev/null 2>&1 &`,
-          'else',
-          `  "$src"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''} >/dev/null 2>&1 &`,
-          'fi'
-        ].join('; ');
+      const inSystemdAppScope = isInSystemdAppScope();
+      const src = dl.path;
+      const dst = currentAppImage;
 
-        spawnDetached('sh', ['-c', script]);
-      } else {
-        // Relaunch the downloaded AppImage after exit.
-        spawnAfterExitPosix({ waitPid: process.pid, command: dl.path, args: extraArgs });
+      const waitScriptPrelude = [
+        `log=${shQuote(relaunchLogPath)}`,
+        `pid=${process.pid}`,
+        'echo "[relaunch] helper started (pid=$$) waiting for parent=$pid" >>"$log" 2>&1 || true',
+        // Avoid hanging forever in case of PID reuse or weird shutdowns.
+        'deadline=$(( $(date +%s 2>/dev/null || echo 0) + 90 ))',
+        'while kill -0 "$pid" 2>/dev/null; do',
+        '  now=$(date +%s 2>/dev/null || echo 0)',
+        '  if [ "$now" -ge "$deadline" ]; then echo "[relaunch] timeout waiting for parent" >>"$log" 2>&1 || true; break; fi',
+        '  sleep 0.2',
+        'done',
+        'echo "[relaunch] parent exited, continuing" >>"$log" 2>&1 || true'
+      ];
+
+      const swapAndExecScript = [
+        ...waitScriptPrelude,
+        `src=${shQuote(src)}`,
+        `dst=${shQuote(dst)}`,
+        'chmod +x "$src" 2>/dev/null || true',
+        'if [ -w "$(dirname "$dst")" ]; then',
+        '  ts=$(date +%s 2>/dev/null || echo 0)',
+        '  if [ -f "$dst" ]; then mv "$dst" "${dst}.bak-$ts" 2>/dev/null || true; fi',
+        '  mv "$src" "$dst" 2>/dev/null || cp "$src" "$dst"',
+        '  chmod +x "$dst" 2>/dev/null || true',
+        `  echo "[relaunch] exec swapped dst=$dst" >>"$log" 2>&1 || true`,
+        `  exec "$dst"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''}`,
+        'else',
+        `  echo "[relaunch] no write access, exec src=$src" >>"$log" 2>&1 || true`,
+        `  exec "$src"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''}`,
+        'fi'
+      ].join('; ');
+
+      const execDownloadedScript = [
+        ...waitScriptPrelude,
+        `src=${shQuote(src)}`,
+        'chmod +x "$src" 2>/dev/null || true',
+        `echo "[relaunch] exec src=$src" >>"$log" 2>&1 || true`,
+        `exec "$src"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''}`
+      ].join('; ');
+
+      const scriptToRun = canSwapInPlace ? swapAndExecScript : execDownloadedScript;
+
+      let scheduled = false;
+
+      // Desktop environments often launch apps in a transient systemd scope (app.slice/*.scope).
+      // When the main process exits, systemd may kill remaining processes in that scope, including our helper.
+      // To survive that cleanup, prefer scheduling the relaunch via systemd-run (separate unit).
+      if (!isRootUser()) {
+        const bin = pickSystemdRunBinary();
+        const unitName = `lumen-update-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+        const args = ['--user', '--quiet', '--collect', `--unit=${unitName}`, ...collectSystemdSetenvArgs(), 'sh', '-c', scriptToRun];
+        const res = await runCommandForExit(bin, args, { timeoutMs: 4000 });
+        if (res.ok) {
+          scheduled = true;
+          await appendUpdateLog(relaunchLogPath, `systemd-run scheduled unit=${unitName}`);
+        } else {
+          await appendUpdateLog(
+            relaunchLogPath,
+            `systemd-run failed err=${String(res.error || '').trim()} stdout=${JSON.stringify(res.stdout || '')} stderr=${JSON.stringify(
+              res.stderr || ''
+            )}`
+          );
+        }
+      }
+
+      if (!scheduled) {
+        if (inSystemdAppScope) {
+          const msg =
+            'Could not relaunch automatically from this Linux environment (systemd app scope). The update was downloaded, but you may need to launch it manually.';
+          await appendUpdateLog(relaunchLogPath, `abort_autorelaunch reason=systemd_app_scope msg=${msg}`);
+          try {
+            shell.showItemInFolder(dl.path);
+          } catch {}
+          notify({ stage: 'error', error: msg, label: label || null });
+          return { ok: false, error: msg };
+        }
+
+        // Fallback: relaunch helper in the current environment (best-effort).
+        try {
+          spawnDetached('sh', ['-c', scriptToRun]);
+          scheduled = true;
+          await appendUpdateLog(relaunchLogPath, 'fallback scheduled via sh -c');
+        } catch (e) {
+          const msg = String(e && e.message ? e.message : e);
+          await appendUpdateLog(relaunchLogPath, `fallback_spawn_failed err=${msg}`);
+          notify({ stage: 'error', error: msg || 'relaunch_failed', label: label || null });
+          return { ok: false, error: msg || 'relaunch_failed' };
+        }
       }
 
       // Quit so we don't keep ports/resources busy (IPFS, etc.).
