@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder --publish=never",
-    "dist:win": "npm run build && electron-builder --win nsis",
+    "dist:win": "npm run build && electron-builder --win nsis --publish=never",
     "electron": "electron ."
   },
   "dependencies": {
