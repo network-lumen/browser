@@ -230,6 +230,66 @@ async function appendUpdateLog(logPath, message) {
   } catch {}
 }
 
+function detectDarwinAppBundlePath() {
+  try {
+    const exe = String(process.execPath || '').trim();
+    if (exe && /\.app\/Contents\/MacOS\//.test(exe)) {
+      const bundle = path.resolve(exe, '..', '..', '..');
+      if (/\.app$/i.test(bundle)) return bundle;
+    }
+  } catch {}
+
+  try {
+    const appPath = app && typeof app.getAppPath === 'function' ? String(app.getAppPath() || '').trim() : '';
+    const idx = appPath.toLowerCase().lastIndexOf('.app/contents/');
+    if (idx !== -1) return appPath.slice(0, idx + 4);
+  } catch {}
+
+  return '';
+}
+
+function isDarwinTranslocated(appBundlePath) {
+  const p = String(appBundlePath || '');
+  return (
+    p.includes('/AppTranslocation/') ||
+    p.includes('/var/folders/') ||
+    p.startsWith('/private/var/')
+  );
+}
+
+function isDarwinDmgMountedPath(appBundlePath) {
+  const p = String(appBundlePath || '');
+  return p.startsWith('/Volumes/');
+}
+
+function isWritableDir(dirPath) {
+  try {
+    fs.accessSync(String(dirPath || ''), fs.constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function findDarwinInstalledApp(appName) {
+  const name = String(appName || '').trim();
+  if (!name) return '';
+
+  const candidates = [];
+  candidates.push(path.join('/Applications', `${name}.app`));
+  try {
+    const home = app && typeof app.getPath === 'function' ? String(app.getPath('home') || '').trim() : '';
+    if (home) candidates.push(path.join(home, 'Applications', `${name}.app`));
+  } catch {}
+
+  for (const c of candidates) {
+    try {
+      if (c && fs.existsSync(c)) return c;
+    } catch {}
+  }
+  return '';
+}
+
 function isInSystemdAppScope() {
   if (process.platform !== 'linux') return false;
   try {
@@ -399,6 +459,7 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
   if (expectedSha && !isValidSha256Hex(expectedSha)) return { ok: false, error: 'invalid_sha256' };
 
   const updatesDir = path.join(app.getPath('userData'), 'updates');
+  const installLogPath = path.join(updatesDir, 'update_install.log');
   const defaultName =
     process.platform === 'win32'
       ? 'LumenBrowser-Setup.exe'
@@ -415,6 +476,12 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
   };
 
   notify({ stage: 'downloading', receivedBytes: 0, totalBytes: Number(sizeBytes) || null, label: label || null });
+  await appendUpdateLog(
+    installLogPath,
+    `start platform=${process.platform} arch=${process.arch} version=${currentAppVersion() || 'n/a'} url=${u.toString()} target=${targetPath} label=${
+      label ? String(label) : 'n/a'
+    }`,
+  );
 
   try {
     const dl = await downloadToFile({
@@ -428,21 +495,25 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
     });
 
     notify({ stage: 'verifying', receivedBytes: dl.sizeBytes, totalBytes: dl.sizeBytes, sha256Hex: dl.sha256Hex, label: label || null });
+    await appendUpdateLog(installLogPath, `downloaded path=${dl.path} size=${dl.sizeBytes} sha256=${dl.sha256Hex}`);
 
     // Quick check: we already verified during download, but keep payload consistent.
     if (expectedSha && dl.sha256Hex !== expectedSha) {
       notify({ stage: 'error', error: 'sha256_mismatch', label: label || null });
+      await appendUpdateLog(installLogPath, 'error sha256_mismatch');
       return { ok: false, error: 'sha256_mismatch' };
     }
 
     notify({ stage: 'installing', path: dl.path, label: label || null });
     notify({ stage: 'launching_installer', path: dl.path, silent: !!silent, label: label || null });
+    await appendUpdateLog(installLogPath, `installing path=${dl.path}`);
 
     if (process.platform === 'win32') {
       const launched = await launchInstaller(dl.path, { silent: !!silent });
       if (!launched || launched.ok === false) {
         const errMsg = String(launched?.error || 'installer_launch_failed');
         notify({ stage: 'error', error: errMsg, label: label || null });
+        await appendUpdateLog(installLogPath, `error win32_installer_launch_failed err=${errMsg}`);
         return { ok: false, error: errMsg };
       }
     } else if (process.platform === 'linux') {
@@ -638,22 +709,122 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
 
       return { ok: true };
     } else if (process.platform === 'darwin') {
-      // DMG install is user-driven. We download+verify, then open the DMG.
-      try {
-        const err = await shell.openPath(dl.path);
-        if (err) throw new Error(err);
-      } catch (e) {
-        const msg = String(e && e.message ? e.message : e);
-        notify({ stage: 'error', error: msg || 'open_failed', label: label || null });
-        return { ok: false, error: msg || 'open_failed' };
+      const relaunchLogPath = path.join(updatesDir, 'update_relaunch.log');
+      await appendUpdateLog(
+        relaunchLogPath,
+        `darwin_update start pid=${process.pid} exe=${String(process.execPath || '').trim() || 'n/a'} appPath=${
+          (app && typeof app.getAppPath === 'function' ? String(app.getAppPath() || '') : '').trim() || 'n/a'
+        } downloaded=${dl.path}`,
+      );
+
+      const appName = (() => {
+        try {
+          return app && typeof app.getName === 'function' ? String(app.getName() || '').trim() : '';
+        } catch {
+          return '';
+        }
+      })();
+
+      let dstApp = detectDarwinAppBundlePath();
+      if (
+        !dstApp ||
+        isDarwinTranslocated(dstApp) ||
+        isDarwinDmgMountedPath(dstApp) ||
+        !/\.app$/i.test(dstApp)
+      ) {
+        const found = findDarwinInstalledApp(appName || 'Lumen Browser');
+        if (found) dstApp = found;
       }
 
-      // Quit so the user can replace the app in /Applications if needed.
+      // If we still can't determine a reasonable destination, fall back to opening the DMG.
+      if (!dstApp || !/\.app$/i.test(dstApp) || !isWritableDir(path.dirname(dstApp))) {
+        if (dstApp && /\\.app$/i.test(dstApp)) {
+          await appendUpdateLog(
+            relaunchLogPath,
+            `darwin_update dst_not_writable dst=${dstApp} dir=${path.dirname(dstApp)}`,
+          );
+        }
+        await appendUpdateLog(relaunchLogPath, 'darwin_update dstApp_unavailable fallback=open_dmg');
+        try {
+          const err = await shell.openPath(dl.path);
+          if (err) throw new Error(err);
+          try { shell.showItemInFolder(dl.path); } catch {}
+        } catch (e) {
+          const msg = String(e && e.message ? e.message : e);
+          notify({ stage: 'error', error: msg || 'open_failed', label: label || null });
+          await appendUpdateLog(relaunchLogPath, `darwin_update open_dmg_failed err=${msg}`);
+          return { ok: false, error: msg || 'open_failed' };
+        }
+
+        setTimeout(() => {
+          try {
+            app.quit();
+          } catch {}
+        }, 1500);
+        return { ok: true };
+      }
+
+      const mountDir = path.join(updatesDir, `mnt-${Date.now()}`);
+      const extraOpenArgs = [];
+      const quotedExtraOpenArgs = extraOpenArgs.length ? ` --args ${extraOpenArgs.map(shQuote).join(' ')}` : '';
+
+      const waitScriptPrelude = [
+        `log=${shQuote(relaunchLogPath)}`,
+        `pid=${process.pid}`,
+        'echo "[relaunch] helper started (pid=$$) waiting for parent=$pid" >>"$log" 2>&1 || true',
+        'deadline=$(date +%s 2>/dev/null || echo 0)',
+        'deadline=$((deadline + 120))',
+        'while kill -0 "$pid" 2>/dev/null; do',
+        '  now=$(date +%s 2>/dev/null || echo 0)',
+        '  if [ "$now" -ge "$deadline" ]; then echo "[relaunch] timeout waiting for parent" >>"$log" 2>&1 || true; break; fi',
+        '  sleep 0.2',
+        'done',
+        'echo "[relaunch] parent exited, continuing" >>"$log" 2>&1 || true',
+      ];
+
+      const script = [
+        ...waitScriptPrelude,
+        `dmg=${shQuote(dl.path)}`,
+        `mnt=${shQuote(mountDir)}`,
+        `dst=${shQuote(dstApp)}`,
+        'mkdir -p "$mnt" 2>/dev/null || true',
+        'echo "[relaunch] mounting dmg=$dmg mnt=$mnt" >>"$log" 2>&1 || true',
+        'hdiutil attach "$dmg" -nobrowse -noautoopen -noverify -mountpoint "$mnt" >>"$log" 2>&1 || { echo "[relaunch] hdiutil_attach_failed" >>"$log" 2>&1 || true; exit 1; }',
+        'src="$(find "$mnt" -maxdepth 2 -name \'*.app\' -type d -print | head -n 1)"',
+        'if [ -z "$src" ]; then echo "[relaunch] no_app_found_in_dmg" >>"$log" 2>&1 || true; hdiutil detach "$mnt" -quiet >/dev/null 2>&1 || true; exit 1; fi',
+        'echo "[relaunch] found src=$src" >>"$log" 2>&1 || true',
+        'ts=$(date +%s 2>/dev/null || echo 0)',
+        'tmp="${dst}.new-$ts"',
+        'bak="${dst}.bak-$ts"',
+        'echo "[relaunch] copying to tmp=$tmp" >>"$log" 2>&1 || true',
+        'rm -rf "$tmp" >>"$log" 2>&1 || true',
+        'ditto "$src" "$tmp" >>"$log" 2>&1 || { echo "[relaunch] ditto_failed" >>"$log" 2>&1 || true; hdiutil detach "$mnt" -quiet >/dev/null 2>&1 || true; exit 1; }',
+        'xattr -dr com.apple.quarantine "$tmp" >>"$log" 2>&1 || true',
+        'if [ -d "$dst" ]; then echo "[relaunch] backing up existing dst=$dst to $bak" >>"$log" 2>&1 || true; mv "$dst" "$bak" >>"$log" 2>&1 || true; fi',
+        'echo "[relaunch] swapping tmp into place" >>"$log" 2>&1 || true',
+        'mv "$tmp" "$dst" >>"$log" 2>&1 || { echo "[relaunch] swap_failed" >>"$log" 2>&1 || true; if [ -d "$bak" ] && [ ! -d "$dst" ]; then mv "$bak" "$dst" >>"$log" 2>&1 || true; fi; hdiutil detach "$mnt" -quiet >/dev/null 2>&1 || true; exit 1; }',
+        'hdiutil detach "$mnt" -quiet >>"$log" 2>&1 || hdiutil detach "$mnt" -force -quiet >>"$log" 2>&1 || true',
+        'rmdir "$mnt" >/dev/null 2>&1 || true',
+        'echo "[relaunch] relaunching" >>"$log" 2>&1 || true',
+        `open -n "$dst"${quotedExtraOpenArgs} >>"$log" 2>&1 || { echo "[relaunch] open_failed" >>"$log" 2>&1 || true; exit 1; }`,
+      ].join('\n');
+
+      try {
+        spawnDetached('sh', ['-c', script]);
+        await appendUpdateLog(relaunchLogPath, `darwin_update scheduled helper dst=${dstApp} dmg=${dl.path} mnt=${mountDir}`);
+      } catch (e) {
+        const msg = String(e && e.message ? e.message : e);
+        await appendUpdateLog(relaunchLogPath, `darwin_update schedule_failed err=${msg}`);
+        notify({ stage: 'error', error: msg || 'relaunch_failed', label: label || null });
+        return { ok: false, error: msg || 'relaunch_failed' };
+      }
+
+      // Quit so we can swap files and relaunch cleanly.
       setTimeout(() => {
         try {
           app.quit();
         } catch {}
-      }, 1500);
+      }, 800);
 
       return { ok: true };
     } else {
@@ -675,6 +846,7 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
   } catch (e) {
     const msg = String(e && e.message ? e.message : e);
     notify({ stage: 'error', error: msg, label: label || null });
+    await appendUpdateLog(installLogPath, `error exception=${msg}`);
     return { ok: false, error: msg };
   }
 }

@@ -734,6 +734,67 @@
       </div>
     </div>
 
+    <!-- Upload Path Modal (fallback for environments without a working file picker) -->
+    <Transition name="modal">
+      <div
+        v-if="showUploadPathModal"
+        class="modal-overlay"
+        @click="closeUploadPathModal"
+      >
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>{{ uploadPathMode === "folder" ? "Upload folder" : "Upload files" }}</h3>
+            <button
+              class="modal-close"
+              type="button"
+              @click="closeUploadPathModal"
+            >
+              <X :size="20" />
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <p class="modal-desc">
+              Paste {{ uploadPathMode === "folder" ? "folder" : "file" }} path{{
+                uploadPathMode === "folder" ? "" : "s"
+              }}
+              (one per line).
+            </p>
+            <textarea
+              v-model="uploadPathText"
+              class="upload-path-textarea"
+              rows="5"
+              :placeholder="
+                uploadPathMode === 'folder'
+                  ? '/root/my-folder'
+                  : '/root/my-file.txt'
+              "
+            ></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              class="btn-modal-secondary"
+              type="button"
+              @click="closeUploadPathModal"
+              :disabled="uploadPathBusy"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn-modal-primary"
+              type="button"
+              @click="submitUploadPathModal"
+              :disabled="uploadPathBusy"
+            >
+              <UiSpinner v-if="uploadPathBusy" size="sm" />
+              <span>{{ uploadPathBusy ? "Uploading..." : "Upload" }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Local Details Modal -->
     <Transition name="modal">
       <div
@@ -1497,6 +1558,10 @@ const isDragging = ref(false);
 const showUploadMenu = ref(false);
 const fileUploadInput = ref<HTMLInputElement | null>(null);
 const folderUploadInput = ref<HTMLInputElement | null>(null);
+const showUploadPathModal = ref(false);
+const uploadPathMode = ref<"files" | "folder">("files");
+const uploadPathText = ref("");
+const uploadPathBusy = ref(false);
 
 const toast = ref("");
 const toastType = ref<"success" | "error">("success");
@@ -2471,6 +2536,11 @@ function toggleUploadMenu() {
 async function openFilePicker() {
   showUploadMenu.value = false;
 
+  if (shouldUsePathPicker()) {
+    openUploadPathModal("files");
+    return;
+  }
+
   const api: any = (window as any).lumen;
   if (typeof api?.dialogOpenFiles === "function") {
     const res = await api
@@ -2478,6 +2548,10 @@ async function openFilePicker() {
       .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
     if (!res?.ok) {
       const err = String(res?.error || "");
+      if (err === "unsupported_environment") {
+        openUploadPathModal("files");
+        return;
+      }
       if (err && err !== "canceled") {
         showToast(`File picker error (${compactError(err)})`, "error");
       }
@@ -2510,6 +2584,11 @@ async function openFilePicker() {
 async function openFolderPicker() {
   showUploadMenu.value = false;
 
+  if (shouldUsePathPicker()) {
+    openUploadPathModal("folder");
+    return;
+  }
+
   const api: any = (window as any).lumen;
   if (typeof api?.dialogOpenFolder === "function") {
     const res = await api
@@ -2517,6 +2596,10 @@ async function openFolderPicker() {
       .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
     if (!res?.ok) {
       const err = String(res?.error || "");
+      if (err === "unsupported_environment") {
+        openUploadPathModal("folder");
+        return;
+      }
       if (err && err !== "canceled") {
         showToast(`Folder picker error (${compactError(err)})`, "error");
       }
@@ -2542,6 +2625,85 @@ async function openFolderPicker() {
     input.value = "";
   } catch {}
   input.click();
+}
+
+function shouldUsePathPicker() {
+  try {
+    const api: any = (window as any).lumen;
+    const platform = String(api?.appPlatform || "").toLowerCase();
+    if (platform !== "linux") return false;
+    if (api?.appDialogLikelyBroken === true) return true;
+    const isRoot = typeof api?.appIsRoot === "function" ? api.appIsRoot() : false;
+    return isRoot === true;
+  } catch {
+    return false;
+  }
+}
+
+function openUploadPathModal(mode: "files" | "folder") {
+  if (uploadPathBusy.value) return;
+  if (uploading.value || converting.value) {
+    showToast("Another task is already running. Please wait…", "error");
+    return;
+  }
+  uploadPathMode.value = mode;
+  uploadPathText.value = "";
+  showUploadPathModal.value = true;
+}
+
+function closeUploadPathModal() {
+  if (uploadPathBusy.value) return;
+  showUploadPathModal.value = false;
+  uploadPathText.value = "";
+}
+
+function parseUploadPaths(raw: string) {
+  const lines = String(raw || "")
+    .split(/\r?\n/)
+    .map((l) => String(l || "").trim())
+    .filter(Boolean);
+  const cleaned = lines
+    .map((s) => s.replace(/^['"](.+)['"]$/, "$1").trim())
+    .filter(Boolean);
+  return Array.from(new Set(cleaned));
+}
+
+async function submitUploadPathModal() {
+  if (uploadPathBusy.value) return;
+  if (uploading.value || converting.value) {
+    showToast("Another task is already running. Please wait…", "error");
+    return;
+  }
+  const paths = parseUploadPaths(uploadPathText.value);
+  if (!paths.length) {
+    showToast("Please paste at least one path.", "error");
+    return;
+  }
+
+  const ok = await ensureIpfsConnected();
+  if (!ok) return;
+
+  uploadPathBusy.value = true;
+  showUploadPathModal.value = false;
+
+  try {
+    if (uploadPathMode.value === "folder") {
+      for (const dirPath of paths) {
+        const res = await uploadDirectoryFromPath(dirPath);
+        if ((res as any)?.cancelled) break;
+      }
+      return;
+    }
+
+    for (const filePath of paths) {
+      const name = basenameFromPath(filePath) || "file";
+      const pseudo: any = { name, path: filePath };
+      const res = await uploadFile(pseudo as File);
+      if ((res as any)?.cancelled) break;
+    }
+  } finally {
+    uploadPathBusy.value = false;
+  }
 }
 
 async function handleDrop(e: DragEvent) {
@@ -7697,6 +7859,25 @@ async function reloadForActiveProfileChange() {
 .btn-modal-secondary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.upload-path-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  resize: vertical;
+  outline: none;
+}
+
+.upload-path-textarea:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a15);
 }
 
 .permalink-loading {

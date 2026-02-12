@@ -1,14 +1,15 @@
-// Linux root environments (containers, system services) often lack a user session bus, which can
-// cause portal-backed file pickers to hang. Prefer the native GTK dialog in that case.
+// Linux environments without a user session bus (containers, system services, root shells) can cause
+// portal-backed file pickers to hang. Prefer the native GTK dialog in that case.
 try {
   if (
     process.platform === 'linux' &&
-    typeof process.getuid === 'function' &&
-    process.getuid() === 0 &&
-    !process.env.GTK_USE_PORTAL
+    !process.env.GTK_USE_PORTAL &&
+    ((typeof process.getuid === 'function' && process.getuid() === 0) ||
+      !String(process.env.DBUS_SESSION_BUS_ADDRESS || '').trim() ||
+      !String(process.env.XDG_RUNTIME_DIR || '').trim())
   ) {
     process.env.GTK_USE_PORTAL = '0';
-    console.log('[electron] GTK_USE_PORTAL=0 (root)');
+    console.log('[electron] GTK_USE_PORTAL=0 (no-session)');
   }
 } catch {}
 
@@ -262,15 +263,32 @@ function sanitizeDialogOptions(input = {}) {
   return { title, multi, allowFiles, allowDirs, filters };
 }
 
+function isLinuxDialogEnvironmentSupported() {
+  try {
+    if (process.platform !== 'linux') return true;
+    const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+    const hasSessionBus = !!String(process.env.DBUS_SESSION_BUS_ADDRESS || '').trim();
+    const hasRuntimeDir = !!String(process.env.XDG_RUNTIME_DIR || '').trim();
+    return !isRoot && hasSessionBus && hasRuntimeDir;
+  } catch {
+    return true;
+  }
+}
+
 ipcMain.handle('dialog:openFiles', async (evt, options) => {
   try {
     console.log('[electron][ipc] dialog:openFiles requested');
+    if (!isLinuxDialogEnvironmentSupported()) {
+      console.log('[electron][ipc] dialog:openFiles unsupported_environment');
+      return { ok: false, error: 'unsupported_environment' };
+    }
     const win = evt && evt.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
     try { win?.focus?.(); } catch {}
     const o = sanitizeDialogOptions(options);
     const properties = ['openFile'];
     if (o.multi) properties.push('multiSelections');
-    const res = win
+    const useParent = !!win && process.platform !== 'linux';
+    const res = useParent
       ? await dialog.showOpenDialog(win, {
           title: o.title || 'Select files',
           properties,
@@ -297,12 +315,17 @@ ipcMain.handle('dialog:openFiles', async (evt, options) => {
 ipcMain.handle('dialog:openFolder', async (evt, options) => {
   try {
     console.log('[electron][ipc] dialog:openFolder requested');
+    if (!isLinuxDialogEnvironmentSupported()) {
+      console.log('[electron][ipc] dialog:openFolder unsupported_environment');
+      return { ok: false, error: 'unsupported_environment' };
+    }
     const win = evt && evt.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
     try { win?.focus?.(); } catch {}
     const o = sanitizeDialogOptions(options);
     const properties = ['openDirectory'];
     if (o.multi) properties.push('multiSelections');
-    const res = win
+    const useParent = !!win && process.platform !== 'linux';
+    const res = useParent
       ? await dialog.showOpenDialog(win, {
           title: o.title || 'Select folder',
           properties,

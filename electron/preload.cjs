@@ -1,6 +1,25 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('lumen', {
+  appPlatform: process.platform,
+  appIsRoot: () => {
+    try {
+      return typeof process.getuid === 'function' && process.getuid() === 0;
+    } catch {
+      return false;
+    }
+  },
+  appDialogLikelyBroken: (() => {
+    try {
+      if (process.platform !== 'linux') return false;
+      const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+      const hasSessionBus = !!String(process.env.DBUS_SESSION_BUS_ADDRESS || '').trim();
+      const hasRuntimeDir = !!String(process.env.XDG_RUNTIME_DIR || '').trim();
+      return isRoot || !hasSessionBus || !hasRuntimeDir;
+    } catch {
+      return false;
+    }
+  })(),
   tabsOnOpenInNewTab: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const handler = (_event, payload) => {
