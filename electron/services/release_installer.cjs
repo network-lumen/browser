@@ -269,7 +269,62 @@ function collectSystemdSetenvArgs() {
   return args;
 }
 
-async function runCommandForExit(cmd, args, { timeoutMs = 3500 } = {}) {
+function collectPosixExportStatements(envObj) {
+  const env = envObj && typeof envObj === 'object' ? envObj : process.env;
+  const keys = [
+    'PATH',
+    'HOME',
+    'USER',
+    'LOGNAME',
+    'SHELL',
+    'DISPLAY',
+    'WAYLAND_DISPLAY',
+    'XAUTHORITY',
+    'DBUS_SESSION_BUS_ADDRESS',
+    'XDG_RUNTIME_DIR',
+    'LANG',
+    'LC_ALL'
+  ];
+  const out = [];
+  for (const k of keys) {
+    const raw = String(env[k] || '').trim();
+    if (!raw) continue;
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(k)) continue;
+    if (raw.length > 4096) continue;
+    out.push(`export ${k}=${shQuote(raw)}`);
+  }
+  if (!out.find((s) => s.startsWith('export PATH='))) {
+    out.unshift("export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'");
+  }
+  return out;
+}
+
+function buildSystemdRunSpawnEnv() {
+  const env = { ...(process.env || {}) };
+  if (process.platform !== 'linux') return env;
+
+  try {
+    if (!String(env.XDG_RUNTIME_DIR || '').trim() && typeof process.getuid === 'function') {
+      const uid = process.getuid();
+      const runtimeDir = `/run/user/${uid}`;
+      if (runtimeDir && fs.existsSync(runtimeDir)) env.XDG_RUNTIME_DIR = runtimeDir;
+    }
+  } catch {}
+
+  try {
+    if (!String(env.DBUS_SESSION_BUS_ADDRESS || '').trim()) {
+      const rd = String(env.XDG_RUNTIME_DIR || '').trim();
+      if (rd) {
+        const busPath = `${rd.replace(/\/$/, '')}/bus`;
+        if (busPath && fs.existsSync(busPath)) env.DBUS_SESSION_BUS_ADDRESS = `unix:path=${busPath}`;
+      }
+    }
+  } catch {}
+
+  return env;
+}
+
+async function runCommandForExit(cmd, args, { timeoutMs = 3500, env } = {}) {
   return new Promise((resolve) => {
     let stdout = '';
     let stderr = '';
@@ -282,7 +337,7 @@ async function runCommandForExit(cmd, args, { timeoutMs = 3500 } = {}) {
     };
 
     try {
-      const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+      const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true, env: env || process.env });
       if (child.stdout) {
         child.stdout.on('data', (d) => {
           stdout = cap(stdout + String(d));
@@ -464,16 +519,25 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
       // To survive that cleanup, prefer scheduling the relaunch via systemd-run (separate unit).
       if (!isRootUser()) {
         const bin = pickSystemdRunBinary();
-        const unitName = `lumen-update-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
-        const args = ['--user', '--quiet', '--collect', `--unit=${unitName}`, ...collectSystemdSetenvArgs(), 'sh', '-c', scriptToRun];
-        const res = await runCommandForExit(bin, args, { timeoutMs: 4000 });
-        if (res.ok) {
-          scheduled = true;
-          await appendUpdateLog(relaunchLogPath, `systemd-run scheduled unit=${unitName}`);
-        } else {
+        const spawnEnv = buildSystemdRunSpawnEnv();
+        const exportLines = collectPosixExportStatements(spawnEnv);
+        const scriptWithExports = `${exportLines.join('; ')}; ${scriptToRun}`;
+
+        const attempts = [
+          { name: 'user-scope', args: ['--user', '--scope', '/bin/sh', '-c', scriptWithExports] },
+          { name: 'user-service', args: ['--user', '/bin/sh', '-c', scriptWithExports] }
+        ];
+
+        for (const a of attempts) {
+          const res = await runCommandForExit(bin, a.args, { timeoutMs: 4500, env: spawnEnv });
+          if (res.ok) {
+            scheduled = true;
+            await appendUpdateLog(relaunchLogPath, `systemd-run scheduled via=${a.name}`);
+            break;
+          }
           await appendUpdateLog(
             relaunchLogPath,
-            `systemd-run failed err=${String(res.error || '').trim()} stdout=${JSON.stringify(res.stdout || '')} stderr=${JSON.stringify(
+            `systemd-run failed via=${a.name} err=${String(res.error || '').trim()} stdout=${JSON.stringify(res.stdout || '')} stderr=${JSON.stringify(
               res.stderr || ''
             )}`
           );
@@ -481,15 +545,67 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
       }
 
       if (!scheduled) {
+        // If running as root (or via sudo), try scheduling in the system manager (no --user).
+        if (isRootUser()) {
+          const bin = pickSystemdRunBinary();
+          const spawnEnv = buildSystemdRunSpawnEnv();
+          const exportLines = collectPosixExportStatements(spawnEnv);
+          const scriptWithExports = `${exportLines.join('; ')}; ${scriptToRun}`;
+
+          const attempts = [
+            { name: 'system-scope', args: ['--scope', '/bin/sh', '-c', scriptWithExports] },
+            { name: 'system-service', args: ['/bin/sh', '-c', scriptWithExports] }
+          ];
+
+          for (const a of attempts) {
+            const res = await runCommandForExit(bin, a.args, { timeoutMs: 4500, env: spawnEnv });
+            if (res.ok) {
+              scheduled = true;
+              await appendUpdateLog(relaunchLogPath, `systemd-run scheduled via=${a.name}`);
+              break;
+            }
+            await appendUpdateLog(
+              relaunchLogPath,
+              `systemd-run failed via=${a.name} err=${String(res.error || '').trim()} stdout=${JSON.stringify(res.stdout || '')} stderr=${JSON.stringify(
+                res.stderr || ''
+              )}`
+            );
+          }
+        }
+      }
+
+      if (!scheduled) {
         if (inSystemdAppScope) {
           const msg =
-            'Could not relaunch automatically from this Linux environment (systemd app scope). The update was downloaded, but you may need to launch it manually.';
-          await appendUpdateLog(relaunchLogPath, `abort_autorelaunch reason=systemd_app_scope msg=${msg}`);
+            'Could not relaunch automatically from this Linux environment (systemd app scope). The update was downloaded.';
+          await appendUpdateLog(relaunchLogPath, `systemd_app_scope relaunch_unavailable msg=${msg}`);
           try {
             shell.showItemInFolder(dl.path);
           } catch {}
-          notify({ stage: 'error', error: msg, label: label || null });
-          return { ok: false, error: msg };
+
+          // Last-resort UX improvement: ask the OS to open the downloaded AppImage. If the desktop environment
+          // launches it outside of our current scope, it can survive our shutdown.
+          if (!isRootUser()) {
+            try {
+              const err = await shell.openPath(dl.path);
+              if (!err) {
+                await appendUpdateLog(relaunchLogPath, 'fallback openPath ok');
+                setTimeout(() => {
+                  try {
+                    app.quit();
+                  } catch {}
+                }, 800);
+                return { ok: true };
+              }
+              await appendUpdateLog(relaunchLogPath, `fallback openPath failed err=${String(err || '').trim()}`);
+            } catch (e) {
+              await appendUpdateLog(relaunchLogPath, `fallback openPath exception err=${String(e && e.message ? e.message : e)}`);
+            }
+          }
+
+          const displayMsg = `${msg} Please launch it manually from the opened folder.`;
+          notify({ stage: 'error', error: displayMsg, label: label || null });
+          return { ok: false, error: displayMsg };
         }
 
         // Fallback: relaunch helper in the current environment (best-effort).
