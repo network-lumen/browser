@@ -324,6 +324,13 @@ function buildSystemdRunSpawnEnv() {
   return env;
 }
 
+function extractSystemdUnitName(output) {
+  const s = String(output || '');
+  const m = s.match(/Running as unit:\s*([^\s;]+)(?:;|\s|$)/i);
+  if (m && m[1]) return String(m[1]).trim();
+  return '';
+}
+
 async function runCommandForExit(cmd, args, { timeoutMs = 3500, env } = {}) {
   return new Promise((resolve) => {
     let stdout = '';
@@ -501,7 +508,7 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
         `  echo "[relaunch] no write access, exec src=$src" >>"$log" 2>&1 || true`,
         `  exec "$src"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''}`,
         'fi'
-      ].join('; ');
+      ].join('\n');
 
       const execDownloadedScript = [
         ...waitScriptPrelude,
@@ -509,7 +516,7 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
         'chmod +x "$src" 2>/dev/null || true',
         `echo "[relaunch] exec src=$src" >>"$log" 2>&1 || true`,
         `exec "$src"${extraArgs.length ? ` ${extraArgs.map(shQuote).join(' ')}` : ''}`
-      ].join('; ');
+      ].join('\n');
 
       const scriptToRun = canSwapInPlace ? swapAndExecScript : execDownloadedScript;
 
@@ -522,12 +529,10 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
         const bin = pickSystemdRunBinary();
         const spawnEnv = buildSystemdRunSpawnEnv();
         const exportLines = collectPosixExportStatements(spawnEnv);
-        const scriptWithExports = `${exportLines.join('; ')}; ${scriptToRun}`;
+        const scriptWithExports = `${exportLines.join('\n')}\n${scriptToRun}`;
 
         const attempts = [
-          { name: 'user-scope', args: ['--user', '--expand-environment=no', '--scope', '/bin/sh', '-c', scriptWithExports] },
           { name: 'user-service', args: ['--user', '--expand-environment=no', '/bin/sh', '-c', scriptWithExports] },
-          { name: 'user-scope-legacy', args: ['--user', '--scope', '/bin/sh', '-c', scriptWithExports] },
           { name: 'user-service-legacy', args: ['--user', '/bin/sh', '-c', scriptWithExports] }
         ];
 
@@ -535,7 +540,8 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
           const res = await runCommandForExit(bin, a.args, { timeoutMs: 4500, env: spawnEnv });
           if (res.ok) {
             scheduled = true;
-            await appendUpdateLog(relaunchLogPath, `systemd-run scheduled via=${a.name}`);
+            const unit = extractSystemdUnitName(`${res.stdout || ''}\n${res.stderr || ''}`);
+            await appendUpdateLog(relaunchLogPath, `systemd-run scheduled via=${a.name}${unit ? ` unit=${unit}` : ''}`);
             break;
           }
           await appendUpdateLog(
@@ -553,12 +559,10 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
           const bin = pickSystemdRunBinary();
           const spawnEnv = buildSystemdRunSpawnEnv();
           const exportLines = collectPosixExportStatements(spawnEnv);
-          const scriptWithExports = `${exportLines.join('; ')}; ${scriptToRun}`;
+          const scriptWithExports = `${exportLines.join('\n')}\n${scriptToRun}`;
 
           const attempts = [
-            { name: 'system-scope', args: ['--expand-environment=no', '--scope', '/bin/sh', '-c', scriptWithExports] },
             { name: 'system-service', args: ['--expand-environment=no', '/bin/sh', '-c', scriptWithExports] },
-            { name: 'system-scope-legacy', args: ['--scope', '/bin/sh', '-c', scriptWithExports] },
             { name: 'system-service-legacy', args: ['/bin/sh', '-c', scriptWithExports] }
           ];
 
@@ -566,7 +570,8 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
             const res = await runCommandForExit(bin, a.args, { timeoutMs: 4500, env: spawnEnv });
             if (res.ok) {
               scheduled = true;
-              await appendUpdateLog(relaunchLogPath, `systemd-run scheduled via=${a.name}`);
+              const unit = extractSystemdUnitName(`${res.stdout || ''}\n${res.stderr || ''}`);
+              await appendUpdateLog(relaunchLogPath, `systemd-run scheduled via=${a.name}${unit ? ` unit=${unit}` : ''}`);
               break;
             }
             await appendUpdateLog(
