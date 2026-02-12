@@ -3601,35 +3601,63 @@ async function uploadDirectory(
   uploadingCanceling.value = false;
 
   try {
-    const payloadFiles: { path: string; data: Uint8Array }[] = [];
-    let totalBytes = 0;
+    const api: any = (window as any).lumen;
 
-    for (const it of list) {
+    const pathFiles = list.map((it) => {
       const rel = String(it.path || it.file?.name || "file")
         .replace(/^\/+/, "")
         .replace(/\\/g, "/");
-      const buf = await it.file.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      totalBytes += bytes.byteLength;
-      payloadFiles.push({ path: rel, data: bytes });
-    }
+      const fp = String((it.file as any)?.path || "").trim();
+      return { path: rel, filePath: fp };
+    });
+    const hasAllPaths = pathFiles.every((f) => !!String(f.filePath || "").trim());
+    const addDirPathsFn =
+      hasAllPaths && typeof api?.ipfsAddDirectoryPathsWithProgress === "function"
+        ? api.ipfsAddDirectoryPathsWithProgress
+        : hasAllPaths && typeof api?.ipfsAddDirectoryPaths === "function"
+          ? api.ipfsAddDirectoryPaths
+          : null;
 
-    uploadingStage.value = "adding";
-    uploadingPercent.value = 0;
-    const api: any = (window as any).lumen;
-    const addDirFn =
+    const addDirBytesFn =
       typeof api?.ipfsAddDirectoryWithProgress === "function"
         ? api.ipfsAddDirectoryWithProgress
-        : api?.ipfsAddDirectory;
-    if (typeof addDirFn !== "function") {
+        : typeof api?.ipfsAddDirectory === "function"
+          ? api.ipfsAddDirectory
+          : null;
+
+    if (!addDirPathsFn && !addDirBytesFn) {
       showToast("Upload unavailable", "error");
       return { ok: false };
     }
 
-    const result = await addDirFn({
-      rootName: name,
-      files: payloadFiles,
-    });
+    uploadingStage.value = "adding";
+    uploadingPercent.value = 0;
+
+    let result: any = null;
+    let totalBytes = estimatedBytes;
+
+    if (addDirPathsFn) {
+      result = await addDirPathsFn({
+        rootName: name,
+        files: pathFiles,
+      });
+    } else {
+      const payloadFiles: { path: string; data: Uint8Array }[] = [];
+      totalBytes = 0;
+      for (const it of list) {
+        const rel = String(it.path || it.file?.name || "file")
+          .replace(/^\/+/, "")
+          .replace(/\\/g, "/");
+        const buf = await it.file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        totalBytes += bytes.byteLength;
+        payloadFiles.push({ path: rel, data: bytes });
+      }
+      result = await addDirBytesFn?.({
+        rootName: name,
+        files: payloadFiles,
+      });
+    }
 
     if (!result?.ok || !result?.cid) {
       const err = String(result?.error || "");
@@ -3723,19 +3751,37 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
   uploadingCanceling.value = false;
 
   try {
-    const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-
-    uploadingStage.value = "adding";
-    uploadingPercent.value = 0;
     const api: any = (window as any).lumen;
-    const addFn =
-      typeof api?.ipfsAddWithProgress === "function" ? api.ipfsAddWithProgress : api?.ipfsAdd;
-    if (typeof addFn !== "function") {
+    const filePath = String((file as any)?.path || "").trim();
+    const addPathFn =
+      filePath && typeof api?.ipfsAddPathWithProgress === "function"
+        ? api.ipfsAddPathWithProgress
+        : filePath && typeof api?.ipfsAddPath === "function"
+          ? api.ipfsAddPath
+          : null;
+
+    const addBytesFn =
+      typeof api?.ipfsAddWithProgress === "function"
+        ? api.ipfsAddWithProgress
+        : typeof api?.ipfsAdd === "function"
+          ? api.ipfsAdd
+          : null;
+
+    if (!addPathFn && !addBytesFn) {
       showToast("Upload unavailable", "error");
       return { ok: false };
     }
-    const result = await addFn(bytes, file.name);
+
+    uploadingStage.value = "adding";
+    uploadingPercent.value = 0;
+
+    const result = addPathFn
+      ? await addPathFn(filePath, file.name)
+      : await (async () => {
+          const buffer = await file.arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          return addBytesFn?.(bytes, file.name);
+        })();
 
     if (result?.cid) {
       const cid = String(result.cid);

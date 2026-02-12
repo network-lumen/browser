@@ -82,9 +82,17 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
   ipfsAddWithProgress: (data, filename) =>
     ipcRenderer.invoke('ipfs:addWithProgress', data, filename),
+  ipfsAddPath: (filePath, filename) =>
+    ipcRenderer.invoke('ipfs:addPath', filePath, filename),
+  ipfsAddPathWithProgress: (filePath, filename) =>
+    ipcRenderer.invoke('ipfs:addPathWithProgress', filePath, filename),
   ipfsAddDirectory: (payload) => ipcRenderer.invoke('ipfs:addDirectory', payload || {}),
   ipfsAddDirectoryWithProgress: (payload) =>
     ipcRenderer.invoke('ipfs:addDirectoryWithProgress', payload || {}),
+  ipfsAddDirectoryPaths: (payload) =>
+    ipcRenderer.invoke('ipfs:addDirectoryPaths', payload || {}),
+  ipfsAddDirectoryPathsWithProgress: (payload) =>
+    ipcRenderer.invoke('ipfs:addDirectoryPathsWithProgress', payload || {}),
   ipfsCancelAdd: () => ipcRenderer.invoke('ipfs:cancelAdd'),
   ipfsOnAddProgress: (callback) => {
     if (typeof callback !== 'function') return () => {};
