@@ -475,7 +475,8 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
         `pid=${process.pid}`,
         'echo "[relaunch] helper started (pid=$$) waiting for parent=$pid" >>"$log" 2>&1 || true',
         // Avoid hanging forever in case of PID reuse or weird shutdowns.
-        'deadline=$(( $(date +%s 2>/dev/null || echo 0) + 90 ))',
+        'deadline=$(date +%s 2>/dev/null || echo 0)',
+        'deadline=$((deadline + 90))',
         'while kill -0 "$pid" 2>/dev/null; do',
         '  now=$(date +%s 2>/dev/null || echo 0)',
         '  if [ "$now" -ge "$deadline" ]; then echo "[relaunch] timeout waiting for parent" >>"$log" 2>&1 || true; break; fi',
@@ -524,8 +525,10 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
         const scriptWithExports = `${exportLines.join('; ')}; ${scriptToRun}`;
 
         const attempts = [
-          { name: 'user-scope', args: ['--user', '--scope', '/bin/sh', '-c', scriptWithExports] },
-          { name: 'user-service', args: ['--user', '/bin/sh', '-c', scriptWithExports] }
+          { name: 'user-scope', args: ['--user', '--expand-environment=no', '--scope', '/bin/sh', '-c', scriptWithExports] },
+          { name: 'user-service', args: ['--user', '--expand-environment=no', '/bin/sh', '-c', scriptWithExports] },
+          { name: 'user-scope-legacy', args: ['--user', '--scope', '/bin/sh', '-c', scriptWithExports] },
+          { name: 'user-service-legacy', args: ['--user', '/bin/sh', '-c', scriptWithExports] }
         ];
 
         for (const a of attempts) {
@@ -553,8 +556,10 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
           const scriptWithExports = `${exportLines.join('; ')}; ${scriptToRun}`;
 
           const attempts = [
-            { name: 'system-scope', args: ['--scope', '/bin/sh', '-c', scriptWithExports] },
-            { name: 'system-service', args: ['/bin/sh', '-c', scriptWithExports] }
+            { name: 'system-scope', args: ['--expand-environment=no', '--scope', '/bin/sh', '-c', scriptWithExports] },
+            { name: 'system-service', args: ['--expand-environment=no', '/bin/sh', '-c', scriptWithExports] },
+            { name: 'system-scope-legacy', args: ['--scope', '/bin/sh', '-c', scriptWithExports] },
+            { name: 'system-service-legacy', args: ['/bin/sh', '-c', scriptWithExports] }
           ];
 
           for (const a of attempts) {
