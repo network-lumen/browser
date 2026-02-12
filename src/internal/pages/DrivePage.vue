@@ -132,21 +132,38 @@
               <span>Upload</span>
             </button>
             <div v-if="showUploadMenu" class="upload-dropdown" @click.stop>
-              <label class="upload-dropdown-item">
+              <button
+                class="upload-dropdown-item"
+                type="button"
+                @click="openFilePicker"
+              >
                 Upload files
-                <input type="file" multiple @change="handleFileUpload" />
-              </label>
-              <label class="upload-dropdown-item">
+              </button>
+              <button
+                class="upload-dropdown-item"
+                type="button"
+                @click="openFolderPicker"
+              >
                 Upload folder
-                <input
-                  type="file"
-                  multiple
-                  webkitdirectory
-                  directory
-                  @change="handleFolderUpload"
-                />
-              </label>
+              </button>
             </div>
+
+            <input
+              ref="fileUploadInput"
+              class="file-picker-input"
+              type="file"
+              multiple
+              @change="handleFileUpload"
+            />
+            <input
+              ref="folderUploadInput"
+              class="file-picker-input"
+              type="file"
+              multiple
+              webkitdirectory
+              directory
+              @change="handleFolderUpload"
+            />
           </div>
         </div>
       </header>
@@ -586,11 +603,14 @@
               : "Drag and drop files or click Upload to add files"
           }}
         </p>
-        <label class="upload-btn-large margin-top-50">
+        <button
+          class="upload-btn-large margin-top-50"
+          type="button"
+          @click="openFilePicker"
+        >
           <Upload :size="20" />
           <span>Choose files to upload</span>
-          <input type="file" multiple @change="handleFileUpload" />
-        </label>
+        </button>
       </div>
     </main>
 
@@ -1475,6 +1495,8 @@ const convertingPercent = ref<number | null>(null);
 const convertingCanceling = ref(false);
 const isDragging = ref(false);
 const showUploadMenu = ref(false);
+const fileUploadInput = ref<HTMLInputElement | null>(null);
+const folderUploadInput = ref<HTMLInputElement | null>(null);
 
 const toast = ref("");
 const toastType = ref<"success" | "error">("success");
@@ -2446,6 +2468,26 @@ function toggleUploadMenu() {
   showUploadMenu.value = !showUploadMenu.value;
 }
 
+function openFilePicker() {
+  showUploadMenu.value = false;
+  const input = fileUploadInput.value;
+  if (!input) return;
+  try {
+    input.value = "";
+  } catch {}
+  input.click();
+}
+
+function openFolderPicker() {
+  showUploadMenu.value = false;
+  const input = folderUploadInput.value;
+  if (!input) return;
+  try {
+    input.value = "";
+  } catch {}
+  input.click();
+}
+
 async function handleDrop(e: DragEvent) {
   e.preventDefault();
   isDragging.value = false;
@@ -2554,6 +2596,14 @@ async function checkIpfsStatus() {
   } catch {
     ipfsConnected.value = false;
   }
+}
+
+async function ensureIpfsConnected() {
+  if (ipfsConnected.value) return true;
+  await checkIpfsStatus();
+  if (ipfsConnected.value) return true;
+  showToast("IPFS not connected", "error");
+  return false;
 }
 
 function selectHosting(kind: HostingKind) {
@@ -3411,31 +3461,33 @@ function setSavedName(cid: string, name: string) {
 async function handleFileUpload(e: Event) {
   showUploadMenu.value = false;
   const input = e.target as HTMLInputElement;
-  if (!input.files?.length) return;
+  const selected = Array.from(input.files || []);
+  try {
+    input.value = "";
+  } catch {}
+  if (!selected.length) return;
 
-  if (!ipfsConnected.value) {
-    showToast("IPFS not connected", "error");
-    return;
-  }
+  const ok = await ensureIpfsConnected();
+  if (!ok) return;
 
-  for (const file of Array.from(input.files)) {
+  for (const file of selected) {
     const res = await uploadFile(file);
     if ((res as any)?.cancelled) break;
   }
-  input.value = "";
 }
 
 async function handleFolderUpload(e: Event) {
   showUploadMenu.value = false;
   const input = e.target as HTMLInputElement;
-  if (!input.files?.length) return;
+  const filesList = Array.from(input.files || []);
+  try {
+    input.value = "";
+  } catch {}
+  if (!filesList.length) return;
 
-  if (!ipfsConnected.value) {
-    showToast("IPFS not connected", "error");
-    return;
-  }
+  const ok = await ensureIpfsConnected();
+  if (!ok) return;
 
-  const filesList = Array.from(input.files);
   const groups = new Map<string, { path: string; file: File }[]>();
 
   for (const f of filesList) {
@@ -3451,7 +3503,6 @@ async function handleFolderUpload(e: Event) {
     if ((res as any)?.cancelled) break;
   }
 
-  input.value = "";
 }
 
 function upsertFileMetadata(next: DriveFile) {
@@ -3534,6 +3585,15 @@ async function uploadDirectory(
   const name = String(rootName || "").trim() || "folder";
   if (!list.length) return { ok: false };
 
+  const estimatedBytes = list.reduce(
+    (acc, it) => acc + (Number(it?.file?.size || 0) || 0),
+    0,
+  );
+  if (estimatedBytes > 200 * 1024 * 1024) {
+    showToast(`Folder too large (max 200 MB): ${name}`, "error");
+    return { ok: false };
+  }
+
   uploading.value = true;
   uploadingFile.value = name;
   uploadingStage.value = "preparing";
@@ -3573,11 +3633,26 @@ async function uploadDirectory(
 
     if (!result?.ok || !result?.cid) {
       const err = String(result?.error || "");
-      if (err.toLowerCase().includes("cancel")) {
+      const lower = err.toLowerCase();
+      if (lower.includes("cancel") || lower.includes("abort")) {
         showToast("Upload cancelled.", "success");
         return { ok: false, cancelled: true };
       }
-      showToast(`Failed to upload folder: ${name}`, "error");
+      if (err === "directory_too_large") {
+        showToast(`Folder too large (max 200 MB): ${name}`, "error");
+        return { ok: false };
+      }
+      if (err === "add_in_progress") {
+        showToast("Another upload is already running. Please wait…", "error");
+        return { ok: false };
+      }
+      const detail = compactError(err);
+      showToast(
+        detail
+          ? `Failed to upload folder: ${name} (${detail})`
+          : `Failed to upload folder: ${name}`,
+        "error",
+      );
       return { ok: false };
     }
 
@@ -3616,11 +3691,20 @@ async function uploadDirectory(
   } catch (err) {
     console.error("Folder upload error:", err);
     const msg = String((err as any)?.message || err || "");
-    if (msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("abort")) {
+    const lower = msg.toLowerCase();
+    if (lower.includes("cancel") || lower.includes("abort")) {
       showToast("Upload cancelled.", "success");
       return { ok: false, cancelled: true };
     }
-    showToast(`Error uploading folder: ${name}`, "error");
+    if (msg === "directory_too_large") {
+      showToast(`Folder too large (max 200 MB): ${name}`, "error");
+      return { ok: false };
+    }
+    const detail = compactError(msg);
+    showToast(
+      detail ? `Error uploading folder: ${name} (${detail})` : `Error uploading folder: ${name}`,
+      "error",
+    );
     return { ok: false };
   } finally {
     uploading.value = false;
@@ -3687,21 +3771,35 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
       return { ok: true };
     } else {
       const err = String(result?.error || "");
-      if (err.toLowerCase().includes("cancel")) {
+      const lower = err.toLowerCase();
+      if (lower.includes("cancel") || lower.includes("abort")) {
         showToast("Upload cancelled.", "success");
         return { ok: false, cancelled: true };
       }
-      showToast(`Failed to upload: ${file.name}`, "error");
+      if (err === "add_in_progress") {
+        showToast("Another upload is already running. Please wait…", "error");
+        return { ok: false };
+      }
+      const detail = compactError(err);
+      showToast(
+        detail ? `Failed to upload: ${file.name} (${detail})` : `Failed to upload: ${file.name}`,
+        "error",
+      );
       return { ok: false };
     }
   } catch (err) {
     console.error("Upload error:", err);
     const msg = String((err as any)?.message || err || "");
-    if (msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("abort")) {
+    const lower = msg.toLowerCase();
+    if (lower.includes("cancel") || lower.includes("abort")) {
       showToast("Upload cancelled.", "success");
       return { ok: false, cancelled: true };
     }
-    showToast(`Error uploading: ${file.name}`, "error");
+    const detail = compactError(msg);
+    showToast(
+      detail ? `Error uploading: ${file.name} (${detail})` : `Error uploading: ${file.name}`,
+      "error",
+    );
     return { ok: false };
   } finally {
     uploading.value = false;
@@ -4587,6 +4685,15 @@ function showToast(msg: string, type: "success" | "error" = "success") {
   setTimeout(() => {
     toast.value = "";
   }, 2500);
+}
+
+function compactError(err: string, maxLen = 120) {
+  const clean = String(err || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return "";
+  if (clean.length <= maxLen) return clean;
+  return clean.slice(0, Math.max(0, maxLen - 1)) + "…";
 }
 
 async function reloadForActiveProfileChange() {
@@ -6061,9 +6168,13 @@ async function reloadForActiveProfileChange() {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  background: transparent;
+  border: none;
   padding: 0.55rem 0.75rem;
   border-radius: 10px;
   cursor: pointer;
+  text-align: left;
+  font: inherit;
   font-size: 0.85rem;
   color: var(--text-primary);
   user-select: none;
@@ -6071,6 +6182,15 @@ async function reloadForActiveProfileChange() {
 
 .upload-dropdown-item:hover {
   background: var(--bg-secondary);
+}
+
+.file-picker-input {
+  position: fixed;
+  top: -10000px;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 .upload-dropdown-item input {
