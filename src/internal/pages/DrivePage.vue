@@ -2468,8 +2468,37 @@ function toggleUploadMenu() {
   showUploadMenu.value = !showUploadMenu.value;
 }
 
-function openFilePicker() {
+async function openFilePicker() {
   showUploadMenu.value = false;
+
+  const api: any = (window as any).lumen;
+  if (typeof api?.dialogOpenFiles === "function") {
+    const res = await api
+      .dialogOpenFiles({ title: "Select files to upload", multi: true })
+      .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+    if (!res?.ok) {
+      const err = String(res?.error || "");
+      if (err && err !== "canceled") {
+        showToast(`File picker error (${compactError(err)})`, "error");
+      }
+      return;
+    }
+    const paths = Array.isArray(res.paths) ? res.paths : [];
+    const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean);
+    if (!selected.length) return;
+
+    const ok = await ensureIpfsConnected();
+    if (!ok) return;
+
+    for (const filePath of selected) {
+      const name = basenameFromPath(filePath) || "file";
+      const pseudo: any = { name, path: filePath };
+      const out = await uploadFile(pseudo as File);
+      if ((out as any)?.cancelled) break;
+    }
+    return;
+  }
+
   const input = fileUploadInput.value;
   if (!input) return;
   try {
@@ -2478,8 +2507,35 @@ function openFilePicker() {
   input.click();
 }
 
-function openFolderPicker() {
+async function openFolderPicker() {
   showUploadMenu.value = false;
+
+  const api: any = (window as any).lumen;
+  if (typeof api?.dialogOpenFolder === "function") {
+    const res = await api
+      .dialogOpenFolder({ title: "Select folder to upload", multi: true })
+      .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+    if (!res?.ok) {
+      const err = String(res?.error || "");
+      if (err && err !== "canceled") {
+        showToast(`Folder picker error (${compactError(err)})`, "error");
+      }
+      return;
+    }
+    const paths = Array.isArray(res.paths) ? res.paths : [];
+    const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean);
+    if (!selected.length) return;
+
+    const ok = await ensureIpfsConnected();
+    if (!ok) return;
+
+    for (const dirPath of selected) {
+      const out = await uploadDirectoryFromPath(dirPath);
+      if ((out as any)?.cancelled) break;
+    }
+    return;
+  }
+
   const input = folderUploadInput.value;
   if (!input) return;
   try {
@@ -3743,6 +3799,128 @@ async function uploadDirectory(
   }
 }
 
+async function uploadDirectoryFromPath(
+  dirPath: string,
+): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
+  const rootPath = String(dirPath || "").trim();
+  const name = basenameFromPath(rootPath) || "folder";
+  if (!rootPath) return { ok: false };
+
+  uploading.value = true;
+  uploadingFile.value = name;
+  uploadingStage.value = "preparing";
+  uploadingPercent.value = 0;
+  uploadingCanceling.value = false;
+
+  try {
+    const api: any = (window as any).lumen;
+    const addFn =
+      typeof api?.ipfsAddDirectoryFromPathWithProgress === "function"
+        ? api.ipfsAddDirectoryFromPathWithProgress
+        : api?.ipfsAddDirectoryFromPath;
+    if (typeof addFn !== "function") {
+      showToast("Upload unavailable", "error");
+      return { ok: false };
+    }
+
+    uploadingStage.value = "adding";
+    uploadingPercent.value = 0;
+
+    const result = await addFn({ rootPath, rootName: name });
+
+    if (!result?.ok || !result?.cid) {
+      const err = String(result?.error || "");
+      const lower = err.toLowerCase();
+      if (lower.includes("cancel") || lower.includes("abort")) {
+        showToast("Upload cancelled.", "success");
+        return { ok: false, cancelled: true };
+      }
+      if (err === "directory_too_large") {
+        showToast(`Folder too large (max 200 MB): ${name}`, "error");
+        return { ok: false };
+      }
+      if (err === "too_many_files") {
+        showToast(`Too many files in folder: ${name}`, "error");
+        return { ok: false };
+      }
+      if (err === "not_directory") {
+        showToast(`Not a folder: ${name}`, "error");
+        return { ok: false };
+      }
+      if (err === "add_in_progress") {
+        showToast("Another upload is already running. Please wait…", "error");
+        return { ok: false };
+      }
+      const detail = compactError(err);
+      showToast(
+        detail
+          ? `Failed to upload folder: ${name} (${detail})`
+          : `Failed to upload folder: ${name}`,
+        "error",
+      );
+      return { ok: false };
+    }
+
+    const cid = String(result.cid);
+    const totalBytes = Number(result?.totalBytes || 0) || 0;
+    entryTypeCache.value = { ...entryTypeCache.value, [cid]: "dir" };
+    setSavedName(cid, name);
+
+    upsertFileMetadata({
+      cid,
+      name,
+      size: totalBytes,
+      uploadedAt: Date.now(),
+      type: "dir",
+    });
+
+    if (hosting.value.kind === "gateway") {
+      uploadingStage.value = "gateway-preflight";
+      uploadingPercent.value = 0;
+      const pinned = await pinCidToActiveGateway(cid);
+      if (!pinned.ok) {
+        if ((pinned as any).cancelled) {
+          showToast("Upload cancelled.", "success");
+          return { ok: false, cancelled: true };
+        }
+        showToast(pinned.error, "error");
+        return { ok: false };
+      }
+      showToast(`Uploaded folder to gateway: ${name}`, "success");
+    } else {
+      loadStats();
+      await loadPinnedFiles();
+      showToast(`Uploaded folder: ${name}`, "success");
+    }
+
+    return { ok: true };
+  } catch (err) {
+    console.error("Folder upload error:", err);
+    const msg = String((err as any)?.message || err || "");
+    const lower = msg.toLowerCase();
+    if (lower.includes("cancel") || lower.includes("abort")) {
+      showToast("Upload cancelled.", "success");
+      return { ok: false, cancelled: true };
+    }
+    if (msg === "directory_too_large") {
+      showToast(`Folder too large (max 200 MB): ${name}`, "error");
+      return { ok: false };
+    }
+    const detail = compactError(msg);
+    showToast(
+      detail ? `Error uploading folder: ${name} (${detail})` : `Error uploading folder: ${name}`,
+      "error",
+    );
+    return { ok: false };
+  } finally {
+    uploading.value = false;
+    uploadingFile.value = "";
+    uploadingStage.value = "preparing";
+    uploadingPercent.value = null;
+    uploadingCanceling.value = false;
+  }
+}
+
 async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
   uploading.value = true;
   uploadingFile.value = file.name;
@@ -3785,12 +3963,14 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
 
     if (result?.cid) {
       const cid = String(result.cid);
+      const sizeBytes =
+        Number((file as any)?.size || 0) || Number((result as any)?.fileBytes || 0) || 0;
       setSavedName(cid, file.name);
       entryTypeCache.value = { ...entryTypeCache.value, [cid]: "file" };
       upsertFileMetadata({
         cid,
         name: file.name,
-        size: file.size,
+        size: sizeBytes,
         uploadedAt: Date.now(),
         type: "file",
       });
@@ -4740,6 +4920,12 @@ function compactError(err: string, maxLen = 120) {
   if (!clean) return "";
   if (clean.length <= maxLen) return clean;
   return clean.slice(0, Math.max(0, maxLen - 1)) + "…";
+}
+
+function basenameFromPath(p: string) {
+  const s = String(p || "").replace(/\\/g, "/").trim();
+  const parts = s.split("/").filter(Boolean);
+  return parts[parts.length - 1] || s;
 }
 
 async function reloadForActiveProfileChange() {

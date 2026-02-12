@@ -78,6 +78,8 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.removeListener('settings:changed', handler);
     };
   },
+  dialogOpenFiles: (options) => ipcRenderer.invoke('dialog:openFiles', options || {}),
+  dialogOpenFolder: (options) => ipcRenderer.invoke('dialog:openFolder', options || {}),
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
   ipfsAddWithProgress: (data, filename) =>
@@ -93,6 +95,10 @@ contextBridge.exposeInMainWorld('lumen', {
     ipcRenderer.invoke('ipfs:addDirectoryPaths', payload || {}),
   ipfsAddDirectoryPathsWithProgress: (payload) =>
     ipcRenderer.invoke('ipfs:addDirectoryPathsWithProgress', payload || {}),
+  ipfsAddDirectoryFromPath: (payload) =>
+    ipcRenderer.invoke('ipfs:addDirectoryFromPath', payload || {}),
+  ipfsAddDirectoryFromPathWithProgress: (payload) =>
+    ipcRenderer.invoke('ipfs:addDirectoryFromPathWithProgress', payload || {}),
   ipfsCancelAdd: () => ipcRenderer.invoke('ipfs:cancelAdd'),
   ipfsOnAddProgress: (callback) => {
     if (typeof callback !== 'function') return () => {};

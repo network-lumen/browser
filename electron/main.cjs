@@ -1,6 +1,20 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+// Linux root environments (containers, system services) often lack a user session bus, which can
+// cause portal-backed file pickers to hang. Prefer the native GTK dialog in that case.
+try {
+  if (
+    process.platform === 'linux' &&
+    typeof process.getuid === 'function' &&
+    process.getuid() === 0 &&
+    !process.env.GTK_USE_PORTAL
+  ) {
+    process.env.GTK_USE_PORTAL = '0';
+    console.log('[electron] GTK_USE_PORTAL=0 (root)');
+  }
+} catch {}
+
+const { app, BrowserWindow, ipcMain, session, dialog } = require('electron');
 const path = require('path');
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings } = require('./settings.cjs');
@@ -227,6 +241,89 @@ ipcMain.handle('ipfs:status', async () => {
   return checkIpfsStatus();
 });
 
+function sanitizeDialogOptions(input = {}) {
+  const o = input && typeof input === 'object' ? input : {};
+  const title = safeString(o.title, 256) || '';
+  const multi = !!o.multi;
+  const allowFiles = o.allowFiles !== false;
+  const allowDirs = !!o.allowDirs;
+  const filtersRaw = Array.isArray(o.filters) ? o.filters : [];
+  const filters = filtersRaw
+    .map((f) => ({
+      name: safeString(f && f.name, 64) || 'Files',
+      extensions: Array.isArray(f && f.extensions)
+        ? f.extensions
+            .map((x) => safeString(x, 16).replace(/^\./, '').toLowerCase())
+            .filter(Boolean)
+        : []
+    }))
+    .filter((f) => f.extensions.length > 0)
+    .slice(0, 10);
+  return { title, multi, allowFiles, allowDirs, filters };
+}
+
+ipcMain.handle('dialog:openFiles', async (evt, options) => {
+  try {
+    console.log('[electron][ipc] dialog:openFiles requested');
+    const win = evt && evt.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
+    try { win?.focus?.(); } catch {}
+    const o = sanitizeDialogOptions(options);
+    const properties = ['openFile'];
+    if (o.multi) properties.push('multiSelections');
+    const res = win
+      ? await dialog.showOpenDialog(win, {
+          title: o.title || 'Select files',
+          properties,
+          ...(o.filters.length ? { filters: o.filters } : {})
+        })
+      : await dialog.showOpenDialog({
+          title: o.title || 'Select files',
+          properties,
+          ...(o.filters.length ? { filters: o.filters } : {})
+        });
+    if (res.canceled || !res.filePaths || !res.filePaths.length) {
+      return { ok: false, error: 'canceled' };
+    }
+    const paths = Array.from(
+      new Set(res.filePaths.map((p) => String(p || '').trim()).filter(Boolean)),
+    );
+    return { ok: true, paths };
+  } catch (e) {
+    console.warn('[electron][ipc] dialog:openFiles failed:', e);
+    return { ok: false, error: String(e?.message || e || 'dialog_failed') };
+  }
+});
+
+ipcMain.handle('dialog:openFolder', async (evt, options) => {
+  try {
+    console.log('[electron][ipc] dialog:openFolder requested');
+    const win = evt && evt.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
+    try { win?.focus?.(); } catch {}
+    const o = sanitizeDialogOptions(options);
+    const properties = ['openDirectory'];
+    if (o.multi) properties.push('multiSelections');
+    const res = win
+      ? await dialog.showOpenDialog(win, {
+          title: o.title || 'Select folder',
+          properties,
+        })
+      : await dialog.showOpenDialog({
+          title: o.title || 'Select folder',
+          properties,
+        });
+    if (res.canceled || !res.filePaths || !res.filePaths.length) {
+      return { ok: false, error: 'canceled' };
+    }
+    const paths = Array.from(
+      new Set(res.filePaths.map((p) => String(p || '').trim()).filter(Boolean)),
+    );
+    return { ok: true, paths };
+  } catch (e) {
+    console.warn('[electron][ipc] dialog:openFolder failed:', e);
+    return { ok: false, error: String(e?.message || e || 'dialog_failed') };
+  }
+});
+
 const ACTIVE_IPFS_ADDS = new Map(); // wcId -> { abort: () => void }
 
 ipcMain.handle('ipfs:cancelAdd', async (evt) => {
@@ -352,6 +449,35 @@ ipcMain.handle('ipfs:addDirectoryPathsWithProgress', async (evt, payload) => {
 
   try {
     return await ipfsAddDirectoryPathsWithProgress(payload, { signal: controller.signal, onProgress: sendProgress });
+  } finally {
+    if (wcId) ACTIVE_IPFS_ADDS.delete(wcId);
+  }
+});
+
+ipcMain.handle('ipfs:addDirectoryFromPath', async (_evt, payload) => {
+  console.log('[electron][ipc] ipfs:addDirectoryFromPath requested');
+  return ipfsAddDirectoryFromPath(payload);
+});
+
+ipcMain.handle('ipfs:addDirectoryFromPathWithProgress', async (evt, payload) => {
+  const wcId = String(evt?.sender?.id || '');
+  if (wcId && ACTIVE_IPFS_ADDS.has(wcId)) return { ok: false, error: 'add_in_progress' };
+
+  const controller = new AbortController();
+  const abort = () => {
+    try { controller.abort(); } catch {}
+  };
+  if (wcId) ACTIVE_IPFS_ADDS.set(wcId, { abort });
+
+  const rootName = safeString(payload?.rootName ?? '', 256);
+  const sendProgress = (payload2) => {
+    try {
+      evt?.sender?.send?.('ipfs:addProgress', { ...payload2, rootName: rootName || '' });
+    } catch {}
+  };
+
+  try {
+    return await ipfsAddDirectoryFromPathWithProgress(payload, { signal: controller.signal, onProgress: sendProgress });
   } finally {
     if (wcId) ACTIVE_IPFS_ADDS.delete(wcId);
   }
