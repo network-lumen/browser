@@ -50,12 +50,6 @@ function isRootUser() {
   }
 }
 
-function needsNoSandboxArg() {
-  if (!isRootUser()) return false;
-  const argv = Array.isArray(process.argv) ? process.argv : [];
-  return !argv.includes('--no-sandbox');
-}
-
 function safeFilename(input) {
   const s = String(input || '').trim();
   if (!s) return 'update.bin';
@@ -455,12 +449,16 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
       await ensureExecutable(dl.path);
 
       const extraArgs = [];
-      if (needsNoSandboxArg()) extraArgs.push('--no-sandbox');
+      // For safety, always relaunch with --no-sandbox when running as root.
+      // (Even if the current instance already had it, the relaunched process won't unless we pass it.)
+      if (isRootUser() && !extraArgs.includes('--no-sandbox')) extraArgs.push('--no-sandbox');
 
       const relaunchLogPath = path.join(updatesDir, 'update_relaunch.log');
       await appendUpdateLog(
         relaunchLogPath,
-        `linux_update start pid=${process.pid} appImage=${String(process.env.APPIMAGE || '').trim() || 'n/a'} downloaded=${dl.path}`
+        `linux_update start pid=${process.pid} isRoot=${isRootUser()} args=${extraArgs.join(' ') || 'n/a'} appImage=${
+          String(process.env.APPIMAGE || '').trim() || 'n/a'
+        } downloaded=${dl.path}`
       );
 
       // Best-effort: if running from an AppImage and we can write next to it,
