@@ -16,6 +16,7 @@ declare global {
       profiles?: {
         list: () => Promise<{ profiles: Profile[]; activeId: string }>;
         getActive: () => Promise<Profile | null>;
+        isWalletFullyCreated?: (id: string) => Promise<{ ok: boolean; error?: string; details?: any; message?: string }>;
         select: (id: string) => Promise<string>;
         create: (name: string) => Promise<Profile | null>;
         export: (id: string) => Promise<string | null>;

@@ -175,9 +175,12 @@ contextBridge.exposeInMainWorld('lumen', {
     getAccount: (address) => ipcRenderer.invoke('pqc:getAccount', address)
   },
   profiles: {
- getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),    setFavourite: (domain, cid) => ipcRenderer.invoke('profiles:setFavourite', domain, cid),    removeFavourite: (domain) => ipcRenderer.invoke('profiles:removeFavourite', domain),
+    getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),
+    setFavourite: (domain, cid) => ipcRenderer.invoke('profiles:setFavourite', domain, cid),
+    removeFavourite: (domain) => ipcRenderer.invoke('profiles:removeFavourite', domain),
     list: () => ipcRenderer.invoke('profiles:list'),
     getActive: () => ipcRenderer.invoke('profiles:getActive'),
+    isWalletFullyCreated: (id) => ipcRenderer.invoke('profiles:isWalletFullyCreated', id),
     select: (id) => ipcRenderer.invoke('profiles:setActive', id),
     create: (name) => ipcRenderer.invoke('profiles:create', name),
     export: (id) => ipcRenderer.invoke('profiles:export', id),

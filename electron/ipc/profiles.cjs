@@ -655,6 +655,12 @@ ipcMain.handle('profiles:getFavourites', async () => {
     return active || null;
   });
 
+  ipcMain.handle('profiles:isWalletFullyCreated', async (_evt, id) => {
+    const profileId = String(id || '').trim();
+    if (!profileId) return { ok: false, error: 'missing_profile_id' };
+    return isWalletFullyCreated(profileId);
+  });
+
   ipcMain.handle('profiles:setActive', async (_evt, id) => {
     const { profiles, activeId } = loadProfilesFile();
     const exists = profiles.some((p) => p.id === id);
