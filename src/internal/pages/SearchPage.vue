@@ -277,14 +277,6 @@
                 >
                   {{ typeBadgeLabel(r) }}
                 </span>
-                <span
-                  v-if="r.uniqueViews7d != null"
-                  class="result-metric"
-                  :title="`Unique views (7d): ${r.uniqueViews7d}`"
-                >
-                  <Eye :size="14" />
-                  {{ formatCompactCount(r.uniqueViews7d) }} views
-                </span>
               </div>
               <div
                 v-if="displayTitle(r)"
@@ -550,7 +542,6 @@ import {
   ArrowUpRight,
   Bookmark,
   Compass,
-  Eye,
   EyeOff,
   Globe,
   Hash,
@@ -2360,18 +2351,6 @@ type GatewaySiteSearchResult = {
   title?: string;
   snippet?: string;
 };
-
-function formatCompactCount(value: any): string {
-  const n = Number(value);
-  if (!Number.isFinite(n) || n <= 0) return "0";
-  if (n < 1000) return String(Math.floor(n));
-  if (n < 1_000_000) {
-    const k = n / 1000;
-    return k >= 10 ? `${Math.floor(k)}k` : `${k.toFixed(1)}k`;
-  }
-  const m = n / 1_000_000;
-  return m >= 10 ? `${Math.floor(m)}M` : `${m.toFixed(1)}M`;
-}
 
 function safePathSuffix(pathValue: any): string {
   const p = String(pathValue ?? "").trim();
@@ -4339,17 +4318,6 @@ const imageResults = computed(() =>
   letter-spacing: 0.04em;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-}
-
-.result-metric {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 999px;
-  color: var(--text-secondary);
-  background: rgba(142, 142, 147, 0.1);
 }
 
 .type-ipfs {
