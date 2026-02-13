@@ -296,6 +296,7 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.invoke('gateway:getWalletPinnedCids', { profileId, baseUrl, page }),
     getBaseUrl: (profileId, baseUrl) =>
       ipcRenderer.invoke('gateway:getBaseUrl', { profileId, baseUrl }),
+    checkAlive: (payload) => ipcRenderer.invoke('gateway:checkAlive', payload || {}),
     getPlansOverview: (profileId, options) =>
       ipcRenderer.invoke('gateway:getPlansOverview', { profileId, ...(options || {}) }),
     getParams: () => ipcRenderer.invoke('gateway:getParams'),

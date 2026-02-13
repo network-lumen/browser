@@ -651,6 +651,84 @@ const gatewaysCache = ref<{ at: number; items: GatewayView[] }>({
   items: [],
 });
 
+const GATEWAY_HEALTH_TTL_MS = 10 * 60 * 1000;
+const gatewayHealthCache = new Map<string, { at: number; ok: boolean; baseUrl?: string }>();
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const list = Array.isArray(items) ? items : [];
+  const n = Number(concurrency);
+  const limit = Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+  const results = new Array(list.length) as R[];
+  let idx = 0;
+
+  async function worker() {
+    while (true) {
+      const i = idx++;
+      if (i >= list.length) return;
+      results[i] = await mapper(list[i], i);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, list.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+
+function gatewayHealthKey(g: GatewayView): string {
+  const base =
+    normalizeBaseUrlLike(String(g?.baseUrl || "")) ||
+    normalizeBaseUrlLike(String(g?.endpoint || ""));
+  const key = String(base || g?.endpoint || "")
+    .trim()
+    .toLowerCase();
+  return key;
+}
+
+async function filterAliveGatewaysForPqSearch(
+  list: GatewayView[],
+  seq: number,
+): Promise<GatewayView[]> {
+  try {
+    const gwApi = (window as any).lumen?.gateway;
+    if (!gwApi || typeof gwApi.checkAlive !== "function") return list;
+
+    const now = Date.now();
+    const checked = await mapWithConcurrency(list, 4, async (g) => {
+      const key = gatewayHealthKey(g);
+      if (!key) return { gateway: g, ok: true };
+
+      const cached = gatewayHealthCache.get(key);
+      if (cached && now - cached.at < GATEWAY_HEALTH_TTL_MS) {
+        if (!g.baseUrl && cached.baseUrl) g.baseUrl = cached.baseUrl;
+        return { gateway: g, ok: cached.ok };
+      }
+
+      const res = await gwApi
+        .checkAlive({ endpoint: g.endpoint, baseUrl: g.baseUrl, timeoutMs: 2500 })
+        .catch(() => null);
+      const ok = !!res?.ok;
+      const baseUrl = normalizeBaseUrlLike(String(res?.baseUrl || "")) || undefined;
+
+      gatewayHealthCache.set(key, { at: now, ok, baseUrl });
+      if (baseUrl) gatewayHealthCache.set(baseUrl.toLowerCase(), { at: now, ok, baseUrl });
+
+      if (!g.baseUrl && baseUrl) g.baseUrl = baseUrl;
+      return { gateway: g, ok };
+    });
+
+    if (seq !== searchSeq) return [];
+
+    const alive = checked.filter((x) => x && x.ok).map((x) => x.gateway);
+    return alive;
+  } catch {
+    return list;
+  }
+}
+
 const pinnedCids = ref<string[]>([]);
 
 // SearchPage-only: safe-by-default thumbnail rendering for image results.
@@ -2928,6 +3006,10 @@ async function searchGateways(
     ? gateways
     : [{ id: "default", endpoint: "", regions: [] }];
 
+  const aliveList = await filterAliveGatewaysForPqSearch(list, seq);
+  if (seq !== searchSeq) return { items: [], maybeHasMore: false };
+  if (!aliveList.length) return { items: [], maybeHasMore: false };
+
   const safePage = clampPage(opts.page);
   const pageSizeRaw = Number(opts.pageSize);
   const pageSize = Number.isFinite(pageSizeRaw) && pageSizeRaw > 0
@@ -2951,8 +3033,8 @@ async function searchGateways(
         ? Math.min(Math.max(end * 3, 50), 200)
         : type === "all"
           ? Math.min(Math.max(end * 3, 50), 200)
-        : Math.min(end, 50);
-  const tasks = list.map(async (g): Promise<GatewayBatch> => {
+          : Math.min(end, 50);
+  const tasks = aliveList.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
       .searchPq({
         profileId,

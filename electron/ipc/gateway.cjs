@@ -19,6 +19,16 @@ const { getNetworkPool } = require('../network/pool_singleton.cjs');
 let _gwCachedPeersFilePath = null;
 let _gwLoggedPeersPath = false;
 let _gwResolvedEndpointsLogged = new Set();
+let _gwKyberBaseLogged = new Set();
+
+const KYBER_PUBKEY_CACHE_TTL_MS = (() => {
+  const env = Number(process.env.LUMEN_GATEWAY_KYBER_PUBKEY_CACHE_TTL_MS || '');
+  if (Number.isFinite(env) && env > 0) return Math.min(Math.floor(env), 24 * 60 * 60 * 1000);
+  return 10 * 60 * 1000;
+})();
+
+const KYBER_PUBKEY_CACHE = new Map(); // baseUrl -> { ok, checkedAt, alg?, keyId?, pubKey?, error? }
+const KYBER_PUBKEY_PENDING = new Map(); // baseUrl -> Promise<{ alg, keyId, pubKey, baseUrl }>
 
 const ACTIVE_GATEWAY_PINS = new Map(); // wcId -> { abort: () => void }
 
@@ -840,53 +850,122 @@ async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
 }
 
 async function resolveKyberKeyForGatewayBase(baseUrlHint, opts = {}) {
+  const quiet = !!opts?.quiet;
   const initial = String(baseUrlHint || '').trim();
-  const resolvedBase = await resolveGatewayBaseFromEndpoint(initial);
+  const timeoutMs = opts?.timeoutMs;
+  const resolvedBase = await resolveGatewayBaseFromEndpoint(initial, timeoutMs, { quiet });
   const trimmedBase = resolvedBase ? resolvedBase : String(initial).replace(/\/+$/, '');
   if (!trimmedBase) throw new Error('kyber_pubkey_http_unavailable');
 
-  console.log('[gateway] resolveKyberKeyForGatewayBase base', {
-    hint: initial,
-    resolved: resolvedBase,
-    final: trimmedBase,
-  });
-
-  // In contributor/browser, gateway endpoints come directly from on-chain DNS records
-  // and already represent the final HTTP base URL. We just hit /pq/pub on that base.
-  let httpPubB64 = null;
-  let httpKeyId = 'gw-2025-01';
-  let httpAlg = 'kyber768';
-  try {
-    const signal = opts?.signal;
-    const url = `${trimmedBase}/pq/pub`;
-    const res = await fetch(url, { method: 'GET', ...(signal ? { signal } : {}) });
-    if (res.ok) {
-      const text = await res.text().catch(() => '');
-      let data = null;
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch {
-        data = null;
-      }
-      if (data && typeof data.pub === 'string') {
-        const candidate = data.pub.trim();
-        if (candidate) httpPubB64 = candidate;
-      }
-      if (data && typeof data.key_id === 'string' && data.key_id.trim()) httpKeyId = data.key_id.trim();
-      if (data && typeof data.alg === 'string' && data.alg.trim()) httpAlg = data.alg.trim();
+  const baseUrl = trimSlash(trimmedBase);
+  const now = Date.now();
+  const cached = KYBER_PUBKEY_CACHE.get(baseUrl);
+  if (cached && now - cached.checkedAt < KYBER_PUBKEY_CACHE_TTL_MS) {
+    if (cached.ok && cached.pubKey) {
+      return {
+        alg: cached.alg || 'kyber768',
+        keyId: cached.keyId || 'gw-2025-01',
+        pubKey: cached.pubKey,
+        baseUrl,
+      };
     }
-  } catch (e) {
-    console.warn('[gateway] resolveKyberKeyForGatewayBase http error:', e && e.message ? e.message : e);
+    throw new Error(cached.error || 'kyber_pubkey_http_unavailable');
   }
-  if (!httpPubB64) throw new Error('kyber_pubkey_http_unavailable');
 
-  const pubKey = Buffer.from(httpPubB64, 'base64');
+  const pending = KYBER_PUBKEY_PENDING.get(baseUrl);
+  if (pending) return await pending;
 
-  return {
-    alg: httpAlg || 'kyber768',
-    keyId: httpKeyId || 'gw-2025-01',
-    pubKey,
-  };
+  const task = (async () => {
+    if (!quiet && !_gwKyberBaseLogged.has(baseUrl)) {
+      console.log('[gateway] resolveKyberKeyForGatewayBase base', {
+        hint: initial,
+        resolved: resolvedBase,
+        final: baseUrl,
+      });
+      _gwKyberBaseLogged.add(baseUrl);
+    }
+
+    let httpPubB64 = null;
+    let httpKeyId = 'gw-2025-01';
+    let httpAlg = 'kyber768';
+    try {
+      const signal = opts?.signal;
+      const url = `${baseUrl}/pq/pub`;
+      const res = await fetch(url, { method: 'GET', ...(signal ? { signal } : {}) });
+      if (res.ok) {
+        const text = await res.text().catch(() => '');
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = null;
+        }
+        if (data && typeof data.pub === 'string') {
+          const candidate = data.pub.trim();
+          if (candidate) httpPubB64 = candidate;
+        }
+        if (data && typeof data.key_id === 'string' && data.key_id.trim()) httpKeyId = data.key_id.trim();
+        if (data && typeof data.alg === 'string' && data.alg.trim()) httpAlg = data.alg.trim();
+      }
+    } catch (e) {
+      if (!quiet) {
+        console.warn(
+          '[gateway] resolveKyberKeyForGatewayBase http error:',
+          e && e.message ? e.message : e
+        );
+      }
+    }
+
+    if (!httpPubB64) {
+      KYBER_PUBKEY_CACHE.set(baseUrl, {
+        ok: false,
+        checkedAt: Date.now(),
+        error: 'kyber_pubkey_http_unavailable',
+      });
+      throw new Error('kyber_pubkey_http_unavailable');
+    }
+
+    const pubKey = Buffer.from(httpPubB64, 'base64');
+    KYBER_PUBKEY_CACHE.set(baseUrl, {
+      ok: true,
+      checkedAt: Date.now(),
+      alg: httpAlg || 'kyber768',
+      keyId: httpKeyId || 'gw-2025-01',
+      pubKey,
+    });
+
+    return {
+      alg: httpAlg || 'kyber768',
+      keyId: httpKeyId || 'gw-2025-01',
+      pubKey,
+      baseUrl,
+    };
+  })();
+
+  KYBER_PUBKEY_PENDING.set(baseUrl, task);
+  try {
+    return await task;
+  } finally {
+    KYBER_PUBKEY_PENDING.delete(baseUrl);
+  }
+}
+
+async function mapWithConcurrency(items, concurrency, mapper) {
+  const list = Array.isArray(items) ? items : [];
+  const n = Number(concurrency);
+  const limit = Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+  const results = new Array(list.length);
+  let idx = 0;
+  async function worker() {
+    while (true) {
+      const i = idx++;
+      if (i >= list.length) return;
+      results[i] = await mapper(list[i], i);
+    }
+  }
+  const workers = Array.from({ length: Math.min(limit, list.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 
 async function sendGatewayAuthPq(params) {
@@ -1476,6 +1555,80 @@ async function fetchGatewaysFromRest(limit, timeoutMs) {
   }
 }
 
+let _gwHealthInterval = null;
+let _gwHealthInFlight = false;
+
+function gatewayHealthMonitorEnabled() {
+  const raw = String(process.env.LUMEN_GATEWAY_HEALTH_MONITOR || '').trim().toLowerCase();
+  if (raw === '0' || raw === 'false' || raw === 'off' || raw === 'no') return false;
+  return true;
+}
+
+async function refreshWhitelistedGatewayHealth(opts = {}) {
+  if (_gwHealthInFlight) return;
+  _gwHealthInFlight = true;
+  try {
+    const timeoutMsRaw = Number(opts?.timeoutMs ?? 0);
+    const timeoutMs =
+      Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
+        ? Math.min(Math.floor(timeoutMsRaw), 30_000)
+        : 2500;
+
+    // Pull the current whitelisted gateways list and prefetch /pq/pub so PQ calls can skip dead bases quickly.
+    const { gateways } = await fetchGatewaysFromRest(250, Math.max(timeoutMs, 6000), {
+      ignoreWhitelist: false,
+    });
+    if (!Array.isArray(gateways) || !gateways.length) return;
+
+    const endpoints = Array.from(
+      new Set(
+        gateways
+          .map((g) => String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim())
+          .filter(Boolean),
+      ),
+    );
+    if (!endpoints.length) return;
+
+    await mapWithConcurrency(endpoints, 4, async (endpoint) => {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        await resolveKyberKeyForGatewayBase(endpoint, {
+          quiet: true,
+          timeoutMs,
+          signal: controller.signal,
+        });
+      } catch {
+        // ignore: resolveKyberKeyForGatewayBase caches negative results
+      } finally {
+        try { clearTimeout(t); } catch {}
+      }
+    });
+  } finally {
+    _gwHealthInFlight = false;
+  }
+}
+
+function startGatewayHealthMonitor() {
+  if (!gatewayHealthMonitorEnabled()) return;
+  if (_gwHealthInterval) return;
+
+  const periodMsRaw = Number(process.env.LUMEN_GATEWAY_HEALTH_MONITOR_PERIOD_MS || '');
+  const periodMs =
+    Number.isFinite(periodMsRaw) && periodMsRaw > 0
+      ? Math.max(60_000, Math.floor(periodMsRaw))
+      : 10 * 60 * 1000;
+
+  // Kick once shortly after startup, then keep refreshing.
+  setTimeout(() => {
+    void refreshWhitelistedGatewayHealth().catch(() => {});
+  }, 2500);
+
+  _gwHealthInterval = setInterval(() => {
+    void refreshWhitelistedGatewayHealth().catch(() => {});
+  }, periodMs);
+}
+
 function normalizePlan(raw, gateway, fallbackIndex) {
   if (!raw) return null;
   const gatewayId = String(gateway?.id ?? gateway?.gatewayId ?? '');
@@ -1901,6 +2054,44 @@ function registerGatewayIpc() {
       if (!baseUrl) return { ok: false, error: 'missing_baseUrl' };
 
       return { ok: true, baseUrl };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('gateway:checkAlive', async (_e, input) => {
+    try {
+      const endpoint =
+        typeof input?.endpoint === 'string'
+          ? String(input.endpoint).trim()
+          : typeof input?.gatewayEndpoint === 'string'
+          ? String(input.gatewayEndpoint).trim()
+          : '';
+
+      const baseHint =
+        typeof input?.baseUrl === 'string'
+          ? String(input.baseUrl).trim()
+          : endpoint;
+      if (!baseHint) return { ok: false, error: 'missing_endpoint' };
+
+      const timeoutMsRaw = input?.timeoutMs != null ? Number(input.timeoutMs) : 2500;
+      const timeoutMs =
+        Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
+          ? Math.min(Math.floor(timeoutMsRaw), 30_000)
+          : 2500;
+
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const { baseUrl } = await resolveKyberKeyForGatewayBase(baseHint, {
+          quiet: true,
+          timeoutMs,
+          signal: controller.signal,
+        });
+        return { ok: true, endpoint: endpoint || baseHint, baseUrl: trimSlash(baseUrl) };
+      } finally {
+        try { clearTimeout(t); } catch {}
+      }
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
@@ -2343,8 +2534,18 @@ function registerGatewayIpc() {
       });
       return { ok: true, status, data, baseUrl: trimSlash(baseUrl) };
     } catch (e) {
-      console.warn('[gateway] searchPq error', e && e.message ? e.message : e);
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      const msg = String(e && e.message ? e.message : e);
+      const low = msg.toLowerCase();
+      // Expected when a whitelisted gateway is offline or timing out.
+      const expected =
+        low.includes('kyber_pubkey_http_unavailable') ||
+        low.includes('aborterror') ||
+        low.includes('aborted') ||
+        low.includes('fetch failed');
+      if (!expected) {
+        console.warn('[gateway] searchPq error', msg);
+      }
+      return { ok: false, error: msg };
     }
   });
 
@@ -2896,6 +3097,9 @@ function registerGatewayIpc() {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
+
+  // Best-effort: keep a warm cache of PQ public keys so PQ operations can skip dead gateways quickly.
+  startGatewayHealthMonitor();
 }
 
 module.exports = {
