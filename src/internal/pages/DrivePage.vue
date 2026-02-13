@@ -828,10 +828,311 @@
                 }}</span>
               </div>
               <div class="details-row">
-                <span class="details-label">Saved</span>
+                <span class="details-label">Saved items</span>
                 <span class="details-value">{{ localSavedCount }}</span>
               </div>
+              <div class="details-row">
+                <span class="details-label">Pinned locally</span>
+                <span class="details-value">{{ pinnedFiles.length }}</span>
+              </div>
             </div>
+
+            <div class="details-section">
+              <div class="details-section-header">
+                <h4>Backup</h4>
+                <UiSpinner v-if="driveBackupBusy" size="sm" />
+              </div>
+
+              <p class="txt-xs color-gray-blue" style="margin: 0 0 0.75rem 0">
+                Export/import your drive metadata (CIDs, names, favourites). The snapshot is
+                encrypted with a password you choose. It doesn't include the data behind CIDs
+                (only references). Keep the file + password safe.
+              </p>
+
+              <div v-if="driveBackupError" class="plans-error">
+                <div class="plans-error-title">Backup failed</div>
+                <div class="plans-error-text">{{ driveBackupError }}</div>
+              </div>
+
+              <div class="details-grid">
+                <div class="details-row">
+                  <span class="details-label">Last export</span>
+                  <span class="details-value">{{
+                    driveBackupLastExportAt ? formatDate(driveBackupLastExportAt) : "—"
+                  }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Last import</span>
+                  <span class="details-value">{{
+                    driveBackupLastImportAt ? formatDate(driveBackupLastImportAt) : "—"
+                  }}</span>
+                </div>
+              </div>
+
+              <div class="details-actions" style="margin-top: 0.75rem; flex-wrap: wrap">
+                <button
+                  class="btn-ghost"
+                  type="button"
+                  :disabled="driveBackupBusy"
+                  @click="openDriveBackupExportModal"
+                >
+                  Export snapshot
+                </button>
+                <button
+                  class="btn-ghost"
+                  type="button"
+                  :disabled="driveBackupBusy"
+                  @click="triggerImportDriveBackup"
+                >
+                  Import snapshot
+                </button>
+                <input
+                  ref="driveBackupImportInput"
+                  type="file"
+                  accept="application/json,.json"
+                  style="display: none"
+                  @change="handleImportDriveBackupFile"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Export Snapshot Modal -->
+    <Transition name="modal">
+      <div
+        v-if="showDriveBackupExportModal"
+        class="modal-overlay"
+        @click="closeDriveBackupExportModal"
+      >
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>Export drive snapshot</h3>
+            <button class="modal-close" @click="closeDriveBackupExportModal">
+              <X :size="20" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">
+              Set a password to encrypt your drive metadata backup for
+              <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
+            </p>
+
+            <div class="drive-backup-form">
+              <div class="drive-backup-field">
+                <label class="drive-backup-label">Password</label>
+                <input
+                  class="drive-backup-input"
+                  :type="driveBackupExportShowPassword ? 'text' : 'password'"
+                  v-model="driveBackupExportPassword"
+                  placeholder="Min 8 characters (recommended: long passphrase)"
+                  :disabled="driveBackupBusy"
+                />
+              </div>
+
+              <div class="drive-backup-field">
+                <label class="drive-backup-label">Confirm password</label>
+                <input
+                  class="drive-backup-input"
+                  :type="driveBackupExportShowPassword ? 'text' : 'password'"
+                  v-model="driveBackupExportPasswordConfirm"
+                  placeholder="Repeat password"
+                  :disabled="driveBackupBusy"
+                  @keyup.enter="confirmDriveBackupExport"
+                />
+              </div>
+
+              <label class="drive-backup-toggle">
+                <input
+                  type="checkbox"
+                  v-model="driveBackupExportShowPassword"
+                  :disabled="driveBackupBusy"
+                />
+                <span>Show password</span>
+              </label>
+
+              <p class="txt-xs color-gray-blue" style="margin: 0.75rem 0 0 0">
+                If you lose the password, this backup cannot be recovered.
+              </p>
+
+              <div v-if="driveBackupError" class="plans-error" style="margin-top: 0.75rem">
+                <div class="plans-error-title">Backup failed</div>
+                <div class="plans-error-text">{{ driveBackupError }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn-modal-secondary"
+              type="button"
+              :disabled="driveBackupBusy"
+              @click="closeDriveBackupExportModal"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn-modal-primary"
+              type="button"
+              :disabled="
+                driveBackupBusy ||
+                !driveBackupExportPassword ||
+                driveBackupExportPassword.length < 8 ||
+                driveBackupExportPassword !== driveBackupExportPasswordConfirm
+              "
+              @click="confirmDriveBackupExport"
+            >
+              <UiSpinner v-if="driveBackupBusy" size="sm" />
+              <span>{{ driveBackupBusy ? "Exporting..." : "Export" }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Import Snapshot Modal -->
+    <Transition name="modal">
+      <div
+        v-if="showDriveBackupImportModal"
+        class="modal-overlay"
+        @click="closeDriveBackupImportModal"
+      >
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>Import drive snapshot</h3>
+            <button class="modal-close" @click="closeDriveBackupImportModal">
+              <X :size="20" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">
+              This will replace your local drive metadata (CIDs, names, favourites) for
+              <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
+            </p>
+
+            <div v-if="driveBackupImportFilename" class="details-grid">
+              <div class="details-row">
+                <span class="details-label">File</span>
+                <span class="details-value">{{ driveBackupImportFilename }}</span>
+              </div>
+            </div>
+
+            <div
+              v-if="!driveBackupRestoreDetails"
+              class="drive-backup-form"
+              style="margin-top: 1rem"
+            >
+              <div class="drive-backup-field">
+                <label class="drive-backup-label">Password</label>
+                <input
+                  class="drive-backup-input"
+                  :type="driveBackupImportShowPassword ? 'text' : 'password'"
+                  v-model="driveBackupImportPassword"
+                  placeholder="Enter backup password"
+                  :disabled="driveBackupBusy"
+                  @keyup.enter="decryptDriveBackupImport"
+                />
+              </div>
+
+              <label class="drive-backup-toggle">
+                <input
+                  type="checkbox"
+                  v-model="driveBackupImportShowPassword"
+                  :disabled="driveBackupBusy"
+                />
+                <span>Show password</span>
+              </label>
+
+              <div v-if="driveBackupError" class="plans-error" style="margin-top: 0.75rem">
+                <div class="plans-error-title">Import failed</div>
+                <div class="plans-error-text">{{ driveBackupError }}</div>
+              </div>
+            </div>
+
+            <template v-else>
+              <div class="details-grid" style="margin-top: 1rem">
+                <div class="details-row">
+                  <span class="details-label">Wallet</span>
+                  <span class="details-value mono">{{
+                    driveBackupRestoreDetails.walletAddress || "—"
+                  }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Created</span>
+                  <span class="details-value">{{
+                    driveBackupRestoreDetails.createdAt
+                      ? formatDate(driveBackupRestoreDetails.createdAt)
+                      : "—"
+                  }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Saved items</span>
+                  <span class="details-value">{{ driveBackupRestoreDetails.filesCount }}</span>
+                </div>
+                <div class="details-row">
+                  <span class="details-label">Favourites</span>
+                  <span class="details-value">{{ driveBackupRestoreDetails.favCount }}</span>
+                </div>
+              </div>
+
+              <div
+                v-if="driveBackupRestoreDetails.walletMismatch"
+                class="plans-error"
+                style="margin-top: 1rem"
+              >
+                <div class="plans-error-title">Different wallet</div>
+                <div class="plans-error-text">
+                  This snapshot was created for a different wallet. Importing it will still work,
+                  but make sure you're restoring into the right profile.
+                </div>
+              </div>
+
+              <div v-if="driveBackupRestoreDetails.rollback" class="plans-error" style="margin-top: 1rem">
+                <div class="plans-error-title">Older snapshot</div>
+                <div class="plans-error-text">
+                  This snapshot looks older than your current local version (seq
+                  {{ driveBackupRestoreDetails.localSeq }}).
+                </div>
+              </div>
+
+              <div v-if="driveBackupError" class="plans-error" style="margin-top: 0.75rem">
+                <div class="plans-error-title">Import failed</div>
+                <div class="plans-error-text">{{ driveBackupError }}</div>
+              </div>
+            </template>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn-modal-secondary"
+              type="button"
+              :disabled="driveBackupBusy"
+              @click="closeDriveBackupImportModal"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn-modal-primary"
+              type="button"
+              :disabled="
+                driveBackupBusy ||
+                !pendingDriveBackupImport ||
+                (!driveBackupRestoreDetails &&
+                  (!driveBackupImportPassword || driveBackupImportPassword.length < 8))
+              "
+              @click="driveBackupRestoreDetails ? confirmDriveBackupRestore() : decryptDriveBackupImport()"
+            >
+              <UiSpinner v-if="driveBackupBusy" size="sm" />
+              <span>{{
+                driveBackupBusy
+                  ? driveBackupRestoreDetails
+                    ? "Restoring..."
+                    : "Decrypting..."
+                  : driveBackupRestoreDetails
+                    ? "Restore"
+                    : "Decrypt"
+              }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1455,6 +1756,8 @@ import {
   onDeactivated,
   watch,
   inject,
+  toRaw,
+  markRaw,
 } from "vue";
 
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
@@ -1500,6 +1803,7 @@ import {
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
 import { profilesState, activeProfileId } from "../profilesStore";
+import { useFavourites, setFavouritesForProfile } from "../favouritesStore";
 
 interface DriveFile {
   cid: string;
@@ -1596,8 +1900,22 @@ const activeProfileDisplay = computed(
   () => activeProfile.value?.name || activeProfile.value?.id || "",
 );
 
-const STORAGE_KEY = "lumen_drive_files";
-const LOCAL_NAMES_KEY = "lumen_drive_saved_names";
+const { favourites } = useFavourites();
+
+const LEGACY_STORAGE_KEY = "lumen_drive_files";
+const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
+const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
+const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
+
+function filesStorageKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${STORAGE_KEY_PREFIX}:${pid}`;
+}
+
+function localNamesStorageKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
+}
 const localNames = ref<Record<string, string>>({});
 const renameDraft = ref("");
 const imagePreviewUrls = ref<Record<string, string>>({});
@@ -1668,6 +1986,20 @@ const planPageSize = ref(8);
 
 // Local details
 const showLocalDetails = ref(false);
+const driveBackupBusy = ref(false);
+const driveBackupError = ref("");
+const driveBackupLastExportAt = ref<number | null>(null);
+const driveBackupLastImportAt = ref<number | null>(null);
+const driveBackupImportInput = ref<HTMLInputElement | null>(null);
+const showDriveBackupExportModal = ref(false);
+const driveBackupExportPassword = ref("");
+const driveBackupExportPasswordConfirm = ref("");
+const driveBackupExportShowPassword = ref(false);
+const showDriveBackupImportModal = ref(false);
+const pendingDriveBackupImport = ref<{ filename: string; encrypted: any } | null>(null);
+const driveBackupImportPassword = ref("");
+const driveBackupImportShowPassword = ref(false);
+const pendingDriveBackupRestore = ref<{ source: string; snapshot: any } | null>(null);
 
 // Subscription details
 const showGatewayDetails = ref(false);
@@ -1790,23 +2122,35 @@ watch(planTotalPages, (total) => {
   if (planPage.value > total) planPage.value = total;
 });
 
+const localSavedMetaCids = computed(() => {
+  const meta = Array.isArray(files.value) ? files.value : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const f of meta) {
+    const cid = String((f as any)?.cid || "").trim();
+    if (!cid || isIgnoredCid(cid)) continue;
+    const key = cid;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(cid);
+  }
+  return out;
+});
+
 const activeSavedCids = computed(() => {
-  return hosting.value.kind === "gateway"
-    ? gatewayPinned.value
-    : pinnedFiles.value;
+  if (hosting.value.kind === "gateway") return gatewayPinned.value;
+  return localSavedMetaCids.value;
 });
 
 const savedRootsLoading = computed(() => {
-  return hosting.value.kind === "gateway"
-    ? gatewayPinnedLoading.value
-    : localPinnedLoading.value;
+  return hosting.value.kind === "gateway" ? gatewayPinnedLoading.value : false;
 });
 
 const showSavedListSpinner = computed(() => {
   return !isBrowsing.value && savedRootsLoading.value;
 });
 
-const localSavedCount = computed(() => pinnedFiles.value.length);
+const localSavedCount = computed(() => localSavedMetaCids.value.length);
 
 const entryTypeCache = ref<Record<string, "file" | "dir">>({});
 const entryContentTypeCache = ref<Record<string, string>>({});
@@ -1886,8 +2230,7 @@ const rootSavedEntries = computed<DriveFile[]>(() => {
         rootCid: String(existing?.rootCid || cid),
         relPath: String(existing?.relPath || ""),
       };
-    })
-    .filter((f) => String(f.name || "").trim() && String(f.name) !== "Unknown");
+    });
 });
 
 // Filtered files (after search)
@@ -2333,6 +2676,7 @@ onMounted(async () => {
   await checkIpfsStatus();
   loadFiles();
   loadLocalNames();
+  loadDriveBackupMeta();
   loadStats();
   void loadPinnedFiles();
 
@@ -3592,29 +3936,91 @@ function removeOptimisticGatewayPinnedCid(cid: string) {
 }
 
 function loadFiles() {
+  files.value = [];
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return;
+  const key = filesStorageKey(pid);
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      files.value = JSON.parse(stored);
+    const stored = localStorage.getItem(key);
+    const storedParsed = stored ? JSON.parse(stored) : null;
+    const storedFiles = Array.isArray(storedParsed) ? (storedParsed as DriveFile[]) : [];
+
+    // One-shot migrate legacy global key to per-profile storage, then delete legacy.
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy) {
+      const legacyParsed = JSON.parse(legacy);
+      const legacyFiles = Array.isArray(legacyParsed) ? (legacyParsed as DriveFile[]) : [];
+      const byCid = new Map<string, DriveFile>();
+
+      // Prefer the current per-profile entries over legacy for conflicts.
+      for (const f of legacyFiles) {
+        const cid = String((f as any)?.cid || "").trim();
+        if (!cid) continue;
+        byCid.set(cid, f);
+      }
+      for (const f of storedFiles) {
+        const cid = String((f as any)?.cid || "").trim();
+        if (!cid) continue;
+        byCid.set(cid, f);
+      }
+
+      files.value = Array.from(byCid.values());
+      try {
+        localStorage.setItem(key, JSON.stringify(files.value));
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+      } catch {}
+      return;
     }
+
+    files.value = storedFiles;
   } catch {
     files.value = [];
   }
 }
 
 function saveFiles() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(files.value));
+  try {
+    const pid = String(activeProfileId.value || "").trim() || "default";
+    const key = filesStorageKey(pid);
+    localStorage.setItem(key, JSON.stringify(files.value));
+    nextDriveBackupSeq(pid);
+  } catch {
+    // ignore
+  }
 }
 
 function loadLocalNames() {
+  localNames.value = {};
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return;
+  const key = localNamesStorageKey(pid);
   try {
-    const stored = localStorage.getItem(LOCAL_NAMES_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed && typeof parsed === "object") {
-        localNames.value = parsed as Record<string, string>;
-      }
+    const stored = localStorage.getItem(key);
+    const storedParsed = stored ? JSON.parse(stored) : null;
+    const storedNames =
+      storedParsed && typeof storedParsed === "object"
+        ? (storedParsed as Record<string, string>)
+        : {};
+
+    // One-shot migrate legacy global key to per-profile storage, then delete legacy.
+    const legacy = localStorage.getItem(LEGACY_LOCAL_NAMES_KEY);
+    if (legacy) {
+      const legacyParsed = JSON.parse(legacy);
+      const legacyNames =
+        legacyParsed && typeof legacyParsed === "object"
+          ? (legacyParsed as Record<string, string>)
+          : {};
+
+      // Prefer the current per-profile names over legacy for conflicts.
+      localNames.value = { ...legacyNames, ...storedNames };
+        try {
+          localStorage.setItem(key, JSON.stringify(localNames.value));
+          localStorage.removeItem(LEGACY_LOCAL_NAMES_KEY);
+        } catch {}
+        return;
     }
+
+    localNames.value = storedNames;
   } catch {
     localNames.value = {};
   }
@@ -3622,10 +4028,494 @@ function loadLocalNames() {
 
 function saveLocalNames() {
   try {
-    localStorage.setItem(LOCAL_NAMES_KEY, JSON.stringify(localNames.value));
+    const pid = String(activeProfileId.value || "").trim() || "default";
+    const key = localNamesStorageKey(pid);
+    localStorage.setItem(key, JSON.stringify(localNames.value));
+    nextDriveBackupSeq(pid);
   } catch {
     // ignore
   }
+}
+
+type DriveBackupSnapshotV1 = {
+  type: "lumen.driveBackup.snapshot";
+  version: 1;
+  createdAt: number;
+  seq: number;
+  walletAddress: string;
+  drive: {
+    files: DriveFile[];
+    localNames: Record<string, string>;
+  };
+  favourites: string[];
+};
+
+const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
+const DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastExportAt:v1";
+const DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastImportAt:v1";
+
+function driveBackupSeqKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}`;
+}
+
+function driveBackupLastExportAtKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}`;
+}
+
+function driveBackupLastImportAtKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}`;
+}
+
+function activeWalletAddress(): string {
+  const p = activeProfile.value;
+  const addr = p && (p.walletAddress || p.address);
+  return String(addr || "").trim();
+}
+
+function nextDriveBackupSeq(profileId: string): number {
+  const key = driveBackupSeqKey(profileId);
+  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
+  const base = Number.isFinite(current) && current >= 0 ? current : 0;
+  const next = base + 1;
+  try {
+    localStorage.setItem(key, String(next));
+  } catch {}
+  return next;
+}
+
+function bumpDriveBackupSeq(profileId: string, nextSeq: number) {
+  const key = driveBackupSeqKey(profileId);
+  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
+  const base = Number.isFinite(current) && current >= 0 ? current : 0;
+  const next = Number.isFinite(nextSeq) && nextSeq > base ? Math.floor(nextSeq) : base;
+  try {
+    localStorage.setItem(key, String(next));
+  } catch {}
+}
+
+function getCurrentDriveBackupSeq(profileId: string): number {
+  const pid = String(profileId || "").trim() || "default";
+  const raw = localStorage.getItem(driveBackupSeqKey(pid));
+  const v = raw ? Number.parseInt(raw, 10) : NaN;
+  return Number.isFinite(v) && v > 0 ? v : 0;
+}
+
+function loadDriveBackupMeta() {
+  const pid = String(activeProfileId.value || "").trim() || "default";
+  const exportAtRaw = localStorage.getItem(driveBackupLastExportAtKey(pid));
+  const importAtRaw = localStorage.getItem(driveBackupLastImportAtKey(pid));
+  const exportAt = exportAtRaw ? Number.parseInt(exportAtRaw, 10) : NaN;
+  const importAt = importAtRaw ? Number.parseInt(importAtRaw, 10) : NaN;
+  driveBackupLastExportAt.value = Number.isFinite(exportAt) ? exportAt : null;
+  driveBackupLastImportAt.value = Number.isFinite(importAt) ? importAt : null;
+}
+
+function setDriveBackupMeta(kind: "export" | "import", ts: number) {
+  const pid = String(activeProfileId.value || "").trim() || "default";
+  const key = kind === "export" ? driveBackupLastExportAtKey(pid) : driveBackupLastImportAtKey(pid);
+  try {
+    localStorage.setItem(key, String(ts));
+  } catch {}
+  if (kind === "export") driveBackupLastExportAt.value = ts;
+  else driveBackupLastImportAt.value = ts;
+}
+
+function makeDriveBackupSnapshot(): DriveBackupSnapshotV1 | null {
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return null;
+  const walletAddress = activeWalletAddress();
+  let seq = getCurrentDriveBackupSeq(pid);
+  if (!seq) seq = nextDriveBackupSeq(pid);
+
+  const rawFiles = Array.isArray(files.value) ? files.value : [];
+  const outFiles: DriveFile[] = rawFiles
+    .map((f: any) => {
+      const cid = String(f?.cid || "").trim();
+      if (!cid) return null;
+      const name = String(f?.name || "").trim() || "Unknown";
+      const sizeRaw = Number(f?.size);
+      const size = Number.isFinite(sizeRaw) && sizeRaw >= 0 ? sizeRaw : 0;
+      const uploadedAtRaw = Number(f?.uploadedAt);
+      const uploadedAt = Number.isFinite(uploadedAtRaw) ? uploadedAtRaw : undefined;
+      const type = f?.type === "dir" ? "dir" : f?.type === "file" ? "file" : undefined;
+      const rootCid = String(f?.rootCid || "").trim() || undefined;
+      const relPath = String(f?.relPath || "").trim() || undefined;
+      return {
+        cid,
+        name,
+        size,
+        ...(uploadedAt != null ? { uploadedAt } : {}),
+        ...(type ? { type } : {}),
+        ...(rootCid ? { rootCid } : {}),
+        ...(relPath ? { relPath } : {}),
+      } as DriveFile;
+    })
+    .filter(Boolean)
+    .slice(0, 500) as DriveFile[];
+
+  const rawNames =
+    localNames.value && typeof localNames.value === "object" ? localNames.value : {};
+  const outNames = Object.fromEntries(
+    Object.entries(rawNames)
+      .map(([k, v]) => [String(k || "").trim(), String(v || "").trim()] as const)
+      .filter(([k, v]) => !!k && !!v && v.toLowerCase() !== "unknown")
+      .slice(0, 5000),
+  ) as Record<string, string>;
+
+  return {
+    type: "lumen.driveBackup.snapshot",
+    version: 1,
+    createdAt: Date.now(),
+    seq,
+    walletAddress,
+    drive: {
+      files: outFiles,
+      localNames: outNames,
+    },
+    favourites: Array.from(
+      new Set(
+        (Array.isArray(favourites.value) ? favourites.value : [])
+          .map((u) => String(u || "").trim())
+          .filter(Boolean),
+      ),
+    ),
+  };
+}
+
+function sanitizeBackupFilenameSegment(input: string): string {
+  const raw = String(input || "").trim();
+  if (!raw) return "";
+  let out = raw.replace(/[<>:"/\\|?*\x00-\x1F]/g, "").replace(/\s+/g, " ").trim();
+  out = out.replace(/[. ]+$/g, "");
+  if (out.length > 64) out = out.slice(0, 64).trim();
+  return out;
+}
+
+function downloadTextFile(filename: string, text: string, mime = "application/json") {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "download.json";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function driveBackupFriendlyError(code: string): string {
+  const c = String(code || "").trim();
+  if (!c) return "Backup failed";
+  if (c === "missing_password") return "Password required.";
+  if (c === "weak_password") return "Password too short (min 8 characters).";
+  if (c === "decrypt_failed") return "Wrong password or corrupted backup file.";
+  if (c === "invalid_envelope") return "Invalid backup file.";
+  if (c === "invalid_snapshot") return "Invalid snapshot.";
+  return c.replace(/_/g, " ");
+}
+
+function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: string; seq?: number } {
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return { ok: false, error: "missing_profile_id" };
+
+  if (!snap || snap.type !== "lumen.driveBackup.snapshot" || snap.version !== 1) {
+    return { ok: false, error: "invalid_snapshot" };
+  }
+
+  const rawFiles = Array.isArray(snap.drive?.files) ? snap.drive.files : [];
+  const nextFiles: DriveFile[] = rawFiles
+    .map((f: any) => {
+      const cid = String(f?.cid || "").trim();
+      if (!cid) return null;
+      const name = String(f?.name || "").trim() || "Unknown";
+      const sizeRaw = Number(f?.size);
+      const size = Number.isFinite(sizeRaw) && sizeRaw >= 0 ? sizeRaw : 0;
+      const uploadedAtRaw = Number(f?.uploadedAt);
+      const uploadedAt = Number.isFinite(uploadedAtRaw) ? uploadedAtRaw : undefined;
+      const type = f?.type === "dir" ? "dir" : f?.type === "file" ? "file" : undefined;
+      const rootCid = String(f?.rootCid || "").trim() || undefined;
+      const relPath = String(f?.relPath || "").trim() || undefined;
+      return {
+        cid,
+        name,
+        size,
+        ...(uploadedAt != null ? { uploadedAt } : {}),
+        ...(type ? { type } : {}),
+        ...(rootCid ? { rootCid } : {}),
+        ...(relPath ? { relPath } : {}),
+      } as DriveFile;
+    })
+    .filter(Boolean)
+    .slice(0, 500) as DriveFile[];
+
+  const rawNames = snap.drive?.localNames && typeof snap.drive.localNames === "object" ? snap.drive.localNames : {};
+  const nextNames = Object.fromEntries(
+    Object.entries(rawNames)
+      .map(([k, v]) => [String(k || "").trim(), String(v || "").trim()] as const)
+      .filter(([k, v]) => !!k && !!v && v.toLowerCase() !== "unknown")
+      .slice(0, 5000),
+  ) as Record<string, string>;
+
+  const nextFav = Array.from(
+    new Set(
+      (Array.isArray(snap.favourites) ? snap.favourites : [])
+        .map((u: any) => String(u || "").trim())
+        .filter(Boolean),
+    ),
+  );
+
+  files.value = nextFiles;
+  localNames.value = nextNames;
+  saveFiles();
+  saveLocalNames();
+  setFavouritesForProfile(pid, nextFav);
+
+  const seq = Number(snap.seq);
+  if (Number.isFinite(seq) && seq > 0) {
+    bumpDriveBackupSeq(pid, seq);
+  }
+
+  setDriveBackupMeta("import", Date.now());
+
+  // Ensure the restored metadata is visible immediately.
+  exitBrowseSilent();
+  if (hosting.value.kind === "gateway") {
+    selectHosting("local");
+  } else {
+    void loadPinnedFiles();
+  }
+  return { ok: true, ...(Number.isFinite(seq) && seq > 0 ? { seq } : {}) };
+}
+
+const driveBackupRestoreDetails = computed(() => {
+  const pending = pendingDriveBackupRestore.value;
+  if (!pending) return null;
+  const snap = pending.snapshot;
+  const createdAt = Number(snap?.createdAt) || 0;
+  const seq = Number(snap?.seq) || 0;
+  const walletAddress = String(snap?.walletAddress || "").trim();
+  const filesCount = Array.isArray(snap?.drive?.files) ? snap.drive.files.length : 0;
+  const favCount = Array.isArray(snap?.favourites) ? snap.favourites.length : 0;
+  const pid = String(activeProfileId.value || "").trim();
+  const localSeq = pid ? getCurrentDriveBackupSeq(pid) : 0;
+  const rollback = !!seq && !!localSeq && seq < localSeq;
+  const currentWallet = activeWalletAddress();
+  const walletMismatch =
+    !!walletAddress &&
+    !!currentWallet &&
+    walletAddress.toLowerCase() !== currentWallet.toLowerCase();
+  return {
+    source: String(pending.source || "").trim(),
+    createdAt,
+    seq,
+    walletAddress,
+    filesCount,
+    favCount,
+    localSeq,
+    rollback,
+    walletMismatch,
+  };
+});
+
+const driveBackupImportFilename = computed(() => {
+  const pending = pendingDriveBackupImport.value;
+  return pending ? String(pending.filename || "").trim() : "";
+});
+
+function openDriveBackupExportModal() {
+  driveBackupError.value = "";
+  driveBackupExportPassword.value = "";
+  driveBackupExportPasswordConfirm.value = "";
+  driveBackupExportShowPassword.value = false;
+  showDriveBackupExportModal.value = true;
+}
+
+function closeDriveBackupExportModal() {
+  if (driveBackupBusy.value) return;
+  showDriveBackupExportModal.value = false;
+  driveBackupExportPassword.value = "";
+  driveBackupExportPasswordConfirm.value = "";
+  driveBackupExportShowPassword.value = false;
+  driveBackupError.value = "";
+}
+
+async function confirmDriveBackupExport() {
+  driveBackupError.value = "";
+  const pid = String(activeProfileId.value || "").trim();
+  const snapshot = makeDriveBackupSnapshot();
+  if (!pid || !snapshot) {
+    driveBackupError.value = "No active profile";
+    return;
+  }
+
+  const password = String(driveBackupExportPassword.value || "");
+  const confirm = String(driveBackupExportPasswordConfirm.value || "");
+  if (password.length < 8) {
+    driveBackupError.value = driveBackupFriendlyError("weak_password");
+    return;
+  }
+  if (password !== confirm) {
+    driveBackupError.value = "Passwords do not match.";
+    return;
+  }
+
+  const api: any = (window as any).lumen?.driveBackup;
+  if (!api || typeof api.encryptSnapshot !== "function") {
+    driveBackupError.value = "Backup API unavailable";
+    return;
+  }
+
+  if (driveBackupBusy.value) return;
+  driveBackupBusy.value = true;
+  let shouldClose = false;
+  try {
+    const res = await api.encryptSnapshot(pid, snapshot, password).catch(() => null);
+    if (!res || res.ok === false || !res.encrypted) {
+      const code = String(res?.error || "encrypt_failed");
+      driveBackupError.value = driveBackupFriendlyError(code);
+      return;
+    }
+
+    const nameSeg = sanitizeBackupFilenameSegment(activeProfileDisplay.value) || "profile";
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `lumen-drive-backup-${nameSeg}-${stamp}.enc.json`;
+    downloadTextFile(filename, JSON.stringify(res.encrypted, null, 2));
+    setDriveBackupMeta("export", Date.now());
+    showToast("Drive snapshot exported", "success");
+    shouldClose = true;
+  } catch (e: any) {
+    driveBackupError.value = String(e?.message || e || "export_failed");
+  } finally {
+    driveBackupBusy.value = false;
+    if (shouldClose) closeDriveBackupExportModal();
+  }
+}
+
+function triggerImportDriveBackup() {
+  driveBackupError.value = "";
+  driveBackupImportInput.value?.click();
+}
+
+async function handleImportDriveBackupFile(e: Event) {
+  driveBackupError.value = "";
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) {
+    driveBackupError.value = "No active profile";
+    return;
+  }
+
+  const input = e.target as HTMLInputElement;
+  const file = input?.files && input.files[0] ? input.files[0] : null;
+  try {
+    input.value = "";
+  } catch {}
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    driveBackupError.value = "Backup file too large (max 5 MB).";
+    return;
+  }
+
+  try {
+    const raw = await file.text();
+    const encrypted = JSON.parse(raw);
+    const envelope =
+      encrypted && typeof encrypted === "object"
+        ? markRaw(encrypted)
+        : encrypted;
+    pendingDriveBackupImport.value = {
+      filename: String(file.name || "").trim() || "backup.json",
+      encrypted: envelope,
+    };
+    pendingDriveBackupRestore.value = null;
+    driveBackupImportPassword.value = "";
+    driveBackupImportShowPassword.value = false;
+    showDriveBackupImportModal.value = true;
+  } catch {
+    driveBackupError.value = driveBackupFriendlyError("invalid_envelope");
+  }
+}
+
+function closeDriveBackupImportModal() {
+  if (driveBackupBusy.value) return;
+  showDriveBackupImportModal.value = false;
+  pendingDriveBackupImport.value = null;
+  pendingDriveBackupRestore.value = null;
+  driveBackupImportPassword.value = "";
+  driveBackupImportShowPassword.value = false;
+  driveBackupError.value = "";
+}
+
+async function decryptDriveBackupImport() {
+  driveBackupError.value = "";
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) {
+    driveBackupError.value = "No active profile";
+    return;
+  }
+
+  const pending = pendingDriveBackupImport.value;
+  if (!pending) {
+    driveBackupError.value = "No backup file selected";
+    return;
+  }
+
+  const password = String(driveBackupImportPassword.value || "");
+  if (!password) {
+    driveBackupError.value = driveBackupFriendlyError("missing_password");
+    return;
+  }
+  if (password.length < 8) {
+    driveBackupError.value = driveBackupFriendlyError("weak_password");
+    return;
+  }
+
+  const api: any = (window as any).lumen?.driveBackup;
+  if (!api || typeof api.decryptSnapshot !== "function") {
+    driveBackupError.value = "Backup API unavailable";
+    return;
+  }
+
+  if (driveBackupBusy.value) return;
+  driveBackupBusy.value = true;
+  try {
+    const encryptedPayload =
+      pending.encrypted && typeof pending.encrypted === "object"
+        ? toRaw(pending.encrypted)
+        : pending.encrypted;
+    const res = await api
+      .decryptSnapshot(pid, encryptedPayload, password)
+      .catch(() => null);
+    if (!res || res.ok === false || !res.snapshot) {
+      const code = String(res?.error || "decrypt_failed");
+      driveBackupError.value = driveBackupFriendlyError(code);
+      return;
+    }
+    pendingDriveBackupRestore.value = { source: pending.filename, snapshot: res.snapshot };
+    driveBackupImportPassword.value = "";
+    driveBackupImportShowPassword.value = false;
+  } catch (e: any) {
+    driveBackupError.value = String(e?.message || e || "decrypt_failed");
+  } finally {
+    driveBackupBusy.value = false;
+  }
+}
+
+function confirmDriveBackupRestore() {
+  driveBackupError.value = "";
+  const pending = pendingDriveBackupRestore.value;
+  if (!pending) return;
+  const applied = applyDriveBackupSnapshotPayload(pending.snapshot);
+  if (!applied.ok) {
+    driveBackupError.value = driveBackupFriendlyError(String(applied.error || "invalid_snapshot"));
+    return;
+  }
+  closeDriveBackupImportModal();
+  showToast("Drive snapshot imported", "success");
 }
 
 function normalizeCidKey(cid: string): string {
@@ -4788,25 +5678,28 @@ async function removeFile(file: DriveFile) {
   }
 
   if (hosting.value.kind === "local") {
+    // Drive state is metadata-based; always remove the reference, and best-effort unpin.
+    const filtered = files.value.filter((f) => String(f?.cid || "").trim() !== cid);
+    files.value = filtered;
+    saveFiles();
+    setSavedName(cid, "");
+
+    let unpinFailed = false;
     try {
       const res = await (window as any).lumen?.ipfsUnpin?.(cid);
-      if (!res || res.ok === false) {
-        showToast(String(res?.error || "Unpin failed"), "error");
-        return;
-      }
-      setSavedName(cid, "");
-      await loadPinnedFiles();
-      void loadStats();
-      if (selectedFile.value?.cid === cid) {
-        selectedFile.value = null;
-        renameDraft.value = "";
-      }
-      showToast("Removed", "success");
-      return;
-    } catch (e: any) {
-      showToast(String(e?.message || "Unpin failed"), "error");
-      return;
+      if (res && res.ok === false) unpinFailed = true;
+    } catch {
+      unpinFailed = true;
     }
+
+    await loadPinnedFiles();
+    void loadStats();
+    if (selectedFile.value?.cid === cid) {
+      selectedFile.value = null;
+      renameDraft.value = "";
+    }
+    showToast(unpinFailed ? "Removed (couldn't unpin local data)" : "Removed", "success");
+    return;
   }
 
   if (hosting.value.kind === "gateway") {
@@ -5097,6 +5990,16 @@ async function reloadForActiveProfileChange() {
   exitBrowseSilent();
   selectedFile.value = null;
   renameDraft.value = "";
+  driveBackupError.value = "";
+  showDriveBackupExportModal.value = false;
+  driveBackupExportPassword.value = "";
+  driveBackupExportPasswordConfirm.value = "";
+  driveBackupExportShowPassword.value = false;
+  showDriveBackupImportModal.value = false;
+  pendingDriveBackupImport.value = null;
+  driveBackupImportPassword.value = "";
+  driveBackupImportShowPassword.value = false;
+  pendingDriveBackupRestore.value = null;
   showPlansModal.value = false;
   closeSubscribeModal();
 
@@ -5107,6 +6010,11 @@ async function reloadForActiveProfileChange() {
   gatewayPinned.value = [];
   gatewayPinnedError.value = "";
   gatewayBase.value = null;
+
+  // Reload per-profile local state immediately (don't block on network/gateway calls).
+  loadFiles();
+  loadLocalNames();
+  loadDriveBackupMeta();
 
   await refreshGatewayOverview();
   if (seq !== profileReloadSeq) return;
@@ -7771,6 +8679,54 @@ async function reloadForActiveProfileChange() {
   color: var(--text-secondary);
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
+}
+
+.drive-backup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.drive-backup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.drive-backup-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.drive-backup-input {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.drive-backup-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a15);
+  background: var(--bg-primary);
+}
+
+.drive-backup-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.drive-backup-toggle input {
+  accent-color: var(--accent-primary);
 }
 
 .modal-footer {

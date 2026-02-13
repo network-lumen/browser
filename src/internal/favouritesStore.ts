@@ -35,6 +35,15 @@ function remove(profileId: string, url: string) {
   save();
 }
 
+export function setFavouritesForProfile(profileId: string, urls: string[]) {
+  const pid = String(profileId || '').trim() || 'default';
+  const unique = Array.from(
+    new Set((Array.isArray(urls) ? urls : []).map((u) => String(u || '').trim()).filter(Boolean)),
+  );
+  data.value[pid] = unique;
+  save();
+}
+
 export function useFavourites() {
   const currentProfile = computed(() => activeProfileId.value || "default");
 
@@ -58,6 +67,7 @@ export function useFavourites() {
     favourites,
     toggleFavourite,
     isFav,
-    removeFavourite
+    removeFavourite,
+    setFavourites: (urls: string[]) => setFavouritesForProfile(currentProfile.value, urls)
   };
 }

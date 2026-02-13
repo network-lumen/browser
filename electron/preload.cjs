@@ -161,6 +161,12 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.removeListener('drive:hlsProgress', handler);
     };
   },
+  driveBackup: {
+    encryptSnapshot: (profileId, snapshot, password) =>
+      ipcRenderer.invoke('driveBackup:encryptSnapshot', { profileId, snapshot, password }),
+    decryptSnapshot: (profileId, encrypted, password) =>
+      ipcRenderer.invoke('driveBackup:decryptSnapshot', { profileId, encrypted, password })
+  },
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),

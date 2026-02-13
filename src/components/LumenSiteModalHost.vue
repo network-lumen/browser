@@ -358,7 +358,45 @@ const pinError = ref("");
 const pinTarget = ref("");
 const saveNameDraft = ref("");
 
-const LOCAL_NAMES_KEY = "lumen_drive_saved_names";
+type DriveSavedFile = {
+  cid: string;
+  name: string;
+  size: number;
+  uploadedAt: number;
+  type?: "file" | "dir";
+  rootCid?: string;
+  relPath?: string;
+};
+
+const DRIVE_FILES_KEY_PREFIX = "lumen:drive:files:v1";
+const DRIVE_LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
+const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
+
+function driveFilesStorageKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${DRIVE_FILES_KEY_PREFIX}:${pid}`;
+}
+
+function driveLocalNamesStorageKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:${pid}`;
+}
+
+function driveBackupSeqKey(profileId: string): string {
+  const pid = String(profileId || "").trim() || "default";
+  return `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}`;
+}
+
+function nextDriveBackupSeq(profileId: string): number {
+  const key = driveBackupSeqKey(profileId);
+  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
+  const base = Number.isFinite(current) && current >= 0 ? current : 0;
+  const next = base + 1;
+  try {
+    localStorage.setItem(key, String(next));
+  } catch {}
+  return next;
+}
 
 function extractCid(cidOrUrl: string): string {
   const raw = String(cidOrUrl || "").trim();
@@ -445,15 +483,37 @@ async function submitPin() {
     const pins = Array.isArray(res?.pins) ? res.pins : Array.isArray(res?.Pins) ? res.Pins : [];
     const pinnedCid = String(res?.pinnedCid || pins?.[0] || "").trim();
     const key = pinnedCid || extractCid(pinTarget.value);
+    const pid = String(activeProfileId.value || "").trim() || "default";
     try {
-      const stored = localStorage.getItem(LOCAL_NAMES_KEY);
-      const parsed = stored ? JSON.parse(stored) : {};
-      const base = parsed && typeof parsed === "object" ? parsed : {};
-      const next = { ...base, [key]: name };
-      localStorage.setItem(LOCAL_NAMES_KEY, JSON.stringify(next));
+      const stored = localStorage.getItem(driveFilesStorageKey(pid));
+      const parsed = stored ? JSON.parse(stored) : [];
+      const base = Array.isArray(parsed) ? (parsed as any[]) : [];
+      const filtered = base.filter((f) => String(f?.cid || "").trim() !== key);
+      const next: DriveSavedFile = {
+        cid: key,
+        name,
+        size: 0,
+        uploadedAt: Date.now(),
+      };
+      localStorage.setItem(
+        driveFilesStorageKey(pid),
+        JSON.stringify([next, ...filtered].slice(0, 500)),
+      );
     } catch {
       // ignore
     }
+    try {
+      const stored = localStorage.getItem(driveLocalNamesStorageKey(pid));
+      const parsed = stored ? JSON.parse(stored) : {};
+      const base = parsed && typeof parsed === "object" ? parsed : {};
+      const next = { ...base, [key]: name };
+      localStorage.setItem(driveLocalNamesStorageKey(pid), JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+    try {
+      nextDriveBackupSeq(pid);
+    } catch {}
     respond({ ...(res || {}), ok: true, cid: key, name, target: pinTarget.value });
   } catch (e: any) {
     pinError.value = String(e?.message || e || "save_failed");

@@ -32,6 +32,7 @@ const { registerSecurityIpc } = require('./ipc/security.cjs');
 const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
 const { registerHlsIpc } = require('./ipc/hls.cjs');
 const { registerFindIpc } = require('./ipc/find.cjs');
+const { registerDriveBackupIpc } = require('./ipc/drive_backup.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
 const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
@@ -48,6 +49,7 @@ registerSecurityIpc();
 registerIpfsPubsubIpc();
 registerHlsIpc();
 registerFindIpc();
+registerDriveBackupIpc();
 
 function safeString(v, maxLen = 2048) {
   const s = String(v ?? '').trim();
