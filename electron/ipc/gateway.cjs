@@ -1712,12 +1712,27 @@ async function fetchPlansForGateway(gateway, timeoutMs) {
   }
 
   try {
+    // Important UX: if the gateway base is already known to be offline from the PQ Kyber
+    // pubkey health cache, skip the pricing call entirely to avoid waiting on timeouts.
+    // This also matches the SearchPage behavior which filters gateways by PQ health.
+    const now = Date.now();
+    const cached =
+      KYBER_PUBKEY_CACHE.get(urlBase) ||
+      KYBER_PUBKEY_CACHE.get(urlBase.toLowerCase());
+    if (cached && now - cached.checkedAt < KYBER_PUBKEY_CACHE_TTL_MS && cached.ok === false) {
+      return { plans: [], error: 'gateway_offline_cached' };
+    }
+
     let res = await getJsonWithTimeout(urlBase + '/pricing');
     if (!res.ok) {
-      console.warn('[gateway] pricing /pricing failed, fallback to /price', {
-        status: res.status,
-      });
-      res = await getJsonWithTimeout(urlBase + '/price');
+      const status = Number(res.status || 0) || 0;
+      const shouldFallback = status === 404 || status === 405;
+      if (shouldFallback) {
+        console.warn('[gateway] pricing /pricing failed, fallback to /price', {
+          status: res.status,
+        });
+        res = await getJsonWithTimeout(urlBase + '/price');
+      }
     }
     if (!res.ok) {
       console.warn('[gateway] pricing fetch failed', {
@@ -1741,7 +1756,7 @@ async function fetchPlansForGateway(gateway, timeoutMs) {
   }
 }
 
-  async function listAvailableGatewayPlans(limit, timeoutMs) {
+  async function listAvailableGatewayPlans(limit, timeoutMs, options) {
     const lim = Math.min(Math.max(Number(limit || 200), 1), 500);
     const ms =
       typeof timeoutMs === 'number' && Number.isFinite(timeoutMs) && timeoutMs > 0
@@ -1790,19 +1805,45 @@ async function fetchPlansForGateway(gateway, timeoutMs) {
     }
     const deduped = Array.from(bestByKey.values());
 
+    const includePricing = options?.includePricing !== false;
+    if (!includePricing) {
+      return { plans: [], gateways: deduped, errors: {} };
+    }
+
     const pricingTimeout = Math.max(800, Math.min(ms, 6000));
     const plans = [];
     const planErrors = {};
 
-    for (const gateway of deduped) {
+    // Fetch pricing with bounded concurrency to avoid a single dead gateway
+    // blocking the full plans list.
+    const results = await mapWithConcurrency(deduped, 4, async (gateway) => {
+      // Avoid querying gateways that are explicitly marked offline/inactive on-chain.
+      // This keeps DrivePage sidebar + "Cloud plans" modal snappy even when many inactive
+      // gateway endpoints are unreachable.
+      if (gateway && gateway.active === false) {
+        return { gateway, gid: String(gateway?.id || ''), result: { plans: [] } };
+      }
       const gid = String(gateway?.id || '');
       const result = await fetchPlansForGateway(gateway, pricingTimeout);
+      return { gateway, gid, result };
+    });
 
-      if (result.plans.length) {
+    for (const row of results) {
+      const gid = String(row?.gid || '');
+      const gateway = row?.gateway;
+      const result = row?.result || {};
+
+      if (result.plans && result.plans.length) {
         for (const plan of result.plans) {
           plans.push({ ...plan, gatewayId: plan.gatewayId || gid });
         }
-      } else if (result.error) {
+        continue;
+      }
+
+      if (result.error) {
+        // Skip reporting cached offline gateways as "errors" since the whole point
+        // is to keep the UI snappy by avoiding known-dead bases.
+        if (result.error === 'gateway_offline_cached') continue;
         const key = gid || gateway?.endpoint || `gateway-${plans.length}`;
         planErrors[key] = result.error;
       }
@@ -1916,7 +1957,8 @@ async function fetchPlansForGateway(gateway, timeoutMs) {
   
     const { plans, gateways, errors: planErrors } = await listAvailableGatewayPlans(
       opts && opts.limit,
-      opts && opts.timeoutMs
+      opts && opts.timeoutMs,
+      { includePricing: opts?.includePricing !== false }
     );
   
     const walletAddr = getWalletAddressForProfile(pid);
@@ -2213,6 +2255,12 @@ function registerGatewayIpc() {
       const planIdRaw = input?.planId ?? input?.plan_id ?? null;
       const planId = planIdRaw != null ? String(planIdRaw).trim() : '';
 
+      const displayNameRaw = input?.displayName ?? input?.display_name ?? input?.name ?? null;
+      const displayName =
+        displayNameRaw != null ? String(displayNameRaw).trim() : '';
+      const safeDisplayName =
+        displayName && displayName.toLowerCase() !== 'unknown' ? displayName : null;
+
       const init = await sendGatewayAuthPq({
         baseUrl,
         path: '/ingest/init',
@@ -2222,6 +2270,7 @@ function registerGatewayIpc() {
         payload: {
           planId: planId || null,
           estBytes: dagSize,
+          displayName: safeDisplayName,
         },
         signal: controller.signal,
       });
@@ -2377,6 +2426,55 @@ function registerGatewayIpc() {
       }
 
       console.log('[gateway] unpinCid ok', { status, cid });
+      return { ok: true, status, data, cid, baseUrl: trimSlash(baseUrl) };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('gateway:renameCid', async (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      const cid = String(input?.cid || '').trim();
+      const nameRaw = input?.displayName ?? input?.display_name ?? input?.name;
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!cid) return { ok: false, error: 'missing_cid' };
+      if (nameRaw === undefined || nameRaw === null) return { ok: false, error: 'missing_displayName' };
+
+      const displayName = typeof nameRaw === 'string' ? nameRaw : String(nameRaw);
+
+      const baseHint =
+        typeof input?.baseUrl === 'string'
+          ? String(input.baseUrl).trim()
+          : '';
+      const baseUrl = baseHint
+        ? (await resolveGatewayBaseFromEndpoint(baseHint).catch(() => null)) || baseHint
+        : await resolveGatewayBaseUrlFromPlans(profileId, defaultGatewayBase());
+      if (!baseUrl) return { ok: false, error: 'missing_baseUrl' };
+
+      const wallet = getWalletAddressForProfile(profileId);
+      if (!wallet) return { ok: false, error: 'wallet_unavailable' };
+      const mnemonic = loadMnemonic(profileId);
+
+      console.log('[gateway] renameCid', {
+        profileId,
+        baseUrl: trimSlash(baseUrl),
+        cid,
+      });
+
+      const { status, data } = await sendGatewayAuthPq({
+        baseUrl,
+        path: '/wallet/cid/rename',
+        method: 'POST',
+        wallet,
+        mnemonic,
+        payload: { cid, displayName },
+      });
+
+      if (status < 200 || status >= 300) {
+        return { ok: false, status, error: (data && data.error) || 'rename_failed' };
+      }
+
       return { ok: true, status, data, cid, baseUrl: trimSlash(baseUrl) };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
@@ -2646,6 +2744,7 @@ function registerGatewayIpc() {
       const opts = {
         limit: input?.limit,
         timeoutMs: input?.timeoutMs,
+        includePricing: input?.includePricing,
       };
       const overview = await getPlansOverviewForProfile(profileId, opts);
       return { ok: true, ...overview };

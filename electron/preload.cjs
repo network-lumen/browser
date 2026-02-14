@@ -332,6 +332,7 @@ contextBridge.exposeInMainWorld('lumen', {
       };
     },
     unpinCid: (payload) => ipcRenderer.invoke('gateway:unpinCid', payload || {}),
+    renameCid: (payload) => ipcRenderer.invoke('gateway:renameCid', payload || {}),
     subscribePlan: (payload) =>
       ipcRenderer.invoke('gateway:subscribePlan', payload || {}),
     registerGateway: (payload) => ipcRenderer.invoke('gateway:registerGateway', payload || {}),

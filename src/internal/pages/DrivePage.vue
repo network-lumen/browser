@@ -1929,6 +1929,7 @@ const gatewayUsageError = ref("");
 const gatewayUsageLoading = ref(false);
 const gatewayDetailsLoading = ref(false);
 const gatewayPinned = ref<string[]>([]);
+const gatewayPinnedNames = ref<Record<string, string>>({});
 const gatewayPinnedError = ref("");
 const gatewayPinnedLoading = ref(false);
 
@@ -1983,6 +1984,12 @@ const planOnlineOnly = ref(false);
 const planSortBy = ref<"score-desc" | "name-asc" | "name-desc">("score-desc");
 const planPage = ref(1);
 const planPageSize = ref(8);
+
+// Gateway health (PQ /pq/pub reachability)
+// Used to avoid showing "green" status dots for subscriptions when the gateway is actually offline.
+const SUBSCRIBED_GATEWAY_HEALTH_TTL_MS = 10 * 60 * 1000;
+const subscribedGatewayHealthById = ref<Record<string, { at: number; ok: boolean }>>({});
+let subscribedGatewayHealthSeq = 0;
 
 // Local details
 const showLocalDetails = ref(false);
@@ -2414,6 +2421,103 @@ function formatRegionsLabel(
   return `${regions.slice(0, cap).join(" · ")} +${regions.length - cap}`;
 }
 
+const subscribedGatewayIds = computed(() => {
+  const set = new Set<string>();
+  for (const sub of planSubscriptionsRaw.value) {
+    const gid = String(sub.gatewayId || "").trim();
+    if (gid) set.add(gid);
+  }
+  return Array.from(set);
+});
+
+const subscribedGatewayEndpointsKey = computed(() => {
+  const ids = subscribedGatewayIds.value;
+  if (!ids.length) return "";
+
+  const byId = new Map<string, string>();
+  for (const g of gateways.value) {
+    const id = String(g?.id ?? "").trim();
+    if (!id) continue;
+    const endpoint = String(g?.endpoint ?? "").trim();
+    if (!endpoint) continue;
+    byId.set(id, endpoint);
+  }
+
+  return ids
+    .map((id) => `${id}:${String(byId.get(id) || "").toLowerCase()}`)
+    .sort()
+    .join("|");
+});
+
+function isSubscribedGatewayOnlineCached(gatewayId: string): boolean | null {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return null;
+  const cached = subscribedGatewayHealthById.value[gid];
+  if (!cached) return null;
+  return !!cached.ok;
+}
+
+async function refreshSubscribedGatewayHealth(): Promise<void> {
+  const api: any = (window as any).lumen;
+  const gwApi = api?.gateway;
+  if (!gwApi || typeof gwApi.checkAlive !== "function") return;
+
+  const seq = ++subscribedGatewayHealthSeq;
+  const now = Date.now();
+
+  const byId = new Map<string, GatewayView>();
+  for (const g of gateways.value) byId.set(String(g.id), g);
+
+  const targets: Array<{ id: string; endpoint: string }> = [];
+  for (const gidRaw of subscribedGatewayIds.value) {
+    const gid = String(gidRaw || "").trim();
+    if (!gid) continue;
+    const gw = byId.get(gid);
+    const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : "";
+    if (!endpoint) continue;
+
+    const cached = subscribedGatewayHealthById.value[gid];
+    if (cached && now - cached.at < SUBSCRIBED_GATEWAY_HEALTH_TTL_MS) continue;
+    targets.push({ id: gid, endpoint });
+  }
+
+  if (!targets.length) return;
+
+  const results = await Promise.all(
+    targets.map(async (t) => {
+      const res = await gwApi
+        .checkAlive({ endpoint: t.endpoint, timeoutMs: 2500 })
+        .catch(() => null);
+      return { id: t.id, ok: !!res?.ok };
+    }),
+  ).catch(() => [] as Array<{ id: string; ok: boolean }>);
+
+  if (seq !== subscribedGatewayHealthSeq) return;
+  if (!results.length) return;
+
+  const next = { ...subscribedGatewayHealthById.value };
+  for (const r of results) {
+    const id = String(r?.id || "").trim();
+    if (!id) continue;
+    next[id] = { at: now, ok: !!r.ok };
+  }
+  subscribedGatewayHealthById.value = next;
+}
+
+let subscribedGatewayHealthPollTimer: number | null = null;
+function startSubscribedGatewayHealthPolling(): void {
+  if (subscribedGatewayHealthPollTimer != null) return;
+  subscribedGatewayHealthPollTimer = window.setInterval(() => {
+    void refreshSubscribedGatewayHealth();
+  }, 60_000);
+}
+
+function stopSubscribedGatewayHealthPolling(): void {
+  if (subscribedGatewayHealthPollTimer == null) return;
+  window.clearInterval(subscribedGatewayHealthPollTimer);
+  subscribedGatewayHealthPollTimer = null;
+}
+
 const subscriptionRows = computed(() => {
   const byGateway = new Map<string, SubscriptionView[]>();
   for (const sub of planSubscriptionsRaw.value) {
@@ -2426,8 +2530,15 @@ const subscriptionRows = computed(() => {
   const rows = Array.from(byGateway.entries()).map(([gatewayId, subs]) => {
     const gw = gateways.value.find((g) => String(g.id) === gatewayId) || null;
     const status = deriveGatewayStatus(subs);
-    const statusDot =
-      status === "active" ? "ok" : status === "pending" ? "pending" : "off";
+    const onlineCached = isSubscribedGatewayOnlineCached(gatewayId);
+    const isOffline = onlineCached === false;
+    const statusDot = isOffline
+      ? "off"
+      : status === "active"
+        ? "ok"
+        : status === "pending"
+          ? "pending"
+          : "off";
     const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : "";
     const labelBase =
       endpoint ||
@@ -2472,6 +2583,14 @@ const subscriptionRows = computed(() => {
   rows.sort((a, b) => a.label.localeCompare(b.label));
   return rows;
 });
+
+watch(
+  () => subscribedGatewayEndpointsKey.value,
+  () => {
+    void refreshSubscribedGatewayHealth();
+  },
+  { immediate: true },
+);
 
 const activeSubscriptionRow = computed(() => {
   if (hosting.value.kind !== "gateway") return null;
@@ -2681,6 +2800,7 @@ onMounted(async () => {
   void loadPinnedFiles();
 
   void refreshGatewayOverview();
+  startSubscribedGatewayHealthPolling();
 
   try {
     const api: any = (window as any).lumen;
@@ -2797,15 +2917,18 @@ onMounted(async () => {
 
 onActivated(() => {
   startUrlBarSync();
+  startSubscribedGatewayHealthPolling();
   void syncBrowseFromUrl(readInjectedTabUrl() || readUrlBarUrl());
 });
 
 onDeactivated(() => {
   stopUrlBarSync();
+  stopSubscribedGatewayHealthPolling();
 });
 
 onUnmounted(() => {
   stopUrlBarSync();
+  stopSubscribedGatewayHealthPolling();
   try {
     hlsProgressUnsub?.();
   } catch {
@@ -3327,7 +3450,9 @@ async function refreshGatewayOverview() {
     const profileId = active?.id;
     if (!profileId) return;
 
-    const res = await gwApi.getPlansOverview(profileId).catch(() => null);
+    const res = await gwApi
+      .getPlansOverview(profileId, { includePricing: false, timeoutMs: 2500 })
+      .catch(() => null);
     if (!res || res.ok === false) return;
 
     const list = Array.isArray(res.plans) ? res.plans : [];
@@ -3449,7 +3574,9 @@ async function openPlansModal() {
       return;
     }
 
-    const res = await gwApi.getPlansOverview(profileId).catch(() => null);
+    const res = await gwApi
+      .getPlansOverview(profileId, { includePricing: true, timeoutMs: 2500 })
+      .catch(() => null);
     if (!res || res.ok === false) {
       plansError.value = String(res?.error || "Unable to load plans.");
       plansLoading.value = false;
@@ -3855,10 +3982,12 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       }
       if (code === "kyber_pubkey_http_unavailable") {
         gatewayPinned.value = [];
+        gatewayPinnedNames.value = {};
         gatewayPinnedError.value = "";
         return;
       }
       gatewayPinned.value = [];
+      gatewayPinnedNames.value = {};
       gatewayPinnedError.value = code || "Pinned CIDs fetch failed";
       return;
     }
@@ -3894,9 +4023,40 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       [gid]: nextOptimistic,
     };
     gatewayPinned.value = [...optimisticMissing, ...server as string[]];
+
+    const allowSet = new Set(server);
+    const nextNames: Record<string, string> = {};
+
+    try {
+      const namesRaw = data?.names;
+      if (namesRaw && typeof namesRaw === "object" && !Array.isArray(namesRaw)) {
+        for (const [cid, nameVal] of Object.entries(namesRaw as Record<string, any>)) {
+          const key = String(cid || "").trim();
+          if (!key || !allowSet.has(key) || isIgnoredCid(key)) continue;
+          const name = typeof nameVal === "string" ? nameVal.trim() : "";
+          if (!name || name.toLowerCase() === "unknown") continue;
+          nextNames[key] = name;
+        }
+      }
+
+      const itemsRaw = Array.isArray(data?.items) ? data.items : [];
+      for (const row of itemsRaw) {
+        const key = String(row?.cid || "").trim();
+        if (!key || !allowSet.has(key) || isIgnoredCid(key)) continue;
+        const nameRaw = row?.display_name ?? row?.displayName ?? row?.name ?? null;
+        const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+        if (!name || name.toLowerCase() === "unknown") continue;
+        nextNames[key] = name;
+      }
+    } catch {
+      // ignore name parsing errors
+    }
+
+    gatewayPinnedNames.value = nextNames;
   } catch (e: any) {
     if (seq !== gatewayPinnedSeq) return;
     gatewayPinned.value = [];
+    gatewayPinnedNames.value = {};
     const msg = String(e?.message || "Pinned CIDs fetch failed");
     gatewayPinnedError.value =
       msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
@@ -4536,6 +4696,13 @@ function stripExt(name: string): string {
 function getSavedName(cid: string): string {
   const key = normalizeCidKey(cid);
   if (!key) return "Unknown";
+
+  if (hosting.value.kind === "gateway") {
+    const remoteVal = gatewayPinnedNames.value[key];
+    const remoteName = typeof remoteVal === "string" ? remoteVal.trim() : "";
+    if (remoteName && remoteName.toLowerCase() !== "unknown") return remoteName;
+  }
+
   const value = localNames.value[key];
   const name = typeof value === "string" ? value.trim() : "";
   if (name && name.toLowerCase() !== "unknown") return name;
@@ -4623,7 +4790,7 @@ function upsertFileMetadata(next: DriveFile) {
   saveFiles();
 }
 
-async function pinCidToActiveGateway(cid: string): Promise<
+async function pinCidToActiveGateway(cid: string, displayName?: string): Promise<
   | { ok: true }
   | { ok: false; error: string; cancelled?: boolean }
 > {
@@ -4658,6 +4825,7 @@ async function pinCidToActiveGateway(cid: string): Promise<
       cid,
       baseUrl: activeGatewayHint.value,
       planId,
+      displayName,
     })
     .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
 
@@ -4807,7 +4975,7 @@ async function uploadDirectory(
     if (hosting.value.kind === "gateway") {
       uploadingStage.value = "gateway-preflight";
       uploadingPercent.value = 0;
-      const pinned = await pinCidToActiveGateway(cid);
+      const pinned = await pinCidToActiveGateway(cid, name);
       if (!pinned.ok) {
         if ((pinned as any).cancelled) {
           showToast("Upload cancelled.", "success");
@@ -4929,7 +5097,7 @@ async function uploadDirectoryFromPath(
     if (hosting.value.kind === "gateway") {
       uploadingStage.value = "gateway-preflight";
       uploadingPercent.value = 0;
-      const pinned = await pinCidToActiveGateway(cid);
+      const pinned = await pinCidToActiveGateway(cid, name);
       if (!pinned.ok) {
         if ((pinned as any).cancelled) {
           showToast("Upload cancelled.", "success");
@@ -5030,7 +5198,7 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
       if (hosting.value.kind === "gateway") {
         uploadingStage.value = "gateway-preflight";
         uploadingPercent.value = 0;
-        const pinned = await pinCidToActiveGateway(cid);
+        const pinned = await pinCidToActiveGateway(cid, file.name);
         if (!pinned.ok) {
           if ((pinned as any).cancelled) {
             showToast("Upload cancelled.", "success");
@@ -5144,7 +5312,7 @@ async function convertToHls(file: DriveFile) {
     });
 
     if (hosting.value.kind === "gateway") {
-      const pinned = await pinCidToActiveGateway(newCid);
+      const pinned = await pinCidToActiveGateway(newCid, newName);
       if (!pinned.ok) {
         showToast(pinned.error, "error");
         return;
@@ -5661,12 +5829,87 @@ function canRenameEntry(f: DriveFile | null | undefined): boolean {
   return isRootSavedEntry(f);
 }
 
-function saveSelectedName() {
+async function saveSelectedName() {
   const f = selectedFile.value;
   if (!f) return;
   if (!canRenameEntry(f)) return;
-  setSavedName(f.cid, renameDraft.value);
-  selectedFile.value = { ...f, name: getSavedName(f.cid) };
+
+  const cid = String(f?.cid || "").trim();
+  if (!cid) return;
+
+  const currentName = getSavedName(cid);
+  const currentNorm =
+    currentName && currentName.toLowerCase() !== "unknown" ? currentName.trim() : "";
+  const nextNorm =
+    renameDraft.value && renameDraft.value.toLowerCase() !== "unknown"
+      ? renameDraft.value.trim()
+      : "";
+
+  if (currentNorm === nextNorm) return;
+
+  if (hosting.value.kind === "gateway") {
+    try {
+      const api: any = (window as any).lumen;
+      const profilesApi = api?.profiles;
+      const gwApi = api?.gateway;
+      if (!profilesApi || !gwApi || typeof gwApi.renameCid !== "function") {
+        showToast("Gateway rename unavailable", "error");
+        return;
+      }
+
+      const active = await profilesApi.getActive?.().catch(() => null);
+      const profileId = active?.id;
+      if (!profileId) {
+        showToast("No active profile", "error");
+        return;
+      }
+
+      const res = await gwApi
+        .renameCid({
+          profileId,
+          cid,
+          displayName: nextNorm,
+          baseUrl: activeGatewayHint.value,
+        })
+        .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+
+      if (!res || res.ok === false) {
+        const code = String(res?.error || "rename_failed");
+        if (code === "password_required" || code === "invalid_password") {
+          try {
+            await api?.security?.lockSession?.();
+          } catch {}
+        }
+        showToast(code, "error");
+        return;
+      }
+
+      const data = res.data ?? null;
+      const nameRaw =
+        data?.display_name ?? data?.displayName ?? data?.name ?? null;
+      const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+
+      const nextRemote = { ...gatewayPinnedNames.value };
+      if (name && name.toLowerCase() !== "unknown") {
+        nextRemote[cid] = name;
+      } else {
+        delete nextRemote[cid];
+      }
+      gatewayPinnedNames.value = nextRemote;
+
+      // Keep local fallback in sync with remote rename (including clears).
+      setSavedName(cid, name);
+
+      selectedFile.value = { ...f, name: getSavedName(cid) };
+      return;
+    } catch (e: any) {
+      showToast(String(e?.message || "rename_failed"), "error");
+      return;
+    }
+  }
+
+  setSavedName(cid, renameDraft.value);
+  selectedFile.value = { ...f, name: getSavedName(cid) };
 }
 
 async function removeFile(file: DriveFile) {
@@ -6008,6 +6251,7 @@ async function reloadForActiveProfileChange() {
   gatewayUsage.value = null;
   gatewayUsageError.value = "";
   gatewayPinned.value = [];
+  gatewayPinnedNames.value = {};
   gatewayPinnedError.value = "";
   gatewayBase.value = null;
 

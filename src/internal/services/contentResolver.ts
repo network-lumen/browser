@@ -233,7 +233,9 @@ export async function loadWhitelistedGatewayBases(): Promise<string[]> {
     return [];
   }
 
-  const res = await gwApi.getPlansOverview(profileId).catch(() => null);
+  const res = await gwApi
+    .getPlansOverview(profileId, { includePricing: false, timeoutMs: 2500 })
+    .catch(() => null);
   const list = Array.isArray(res?.gateways) ? res.gateways : [];
   const bases: string[] = [];
 

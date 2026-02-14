@@ -2261,7 +2261,7 @@ async function loadGatewaysForSearch(
   if (!gwApi || typeof gwApi.getPlansOverview !== "function") return [];
 
   const res = await gwApi
-    .getPlansOverview(profileId, { limit: 50, timeoutMs: 2500 })
+    .getPlansOverview(profileId, { includePricing: false, limit: 50, timeoutMs: 2500 })
     .catch(() => null);
   if (!res || res.ok === false) return [];
   const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
@@ -3153,7 +3153,9 @@ async function fetchTagsForCid(
   if (!gwApi || typeof gwApi.searchPq !== "function") return [];
   const gateways = await loadGatewaysForSearch(profileId);
   if (seq !== searchSeq) return [];
-  for (const g of gateways) {
+  const alive = await filterAliveGatewaysForPqSearch(gateways, seq);
+  if (seq !== searchSeq) return [];
+  for (const g of alive) {
     const resp = await gwApi
       .searchPq({
         profileId,
