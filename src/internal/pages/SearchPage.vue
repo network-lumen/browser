@@ -2998,7 +2998,7 @@ async function searchGateways(
   const start = (safePage - 1) * pageSize;
   const end = start + pageSize;
 
-  type GatewayBatch = { items: ResultItem[]; rawCount: number };
+  type GatewayBatch = { items: ResultItem[]; rawCount: number; gatewayId: string };
 
   const wantedType = normalizeGatewayType(type);
   const wantedMode = wantedType === "site" ? "sites" : type === "all" ? "everything" : "";
@@ -3013,6 +3013,7 @@ async function searchGateways(
         : type === "all"
           ? Math.min(Math.max(end * 3, 50), 200)
           : Math.min(end, 50);
+  
   const tasks = aliveList.map(async (g): Promise<GatewayBatch> => {
     const resp = await gwApi
       .searchPq({
@@ -3026,7 +3027,7 @@ async function searchGateways(
         type: wantedType,
       })
       .catch(() => null);
-    if (!resp || resp.ok === false) return { items: [], rawCount: 0 };
+    if (!resp || resp.ok === false) return { items: [], rawCount: 0, gatewayId: g.id };
     const data = resp.data || {};
     const out: ResultItem[] = [];
 
@@ -3104,7 +3105,7 @@ async function searchGateways(
           },
         });
       }
-      return { items: out, rawCount: rawCountSite };
+      return { items: out, rawCount: rawCountSite, gatewayId: g.id };
     }
 
     const hits: GatewaySearchHit[] = Array.isArray(data.hits)
@@ -3118,29 +3119,82 @@ async function searchGateways(
       const mapped = mapGatewayHitToResult(h, g, type);
       if (mapped) out.push(mapped);
     }
-    return { items: out, rawCount: rawCountHits };
+    return { items: out, rawCount: rawCountHits, gatewayId: g.id };
   });
 
   const lists = await Promise.all(tasks);
   if (seq !== searchSeq) return { items: [], maybeHasMore: false };
 
-  const flat = lists.flatMap((l) => l.items);
+  // Multi-gateway merge with score aggregation
+  const resultMap = new Map<string, ResultItem & { scores: number[]; gateways: string[] }>();
+  
+  for (const batch of lists) {
+    for (const item of batch.items) {
+      const key = item.url;
+      const existing = resultMap.get(key);
+      
+      if (existing) {
+        // Merge: aggregate scores and track which gateways returned this result
+        existing.scores.push(item.score || 0);
+        existing.gateways.push(batch.gatewayId);
+        
+        // Use best score and most complete data
+        if ((item.score || 0) > (existing.score || 0)) {
+          existing.score = item.score;
+        }
+        
+        // Merge unique views (take max)
+        if (item.uniqueViews7d && (!existing.uniqueViews7d || item.uniqueViews7d > existing.uniqueViews7d)) {
+          existing.uniqueViews7d = item.uniqueViews7d;
+        }
+        
+        // Merge badges (unique)
+        if (item.badges && item.badges.length) {
+          const badgeSet = new Set([...(existing.badges || []), ...item.badges]);
+          existing.badges = Array.from(badgeSet).slice(0, 20);
+        }
+        
+        // Prefer non-empty descriptions
+        if (item.description && !existing.description) {
+          existing.description = item.description;
+        }
+      } else {
+        // New result
+        resultMap.set(key, {
+          ...item,
+          scores: [item.score || 0],
+          gateways: [batch.gatewayId],
+        });
+      }
+    }
+  }
+  
+  // Convert map to array and calculate aggregated scores
+  const merged = Array.from(resultMap.values()).map(item => {
+    // Aggregated score: average of all scores, with bonus for appearing in multiple gateways
+    const avgScore = item.scores.reduce((a, b) => a + b, 0) / item.scores.length;
+    const gatewayBonus = item.gateways.length > 1 ? Math.log2(item.gateways.length) * 0.1 : 0;
+    const aggregatedScore = avgScore + gatewayBonus;
+    
+    return {
+      ...item,
+      score: aggregatedScore,
+      // Remove temporary fields
+      scores: undefined,
+      gateways: undefined,
+    };
+  });
+  
+  // Sort by aggregated score (descending)
+  merged.sort((a, b) => (b.score || 0) - (a.score || 0));
+
   if (wantedType === "site") {
     const maybeHasMore = lists.some((l) => l.rawCount >= fetchLimit);
-    return { items: flat, maybeHasMore };
+    return { items: merged, maybeHasMore };
   }
 
-  const seen = new Set<string>();
-  const unique: ResultItem[] = [];
-  for (const r of flat) {
-    const key = r.url;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(r);
-  }
-
-  const pageItems = unique.slice(start, end);
-  const maybeHasMore = unique.length > end || lists.some((l) => l.rawCount >= fetchLimit);
+  const pageItems = merged.slice(start, end);
+  const maybeHasMore = merged.length > end || lists.some((l) => l.rawCount >= fetchLimit);
   return { items: pageItems, maybeHasMore };
 }
 
