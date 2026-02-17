@@ -192,6 +192,190 @@ function getStoredPasswordHash() {
   return s.securityPasswordHash || null;
 }
 
+// ============================================================================
+// Gateway Management Functions
+// ============================================================================
+
+/**
+ * Get path to gateways storage file
+ */
+function gatewaysPath() {
+  const userData = app.getPath('userData');
+  return path.join(userData, 'gateways.json');
+}
+
+/**
+ * Load gateways from disk
+ */
+function loadGateways() {
+  const fp = gatewaysPath();
+  try {
+    const raw = fs.readFileSync(fp, 'utf8');
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save gateways to disk
+ */
+function saveGateways(gateways) {
+  const fp = gatewaysPath();
+  try {
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, JSON.stringify(gateways, null, 2), 'utf8');
+    return { ok: true };
+  } catch (e) {
+    console.warn('[electron][settings] failed to save gateways:', e);
+    return { ok: false, error: String(e.message) };
+  }
+}
+
+/**
+ * Add a new gateway
+ */
+function addGateway(gateway) {
+  if (!gateway || !gateway.id || !gateway.url) {
+    return { ok: false, error: 'Invalid gateway data' };
+  }
+  
+  const gateways = loadGateways();
+  
+  // Check if gateway with this ID already exists
+  if (gateways.some(g => g.id === gateway.id)) {
+    return { ok: false, error: 'Gateway with this ID already exists' };
+  }
+  
+  gateways.push({
+    id: gateway.id,
+    name: gateway.name || 'Unnamed Gateway',
+    url: gateway.url,
+    apiKey: gateway.apiKey || '',
+    createdAt: gateway.createdAt || Date.now(),
+    updatedAt: Date.now(),
+    status: gateway.status || 'active',
+    owner: gateway.owner || ''
+  });
+  
+  return saveGateways(gateways);
+}
+
+/**
+ * Update an existing gateway
+ */
+function updateGateway(id, updates) {
+  if (!id || !updates) {
+    return { ok: false, error: 'Invalid parameters' };
+  }
+  
+  const gateways = loadGateways();
+  const index = gateways.findIndex(g => g.id === id);
+  
+  if (index === -1) {
+    return { ok: false, error: 'Gateway not found' };
+  }
+  
+  gateways[index] = {
+    ...gateways[index],
+    ...updates,
+    id, // Ensure ID doesn't change
+    updatedAt: Date.now()
+  };
+  
+  return saveGateways(gateways);
+}
+
+/**
+ * Delete a gateway
+ */
+function deleteGateway(id) {
+  if (!id) {
+    return { ok: false, error: 'Invalid gateway ID' };
+  }
+  
+  const gateways = loadGateways();
+  const filtered = gateways.filter(g => g.id !== id);
+  
+  if (filtered.length === gateways.length) {
+    return { ok: false, error: 'Gateway not found' };
+  }
+  
+  return saveGateways(filtered);
+}
+
+// ============================================================================
+// Private Cloud Configuration Functions
+// ============================================================================
+
+/**
+ * Get path to private cloud config file
+ */
+function privateCloudConfigPath() {
+  const userData = app.getPath('userData');
+  return path.join(userData, 'private-cloud.json');
+}
+
+/**
+ * Load private cloud configuration
+ */
+function loadPrivateCloudConfig() {
+  const fp = privateCloudConfigPath();
+  try {
+    const raw = fs.readFileSync(fp, 'utf8');
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      enabled: !!parsed.enabled,
+      gatewayIds: Array.isArray(parsed.gatewayIds) ? parsed.gatewayIds : [],
+      preferPrivate: !!parsed.preferPrivate,
+      fallbackToDAO: parsed.fallbackToDAO !== false, // Default true
+      timeout: typeof parsed.timeout === 'number' ? parsed.timeout : 5000,
+      maxRetries: typeof parsed.maxRetries === 'number' ? parsed.maxRetries : 3
+    };
+  } catch {
+    return {
+      enabled: false,
+      gatewayIds: [],
+      preferPrivate: false,
+      fallbackToDAO: true,
+      timeout: 5000,
+      maxRetries: 3
+    };
+  }
+}
+
+/**
+ * Save private cloud configuration
+ */
+function savePrivateCloudConfig(config) {
+  const fp = privateCloudConfigPath();
+  console.log('[electron][settings] savePrivateCloudConfig called with:', config);
+  console.log('[electron][settings] config path:', fp);
+  
+  try {
+    const toSave = {
+      enabled: !!config.enabled,
+      gatewayIds: Array.isArray(config.gatewayIds) ? config.gatewayIds : [],
+      preferPrivate: !!config.preferPrivate,
+      fallbackToDAO: config.fallbackToDAO !== false,
+      timeout: typeof config.timeout === 'number' ? config.timeout : 5000,
+      maxRetries: typeof config.maxRetries === 'number' ? config.maxRetries : 3
+    };
+    
+    console.log('[electron][settings] saving config:', toSave);
+    
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, JSON.stringify(toSave, null, 2), 'utf8');
+    
+    console.log('[electron][settings] config saved successfully');
+    return { ok: true };
+  } catch (e) {
+    console.error('[electron][settings] failed to save private cloud config:', e);
+    return { ok: false, error: String(e.message) };
+  }
+}
+
 module.exports = {
   DEFAULT_SETTINGS,
   getSettings,
@@ -200,5 +384,14 @@ module.exports = {
   getSecurityStatus,
   setSecurityPassword,
   removeSecurityPassword,
-  getStoredPasswordHash
+  getStoredPasswordHash,
+  // Gateway management
+  loadGateways,
+  saveGateways,
+  addGateway,
+  updateGateway,
+  deleteGateway,
+  // Private cloud config
+  loadPrivateCloudConfig,
+  savePrivateCloudConfig
 };

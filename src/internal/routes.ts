@@ -6,6 +6,7 @@ import IpfsPage from './pages/IpfsPage.vue';
 import SitePage from './pages/SitePage.vue';
 import WebPage from './pages/WebPage.vue';
 import GatewaysPage from './pages/GatewaysPage.vue';
+import MyGatewaysPage from './pages/MyGatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
 import ExplorerPage from './pages/ExplorerPage.vue';
@@ -34,6 +35,7 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   domain: { component: DomainPage, title: 'Domain' },
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
+  'my-gateways': { component: MyGatewaysPage, title: 'My Gateways' },
   explorer: { component: ExplorerPage, title: 'Explorer' },
   block: { component: BlockDetailPage, title: 'Block Details' },
   transaction: { component: TransactionDetailPage, title: 'Transaction Details' },
@@ -73,6 +75,7 @@ export const ALL_COMPONENTS = [
   DrivePage,
   WebPage,
   GatewaysPage,
+  MyGatewaysPage,
   HelpPage,
   NetworkPage,
   ExplorerPage,

@@ -18,7 +18,8 @@ const path = require('path');
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
-const { getSettings, setSettings } = require('./settings.cjs');
+const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
+const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
 const { registerHttpIpc } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -591,6 +592,116 @@ ipcMain.handle('settings:set', async (_evt, partial) => {
     }
   }
   return res;
+});
+
+// Gateway management IPC handlers
+ipcMain.handle('settings:loadGateways', async () => {
+  try {
+    return loadGateways();
+  } catch (e) {
+    console.error('[electron][ipc] settings:loadGateways error:', e);
+    return [];
+  }
+});
+
+ipcMain.handle('settings:saveGateways', async (_evt, gateways) => {
+  try {
+    return saveGateways(gateways);
+  } catch (e) {
+    console.error('[electron][ipc] settings:saveGateways error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('settings:addGateway', async (_evt, gateway) => {
+  try {
+    return addGateway(gateway);
+  } catch (e) {
+    console.error('[electron][ipc] settings:addGateway error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('settings:updateGateway', async (_evt, id, updates) => {
+  try {
+    return updateGateway(id, updates);
+  } catch (e) {
+    console.error('[electron][ipc] settings:updateGateway error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('settings:deleteGateway', async (_evt, id) => {
+  try {
+    return deleteGateway(id);
+  } catch (e) {
+    console.error('[electron][ipc] settings:deleteGateway error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+// Private cloud config IPC handlers
+ipcMain.handle('settings:loadPrivateCloudConfig', async () => {
+  try {
+    return loadPrivateCloudConfig();
+  } catch (e) {
+    console.error('[electron][ipc] settings:loadPrivateCloudConfig error:', e);
+    return {
+      enabled: false,
+      gatewayIds: [],
+      preferPrivate: false,
+      fallbackToDAO: true,
+      timeout: 5000,
+      maxRetries: 3
+    };
+  }
+});
+
+ipcMain.handle('settings:savePrivateCloudConfig', async (_evt, config) => {
+  try {
+    return savePrivateCloudConfig(config);
+  } catch (e) {
+    console.error('[electron][ipc] settings:savePrivateCloudConfig error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+// Embedded Gateway Server IPC handlers
+ipcMain.handle('gatewayServer:start', async (_evt, options) => {
+  try {
+    return await startGatewayServer(options);
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:start error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('gatewayServer:stop', async () => {
+  try {
+    return await stopGatewayServer();
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:stop error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('gatewayServer:status', async () => {
+  try {
+    return getGatewayServerStatus();
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:status error:', e);
+    return { running: false, port: null, url: null };
+  }
+});
+
+ipcMain.handle('gatewayServer:getApiKey', async () => {
+  try {
+    const apiKey = getStoredApiKey();
+    return { ok: true, apiKey };
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:getApiKey error:', e);
+    return { ok: false, error: String(e.message) };
+  }
 });
 
 ipcMain.handle('lumenSite:getLocalGatewayBase', async () => {

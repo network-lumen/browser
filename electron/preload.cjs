@@ -97,6 +97,20 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.removeListener('settings:changed', handler);
     };
   },
+  // Gateway management
+  settingsLoadGateways: () => ipcRenderer.invoke('settings:loadGateways'),
+  settingsSaveGateways: (gateways) => ipcRenderer.invoke('settings:saveGateways', gateways),
+  settingsAddGateway: (gateway) => ipcRenderer.invoke('settings:addGateway', gateway),
+  settingsUpdateGateway: (id, updates) => ipcRenderer.invoke('settings:updateGateway', id, updates),
+  settingsDeleteGateway: (id) => ipcRenderer.invoke('settings:deleteGateway', id),
+  // Private cloud config
+  settingsLoadPrivateCloudConfig: () => ipcRenderer.invoke('settings:loadPrivateCloudConfig'),
+  settingsSavePrivateCloudConfig: (config) => ipcRenderer.invoke('settings:savePrivateCloudConfig', config),
+  // Embedded Gateway Server
+  gatewayServerStart: (options) => ipcRenderer.invoke('gatewayServer:start', options),
+  gatewayServerStop: () => ipcRenderer.invoke('gatewayServer:stop'),
+  gatewayServerStatus: () => ipcRenderer.invoke('gatewayServer:status'),
+  gatewayServerGetApiKey: () => ipcRenderer.invoke('gatewayServer:getApiKey'),
   dialogOpenFiles: (options) => ipcRenderer.invoke('dialog:openFiles', options || {}),
   dialogOpenFolder: (options) => ipcRenderer.invoke('dialog:openFolder', options || {}),
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),

@@ -3197,6 +3197,92 @@ function registerGatewayIpc() {
     }
   });
 
+  // ============================================================================
+  // Private Gateway Management IPC Handlers
+  // ============================================================================
+
+  const {
+    loadGateways,
+    saveGateways,
+    addGateway,
+    updateGateway,
+    deleteGateway,
+    loadPrivateCloudConfig,
+    savePrivateCloudConfig
+  } = require('../settings.cjs');
+
+  // Load all private gateways
+  ipcMain.handle('privateGateway:loadGateways', async () => {
+    try {
+      const gateways = loadGateways();
+      return { ok: true, gateways };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Add a new private gateway
+  ipcMain.handle('privateGateway:addGateway', async (_evt, gateway) => {
+    try {
+      const result = addGateway(gateway);
+      if (result.ok) {
+        const gateways = loadGateways();
+        return { ok: true, gateways };
+      }
+      return result;
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Update an existing private gateway
+  ipcMain.handle('privateGateway:updateGateway', async (_evt, { id, updates }) => {
+    try {
+      const result = updateGateway(id, updates);
+      if (result.ok) {
+        const gateways = loadGateways();
+        return { ok: true, gateways };
+      }
+      return result;
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Delete a private gateway
+  ipcMain.handle('privateGateway:deleteGateway', async (_evt, id) => {
+    try {
+      const result = deleteGateway(id);
+      if (result.ok) {
+        const gateways = loadGateways();
+        return { ok: true, gateways };
+      }
+      return result;
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Load private cloud configuration
+  ipcMain.handle('privateGateway:loadConfig', async () => {
+    try {
+      const config = loadPrivateCloudConfig();
+      return { ok: true, config };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  // Save private cloud configuration
+  ipcMain.handle('privateGateway:saveConfig', async (_evt, config) => {
+    try {
+      const result = savePrivateCloudConfig(config);
+      return result;
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   // Best-effort: keep a warm cache of PQ public keys so PQ operations can skip dead gateways quickly.
   startGatewayHealthMonitor();
 }

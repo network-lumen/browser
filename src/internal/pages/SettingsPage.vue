@@ -51,6 +51,15 @@
             <User :size="18" />
             <span>Profiles &amp; backups</span>
           </button>
+          <button
+            type="button"
+            class="lsb-item"
+            :class="{ active: currentView === 'privatecloud' }"
+            @click="currentView = 'privatecloud'"
+          >
+            <Cloud :size="18" />
+            <span>Private Cloud</span>
+          </button>
         </div>
 
         <div class="lsb-section">
@@ -601,6 +610,161 @@
         </div>
       </div>
 
+      <!-- Private Cloud View -->
+      <div v-else-if="currentView === 'privatecloud'" class="settings-section">
+        <div class="setting-group">
+          <!-- Main Enable Toggle -->
+          <div class="setting-item featured" :class="{ active: privateCloudEnabled }">
+            <div class="setting-info">
+              <span class="setting-label">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                  <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+                </svg>
+                Enable Private Cloud
+              </span>
+              <span class="setting-desc">Use your own private IPFS gateways for content delivery</span>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" v-model="privateCloudEnabled" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Settings when enabled -->
+          <template v-if="privateCloudEnabled">
+            <!-- Gateway Preferences -->
+            <div class="settings-subsection">
+              <h3 class="subsection-title">Gateway Preferences</h3>
+              
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-label">Prefer Private Gateways</span>
+                  <span class="setting-desc">Try private gateways first before DAO gateways</span>
+                </div>
+                <div class="setting-control">
+                  <label class="toggle">
+                    <input type="checkbox" v-model="preferPrivateGateways" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-label">Fallback to DAO Gateways</span>
+                  <span class="setting-desc">Use DAO gateways if private gateways fail</span>
+                </div>
+                <div class="setting-control">
+                  <label class="toggle">
+                    <input type="checkbox" v-model="fallbackToDAO" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gateway IDs -->
+            <div class="settings-subsection">
+              <div class="subsection-header">
+                <h3 class="subsection-title">Gateway IDs</h3>
+                <span class="count-badge">{{ gatewayIds.length }}</span>
+              </div>
+              <p class="subsection-desc">Add gateway IDs to use for private content delivery</p>
+
+              <div class="gateway-ids-wrapper">
+                <div v-if="gatewayIds.length > 0" class="gateway-ids-list">
+                  <div v-for="(id, index) in gatewayIds" :key="index" class="gateway-id-item">
+                    <span class="gateway-id-text mono">{{ id }}</span>
+                    <button class="icon-btn-small" @click="removeGatewayId(index)">
+                      <X :size="16" />
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="empty-gateway-ids">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.3; margin-bottom: 8px;">
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                  </svg>
+                  <p>No gateway IDs configured</p>
+                  <span>Add your first gateway ID below</span>
+                </div>
+
+                <div class="add-gateway-id">
+                  <input
+                    v-model="newGatewayId"
+                    type="text"
+                    class="input-control wide"
+                    placeholder="Enter gateway ID (e.g., gateway-123)"
+                    @keyup.enter="addGatewayId"
+                  />
+                  <button class="btn-secondary" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                    <Plus :size="16" />
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="settings-subsection">
+              <h3 class="subsection-title">Advanced Settings</h3>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-label">Request Timeout</span>
+                  <span class="setting-desc">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
+                </div>
+                <div class="setting-control">
+                  <input
+                    type="range"
+                    min="1000"
+                    max="30000"
+                    step="1000"
+                    v-model="gatewayTimeout"
+                    class="brightness-slider"
+                  />
+                  <span class="brightness-value">{{ gatewayTimeout / 1000 }}s</span>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-label">Max Retries</span>
+                  <span class="setting-desc">Maximum retry attempts per gateway</span>
+                </div>
+                <div class="setting-control">
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    v-model="maxRetries"
+                    class="input-control"
+                    style="width: 80px;"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <div>
+                <strong>Need to create a gateway?</strong>
+                <p>Visit <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
       <!-- About View -->
       <div v-else-if="currentView === 'about'" class="settings-section">
         <div class="about-card">
@@ -657,7 +821,10 @@ import {
   Moon,
   Monitor,
   Lock,
-  LockKeyhole
+  LockKeyhole,
+  Cloud,
+  Plus,
+  X
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { useToast } from '../../composables/useToast';
@@ -726,6 +893,17 @@ const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
+
+// Private Cloud state
+const privateCloudEnabled = ref(false);
+const preferPrivateGateways = ref(false);
+const fallbackToDAO = ref(true);
+const gatewayIds = ref<string[]>([]);
+const newGatewayId = ref('');
+const gatewayTimeout = ref(5000);
+const maxRetries = ref(3);
+const privateCloudLoading = ref(false);
+const privateCloudInitialized = ref(false);
 
 const showSexualContent = ref(!!appSettingsState.value.showSexualContent);
 const showViolentContent = ref(!!appSettingsState.value.showViolentContent);
@@ -936,6 +1114,9 @@ watch(
       removePasswordInput.value = '';
       showRemovePasswordConfirm.value = false;
     }
+    if (v === 'privatecloud') {
+      loadPrivateCloudConfig();
+    }
   },
 );
 
@@ -1017,6 +1198,87 @@ async function saveDevSettings() {
   }
 }
 
+// Private Cloud functions
+async function loadPrivateCloudConfig() {
+  privateCloudLoading.value = true;
+  try {
+    const config = await (window as any).lumen.settingsLoadPrivateCloudConfig();
+    console.log('[SettingsPage] Loaded config:', config);
+    
+    privateCloudEnabled.value = !!config.enabled;
+    preferPrivateGateways.value = !!config.preferPrivate;
+    fallbackToDAO.value = config.fallbackToDAO !== false;
+    gatewayIds.value = Array.isArray(config.gatewayIds) ? config.gatewayIds : [];
+    gatewayTimeout.value = typeof config.timeout === 'number' ? config.timeout : 5000;
+    maxRetries.value = typeof config.maxRetries === 'number' ? config.maxRetries : 3;
+    
+    console.log('[SettingsPage] Config loaded successfully');
+  } catch (e) {
+    console.error('Failed to load private cloud config:', e);
+  } finally {
+    privateCloudLoading.value = false;
+    // Use nextTick to ensure all reactive updates are done before enabling watch
+    await new Promise(resolve => setTimeout(resolve, 100));
+    privateCloudInitialized.value = true;
+    console.log('[SettingsPage] Private cloud initialized');
+  }
+}
+
+async function savePrivateCloudConfig() {
+  try {
+    const config = {
+      enabled: privateCloudEnabled.value,
+      gatewayIds: [...gatewayIds.value], // Convert Proxy to plain array
+      preferPrivate: preferPrivateGateways.value,
+      fallbackToDAO: fallbackToDAO.value,
+      timeout: gatewayTimeout.value,
+      maxRetries: maxRetries.value
+    };
+    
+    console.log('[SettingsPage] Saving private cloud config:', config);
+    const result = await (window as any).lumen.settingsSavePrivateCloudConfig(config);
+    console.log('[SettingsPage] Save result:', result);
+    
+    if (!result.ok) {
+      console.error('Failed to save private cloud config:', result.error);
+      toast.error(result.error || 'Failed to save private cloud settings');
+    } else {
+      console.log('[SettingsPage] Config saved successfully');
+    }
+  } catch (e) {
+    console.error('Failed to save private cloud config:', e);
+    toast.error('Failed to save private cloud settings');
+  }
+}
+
+function addGatewayId() {
+  const id = newGatewayId.value.trim();
+  if (!id) return;
+  if (gatewayIds.value.includes(id)) {
+    toast.error('Gateway ID already added');
+    return;
+  }
+  gatewayIds.value.push(id);
+  newGatewayId.value = '';
+  savePrivateCloudConfig();
+}
+
+function removeGatewayId(index: number) {
+  gatewayIds.value.splice(index, 1);
+  savePrivateCloudConfig();
+}
+
+// Watch for changes to save automatically
+watch([privateCloudEnabled, preferPrivateGateways, fallbackToDAO, gatewayTimeout, maxRetries], () => {
+  // Only auto-save if not loading and has been initialized (prevents save on initial load)
+  if (!privateCloudLoading.value && privateCloudInitialized.value) {
+    console.log('[SettingsPage] Watch triggered, saving config...');
+    savePrivateCloudConfig();
+  } else {
+    console.log('[SettingsPage] Watch triggered but skipped (loading:', privateCloudLoading.value, 'initialized:', privateCloudInitialized.value, ')');
+  }
+});
+
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     appearance: 'Appearance',
@@ -1024,6 +1286,7 @@ function getViewTitle(): string {
     privacy: 'Privacy & Security',
     security: 'Security',
     profiles: 'Profiles & backups',
+    privatecloud: 'Private Cloud',
     advanced: 'Developer settings',
     about: 'About Lumen'
   };
@@ -1037,6 +1300,7 @@ function getViewDescription(): string {
     privacy: 'Manage your privacy settings',
     security: 'Password protection for wallet operations',
     profiles: 'Backup or restore profiles and PQC keys',
+    privatecloud: 'Configure your private IPFS gateways',
     advanced: 'Advanced network configuration',
     about: 'Information about Lumen'
   };
@@ -1878,5 +2142,174 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .btn-danger:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Private Cloud - Simple Styles */
+.setting-item.featured {
+  border-width: 2px;
+}
+
+.setting-item.featured.active {
+  border-color: var(--ios-green);
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.05) 0%, rgba(52, 199, 89, 0.02) 100%);
+}
+
+.settings-subsection {
+  margin-top: 1rem;
+}
+
+.subsection-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem;
+}
+
+.subsection-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+}
+
+.subsection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--ios-blue);
+  border-radius: 11px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gateway-ids-wrapper {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.gateway-ids-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.gateway-id-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.gateway-id-item:hover {
+  border-color: var(--ios-blue);
+}
+
+.gateway-id-text {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.empty-gateway-ids {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-tertiary);
+}
+
+.empty-gateway-ids p {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.empty-gateway-ids span {
+  font-size: 0.85rem;
+}
+
+.icon-btn-small {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn-small:hover {
+  background: rgba(255, 59, 48, 0.15);
+  color: var(--ios-red);
+}
+
+.add-gateway-id {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.add-gateway-id .input-control {
+  flex: 1;
+}
+
+.info-box {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
+  border: 1.5px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+.info-box svg {
+  flex-shrink: 0;
+  color: var(--ios-blue);
+}
+
+.info-box strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.info-box p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.info-box a {
+  color: var(--ios-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.info-box a:hover {
+  text-decoration: underline;
 }
 </style>

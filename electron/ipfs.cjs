@@ -1171,6 +1171,67 @@ async function ipfsGet(cidOrPath, options = {}) {
         ? options.timeoutMs
         : 12000;
 
+    // ============================================================================
+    // Private Gateway Support
+    // ============================================================================
+    // Try private gateways first if configured
+    try {
+      const { fetchFromPrivateGateways } = require('./gateway-client.cjs');
+      const { loadPrivateCloudConfig } = require('./settings.cjs');
+      
+      const privateConfig = loadPrivateCloudConfig();
+      if (privateConfig.enabled && privateConfig.gatewayIds && privateConfig.gatewayIds.length > 0) {
+        console.log('[electron][ipfs] trying private gateways for:', arg);
+        
+        // Get wallet address and mnemonic for authentication
+        const { getWalletAddressForProfile, loadMnemonic, loadProfilesFile } = require('./ipc/gateway.cjs');
+        
+        try {
+          // Get active profile
+          const profilesData = loadProfilesFile();
+          const activeProfileId = profilesData.activeId;
+          
+          if (activeProfileId) {
+            const walletAddress = getWalletAddressForProfile(activeProfileId);
+            const mnemonic = loadMnemonic(activeProfileId);
+            
+            if (walletAddress && mnemonic) {
+              const privateContent = await fetchFromPrivateGateways(
+                arg, 
+                walletAddress, 
+                mnemonic,
+                { timeout: privateConfig.timeout || 5000 }
+              );
+              
+              if (privateContent) {
+                const bytes = new Uint8Array(privateContent);
+                console.log('[electron][ipfs] get success from private gateway, size:', bytes.byteLength);
+                try { recordCidResolutionSuccess(); } catch {}
+                return { ok: true, data: Array.from(bytes), source: 'private_gateway' };
+              }
+            } else {
+              console.warn('[electron][ipfs] no wallet credentials available for private gateway auth');
+            }
+          } else {
+            console.warn('[electron][ipfs] no active profile for private gateway auth');
+          }
+        } catch (privateErr) {
+          console.warn('[electron][ipfs] private gateway attempt failed:', privateErr.message);
+          // Continue to fallback gateways
+        }
+        
+        // If fallback is disabled, return error
+        if (!privateConfig.fallbackToDAO) {
+          console.warn('[electron][ipfs] private gateways failed and fallback disabled');
+          return { ok: false, error: 'Private gateways failed and fallback disabled' };
+        }
+      }
+    } catch (privateGatewayErr) {
+      console.warn('[electron][ipfs] private gateway module error:', privateGatewayErr.message);
+      // Continue to standard flow
+    }
+    // ============================================================================
+
     const extraGateways = Array.isArray(options?.gateways) ? options.gateways : [];
     const extraBases = Array.from(
       new Set(extraGateways.map((x) => String(x || '').trim().replace(/\/+$/, '')).filter(Boolean))
