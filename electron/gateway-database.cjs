@@ -35,7 +35,8 @@ function initDatabase(dataPath) {
 function createEmptyDb() {
   return {
     whitelist: {},
-    usage: {}
+    usage: {},
+    metadata: {} // User metadata (display names, etc)
   };
 }
 
@@ -255,6 +256,59 @@ function cleanupOldUsage(daysToKeep = 90) {
   return count;
 }
 
+/**
+ * Save user metadata (display name, etc)
+ */
+function saveUserMetadata(address, metadata) {
+  if (!db) throw new Error('Database not initialized');
+  
+  if (!db.metadata) {
+    db.metadata = {};
+  }
+  
+  db.metadata[address] = {
+    wallet_address: address,
+    display_name: metadata.display_name || null,
+    avatar_url: metadata.avatar_url || null,
+    bio: metadata.bio || null,
+    updated_at: Date.now(),
+    ...metadata
+  };
+  
+  saveDb();
+  return db.metadata[address];
+}
+
+/**
+ * Get user metadata
+ */
+function getUserMetadata(address) {
+  if (!db || !db.metadata) return null;
+  return db.metadata[address] || null;
+}
+
+/**
+ * Get all user metadata
+ */
+function getAllUserMetadata() {
+  if (!db || !db.metadata) return {};
+  return db.metadata;
+}
+
+/**
+ * Delete user metadata
+ */
+function deleteUserMetadata(address) {
+  if (!db || !db.metadata) return false;
+  
+  if (db.metadata[address]) {
+    delete db.metadata[address];
+    saveDb();
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   initDatabase,
   addToWhitelist,
@@ -265,5 +319,9 @@ module.exports = {
   updateUsage,
   getUsageStats,
   getAggregatedUsageStats,
-  cleanupOldUsage
+  cleanupOldUsage,
+  saveUserMetadata,
+  getUserMetadata,
+  getAllUserMetadata,
+  deleteUserMetadata
 };

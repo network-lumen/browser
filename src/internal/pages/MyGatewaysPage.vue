@@ -79,6 +79,62 @@
           </div>
         </div>
 
+        <!-- Whitelist Management Section (only show when embedded server is running) -->
+        <div v-if="embeddedServerRunning" class="whitelist-section">
+          <div class="section-header">
+            <h2>Whitelist Management</h2>
+            <button type="button" class="btn-add" @click="openWhitelistModal">
+              <Plus :size="18" />
+              Add User
+            </button>
+          </div>
+
+          <div v-if="whitelistLoading" class="empty-state small">
+            <div class="spinner"></div>
+            <p>Loading whitelist...</p>
+          </div>
+
+          <div v-else-if="whitelist.length === 0" class="empty-state small">
+            <p>No users in whitelist yet. Add wallet addresses to grant access.</p>
+          </div>
+
+          <div v-else class="whitelist-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Display Name</th>
+                  <th>Wallet Address</th>
+                  <th>Added</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="entry in whitelist" :key="entry.wallet_address">
+                  <td>
+                    <div class="user-display-name">
+                      {{ getUserDisplayName(entry.wallet_address) }}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="mono-text">{{ formatAddress(entry.wallet_address) }}</span>
+                  </td>
+                  <td>{{ formatDate(entry.added_at) }}</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn-icon" @click="editWhitelistEntry(entry)" title="Edit display name">
+                        <Edit2 :size="14" />
+                      </button>
+                      <button class="btn-icon danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
+                        <Trash2 :size="14" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- External Gateways Section -->
         <div class="section-header">
           <h2>External Gateways</h2>
@@ -238,12 +294,96 @@
           </div>
         </div>
       </Transition>
+
+      <!-- Whitelist Add/Edit Modal -->
+      <Transition name="modal">
+        <div v-if="showWhitelistModal" class="modal-overlay" @click="closeWhitelistModal">
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h2>{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
+              <button class="icon-btn" @click="closeWhitelistModal">×</button>
+            </div>
+
+            <div class="modal-body">
+              <div class="form-group">
+                <label class="form-label">Wallet Address</label>
+                <input
+                  v-model="whitelistForm.address"
+                  type="text"
+                  class="form-input"
+                  placeholder="lumen1..."
+                  :disabled="!!editingWhitelistEntry"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Display Name (Optional)</label>
+                <input
+                  v-model="whitelistForm.displayName"
+                  type="text"
+                  class="form-input"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea
+                  v-model="whitelistForm.notes"
+                  class="form-input"
+                  rows="3"
+                  placeholder="Additional notes about this user..."
+                ></textarea>
+              </div>
+
+              <div v-if="whitelistModalError" class="error-message">
+                {{ whitelistModalError }}
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn-secondary" @click="closeWhitelistModal" :disabled="whitelistSaving">
+                Cancel
+              </button>
+              <button class="btn-primary" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
+                {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
+      <!-- Whitelist Remove Confirmation Modal -->
+      <Transition name="modal">
+        <div v-if="showWhitelistDeleteConfirm" class="modal-overlay" @click="closeWhitelistDeleteConfirm">
+          <div class="modal-content small" @click.stop>
+            <div class="modal-header">
+              <h2>Remove User</h2>
+              <button class="icon-btn" @click="closeWhitelistDeleteConfirm">×</button>
+            </div>
+
+            <div class="modal-body">
+              <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
+              <p class="warning-text">They will no longer be able to access your gateway.</p>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn-secondary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
+                Cancel
+              </button>
+              <button class="btn-danger" @click="removeFromWhitelist" :disabled="whitelistDeleting">
+                {{ whitelistDeleting ? 'Removing...' : 'Remove' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Server, List, Plus, Edit2, Trash2, AlertCircle } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
@@ -275,6 +415,24 @@ const embeddedServerRunning = ref(false);
 const embeddedServerPort = ref<number | null>(null);
 const embeddedServerUrl = ref<string | null>(null);
 const serverLoading = ref(false);
+
+// Whitelist state
+const whitelist = ref<any[]>([]);
+const whitelistLoading = ref(false);
+const showWhitelistModal = ref(false);
+const showWhitelistDeleteConfirm = ref(false);
+const editingWhitelistEntry = ref<any | null>(null);
+const removingWhitelistEntry = ref<any | null>(null);
+const whitelistSaving = ref(false);
+const whitelistDeleting = ref(false);
+const whitelistModalError = ref('');
+const userMetadata = ref<Record<string, any>>({});
+
+const whitelistForm = ref({
+  address: '',
+  displayName: '',
+  notes: ''
+});
 
 const form = ref({
   name: '',
@@ -523,6 +681,9 @@ async function toggleEmbeddedServer() {
             }
           );
         }
+        
+        // Load whitelist after server starts
+        await loadWhitelist();
       } else {
         toast.error(result.error || 'Failed to start embedded server');
       }
@@ -534,9 +695,235 @@ async function toggleEmbeddedServer() {
   }
 }
 
-onMounted(() => {
+// Whitelist management functions
+async function loadWhitelist() {
+  if (!embeddedServerRunning.value) return;
+  
+  whitelistLoading.value = true;
+  try {
+    const apiKey = await (window as any).lumen.gatewayServerGetApiKey();
+    if (!apiKey.ok || !apiKey.apiKey) {
+      console.error('No API key available');
+      return;
+    }
+
+    // Fetch whitelist from embedded server
+    const response = await fetch(`http://127.0.0.1:${embeddedServerPort.value}/api/whitelist`, {
+      headers: {
+        'X-API-Key': apiKey.apiKey
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      whitelist.value = data.entries || [];
+      
+      // Load all user metadata
+      await loadAllUserMetadata();
+    } else {
+      console.error('Failed to load whitelist:', response.statusText);
+    }
+  } catch (e: any) {
+    console.error('Error loading whitelist:', e);
+  } finally {
+    whitelistLoading.value = false;
+  }
+}
+
+async function loadAllUserMetadata() {
+  try {
+    const result = await (window as any).lumen.gatewayServerGetAllMetadata();
+    if (result.ok && result.metadata) {
+      userMetadata.value = result.metadata;
+    }
+  } catch (e: any) {
+    console.error('Error loading user metadata:', e);
+  }
+}
+
+function getUserDisplayName(address: string): string {
+  const metadata = userMetadata.value[address];
+  if (metadata && metadata.display_name) {
+    return metadata.display_name;
+  }
+  return formatAddress(address);
+}
+
+function formatAddress(address: string): string {
+  if (!address) return '';
+  if (address.length <= 16) return address;
+  return `${address.slice(0, 10)}...${address.slice(-6)}`;
+}
+
+function openWhitelistModal() {
+  editingWhitelistEntry.value = null;
+  whitelistForm.value = {
+    address: '',
+    displayName: '',
+    notes: ''
+  };
+  whitelistModalError.value = '';
+  showWhitelistModal.value = true;
+}
+
+function editWhitelistEntry(entry: any) {
+  editingWhitelistEntry.value = entry;
+  const metadata = userMetadata.value[entry.wallet_address];
+  whitelistForm.value = {
+    address: entry.wallet_address,
+    displayName: metadata?.display_name || '',
+    notes: entry.notes || ''
+  };
+  whitelistModalError.value = '';
+  showWhitelistModal.value = true;
+}
+
+function closeWhitelistModal() {
+  if (whitelistSaving.value) return;
+  showWhitelistModal.value = false;
+  editingWhitelistEntry.value = null;
+  whitelistModalError.value = '';
+}
+
+async function saveWhitelistEntry() {
+  if (!whitelistForm.value.address.trim() || whitelistSaving.value) return;
+
+  whitelistModalError.value = '';
+  whitelistSaving.value = true;
+
+  try {
+    const apiKey = await (window as any).lumen.gatewayServerGetApiKey();
+    if (!apiKey.ok || !apiKey.apiKey) {
+      whitelistModalError.value = 'No API key available';
+      return;
+    }
+
+    if (editingWhitelistEntry.value) {
+      // Update metadata only (whitelist entry already exists)
+      if (whitelistForm.value.displayName.trim()) {
+        const metadataResult = await (window as any).lumen.gatewayServerSaveMetadata(
+          whitelistForm.value.address,
+          {
+            display_name: whitelistForm.value.displayName.trim()
+          }
+        );
+
+        if (!metadataResult.ok) {
+          whitelistModalError.value = metadataResult.error || 'Failed to save display name';
+          return;
+        }
+      }
+
+      toast.success('User updated successfully');
+    } else {
+      // Add new user to whitelist
+      const response = await fetch(`http://127.0.0.1:${embeddedServerPort.value}/api/whitelist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey.apiKey
+        },
+        body: JSON.stringify({
+          address: whitelistForm.value.address.trim(),
+          notes: whitelistForm.value.notes.trim()
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        whitelistModalError.value = error.error || 'Failed to add user';
+        return;
+      }
+
+      // Save display name if provided
+      if (whitelistForm.value.displayName.trim()) {
+        await (window as any).lumen.gatewayServerSaveMetadata(
+          whitelistForm.value.address.trim(),
+          {
+            display_name: whitelistForm.value.displayName.trim()
+          }
+        );
+      }
+
+      toast.success('User added to whitelist');
+    }
+
+    await loadWhitelist();
+    closeWhitelistModal();
+  } catch (e: any) {
+    whitelistModalError.value = e.message || 'Failed to save user';
+  } finally {
+    whitelistSaving.value = false;
+  }
+}
+
+function confirmRemoveFromWhitelist(entry: any) {
+  removingWhitelistEntry.value = entry;
+  showWhitelistDeleteConfirm.value = true;
+}
+
+function closeWhitelistDeleteConfirm() {
+  if (whitelistDeleting.value) return;
+  showWhitelistDeleteConfirm.value = false;
+  removingWhitelistEntry.value = null;
+}
+
+async function removeFromWhitelist() {
+  if (!removingWhitelistEntry.value || whitelistDeleting.value) return;
+
+  whitelistDeleting.value = true;
+
+  try {
+    const apiKey = await (window as any).lumen.gatewayServerGetApiKey();
+    if (!apiKey.ok || !apiKey.apiKey) {
+      toast.error('No API key available');
+      return;
+    }
+
+    const response = await fetch(
+      `http://127.0.0.1:${embeddedServerPort.value}/api/whitelist/${removingWhitelistEntry.value.wallet_address}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'X-API-Key': apiKey.apiKey
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      toast.error(error.error || 'Failed to remove user');
+      return;
+    }
+
+    toast.success('User removed from whitelist');
+    await loadWhitelist();
+    closeWhitelistDeleteConfirm();
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to remove user');
+  } finally {
+    whitelistDeleting.value = false;
+  }
+}
+
+// Watch for server status changes and load whitelist
+watch(embeddedServerRunning, (isRunning) => {
+  if (isRunning) {
+    loadWhitelist();
+  } else {
+    whitelist.value = [];
+    userMetadata.value = {};
+  }
+});
+
+onMounted(async () => {
   loadGateways();
-  checkEmbeddedServerStatus();
+  await checkEmbeddedServerStatus();
+  
+  // Load whitelist if server is already running
+  if (embeddedServerRunning.value) {
+    loadWhitelist();
+  }
 });
 </script>
 
@@ -1130,5 +1517,105 @@ onMounted(() => {
 .modal-enter-from .modal-content,
 .modal-leave-to .modal-content {
   transform: scale(0.95);
+}
+
+/* Whitelist Section */
+.whitelist-section {
+  margin-bottom: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.empty-state.small {
+  padding: 2rem 1rem;
+}
+
+.whitelist-table {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.whitelist-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.whitelist-table thead {
+  background: var(--hover-bg);
+}
+
+.whitelist-table th {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.whitelist-table td {
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.whitelist-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.whitelist-table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+.user-display-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mono-text {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+  border-color: var(--ios-blue);
+}
+
+.btn-icon.danger:hover {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--ios-red);
+  border-color: var(--ios-red);
+}
+
+.form-input[type="textarea"],
+textarea.form-input {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
 }
 </style>

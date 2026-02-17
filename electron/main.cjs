@@ -704,6 +704,49 @@ ipcMain.handle('gatewayServer:getApiKey', async () => {
   }
 });
 
+// Gateway metadata IPC handlers
+const { saveUserMetadata, getUserMetadata, getAllUserMetadata, deleteUserMetadata } = require('./gateway-database.cjs');
+
+ipcMain.handle('gatewayServer:saveMetadata', async (_evt, address, metadata) => {
+  try {
+    const saved = saveUserMetadata(address, metadata);
+    return { ok: true, metadata: saved };
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:saveMetadata error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('gatewayServer:getMetadata', async (_evt, address) => {
+  try {
+    const metadata = getUserMetadata(address);
+    return { ok: true, metadata };
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:getMetadata error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('gatewayServer:getAllMetadata', async () => {
+  try {
+    const metadata = getAllUserMetadata();
+    return { ok: true, metadata };
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:getAllMetadata error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
+ipcMain.handle('gatewayServer:deleteMetadata', async (_evt, address) => {
+  try {
+    const deleted = deleteUserMetadata(address);
+    return { ok: true, deleted };
+  } catch (e) {
+    console.error('[electron][ipc] gatewayServer:deleteMetadata error:', e);
+    return { ok: false, error: String(e.message) };
+  }
+});
+
 ipcMain.handle('lumenSite:getLocalGatewayBase', async () => {
   const s = getSettings();
   return safeString(s && s.localGatewayBase ? s.localGatewayBase : '', 1024);

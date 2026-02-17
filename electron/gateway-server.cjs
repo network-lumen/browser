@@ -71,7 +71,8 @@ async function startGatewayServer(options = {}) {
 
     // Initialize database
     const { initDatabase, addToWhitelist, removeFromWhitelist, getAllWhitelistEntries,
-            getWhitelistEntry, updateUsage, getUsageStats, getAggregatedUsageStats } = 
+            getWhitelistEntry, updateUsage, getUsageStats, getAggregatedUsageStats,
+            saveUserMetadata, getUserMetadata, getAllUserMetadata, deleteUserMetadata } = 
             require('./gateway-database.cjs');
     
     initDatabase(dataDir);
@@ -335,6 +336,90 @@ async function startGatewayServer(options = {}) {
       } catch (error) {
         console.error('[electron][gateway-server] Error getting aggregated stats:', error);
         res.status(500).json({ error: 'Failed to get usage statistics' });
+      }
+    });
+
+    // Save user metadata (display name, etc)
+    expressApp.post('/api/metadata/:address', requireApiKey, (req, res) => {
+      try {
+        const { address } = req.params;
+        const metadata = req.body;
+        
+        if (!address) {
+          return res.status(400).json({ error: 'Missing wallet address' });
+        }
+        
+        const saved = saveUserMetadata(address, metadata);
+        
+        res.json({
+          success: true,
+          message: 'Metadata saved successfully',
+          metadata: saved
+        });
+        
+      } catch (error) {
+        console.error('[electron][gateway-server] Error saving metadata:', error);
+        res.status(500).json({ error: 'Failed to save metadata' });
+      }
+    });
+
+    // Get user metadata
+    expressApp.get('/api/metadata/:address', requireApiKey, (req, res) => {
+      try {
+        const { address } = req.params;
+        
+        const metadata = getUserMetadata(address);
+        
+        if (!metadata) {
+          return res.status(404).json({ error: 'Metadata not found' });
+        }
+        
+        res.json({
+          success: true,
+          metadata
+        });
+        
+      } catch (error) {
+        console.error('[electron][gateway-server] Error getting metadata:', error);
+        res.status(500).json({ error: 'Failed to get metadata' });
+      }
+    });
+
+    // Get all user metadata
+    expressApp.get('/api/metadata', requireApiKey, (req, res) => {
+      try {
+        const allMetadata = getAllUserMetadata();
+        
+        res.json({
+          success: true,
+          metadata: allMetadata
+        });
+        
+      } catch (error) {
+        console.error('[electron][gateway-server] Error getting all metadata:', error);
+        res.status(500).json({ error: 'Failed to get metadata' });
+      }
+    });
+
+    // Delete user metadata
+    expressApp.delete('/api/metadata/:address', requireApiKey, (req, res) => {
+      try {
+        const { address } = req.params;
+        
+        const deleted = deleteUserMetadata(address);
+        
+        if (!deleted) {
+          return res.status(404).json({ error: 'Metadata not found' });
+        }
+        
+        res.json({
+          success: true,
+          message: 'Metadata deleted successfully'
+        });
+        
+      } catch (error) {
+        console.error('[electron][gateway-server] Error deleting metadata:', error);
+        res.status(500).json({ error: 'Failed to delete metadata' });
       }
     });
 
