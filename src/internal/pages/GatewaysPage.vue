@@ -50,6 +50,36 @@
 
       <!-- Advanced gateway management -->
       <div class="content-area">
+        <!-- Private Gateways Section -->
+        <div v-if="privateGateways.length > 0" class="private-gateways-section">
+          <div class="section-header">
+            <h2>Private Gateways</h2>
+            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="manage-link">
+              Manage Private Gateways →
+            </a>
+          </div>
+          <div class="private-gateways-grid">
+            <div v-for="gw in privateGateways" :key="gw.id" class="private-gateway-card">
+              <div class="private-gateway-header">
+                <div class="gateway-status-dot" :class="{ ok: gw.status === 'active' }"></div>
+                <span class="private-badge">Private</span>
+              </div>
+              <h3 class="private-gateway-name">{{ gw.name }}</h3>
+              <p class="private-gateway-url mono">{{ gw.url }}</p>
+              <div class="private-gateway-status">
+                <span :class="`status-${gw.status}`">{{ gw.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DAO Gateways Section -->
+        <div v-if="hasProfile" class="dao-gateways-section">
+          <div class="section-header">
+            <h2>DAO Gateways</h2>
+          </div>
+        </div>
+
         <div v-if="!hasProfile" class="empty-state-card">
           <h2 class="empty-title">No active profile</h2>
           <p class="empty-sub">
@@ -306,6 +336,10 @@ const gateways = ref<GatewayRecord[]>([]);
 const gatewaysLoading = ref(false);
 const gatewaysError = ref('');
 
+// Private gateways state
+const privateGateways = ref<any[]>([]);
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+
 const showCreateModal = ref(false);
 
 const registerForm = reactive({
@@ -473,6 +507,17 @@ async function loadGateways() {
 function refreshManage() {
   void loadGatewayParams();
   void loadGateways();
+  void loadPrivateGateways();
+}
+
+async function loadPrivateGateways() {
+  try {
+    const result = await (window as any).lumen.settingsLoadGateways();
+    privateGateways.value = result || [];
+  } catch (e) {
+    console.error('Failed to load private gateways:', e);
+    privateGateways.value = [];
+  }
 }
 
 function extrasFromGateway(gateway: GatewayRecord): Record<string, any> {
@@ -1324,6 +1369,123 @@ watch(
   .modal-body {
     grid-template-columns: 1fr;
   }
+}
+
+/* Private Gateways Section */
+.private-gateways-section {
+  margin-bottom: 2rem;
+}
+
+.dao-gateways-section {
+  margin-top: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.manage-link {
+  color: var(--ios-blue);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.manage-link:hover {
+  opacity: 0.8;
+}
+
+.private-gateways-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.private-gateway-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+}
+
+.private-gateway-card:hover {
+  border-color: var(--ios-blue);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.private-gateway-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.private-badge {
+  padding: 0.25rem 0.625rem;
+  background: rgba(94, 92, 230, 0.15);
+  color: var(--ios-purple, #5e5ce6);
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.private-gateway-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.private-gateway-url {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  margin: 0 0 0.75rem 0;
+  word-break: break-all;
+}
+
+.private-gateway-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.private-gateway-status span {
+  padding: 0.25rem 0.625rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--ios-green);
+}
+
+.status-inactive {
+  background: rgba(142, 142, 147, 0.15);
+  color: var(--text-secondary);
+}
+
+.status-error {
+  background: rgba(255, 59, 48, 0.15);
+  color: var(--ios-red);
 }
 </style>
 

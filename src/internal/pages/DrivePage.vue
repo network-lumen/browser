@@ -168,6 +168,21 @@
         </div>
       </header>
 
+      <!-- Privacy Warning Banner -->
+      <div class="warning-banner">
+        <div class="warning-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="warning-content">
+          <strong>Privacy Notice:</strong>
+          <span>Everything uploaded on Lumen is public. Don't upload personal files.</span>
+        </div>
+      </div>
+
       <!-- Search and Filter Bar -->
       <div class="search-filter-bar">
         <div class="search-box">
@@ -6941,6 +6956,61 @@ async function reloadForActiveProfileChange() {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
+}
+
+/* Warning Banner */
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 149, 0, 0.1) 0%, rgba(255, 149, 0, 0.05) 100%);
+  border: 1.5px solid rgba(255, 149, 0, 0.3);
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.warning-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 149, 0, 0.15);
+  border-radius: 8px;
+  color: var(--ios-orange);
+}
+
+.warning-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.warning-content strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.warning-content span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
 /* Search & Filter Bar */
