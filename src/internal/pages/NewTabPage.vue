@@ -1,16 +1,16 @@
 <template>
-  <div class="newtab-page">
+  <div class="newtab-page internal-page relative flex-align-justify-center">
     <div
       v-if="showOnboarding"
-      class="onboarding-overlay"
+      class="onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="lumen-onboarding-title"
       aria-describedby="lumen-onboarding-desc"
     >
       <div class="onboarding-modal" @click.stop>
-        <div class="onboarding-brand">
-          <div class="onboarding-logo" aria-hidden="true">
+        <div class="onboarding-brand flex-align-start gap-100 margin-bottom-100">
+          <div class="brand-logo" aria-hidden="true">
             <Hexagon :size="22" />
           </div>
           <div class="onboarding-text">
@@ -22,41 +22,58 @@
           </div>
         </div>
 
-        <div class="onboarding-actions">
-          <button class="ob-btn ob-primary" type="button" @click="learnLumen">
+        <div class="onboarding-actions flex-align-center-justify-end flex-wrap-wrap gap-75">
+          <button
+            class="ob-btn ob-primary border-1px-solid border-color-default border-radius-10px padding-75 cursor-pointer transition-ui txt-weight-medium"
+            type="button"
+            @click="learnLumen"
+          >
             Learn what is Lumen
           </button>
-          <button class="ob-btn ob-secondary" type="button" @click="dismissOnboarding">
+          <button
+            class="ob-btn ob-secondary border-1px-solid border-color-default border-radius-10px padding-75 cursor-pointer transition-ui txt-weight-medium"
+            type="button"
+            @click="dismissOnboarding"
+          >
             I already know Lumen
           </button>
         </div>
       </div>
     </div>
 
-    <div class="shell">
-      <div class="mark" aria-hidden="true">
-        <div class="logo">
+    <div class="shell w-full relative z-1 flex flex-column gap-100">
+      <div class="flex-justify-center margin-bottom-50" aria-hidden="true">
+        <div class="brand-logo brand-logo--lg">
           <Hexagon :size="30" />
         </div>
       </div>
 
-      <section class="actions">
-        <button class="action primary" type="button" @click="goExplore">
-          <div class="action-ico">
+      <section class="actions gap-100">
+        <button
+          class="action primary flex-align-center gap-75 w-full text-left cursor-pointer transition-ui"
+          type="button"
+          @click="goExplore"
+        >
+          <div class="action-ico flex-align-justify-center">
             <Telescope :size="18" />
           </div>
-          <div class="action-copy">
+          <div class="action-copy flex flex-column gap-25 min-w-0 flex-1-1-auto">
             <div class="action-title">Explore</div>
             <div class="action-desc">Search content and open websites.</div>
           </div>
           <div class="action-cta">Open</div>
         </button>
 
-        <button class="action" type="button" @click="goHome" :disabled="!hasProfiles">
-          <div class="action-ico">
+        <button
+          class="action flex-align-center gap-75 w-full text-left cursor-pointer transition-ui"
+          type="button"
+          @click="goHome"
+          :disabled="!hasProfiles"
+        >
+          <div class="action-ico flex-align-justify-center">
             <User :size="18" />
           </div>
-          <div class="action-copy">
+          <div class="action-copy flex flex-column gap-25 min-w-0 flex-1-1-auto">
             <div class="action-title">My space</div>
             <div class="action-desc">Drive, domains, wallet and tools.</div>
           </div>
@@ -68,7 +85,7 @@
         No profile yet. Create one using the top-right profile button to unlock your space.
       </div>
 
-      <div class="tip">
+      <div class="tip text-center">
         Paste any link in the address bar — `lumen://…`, `http://…`, or `https://…`.
       </div>
     </div>
@@ -133,16 +150,7 @@ onMounted(() => {
 
 <style scoped>
 .newtab-page {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
   padding: 2.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
-  position: relative;
-  overflow: hidden;
 }
 
 .newtab-page::before {
@@ -156,13 +164,7 @@ onMounted(() => {
 }
 
 .onboarding-overlay {
-  position: absolute;
-  inset: 0;
   background: rgba(2, 6, 23, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
   z-index: 10;
 }
 
@@ -175,17 +177,12 @@ onMounted(() => {
   padding: 1.25rem 1.25rem 1rem;
 }
 
-.onboarding-brand {
-  display: flex;
-  gap: 0.9rem;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.onboarding-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+.brand-logo {
+  --brand-logo-size: 44px;
+  --brand-logo-radius: 14px;
+  width: var(--brand-logo-size);
+  height: var(--brand-logo-size);
+  border-radius: var(--brand-logo-radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -193,6 +190,11 @@ onMounted(() => {
   color: white;
   box-shadow: var(--shadow-primary);
   flex: 0 0 auto;
+}
+
+.brand-logo--lg {
+  --brand-logo-size: 58px;
+  --brand-logo-radius: 18px;
 }
 
 .onboarding-kicker {
@@ -219,20 +221,10 @@ onMounted(() => {
   line-height: 1.35;
 }
 
-.onboarding-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
 .ob-btn {
-  border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 0.7rem 0.95rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  user-select: none;
 }
 
 .ob-btn:active {
@@ -260,58 +252,25 @@ onMounted(() => {
 }
 
 .shell {
-  width: min(760px, 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.mark {
-  display: flex;
-  justify-content: center;
-  padding: 0.25rem 0 0.5rem;
-}
-
-.logo {
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-primary);
-  flex: 0 0 auto;
+  max-width: 760px;
 }
 
 .tip {
   font-size: 0.85rem;
   color: var(--text-tertiary);
   line-height: 1.35;
-  text-align: center;
 }
 
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.9rem;
 }
 
 .action {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  width: 100%;
   padding: 1.05rem 1.1rem;
   border-radius: var(--border-radius-lg);
   border: var(--border-width) solid var(--border-color);
   background: var(--card-bg);
-  text-align: left;
-  cursor: pointer;
-  transition: all var(--transition-fast);
   box-shadow: var(--shadow-sm);
 }
 
@@ -330,9 +289,6 @@ onMounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: rgba(59, 130, 246, 0.12);
   border: 1px solid rgba(59, 130, 246, 0.18);
   color: var(--ios-blue);
@@ -341,14 +297,6 @@ onMounted(() => {
 
 .action.primary {
   background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 60%);
-}
-
-.action-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-  flex: 1 1 auto;
 }
 
 .action-title {

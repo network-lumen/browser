@@ -2,25 +2,34 @@
 .padding-0 { padding: 0 }
 .padding-25 { padding: .25rem }
 .padding-50 { padding: .5rem }
+.padding-75 { padding: .75rem }
 .padding-100{ padding: 1rem }
+.padding-150{ padding: 1.5rem }
+.padding-200{ padding: 2rem }
 .padding-left-50 { padding-left: .5rem; }     /* left */
 .padding-left-150 { padding-left: 1.5rem; }     
 .padding-right-50 { padding-right: .5rem; }     /* right */
 .padding-right-150 { padding-right: 1.5rem; }     /* right */
 .padding-top-50 { padding-top: .5rem; }           /* top */
+.padding-top-100 { padding-top: 1rem; }           /* top */
 /* ------------------------ MARGINS ------------------------ */ 
 .margin-0 { margin: 0; }
 .margin-top-25 { margin-top: .25rem }
 .margin-top-50 { margin-top: .5rem }
+.margin-top-100 { margin-top: 1rem }
 .margin-bottom-25 { margin-bottom: .25rem }     /* bottom */
 .margin-bottom-50 { margin-bottom: .5rem }
+.margin-bottom-100 { margin-bottom: 1rem }
 .margin-left-auto { margin-left: auto; }        /* left */
 .margin-left-25 { margin-left: .25rem; }
+.margin-left-50 { margin-left: .5rem; }
 /* ------------------------ DIMENSIONS ------------------------ */
 .w-full { width: 100%; }
 .h-full { height: 100%; }
 /* ------------------------ TEXTS ------------------------ */
+.text-left { text-align: left; }
 .text-center { text-align: center; }
+.text-right { text-align: right; }
 /* ------------------------------- BORDERS ------------------------------- */
 .border-none { border: none; }
 .border-1px-solid { border: 1px solid; }
@@ -84,8 +93,13 @@
 .txt-xs  { font-size: var(--fs-xs); line-height: 1.2; }
 .txt-sm  { font-size: var(--fs-sm); line-height: 1.2; }
 .txt-md  { font-size: var(--fs-md); line-height: 1.2; }
+.txt-lg  { font-size: var(--fs-lg); line-height: 1.2; }
+.txt-xl  { font-size: var(--fs-xl); line-height: 1.2; }
 .txt-2xl { font-size: var(--fs-2xl); line-height: 1.2; }
 /* weight */
+.txt-weight-normal { font-weight: 400; }
+.txt-weight-light { font-weight: 600; }
+.txt-weight-medium { font-weight: 700; }
 .txt-weight-strong { font-weight: 800; }
 /* family */
 
@@ -103,6 +117,8 @@
 /* ---------------------------- GAPS ---------------------------- */
 .gap-25  { gap: 0.25rem; }
 .gap-50  { gap: 0.5rem; }
+.gap-75  { gap: 0.75rem; }
+.gap-100  { gap: 1rem; }
 /* ---------------------------- OTHERS ---------------------------- */
 .opacity-70 { opacity: .7; }
 .nowrap { white-space: nowrap; }
@@ -164,6 +180,7 @@
 .right-50 { right: .5rem; }
 .bottom-0 { bottom: 0; }
 .left-25 { left: .25rem; }
+.inset-0 { inset: 0; }
 /* z-index */
 .z-1 { z-index: 1; }
 .z-2 { z-index: 2; }

@@ -52,6 +52,7 @@
     --primary-a05: rgba(var(--ios-blue-rgb), .05);
     --primary-a08: rgba(var(--ios-blue-rgb), .08);
     --primary-a10: rgba(var(--ios-blue-rgb), .10);
+    --primary-a12: rgba(var(--ios-blue-rgb), .12);
     --primary-a15: rgba(var(--ios-blue-rgb), .15);
     --primary-a20: rgba(var(--ios-blue-rgb), .20);
     --primary-a25: rgba(var(--ios-blue-rgb), .25);
@@ -59,6 +60,12 @@
     --primary-a40: rgba(var(--ios-blue-rgb), .40);
     --primary-a45: rgba(var(--ios-blue-rgb), .45);
     --primary-a50: rgba(var(--ios-blue-rgb), .50);
+
+    /* Lime opacity variants (used by badges, pills, background accents) */
+    --lime-a10: rgba(var(--lime-bright-rgb), .10);
+    --lime-a15: rgba(var(--lime-bright-rgb), .15);
+    --lime-a20: rgba(var(--lime-bright-rgb), .20);
+    --lime-a30: rgba(var(--lime-bright-rgb), .30);
 
     /* ========== FONT SIZES (iOS Scale) ========== */
     --fs-xs: 0.6875rem;  /* 11px - Caption 2 */
@@ -110,6 +117,19 @@
     --accent-blue: var(--ios-blue);
     --accent-cyan: var(--ios-teal);
     --primary-rgb: var(--ios-blue-rgb);
+
+    /* Legacy utility token aliases (browser/browser) */
+    --border: var(--border-color);
+    --gray-blue: var(--text-tertiary);
+    --gray-blue-dark: var(--text-secondary);
+    --gray-blue-light: var(--text-quaternary);
+    --white-blue-light: rgba(var(--primary-rgb), 0.06);
+    --white-blue-soft: rgba(var(--primary-rgb), 0.10);
+    --white-blue: rgba(var(--primary-rgb), 0.14);
+    --white-blue-dark: rgba(var(--primary-rgb), 0.18);
+    --blue: var(--accent-primary);
+    --blue-sky: var(--accent-secondary);
+    --red-base: var(--error-red);
     /* ========== GRADIENTS (iOS Style) ========== */
     --gradient-primary: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
     --gradient-primary-hover: linear-gradient(135deg, #0051D5 0%, var(--ios-blue) 100%);
