@@ -548,7 +548,7 @@ const showHowSearchWorks = ref(false);
 const activeQuery = ref("");
 const activeType = ref<SearchType>("site");
 const gatewayHasMore = ref(false);
-const gatewayNextCursor = ref<{ score: number; id: string } | null>(null);
+const gatewayNextCursor = ref<{ score: number; id: string; rankAt?: number } | null>(null);
 const gatewayPageSize = 12;
 const activeGateway = ref<GatewayView | null>(null);
 
@@ -2151,7 +2151,7 @@ function normalizeGatewayType(t: SearchType): string {
 type GatewaySearchResult = {
   items: ResultItem[];
   hasMore: boolean;
-  nextCursor: { score: number; id: string } | null;
+  nextCursor: { score: number; id: string; rankAt?: number } | null;
   gateway: GatewayView;
 };
 
@@ -2888,7 +2888,7 @@ async function searchGateways(
   seq: number,
   opts: {
     limit: number;
-    cursor: { score: number; id: string } | null;
+    cursor: { score: number; id: string; rankAt?: number } | null;
     gateway?: GatewayView | null;
     allowFailover?: boolean;
   },
@@ -2899,16 +2899,17 @@ async function searchGateways(
     return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
   }
 
-  const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
-  if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
-
-  const list: GatewayView[] = gateways.length
-    ? gateways
-    : [fallbackGateway];
-
-  const aliveList = await filterAliveGatewaysForPqSearch(list, seq);
-  if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
-  if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+  const normalizeCursor = (raw: any): { score: number; id: string; rankAt?: number } | null => {
+    if (!raw || typeof raw !== "object") return null;
+    const score = Number((raw as any).score);
+    const id = String((raw as any).id || "").trim();
+    if (!Number.isFinite(score) || !id) return null;
+    const rankAtRaw = (raw as any).rankAt ?? (raw as any).rank_at ?? null;
+    const rankAtNum = Number(rankAtRaw);
+    const rankAt =
+      Number.isFinite(rankAtNum) && rankAtNum > 0 ? Math.floor(rankAtNum) : null;
+    return rankAt ? { score, id, rankAt } : { score, id };
+  };
 
   const wantedType = normalizeGatewayType(type);
   const wantedMode = wantedType === "site" ? "sites" : type === "all" ? "everything" : "";
@@ -2916,25 +2917,36 @@ async function searchGateways(
   const limitRaw = Number(opts.limit);
   const limit =
     Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 50) : 12;
-  const cursor = opts.cursor;
+  const cursor = normalizeCursor(opts.cursor);
 
   const preferredGateway =
     opts.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
-  const allowFailover = opts.allowFailover === true && !preferredGateway;
+  const hasPreferredEndpoint = !!(
+    preferredGateway &&
+    typeof preferredGateway.endpoint === "string" &&
+    preferredGateway.endpoint.trim()
+  );
+  const allowFailover = opts.allowFailover === true && !hasPreferredEndpoint;
 
-  const normalizeNextCursor = (raw: any): { score: number; id: string } | null => {
-    if (!raw || typeof raw !== "object") return null;
-    const score = Number((raw as any).score);
-    const id = String((raw as any).id || "").trim();
-    if (!Number.isFinite(score) || !id) return null;
-    return { score, id };
-  };
+  let gatewaysToTry: GatewayView[] = [];
+  let fallback = fallbackGateway;
 
-  const gatewaysToTry = preferredGateway
-    ? [preferredGateway]
-    : allowFailover
-      ? aliveList
-      : [aliveList[0] || fallbackGateway];
+  if (hasPreferredEndpoint && preferredGateway) {
+    gatewaysToTry = [preferredGateway];
+    fallback = preferredGateway;
+  } else {
+    const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+
+    const list: GatewayView[] = gateways.length ? gateways : [fallbackGateway];
+
+    const aliveList = await filterAliveGatewaysForPqSearch(list, seq);
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+    if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+
+    gatewaysToTry = allowFailover ? aliveList : [aliveList[0] || fallbackGateway];
+    fallback = aliveList[0] || fallbackGateway;
+  }
 
   for (const g of gatewaysToTry.filter(Boolean) as GatewayView[]) {
     if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: g };
@@ -2957,7 +2969,7 @@ async function searchGateways(
     const data = resp.data || {};
     const rawNextCursor = (data as any).nextCursor ?? (data as any).next_cursor ?? null;
     const rawHasMore = (data as any).hasMore ?? (data as any).has_more ?? null;
-    const nextCursor = normalizeNextCursor(rawNextCursor);
+    const nextCursor = normalizeCursor(rawNextCursor);
     const hasMore = typeof rawHasMore === "boolean" ? rawHasMore : !!nextCursor;
 
     const items: ResultItem[] = [];
@@ -3044,218 +3056,7 @@ async function searchGateways(
     return { items, hasMore, nextCursor, gateway: g };
   }
 
-  const fallback = preferredGateway || aliveList[0] || fallbackGateway;
   return { items: [], hasMore: false, nextCursor: null, gateway: fallback };
-
-  /* Legacy multi-gateway merge + page slicing (disabled; backend provides order + cursor).
-  const safePage = clampPage(opts.page);
-  const pageSizeRaw = Number(opts.pageSize);
-  const pageSize = Number.isFinite(pageSizeRaw) && pageSizeRaw > 0
-    ? Math.min(Math.floor(pageSizeRaw), 50)
-    : 12;
-
-  const start = (safePage - 1) * pageSize;
-  const end = start + pageSize;
-
-  type GatewayBatch = { items: ResultItem[]; rawCount: number; gatewayId: string };
-
-  const wantedType = normalizeGatewayType(type);
-  const wantedMode = wantedType === "site" ? "sites" : type === "all" ? "everything" : "";
-  // For image results, gateways sometimes return many non-images in the top N,
-  // and some images have missing `mime/resourceType` (we infer from extension).
-  // Fetch more upfront so the UI page stays filled without extra round-trips.
-  const fetchLimit =
-    wantedType === "image"
-      ? Math.min(Math.max(end * 4, 50), 300)
-      : wantedType === "site"
-        ? Math.min(Math.max(end * 3, 50), 200)
-        : type === "all"
-          ? Math.min(Math.max(end * 3, 50), 200)
-          : Math.min(end, 50);
-  
-  const tasks = aliveList.map(async (g): Promise<GatewayBatch> => {
-    const resp = await gwApi
-      .searchPq({
-        profileId,
-        endpoint: g.endpoint,
-        query,
-        lang: "en",
-        limit: fetchLimit,
-        offset: 0,
-        mode: wantedMode,
-        type: wantedType,
-      })
-      .catch(() => null);
-    if (!resp || resp.ok === false) return { items: [], rawCount: 0, gatewayId: g.id };
-    const data = resp.data || {};
-    const out: ResultItem[] = [];
-
-    // Site mode: gateway returns `results` with `{ type: 'site', domain, cid, score, tags? }`.
-    const siteResults: GatewaySiteSearchResult[] = Array.isArray(data.results)
-      ? data.results
-      : [];
-    const rawCountSite = siteResults.length;
-
-    const sites = siteResults.filter((s) => {
-      const t = String(s?.type || "").trim().toLowerCase();
-      const domain = String(s?.domain || "").trim();
-      const cid = String(s?.cid || "").trim();
-      return t === "site" && (!!domain || !!cid);
-    });
-
-    if (wantedType === "site" && sites.length > 0) {
-      for (const s of sites) {
-        const domainRaw = String(s.domain || "").trim();
-        const domain = domainRaw ? domainRaw.toLowerCase() : "";
-        const cid = String(s?.cid || "").trim();
-        const entryCidRaw = String(s?.entry_cid || "").trim();
-        const entryCid = entryCidRaw || cid;
-        const entryPath = String(s?.entry_path || "").trim();
-        const entrySuffix = safeEncodedPathSuffix(entryPath);
-        const wallet = String(s?.wallet || "").trim();
-        const owned = !!wallet || !!s.owned;
-
-        const tags = extractSiteTags(s);
-        const badges = tags.length ? tags.slice(0, 20) : [];
-
-        const title =
-          String(s.title || "").trim() ||
-          (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
-        const snippet = String(s.snippet || "").trim();
-
-        let url = "";
-        if (domain) {
-          // Prefer the canonical on-chain domain route when present (better UX + reduces "copy" confusion).
-          url = `lumen://${domain}${entrySuffix}`;
-        } else if (entryCid) {
-          url = `lumen://ipfs/${entryCid}${entrySuffix}`;
-        } else if (domain) {
-          url = `lumen://${domain}${entrySuffix}`;
-        }
-        if (!url) continue;
-
-        const id = `site:${g.id}:${domain || cid}`;
-        out.push({
-          id,
-          title,
-          url,
-          kind: "site",
-          description: snippet || (domain && cid ? `CID ${cid}` : undefined),
-          badges,
-          thumbUrl: cid
-            ? faviconUrlForCid(cid) || undefined
-            : entryCid
-              ? faviconUrlForCid(entryCid) || undefined
-              : undefined,
-          score: Number.isFinite(Number(s?.score)) ? Number(s.score) : 0,
-          uniqueViews7d: (() => {
-            const v = Number((s as any)?.views_unique_7d);
-            return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
-          })(),
-          viewCid: cid || entryCid || undefined,
-          gateway: { id: g.id, endpoint: g.endpoint },
-          site: {
-            domain: domain || null,
-            cid: cid || null,
-            entryCid: entryCid || null,
-            entryPath: entryPath || null,
-            wallet: wallet || null,
-            owned,
-          },
-        });
-      }
-      return { items: out, rawCount: rawCountSite, gatewayId: g.id };
-    }
-
-    const hits: GatewaySearchHit[] = Array.isArray(data.hits)
-      ? data.hits
-      : Array.isArray(data.results)
-        ? data.results
-        : [];
-    const rawCountHits = hits.length;
-
-    for (const h of hits) {
-      const mapped = mapGatewayHitToResult(h, g, type);
-      if (mapped) out.push(mapped);
-    }
-    return { items: out, rawCount: rawCountHits, gatewayId: g.id };
-  });
-
-  const lists = await Promise.all(tasks);
-  if (seq !== searchSeq) return { items: [], maybeHasMore: false };
-
-  // Multi-gateway merge with score aggregation
-  const resultMap = new Map<string, ResultItem & { scores: number[]; gateways: string[] }>();
-  
-  for (const batch of lists) {
-    for (const item of batch.items) {
-      const key = item.url;
-      const existing = resultMap.get(key);
-      
-      if (existing) {
-        // Merge: aggregate scores and track which gateways returned this result
-        existing.scores.push(item.score || 0);
-        existing.gateways.push(batch.gatewayId);
-        
-        // Use best score and most complete data
-        if ((item.score || 0) > (existing.score || 0)) {
-          existing.score = item.score;
-        }
-        
-        // Merge unique views (take max)
-        if (item.uniqueViews7d && (!existing.uniqueViews7d || item.uniqueViews7d > existing.uniqueViews7d)) {
-          existing.uniqueViews7d = item.uniqueViews7d;
-        }
-        
-        // Merge badges (unique)
-        if (item.badges && item.badges.length) {
-          const badgeSet = new Set([...(existing.badges || []), ...item.badges]);
-          existing.badges = Array.from(badgeSet).slice(0, 20);
-        }
-        
-        // Prefer non-empty descriptions
-        if (item.description && !existing.description) {
-          existing.description = item.description;
-        }
-      } else {
-        // New result
-        resultMap.set(key, {
-          ...item,
-          scores: [item.score || 0],
-          gateways: [batch.gatewayId],
-        });
-      }
-    }
-  }
-  
-  // Convert map to array and calculate aggregated scores
-  const merged = Array.from(resultMap.values()).map(item => {
-    // Aggregated score: average of all scores, with bonus for appearing in multiple gateways
-    const avgScore = item.scores.reduce((a, b) => a + b, 0) / item.scores.length;
-    const gatewayBonus = item.gateways.length > 1 ? Math.log2(item.gateways.length) * 0.1 : 0;
-    const aggregatedScore = avgScore + gatewayBonus;
-    
-    return {
-      ...item,
-      score: aggregatedScore,
-      // Remove temporary fields
-      scores: undefined,
-      gateways: undefined,
-    };
-  });
-  
-  // Sort by aggregated score (descending)
-  merged.sort((a, b) => (b.score || 0) - (a.score || 0));
-
-  if (wantedType === "site") {
-    const maybeHasMore = lists.some((l) => l.rawCount >= fetchLimit);
-    return { items: merged, maybeHasMore };
-  }
-
-  const pageItems = merged.slice(start, end);
-  const maybeHasMore = merged.length > end || lists.some((l) => l.rawCount >= fetchLimit);
-  return { items: pageItems, maybeHasMore };
-  */
 }
 
 async function fetchTagsForCid(
@@ -3375,11 +3176,6 @@ function buildFastResults(query: string): ResultItem[] {
   }
 
   return list;
-}
-
-function clampPage(value: any): number {
-  const n = Number.parseInt(String(value ?? ""), 10);
-  return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
 async function runSearch(query: string, type: SearchType) {
@@ -3603,19 +3399,6 @@ async function loadMore() {
     const profileId = await getActiveProfileId();
     if (seq !== searchSeq) return;
 
-    const gw = await searchGateways(profileId || "", gatewayQuery, type, seq, {
-      limit: gatewayPageSize,
-      cursor: gatewayNextCursor.value,
-      gateway: activeGateway.value,
-      allowFailover: false,
-    });
-    if (seq !== searchSeq) return;
-
-    gatewayHasMore.value = gw.hasMore;
-    gatewayNextCursor.value = gw.nextCursor;
-
-    if (!gw.items.length) return;
-
     const seen = new Set<string>(
       results.value
         .map((r) => String(r?.url || "").trim())
@@ -3623,12 +3406,37 @@ async function loadMore() {
     );
     const appended: ResultItem[] = [];
 
-    for (const item of gw.items) {
-      const key = String(item?.url || "").trim();
-      if (!key) continue;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      appended.push(item);
+    let hasMore = gatewayHasMore.value;
+    let cursor = gatewayNextCursor.value;
+    let attempts = 0;
+
+    while (seq === searchSeq && hasMore && cursor && appended.length < gatewayPageSize && attempts < 5) {
+      attempts += 1;
+      const remaining = gatewayPageSize - appended.length;
+      if (remaining <= 0) break;
+
+      const gw = await searchGateways(profileId || "", gatewayQuery, type, seq, {
+        limit: remaining,
+        cursor,
+        gateway: activeGateway.value,
+        allowFailover: false,
+      });
+      if (seq !== searchSeq) return;
+
+      hasMore = gw.hasMore;
+      cursor = gw.nextCursor;
+      gatewayHasMore.value = hasMore;
+      gatewayNextCursor.value = cursor;
+
+      if (!gw.items.length) break;
+
+      for (const item of gw.items) {
+        const key = String(item?.url || "").trim();
+        if (!key) continue;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        appended.push(item);
+      }
     }
 
     if (!appended.length) return;

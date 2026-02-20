@@ -2595,7 +2595,13 @@ function registerGatewayIpc() {
         type: type || undefined,
         limit,
         offset,
-        cursor: cursor ? { score: cursor?.score, id: cursor?.id } : undefined,
+        cursor: cursor
+          ? {
+              score: cursor?.score,
+              id: cursor?.id,
+              rankAt: cursor?.rankAt ?? cursor?.rank_at,
+            }
+          : undefined,
       });
 
       const { status, data } = await sendGatewayAuthPq({
