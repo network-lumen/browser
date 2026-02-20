@@ -2580,6 +2580,7 @@ function registerGatewayIpc() {
       const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 50) : 10;
       const offsetRaw = input?.offset != null ? Number(input.offset) : 0;
       const offset = Number.isFinite(offsetRaw) && offsetRaw >= 0 ? offsetRaw : 0;
+      const cursor = input?.cursor != null ? input.cursor : null;
       const timeoutMsRaw = input?.timeoutMs != null ? Number(input.timeoutMs) : 15_000;
       const timeoutMs =
         Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
@@ -2594,6 +2595,7 @@ function registerGatewayIpc() {
         type: type || undefined,
         limit,
         offset,
+        cursor: cursor ? { score: cursor?.score, id: cursor?.id } : undefined,
       });
 
       const { status, data } = await sendGatewayAuthPq({
@@ -2608,6 +2610,7 @@ function registerGatewayIpc() {
           lang,
           limit,
           offset,
+          cursor,
           mode,
           type,
         },

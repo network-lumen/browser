@@ -71,9 +71,9 @@
       <div class="meta">
         <div class="txt-xs color-gray-blue">
           <span v-if="!loading">
-            <template v-if="page > 1">Page {{ page }} | </template>
-            <template v-if="results.length">About {{ results.length }} results</template>
+            <template v-if="results.length">Showing {{ results.length }} results</template>
             <template v-else>No results</template>
+            <template v-if="loadingMore"> | Loading more…</template>
           </span>
         </div>
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
@@ -329,100 +329,16 @@
         </li>
       </ul>
 
-      <div v-if="showPager" class="pagination-bar">
+      <div v-if="showLoadMore" class="load-more-bar">
         <button
-          class="page-btn"
+          class="load-more-btn"
           type="button"
-          :disabled="loading || page === 1"
-          @click="gotoPage(1)"
-          title="First page"
+          :disabled="loadingMore"
+          @click="loadMore"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="11 17 6 12 11 7" />
-            <polyline points="18 17 13 12 18 7" />
-          </svg>
+          <template v-if="loadingMore">Loading…</template>
+          <template v-else>More results</template>
         </button>
-        <button
-          class="page-btn"
-          type="button"
-          :disabled="loading || page === 1"
-          @click="prevPage"
-          title="Previous page"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-
-        <div class="page-numbers">
-          <template v-for="(p, idx) in pageNumbers" :key="idx">
-            <span v-if="p === '...'" class="page-ellipsis">...</span>
-            <button
-              v-else
-              class="page-num"
-              :class="{ active: page === p }"
-              :disabled="loading"
-              @click="gotoPage(p as number)"
-            >
-              {{ p }}
-            </button>
-          </template>
-        </div>
-
-        <button
-          class="page-btn"
-          type="button"
-          :disabled="loading || !gatewayHasMore"
-          @click="nextPage"
-          title="Next page"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-        <button
-          v-if="knownTotalPages != null && knownTotalPages > 1"
-          class="page-btn"
-          type="button"
-          :disabled="loading || page === knownTotalPages"
-          @click="gotoPage(knownTotalPages)"
-          title="Last page"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="13 17 18 12 13 7" />
-            <polyline points="6 17 11 12 6 7" />
-          </svg>
-        </button>
-
-        <span class="page-info">{{ pageInfoText }}</span>
       </div>
     </section>
 
@@ -624,15 +540,17 @@ const q = ref("");
 const selectedType = ref<SearchType>("site");
 const touched = ref(false);
 const loading = ref(false);
+const loadingMore = ref(false);
 const errorMsg = ref("");
 const results = ref<ResultItem[]>([]);
 const inputEl = ref<HTMLInputElement | null>(null);
 const showHowSearchWorks = ref(false);
-const page = ref(1);
 const activeQuery = ref("");
 const activeType = ref<SearchType>("site");
 const gatewayHasMore = ref(false);
+const gatewayNextCursor = ref<{ score: number; id: string } | null>(null);
 const gatewayPageSize = 12;
+const activeGateway = ref<GatewayView | null>(null);
 
 const lastRunKey = ref("");
 let searchSeq = 0;
@@ -1799,44 +1717,38 @@ function goto(url: string, opts?: { push?: boolean }) {
   openInNewTab?.(url);
 }
 
-function parseSearchUrl(raw: string): { q: string; type: SearchType; page: number } {
+function parseSearchUrl(raw: string): { q: string; type: SearchType } {
   const value = String(raw || "").trim();
-  if (!value) return { q: "", type: "site", page: 1 };
+  if (!value) return { q: "", type: "site" };
   try {
     const u = new URL(value);
     const qs = u.searchParams.get("q") || "";
     const type = (u.searchParams.get("type") || "") as SearchType;
     const t: SearchType =
       type === "site" || type === "image" || type === "all" ? type : "site";
-    const pageRaw = u.searchParams.get("page") || "";
-    const parsedPage = Number.parseInt(pageRaw, 10);
-    const p = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-    return { q: qs, type: t, page: p };
+    return { q: qs, type: t };
   } catch {
-    return { q: "", type: "site", page: 1 };
+    return { q: "", type: "site" };
   }
 }
 
-function makeSearchUrl(query: string, type: SearchType, page = 1): string {
+function makeSearchUrl(query: string, type: SearchType): string {
   const s = String(query || "").trim();
   const u = new URL("lumen://search");
   if (s) u.searchParams.set("q", s);
   if (type) u.searchParams.set("type", type);
-  const p = Number.isFinite(Number(page)) && Number(page) > 1 ? Math.floor(Number(page)) : 1;
-  if (p > 1) u.searchParams.set("page", String(p));
   return u.toString();
 }
 
 function setType(t: SearchType) {
   selectedType.value = t;
-  page.value = 1;
   const s = q.value.trim();
-  const nextUrl = makeSearchUrl(s, t, 1);
+  const nextUrl = makeSearchUrl(s, t);
   const curUrl = String(currentTabUrl?.value || "").trim();
   if (curUrl && curUrl === nextUrl) {
     activeQuery.value = s;
     activeType.value = t;
-    runSearch(s, t, 1);
+    runSearch(s, t);
     return;
   }
   goto(nextUrl, { push: false });
@@ -1844,13 +1756,12 @@ function setType(t: SearchType) {
 
 function submit() {
   const s = q.value.trim();
-  page.value = 1;
-  const nextUrl = makeSearchUrl(s, selectedType.value, 1);
+  const nextUrl = makeSearchUrl(s, selectedType.value);
   const curUrl = String(currentTabUrl?.value || "").trim();
   if (curUrl && curUrl === nextUrl) {
     activeQuery.value = s;
     activeType.value = selectedType.value;
-    runSearch(s, selectedType.value, 1);
+    runSearch(s, selectedType.value);
     return;
   }
   goto(nextUrl, { push: true });
@@ -2239,7 +2150,9 @@ function normalizeGatewayType(t: SearchType): string {
 
 type GatewaySearchResult = {
   items: ResultItem[];
-  maybeHasMore: boolean;
+  hasMore: boolean;
+  nextCursor: { score: number; id: string } | null;
+  gateway: GatewayView;
 };
 
 async function getActiveProfileId(): Promise<string | null> {
@@ -2973,22 +2886,168 @@ async function searchGateways(
   query: string,
   type: SearchType,
   seq: number,
-  opts: { pageSize: number; page: number },
+  opts: {
+    limit: number;
+    cursor: { score: number; id: string } | null;
+    gateway?: GatewayView | null;
+    allowFailover?: boolean;
+  },
 ): Promise<GatewaySearchResult> {
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.searchPq !== "function") return { items: [], maybeHasMore: false };
+  const fallbackGateway: GatewayView = { id: "default", endpoint: "", regions: [] };
+  if (!gwApi || typeof gwApi.searchPq !== "function") {
+    return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+  }
 
   const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
-  if (seq !== searchSeq) return { items: [], maybeHasMore: false };
+  if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
 
   const list: GatewayView[] = gateways.length
     ? gateways
-    : [{ id: "default", endpoint: "", regions: [] }];
+    : [fallbackGateway];
 
   const aliveList = await filterAliveGatewaysForPqSearch(list, seq);
-  if (seq !== searchSeq) return { items: [], maybeHasMore: false };
-  if (!aliveList.length) return { items: [], maybeHasMore: false };
+  if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+  if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
 
+  const wantedType = normalizeGatewayType(type);
+  const wantedMode = wantedType === "site" ? "sites" : type === "all" ? "everything" : "";
+
+  const limitRaw = Number(opts.limit);
+  const limit =
+    Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 50) : 12;
+  const cursor = opts.cursor;
+
+  const preferredGateway =
+    opts.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
+  const allowFailover = opts.allowFailover === true && !preferredGateway;
+
+  const normalizeNextCursor = (raw: any): { score: number; id: string } | null => {
+    if (!raw || typeof raw !== "object") return null;
+    const score = Number((raw as any).score);
+    const id = String((raw as any).id || "").trim();
+    if (!Number.isFinite(score) || !id) return null;
+    return { score, id };
+  };
+
+  const gatewaysToTry = preferredGateway
+    ? [preferredGateway]
+    : allowFailover
+      ? aliveList
+      : [aliveList[0] || fallbackGateway];
+
+  for (const g of gatewaysToTry.filter(Boolean) as GatewayView[]) {
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: g };
+
+    const resp = await gwApi
+      .searchPq({
+        profileId,
+        endpoint: g.endpoint,
+        query,
+        lang: "en",
+        limit,
+        offset: 0,
+        cursor,
+        mode: wantedMode,
+        type: wantedType,
+      })
+      .catch(() => null);
+    if (!resp || resp.ok === false) continue;
+
+    const data = resp.data || {};
+    const rawNextCursor = (data as any).nextCursor ?? (data as any).next_cursor ?? null;
+    const rawHasMore = (data as any).hasMore ?? (data as any).has_more ?? null;
+    const nextCursor = normalizeNextCursor(rawNextCursor);
+    const hasMore = typeof rawHasMore === "boolean" ? rawHasMore : !!nextCursor;
+
+    const items: ResultItem[] = [];
+
+    if (wantedType === "site") {
+      const siteResults: GatewaySiteSearchResult[] = Array.isArray((data as any).results)
+        ? (data as any).results
+        : [];
+
+      for (const s of siteResults) {
+        const t = String(s?.type || "").trim().toLowerCase();
+        if (t !== "site") continue;
+
+        const domainRaw = String(s?.domain || "").trim();
+        const domain = domainRaw ? domainRaw.toLowerCase() : "";
+        const cid = String(s?.cid || "").trim();
+        if (!domain && !cid) continue;
+
+        const entryCidRaw = String((s as any)?.entry_cid || "").trim();
+        const entryCid = entryCidRaw || cid;
+        const entryPath = String((s as any)?.entry_path || "").trim();
+        const entrySuffix = safeEncodedPathSuffix(entryPath);
+        const wallet = String((s as any)?.wallet || "").trim();
+        const owned = !!wallet || !!(s as any)?.owned;
+
+        const tags = extractSiteTags(s);
+        const badges = tags.length ? tags.slice(0, 20) : [];
+
+        const title =
+          String((s as any)?.title || "").trim() ||
+          (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
+        const snippet = String((s as any)?.snippet || "").trim();
+
+        let url = "";
+        if (domain) {
+          url = entrySuffix ? `lumen://${domain}${entrySuffix}` : `lumen://${domain}`;
+        } else if (entryCid && entrySuffix) {
+          url = `lumen://ipfs/${entryCid}${entrySuffix}`;
+        } else if (entryCid) {
+          url = `lumen://ipfs/${entryCid}`;
+        } else if (cid) {
+          url = `lumen://ipfs/${cid}`;
+        }
+
+        const favicon = domain ? faviconUrlForCid(cid || entryCid) : null;
+
+        items.push({
+          id: `gw:${g.id}:site:${domain || cid || entryCid}:${entryPath || ""}`,
+          title,
+          url,
+          description: snippet || undefined,
+          kind: "site",
+          badges,
+          thumbUrl: favicon || undefined,
+          uniqueViews7d: (() => {
+            const v = Number((s as any)?.views_unique_7d);
+            return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+          })(),
+          viewCid: cid || entryCid || undefined,
+          gateway: { id: g.id, endpoint: g.endpoint },
+          site: {
+            domain: domain || null,
+            cid: cid || null,
+            entryCid: entryCid || null,
+            entryPath: entryPath || null,
+            wallet: wallet || null,
+            owned,
+          },
+        });
+      }
+    } else {
+      const hits: GatewaySearchHit[] = Array.isArray((data as any).hits)
+        ? (data as any).hits
+        : Array.isArray((data as any).results)
+          ? (data as any).results
+          : [];
+
+      for (const h of hits) {
+        const mapped = mapGatewayHitToResult(h, g, type);
+        if (mapped) items.push(mapped);
+      }
+    }
+
+    return { items, hasMore, nextCursor, gateway: g };
+  }
+
+  const fallback = preferredGateway || aliveList[0] || fallbackGateway;
+  return { items: [], hasMore: false, nextCursor: null, gateway: fallback };
+
+  /* Legacy multi-gateway merge + page slicing (disabled; backend provides order + cursor).
   const safePage = clampPage(opts.page);
   const pageSizeRaw = Number(opts.pageSize);
   const pageSize = Number.isFinite(pageSizeRaw) && pageSizeRaw > 0
@@ -3196,6 +3255,7 @@ async function searchGateways(
   const pageItems = merged.slice(start, end);
   const maybeHasMore = merged.length > end || lists.some((l) => l.rawCount >= fetchLimit);
   return { items: pageItems, maybeHasMore };
+  */
 }
 
 async function fetchTagsForCid(
@@ -3322,97 +3382,25 @@ function clampPage(value: any): number {
   return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
-function gotoPage(targetPage: number) {
-  const s = activeQuery.value.trim();
-  if (!s && activeType.value !== "site" && activeType.value !== "image" && activeType.value !== "all") return;
-  const p = clampPage(targetPage);
-  goto(makeSearchUrl(s, activeType.value, p), { push: true });
-}
-
-function nextPage() {
-  gotoPage(page.value + 1);
-}
-
-function prevPage() {
-  if (page.value <= 1) return;
-  gotoPage(page.value - 1);
-}
-
-const showPager = computed(() => {
-  if (!touched.value) return false;
-  if (!activeQuery.value.trim() && activeType.value !== "site" && activeType.value !== "image" && activeType.value !== "all") return false;
-  return page.value > 1 || gatewayHasMore.value;
-});
-
-const knownTotalPages = computed<number | null>(() =>
-  gatewayHasMore.value ? null : page.value,
-);
-
-const pageNumbers = computed((): (number | string)[] => {
-  const total = knownTotalPages.value;
-  const current = page.value;
-  const pages: (number | string)[] = [];
-
-  if (total != null) {
-    if (total <= 7) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (current > 3) pages.push("...");
-      for (
-        let i = Math.max(2, current - 1);
-        i <= Math.min(total - 1, current + 1);
-        i++
-      ) {
-        pages.push(i);
-      }
-      if (current < total - 2) pages.push("...");
-      pages.push(total);
-    }
-    return pages;
-  }
-
-  pages.push(1);
-  if (current <= 3) {
-    for (let i = 2; i <= Math.max(3, current + 1); i++) pages.push(i);
-    pages.push("...");
-    return pages;
-  }
-
-  pages.push("...");
-  for (let i = current - 1; i <= current + 1; i++) {
-    if (i < 2) continue;
-    pages.push(i);
-  }
-  pages.push("...");
-  return pages;
-});
-
-const pageInfoText = computed(() => {
-  if (!results.value.length) return `Page ${page.value}`;
-  const start = (page.value - 1) * gatewayPageSize + 1;
-  const end = (page.value - 1) * gatewayPageSize + results.value.length;
-  const plus = gatewayHasMore.value ? "+" : "";
-  return `${start}-${end}${plus} results`;
-});
-
-async function runSearch(query: string, type: SearchType, pageParam = 1) {
+async function runSearch(query: string, type: SearchType) {
   const seq = ++searchSeq;
   const clean = String(query || "").trim();
   const normalizedQuery = normalizeQueryForGatewaySearch(clean);
   const gatewayQuery = normalizedQuery.gatewayQuery;
   const cidForDirect = normalizedQuery.cidForDirect;
-  const safePage = clampPage(pageParam);
   const refreshTick = Number(currentTabRefresh?.value || 0);
-  const runKey = `${type}::${clean}::page=${safePage}::r=${refreshTick}`;
+  const runKey = `${type}::${clean}::r=${refreshTick}`;
   const allowEmptyQuery = type === "site" || type === "image" || type === "all";
   if (!clean && !allowEmptyQuery) {
     touched.value = false;
     loading.value = false;
+    loadingMore.value = false;
     errorMsg.value = "";
     results.value = [];
     lastRunKey.value = "";
     gatewayHasMore.value = false;
+    gatewayNextCursor.value = null;
+    activeGateway.value = null;
     return;
   }
   if (runKey === lastRunKey.value && results.value.length) {
@@ -3423,9 +3411,12 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
 
   touched.value = true;
   loading.value = true;
+  loadingMore.value = false;
   errorMsg.value = "";
   results.value = [];
   gatewayHasMore.value = false;
+  gatewayNextCursor.value = null;
+  activeGateway.value = null;
   thumbCorsProbeById.clear();
   thumbLocalFallbackTriedById.clear();
   thumbLoadedById.value = {};
@@ -3434,43 +3425,41 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
     // In the Images tab, keep results strictly image-only (avoid "fast actions" like open link/CID
     // that would inflate counts without showing anything in the image grid).
     const base = type === "image" ? [] : buildFastResults(clean);
-    const cidMetaPromise =
-      safePage === 1 && cidForDirect ? enrichFastCidResult(base, cidForDirect, seq) : Promise.resolve();
+    const cidMetaPromise = cidForDirect ? enrichFastCidResult(base, cidForDirect, seq) : Promise.resolve();
 
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      safePage === 1 && clean && !cidForDirect && !normalizedQuery.ipfsLike && (type === "site" || type === "all")
+      clean && !cidForDirect && !normalizedQuery.ipfsLike && (type === "site" || type === "all")
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
+
     const gatewayPromise = searchGateways(profileId || "", gatewayQuery, type, seq, {
-      pageSize: gatewayPageSize,
-      page: safePage,
+      limit: gatewayPageSize,
+      cursor: null,
+      gateway: null,
+      allowFailover: true,
     });
 
-    const cidSitePromise =
-      safePage === 1 && type === "all" && !!cidForDirect && !!profileId
-        ? searchGateways(profileId || "", cidForDirect, "site", seq, { pageSize: 1, page: 1 })
-        : Promise.resolve(null);
-
-    const [bestDomain, gw, _cidMetaDone, cidSite] = await Promise.all([
+    const [bestDomain, _cidMetaDone, gw] = await Promise.all([
       domainPromise,
-      gatewayPromise,
       cidMetaPromise,
-      cidSitePromise,
+      gatewayPromise,
     ]);
     if (seq !== searchSeq) return;
 
     const gwResults = gw.items;
-    gatewayHasMore.value = gw.maybeHasMore;
+    gatewayHasMore.value = gw.hasMore;
+    gatewayNextCursor.value = gw.nextCursor;
+    activeGateway.value = gw.gateway;
 
     let domainTags: string[] = [];
-    if (safePage === 1 && bestDomain?.cid && profileId) {
+    if (bestDomain?.cid && profileId) {
       domainTags = await fetchTagsForCid(profileId, bestDomain.cid, seq);
     }
     if (seq !== searchSeq) return;
 
-    if (safePage === 1 && bestDomain?.name) {
+    if (bestDomain?.name) {
       const url = `lumen://${bestDomain.name}`;
       const favicon = bestDomain.cid ? faviconUrlForCid(bestDomain.cid) : null;
       base.push({
@@ -3490,7 +3479,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       });
     }
 
-    if (safePage === 1 && !profileId && type === "all") {
+    if (!profileId && type === "all") {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway search",
@@ -3500,7 +3489,7 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       });
     }
 
-    if (safePage === 1 && !profileId && type === "site") {
+    if (!profileId && type === "site") {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway site search",
@@ -3514,11 +3503,16 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
 
     // Explore: when querying a raw CID, prefer the "Sites" entrypoint (gateway-derived) over the generic
     // "IPFS content" quick action + a duplicate HTML hit.
-    if (safePage === 1 && type === "all" && cidForDirect) {
-      const siteCandidate =
-        cidSite && typeof cidSite === "object" && Array.isArray((cidSite as any).items)
-          ? ((cidSite as any).items as ResultItem[]).find((r) => r && r.kind === "site")
-          : null;
+    if (type === "all" && cidForDirect && profileId && activeGateway.value) {
+      const cidSite = await searchGateways(profileId || "", cidForDirect, "site", seq, {
+        limit: 1,
+        cursor: null,
+        gateway: activeGateway.value,
+        allowFailover: false,
+      });
+      if (seq !== searchSeq) return;
+
+      const siteCandidate = (cidSite?.items || []).find((r) => r && r.kind === "site") || null;
 
       if (siteCandidate) {
         const parsed = parseLumenIpfsUrl(siteCandidate.url);
@@ -3565,16 +3559,10 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
       merged = dedupeAllResults(merged);
     }
 
+    results.value = merged;
     if (type === "site") {
-      const sitesAll = mergeAndRankSites(clean, merged);
-      const start = (safePage - 1) * gatewayPageSize;
-      const end = start + gatewayPageSize;
-      const sites = sitesAll.slice(start, end);
-      results.value = sites;
+      const sites = merged.filter((r) => r && r.kind === "site");
       void enrichSiteResultsWithEntryPaths(sites, seq);
-      gatewayHasMore.value = sitesAll.length > end || gw.maybeHasMore;
-    } else {
-      results.value = merged;
     }
   } catch (e: any) {
     if (seq !== searchSeq) return;
@@ -3588,18 +3576,90 @@ async function runSearch(query: string, type: SearchType, pageParam = 1) {
   }
 }
 
+const showLoadMore = computed(() => {
+  if (!touched.value) return false;
+  if (loading.value) return false;
+  return gatewayHasMore.value && !!gatewayNextCursor.value;
+});
+
+async function loadMore() {
+  if (loading.value || loadingMore.value) return;
+  if (!gatewayHasMore.value || !gatewayNextCursor.value) return;
+  if (!activeGateway.value) return;
+
+  const seq = searchSeq;
+  const clean = String(activeQuery.value || "").trim();
+  const type = activeType.value;
+  const allowEmptyQuery = type === "site" || type === "image" || type === "all";
+  if (!clean && !allowEmptyQuery) return;
+
+  const normalizedQuery = normalizeQueryForGatewaySearch(clean);
+  const gatewayQuery = normalizedQuery.gatewayQuery;
+
+  loadingMore.value = true;
+  errorMsg.value = "";
+
+  try {
+    const profileId = await getActiveProfileId();
+    if (seq !== searchSeq) return;
+
+    const gw = await searchGateways(profileId || "", gatewayQuery, type, seq, {
+      limit: gatewayPageSize,
+      cursor: gatewayNextCursor.value,
+      gateway: activeGateway.value,
+      allowFailover: false,
+    });
+    if (seq !== searchSeq) return;
+
+    gatewayHasMore.value = gw.hasMore;
+    gatewayNextCursor.value = gw.nextCursor;
+
+    if (!gw.items.length) return;
+
+    const seen = new Set<string>(
+      results.value
+        .map((r) => String(r?.url || "").trim())
+        .filter(Boolean),
+    );
+    const appended: ResultItem[] = [];
+
+    for (const item of gw.items) {
+      const key = String(item?.url || "").trim();
+      if (!key) continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      appended.push(item);
+    }
+
+    if (!appended.length) return;
+    results.value = [...results.value, ...appended];
+
+    if (type === "site") {
+      const sites = appended.filter((r) => r && r.kind === "site");
+      void enrichSiteResultsWithEntryPaths(sites, seq);
+    }
+  } catch (e: any) {
+    if (seq !== searchSeq) return;
+    const errMessage = String(e?.message || e || "load_more_failed");
+    errorMsg.value = errMessage;
+    toast.error(`Load more failed: ${errMessage}`);
+  } finally {
+    if (seq !== searchSeq) return;
+    loadingMore.value = false;
+  }
+}
+
 watch(
   () => currentTabUrl?.value,
   (next) => {
     const url = String(next || "").trim();
     if (!url) return;
-    const { q: qs, type, page: p } = parseSearchUrl(url);
+    const { q: qs, type } = parseSearchUrl(url);
     if (type !== selectedType.value) selectedType.value = type;
     if (qs !== q.value) q.value = qs;
     activeQuery.value = qs;
     activeType.value = type;
-    if (p !== page.value) page.value = p;
-    runSearch(qs, type, p);
+    runSearch(qs, type);
   },
   { immediate: true },
 );
@@ -3609,8 +3669,12 @@ watch(
   () => currentTabRefresh?.value,
   () => {
     void refreshPinnedCids();
-    if (activeQuery.value) {
-      runSearch(activeQuery.value, activeType.value, page.value);
+    const allowEmptyQuery =
+      activeType.value === "site" ||
+      activeType.value === "image" ||
+      activeType.value === "all";
+    if (activeQuery.value || allowEmptyQuery) {
+      runSearch(activeQuery.value, activeType.value);
     }
   }
 );
@@ -4128,88 +4192,33 @@ const imageResults = computed(() =>
   font-size: 0.8125rem;
 }
 
-/* Pagination */
-.pagination-bar {
+/* Load more */
+.load-more-bar {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem 0;
-  margin-top: 0.5rem;
-  flex-wrap: wrap;
+  padding: 1.25rem 0 0.5rem;
 }
 
-.page-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+.load-more-btn {
+  padding: 0.75rem 1.25rem;
   border: 1px solid var(--border-color);
   background: var(--bg-primary);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.page-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.page-numbers {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.page-num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 0.5rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 8px;
+  border-radius: 999px;
   color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.page-num:hover {
+.load-more-btn:hover:not(:disabled) {
   background: var(--hover-bg);
   border-color: var(--accent-primary);
 }
 
-.page-num.active {
-  background: var(--gradient-primary);
-  border-color: var(--accent-primary);
-  color: white;
-  font-weight: 600;
-}
-
-.page-ellipsis {
-  padding: 0 0.25rem;
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-}
-
-.page-info {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-left: 0.5rem;
-  white-space: nowrap;
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .error {
