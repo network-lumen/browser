@@ -20,6 +20,105 @@ let _gwCachedPeersFilePath = null;
 let _gwLoggedPeersPath = false;
 let _gwResolvedEndpointsLogged = new Set();
 let _gwKyberBaseLogged = new Set();
+let _gwHttpDebugCached = null;
+
+function parseBoolEnv(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (!s) return null;
+  if (s === '1' || s === 'true' || s === 'yes' || s === 'on') return true;
+  if (s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
+  return null;
+}
+
+function gatewayHttpDebugEnabled() {
+  if (_gwHttpDebugCached !== null) return _gwHttpDebugCached;
+
+  const env = parseBoolEnv(process.env.LUMEN_GATEWAY_HTTP_DEBUG);
+  if (env !== null) {
+    _gwHttpDebugCached = env;
+    return env;
+  }
+
+  // Default: enabled in dev/unpackaged builds, disabled in packaged apps.
+  try {
+    const app = require('electron').app;
+    if (app && app.isPackaged === false) {
+      _gwHttpDebugCached = true;
+      return true;
+    }
+  } catch {
+    // ignore
+  }
+
+  _gwHttpDebugCached = false;
+  return false;
+}
+
+function maskWallet(addr) {
+  const s = String(addr || '').trim();
+  if (!s) return '';
+  if (s.length <= 16) return s;
+  return `${s.slice(0, 8)}…${s.slice(-6)}`;
+}
+
+function summarizePqPayload(payload) {
+  if (payload === null || payload === undefined) return null;
+  if (typeof payload !== 'object') return String(payload).slice(0, 120);
+  const out = { keys: Object.keys(payload).slice(0, 12) };
+  try {
+    if (payload && typeof payload.cid === 'string') out.cid = payload.cid.slice(0, 24);
+    if (payload && typeof payload.page === 'number') out.page = payload.page;
+    if (payload && typeof payload.planId === 'string') out.planId = payload.planId;
+    if (payload && typeof payload.plan_id === 'string') out.plan_id = payload.plan_id;
+    if (payload && typeof payload.estBytes === 'number') out.estBytes = payload.estBytes;
+    if (payload && typeof payload.displayName === 'string') out.displayNameLen = payload.displayName.length;
+  } catch {
+    // ignore summary errors
+  }
+  return out;
+}
+
+function summarizePqResponse(pathname, data) {
+  if (data === null || data === undefined) return null;
+  if (typeof data !== 'object') return String(data).slice(0, 160);
+
+  const out = {};
+  try {
+    if (typeof data.ok === 'boolean') out.ok = data.ok;
+    if (typeof data.error === 'string') out.error = data.error;
+    if (typeof data.message === 'string') out.message = String(data.message).slice(0, 120);
+    if (typeof data.wallet === 'string') out.wallet = maskWallet(data.wallet);
+
+    if (Array.isArray(data.cids)) {
+      out.cids = { count: data.cids.length, sample: data.cids.slice(0, 3) };
+    }
+    if (Array.isArray(data.items)) {
+      out.items = { count: data.items.length };
+    }
+
+    if (pathname === '/wallet/usage') {
+      const plan = data.plan && typeof data.plan === 'object' ? data.plan : null;
+      if (plan && (plan.id || plan.planId)) out.planId = String(plan.id || plan.planId || '');
+    }
+  } catch {
+    // ignore
+  }
+
+  const keys = Object.keys(out);
+  if (!keys.length) return { keys: Object.keys(data).slice(0, 16) };
+  return out;
+}
+
+function redactUrlForLog(urlStr) {
+  try {
+    const u = new URL(String(urlStr || ''));
+    if (u.searchParams.has('token')) u.searchParams.set('token', '<redacted>');
+    return u.toString();
+  } catch {
+    const s = String(urlStr || '');
+    return s.replace(/([?&]token=)[^&#]+/i, '$1<redacted>');
+  }
+}
 
 const KYBER_PUBKEY_CACHE_TTL_MS = (() => {
   const env = Number(process.env.LUMEN_GATEWAY_KYBER_PUBKEY_CACHE_TTL_MS || '');
@@ -972,6 +1071,10 @@ async function sendGatewayAuthPq(params) {
   const base = String(params.baseUrl || '').replace(/\/+$/, '');
   if (!base) throw new Error('gateway_base_missing');
 
+  const debug = gatewayHttpDebugEnabled();
+  const startedAt = Date.now();
+  const requestId = `pq-${startedAt.toString(16)}-${randomBytes(3).toString('hex')}`;
+
   const timeoutMsRaw = Number(params.timeoutMs ?? 0);
   const timeoutMs =
     Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 0;
@@ -1060,6 +1163,17 @@ async function sendGatewayAuthPq(params) {
 
   let res;
   try {
+    if (debug) {
+      console.log('[gateway] sendGatewayAuthPq request', {
+        requestId,
+        method: params.method,
+        path: params.path,
+        url,
+        timeoutMs: timeoutMs || null,
+        wallet: maskWallet(params.wallet),
+        payload: summarizePqPayload(payload),
+      });
+    }
     res = await fetch(url, {
       method: params.method,
       headers: {
@@ -1071,6 +1185,27 @@ async function sendGatewayAuthPq(params) {
       body,
       ...(controller ? { signal: controller.signal } : {}),
     });
+    if (debug) {
+      console.log('[gateway] sendGatewayAuthPq response_headers', {
+        requestId,
+        method: params.method,
+        path: params.path,
+        status: res.status,
+        contentType: res.headers?.get?.('content-type') || null,
+      });
+    }
+  } catch (e) {
+    if (debug) {
+      console.warn('[gateway] sendGatewayAuthPq fetch_error', {
+        requestId,
+        method: params.method,
+        path: params.path,
+        url,
+        ms: Date.now() - startedAt,
+        error: String(e && e.message ? e.message : e),
+      });
+    }
+    throw e;
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
   }
@@ -1105,6 +1240,18 @@ async function sendGatewayAuthPq(params) {
       console.warn('[gateway] sendGatewayAuthPq decrypt_response_error', e && e.message ? e.message : e);
       data = null;
     }
+  }
+
+  if (debug) {
+    console.log('[gateway] sendGatewayAuthPq done', {
+      requestId,
+      method: params.method,
+      path: params.path,
+      status,
+      ms: Date.now() - startedAt,
+      bytes: typeof text === 'string' ? text.length : null,
+      data: summarizePqResponse(params.path, data),
+    });
   }
 
   return { status, data };
@@ -1989,6 +2136,7 @@ function defaultGatewayBase() {
 function registerGatewayIpc() {
   ipcMain.handle('gateway:getWalletUsage', async (_e, input) => {
     try {
+      const debug = gatewayHttpDebugEnabled();
       const profileId = String(input?.profileId || '').trim();
       if (!profileId) return { ok: false, error: 'missing_profileId' };
 
@@ -2006,6 +2154,15 @@ function registerGatewayIpc() {
       if (!wallet) return { ok: false, error: 'wallet_unavailable' };
       const mnemonic = loadMnemonic(profileId);
 
+      if (debug) {
+        console.log('[gateway] getWalletUsage', {
+          profileId,
+          baseHint: baseHint || null,
+          baseUrl: trimSlash(baseUrl),
+          wallet: maskWallet(wallet),
+        });
+      }
+
       const { status, data } = await sendGatewayAuthPq({
         baseUrl,
         path: '/wallet/usage',
@@ -2016,17 +2173,38 @@ function registerGatewayIpc() {
       });
 
       if (status < 200 || status >= 300) {
+        if (debug) {
+          console.warn('[gateway] getWalletUsage failed', {
+            profileId,
+            baseUrl: trimSlash(baseUrl),
+            status,
+            error: (data && data.error) || 'usage_failed',
+          });
+        }
         return { ok: false, status, error: (data && data.error) || 'usage_failed' };
       }
 
+      if (debug) {
+        console.log('[gateway] getWalletUsage ok', {
+          profileId,
+          baseUrl: trimSlash(baseUrl),
+          status,
+        });
+      }
       return { ok: true, status, data };
     } catch (e) {
+      if (gatewayHttpDebugEnabled()) {
+        console.warn('[gateway] getWalletUsage threw', {
+          error: String(e && e.message ? e.message : e),
+        });
+      }
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
 
   ipcMain.handle('gateway:getWalletPinnedCids', async (_e, input) => {
     try {
+      const debug = gatewayHttpDebugEnabled();
       const profileId = String(input?.profileId || '').trim();
       const pageRaw = input?.page != null ? String(input.page) : '';
       if (!profileId) return { ok: false, error: 'missing_profileId' };
@@ -2048,6 +2226,16 @@ function registerGatewayIpc() {
       if (!wallet) return { ok: false, error: 'wallet_unavailable' };
       const mnemonic = loadMnemonic(profileId);
 
+      if (debug) {
+        console.log('[gateway] getWalletPinnedCids', {
+          profileId,
+          page,
+          baseHint: baseHint || null,
+          baseUrl: trimSlash(baseUrl),
+          wallet: maskWallet(wallet),
+        });
+      }
+
       const { status, data } = await sendGatewayAuthPq({
         baseUrl,
         path: '/wallet/cids',
@@ -2058,6 +2246,14 @@ function registerGatewayIpc() {
       });
 
       if (status < 200 || status >= 300) {
+        if (debug) {
+          console.warn('[gateway] getWalletPinnedCids failed', {
+            profileId,
+            baseUrl: trimSlash(baseUrl),
+            status,
+            error: (data && data.error) || 'wallet_cids_failed',
+          });
+        }
         return { ok: false, status, error: (data && data.error) || 'wallet_cids_failed' };
       }
 
@@ -2069,14 +2265,36 @@ function registerGatewayIpc() {
           const cids = cidsRaw
             .map((x) => String(x || '').trim())
             .filter((x) => x && x.toLowerCase() !== 'unknown');
+          if (debug) {
+            console.log('[gateway] getWalletPinnedCids ok', {
+              profileId,
+              baseUrl: trimSlash(baseUrl),
+              status,
+              cids: cids.length,
+            });
+          }
           return { ok: true, status, data: { ...data, cids } };
         }
       } catch {
         // ignore and return raw data
       }
 
+      if (debug) {
+        const count = Array.isArray(data?.cids) ? data.cids.length : null;
+        console.log('[gateway] getWalletPinnedCids ok', {
+          profileId,
+          baseUrl: trimSlash(baseUrl),
+          status,
+          cids: count,
+        });
+      }
       return { ok: true, status, data };
     } catch (e) {
+      if (gatewayHttpDebugEnabled()) {
+        console.warn('[gateway] getWalletPinnedCids threw', {
+          error: String(e && e.message ? e.message : e),
+        });
+      }
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2153,6 +2371,7 @@ function registerGatewayIpc() {
 
   ipcMain.handle('gateway:pinCid', async (_e, input) => {
     try {
+      const debug = gatewayHttpDebugEnabled();
       const wcId = String(_e?.sender?.id || '');
       if (wcId && ACTIVE_GATEWAY_PINS.has(wcId)) {
         return { ok: false, error: 'pin_in_progress' };
@@ -2217,6 +2436,16 @@ function registerGatewayIpc() {
       if (!wallet) return { ok: false, error: 'wallet_unavailable' };
       const mnemonic = loadMnemonic(profileId);
 
+      if (debug) {
+        console.log('[gateway] pinCid start', {
+          profileId,
+          cid,
+          baseHint: baseHint || null,
+          baseUrl: trimSlash(baseUrl),
+          wallet: maskWallet(wallet),
+        });
+      }
+
       // Preflight: check auth + plan (PQ-protected)
       sendProgress({ stage: 'preflight', percent: 0 });
       const preflight = await sendGatewayAuthPq({
@@ -2261,6 +2490,17 @@ function registerGatewayIpc() {
       const safeDisplayName =
         displayName && displayName.toLowerCase() !== 'unknown' ? displayName : null;
 
+      if (debug) {
+        console.log('[gateway] ingestInit', {
+          profileId,
+          cid,
+          baseUrl: trimSlash(baseUrl),
+          planId: planId || null,
+          estBytes: dagSize,
+          displayNameLen: safeDisplayName ? safeDisplayName.length : null,
+        });
+      }
+
       const init = await sendGatewayAuthPq({
         baseUrl,
         path: '/ingest/init',
@@ -2291,6 +2531,15 @@ function registerGatewayIpc() {
           typeof init.data.error === 'string'
             ? String(init.data.error)
             : 'ingest_init_failed';
+        if (debug) {
+          console.warn('[gateway] ingestInit failed', {
+            profileId,
+            cid,
+            baseUrl: trimSlash(baseUrl),
+            status: init.status,
+            error: String(details || '').slice(0, 160),
+          });
+        }
         return { ok: false, status: init.status, error: details };
       }
 
@@ -2348,6 +2597,14 @@ function registerGatewayIpc() {
       });
 
       const ingestUrl = `${trimSlash(baseUrl)}/ingest/car?token=${encodeURIComponent(uploadToken)}`;
+      const ingestStartedAt = Date.now();
+      if (debug) {
+        console.log('[gateway] ingestCar request', {
+          cid,
+          baseUrl: trimSlash(baseUrl),
+          url: redactUrlForLog(ingestUrl),
+        });
+      }
       const upResp = await fetch(ingestUrl, {
         method: 'POST',
         body: uploadStream,
@@ -2362,15 +2619,46 @@ function registerGatewayIpc() {
       if (!upResp.ok) {
         const txt = await upResp.text().catch(() => '');
         const details = txt?.slice?.(0, 240) || `HTTP ${upResp.status}`;
+        if (debug) {
+          console.warn('[gateway] ingestCar failed', {
+            cid,
+            baseUrl: trimSlash(baseUrl),
+            url: redactUrlForLog(ingestUrl),
+            status: upResp.status,
+            ms: Date.now() - ingestStartedAt,
+            details: String(details || '').slice(0, 160),
+          });
+        }
         return { ok: false, status: upResp.status, error: details };
       }
 
-      await upResp.text().catch(() => '');
+      const upText = await upResp.text().catch(() => '');
+      if (debug) {
+        let jobId = null;
+        try {
+          const j = upText ? JSON.parse(upText) : null;
+          jobId = j?.meta?.jobId || j?.meta?.job_id || null;
+        } catch {}
+        console.log('[gateway] ingestCar ok', {
+          cid,
+          baseUrl: trimSlash(baseUrl),
+          status: upResp.status,
+          ms: Date.now() - ingestStartedAt,
+          bytes: upText.length,
+          jobId,
+        });
+      }
       sendProgress({ stage: 'done', percent: 100 });
       return { ok: true, cid, baseUrl: trimSlash(baseUrl) };
     } catch (e) {
       const msg = String(e && e.message ? e.message : e);
       const lower = msg.toLowerCase();
+      if (gatewayHttpDebugEnabled()) {
+        console.warn('[gateway] pinCid threw', {
+          error: msg,
+          name: String(e?.name || ''),
+        });
+      }
       if (
         lower.includes('abort') ||
         lower.includes('aborted') ||
