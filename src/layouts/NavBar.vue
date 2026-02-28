@@ -34,7 +34,8 @@
     <div class="url-bar-container appregion-no-drag">
       <Search :size="15" stroke-width="2" class="url-bar-icon" />
       <input
-        v-model="urlField"
+        :value="urlField"
+        @input="onInput"
         type="text"
         class="url-bar-input"
         placeholder="Search or enter lumen:// address"
@@ -382,6 +383,7 @@ const emit = defineEmits<{
 }>();
 
 const urlField = ref('');
+const lastSyncedTabId = ref<string | null>(null);
 const { toggleFavourite, isFav } = useFavourites();
 const favActive = computed(() => {
   if (props.currentUrl == null) return false;
@@ -463,37 +465,29 @@ const loading = computed(() => props.loading);
 
 // Sync displayed URL with current tab URL
 watch(
-  () => props.currentUrl,
-  (val) => {
-    const v = String(val || '').trim();
-    if (!v) return;
-    urlField.value = v;
+  () => [props.currentUrl, props.tabActive],
+  ([val, tabId]) => {
+    const v = String(val || '');
 
-    try {
-      const detail = { url: v, tabId: props.tabActive };
-      (window as any).__lumenLastTabUrlChanged = detail;
-      try {
-        window.dispatchEvent(new CustomEvent('lumen:tab-url-changed', { detail }));
-      } catch {
-        const ev: any = new Event('lumen:tab-url-changed');
-        ev.detail = detail;
-        window.dispatchEvent(ev);
-      }
-      try {
-        document.dispatchEvent(new CustomEvent('lumen:tab-url-changed', { detail }));
-      } catch {}
-      try {
-        if (localStorage.getItem('drive_debug') === '1') {
-          // eslint-disable-next-line no-console
-          console.debug('[NavBar] tab url changed', detail);
-        }
-      } catch {}
-    } catch {
-      // ignore
+    // hanya sync kalau pindah tab
+    if (lastSyncedTabId.value !== tabId) {
+      urlField.value = v;
+      lastSyncedTabId.value = tabId;
     }
   },
   { immediate: true }
 );
+
+function onInput(e: Event) {
+  const value = (e.target as HTMLInputElement).value;
+  urlField.value = value;
+
+  // simpan draft ke tab aktif
+  const tab = props.tabs.find(t => t.id === props.tabActive);
+  if (tab) {
+    tab.draftUrl = value;
+  }
+}
 
 function previous() {
   if (!canGoBack.value) return;
@@ -567,9 +561,14 @@ function refresh() {
   }
 
 function onEnter(ev: KeyboardEvent) {
-  const el = ev.target as HTMLInputElement | null;
-  const raw = el?.value ?? urlField.value;
+  const raw = urlField.value;
   const target = normalizeInput(raw || '');
+
+  const tab = props.tabs.find(t => t.id === props.tabActive);
+  if (tab) {
+    tab.draftUrl = undefined; // 🔥 clear draft
+  }
+
   urlField.value = target;
   emit('goto', target);
 }
