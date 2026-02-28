@@ -110,6 +110,7 @@ type TabHistoryEntry = { url: string; title?: string };
   type Tab = {
     id: string;
     url?: string;
+    draftUrl?: string;
     history: TabHistoryEntry[];
     history_position: number;
     loading?: boolean;

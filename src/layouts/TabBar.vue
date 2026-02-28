@@ -16,6 +16,7 @@
       @refresh-request="onRefresh"
       @history-step="onHistoryStep"
       @open-settings="openSettings"
+      @update-draft="updateDraft"
     />
 
     <div class="content-stack flex w-full flex-1">
@@ -43,12 +44,13 @@ type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
   id: string;
   url?: string;
-  title?: string;
   history?: TabHistoryEntry[];
   history_position?: number;
   loading?: boolean;
   refreshTick?: number;
   favicon?: string | null;
+
+  draftUrl?: string;
 };
 
 const props = defineProps<{
@@ -62,10 +64,7 @@ const emit = defineEmits<{
 }>();
 
 const activeTab = computed<Tab | undefined>(() =>
-  (() => {
-    const found = props.tabs.find((t) => t.id === props.tabActive);
-    return found ? (reactive(found as any) as Tab) : undefined;
-  })(),
+  props.tabs.find((t) => t.id === props.tabActive)
 );
 
 type RegisterFindTargetFn = (tabId: string, targetWebContentsId: number | null) => void;
@@ -107,16 +106,26 @@ watch(
 function currentUrl(): string {
   const t = activeTab.value;
   if (!t) return "lumen://home";
+
+  // 🔥 PRIORITAS: draft dulu
+  if (t.draftUrl !== undefined) {
+    return t.draftUrl;
+  }
+
   const fallback = t.url || "lumen://home";
   const history = Array.isArray(t.history) ? t.history : [];
+
   const rawPos =
     typeof t.history_position === "number"
       ? t.history_position
       : history.length - 1;
+
   const max = Math.max(history.length - 1, 0);
   const pos = Math.min(Math.max(rawPos, 0), max);
   const entry = history[pos] || history[history.length - 1];
+
   const url = typeof entry?.url === "string" ? entry.url.trim() : "";
+
   return url || fallback;
 }
 
@@ -174,6 +183,7 @@ function navigateInternal(url: string, opts: { push?: boolean } = {}) {
 
   tab.url = u;
   tab.title = title;
+  tab.draftUrl = u;
 }
 
 function onGotoFromNavbar(url: string) {
@@ -220,6 +230,12 @@ function onHistoryStep(payload: { delta: number }) {
 
 function openSettings() {
   emit("openInNewTab", "lumen://settings");
+}
+
+function updateDraft(val: string) {
+  const tab = activeTab.value;
+  if (!tab) return;
+  tab.draftUrl = val;
 }
 </script>
 
