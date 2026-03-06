@@ -100,6 +100,71 @@ function summarizePqResponse(pathname, data) {
       const plan = data.plan && typeof data.plan === 'object' ? data.plan : null;
       if (plan && (plan.id || plan.planId)) out.planId = String(plan.id || plan.planId || '');
     }
+
+    if (pathname === '/pq/search') {
+      const hits = Array.isArray(data.hits)
+        ? data.hits
+        : Array.isArray(data.results)
+          ? data.results
+          : [];
+
+      const safeParseObj = (value) => {
+        if (!value) return null;
+        if (typeof value === 'object') return value;
+        if (typeof value !== 'string') return null;
+        const s = value.trim();
+        if (!s) return null;
+        try {
+          const parsed = JSON.parse(s);
+          return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch {
+          return null;
+        }
+      };
+
+      const summarizeHit = (hit) => {
+        if (!hit || typeof hit !== 'object') return null;
+        const cid = typeof hit.cid === 'string' ? hit.cid.trim() : '';
+        const kind = typeof hit.kind === 'string' ? hit.kind.trim() : '';
+        const mime = typeof hit.mime === 'string' ? hit.mime.trim() : '';
+        const resourceType =
+          typeof hit.resourceType === 'string'
+            ? hit.resourceType.trim()
+            : typeof hit.resource_type === 'string'
+              ? hit.resource_type.trim()
+              : '';
+
+        const tags =
+          safeParseObj(hit.tags_json) || safeParseObj(hit.tags) || safeParseObj(hit.tagsJson);
+        const topicsFromTags = tags && Array.isArray(tags.topics) ? tags.topics : null;
+        const topicsFromHit = Array.isArray(hit.topics) ? hit.topics : null;
+        const topicsSample = (topicsFromTags || topicsFromHit || [])
+          .map((t) => String(t || '').trim())
+          .filter(Boolean)
+          .slice(0, 3);
+
+        const tokensObj =
+          tags && tags.tokens && typeof tags.tokens === 'object' ? tags.tokens : null;
+        const tokensCount = tokensObj ? Object.keys(tokensObj).length : null;
+
+        return {
+          cid: cid ? cid.slice(0, 24) : undefined,
+          kind: kind || undefined,
+          resourceType: resourceType || undefined,
+          mime: mime || undefined,
+          topicsSample: topicsSample.length ? topicsSample : undefined,
+          tagsTopicsLen: tags && Array.isArray(tags.topics) ? tags.topics.length : undefined,
+          tagsTokensCount: typeof tokensCount === 'number' ? tokensCount : undefined,
+        };
+      };
+
+      out.search = {
+        hits: hits.length,
+        hasMore: typeof data.hasMore === 'boolean' ? data.hasMore : undefined,
+        nextCursorKeys: data.nextCursor ? Object.keys(data.nextCursor).slice(0, 8) : undefined,
+        first: summarizeHit(hits[0]),
+      };
+    }
   } catch {
     // ignore
   }
