@@ -2152,7 +2152,7 @@ type GatewaySearchResult = {
   items: ResultItem[];
   hasMore: boolean;
   nextCursor: { score: number; id: string; rankAt?: number } | null;
-  gateway: GatewayView;
+  gateway: GatewayView | null;
 };
 
 async function getActiveProfileId(): Promise<string | null> {
@@ -2335,10 +2335,12 @@ function mapGatewayHitToResult(
   const rootCid = String(hit?.root_cid || "").trim();
   const path = safePathSuffix(hit?.path);
   const mime = String(hit?.mime || "").trim();
+  const kind = String(hit?.kind || "").trim();
   const rType = String(hit?.resourceType || "").trim();
   const extGuess = String(hit?.ext_guess || "").trim().toLowerCase();
   const pathLower = String(path || "").trim().toLowerCase();
   const mimeLower = String(mime || "").trim().toLowerCase();
+  const kindLower = String(kind || "").trim().toLowerCase();
   const rTypeLower = String(rType || "").trim().toLowerCase();
 
   // Search policy: never surface audio/video results in this UI.
@@ -2348,13 +2350,12 @@ function mapGatewayHitToResult(
   const extractedTags = extractSearchTags(hit);
 
   const isImage =
-    rTypeLower === "image" || mimeLower.startsWith("image/");
+    rTypeLower === "image" || kindLower === "image" || mimeLower.startsWith("image/");
   const media: ResultItem["media"] = isImage
     ? "image"
     : "unknown";
 
   if (filterType === "image" && !isImage) return null;
-  if (filterType === "image" && isImage && extractedTags.length === 0) return null;
 
   let fileKind: ResultItem["fileKind"] = "unknown";
   if (isImage) fileKind = "image";
@@ -2428,8 +2429,8 @@ function mapGatewayHitToResult(
     if (badges.length >= badgeLimit) break;
     if (!badges.includes(t)) badges.push(t);
   }
-  // Fallback: show MIME when we don't have tags (and not in image mode).
-  if (!badges.length && mime && !isImage) badges.push(mime);
+  // Fallback: show MIME when we don't have tags.
+  if (!badges.length && mime) badges.push(mime);
 
   return {
     id: `gw:${gateway.id}:${cid}:${path || ""}`,
@@ -2448,17 +2449,35 @@ function mapGatewayHitToResult(
   };
 }
 
+function safeJsonParseObject(value: any): any | null {
+  if (!value) return null;
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return null;
+  const s = value.trim();
+  if (!s) return null;
+  try {
+    const parsed = JSON.parse(s);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 function extractSearchTags(hit: any): string[] {
-  const topics = Array.isArray(hit?.tags_json?.topics)
-    ? hit.tags_json.topics
+  const tagsJson =
+    safeJsonParseObject(hit?.tags_json) ||
+    safeJsonParseObject(hit?.tags) ||
+    safeJsonParseObject(hit?.tagsJson) ||
+    null;
+
+  const topics = Array.isArray(tagsJson?.topics)
+    ? tagsJson.topics
     : Array.isArray(hit?.topics)
       ? hit.topics
       : [];
   const tokensObj =
-    hit?.tags_json &&
-    hit.tags_json.tokens &&
-    typeof hit.tags_json.tokens === "object"
-      ? hit.tags_json.tokens
+    tagsJson && tagsJson.tokens && typeof tagsJson.tokens === "object"
+      ? tagsJson.tokens
       : null;
 
   const out: string[] = [];
@@ -2896,7 +2915,7 @@ async function searchGateways(
   const gwApi = (window as any).lumen?.gateway;
   const fallbackGateway: GatewayView = { id: "default", endpoint: "", regions: [] };
   if (!gwApi || typeof gwApi.searchPq !== "function") {
-    return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+    return { items: [], hasMore: false, nextCursor: null, gateway: null };
   }
 
   const normalizeCursor = (raw: any): { score: number; id: string; rankAt?: number } | null => {
@@ -2926,30 +2945,177 @@ async function searchGateways(
     typeof preferredGateway.endpoint === "string" &&
     preferredGateway.endpoint.trim()
   );
-  const allowFailover = opts.allowFailover === true && !hasPreferredEndpoint;
+  const allowFanout = opts.allowFailover === true && !hasPreferredEndpoint;
 
   let gatewaysToTry: GatewayView[] = [];
-  let fallback = fallbackGateway;
+  let firstAlive: GatewayView | null = null;
 
   if (hasPreferredEndpoint && preferredGateway) {
     gatewaysToTry = [preferredGateway];
-    fallback = preferredGateway;
+    firstAlive = preferredGateway;
   } else {
     const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
 
     const list: GatewayView[] = gateways.length ? gateways : [fallbackGateway];
 
     const aliveList = await filterAliveGatewaysForPqSearch(list, seq);
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
-    if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: fallbackGateway };
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: null };
 
-    gatewaysToTry = allowFailover ? aliveList : [aliveList[0] || fallbackGateway];
-    fallback = aliveList[0] || fallbackGateway;
+    gatewaysToTry = aliveList;
+    firstAlive = aliveList[0] || null;
+  }
+
+  if (!gatewaysToTry.length) {
+    return { items: [], hasMore: false, nextCursor: null, gateway: null };
+  }
+
+  // Fan-out search: query all alive gateways and merge/dedupe results.
+  // This avoids business-logic differences between demo vs. other whitelisted gateways.
+  if (!hasPreferredEndpoint && allowFanout && !cursor) {
+    const gatewaysCount = gatewaysToTry.length;
+    const perGatewayLimitRaw =
+      gatewaysCount > 0 ? Math.ceil(limit / gatewaysCount) + 2 : limit;
+    const perGatewayLimit = Math.max(
+      1,
+      Math.min(limit, Math.min(Math.floor(perGatewayLimitRaw), 50)),
+    );
+
+    const results = await mapWithConcurrency(gatewaysToTry, 3, async (g) => {
+      if (seq !== searchSeq) return null;
+
+      const resp = await gwApi
+        .searchPq({
+          profileId,
+          endpoint: g.endpoint,
+          query,
+          lang: "en",
+          limit: perGatewayLimit,
+          offset: 0,
+          cursor: null,
+          mode: wantedMode,
+          type: wantedType,
+        })
+        .catch(() => null);
+      if (seq !== searchSeq) return null;
+      if (!resp || resp.ok === false) return null;
+
+      const data = resp.data || {};
+
+      const items: ResultItem[] = [];
+
+      if (wantedType === "site") {
+        const siteResults: GatewaySiteSearchResult[] = Array.isArray((data as any).results)
+          ? (data as any).results
+          : [];
+
+        for (const s of siteResults) {
+          const t = String(s?.type || "").trim().toLowerCase();
+          if (t !== "site") continue;
+
+          const domainRaw = String(s?.domain || "").trim();
+          const domain = domainRaw ? domainRaw.toLowerCase() : "";
+          const cid = String(s?.cid || "").trim();
+          if (!domain && !cid) continue;
+
+          const entryCidRaw = String((s as any)?.entry_cid || "").trim();
+          const entryCid = entryCidRaw || cid;
+          const entryPath = String((s as any)?.entry_path || "").trim();
+          const entrySuffix = safeEncodedPathSuffix(entryPath);
+          const wallet = String((s as any)?.wallet || "").trim();
+          const owned = !!wallet || !!(s as any)?.owned;
+
+          const tags = extractSiteTags(s);
+          const badges = tags.length ? tags.slice(0, 20) : [];
+
+          const title =
+            String((s as any)?.title || "").trim() ||
+            (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
+          const snippet = String((s as any)?.snippet || "").trim();
+
+          let url = "";
+          if (domain) {
+            url = entrySuffix ? `lumen://${domain}${entrySuffix}` : `lumen://${domain}`;
+          } else if (entryCid && entrySuffix) {
+            url = `lumen://ipfs/${entryCid}${entrySuffix}`;
+          } else if (entryCid) {
+            url = `lumen://ipfs/${entryCid}`;
+          } else if (cid) {
+            url = `lumen://ipfs/${cid}`;
+          }
+
+          const favicon = domain ? faviconUrlForCid(cid || entryCid) : null;
+
+          items.push({
+            id: `gw:${g.id}:site:${domain || cid || entryCid}:${entryPath || ""}`,
+            title,
+            url,
+            description: snippet || undefined,
+            kind: "site",
+            badges,
+            thumbUrl: favicon || undefined,
+            uniqueViews7d: (() => {
+              const v = Number((s as any)?.views_unique_7d);
+              return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+            })(),
+            viewCid: cid || entryCid || undefined,
+            gateway: { id: g.id, endpoint: g.endpoint },
+            site: {
+              domain: domain || null,
+              cid: cid || null,
+              entryCid: entryCid || null,
+              entryPath: entryPath || null,
+              wallet: wallet || null,
+              owned,
+            },
+          });
+        }
+      } else {
+        const hits: GatewaySearchHit[] = Array.isArray((data as any).hits)
+          ? (data as any).hits
+          : Array.isArray((data as any).results)
+            ? (data as any).results
+            : [];
+
+        for (const h of hits) {
+          const mapped = mapGatewayHitToResult(h, g, type);
+          if (mapped) items.push(mapped);
+        }
+      }
+
+      return { gateway: g, items };
+    });
+
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+
+    const okResults = results.filter(Boolean) as Array<{ gateway: GatewayView; items: ResultItem[] }>;
+    if (!okResults.length) {
+      return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    }
+
+    const all: ResultItem[] = [];
+    if (wantedType === "site") {
+      for (const r of okResults) all.push(...(r.items || []));
+      const merged = mergeAndRankSites(query, all).slice(0, limit);
+      return { items: merged, hasMore: false, nextCursor: null, gateway: null };
+    }
+
+    // Interleave gateway results so no single gateway dominates the first page.
+    const maxLen = Math.max(...okResults.map((r) => (Array.isArray(r.items) ? r.items.length : 0)));
+    for (let i = 0; i < maxLen; i += 1) {
+      for (const r of okResults) {
+        const item = r.items && r.items[i] ? r.items[i] : null;
+        if (item) all.push(item);
+      }
+    }
+
+    const merged = dedupeAllResults(all).slice(0, limit);
+    return { items: merged, hasMore: false, nextCursor: null, gateway: null };
   }
 
   for (const g of gatewaysToTry.filter(Boolean) as GatewayView[]) {
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: g };
+    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: firstAlive };
 
     const resp = await gwApi
       .searchPq({
@@ -3056,7 +3222,7 @@ async function searchGateways(
     return { items, hasMore, nextCursor, gateway: g };
   }
 
-  return { items: [], hasMore: false, nextCursor: null, gateway: fallback };
+  return { items: [], hasMore: false, nextCursor: null, gateway: firstAlive };
 }
 
 async function fetchTagsForCid(

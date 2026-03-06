@@ -344,7 +344,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
@@ -366,6 +366,7 @@ type Tab = {
   id: string;
   history?: TabHistoryEntry[];
   history_position?: number;
+  draftUrl?: string;
 };
 
 const props = defineProps<{
@@ -383,7 +384,6 @@ const emit = defineEmits<{
 }>();
 
 const urlField = ref('');
-const lastSyncedTabId = ref<string | null>(null);
 const { toggleFavourite, isFav } = useFavourites();
 const favActive = computed(() => {
   if (props.currentUrl == null) return false;
@@ -444,7 +444,7 @@ const pqcLinkedProfileDisplay = computed(() => {
 
 const activeTab = computed<Tab | null>(() => {
   const found = props.tabs.find((t) => t.id === props.tabActive) ?? null;
-  return found ? (reactive(found as any) as Tab) : null;
+  return found;
 });
 
 const canGoBack = computed(() => {
@@ -466,14 +466,9 @@ const loading = computed(() => props.loading);
 // Sync displayed URL with current tab URL
 watch(
   () => [props.currentUrl, props.tabActive],
-  ([val, tabId]) => {
+  ([val]) => {
     const v = String(val || '');
-
-    // hanya sync kalau pindah tab
-    if (lastSyncedTabId.value !== tabId) {
-      urlField.value = v;
-      lastSyncedTabId.value = tabId;
-    }
+    if (urlField.value !== v) urlField.value = v;
   },
   { immediate: true }
 );

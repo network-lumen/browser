@@ -22,6 +22,7 @@ type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
   id: string;
   url?: string;
+  draftUrl?: string;
   title?: string;
   history?: TabHistoryEntry[];
   history_position?: number;
@@ -145,6 +146,7 @@ function navigateInternal(url: string, opts: { push?: boolean } = {}) {
 
   tab.url = u;
   tab.title = title;
+  tab.draftUrl = u;
 }
 
 function componentForTab(t: Tab) {
