@@ -1,5 +1,10 @@
 <template>
-  <main class="search-page" @keydown.slash.prevent="focusInput">
+  <main
+    ref="scrollRoot"
+    class="search-page"
+    @scroll.passive="onScroll"
+    @keydown.slash.prevent="focusInput"
+  >
           <button
         type="button"
         class="help-icon-btn"
@@ -129,6 +134,7 @@
           v-for="(r, idx) in imageResults"
           :key="r.id"
           class="image-card"
+          :data-result-index="idx"
         >
           <button
             type="button"
@@ -221,7 +227,12 @@
       </div>
 
       <ul v-else class="result-list">
-        <li v-for="r in results" :key="r.id" class="result-item">
+        <li
+          v-for="(r, idx) in results"
+          :key="r.id"
+          class="result-item"
+          :data-result-index="idx"
+        >
           <button 
             class="result-card" 
             :class="[
@@ -340,6 +351,8 @@
           <template v-else>More results</template>
         </button>
       </div>
+
+      <div ref="paginationSentinel" class="load-more-sentinel" aria-hidden="true"></div>
     </section>
 
     <Transition name="modal">
@@ -453,7 +466,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, ref, watch } from "vue";
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
   ArrowUpRight,
   Bookmark,
@@ -526,6 +539,37 @@ type GatewayView = {
   regions?: string[];
 };
 
+type SearchCursor = {
+  score: number;
+  id: string;
+  rankAt?: number;
+};
+
+type SearchRouteCursorGateway = {
+  id: string;
+  cursor: SearchCursor;
+};
+
+type SearchRouteCursor = {
+  version: 1;
+  rankAt?: number;
+  gateways: SearchRouteCursorGateway[];
+};
+
+type ParsedSearchUrl = {
+  q: string;
+  type: SearchType;
+  cursor: SearchRouteCursor | null;
+  gatewayId: string | null;
+};
+
+type SearchPageCursorState = {
+  startIndex: number;
+  endIndex: number;
+  cursor: SearchRouteCursor | null;
+  gatewayId: string | null;
+};
+
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const navigate = inject<
@@ -543,14 +587,25 @@ const loading = ref(false);
 const loadingMore = ref(false);
 const errorMsg = ref("");
 const results = ref<ResultItem[]>([]);
+const imageResults = computed(() =>
+  results.value.filter((r) => r.media === "image" || !!r.thumbUrl),
+);
 const inputEl = ref<HTMLInputElement | null>(null);
+const scrollRoot = ref<HTMLElement | null>(null);
+const paginationSentinel = ref<HTMLElement | null>(null);
 const showHowSearchWorks = ref(false);
 const activeQuery = ref("");
 const activeType = ref<SearchType>("site");
 const gatewayHasMore = ref(false);
-const gatewayNextCursor = ref<{ score: number; id: string; rankAt?: number } | null>(null);
+const gatewayNextCursor = ref<SearchRouteCursor | null>(null);
 const gatewayPageSize = 12;
 const activeGateway = ref<GatewayView | null>(null);
+const pageCursorStates = ref<SearchPageCursorState[]>([]);
+const activeUrlCursor = ref<SearchRouteCursor | null>(null);
+const activeUrlGatewayKey = ref("");
+let scrollRaf = 0;
+let loadMoreObserver: IntersectionObserver | null = null;
+let restoringUrlState = false;
 
 const lastRunKey = ref("");
 let searchSeq = 0;
@@ -1484,6 +1539,16 @@ onMounted(() => {
   }
 
   void refreshPinnedCids();
+  void nextTick().then(() => {
+    refreshLoadMoreObserver();
+    scheduleScrollUpdate();
+  });
+});
+
+onBeforeUnmount(() => {
+  if (scrollRaf) window.cancelAnimationFrame(scrollRaf);
+  scrollRaf = 0;
+  disconnectLoadMoreObserver();
 });
 
 function fileKindLabel(k: ResultItem["fileKind"]): string {
@@ -1717,38 +1782,465 @@ function goto(url: string, opts?: { push?: boolean }) {
   openInNewTab?.(url);
 }
 
-function parseSearchUrl(raw: string): { q: string; type: SearchType } {
+function normalizeSearchCursor(raw: any): SearchCursor | null {
+  if (!raw) return null;
+  let cur = raw;
+  if (typeof cur === "string") {
+    const s = cur.trim();
+    if (!s) return null;
+    try {
+      cur = JSON.parse(s);
+    } catch {
+      return null;
+    }
+  }
+  if (!cur || typeof cur !== "object") return null;
+  const score = Number((cur as any).score);
+  const id = String((cur as any).id || "").trim();
+  if (!Number.isFinite(score) || !id) return null;
+  const rankAtRaw = (cur as any).rankAt ?? (cur as any).rank_at ?? null;
+  const rankAtNum = Number(rankAtRaw);
+  const rankAt =
+    Number.isFinite(rankAtNum) && rankAtNum > 0 ? Math.floor(rankAtNum) : null;
+  return rankAt ? { score, id, rankAt } : { score, id };
+}
+
+function serializeSearchCursor(cursor: SearchCursor | null): string {
+  const cur = normalizeSearchCursor(cursor);
+  if (!cur) return "";
+  return JSON.stringify(cur);
+}
+
+function searchCursorKey(cursor: SearchCursor | null): string {
+  return serializeSearchCursor(cursor);
+}
+
+function searchCursorRankAt(cursor: SearchCursor | null): number | null {
+  const rankAt = Number(cursor?.rankAt ?? null);
+  return Number.isFinite(rankAt) && rankAt > 0 ? Math.floor(rankAt) : null;
+}
+
+function encodeSearchUrlState(raw: string): string {
+  try {
+    const bytes = new TextEncoder().encode(String(raw || ""));
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, i + chunkSize);
+      binary += String.fromCharCode(...chunk);
+    }
+    return window.btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  } catch {
+    return "";
+  }
+}
+
+function decodeSearchUrlState(raw: string): string {
   const value = String(raw || "").trim();
-  if (!value) return { q: "", type: "site" };
+  if (!value) return "";
+  try {
+    const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+    const padding = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
+    const binary = window.atob(`${normalized}${padding}`);
+    const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return "";
+  }
+}
+
+function parseSearchRouteCursorPayload(raw: any): SearchRouteCursor | null {
+  if (!raw || typeof raw !== "object") return null;
+  const rankAtRaw = (raw as any).ra ?? (raw as any).rankAt ?? (raw as any).rank_at ?? null;
+  const rankAtNum = Number(rankAtRaw);
+  const rankAt =
+    Number.isFinite(rankAtNum) && rankAtNum > 0 ? Math.floor(rankAtNum) : null;
+  const entriesRaw = Array.isArray((raw as any).g)
+    ? (raw as any).g
+    : Array.isArray((raw as any).gateways)
+      ? (raw as any).gateways
+      : [];
+
+  const entries: SearchRouteCursorGateway[] = [];
+  const seen = new Set<string>();
+  for (const entry of entriesRaw) {
+    const rawId = Array.isArray(entry)
+      ? entry[0]
+      : (entry as any)?.i ?? (entry as any)?.id ?? (entry as any)?.gatewayId;
+    const id = String(rawId || "").trim();
+    const cursor = normalizeSearchCursor(
+      Array.isArray(entry) ? entry[1] : (entry as any)?.c ?? (entry as any)?.cursor,
+    );
+    const key = id.toLowerCase();
+    if (!id || !cursor || seen.has(key)) continue;
+    seen.add(key);
+    entries.push({ id, cursor });
+  }
+
+  if (!entries.length) return null;
+  return rankAt ? { version: 1, rankAt, gateways: entries } : { version: 1, gateways: entries };
+}
+
+function normalizeSearchRouteCursor(raw: any): SearchRouteCursor | null {
+  if (!raw) return null;
+  if (typeof raw === "string") {
+    const value = raw.trim();
+    if (!value) return null;
+
+    const decoded = decodeSearchUrlState(value);
+    if (decoded) {
+      try {
+        const parsed = JSON.parse(decoded);
+        const routeCursor = parseSearchRouteCursorPayload(parsed);
+        if (routeCursor) return routeCursor;
+      } catch {
+        // ignore
+      }
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      return parseSearchRouteCursorPayload(parsed);
+    } catch {
+      return null;
+    }
+  }
+  return parseSearchRouteCursorPayload(raw);
+}
+
+function searchRouteCursorRankAt(cursor: SearchRouteCursor | null): number | null {
+  const cur = normalizeSearchRouteCursor(cursor);
+  const rankAt = Number(cur?.rankAt ?? null);
+  if (Number.isFinite(rankAt) && rankAt > 0) return Math.floor(rankAt);
+  for (const entry of cur?.gateways || []) {
+    const fromCursor = searchCursorRankAt(entry.cursor);
+    if (fromCursor) return fromCursor;
+  }
+  return null;
+}
+
+function serializeSearchRouteCursor(cursor: SearchRouteCursor | null): string {
+  const cur = normalizeSearchRouteCursor(cursor);
+  if (!cur) return "";
+  const payload: Record<string, any> = {
+    v: 1,
+    g: cur.gateways.map((entry) => ({
+      i: String(entry.id || "").trim(),
+      c: normalizeSearchCursor(entry.cursor),
+    })),
+  };
+  const rankAt = searchRouteCursorRankAt(cur);
+  if (rankAt) payload.ra = rankAt;
+  return encodeSearchUrlState(JSON.stringify(payload));
+}
+
+function searchRouteCursorKey(cursor: SearchRouteCursor | null): string {
+  return serializeSearchRouteCursor(cursor);
+}
+
+function cloneSearchRouteCursor(cursor: SearchRouteCursor | null): SearchRouteCursor | null {
+  return normalizeSearchRouteCursor(cursor);
+}
+
+function buildSearchRouteCursor(
+  rankAt: number | null,
+  gateways: SearchRouteCursorGateway[],
+): SearchRouteCursor | null {
+  const entries: SearchRouteCursorGateway[] = [];
+  const seen = new Set<string>();
+  for (const entry of Array.isArray(gateways) ? gateways : []) {
+    const id = String(entry?.id || "").trim();
+    const cursor = normalizeSearchCursor(entry?.cursor);
+    const key = id.toLowerCase();
+    if (!id || !cursor || seen.has(key)) continue;
+    seen.add(key);
+    entries.push({ id, cursor });
+  }
+  if (!entries.length) return null;
+  const cleanRankAt =
+    Number.isFinite(Number(rankAt)) && Number(rankAt) > 0 ? Math.floor(Number(rankAt)) : null;
+  return cleanRankAt ? { version: 1, rankAt: cleanRankAt, gateways: entries } : { version: 1, gateways: entries };
+}
+
+function normalizeGatewayRouteKey(input: string): string {
+  const raw = String(input || "").trim();
+  if (!raw) return "";
+  const base = normalizeBaseUrlLike(raw);
+  return String(base || raw).trim().toLowerCase();
+}
+
+function gatewayRouteIdForUrl(input: GatewayView | string | null): string {
+  if (typeof input === "string") return String(input || "").trim();
+  const id = String(input?.id || "").trim();
+  if (id) return id;
+  return String(input?.endpoint || "").trim();
+}
+
+function gatewayMatchesRouteKey(gateway: GatewayView | null | undefined, rawKey: string): boolean {
+  const target = normalizeGatewayRouteKey(rawKey);
+  if (!gateway || !target) return false;
+  return (
+    normalizeGatewayRouteKey(String(gateway.id || "")) === target ||
+    normalizeGatewayRouteKey(String(gateway.endpoint || "")) === target ||
+    normalizeGatewayRouteKey(String(gateway.baseUrl || "")) === target
+  );
+}
+
+function routeCursorForGateway(
+  cursorState: SearchRouteCursor | null,
+  gateway: GatewayView | null | undefined,
+): SearchCursor | null {
+  const cur = normalizeSearchRouteCursor(cursorState);
+  if (!cur || !gateway) return null;
+  const entry =
+    cur.gateways.find((candidate) => gatewayMatchesRouteKey(gateway, candidate.id)) || null;
+  return normalizeSearchCursor(entry?.cursor);
+}
+
+function parseSearchUrl(raw: string): ParsedSearchUrl {
+  const value = String(raw || "").trim();
+  if (!value) return { q: "", type: "site", cursor: null, gatewayId: null };
   try {
     const u = new URL(value);
     const qs = u.searchParams.get("q") || "";
     const type = (u.searchParams.get("type") || "") as SearchType;
     const t: SearchType =
       type === "site" || type === "image" || type === "all" ? type : "site";
-    return { q: qs, type: t };
+    const cursor = normalizeSearchRouteCursor(
+      u.searchParams.get("cursor") || u.searchParams.get("c") || "",
+    );
+    const gatewayId =
+      String(
+        u.searchParams.get("gid") ||
+          u.searchParams.get("gw") ||
+          u.searchParams.get("gateway") ||
+          u.searchParams.get("id") ||
+          "",
+      ).trim() || null;
+    return { q: qs, type: t, cursor, gatewayId };
   } catch {
-    return { q: "", type: "site" };
+    return { q: "", type: "site", cursor: null, gatewayId: null };
   }
 }
 
-function makeSearchUrl(query: string, type: SearchType): string {
+function makeSearchUrl(
+  query: string,
+  type: SearchType,
+  cursor: SearchRouteCursor | null = null,
+  gateway: GatewayView | string | null = null,
+): string {
   const s = String(query || "").trim();
   const u = new URL("lumen://search");
   if (s) u.searchParams.set("q", s);
   if (type) u.searchParams.set("type", type);
+  const encodedCursor = serializeSearchRouteCursor(cursor);
+  if (encodedCursor) {
+    u.searchParams.set("cursor", encodedCursor);
+    const gatewayId = gatewayRouteIdForUrl(gateway);
+    if (gatewayId) u.searchParams.set("gid", gatewayId);
+  }
   return u.toString();
+}
+
+function isElementScrollableY(el: HTMLElement): boolean {
+  try {
+    return el.scrollHeight > el.clientHeight + 1;
+  } catch {
+    return false;
+  }
+}
+
+function setActiveUrlState(cursor: SearchRouteCursor | null, gateway: GatewayView | string | null) {
+  activeUrlCursor.value = normalizeSearchRouteCursor(cursor);
+  activeUrlGatewayKey.value = normalizeGatewayRouteKey(gatewayRouteIdForUrl(gateway));
+}
+
+function replaceUrlCursor(cursor: SearchRouteCursor | null, gateway: GatewayView | string | null) {
+  const cleanCursor = normalizeSearchRouteCursor(cursor);
+  setActiveUrlState(cleanCursor, gateway);
+  if (!navigate) return;
+  const cleanQ = String(activeQuery.value || "").trim();
+  const type = activeType.value;
+  const nextUrl = makeSearchUrl(cleanQ, type, cleanCursor, gateway);
+  const curUrl = String(currentTabUrl?.value || "").trim();
+  if (!curUrl || curUrl === nextUrl) return;
+  navigate(nextUrl, { push: false });
+}
+
+function clearPageCursorStates() {
+  pageCursorStates.value = [];
+}
+
+function rememberPageCursorState(
+  startIndex: number,
+  endIndex: number,
+  cursor: SearchRouteCursor | null,
+  gateway: GatewayView | string | null,
+) {
+  const start = Math.max(0, Math.floor(Number(startIndex) || 0));
+  const end = Math.max(start, Math.floor(Number(endIndex) || 0));
+  if (end <= start) return;
+
+  const entry: SearchPageCursorState = {
+    startIndex: start,
+    endIndex: end,
+    cursor: cloneSearchRouteCursor(cursor),
+    gatewayId: gatewayRouteIdForUrl(gateway) || null,
+  };
+
+  const next = [...pageCursorStates.value];
+  const last = next.length ? next[next.length - 1] : null;
+  if (last && last.startIndex === entry.startIndex) {
+    next[next.length - 1] = entry;
+  } else {
+    next.push(entry);
+  }
+  pageCursorStates.value = next;
+}
+
+function pageCursorStateForIndex(index: number): SearchPageCursorState | null {
+  const states = pageCursorStates.value;
+  if (!states.length) return null;
+  const idx = Math.max(0, Math.floor(Number(index) || 0));
+  for (let i = states.length - 1; i >= 0; i -= 1) {
+    const state = states[i];
+    if (idx >= state.startIndex) return state;
+  }
+  return states[0] || null;
+}
+
+function pageCursorStateForCursor(cursor: SearchRouteCursor | null): SearchPageCursorState | null {
+  const targetKey = searchRouteCursorKey(cursor);
+  if (!targetKey) return null;
+  return (
+    pageCursorStates.value.find((state) => searchRouteCursorKey(state.cursor) === targetKey) || null
+  );
+}
+
+function renderedResultNodes(): HTMLElement[] {
+  const root = scrollRoot.value;
+  if (!root) return [];
+  return Array.from(root.querySelectorAll<HTMLElement>("[data-result-index]"));
+}
+
+function firstVisibleResultIndex(): number | null {
+  const root = scrollRoot.value;
+  if (!root) return null;
+  const nodes = renderedResultNodes();
+  if (!nodes.length) return null;
+
+  const rootRect = root.getBoundingClientRect();
+  const threshold = rootRect.top + 24;
+  for (const node of nodes) {
+    const rect = node.getBoundingClientRect();
+    if (rect.bottom > threshold) {
+      const idx = Number(node.dataset.resultIndex);
+      return Number.isFinite(idx) && idx >= 0 ? Math.floor(idx) : 0;
+    }
+  }
+
+  const last = nodes[nodes.length - 1];
+  const idx = Number(last?.dataset.resultIndex);
+  return Number.isFinite(idx) && idx >= 0 ? Math.floor(idx) : nodes.length - 1;
+}
+
+function syncUrlToVisibleCursor() {
+  if (restoringUrlState) return;
+  if (!touched.value) return;
+  const idx = firstVisibleResultIndex();
+  const currentPage = idx == null ? null : pageCursorStateForIndex(idx);
+  replaceUrlCursor(currentPage?.cursor || null, currentPage?.gatewayId || activeGateway.value);
+}
+
+function scheduleScrollUpdate() {
+  if (scrollRaf) return;
+  scrollRaf = window.requestAnimationFrame(() => {
+    scrollRaf = 0;
+    syncUrlToVisibleCursor();
+  });
+}
+
+function onScroll() {
+  scheduleScrollUpdate();
+}
+
+function disconnectLoadMoreObserver() {
+  if (!loadMoreObserver) return;
+  loadMoreObserver.disconnect();
+  loadMoreObserver = null;
+}
+
+function refreshLoadMoreObserver() {
+  disconnectLoadMoreObserver();
+  const root = scrollRoot.value;
+  const sentinel = paginationSentinel.value;
+  if (!root || !sentinel) return;
+  if (typeof IntersectionObserver === "undefined") return;
+
+  loadMoreObserver = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      if (!entry?.isIntersecting) return;
+      if (restoringUrlState) return;
+      if (!showLoadMore.value || loading.value || loadingMore.value) return;
+      void loadMore();
+    },
+    {
+      root,
+      rootMargin: "0px 0px 720px 0px",
+      threshold: 0.01,
+    },
+  );
+  loadMoreObserver.observe(sentinel);
+}
+
+function scrollToTop() {
+  const root = scrollRoot.value;
+  try {
+    if (root && isElementScrollableY(root)) {
+      root.scrollTo({ top: 0, behavior: "auto" });
+      return;
+    }
+  } catch {
+    // ignore
+  }
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function scrollToResultIndex(index: number | null | undefined) {
+  const idx = Number(index);
+  if (!Number.isFinite(idx) || idx <= 0) {
+    scrollToTop();
+    return;
+  }
+
+  const root = scrollRoot.value;
+  if (!root) {
+    scrollToTop();
+    return;
+  }
+
+  const target = root.querySelector<HTMLElement>(`[data-result-index="${Math.floor(idx)}"]`);
+  if (!target) {
+    scrollToTop();
+    return;
+  }
+
+  const rootRect = root.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const delta = targetRect.top - rootRect.top - 16;
+  root.scrollTo({ top: Math.max(0, root.scrollTop + delta), behavior: "auto" });
 }
 
 function setType(t: SearchType) {
   selectedType.value = t;
   const s = q.value.trim();
-  const nextUrl = makeSearchUrl(s, t);
+  const nextUrl = makeSearchUrl(s, t, null, null);
   const curUrl = String(currentTabUrl?.value || "").trim();
   if (curUrl && curUrl === nextUrl) {
     activeQuery.value = s;
     activeType.value = t;
-    runSearch(s, t);
+    runSearch(s, t, { force: true });
     return;
   }
   goto(nextUrl, { push: false });
@@ -1756,12 +2248,12 @@ function setType(t: SearchType) {
 
 function submit() {
   const s = q.value.trim();
-  const nextUrl = makeSearchUrl(s, selectedType.value);
+  const nextUrl = makeSearchUrl(s, selectedType.value, null, null);
   const curUrl = String(currentTabUrl?.value || "").trim();
   if (curUrl && curUrl === nextUrl) {
     activeQuery.value = s;
     activeType.value = selectedType.value;
-    runSearch(s, selectedType.value);
+    runSearch(s, selectedType.value, { force: true });
     return;
   }
   goto(nextUrl, { push: true });
@@ -2151,7 +2643,7 @@ function normalizeGatewayType(t: SearchType): string {
 type GatewaySearchResult = {
   items: ResultItem[];
   hasMore: boolean;
-  nextCursor: { score: number; id: string; rankAt?: number } | null;
+  nextCursor: SearchRouteCursor | null;
   gateway: GatewayView | null;
 };
 
@@ -2171,17 +2663,55 @@ async function loadGatewaysForSearch(
   if (cached.items.length && now - cached.at < 60_000) return cached.items;
 
   const gwApi = (window as any).lumen?.gateway;
-  if (!gwApi || typeof gwApi.getPlansOverview !== "function") return [];
+  if (!gwApi || typeof gwApi.listGateways !== "function") return [];
 
   const res = await gwApi
-    .getPlansOverview(profileId, { includePricing: false, limit: 50, timeoutMs: 2500 })
+    .listGateways({ limit: 500, timeoutMs: 2500, ignoreWhitelist: false })
     .catch(() => null);
   if (!res || res.ok === false) return [];
   const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
 
+  const gatewayIdNumber = (gateway: any) => {
+    const rawId = gateway?.id ?? gateway?.gatewayId ?? gateway?.gateway_id ?? "";
+    const num = Number(String(rawId).trim());
+    return Number.isFinite(num) ? num : -1;
+  };
+
+  const hasCrypto = (gateway: any) => {
+    const meta = gateway?.metadata || {};
+    return !!(meta.crypto || meta.kyber || meta.crypto?.kyber);
+  };
+
+  const chooseBetterGateway = (a: any, b: any) => {
+    const aId = gatewayIdNumber(a);
+    const bId = gatewayIdNumber(b);
+    if (aId !== bId) return bId > aId ? b : a;
+    const aCrypto = hasCrypto(a);
+    const bCrypto = hasCrypto(b);
+    if (aCrypto !== bCrypto) return bCrypto ? b : a;
+    const aActive = a?.active !== false;
+    const bActive = b?.active !== false;
+    if (aActive !== bActive) return bActive ? b : a;
+    return a;
+  };
+
+  const bestByKey = new Map<string, any>();
+  for (const gateway of gwRaw) {
+    const endpointKey = normalizeGatewayRouteKey(
+      String(gateway?.endpoint ?? gateway?.baseUrl ?? gateway?.url ?? ""),
+    );
+    const idKey = normalizeGatewayRouteKey(
+      String(gateway?.id ?? gateway?.gatewayId ?? gateway?.gateway_id ?? ""),
+    );
+    const key = endpointKey || idKey;
+    if (!key) continue;
+    const prev = bestByKey.get(key);
+    bestByKey.set(key, prev ? chooseBetterGateway(prev, gateway) : gateway);
+  }
+
   const items: GatewayView[] = [];
   const seen = new Set<string>();
-  for (const g of gwRaw) {
+  for (const g of bestByKey.values()) {
     const id = String(g?.id ?? g?.gatewayId ?? "").trim();
     if (!id || seen.has(id)) continue;
     const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
@@ -2907,28 +3437,15 @@ async function searchGateways(
   seq: number,
   opts: {
     limit: number;
-    cursor: { score: number; id: string; rankAt?: number } | null;
+    cursorState: SearchRouteCursor | null;
     gateway?: GatewayView | null;
-    allowFailover?: boolean;
+    rankAt?: number | null;
   },
 ): Promise<GatewaySearchResult> {
   const gwApi = (window as any).lumen?.gateway;
-  const fallbackGateway: GatewayView = { id: "default", endpoint: "", regions: [] };
   if (!gwApi || typeof gwApi.searchPq !== "function") {
     return { items: [], hasMore: false, nextCursor: null, gateway: null };
   }
-
-  const normalizeCursor = (raw: any): { score: number; id: string; rankAt?: number } | null => {
-    if (!raw || typeof raw !== "object") return null;
-    const score = Number((raw as any).score);
-    const id = String((raw as any).id || "").trim();
-    if (!Number.isFinite(score) || !id) return null;
-    const rankAtRaw = (raw as any).rankAt ?? (raw as any).rank_at ?? null;
-    const rankAtNum = Number(rankAtRaw);
-    const rankAt =
-      Number.isFinite(rankAtNum) && rankAtNum > 0 ? Math.floor(rankAtNum) : null;
-    return rankAt ? { score, id, rankAt } : { score, id };
-  };
 
   const wantedType = normalizeGatewayType(type);
   const wantedMode = wantedType === "site" ? "sites" : type === "all" ? "everything" : "";
@@ -2936,7 +3453,11 @@ async function searchGateways(
   const limitRaw = Number(opts.limit);
   const limit =
     Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 50) : 12;
-  const cursor = normalizeCursor(opts.cursor);
+  const cursorState = normalizeSearchRouteCursor(opts.cursorState);
+  const rankAt =
+    Number.isFinite(Number(opts.rankAt)) && Number(opts.rankAt) > 0
+      ? Math.floor(Number(opts.rankAt))
+      : searchRouteCursorRankAt(cursorState);
 
   const preferredGateway =
     opts.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
@@ -2945,198 +3466,68 @@ async function searchGateways(
     typeof preferredGateway.endpoint === "string" &&
     preferredGateway.endpoint.trim()
   );
-  const allowFanout = opts.allowFailover === true && !hasPreferredEndpoint;
-
-  let gatewaysToTry: GatewayView[] = [];
-  let firstAlive: GatewayView | null = null;
+  let gatewaysToQuery: GatewayView[] = [];
 
   if (hasPreferredEndpoint && preferredGateway) {
-    gatewaysToTry = [preferredGateway];
-    firstAlive = preferredGateway;
+    gatewaysToQuery = [preferredGateway];
   } else {
     const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
     if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    if (!gateways.length) return { items: [], hasMore: false, nextCursor: null, gateway: null };
 
-    const list: GatewayView[] = gateways.length ? gateways : [fallbackGateway];
-
-    const aliveList = await filterAliveGatewaysForPqSearch(list, seq);
+    const aliveList = await filterAliveGatewaysForPqSearch(gateways, seq);
     if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
     if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: null };
 
-    gatewaysToTry = aliveList;
-    firstAlive = aliveList[0] || null;
+    if (cursorState?.gateways?.length) {
+      const ordered: GatewayView[] = [];
+      const seen = new Set<string>();
+      for (const entry of cursorState.gateways) {
+        const match = aliveList.find((gateway) => gatewayMatchesRouteKey(gateway, entry.id)) || null;
+        if (!match) continue;
+        const key = normalizeGatewayRouteKey(String(match.id || ""));
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        ordered.push(match);
+      }
+      gatewaysToQuery = ordered.length ? ordered : aliveList;
+    } else {
+      gatewaysToQuery = aliveList;
+    }
   }
 
-  if (!gatewaysToTry.length) {
+  if (!gatewaysToQuery.length) {
     return { items: [], hasMore: false, nextCursor: null, gateway: null };
   }
 
-  // Fan-out search: query all alive gateways and merge/dedupe results.
-  // This avoids business-logic differences between demo vs. other whitelisted gateways.
-  if (!hasPreferredEndpoint && allowFanout && !cursor) {
-    const gatewaysCount = gatewaysToTry.length;
-    const perGatewayLimitRaw =
-      gatewaysCount > 0 ? Math.ceil(limit / gatewaysCount) + 2 : limit;
-    const perGatewayLimit = Math.max(
-      1,
-      Math.min(limit, Math.min(Math.floor(perGatewayLimitRaw), 50)),
-    );
+  const perGatewayLimitRaw = hasPreferredEndpoint
+    ? limit
+    : gatewaysToQuery.length > 0
+      ? Math.ceil(limit / gatewaysToQuery.length) + 2
+      : limit;
+  const perGatewayLimit = Math.max(
+    1,
+    Math.min(50, hasPreferredEndpoint ? limit : Math.floor(perGatewayLimitRaw)),
+  );
 
-    const results = await mapWithConcurrency(gatewaysToTry, 3, async (g) => {
-      if (seq !== searchSeq) return null;
-
-      const resp = await gwApi
-        .searchPq({
-          profileId,
-          endpoint: g.endpoint,
-          query,
-          lang: "en",
-          limit: perGatewayLimit,
-          offset: 0,
-          cursor: null,
-          mode: wantedMode,
-          type: wantedType,
-        })
-        .catch(() => null);
-      if (seq !== searchSeq) return null;
-      if (!resp || resp.ok === false) return null;
-
-      const data = resp.data || {};
-
-      const items: ResultItem[] = [];
-
-      if (wantedType === "site") {
-        const siteResults: GatewaySiteSearchResult[] = Array.isArray((data as any).results)
-          ? (data as any).results
-          : [];
-
-        for (const s of siteResults) {
-          const t = String(s?.type || "").trim().toLowerCase();
-          if (t !== "site") continue;
-
-          const domainRaw = String(s?.domain || "").trim();
-          const domain = domainRaw ? domainRaw.toLowerCase() : "";
-          const cid = String(s?.cid || "").trim();
-          if (!domain && !cid) continue;
-
-          const entryCidRaw = String((s as any)?.entry_cid || "").trim();
-          const entryCid = entryCidRaw || cid;
-          const entryPath = String((s as any)?.entry_path || "").trim();
-          const entrySuffix = safeEncodedPathSuffix(entryPath);
-          const wallet = String((s as any)?.wallet || "").trim();
-          const owned = !!wallet || !!(s as any)?.owned;
-
-          const tags = extractSiteTags(s);
-          const badges = tags.length ? tags.slice(0, 20) : [];
-
-          const title =
-            String((s as any)?.title || "").trim() ||
-            (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
-          const snippet = String((s as any)?.snippet || "").trim();
-
-          let url = "";
-          if (domain) {
-            url = entrySuffix ? `lumen://${domain}${entrySuffix}` : `lumen://${domain}`;
-          } else if (entryCid && entrySuffix) {
-            url = `lumen://ipfs/${entryCid}${entrySuffix}`;
-          } else if (entryCid) {
-            url = `lumen://ipfs/${entryCid}`;
-          } else if (cid) {
-            url = `lumen://ipfs/${cid}`;
-          }
-
-          const favicon = domain ? faviconUrlForCid(cid || entryCid) : null;
-
-          items.push({
-            id: `gw:${g.id}:site:${domain || cid || entryCid}:${entryPath || ""}`,
-            title,
-            url,
-            description: snippet || undefined,
-            kind: "site",
-            badges,
-            thumbUrl: favicon || undefined,
-            uniqueViews7d: (() => {
-              const v = Number((s as any)?.views_unique_7d);
-              return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
-            })(),
-            viewCid: cid || entryCid || undefined,
-            gateway: { id: g.id, endpoint: g.endpoint },
-            site: {
-              domain: domain || null,
-              cid: cid || null,
-              entryCid: entryCid || null,
-              entryPath: entryPath || null,
-              wallet: wallet || null,
-              owned,
-            },
-          });
-        }
-      } else {
-        const hits: GatewaySearchHit[] = Array.isArray((data as any).hits)
-          ? (data as any).hits
-          : Array.isArray((data as any).results)
-            ? (data as any).results
-            : [];
-
-        for (const h of hits) {
-          const mapped = mapGatewayHitToResult(h, g, type);
-          if (mapped) items.push(mapped);
-        }
-      }
-
-      return { gateway: g, items };
-    });
-
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
-
-    const okResults = results.filter(Boolean) as Array<{ gateway: GatewayView; items: ResultItem[] }>;
-    if (!okResults.length) {
-      return { items: [], hasMore: false, nextCursor: null, gateway: null };
-    }
-
-    const all: ResultItem[] = [];
-    if (wantedType === "site") {
-      for (const r of okResults) all.push(...(r.items || []));
-      const merged = mergeAndRankSites(query, all).slice(0, limit);
-      return { items: merged, hasMore: false, nextCursor: null, gateway: null };
-    }
-
-    // Interleave gateway results so no single gateway dominates the first page.
-    const maxLen = Math.max(...okResults.map((r) => (Array.isArray(r.items) ? r.items.length : 0)));
-    for (let i = 0; i < maxLen; i += 1) {
-      for (const r of okResults) {
-        const item = r.items && r.items[i] ? r.items[i] : null;
-        if (item) all.push(item);
-      }
-    }
-
-    const merged = dedupeAllResults(all).slice(0, limit);
-    return { items: merged, hasMore: false, nextCursor: null, gateway: null };
-  }
-
-  for (const g of gatewaysToTry.filter(Boolean) as GatewayView[]) {
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: firstAlive };
-
-    const resp = await gwApi
-      .searchPq({
-        profileId,
-        endpoint: g.endpoint,
-        query,
-        lang: "en",
-        limit,
-        offset: 0,
-        cursor,
-        mode: wantedMode,
-        type: wantedType,
-      })
-      .catch(() => null);
-    if (!resp || resp.ok === false) continue;
-
-    const data = resp.data || {};
+  const mapGatewayPayload = (gateway: GatewayView, data: any) => {
     const rawNextCursor = (data as any).nextCursor ?? (data as any).next_cursor ?? null;
     const rawHasMore = (data as any).hasMore ?? (data as any).has_more ?? null;
-    const nextCursor = normalizeCursor(rawNextCursor);
-    const hasMore = typeof rawHasMore === "boolean" ? rawHasMore : !!nextCursor;
+    const nextCursor = normalizeSearchCursor(rawNextCursor);
+    const rawCount =
+      wantedType === "site"
+        ? Array.isArray((data as any).results)
+          ? (data as any).results.length
+          : 0
+        : Array.isArray((data as any).hits)
+          ? (data as any).hits.length
+          : Array.isArray((data as any).results)
+            ? (data as any).results.length
+            : 0;
+    const hasMore =
+      typeof rawHasMore === "boolean"
+        ? rawHasMore || (!!nextCursor && rawCount >= perGatewayLimit)
+        : !!nextCursor && rawCount >= perGatewayLimit;
 
     const items: ResultItem[] = [];
 
@@ -3145,29 +3536,29 @@ async function searchGateways(
         ? (data as any).results
         : [];
 
-      for (const s of siteResults) {
-        const t = String(s?.type || "").trim().toLowerCase();
-        if (t !== "site") continue;
+      for (const siteResult of siteResults) {
+        const itemType = String(siteResult?.type || "").trim().toLowerCase();
+        if (itemType !== "site") continue;
 
-        const domainRaw = String(s?.domain || "").trim();
+        const domainRaw = String(siteResult?.domain || "").trim();
         const domain = domainRaw ? domainRaw.toLowerCase() : "";
-        const cid = String(s?.cid || "").trim();
+        const cid = String(siteResult?.cid || "").trim();
         if (!domain && !cid) continue;
 
-        const entryCidRaw = String((s as any)?.entry_cid || "").trim();
+        const entryCidRaw = String((siteResult as any)?.entry_cid || "").trim();
         const entryCid = entryCidRaw || cid;
-        const entryPath = String((s as any)?.entry_path || "").trim();
+        const entryPath = String((siteResult as any)?.entry_path || "").trim();
         const entrySuffix = safeEncodedPathSuffix(entryPath);
-        const wallet = String((s as any)?.wallet || "").trim();
-        const owned = !!wallet || !!(s as any)?.owned;
+        const wallet = String((siteResult as any)?.wallet || "").trim();
+        const owned = !!wallet || !!(siteResult as any)?.owned;
 
-        const tags = extractSiteTags(s);
+        const tags = extractSiteTags(siteResult);
         const badges = tags.length ? tags.slice(0, 20) : [];
 
         const title =
-          String((s as any)?.title || "").trim() ||
+          String((siteResult as any)?.title || "").trim() ||
           (domain ? domain : cid ? `CID ${cid.slice(0, 8)}…` : "Site");
-        const snippet = String((s as any)?.snippet || "").trim();
+        const snippet = String((siteResult as any)?.snippet || "").trim();
 
         let url = "";
         if (domain) {
@@ -3183,7 +3574,7 @@ async function searchGateways(
         const favicon = domain ? faviconUrlForCid(cid || entryCid) : null;
 
         items.push({
-          id: `gw:${g.id}:site:${domain || cid || entryCid}:${entryPath || ""}`,
+          id: `gw:${gateway.id}:site:${domain || cid || entryCid}:${entryPath || ""}`,
           title,
           url,
           description: snippet || undefined,
@@ -3191,11 +3582,11 @@ async function searchGateways(
           badges,
           thumbUrl: favicon || undefined,
           uniqueViews7d: (() => {
-            const v = Number((s as any)?.views_unique_7d);
-            return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+            const views = Number((siteResult as any)?.views_unique_7d);
+            return Number.isFinite(views) ? Math.max(0, Math.floor(views)) : 0;
           })(),
           viewCid: cid || entryCid || undefined,
-          gateway: { id: g.id, endpoint: g.endpoint },
+          gateway: { id: gateway.id, endpoint: gateway.endpoint },
           site: {
             domain: domain || null,
             cid: cid || null,
@@ -3213,16 +3604,149 @@ async function searchGateways(
           ? (data as any).results
           : [];
 
-      for (const h of hits) {
-        const mapped = mapGatewayHitToResult(h, g, type);
+      for (const hit of hits) {
+        const mapped = mapGatewayHitToResult(hit, gateway, type);
         if (mapped) items.push(mapped);
       }
     }
 
-    return { items, hasMore, nextCursor, gateway: g };
+    return { gateway, items, hasMore, nextCursor };
+  };
+
+  const results = await mapWithConcurrency(gatewaysToQuery, 3, async (gateway) => {
+    if (seq !== searchSeq) return null;
+    const gatewayCursor = routeCursorForGateway(cursorState, gateway);
+    const resp = await gwApi
+      .searchPq({
+        profileId,
+        endpoint: gateway.endpoint,
+        query,
+        lang: "en",
+        limit: perGatewayLimit,
+        offset: 0,
+        cursor: gatewayCursor,
+        rankAt,
+        mode: wantedMode,
+        type: wantedType,
+      })
+      .catch(() => null);
+    if (seq !== searchSeq) return null;
+    if (!resp || resp.ok === false) return null;
+    return mapGatewayPayload(gateway, resp.data || {});
+  });
+
+  if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+
+  const okResults = results.filter(Boolean) as Array<{
+    gateway: GatewayView;
+    items: ResultItem[];
+    hasMore: boolean;
+    nextCursor: SearchCursor | null;
+  }>;
+  if (!okResults.length) {
+    return { items: [], hasMore: false, nextCursor: null, gateway: null };
   }
 
-  return { items: [], hasMore: false, nextCursor: null, gateway: firstAlive };
+  const primary =
+    okResults.find((result) => result.items.length && (result.hasMore || result.nextCursor)) ||
+    okResults.find((result) => result.items.length) ||
+    okResults.find((result) => result.hasMore || result.nextCursor) ||
+    okResults[0] ||
+    null;
+  const primaryGateway = primary?.gateway || null;
+
+  const nextCursor = buildSearchRouteCursor(
+    rankAt,
+    okResults
+      .filter((result) => result.hasMore && result.nextCursor)
+      .map((result) => ({
+        id: result.gateway.id,
+        cursor: result.nextCursor as SearchCursor,
+      })),
+  );
+  const hasMore = !!nextCursor;
+
+  const all: ResultItem[] = [];
+  if (wantedType === "site") {
+    for (const result of okResults) all.push(...(result.items || []));
+    const merged = mergeAndRankSites(query, all).slice(0, limit);
+    return { items: merged, hasMore, nextCursor, gateway: primaryGateway };
+  }
+
+  const maxLen = Math.max(...okResults.map((result) => (Array.isArray(result.items) ? result.items.length : 0)));
+  for (let i = 0; i < maxLen; i += 1) {
+    for (const result of okResults) {
+      const item = result.items && result.items[i] ? result.items[i] : null;
+      if (item) all.push(item);
+    }
+  }
+
+  const merged = dedupeAllResults(all).slice(0, limit);
+  return { items: merged, hasMore, nextCursor, gateway: primaryGateway };
+}
+
+async function collectGatewayResultsPage(
+  profileId: string,
+  query: string,
+  type: SearchType,
+  seq: number,
+  opts: {
+    limit: number;
+    cursorState: SearchRouteCursor | null;
+    gateway?: GatewayView | null;
+    rankAt?: number | null;
+  },
+): Promise<GatewaySearchResult> {
+  const limitRaw = Number(opts.limit);
+  const limit =
+    Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 50) : 12;
+  const preferredGateway =
+    opts.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
+  let cursorState = cloneSearchRouteCursor(opts.cursorState);
+  let hasMore = false;
+  let gateway = preferredGateway;
+  const items: ResultItem[] = [];
+  const seen = new Set<string>();
+  let attempts = 0;
+
+  while (seq === searchSeq && attempts < 12 && items.length < limit) {
+    attempts += 1;
+    const remaining = limit - items.length;
+    const beforeCursorKey = searchRouteCursorKey(cursorState);
+
+    const round = await searchGateways(profileId, query, type, seq, {
+      limit: remaining,
+      cursorState,
+      gateway: preferredGateway,
+      rankAt: opts.rankAt,
+    });
+    if (seq !== searchSeq) return { items, hasMore, nextCursor: cursorState, gateway };
+
+    gateway = round.gateway || gateway;
+    hasMore = round.hasMore;
+    cursorState = round.nextCursor;
+    const afterCursorKey = searchRouteCursorKey(cursorState);
+    let added = 0;
+
+    for (const item of round.items || []) {
+      const key = String(item?.url || item?.id || "").trim();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      items.push(item);
+      added += 1;
+      if (items.length >= limit) break;
+    }
+
+    if (!hasMore || !cursorState) break;
+    if (!added && afterCursorKey === beforeCursorKey) break;
+  }
+
+  return {
+    items,
+    hasMore: !!(hasMore && cursorState),
+    nextCursor: cursorState,
+    gateway,
+  };
 }
 
 async function fetchTagsForCid(
@@ -3344,14 +3868,29 @@ function buildFastResults(query: string): ResultItem[] {
   return list;
 }
 
-async function runSearch(query: string, type: SearchType) {
+async function runSearch(
+  query: string,
+  type: SearchType,
+  opts?: {
+    rankAt?: number | null;
+    gateway?: GatewayView | null;
+    force?: boolean;
+  },
+) {
   const seq = ++searchSeq;
   const clean = String(query || "").trim();
   const normalizedQuery = normalizeQueryForGatewaySearch(clean);
   const gatewayQuery = normalizedQuery.gatewayQuery;
   const cidForDirect = normalizedQuery.cidForDirect;
   const refreshTick = Number(currentTabRefresh?.value || 0);
-  const runKey = `${type}::${clean}::r=${refreshTick}`;
+  const rankAt =
+    Number.isFinite(Number(opts?.rankAt)) && Number(opts?.rankAt) > 0
+      ? Math.floor(Number(opts?.rankAt))
+      : null;
+  const preferredGateway =
+    opts?.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
+  const preferredGatewayKey = normalizeGatewayRouteKey(gatewayRouteIdForUrl(preferredGateway));
+  const runKey = `${type}::${clean}::r=${refreshTick}::ra=${rankAt || 0}::gw=${preferredGatewayKey}`;
   const allowEmptyQuery = type === "site" || type === "image" || type === "all";
   if (!clean && !allowEmptyQuery) {
     touched.value = false;
@@ -3363,9 +3902,11 @@ async function runSearch(query: string, type: SearchType) {
     gatewayHasMore.value = false;
     gatewayNextCursor.value = null;
     activeGateway.value = null;
+    clearPageCursorStates();
+    setActiveUrlState(null, null);
     return;
   }
-  if (runKey === lastRunKey.value && results.value.length) {
+  if (!opts?.force && runKey === lastRunKey.value && results.value.length) {
     loading.value = false;
     return;
   }
@@ -3379,6 +3920,7 @@ async function runSearch(query: string, type: SearchType) {
   gatewayHasMore.value = false;
   gatewayNextCursor.value = null;
   activeGateway.value = null;
+  clearPageCursorStates();
   thumbCorsProbeById.clear();
   thumbLocalFallbackTriedById.clear();
   thumbLoadedById.value = {};
@@ -3396,11 +3938,11 @@ async function runSearch(query: string, type: SearchType) {
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
 
-    const gatewayPromise = searchGateways(profileId || "", gatewayQuery, type, seq, {
+    const gatewayPromise = collectGatewayResultsPage(profileId || "", gatewayQuery, type, seq, {
       limit: gatewayPageSize,
-      cursor: null,
-      gateway: null,
-      allowFailover: true,
+      cursorState: null,
+      gateway: preferredGateway,
+      rankAt,
     });
 
     const [bestDomain, _cidMetaDone, gw] = await Promise.all([
@@ -3468,9 +4010,9 @@ async function runSearch(query: string, type: SearchType) {
     if (type === "all" && cidForDirect && profileId && activeGateway.value) {
       const cidSite = await searchGateways(profileId || "", cidForDirect, "site", seq, {
         limit: 1,
-        cursor: null,
+        cursorState: null,
         gateway: activeGateway.value,
-        allowFailover: false,
+        rankAt,
       });
       if (seq !== searchSeq) return;
 
@@ -3522,6 +4064,7 @@ async function runSearch(query: string, type: SearchType) {
     }
 
     results.value = merged;
+    rememberPageCursorState(0, merged.length, null, gw.gateway);
     if (type === "site") {
       const sites = merged.filter((r) => r && r.kind === "site");
       void enrichSiteResultsWithEntryPaths(sites, seq);
@@ -3531,10 +4074,14 @@ async function runSearch(query: string, type: SearchType) {
     const errMessage = String(e?.message || e || "search_failed");
     errorMsg.value = errMessage;
     results.value = [];
+    clearPageCursorStates();
     toast.error(`Search failed: ${errMessage}`);
   } finally {
     if (seq !== searchSeq) return;
     loading.value = false;
+    await nextTick();
+    refreshLoadMoreObserver();
+    scheduleScrollUpdate();
   }
 }
 
@@ -3547,7 +4094,6 @@ const showLoadMore = computed(() => {
 async function loadMore() {
   if (loading.value || loadingMore.value) return;
   if (!gatewayHasMore.value || !gatewayNextCursor.value) return;
-  if (!activeGateway.value) return;
 
   const seq = searchSeq;
   const clean = String(activeQuery.value || "").trim();
@@ -3571,21 +4117,28 @@ async function loadMore() {
         .filter(Boolean),
     );
     const appended: ResultItem[] = [];
+    const appendStartIndex = results.value.length;
+    const pageCursor = cloneSearchRouteCursor(gatewayNextCursor.value);
 
     let hasMore = gatewayHasMore.value;
     let cursor = gatewayNextCursor.value;
     let attempts = 0;
 
-    while (seq === searchSeq && hasMore && cursor && appended.length < gatewayPageSize && attempts < 5) {
+    while (
+      seq === searchSeq &&
+      hasMore &&
+      cursor &&
+      appended.length < gatewayPageSize &&
+      attempts < 12
+    ) {
       attempts += 1;
       const remaining = gatewayPageSize - appended.length;
       if (remaining <= 0) break;
+      const prevCursorKey = searchRouteCursorKey(cursor);
 
-      const gw = await searchGateways(profileId || "", gatewayQuery, type, seq, {
+      const gw = await collectGatewayResultsPage(profileId || "", gatewayQuery, type, seq, {
         limit: remaining,
-        cursor,
-        gateway: activeGateway.value,
-        allowFailover: false,
+        cursorState: cursor,
       });
       if (seq !== searchSeq) return;
 
@@ -3593,8 +4146,10 @@ async function loadMore() {
       cursor = gw.nextCursor;
       gatewayHasMore.value = hasMore;
       gatewayNextCursor.value = cursor;
+      if (gw.gateway) activeGateway.value = gw.gateway;
+      const nextCursorKey = searchRouteCursorKey(cursor);
 
-      if (!gw.items.length) break;
+      if (!gw.items.length && nextCursorKey === prevCursorKey) break;
 
       for (const item of gw.items) {
         const key = String(item?.url || "").trim();
@@ -3605,12 +4160,19 @@ async function loadMore() {
       }
     }
 
-    if (!appended.length) return;
-    results.value = [...results.value, ...appended];
+    if (appended.length) {
+      results.value = [...results.value, ...appended];
+      rememberPageCursorState(
+        appendStartIndex,
+        results.value.length,
+        pageCursor,
+        activeGateway.value,
+      );
 
-    if (type === "site") {
-      const sites = appended.filter((r) => r && r.kind === "site");
-      void enrichSiteResultsWithEntryPaths(sites, seq);
+      if (type === "site") {
+        const sites = appended.filter((r) => r && r.kind === "site");
+        void enrichSiteResultsWithEntryPaths(sites, seq);
+      }
     }
   } catch (e: any) {
     if (seq !== searchSeq) return;
@@ -3620,6 +4182,69 @@ async function loadMore() {
   } finally {
     if (seq !== searchSeq) return;
     loadingMore.value = false;
+    await nextTick();
+    refreshLoadMoreObserver();
+    scheduleScrollUpdate();
+  }
+}
+
+async function restoreSearchFromUrlState(parsed: ParsedSearchUrl, opts?: { force?: boolean }) {
+  const targetCursor = parsed.cursor;
+  const targetCursorKey = searchRouteCursorKey(targetCursor);
+  const targetGatewayKey = normalizeGatewayRouteKey(String(parsed.gatewayId || ""));
+  const currentCursorKey = searchRouteCursorKey(activeUrlCursor.value);
+  const currentGatewayKey = activeUrlGatewayKey.value;
+
+  if (
+    !opts?.force &&
+    touched.value &&
+    parsed.q === activeQuery.value &&
+    parsed.type === activeType.value &&
+    targetCursorKey === currentCursorKey &&
+    targetGatewayKey === currentGatewayKey
+  ) {
+    return;
+  }
+
+  restoringUrlState = true;
+  try {
+    scrollToTop();
+    await runSearch(parsed.q, parsed.type, {
+      rankAt: searchRouteCursorRankAt(targetCursor),
+      force: true,
+    });
+
+    if (!targetCursorKey) {
+      scrollToTop();
+      return;
+    }
+
+    const seq = searchSeq;
+    let attempts = 0;
+    while (
+      seq === searchSeq &&
+      !pageCursorStateForCursor(targetCursor) &&
+      gatewayHasMore.value &&
+      gatewayNextCursor.value &&
+      attempts < 50
+    ) {
+      attempts += 1;
+      const before = searchRouteCursorKey(gatewayNextCursor.value);
+      const beforeCount = results.value.length;
+      await loadMore();
+      if (seq !== searchSeq) return;
+      const after = searchRouteCursorKey(gatewayNextCursor.value);
+      if (pageCursorStateForCursor(targetCursor)) break;
+      if ((results.value.length === beforeCount && after === before) || !after) break;
+    }
+
+    const targetPage = pageCursorStateForCursor(targetCursor);
+    scrollToResultIndex(targetPage?.startIndex ?? 0);
+  } finally {
+    restoringUrlState = false;
+    await nextTick();
+    refreshLoadMoreObserver();
+    scheduleScrollUpdate();
   }
 }
 
@@ -3628,12 +4253,31 @@ watch(
   (next) => {
     const url = String(next || "").trim();
     if (!url) return;
-    const { q: qs, type } = parseSearchUrl(url);
+    const parsed = parseSearchUrl(url);
+    const { q: qs, type } = parsed;
+    const allowEmptyQuery = type === "site" || type === "image" || type === "all";
     if (type !== selectedType.value) selectedType.value = type;
     if (qs !== q.value) q.value = qs;
+
+    const queryTypeChanged = qs !== activeQuery.value || type !== activeType.value;
+    const targetCursorKey = searchRouteCursorKey(parsed.cursor);
+    const currentCursorKey = searchRouteCursorKey(activeUrlCursor.value);
+    const targetGatewayKey = normalizeGatewayRouteKey(String(parsed.gatewayId || ""));
+    const currentGatewayKey = activeUrlGatewayKey.value;
+    const paginationChanged =
+      targetCursorKey !== currentCursorKey || targetGatewayKey !== currentGatewayKey;
+
     activeQuery.value = qs;
     activeType.value = type;
-    runSearch(qs, type);
+
+    const needsInitialLoad = !touched.value && !loading.value && (qs || allowEmptyQuery);
+
+    if (queryTypeChanged || paginationChanged || needsInitialLoad) {
+      void restoreSearchFromUrlState(parsed);
+      return;
+    }
+
+    setActiveUrlState(parsed.cursor, parsed.gatewayId);
   },
   { immediate: true },
 );
@@ -3643,20 +4287,13 @@ watch(
   () => currentTabRefresh?.value,
   () => {
     void refreshPinnedCids();
+    const parsed = parseSearchUrl(String(currentTabUrl?.value || ""));
     const allowEmptyQuery =
-      activeType.value === "site" ||
-      activeType.value === "image" ||
-      activeType.value === "all";
-    if (activeQuery.value || allowEmptyQuery) {
-      runSearch(activeQuery.value, activeType.value);
-    }
+      parsed.type === "site" || parsed.type === "image" || parsed.type === "all";
+    if (parsed.q || allowEmptyQuery) void restoreSearchFromUrlState(parsed, { force: true });
   }
 );
 
-
-const imageResults = computed(() =>
-  results.value.filter((r) => r.media === "image" || !!r.thumbUrl),
-);
 </script>
 
 <style scoped>
@@ -4171,6 +4808,11 @@ const imageResults = computed(() =>
   display: flex;
   justify-content: center;
   padding: 1.25rem 0 0.5rem;
+}
+
+.load-more-sentinel {
+  width: 100%;
+  height: 1px;
 }
 
 .load-more-btn {
