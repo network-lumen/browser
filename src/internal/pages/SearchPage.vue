@@ -74,13 +74,6 @@
 
     <section v-if="touched" class="results">
       <div class="meta">
-        <div class="txt-xs color-gray-blue">
-          <span v-if="!loading">
-            <template v-if="results.length">Showing {{ results.length }} results</template>
-            <template v-else>No results</template>
-            <template v-if="loadingMore"> | Loading more…</template>
-          </span>
-        </div>
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
@@ -154,56 +147,61 @@
             @click="openResult(r)"
             :title="r.url"
           >
-            <div
-              v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-              class="safe-thumb"
-              :class="{ blurred: shouldBlurThumb(r), 'thumb-loading': !thumbLoadedById[r.id] }"
-              @click="onCompactThumbClick(r, $event)"
-            >
-              <button
-                v-if="showHideIcon(r)"
-                type="button"
-                class="safe-thumb-hide"
-                title="Hide content"
-                @click.stop.prevent="hideThumb(r)"
+            <template v-if="shouldMountImageThumb(idx)">
+              <div
+                v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
+                class="safe-thumb"
+                :class="{ blurred: shouldBlurThumb(r), 'thumb-loading': !thumbLoadedById[r.id] }"
+                @click="onCompactThumbClick(r, $event)"
               >
-                <EyeOff :size="16" />
-              </button>
+                <button
+                  v-if="showHideIcon(r)"
+                  type="button"
+                  class="safe-thumb-hide"
+                  title="Hide content"
+                  @click.stop.prevent="hideThumb(r)"
+                >
+                  <EyeOff :size="16" />
+                </button>
+                <img
+                  class="image-thumb"
+                  :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
+                  :src="r.thumbUrl"
+                  alt=""
+                  :loading="imageThumbLoading(idx)"
+                  decoding="async"
+                  :fetchpriority="imageThumbFetchPriority(idx)"
+                  :crossorigin="corsAttrForThumb(r)"
+                  @load="onThumbLoad(r, $event)"
+                  @error="onThumbError(r)"
+                />
+                <div v-if="shouldBlurThumb(r)" class="safe-thumb-overlay">
+                  <div
+                    class="safe-thumb-reveal"
+                    @click.stop.prevent="revealThumb(r)"
+                  >
+                    {{ thumbBlurNoticeText(r) }}
+                  </div>
+                </div>
+              </div>
+              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="image-fallback">
+                <Image :size="18" />
+              </div>
               <img
+                v-else-if="r.thumbUrl"
                 class="image-thumb"
-                :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                 :src="r.thumbUrl"
                 alt=""
                 :loading="imageThumbLoading(idx)"
                 decoding="async"
                 :fetchpriority="imageThumbFetchPriority(idx)"
-                :crossorigin="corsAttrForThumb(r)"
-                @load="onThumbLoad(r, $event)"
-                @error="onThumbError(r)"
+                @load="markThumbLoaded(r.id)"
               />
-              <div v-if="shouldBlurThumb(r)" class="safe-thumb-overlay">
-                <div
-                  class="safe-thumb-reveal"
-                  @click.stop.prevent="revealThumb(r)"
-                >
-                  {{ thumbBlurNoticeText(r) }}
-                </div>
+              <div v-else class="image-fallback">
+                <Image :size="18" />
               </div>
-            </div>
-            <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="image-fallback">
-              <Image :size="18" />
-            </div>
-            <img
-              v-else-if="r.thumbUrl"
-              class="image-thumb"
-              :src="r.thumbUrl"
-              alt=""
-              :loading="imageThumbLoading(idx)"
-              decoding="async"
-              :fetchpriority="imageThumbFetchPriority(idx)"
-              @load="markThumbLoaded(r.id)"
-            />
-            <div v-else class="image-fallback">
+            </template>
+            <div v-else class="image-fallback image-fallback--deferred">
               <Image :size="18" />
             </div>
           </button>
@@ -603,6 +601,7 @@ const activeGateway = ref<GatewayView | null>(null);
 const pageCursorStates = ref<SearchPageCursorState[]>([]);
 const activeUrlCursor = ref<SearchRouteCursor | null>(null);
 const activeUrlGatewayKey = ref("");
+const firstVisibleResultIdx = ref(0);
 let scrollRaf = 0;
 let loadMoreObserver: IntersectionObserver | null = null;
 let restoringUrlState = false;
@@ -720,7 +719,7 @@ function markThumbLoaded(id: string): void {
   const key = String(id || "").trim();
   if (!key) return;
   if (thumbLoadedById.value[key]) return;
-  thumbLoadedById.value = { ...thumbLoadedById.value, [key]: true };
+  thumbLoadedById.value[key] = true;
 }
 
 function originFromUrl(input: string): string | null {
@@ -823,8 +822,11 @@ function corsAttrForThumb(r: ResultItem): string | null {
   return "anonymous";
 }
 
-const IMAGE_EAGER_COUNT = 10;
-const IMAGE_HIGH_PRIORITY_COUNT = 6;
+const IMAGE_EAGER_COUNT = 6;
+const IMAGE_HIGH_PRIORITY_COUNT = 3;
+const IMAGE_RENDER_BEHIND = 8;
+const IMAGE_RENDER_AHEAD = 20;
+const LOAD_MORE_SCROLL_THRESHOLD_PX = 720;
 
 function imageThumbLoading(idx: number): "eager" | "lazy" {
   return idx < IMAGE_EAGER_COUNT ? "eager" : "lazy";
@@ -832,6 +834,15 @@ function imageThumbLoading(idx: number): "eager" | "lazy" {
 
 function imageThumbFetchPriority(idx: number): "high" | "auto" {
   return idx < IMAGE_HIGH_PRIORITY_COUNT ? "high" : "auto";
+}
+
+function shouldMountImageThumb(idx: number): boolean {
+  const index = Math.max(0, Math.floor(Number(idx) || 0));
+  if (selectedType.value !== "image") return true;
+  if (index < IMAGE_EAGER_COUNT) return true;
+  const start = Math.max(0, firstVisibleResultIdx.value - IMAGE_RENDER_BEHIND);
+  const end = firstVisibleResultIdx.value + IMAGE_RENDER_AHEAD;
+  return index >= start && index <= end;
 }
 
 function blockedCatLabel(cat: ThumbSafetyBlockedCategory): string {
@@ -1372,41 +1383,28 @@ async function enrichSiteResultsWithEntryPaths(
   const list = Array.isArray(items) ? items : [];
   if (!list.length) return;
 
-  const out: ResultItem[] = [];
+  const updates = new Map<string, ResultItem>();
   for (const r of list) {
     if (seq !== searchSeq) return;
     if (!r || r.kind !== "site") continue;
+    const itemId = String(r.id || "").trim();
+    if (!itemId) continue;
 
     // Domain sites are handled by SitePage (it already tries /index.html).
     const domain = String(r.site?.domain || "").trim();
-    if (domain) {
-      out.push(r);
-      continue;
-    }
+    if (domain) continue;
 
     const parsed = parseLumenIpfsUrl(r.url);
-    if (!parsed) {
-      out.push(r);
-      continue;
-    }
-    if (parsed.subpath) {
-      out.push(r);
-      continue;
-    }
+    if (!parsed) continue;
+    if (parsed.subpath) continue;
 
     const cid = String(r.site?.entryCid || r.site?.cid || parsed.cid || "").trim();
-    if (!cid) {
-      out.push(r);
-      continue;
-    }
+    if (!cid) continue;
 
     const resolved = await resolveHtmlEntryForCidRoot(cid);
     if (seq !== searchSeq) return;
 
-    // Directory with no HTML => not a "site" result.
-    if (resolved.isDir && !resolved.entryPath) {
-      continue;
-    }
+    if (resolved.isDir && !resolved.entryPath) continue;
 
     if (resolved.entryPath) {
       const encoded = encodeUrlPath(resolved.entryPath);
@@ -1415,7 +1413,7 @@ async function enrichSiteResultsWithEntryPaths(
       const thumbUrl =
         r.thumbUrl ||
         (faviconCid ? `${localIpfsGatewayBase()}/ipfs/${faviconCid}/favicon.ico` : undefined);
-      out.push({
+      updates.set(itemId, {
         ...r,
         url,
         thumbUrl,
@@ -1425,15 +1423,15 @@ async function enrichSiteResultsWithEntryPaths(
           entryPath: resolved.entryPath,
         },
       });
-      continue;
     }
-
-    // Treat as a file CID (unknown), keep as-is.
-    out.push(r);
   }
 
   if (seq !== searchSeq) return;
-  results.value = out;
+  if (!updates.size) return;
+  results.value = results.value.map((item) => {
+    const itemId = String(item?.id || "").trim();
+    return updates.get(itemId) || item;
+  });
 }
 
 function isPinnedImage(result: ResultItem): boolean {
@@ -2051,17 +2049,21 @@ function isElementScrollableY(el: HTMLElement): boolean {
 }
 
 function setActiveUrlState(cursor: SearchRouteCursor | null, gateway: GatewayView | string | null) {
-  activeUrlCursor.value = normalizeSearchRouteCursor(cursor);
-  activeUrlGatewayKey.value = normalizeGatewayRouteKey(gatewayRouteIdForUrl(gateway));
+  const cleanCursor = normalizeSearchRouteCursor(cursor);
+  activeUrlCursor.value = cleanCursor;
+  activeUrlGatewayKey.value = cleanCursor
+    ? normalizeGatewayRouteKey(gatewayRouteIdForUrl(gateway))
+    : "";
 }
 
 function replaceUrlCursor(cursor: SearchRouteCursor | null, gateway: GatewayView | string | null) {
   const cleanCursor = normalizeSearchRouteCursor(cursor);
-  setActiveUrlState(cleanCursor, gateway);
+  const cleanGateway = cleanCursor ? gateway : null;
+  setActiveUrlState(cleanCursor, cleanGateway);
   if (!navigate) return;
   const cleanQ = String(activeQuery.value || "").trim();
   const type = activeType.value;
-  const nextUrl = makeSearchUrl(cleanQ, type, cleanCursor, gateway);
+  const nextUrl = makeSearchUrl(cleanQ, type, cleanCursor, cleanGateway);
   const curUrl = String(currentTabUrl?.value || "").trim();
   if (!curUrl || curUrl === nextUrl) return;
   navigate(nextUrl, { push: false });
@@ -2085,7 +2087,7 @@ function rememberPageCursorState(
     startIndex: start,
     endIndex: end,
     cursor: cloneSearchRouteCursor(cursor),
-    gatewayId: gatewayRouteIdForUrl(gateway) || null,
+    gatewayId: cursor ? gatewayRouteIdForUrl(gateway) || null : null,
   };
 
   const next = [...pageCursorStates.value];
@@ -2144,19 +2146,36 @@ function firstVisibleResultIndex(): number | null {
   return Number.isFinite(idx) && idx >= 0 ? Math.floor(idx) : nodes.length - 1;
 }
 
+function syncVisibleResultIndex() {
+  const idx = firstVisibleResultIndex();
+  if (idx == null) return;
+  firstVisibleResultIdx.value = idx;
+}
+
 function syncUrlToVisibleCursor() {
   if (restoringUrlState) return;
   if (!touched.value) return;
-  const idx = firstVisibleResultIndex();
-  const currentPage = idx == null ? null : pageCursorStateForIndex(idx);
+  const currentPage = pageCursorStateForIndex(firstVisibleResultIdx.value);
   replaceUrlCursor(currentPage?.cursor || null, currentPage?.gatewayId || activeGateway.value);
+}
+
+function maybeLoadMoreFromScroll() {
+  if (restoringUrlState) return;
+  if (!showLoadMore.value || loading.value || loadingMore.value) return;
+  const root = scrollRoot.value;
+  if (!root) return;
+  const remaining = root.scrollHeight - (root.scrollTop + root.clientHeight);
+  if (remaining > LOAD_MORE_SCROLL_THRESHOLD_PX) return;
+  void loadMore();
 }
 
 function scheduleScrollUpdate() {
   if (scrollRaf) return;
   scrollRaf = window.requestAnimationFrame(() => {
     scrollRaf = 0;
+    syncVisibleResultIndex();
     syncUrlToVisibleCursor();
+    maybeLoadMoreFromScroll();
   });
 }
 
@@ -2372,7 +2391,7 @@ function markThumbBroken(id: string) {
   const key = String(id || "").trim();
   if (!key) return;
   if (brokenThumbs.value[key]) return;
-  brokenThumbs.value = { ...brokenThumbs.value, [key]: true };
+  brokenThumbs.value[key] = true;
 }
 
 function cidForFavicon(r: ResultItem): string | null {
@@ -3522,12 +3541,12 @@ async function searchGateways(
         : Array.isArray((data as any).hits)
           ? (data as any).hits.length
           : Array.isArray((data as any).results)
-            ? (data as any).results.length
+          ? (data as any).results.length
             : 0;
     const hasMore =
       typeof rawHasMore === "boolean"
-        ? rawHasMore || (!!nextCursor && rawCount >= perGatewayLimit)
-        : !!nextCursor && rawCount >= perGatewayLimit;
+        ? rawHasMore || !!nextCursor
+        : !!nextCursor;
 
     const items: ResultItem[] = [];
 
@@ -3658,7 +3677,7 @@ async function searchGateways(
   const nextCursor = buildSearchRouteCursor(
     rankAt,
     okResults
-      .filter((result) => result.hasMore && result.nextCursor)
+      .filter((result) => result.nextCursor)
       .map((result) => ({
         id: result.gateway.id,
         cursor: result.nextCursor as SearchCursor,
@@ -4201,7 +4220,7 @@ async function restoreSearchFromUrlState(parsed: ParsedSearchUrl, opts?: { force
     parsed.q === activeQuery.value &&
     parsed.type === activeType.value &&
     targetCursorKey === currentCursorKey &&
-    targetGatewayKey === currentGatewayKey
+    (!(targetCursorKey || currentCursorKey) || targetGatewayKey === currentGatewayKey)
   ) {
     return;
   }
@@ -4265,7 +4284,8 @@ watch(
     const targetGatewayKey = normalizeGatewayRouteKey(String(parsed.gatewayId || ""));
     const currentGatewayKey = activeUrlGatewayKey.value;
     const paginationChanged =
-      targetCursorKey !== currentCursorKey || targetGatewayKey !== currentGatewayKey;
+      targetCursorKey !== currentCursorKey ||
+      ((targetCursorKey || currentCursorKey) && targetGatewayKey !== currentGatewayKey);
 
     activeQuery.value = qs;
     activeType.value = type;
@@ -5249,6 +5269,12 @@ watch(
   justify-content: center;
   color: var(--text-secondary);
   background: var(--bg-secondary);
+}
+
+.image-fallback--deferred {
+  background:
+    linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-secondary) 76%, white) 100%);
+  color: var(--text-tertiary);
 }
 
 .image-meta {
