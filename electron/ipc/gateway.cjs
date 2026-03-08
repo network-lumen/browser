@@ -196,6 +196,7 @@ const KYBER_PUBKEY_CACHE_TTL_MS = (() => {
 
 const KYBER_PUBKEY_CACHE = new Map(); // baseUrl -> { ok, checkedAt, alg?, keyId?, pubKey?, error? }
 const KYBER_PUBKEY_PENDING = new Map(); // baseUrl -> Promise<{ alg, keyId, pubKey, baseUrl }>
+const INACTIVE_GATEWAY_HINTS = new Set(); // normalized endpoint/baseUrl/url hints for gateways marked active=false
 
 const ACTIVE_GATEWAY_PINS = new Map(); // wcId -> { abort: () => void }
 
@@ -1019,12 +1020,26 @@ async function resolveGatewayBaseFromEndpoint(endpoint, timeoutMs, options) {
 async function resolveKyberKeyForGatewayBase(baseUrlHint, opts = {}) {
   const quiet = !!opts?.quiet;
   const initial = String(baseUrlHint || '').trim();
+  const normalizeInactiveGatewayHint = (value) => trimSlash(String(value || '').trim()).toLowerCase();
+  const initialHint = normalizeInactiveGatewayHint(initial);
+  if (initialHint && INACTIVE_GATEWAY_HINTS.has(initialHint)) {
+    throw new Error('gateway_inactive');
+  }
   const timeoutMs = opts?.timeoutMs;
   const resolvedBase = await resolveGatewayBaseFromEndpoint(initial, timeoutMs, { quiet });
   const trimmedBase = resolvedBase ? resolvedBase : String(initial).replace(/\/+$/, '');
   if (!trimmedBase) throw new Error('kyber_pubkey_http_unavailable');
 
   const baseUrl = trimSlash(trimmedBase);
+  const resolvedHint = normalizeInactiveGatewayHint(baseUrl);
+  if (resolvedHint && INACTIVE_GATEWAY_HINTS.has(resolvedHint)) {
+    KYBER_PUBKEY_CACHE.set(baseUrl, {
+      ok: false,
+      checkedAt: Date.now(),
+      error: 'gateway_inactive',
+    });
+    throw new Error('gateway_inactive');
+  }
   const now = Date.now();
   const cached = KYBER_PUBKEY_CACHE.get(baseUrl);
   if (cached && now - cached.checkedAt < KYBER_PUBKEY_CACHE_TTL_MS) {
@@ -1795,9 +1810,38 @@ async function refreshWhitelistedGatewayHealth(opts = {}) {
     });
     if (!Array.isArray(gateways) || !gateways.length) return;
 
+    const nextInactiveGatewayHints = new Set();
+    for (const gateway of gateways) {
+      const hints = [gateway.endpoint, gateway.baseUrl, gateway.url];
+      for (const hint of hints) {
+        const normalized = trimSlash(String(hint || '').trim()).toLowerCase();
+        if (!normalized) continue;
+        if (gateway && gateway.active === false) {
+          nextInactiveGatewayHints.add(normalized);
+        }
+        if (/^https?:\/\//i.test(normalized) && gateway && gateway.active === false) {
+          KYBER_PUBKEY_CACHE.set(trimSlash(normalized), {
+            ok: false,
+            checkedAt: Date.now(),
+            error: 'gateway_inactive',
+          });
+        } else if (/^https?:\/\//i.test(normalized)) {
+          const cached = KYBER_PUBKEY_CACHE.get(trimSlash(normalized));
+          if (cached && cached.ok === false && cached.error === 'gateway_inactive') {
+            KYBER_PUBKEY_CACHE.delete(trimSlash(normalized));
+          }
+        }
+      }
+    }
+    INACTIVE_GATEWAY_HINTS.clear();
+    for (const hint of nextInactiveGatewayHints) INACTIVE_GATEWAY_HINTS.add(hint);
+
+    const activeGateways = gateways.filter((gateway) => gateway && gateway.active !== false);
+    if (!activeGateways.length) return;
+
     const endpoints = Array.from(
       new Set(
-        gateways
+        activeGateways
           .map((g) => String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim())
           .filter(Boolean),
       ),
