@@ -160,7 +160,10 @@ function summarizePqResponse(pathname, data) {
 
       out.search = {
         hits: hits.length,
+        hasPrev: typeof data.hasPrev === 'boolean' ? data.hasPrev : undefined,
         hasMore: typeof data.hasMore === 'boolean' ? data.hasMore : undefined,
+        pageCursorKeys: data.pageCursor ? Object.keys(data.pageCursor).slice(0, 8) : undefined,
+        prevCursorKeys: data.prevCursor ? Object.keys(data.prevCursor).slice(0, 8) : undefined,
         nextCursorKeys: data.nextCursor ? Object.keys(data.nextCursor).slice(0, 8) : undefined,
         first: summarizeHit(hits[0]),
       };
@@ -2995,6 +2998,8 @@ function registerGatewayIpc() {
         status,
         hits: Array.isArray(data?.hits) ? data.hits.length : undefined,
         results: Array.isArray(data?.results) ? data.results.length : undefined,
+        hasPrev: typeof data?.hasPrev === 'boolean' ? data.hasPrev : undefined,
+        hasMore: typeof data?.hasMore === 'boolean' ? data.hasMore : undefined,
       });
       return { ok: true, status, data, baseUrl: trimSlash(baseUrl) };
     } catch (e) {
