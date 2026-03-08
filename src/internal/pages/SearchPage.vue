@@ -77,6 +77,18 @@
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
+      <div v-if="showLoadPrevious || loadingPrevious" class="load-more-bar load-more-bar--top">
+        <button
+          class="load-more-btn"
+          type="button"
+          :disabled="loadingPrevious"
+          @click="loadPrevious"
+        >
+          <template v-if="loadingPrevious">Loading previous…</template>
+          <template v-else>Previous results</template>
+        </button>
+      </div>
+
       <ul v-if="loading" class="skeleton-list">
         <li v-for="i in 5" :key="i" class="skeleton-item">
           <div class="skeleton-icon"></div>
@@ -342,7 +354,7 @@
         <button
           class="load-more-btn"
           type="button"
-          :disabled="loadingMore"
+          :disabled="loadingMore || loadingPrevious"
           @click="loadMore"
         >
           <template v-if="loadingMore">Loading…</template>
@@ -545,13 +557,14 @@ type SearchCursor = {
 
 type SearchRouteCursorGateway = {
   id: string;
-  cursor: SearchCursor;
+  cursor: SearchCursor | null;
 };
 
 type SearchRouteCursor = {
   version: 1;
   rankAt?: number;
   gateways: SearchRouteCursorGateway[];
+  anchorId?: string;
 };
 
 type ParsedSearchUrl = {
@@ -594,6 +607,8 @@ const paginationSentinel = ref<HTMLElement | null>(null);
 const showHowSearchWorks = ref(false);
 const activeQuery = ref("");
 const activeType = ref<SearchType>("site");
+const gatewayHasPrev = ref(false);
+const gatewayPrevCursor = ref<SearchRouteCursor | null>(null);
 const gatewayHasMore = ref(false);
 const gatewayNextCursor = ref<SearchRouteCursor | null>(null);
 const gatewayPageSize = 12;
@@ -605,6 +620,8 @@ const firstVisibleResultIdx = ref(0);
 let scrollRaf = 0;
 let loadMoreObserver: IntersectionObserver | null = null;
 let restoringUrlState = false;
+let suppressAutoLoadUntil = 0;
+const loadingPrevious = ref(false);
 
 const lastRunKey = ref("");
 let searchSeq = 0;
@@ -826,7 +843,9 @@ const IMAGE_EAGER_COUNT = 6;
 const IMAGE_HIGH_PRIORITY_COUNT = 3;
 const IMAGE_RENDER_BEHIND = 8;
 const IMAGE_RENDER_AHEAD = 20;
+const LOAD_PREVIOUS_SCROLL_THRESHOLD_PX = 240;
 const LOAD_MORE_SCROLL_THRESHOLD_PX = 720;
+const RESTORE_AUTO_LOAD_COOLDOWN_MS = 500;
 
 function imageThumbLoading(idx: number): "eager" | "lazy" {
   return idx < IMAGE_EAGER_COUNT ? "eager" : "lazy";
@@ -1847,12 +1866,19 @@ function decodeSearchUrlState(raw: string): string {
   }
 }
 
+function normalizeSearchRouteAnchorId(raw: any): string {
+  return String(raw || "").trim();
+}
+
 function parseSearchRouteCursorPayload(raw: any): SearchRouteCursor | null {
   if (!raw || typeof raw !== "object") return null;
   const rankAtRaw = (raw as any).ra ?? (raw as any).rankAt ?? (raw as any).rank_at ?? null;
   const rankAtNum = Number(rankAtRaw);
   const rankAt =
     Number.isFinite(rankAtNum) && rankAtNum > 0 ? Math.floor(rankAtNum) : null;
+  const anchorId = normalizeSearchRouteAnchorId(
+    (raw as any).a ?? (raw as any).anchorId ?? (raw as any).anchor_id,
+  );
   const entriesRaw = Array.isArray((raw as any).g)
     ? (raw as any).g
     : Array.isArray((raw as any).gateways)
@@ -1866,17 +1892,26 @@ function parseSearchRouteCursorPayload(raw: any): SearchRouteCursor | null {
       ? entry[0]
       : (entry as any)?.i ?? (entry as any)?.id ?? (entry as any)?.gatewayId;
     const id = String(rawId || "").trim();
-    const cursor = normalizeSearchCursor(
-      Array.isArray(entry) ? entry[1] : (entry as any)?.c ?? (entry as any)?.cursor,
-    );
+    const hasCursorField = Array.isArray(entry)
+      ? entry.length > 1
+      : !!entry &&
+        typeof entry === "object" &&
+        (Object.prototype.hasOwnProperty.call(entry, "c") ||
+          Object.prototype.hasOwnProperty.call(entry, "cursor"));
+    const cursorRaw = Array.isArray(entry) ? entry[1] : (entry as any)?.c ?? (entry as any)?.cursor;
+    const cursor = normalizeSearchCursor(cursorRaw);
     const key = id.toLowerCase();
-    if (!id || !cursor || seen.has(key)) continue;
+    if (!id || (!cursor && !hasCursorField) || seen.has(key)) continue;
     seen.add(key);
     entries.push({ id, cursor });
   }
 
-  if (!entries.length) return null;
-  return rankAt ? { version: 1, rankAt, gateways: entries } : { version: 1, gateways: entries };
+  if (!entries.length && !rankAt && !anchorId) return null;
+  const routeCursor: SearchRouteCursor = rankAt
+    ? { version: 1, rankAt, gateways: entries }
+    : { version: 1, gateways: entries };
+  if (anchorId) routeCursor.anchorId = anchorId;
+  return routeCursor;
 }
 
 function normalizeSearchRouteCursor(raw: any): SearchRouteCursor | null {
@@ -1929,11 +1964,23 @@ function serializeSearchRouteCursor(cursor: SearchRouteCursor | null): string {
   };
   const rankAt = searchRouteCursorRankAt(cur);
   if (rankAt) payload.ra = rankAt;
+  if (cur.anchorId) payload.a = cur.anchorId;
   return encodeSearchUrlState(JSON.stringify(payload));
 }
 
 function searchRouteCursorKey(cursor: SearchRouteCursor | null): string {
   return serializeSearchRouteCursor(cursor);
+}
+
+function pageSearchRouteCursor(cursor: SearchRouteCursor | null): SearchRouteCursor | null {
+  const cur = normalizeSearchRouteCursor(cursor);
+  if (!cur || !cur.gateways.length) return null;
+  const rankAt = searchRouteCursorRankAt(cur);
+  return buildSearchRouteCursor(rankAt, cur.gateways);
+}
+
+function searchRouteCursorPageKey(cursor: SearchRouteCursor | null): string {
+  return serializeSearchRouteCursor(pageSearchRouteCursor(cursor));
 }
 
 function cloneSearchRouteCursor(cursor: SearchRouteCursor | null): SearchRouteCursor | null {
@@ -1943,6 +1990,7 @@ function cloneSearchRouteCursor(cursor: SearchRouteCursor | null): SearchRouteCu
 function buildSearchRouteCursor(
   rankAt: number | null,
   gateways: SearchRouteCursorGateway[],
+  anchorId: string | null = null,
 ): SearchRouteCursor | null {
   const entries: SearchRouteCursorGateway[] = [];
   const seen = new Set<string>();
@@ -1950,14 +1998,30 @@ function buildSearchRouteCursor(
     const id = String(entry?.id || "").trim();
     const cursor = normalizeSearchCursor(entry?.cursor);
     const key = id.toLowerCase();
-    if (!id || !cursor || seen.has(key)) continue;
+    if (!id || seen.has(key)) continue;
     seen.add(key);
     entries.push({ id, cursor });
   }
-  if (!entries.length) return null;
   const cleanRankAt =
     Number.isFinite(Number(rankAt)) && Number(rankAt) > 0 ? Math.floor(Number(rankAt)) : null;
-  return cleanRankAt ? { version: 1, rankAt: cleanRankAt, gateways: entries } : { version: 1, gateways: entries };
+  const cleanAnchorId = normalizeSearchRouteAnchorId(anchorId);
+  if (!entries.length && !cleanRankAt && !cleanAnchorId) return null;
+  const routeCursor: SearchRouteCursor = cleanRankAt
+    ? { version: 1, rankAt: cleanRankAt, gateways: entries }
+    : { version: 1, gateways: entries };
+  if (cleanAnchorId) routeCursor.anchorId = cleanAnchorId;
+  return routeCursor;
+}
+
+function withSearchRouteAnchor(cursor: SearchRouteCursor | null, anchorId: string | null): SearchRouteCursor | null {
+  const cleanAnchorId = normalizeSearchRouteAnchorId(anchorId);
+  const cur = normalizeSearchRouteCursor(cursor);
+  const rankAt =
+    searchRouteCursorRankAt(cur) ||
+    searchRouteCursorRankAt(gatewayNextCursor.value) ||
+    searchRouteCursorRankAt(activeUrlCursor.value);
+  const gateways = cur?.gateways || [];
+  return buildSearchRouteCursor(rankAt, gateways, cleanAnchorId);
 }
 
 function normalizeGatewayRouteKey(input: string): string {
@@ -2073,6 +2137,16 @@ function clearPageCursorStates() {
   pageCursorStates.value = [];
 }
 
+function shiftPageCursorStates(offset: number) {
+  const delta = Math.floor(Number(offset) || 0);
+  if (!delta) return;
+  pageCursorStates.value = pageCursorStates.value.map((state) => ({
+    ...state,
+    startIndex: state.startIndex + delta,
+    endIndex: state.endIndex + delta,
+  }));
+}
+
 function rememberPageCursorState(
   startIndex: number,
   endIndex: number,
@@ -2100,6 +2174,23 @@ function rememberPageCursorState(
   pageCursorStates.value = next;
 }
 
+function prependPageCursorState(
+  length: number,
+  cursor: SearchRouteCursor | null,
+  gateway: GatewayView | string | null,
+) {
+  const count = Math.max(0, Math.floor(Number(length) || 0));
+  if (!count) return;
+  shiftPageCursorStates(count);
+  const entry: SearchPageCursorState = {
+    startIndex: 0,
+    endIndex: count,
+    cursor: cloneSearchRouteCursor(cursor),
+    gatewayId: cursor ? gatewayRouteIdForUrl(gateway) || null : null,
+  };
+  pageCursorStates.value = [entry, ...pageCursorStates.value];
+}
+
 function pageCursorStateForIndex(index: number): SearchPageCursorState | null {
   const states = pageCursorStates.value;
   if (!states.length) return null;
@@ -2112,10 +2203,10 @@ function pageCursorStateForIndex(index: number): SearchPageCursorState | null {
 }
 
 function pageCursorStateForCursor(cursor: SearchRouteCursor | null): SearchPageCursorState | null {
-  const targetKey = searchRouteCursorKey(cursor);
-  if (!targetKey) return null;
+  const targetKey = searchRouteCursorPageKey(cursor);
+  if (!targetKey) return pageCursorStates.value[0] || null;
   return (
-    pageCursorStates.value.find((state) => searchRouteCursorKey(state.cursor) === targetKey) || null
+    pageCursorStates.value.find((state) => searchRouteCursorPageKey(state.cursor) === targetKey) || null
   );
 }
 
@@ -2123,6 +2214,25 @@ function renderedResultNodes(): HTMLElement[] {
   const root = scrollRoot.value;
   if (!root) return [];
   return Array.from(root.querySelectorAll<HTMLElement>("[data-result-index]"));
+}
+
+function renderedResultItems(): ResultItem[] {
+  return selectedType.value === "image" ? imageResults.value : results.value;
+}
+
+function resultAnchorIdForIndex(index: number | null | undefined): string {
+  const idx = Number(index);
+  if (!Number.isFinite(idx) || idx < 0) return "";
+  return normalizeSearchRouteAnchorId(renderedResultItems()[Math.floor(idx)]?.id);
+}
+
+function resultIndexForAnchorId(anchorId: string | null | undefined): number | null {
+  const cleanAnchorId = normalizeSearchRouteAnchorId(anchorId);
+  if (!cleanAnchorId) return null;
+  const idx = renderedResultItems().findIndex(
+    (item) => normalizeSearchRouteAnchorId(item?.id) === cleanAnchorId,
+  );
+  return idx >= 0 ? idx : null;
 }
 
 function firstVisibleResultIndex(): number | null {
@@ -2156,12 +2266,25 @@ function syncUrlToVisibleCursor() {
   if (restoringUrlState) return;
   if (!touched.value) return;
   const currentPage = pageCursorStateForIndex(firstVisibleResultIdx.value);
-  replaceUrlCursor(currentPage?.cursor || null, currentPage?.gatewayId || activeGateway.value);
+  const anchorId = resultAnchorIdForIndex(firstVisibleResultIdx.value);
+  const cursorForUrl = withSearchRouteAnchor(currentPage?.cursor || null, anchorId);
+  replaceUrlCursor(cursorForUrl, currentPage?.gatewayId || activeGateway.value);
+}
+
+function maybeLoadPreviousFromScroll() {
+  if (restoringUrlState) return;
+  if (Date.now() < suppressAutoLoadUntil) return;
+  if (!gatewayHasPrev.value || loading.value || loadingPrevious.value || loadingMore.value) return;
+  const root = scrollRoot.value;
+  if (!root) return;
+  if (root.scrollTop > LOAD_PREVIOUS_SCROLL_THRESHOLD_PX) return;
+  void loadPrevious();
 }
 
 function maybeLoadMoreFromScroll() {
   if (restoringUrlState) return;
-  if (!showLoadMore.value || loading.value || loadingMore.value) return;
+  if (Date.now() < suppressAutoLoadUntil) return;
+  if (!showLoadMore.value || loading.value || loadingPrevious.value || loadingMore.value) return;
   const root = scrollRoot.value;
   if (!root) return;
   const remaining = root.scrollHeight - (root.scrollTop + root.clientHeight);
@@ -2175,12 +2298,13 @@ function scheduleScrollUpdate() {
     scrollRaf = 0;
     syncVisibleResultIndex();
     syncUrlToVisibleCursor();
-    maybeLoadMoreFromScroll();
   });
 }
 
 function onScroll() {
   scheduleScrollUpdate();
+  maybeLoadPreviousFromScroll();
+  maybeLoadMoreFromScroll();
 }
 
 function disconnectLoadMoreObserver() {
@@ -2201,7 +2325,8 @@ function refreshLoadMoreObserver() {
       const entry = entries[0];
       if (!entry?.isIntersecting) return;
       if (restoringUrlState) return;
-      if (!showLoadMore.value || loading.value || loadingMore.value) return;
+      if (Date.now() < suppressAutoLoadUntil) return;
+      if (!showLoadMore.value || loading.value || loadingPrevious.value || loadingMore.value) return;
       void loadMore();
     },
     {
@@ -2661,6 +2786,9 @@ function normalizeGatewayType(t: SearchType): string {
 
 type GatewaySearchResult = {
   items: ResultItem[];
+  hasPrev: boolean;
+  prevCursor: SearchRouteCursor | null;
+  pageCursor: SearchRouteCursor | null;
   hasMore: boolean;
   nextCursor: SearchRouteCursor | null;
   gateway: GatewayView | null;
@@ -3449,6 +3577,19 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
   return merged;
 }
 
+function buildGatewayRouteCursorForResults(
+  rankAt: number | null,
+  results: Array<{ gateway: GatewayView; cursor: SearchCursor | null; include: boolean }>,
+): SearchRouteCursor | null {
+  return buildSearchRouteCursor(
+    rankAt,
+    results.filter((result) => result.include).map((result) => ({
+      id: result.gateway.id,
+      cursor: result.cursor,
+    })),
+  );
+}
+
 async function searchGateways(
   profileId: string,
   query: string,
@@ -3463,7 +3604,15 @@ async function searchGateways(
 ): Promise<GatewaySearchResult> {
   const gwApi = (window as any).lumen?.gateway;
   if (!gwApi || typeof gwApi.searchPq !== "function") {
-    return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    return {
+      items: [],
+      hasPrev: false,
+      prevCursor: null,
+      pageCursor: cloneSearchRouteCursor(opts.cursorState),
+      hasMore: false,
+      nextCursor: null,
+      gateway: null,
+    };
   }
 
   const wantedType = normalizeGatewayType(type);
@@ -3491,12 +3640,52 @@ async function searchGateways(
     gatewaysToQuery = [preferredGateway];
   } else {
     const gateways = profileId ? await loadGatewaysForSearch(profileId) : [];
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
-    if (!gateways.length) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    if (seq !== searchSeq) {
+      return {
+        items: [],
+        hasPrev: false,
+        prevCursor: null,
+        pageCursor: cloneSearchRouteCursor(cursorState),
+        hasMore: false,
+        nextCursor: null,
+        gateway: null,
+      };
+    }
+    if (!gateways.length) {
+      return {
+        items: [],
+        hasPrev: false,
+        prevCursor: null,
+        pageCursor: cloneSearchRouteCursor(cursorState),
+        hasMore: false,
+        nextCursor: null,
+        gateway: null,
+      };
+    }
 
     const aliveList = await filterAliveGatewaysForPqSearch(gateways, seq);
-    if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
-    if (!aliveList.length) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    if (seq !== searchSeq) {
+      return {
+        items: [],
+        hasPrev: false,
+        prevCursor: null,
+        pageCursor: cloneSearchRouteCursor(cursorState),
+        hasMore: false,
+        nextCursor: null,
+        gateway: null,
+      };
+    }
+    if (!aliveList.length) {
+      return {
+        items: [],
+        hasPrev: false,
+        prevCursor: null,
+        pageCursor: cloneSearchRouteCursor(cursorState),
+        hasMore: false,
+        nextCursor: null,
+        gateway: null,
+      };
+    }
 
     if (cursorState?.gateways?.length) {
       const ordered: GatewayView[] = [];
@@ -3516,7 +3705,15 @@ async function searchGateways(
   }
 
   if (!gatewaysToQuery.length) {
-    return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    return {
+      items: [],
+      hasPrev: false,
+      prevCursor: null,
+      pageCursor: cloneSearchRouteCursor(cursorState),
+      hasMore: false,
+      nextCursor: null,
+      gateway: null,
+    };
   }
 
   const perGatewayLimitRaw = hasPreferredEndpoint
@@ -3529,9 +3726,14 @@ async function searchGateways(
     Math.min(50, hasPreferredEndpoint ? limit : Math.floor(perGatewayLimitRaw)),
   );
 
-  const mapGatewayPayload = (gateway: GatewayView, data: any) => {
+  const mapGatewayPayload = (gateway: GatewayView, data: any, requestedCursor: SearchCursor | null) => {
+    const rawPageCursor = (data as any).pageCursor ?? (data as any).page_cursor ?? null;
+    const rawPrevCursor = (data as any).prevCursor ?? (data as any).prev_cursor ?? null;
+    const rawHasPrev = (data as any).hasPrev ?? (data as any).has_prev ?? null;
     const rawNextCursor = (data as any).nextCursor ?? (data as any).next_cursor ?? null;
     const rawHasMore = (data as any).hasMore ?? (data as any).has_more ?? null;
+    const pageCursor = rawPageCursor == null ? normalizeSearchCursor(requestedCursor) : normalizeSearchCursor(rawPageCursor);
+    const prevCursor = normalizeSearchCursor(rawPrevCursor);
     const nextCursor = normalizeSearchCursor(rawNextCursor);
     const rawCount =
       wantedType === "site"
@@ -3543,10 +3745,11 @@ async function searchGateways(
           : Array.isArray((data as any).results)
           ? (data as any).results.length
             : 0;
-    const hasMore =
-      typeof rawHasMore === "boolean"
-        ? rawHasMore || !!nextCursor
-        : !!nextCursor;
+    const hasPrev =
+      typeof rawHasPrev === "boolean"
+        ? rawHasPrev
+        : !!(pageCursor || (requestedCursor && normalizeSearchCursor(requestedCursor)));
+    const hasMore = typeof rawHasMore === "boolean" ? rawHasMore : !!nextCursor;
 
     const items: ResultItem[] = [];
 
@@ -3629,7 +3832,7 @@ async function searchGateways(
       }
     }
 
-    return { gateway, items, hasMore, nextCursor };
+    return { gateway, items, hasPrev, prevCursor, pageCursor, hasMore, nextCursor };
   };
 
   const results = await mapWithConcurrency(gatewaysToQuery, 3, async (gateway) => {
@@ -3647,23 +3850,44 @@ async function searchGateways(
         rankAt,
         mode: wantedMode,
         type: wantedType,
-      })
+    })
       .catch(() => null);
     if (seq !== searchSeq) return null;
     if (!resp || resp.ok === false) return null;
-    return mapGatewayPayload(gateway, resp.data || {});
+    return mapGatewayPayload(gateway, resp.data || {}, gatewayCursor);
   });
 
-  if (seq !== searchSeq) return { items: [], hasMore: false, nextCursor: null, gateway: null };
+  if (seq !== searchSeq) {
+    return {
+      items: [],
+      hasPrev: false,
+      prevCursor: null,
+      pageCursor: cloneSearchRouteCursor(cursorState),
+      hasMore: false,
+      nextCursor: null,
+      gateway: null,
+    };
+  }
 
   const okResults = results.filter(Boolean) as Array<{
     gateway: GatewayView;
     items: ResultItem[];
+    hasPrev: boolean;
+    prevCursor: SearchCursor | null;
+    pageCursor: SearchCursor | null;
     hasMore: boolean;
     nextCursor: SearchCursor | null;
   }>;
   if (!okResults.length) {
-    return { items: [], hasMore: false, nextCursor: null, gateway: null };
+    return {
+      items: [],
+      hasPrev: false,
+      prevCursor: null,
+      pageCursor: cloneSearchRouteCursor(cursorState),
+      hasMore: false,
+      nextCursor: null,
+      gateway: null,
+    };
   }
 
   const primary =
@@ -3674,22 +3898,31 @@ async function searchGateways(
     null;
   const primaryGateway = primary?.gateway || null;
 
-  const nextCursor = buildSearchRouteCursor(
+  const pageCursor = cloneSearchRouteCursor(cursorState);
+  const prevCursor = buildGatewayRouteCursorForResults(
     rankAt,
-    okResults
-      .filter((result) => result.nextCursor)
-      .map((result) => ({
-        id: result.gateway.id,
-        cursor: result.nextCursor as SearchCursor,
-      })),
+    okResults.map((result) => ({
+      gateway: result.gateway,
+      cursor: result.prevCursor,
+      include: result.hasPrev,
+    })),
   );
-  const hasMore = !!nextCursor;
+  const hasPrev = okResults.some((result) => result.hasPrev);
+  const nextCursor = buildGatewayRouteCursorForResults(
+    rankAt,
+    okResults.map((result) => ({
+      gateway: result.gateway,
+      cursor: result.nextCursor,
+      include: result.hasMore,
+    })),
+  );
+  const hasMore = okResults.some((result) => result.hasMore);
 
   const all: ResultItem[] = [];
   if (wantedType === "site") {
     for (const result of okResults) all.push(...(result.items || []));
     const merged = mergeAndRankSites(query, all).slice(0, limit);
-    return { items: merged, hasMore, nextCursor, gateway: primaryGateway };
+    return { items: merged, hasPrev, prevCursor, pageCursor, hasMore, nextCursor, gateway: primaryGateway };
   }
 
   const maxLen = Math.max(...okResults.map((result) => (Array.isArray(result.items) ? result.items.length : 0)));
@@ -3701,7 +3934,7 @@ async function searchGateways(
   }
 
   const merged = dedupeAllResults(all).slice(0, limit);
-  return { items: merged, hasMore, nextCursor, gateway: primaryGateway };
+  return { items: merged, hasPrev, prevCursor, pageCursor, hasMore, nextCursor, gateway: primaryGateway };
 }
 
 async function collectGatewayResultsPage(
@@ -3714,6 +3947,7 @@ async function collectGatewayResultsPage(
     cursorState: SearchRouteCursor | null;
     gateway?: GatewayView | null;
     rankAt?: number | null;
+    direction?: "next" | "prev";
   },
 ): Promise<GatewaySearchResult> {
   const limitRaw = Number(opts.limit);
@@ -3721,49 +3955,97 @@ async function collectGatewayResultsPage(
     Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 50) : 12;
   const preferredGateway =
     opts.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
+  const direction = opts.direction === "prev" ? "prev" : "next";
   let cursorState = cloneSearchRouteCursor(opts.cursorState);
+  let pageCursor = cloneSearchRouteCursor(opts.cursorState);
+  let hasPrev = false;
+  let prevCursor: SearchRouteCursor | null = null;
   let hasMore = false;
+  let nextCursor: SearchRouteCursor | null = null;
   let gateway = preferredGateway;
   const items: ResultItem[] = [];
+  const prependBatches: ResultItem[][] = [];
   const seen = new Set<string>();
   let attempts = 0;
+  let itemCount = 0;
+  let firstRound = true;
 
-  while (seq === searchSeq && attempts < 12 && items.length < limit) {
+  while (seq === searchSeq && attempts < 12 && itemCount < limit) {
     attempts += 1;
-    const remaining = limit - items.length;
-    const beforeCursorKey = searchRouteCursorKey(cursorState);
+    const remaining = limit - itemCount;
+    const requestCursor = cloneSearchRouteCursor(cursorState);
+    const beforeCursorKey = searchRouteCursorKey(requestCursor);
 
     const round = await searchGateways(profileId, query, type, seq, {
       limit: remaining,
-      cursorState,
+      cursorState: requestCursor,
       gateway: preferredGateway,
       rankAt: opts.rankAt,
     });
-    if (seq !== searchSeq) return { items, hasMore, nextCursor: cursorState, gateway };
+    if (seq !== searchSeq) {
+      return {
+        items: direction === "prev" ? prependBatches.slice().reverse().flat() : items,
+        hasPrev,
+        prevCursor,
+        pageCursor,
+        hasMore,
+        nextCursor,
+        gateway,
+      };
+    }
 
     gateway = round.gateway || gateway;
-    hasMore = round.hasMore;
-    cursorState = round.nextCursor;
-    const afterCursorKey = searchRouteCursorKey(cursorState);
+    if (direction === "prev") {
+      pageCursor = requestCursor;
+      hasPrev = round.hasPrev;
+      prevCursor = round.prevCursor;
+      if (firstRound) {
+        hasMore = round.hasMore;
+        nextCursor = round.nextCursor;
+      }
+    } else {
+      if (firstRound) {
+        hasPrev = round.hasPrev;
+        prevCursor = round.prevCursor;
+      }
+      pageCursor = cloneSearchRouteCursor(opts.cursorState);
+      hasMore = round.hasMore;
+      nextCursor = round.nextCursor;
+    }
+    const continueHas = direction === "prev" ? round.hasPrev : round.hasMore;
+    const continueCursor = direction === "prev" ? round.prevCursor : round.nextCursor;
+    const afterCursorKey = searchRouteCursorKey(continueCursor);
     let added = 0;
+    const prependBatch: ResultItem[] = [];
 
     for (const item of round.items || []) {
       const key = String(item?.url || item?.id || "").trim();
       if (!key || seen.has(key)) continue;
       seen.add(key);
-      items.push(item);
+      if (direction === "prev") {
+        prependBatch.push(item);
+      } else {
+        items.push(item);
+      }
       added += 1;
-      if (items.length >= limit) break;
+      itemCount += 1;
+      if (itemCount >= limit) break;
     }
+    if (direction === "prev" && prependBatch.length) prependBatches.push(prependBatch);
 
-    if (!hasMore || !cursorState) break;
+    if (!continueHas) break;
     if (!added && afterCursorKey === beforeCursorKey) break;
+    cursorState = cloneSearchRouteCursor(continueCursor);
+    firstRound = false;
   }
 
   return {
-    items,
-    hasMore: !!(hasMore && cursorState),
-    nextCursor: cursorState,
+    items: direction === "prev" ? prependBatches.slice().reverse().flat() : items,
+    hasPrev,
+    prevCursor,
+    pageCursor,
+    hasMore,
+    nextCursor,
     gateway,
   };
 }
@@ -3893,6 +4175,8 @@ async function runSearch(
   opts?: {
     rankAt?: number | null;
     gateway?: GatewayView | null;
+    cursorState?: SearchRouteCursor | null;
+    pageGateway?: GatewayView | string | null;
     force?: boolean;
   },
 ) {
@@ -3906,18 +4190,25 @@ async function runSearch(
     Number.isFinite(Number(opts?.rankAt)) && Number(opts?.rankAt) > 0
       ? Math.floor(Number(opts?.rankAt))
       : null;
+  const initialPageCursor = pageSearchRouteCursor(opts?.cursorState || null);
   const preferredGateway =
     opts?.gateway && typeof opts.gateway === "object" ? opts.gateway : null;
+  const initialPageGateway = initialPageCursor ? opts?.pageGateway || preferredGateway : preferredGateway;
   const preferredGatewayKey = normalizeGatewayRouteKey(gatewayRouteIdForUrl(preferredGateway));
-  const runKey = `${type}::${clean}::r=${refreshTick}::ra=${rankAt || 0}::gw=${preferredGatewayKey}`;
+  const initialPageCursorKey = searchRouteCursorPageKey(initialPageCursor);
+  const initialPageGatewayKey = normalizeGatewayRouteKey(gatewayRouteIdForUrl(initialPageGateway));
+  const runKey = `${type}::${clean}::r=${refreshTick}::ra=${rankAt || 0}::gw=${preferredGatewayKey}::pc=${initialPageCursorKey}::pg=${initialPageGatewayKey}`;
   const allowEmptyQuery = type === "site" || type === "image" || type === "all";
   if (!clean && !allowEmptyQuery) {
     touched.value = false;
     loading.value = false;
+    loadingPrevious.value = false;
     loadingMore.value = false;
     errorMsg.value = "";
     results.value = [];
     lastRunKey.value = "";
+    gatewayHasPrev.value = false;
+    gatewayPrevCursor.value = null;
     gatewayHasMore.value = false;
     gatewayNextCursor.value = null;
     activeGateway.value = null;
@@ -3933,9 +4224,13 @@ async function runSearch(
 
   touched.value = true;
   loading.value = true;
+  loadingPrevious.value = false;
   loadingMore.value = false;
   errorMsg.value = "";
   results.value = [];
+  firstVisibleResultIdx.value = 0;
+  gatewayHasPrev.value = false;
+  gatewayPrevCursor.value = null;
   gatewayHasMore.value = false;
   gatewayNextCursor.value = null;
   activeGateway.value = null;
@@ -3945,21 +4240,30 @@ async function runSearch(
   thumbLoadedById.value = {};
 
   try {
+    const includePageOneDecorations = !initialPageCursor;
+
     // In the Images tab, keep results strictly image-only (avoid "fast actions" like open link/CID
     // that would inflate counts without showing anything in the image grid).
-    const base = type === "image" ? [] : buildFastResults(clean);
-    const cidMetaPromise = cidForDirect ? enrichFastCidResult(base, cidForDirect, seq) : Promise.resolve();
+    const base = includePageOneDecorations ? (type === "image" ? [] : buildFastResults(clean)) : [];
+    const cidMetaPromise =
+      includePageOneDecorations && cidForDirect
+        ? enrichFastCidResult(base, cidForDirect, seq)
+        : Promise.resolve();
 
     const profileId = await getActiveProfileId();
 
     const domainPromise =
-      clean && !cidForDirect && !normalizedQuery.ipfsLike && (type === "site" || type === "all")
+      includePageOneDecorations &&
+      clean &&
+      !cidForDirect &&
+      !normalizedQuery.ipfsLike &&
+      (type === "site" || type === "all")
         ? resolveDomainForQuery(clean)
         : Promise.resolve(null);
 
     const gatewayPromise = collectGatewayResultsPage(profileId || "", gatewayQuery, type, seq, {
       limit: gatewayPageSize,
-      cursorState: null,
+      cursorState: initialPageCursor,
       gateway: preferredGateway,
       rankAt,
     });
@@ -3972,6 +4276,8 @@ async function runSearch(
     if (seq !== searchSeq) return;
 
     const gwResults = gw.items;
+    gatewayHasPrev.value = gw.hasPrev;
+    gatewayPrevCursor.value = gw.prevCursor;
     gatewayHasMore.value = gw.hasMore;
     gatewayNextCursor.value = gw.nextCursor;
     activeGateway.value = gw.gateway;
@@ -3982,7 +4288,7 @@ async function runSearch(
     }
     if (seq !== searchSeq) return;
 
-    if (bestDomain?.name) {
+    if (includePageOneDecorations && bestDomain?.name) {
       const url = `lumen://${bestDomain.name}`;
       const favicon = bestDomain.cid ? faviconUrlForCid(bestDomain.cid) : null;
       base.push({
@@ -4002,7 +4308,7 @@ async function runSearch(
       });
     }
 
-    if (!profileId && type === "all") {
+    if (includePageOneDecorations && !profileId && type === "all") {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway search",
@@ -4012,7 +4318,7 @@ async function runSearch(
       });
     }
 
-    if (!profileId && type === "site") {
+    if (includePageOneDecorations && !profileId && type === "site") {
       base.push({
         id: `hint:profile`,
         title: "Create a profile to enable gateway site search",
@@ -4026,7 +4332,7 @@ async function runSearch(
 
     // Explore: when querying a raw CID, prefer the "Sites" entrypoint (gateway-derived) over the generic
     // "IPFS content" quick action + a duplicate HTML hit.
-    if (type === "all" && cidForDirect && profileId && activeGateway.value) {
+    if (includePageOneDecorations && type === "all" && cidForDirect && profileId && activeGateway.value) {
       const cidSite = await searchGateways(profileId || "", cidForDirect, "site", seq, {
         limit: 1,
         cursorState: null,
@@ -4083,7 +4389,7 @@ async function runSearch(
     }
 
     results.value = merged;
-    rememberPageCursorState(0, merged.length, null, gw.gateway);
+    rememberPageCursorState(0, merged.length, gw.pageCursor, initialPageGateway || gw.gateway);
     if (type === "site") {
       const sites = merged.filter((r) => r && r.kind === "site");
       void enrichSiteResultsWithEntryPaths(sites, seq);
@@ -4110,8 +4416,125 @@ const showLoadMore = computed(() => {
   return gatewayHasMore.value && !!gatewayNextCursor.value;
 });
 
+const showLoadPrevious = computed(() => {
+  if (!touched.value) return false;
+  if (loading.value) return false;
+  return gatewayHasPrev.value;
+});
+
+async function loadPrevious() {
+  if (loading.value || loadingPrevious.value || loadingMore.value) return;
+  if (!gatewayHasPrev.value) return;
+
+  const seq = searchSeq;
+  const clean = String(activeQuery.value || "").trim();
+  const type = activeType.value;
+  const allowEmptyQuery = type === "site" || type === "image" || type === "all";
+  if (!clean && !allowEmptyQuery) return;
+
+  const normalizedQuery = normalizeQueryForGatewaySearch(clean);
+  const gatewayQuery = normalizedQuery.gatewayQuery;
+
+  loadingPrevious.value = true;
+  errorMsg.value = "";
+
+  try {
+    const profileId = await getActiveProfileId();
+    if (seq !== searchSeq) return;
+
+    const root = scrollRoot.value;
+    const prevScrollHeight = root ? root.scrollHeight : 0;
+    const prevScrollTop = root ? root.scrollTop : 0;
+    const seen = new Set<string>(
+      results.value
+        .map((r) => String(r?.url || "").trim())
+        .filter(Boolean),
+    );
+
+    const prependBatches: ResultItem[][] = [];
+    let hasPrev = gatewayHasPrev.value;
+    let cursor = cloneSearchRouteCursor(gatewayPrevCursor.value);
+    let attempts = 0;
+    let prependedCount = 0;
+    let pageCursorForState = cloneSearchRouteCursor(cursor);
+    let pageGatewayForState: GatewayView | string | null = activeGateway.value;
+
+    while (seq === searchSeq && hasPrev && prependedCount < gatewayPageSize && attempts < 12) {
+      attempts += 1;
+      const remaining = gatewayPageSize - prependedCount;
+      if (remaining <= 0) break;
+
+      const requestCursor = cloneSearchRouteCursor(cursor);
+      const beforeCursorKey = searchRouteCursorKey(requestCursor);
+      const gw = await collectGatewayResultsPage(profileId || "", gatewayQuery, type, seq, {
+        limit: remaining,
+        cursorState: requestCursor,
+        direction: "prev",
+      });
+      if (seq !== searchSeq) return;
+
+      hasPrev = gw.hasPrev;
+      cursor = gw.prevCursor;
+      gatewayHasPrev.value = hasPrev;
+      gatewayPrevCursor.value = cursor;
+      if (gw.gateway) {
+        activeGateway.value = gw.gateway;
+        pageGatewayForState = gw.gateway;
+      }
+      const afterCursorKey = searchRouteCursorKey(cursor);
+
+      const batch: ResultItem[] = [];
+      for (const item of gw.items) {
+        const key = String(item?.url || "").trim();
+        if (!key) continue;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        batch.push(item);
+      }
+
+      if (batch.length) {
+        prependBatches.push(batch);
+        prependedCount += batch.length;
+        pageCursorForState = gw.pageCursor;
+      }
+
+      if (!hasPrev) break;
+      if (!batch.length && afterCursorKey === beforeCursorKey) break;
+    }
+
+    const prepended = prependBatches.slice().reverse().flat();
+    if (prepended.length) {
+      results.value = [...prepended, ...results.value];
+      prependPageCursorState(prepended.length, pageCursorForState, pageGatewayForState);
+
+      if (type === "site") {
+        const sites = prepended.filter((r) => r && r.kind === "site");
+        void enrichSiteResultsWithEntryPaths(sites, seq);
+      }
+
+      await nextTick();
+      const nextRoot = scrollRoot.value;
+      if (nextRoot) {
+        const delta = nextRoot.scrollHeight - prevScrollHeight;
+        nextRoot.scrollTo({ top: Math.max(0, prevScrollTop + delta), behavior: "auto" });
+      }
+    }
+  } catch (e: any) {
+    if (seq !== searchSeq) return;
+    const errMessage = String(e?.message || e || "load_previous_failed");
+    errorMsg.value = errMessage;
+    toast.error(`Load previous failed: ${errMessage}`);
+  } finally {
+    if (seq !== searchSeq) return;
+    loadingPrevious.value = false;
+    await nextTick();
+    refreshLoadMoreObserver();
+    scheduleScrollUpdate();
+  }
+}
+
 async function loadMore() {
-  if (loading.value || loadingMore.value) return;
+  if (loading.value || loadingPrevious.value || loadingMore.value) return;
   if (!gatewayHasMore.value || !gatewayNextCursor.value) return;
 
   const seq = searchSeq;
@@ -4210,6 +4633,7 @@ async function loadMore() {
 async function restoreSearchFromUrlState(parsed: ParsedSearchUrl, opts?: { force?: boolean }) {
   const targetCursor = parsed.cursor;
   const targetCursorKey = searchRouteCursorKey(targetCursor);
+  const targetPageCursor = pageSearchRouteCursor(targetCursor);
   const targetGatewayKey = normalizeGatewayRouteKey(String(parsed.gatewayId || ""));
   const currentCursorKey = searchRouteCursorKey(activeUrlCursor.value);
   const currentGatewayKey = activeUrlGatewayKey.value;
@@ -4228,38 +4652,35 @@ async function restoreSearchFromUrlState(parsed: ParsedSearchUrl, opts?: { force
   restoringUrlState = true;
   try {
     scrollToTop();
+    const rankAt = searchRouteCursorRankAt(targetCursor);
     await runSearch(parsed.q, parsed.type, {
-      rankAt: searchRouteCursorRankAt(targetCursor),
+      rankAt,
+      cursorState: targetPageCursor,
+      pageGateway: parsed.gatewayId || null,
       force: true,
     });
+
+    let targetPage = pageCursorStateForCursor(targetCursor);
+    if (targetPageCursor && !targetPage && !results.value.length) {
+      await runSearch(parsed.q, parsed.type, {
+        rankAt,
+        force: true,
+      });
+      targetPage = pageCursorStateForCursor(targetCursor);
+    }
 
     if (!targetCursorKey) {
       scrollToTop();
       return;
     }
 
-    const seq = searchSeq;
-    let attempts = 0;
-    while (
-      seq === searchSeq &&
-      !pageCursorStateForCursor(targetCursor) &&
-      gatewayHasMore.value &&
-      gatewayNextCursor.value &&
-      attempts < 50
-    ) {
-      attempts += 1;
-      const before = searchRouteCursorKey(gatewayNextCursor.value);
-      const beforeCount = results.value.length;
-      await loadMore();
-      if (seq !== searchSeq) return;
-      const after = searchRouteCursorKey(gatewayNextCursor.value);
-      if (pageCursorStateForCursor(targetCursor)) break;
-      if ((results.value.length === beforeCount && after === before) || !after) break;
-    }
-
-    const targetPage = pageCursorStateForCursor(targetCursor);
-    scrollToResultIndex(targetPage?.startIndex ?? 0);
+    const targetAnchorIndex = resultIndexForAnchorId(targetCursor?.anchorId || "");
+    const targetIndex = targetAnchorIndex ?? targetPage?.startIndex ?? 0;
+    firstVisibleResultIdx.value = Math.max(0, targetIndex);
+    await nextTick();
+    scrollToResultIndex(targetIndex);
   } finally {
+    suppressAutoLoadUntil = Date.now() + RESTORE_AUTO_LOAD_COOLDOWN_MS;
     restoringUrlState = false;
     await nextTick();
     refreshLoadMoreObserver();
@@ -4828,6 +5249,10 @@ watch(
   display: flex;
   justify-content: center;
   padding: 1.25rem 0 0.5rem;
+}
+
+.load-more-bar--top {
+  padding: 0 0 1rem;
 }
 
 .load-more-sentinel {
