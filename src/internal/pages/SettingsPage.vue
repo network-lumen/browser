@@ -67,6 +67,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'troubleshooting' }"
+            @click="currentView = 'troubleshooting'"
+          >
+            <AlertTriangle :size="18" />
+            <span>Troubleshooting</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
@@ -610,6 +619,61 @@
         </div>
       </div>
 
+      <!-- Troubleshooting View -->
+      <div v-else-if="currentView === 'troubleshooting'" class="settings-section">
+        <div class="setting-group">
+          <p class="setting-hint">
+            Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
+          </p>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Copy Debug Report</span>
+              <span class="setting-desc">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
+            </div>
+            <div class="setting-control">
+              <button
+                class="btn-secondary troubleshooting-btn"
+                type="button"
+                @click="copyDebugReport"
+                :disabled="troubleshootingBusy"
+              >
+                <Copy :size="16" />
+                <span>{{ troubleshootingAction === 'copy' ? 'Copying...' : 'Copy Debug Report' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Open Logs Folder</span>
+              <span class="setting-desc">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
+            </div>
+            <div class="setting-control">
+              <button
+                class="btn-secondary troubleshooting-btn"
+                type="button"
+                @click="openLogsFolderAction"
+                :disabled="troubleshootingBusy"
+              >
+                <FolderOpen :size="16" />
+                <span>{{ troubleshootingAction === 'open' ? 'Opening...' : 'Open Logs Folder' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="setting-hint">
+            The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
+          </p>
+          <p v-if="troubleshootingDir" class="troubleshooting-path">
+            Logs folder: {{ troubleshootingDir }}
+          </p>
+          <p v-if="troubleshootingReportPath" class="troubleshooting-path">
+            Debug report: {{ troubleshootingReportPath }}
+          </p>
+        </div>
+      </div>
+
       <!-- Private Cloud View -->
       <div v-else-if="currentView === 'privatecloud'" class="settings-section">
         <div class="setting-group">
@@ -811,9 +875,12 @@ import {
   Palette,
   Shield,
   EyeOff,
+  AlertTriangle,
   Globe,
   Database,
   Code2,
+  Copy,
+  FolderOpen,
   Info,
   Hexagon,
   User,
@@ -848,7 +915,7 @@ function openInNewTabSafe(url: string) {
   navigate?.(url, { push: true });
 }
 
-const currentView = ref<'appearance' | 'content' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'about'>('appearance');
+const currentView = ref<'appearance' | 'content' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
@@ -893,6 +960,10 @@ const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
+const troubleshootingAction = ref<'' | 'copy' | 'open'>('');
+const troubleshootingDir = ref('');
+const troubleshootingReportPath = ref('');
+const troubleshootingBusy = computed(() => troubleshootingAction.value !== '');
 
 // Private Cloud state
 const privateCloudEnabled = ref(false);
@@ -1198,6 +1269,63 @@ async function saveDevSettings() {
   }
 }
 
+function applyTroubleshootingPaths(result: any) {
+  if (result?.dir) {
+    troubleshootingDir.value = String(result.dir);
+  }
+  if (result?.reportPath) {
+    troubleshootingReportPath.value = String(result.reportPath);
+  }
+}
+
+async function copyDebugReport() {
+  if (troubleshootingBusy.value) return;
+  const api = (window as any).lumen?.troubleshooting;
+  if (!api || typeof api.copyDebugReport !== 'function') {
+    toast.error('Troubleshooting tools are unavailable');
+    return;
+  }
+
+  troubleshootingAction.value = 'copy';
+  try {
+    const result = await api.copyDebugReport();
+    applyTroubleshootingPaths(result);
+    if (result?.ok) {
+      toast.success('Debug report copied to clipboard');
+      return;
+    }
+    toast.error(result?.error || 'Failed to copy debug report');
+  } catch (e: any) {
+    toast.error(e?.message || 'Failed to copy debug report');
+  } finally {
+    troubleshootingAction.value = '';
+  }
+}
+
+async function openLogsFolderAction() {
+  if (troubleshootingBusy.value) return;
+  const api = (window as any).lumen?.troubleshooting;
+  if (!api || typeof api.openLogsFolder !== 'function') {
+    toast.error('Troubleshooting tools are unavailable');
+    return;
+  }
+
+  troubleshootingAction.value = 'open';
+  try {
+    const result = await api.openLogsFolder();
+    applyTroubleshootingPaths(result);
+    if (result?.ok) {
+      toast.success('Logs folder opened');
+      return;
+    }
+    toast.error(result?.error || 'Failed to open logs folder');
+  } catch (e: any) {
+    toast.error(e?.message || 'Failed to open logs folder');
+  } finally {
+    troubleshootingAction.value = '';
+  }
+}
+
 // Private Cloud functions
 async function loadPrivateCloudConfig() {
   privateCloudLoading.value = true;
@@ -1288,6 +1416,7 @@ function getViewTitle(): string {
     profiles: 'Profiles & backups',
     privatecloud: 'Private Cloud',
     advanced: 'Developer settings',
+    troubleshooting: 'Troubleshooting',
     about: 'About Lumen'
   };
   return titles[currentView.value] || 'Settings';
@@ -1302,6 +1431,7 @@ function getViewDescription(): string {
     profiles: 'Backup or restore profiles and PQC keys',
     privatecloud: 'Configure your private IPFS gateways',
     advanced: 'Advanced network configuration',
+    troubleshooting: 'Collect support info and open safe logs',
     about: 'Information about Lumen'
   };
   return descs[currentView.value] || '';
@@ -1742,6 +1872,28 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .btn-secondary:hover {
   background: var(--border-color);
   color: var(--text-primary);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.troubleshooting-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.troubleshooting-path {
+  margin-top: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  word-break: break-all;
 }
 
 /* Theme Selector */

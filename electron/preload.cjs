@@ -186,6 +186,10 @@ contextBridge.exposeInMainWorld('lumen', {
     decryptSnapshot: (profileId, encrypted, password) =>
       ipcRenderer.invoke('driveBackup:decryptSnapshot', { profileId, encrypted, password })
   },
+  troubleshooting: {
+    copyDebugReport: () => ipcRenderer.invoke('troubleshooting:copyDebugReport'),
+    openLogsFolder: () => ipcRenderer.invoke('troubleshooting:openLogsFolder')
+  },
   setWindowMode: (mode) => ipcRenderer.send('window:mode', mode),
   openMainWindow: () => ipcRenderer.invoke('window:open-main'),
   httpGet: (url, options) => ipcRenderer.invoke('http:get', url, options || {}),

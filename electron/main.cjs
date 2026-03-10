@@ -1,3 +1,20 @@
+const { app, BrowserWindow, ipcMain, session, dialog } = require('electron');
+const path = require('path');
+const { initializeMainLogger } = require('./services/main_logger.cjs');
+
+function configureAppPaths() {
+  try {
+    const appName = 'lumen';
+    app.setName(appName);
+    const userDataPath = path.join(app.getPath('appData'), appName);
+    app.setPath('userData', userDataPath);
+    app.setAppLogsPath(path.join(userDataPath, 'logs'));
+  } catch {}
+}
+
+configureAppPaths();
+initializeMainLogger();
+
 // Linux environments without a user session bus (containers, system services, root shells) can cause
 // portal-backed file pickers to hang. Prefer the native GTK dialog in that case.
 try {
@@ -13,8 +30,6 @@ try {
   }
 } catch {}
 
-const { app, BrowserWindow, ipcMain, session, dialog } = require('electron');
-const path = require('path');
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
@@ -34,6 +49,7 @@ const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
 const { registerHlsIpc } = require('./ipc/hls.cjs');
 const { registerFindIpc } = require('./ipc/find.cjs');
 const { registerDriveBackupIpc } = require('./ipc/drive_backup.cjs');
+const { registerTroubleshootingIpc } = require('./ipc/troubleshooting.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
 const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
@@ -51,6 +67,7 @@ registerIpfsPubsubIpc();
 registerHlsIpc();
 registerFindIpc();
 registerDriveBackupIpc();
+registerTroubleshootingIpc();
 
 function safeString(v, maxLen = 2048) {
   const s = String(v ?? '').trim();
@@ -1007,12 +1024,10 @@ ipcMain.handle('window:open-main', async () => {
 
 app.whenReady().then(() => {
   try {
-    const appName = 'lumen';
-    app.setName(appName);
-    app.setPath('userData', path.join(app.getPath('appData'), appName));
     console.log('[electron] userData path set to', app.getPath('userData'));
+    console.log('[electron] logs path set to', app.getPath('logs'));
   } catch (e) {
-    console.warn('[electron] failed to set userData path', e);
+    console.warn('[electron] failed to resolve app paths', e);
   }
 
   // Startup health: mark this launch as "in progress". If the previous launch didn't reach success
@@ -1036,6 +1051,49 @@ app.whenReady().then(() => {
   try {
     app.on('web-contents-created', (_event, contents) => {
       if (!contents) return;
+
+      try {
+        contents.on('console-message', (_evt, level, message, line, sourceId) => {
+          const type =
+            typeof contents.getType === 'function'
+              ? String(contents.getType() || 'unknown')
+              : 'unknown';
+          console.log('[renderer-console]', {
+            wcId: contents.id,
+            type,
+            level,
+            line,
+            sourceId: String(sourceId || ''),
+            message: String(message || '')
+          });
+        });
+      } catch {}
+
+      try {
+        contents.on('render-process-gone', (_evt2, details) => {
+          const type =
+            typeof contents.getType === 'function'
+              ? String(contents.getType() || 'unknown')
+              : 'unknown';
+          console.error('[renderer-process-gone]', {
+            wcId: contents.id,
+            type,
+            details: details || null
+          });
+        });
+      } catch {}
+
+      try {
+        contents.on('did-fail-load', (_evt2, errorCode, errorDescription, validatedURL, isMainFrame) => {
+          console.warn('[renderer-did-fail-load]', {
+            wcId: contents.id,
+            errorCode,
+            errorDescription: String(errorDescription || ''),
+            validatedURL: String(validatedURL || ''),
+            isMainFrame: !!isMainFrame
+          });
+        });
+      } catch {}
 
       const forwardToTabs = (url) => {
         try {
