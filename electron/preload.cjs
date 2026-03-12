@@ -120,6 +120,8 @@ contextBridge.exposeInMainWorld('lumen', {
   dialogOpenFolder: (options) => ipcRenderer.invoke('dialog:openFolder', options || {}),
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
+  ipfsPropagateCidToPublicGateways: (payload) =>
+    ipcRenderer.invoke('ipfs:propagateCidToPublicGateways', payload || {}),
   ipfsAddWithProgress: (data, filename) =>
     ipcRenderer.invoke('ipfs:addWithProgress', data, filename),
   ipfsAddPath: (filePath, filename) =>
@@ -138,6 +140,8 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsAddDirectoryFromPathWithProgress: (payload) =>
     ipcRenderer.invoke('ipfs:addDirectoryFromPathWithProgress', payload || {}),
   ipfsCancelAdd: () => ipcRenderer.invoke('ipfs:cancelAdd'),
+  ipfsCancelPublicGatewayPropagation: () =>
+    ipcRenderer.invoke('ipfs:cancelPublicGatewayPropagation'),
   ipfsOnAddProgress: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const handler = (_event, payload) => {
@@ -150,6 +154,20 @@ contextBridge.exposeInMainWorld('lumen', {
     ipcRenderer.on('ipfs:addProgress', handler);
     return () => {
       ipcRenderer.removeListener('ipfs:addProgress', handler);
+    };
+  },
+  ipfsOnPublicGatewayPropagationProgress: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        callback(payload);
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('ipfs:publicGatewayPropagationProgress', handler);
+    return () => {
+      ipcRenderer.removeListener('ipfs:publicGatewayPropagationProgress', handler);
     };
   },
   ipfsCidToBase32: (cid) => ipcRenderer.invoke('ipfs:cidToBase32', cid),

@@ -276,6 +276,42 @@
         </div>
       </div>
 
+      <Transition name="modal">
+        <div v-if="publicGatewayPropagationVisible" class="modal-overlay">
+          <div class="modal-content" @click.stop>
+            <div class="modal-header">
+              <h3>Sending content…</h3>
+            </div>
+            <div class="modal-body">
+              <p class="txt-xs color-gray-blue" style="margin: 1rem 0 0 0">
+                {{ publicGatewayPropagationStatusLabel }}
+              </p>
+
+              <div
+                v-if="publicGatewayPropagationTotal > 0"
+                class="progress-bar"
+                style="margin-top: 1rem"
+              >
+                <div
+                  class="progress-bar-fill"
+                  :style="{ width: `${publicGatewayPropagationPercent}%` }"
+                ></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                class="btn-modal-secondary"
+                type="button"
+                @click="cancelUpload"
+                :disabled="uploadingCanceling"
+              >
+                {{ uploadingCanceling ? "Cancelling..." : "Cancel" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
       <!-- HLS Conversion Progress -->
       <div v-if="converting" class="upload-progress">
         <div class="progress-content">
@@ -1838,6 +1874,27 @@ interface IpfsStats {
 
 type HostingKind = "local" | "gateway";
 type HostingState = { kind: HostingKind; gatewayId: string };
+type PublicGatewayPropagationResult =
+  | {
+      ok: true;
+      skipped?: boolean;
+      total: number;
+      succeeded: number;
+      failed: number;
+      timedOut: number;
+      skippedOffline: number;
+    }
+  | {
+      ok: false;
+      skipped?: boolean;
+      cancelled?: boolean;
+      error: string;
+      total: number;
+      succeeded: number;
+      failed: number;
+      timedOut: number;
+      skippedOffline: number;
+    };
 
 const viewMode = ref<"grid" | "list">("list");
 const files = ref<DriveFile[]>([]);
@@ -1858,6 +1915,7 @@ const uploadingFile = ref("");
 const uploadingStage = ref<
   | "preparing"
   | "adding"
+  | "propagating"
   | "gateway-preflight"
   | "gateway-export"
   | "gateway-upload"
@@ -1866,6 +1924,16 @@ const uploadingStage = ref<
 >("preparing");
 const uploadingPercent = ref<number | null>(null);
 const uploadingCanceling = ref(false);
+const publicGatewayPropagationVisible = ref(false);
+const publicGatewayPropagationStage = ref<
+  "idle" | "fetching-list" | "probing" | "propagating" | "done" | "cancelled"
+>("idle");
+const publicGatewayPropagationTotal = ref(0);
+const publicGatewayPropagationCompleted = ref(0);
+const publicGatewayPropagationSucceeded = ref(0);
+const publicGatewayPropagationTimedOut = ref(0);
+const publicGatewayPropagationSkippedOffline = ref(0);
+const publicGatewayPropagationLastGateway = ref("");
 const converting = ref(false);
 const convertingFile = ref("");
 const convertingStage = ref<
@@ -1888,11 +1956,58 @@ const toastType = ref<"success" | "error">("success");
 const uploadingStatusLabel = computed(() => {
   if (uploadingCanceling.value) return "Cancelling…";
   if (uploadingStage.value === "adding") return "Adding to local IPFS…";
+  if (uploadingStage.value === "propagating") {
+    return "Sending content to the decentralized network…";
+  }
   if (uploadingStage.value === "gateway-preflight") return "Preparing gateway upload…";
   if (uploadingStage.value === "gateway-export") return "Exporting DAG…";
   if (uploadingStage.value === "gateway-upload") return "Uploading to gateway…";
   if (uploadingStage.value === "done") return "Finalizing…";
   return "Preparing upload…";
+});
+
+const publicGatewayPropagationFailed = computed(() =>
+  Math.max(
+    0,
+    publicGatewayPropagationCompleted.value - publicGatewayPropagationSucceeded.value,
+  ),
+);
+
+const publicGatewayPropagationPercent = computed(() => {
+  const total = Math.max(1, publicGatewayPropagationTotal.value);
+  const done = Math.max(0, publicGatewayPropagationCompleted.value);
+  const ratio = Math.max(0, Math.min(1, done / total));
+
+  if (publicGatewayPropagationStage.value === "fetching-list") {
+    return 5;
+  }
+  if (publicGatewayPropagationStage.value === "probing") {
+    return Math.max(5, Math.min(25, Math.round(5 + ratio * 20)));
+  }
+  if (publicGatewayPropagationStage.value === "done") {
+    return 100;
+  }
+  if (publicGatewayPropagationStage.value === "propagating") {
+    return Math.max(25, Math.min(100, Math.round(25 + ratio * 75)));
+  }
+
+  return Math.max(0, Math.min(100, Math.round(ratio * 100)));
+});
+
+const publicGatewayPropagationStatusLabel = computed(() => {
+  if (uploadingCanceling.value || publicGatewayPropagationStage.value === "cancelled") {
+    return "Cancelling…";
+  }
+  if (publicGatewayPropagationStage.value === "fetching-list") {
+    return "Sending to the decentralized network…";
+  }
+  if (publicGatewayPropagationStage.value === "probing") {
+    return "Sending to the decentralized network…";
+  }
+  if (publicGatewayPropagationStage.value === "done") {
+    return "Finishing…";
+  }
+  return "Sending to the decentralized network…";
 });
 
 const convertingStatusLabel = computed(() => {
@@ -2745,6 +2860,7 @@ let tabHistoryStepHandler: ((ev: any) => void) | null = null;
 let hlsProgressUnsub: (() => void) | null = null;
 let ipfsAddProgressUnsub: (() => void) | null = null;
 let gatewayIngestProgressUnsub: (() => void) | null = null;
+let publicGatewayPropagationUnsub: (() => void) | null = null;
 
 function readUrlBarUrl(): string {
   try {
@@ -2859,6 +2975,81 @@ onMounted(async () => {
 
   try {
     const api: any = (window as any).lumen;
+    if (typeof api?.ipfsOnPublicGatewayPropagationProgress === "function") {
+      publicGatewayPropagationUnsub = api.ipfsOnPublicGatewayPropagationProgress(
+        (payload: any) => {
+          if (!uploading.value) return;
+
+          const stage = String(payload?.stage || "");
+          if (
+            stage === "fetching-list" ||
+            stage === "probing" ||
+            stage === "propagating" ||
+            stage === "done" ||
+            stage === "cancelled"
+          ) {
+            publicGatewayPropagationStage.value = stage;
+          }
+
+          const total = Number(payload?.total);
+          if (Number.isFinite(total) && total >= 0) {
+            publicGatewayPropagationTotal.value = Math.max(0, Math.floor(total));
+          }
+
+          const completed = Number(payload?.completed);
+          if (Number.isFinite(completed) && completed >= 0) {
+            publicGatewayPropagationCompleted.value = Math.max(
+              0,
+              Math.floor(completed),
+            );
+          }
+
+          const succeeded = Number(payload?.succeeded);
+          if (Number.isFinite(succeeded) && succeeded >= 0) {
+            publicGatewayPropagationSucceeded.value = Math.max(
+              0,
+              Math.floor(succeeded),
+            );
+          }
+
+          const timedOut = Number(payload?.timedOut);
+          if (Number.isFinite(timedOut) && timedOut >= 0) {
+            publicGatewayPropagationTimedOut.value = Math.max(
+              0,
+              Math.floor(timedOut),
+            );
+          }
+
+          const skippedOffline = Number(payload?.skippedOffline);
+          if (Number.isFinite(skippedOffline) && skippedOffline >= 0) {
+            publicGatewayPropagationSkippedOffline.value = Math.max(
+              0,
+              Math.floor(skippedOffline),
+            );
+          }
+
+          publicGatewayPropagationLastGateway.value = String(
+            payload?.gateway || "",
+          );
+
+          if (!uploadingCanceling.value && stage !== "cancelled") {
+            uploadingStage.value = "propagating";
+          }
+
+          if (publicGatewayPropagationTotal.value > 0) {
+            uploadingPercent.value = publicGatewayPropagationPercent.value;
+          } else if (stage === "done") {
+            uploadingPercent.value = 100;
+          } else {
+            uploadingPercent.value = 0;
+          }
+        },
+      );
+    }
+  } catch {}
+
+  try {
+    const api: any = (window as any).lumen;
     if (typeof api?.gateway?.onIngestProgress === "function") {
       gatewayIngestProgressUnsub = api.gateway.onIngestProgress((payload: any) => {
         if (!uploading.value) return;
@@ -2962,6 +3153,12 @@ onUnmounted(() => {
     // ignore
   }
   gatewayIngestProgressUnsub = null;
+  try {
+    publicGatewayPropagationUnsub?.();
+  } catch {
+    // ignore
+  }
+  publicGatewayPropagationUnsub = null;
   try {
     if (tabUrlChangedHandler)
       window.removeEventListener(
@@ -4795,6 +4992,153 @@ async function handleFolderUpload(e: Event) {
 
 }
 
+function resetPublicGatewayPropagationState() {
+  publicGatewayPropagationVisible.value = false;
+  publicGatewayPropagationStage.value = "idle";
+  publicGatewayPropagationTotal.value = 0;
+  publicGatewayPropagationCompleted.value = 0;
+  publicGatewayPropagationSucceeded.value = 0;
+  publicGatewayPropagationTimedOut.value = 0;
+  publicGatewayPropagationSkippedOffline.value = 0;
+  publicGatewayPropagationLastGateway.value = "";
+}
+
+async function propagateLocalCidToPublicGateways(
+  cid: string,
+): Promise<PublicGatewayPropagationResult> {
+  const api: any = (window as any).lumen;
+  if (typeof api?.ipfsPropagateCidToPublicGateways !== "function") {
+    return {
+      ok: true,
+      skipped: true,
+      total: 0,
+      succeeded: 0,
+      failed: 0,
+      timedOut: 0,
+      skippedOffline: 0,
+    };
+  }
+
+  publicGatewayPropagationVisible.value = true;
+  publicGatewayPropagationStage.value = "fetching-list";
+  publicGatewayPropagationTotal.value = 0;
+  publicGatewayPropagationCompleted.value = 0;
+  publicGatewayPropagationSucceeded.value = 0;
+  publicGatewayPropagationTimedOut.value = 0;
+  publicGatewayPropagationSkippedOffline.value = 0;
+  publicGatewayPropagationLastGateway.value = "";
+
+  if (!uploadingCanceling.value) {
+    uploadingStage.value = "propagating";
+    uploadingPercent.value = 0;
+  }
+
+  try {
+    const res = await api.ipfsPropagateCidToPublicGateways({
+      cid,
+      timeoutMs: 15_000,
+      probeTimeoutMs: 3_000,
+      sourceTimeoutMs: 10_000,
+    });
+
+    if (res?.ok) {
+      return {
+        ok: true,
+        total: Number(res?.total || 0) || 0,
+        succeeded: Number(res?.succeeded || 0) || 0,
+        failed: Number(res?.failed || 0) || 0,
+        timedOut: Number(res?.timedOut || 0) || 0,
+        skippedOffline: Number(res?.skippedOffline || 0) || 0,
+      };
+    }
+
+    const err = String(res?.error || "public_propagation_failed");
+    const lower = err.toLowerCase();
+    return {
+      ok: false,
+      cancelled:
+        !!res?.cancelled || lower.includes("cancel") || lower.includes("abort"),
+      error: err,
+      total: Number(res?.total || 0) || 0,
+      succeeded: Number(res?.succeeded || 0) || 0,
+      failed: Number(res?.failed || 0) || 0,
+      timedOut: Number(res?.timedOut || 0) || 0,
+      skippedOffline: Number(res?.skippedOffline || 0) || 0,
+    };
+  } catch (err: any) {
+    const msg = String(err?.message || err || "public_propagation_failed");
+    const lower = msg.toLowerCase();
+    return {
+      ok: false,
+      cancelled: lower.includes("cancel") || lower.includes("abort"),
+      error: msg,
+      total: publicGatewayPropagationTotal.value,
+      succeeded: publicGatewayPropagationSucceeded.value,
+      failed: publicGatewayPropagationFailed.value,
+      timedOut: publicGatewayPropagationTimedOut.value,
+      skippedOffline: publicGatewayPropagationSkippedOffline.value,
+    };
+  } finally {
+    resetPublicGatewayPropagationState();
+  }
+}
+
+async function finalizeLocalUpload(
+  kind: "file" | "folder",
+  name: string,
+  cid: string,
+): Promise<void> {
+  void loadStats();
+  void loadPinnedFiles();
+
+  const label = kind === "folder" ? `Uploaded folder: ${name}` : `Uploaded: ${name}`;
+  const propagated = await propagateLocalCidToPublicGateways(cid);
+
+  if (propagated.skipped) {
+    showToast(label, "success");
+    return;
+  }
+
+  if (!propagated.ok && propagated.cancelled) {
+    showToast(`${label}. Public propagation cancelled; the CID is still saved locally.`, "success");
+    return;
+  }
+
+  if (!propagated.ok) {
+    const detail = compactError(propagated.error);
+    showToast(
+      detail
+        ? `${label}. Public propagation failed (${detail}); the CID is still saved locally.`
+        : `${label}. Public propagation failed; the CID is still saved locally.`,
+      "error",
+    );
+    return;
+  }
+
+  if (propagated.total > 0 && propagated.succeeded > 0) {
+    showToast(label, "success");
+    return;
+  }
+
+  if (propagated.skippedOffline > 0 && propagated.total === 0) {
+    showToast(
+      `${label}. All public gateways were recently marked offline; the CID is still saved locally.`,
+      "error",
+    );
+    return;
+  }
+
+  if (propagated.total > 0) {
+    showToast(
+      `${label}. No live public gateway fetched the CID within 15s; the CID is still saved locally.`,
+      "error",
+    );
+    return;
+  }
+
+  showToast(label, "success");
+}
+
 function upsertFileMetadata(next: DriveFile) {
   const cid = String(next?.cid || "").trim();
   if (!cid) return;
@@ -4890,6 +5234,7 @@ async function uploadDirectory(
   uploadingStage.value = "preparing";
   uploadingPercent.value = 0;
   uploadingCanceling.value = false;
+  resetPublicGatewayPropagationState();
 
   try {
     const api: any = (window as any).lumen;
@@ -5001,9 +5346,7 @@ async function uploadDirectory(
       }
       showToast(`Uploaded folder to gateway: ${name}`, "success");
     } else {
-      loadStats();
-      await loadPinnedFiles();
-      showToast(`Uploaded folder: ${name}`, "success");
+      await finalizeLocalUpload("folder", name, cid);
     }
 
     return { ok: true };
@@ -5026,6 +5369,7 @@ async function uploadDirectory(
     );
     return { ok: false };
   } finally {
+    resetPublicGatewayPropagationState();
     uploading.value = false;
     uploadingFile.value = "";
     uploadingStage.value = "preparing";
@@ -5046,6 +5390,7 @@ async function uploadDirectoryFromPath(
   uploadingStage.value = "preparing";
   uploadingPercent.value = 0;
   uploadingCanceling.value = false;
+  resetPublicGatewayPropagationState();
 
   try {
     const api: any = (window as any).lumen;
@@ -5123,9 +5468,7 @@ async function uploadDirectoryFromPath(
       }
       showToast(`Uploaded folder to gateway: ${name}`, "success");
     } else {
-      loadStats();
-      await loadPinnedFiles();
-      showToast(`Uploaded folder: ${name}`, "success");
+      await finalizeLocalUpload("folder", name, cid);
     }
 
     return { ok: true };
@@ -5148,6 +5491,7 @@ async function uploadDirectoryFromPath(
     );
     return { ok: false };
   } finally {
+    resetPublicGatewayPropagationState();
     uploading.value = false;
     uploadingFile.value = "";
     uploadingStage.value = "preparing";
@@ -5162,6 +5506,7 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
   uploadingStage.value = "preparing";
   uploadingPercent.value = 0;
   uploadingCanceling.value = false;
+  resetPublicGatewayPropagationState();
 
   try {
     const api: any = (window as any).lumen;
@@ -5224,9 +5569,7 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
         }
         showToast(`Uploaded to gateway: ${file.name}`, "success");
       } else {
-        loadStats();
-        await loadPinnedFiles();
-        showToast(`Uploaded: ${file.name}`, "success");
+        await finalizeLocalUpload("file", file.name, cid);
       }
 
       return { ok: true };
@@ -5263,6 +5606,7 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
     );
     return { ok: false };
   } finally {
+    resetPublicGatewayPropagationState();
     uploading.value = false;
     uploadingFile.value = "";
     uploadingStage.value = "preparing";
@@ -5373,6 +5717,9 @@ async function cancelUpload() {
 
     if (typeof api?.ipfsCancelAdd === "function") {
       cancelers.push(api.ipfsCancelAdd().catch(() => null));
+    }
+    if (typeof api?.ipfsCancelPublicGatewayPropagation === "function") {
+      cancelers.push(api.ipfsCancelPublicGatewayPropagation().catch(() => null));
     }
     if (typeof api?.gateway?.cancelPinCid === "function") {
       cancelers.push(api.gateway.cancelPinCid().catch(() => null));

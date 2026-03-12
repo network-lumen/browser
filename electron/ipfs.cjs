@@ -6,6 +6,18 @@ const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./ip
 const { getSetting } = require('./settings.cjs');
 
 let ipfsProcess = null;
+const PUBLIC_IPFS_GATEWAYS_SOURCE_URL =
+  'https://raw.githubusercontent.com/ipfs/public-gateway-checker/main/gateways.json';
+let publicIpfsGatewaysCache = {
+  sourceUrl: PUBLIC_IPFS_GATEWAYS_SOURCE_URL,
+  fetchedAt: 0,
+  gateways: [],
+};
+let publicIpfsGatewaysInFlight = null;
+const PUBLIC_IPFS_GATEWAY_PROBE_PATH =
+  '/ipfs/bafybeifx7yeb55armcsxwwitkymga5xf53dxiarykms3ygqic223w5sk3m';
+const PUBLIC_IPFS_GATEWAY_OFFLINE_TTL_MS = 60 * 60 * 1000;
+const publicIpfsGatewayOfflineUntil = new Map();
 
 function ipfsApiBase() {
   return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
@@ -340,6 +352,583 @@ function toSafeAbortError(e) {
   const lower = msg.toLowerCase();
   if (name === 'AbortError') return true;
   return lower.includes('abort') || lower.includes('aborted') || lower.includes('cancel');
+}
+
+function clampTimeoutMs(input, fallbackMs, maxMs) {
+  const n = Number(input);
+  if (!Number.isFinite(n) || n <= 0) return fallbackMs;
+  return Math.min(Math.floor(n), maxMs);
+}
+
+function normalizeHttpUrl(input) {
+  try {
+    const u = new URL(String(input || '').trim());
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
+    u.hash = '';
+    return u.toString().replace(/\/+$/, '');
+  } catch {
+    return '';
+  }
+}
+
+function normalizePublicGatewayList(raw) {
+  const list = Array.isArray(raw)
+    ? raw
+    : Array.isArray(raw?.gateways)
+      ? raw.gateways
+      : [];
+
+  const seen = new Set();
+  const out = [];
+  for (const item of list) {
+    const base = normalizeHttpUrl(item);
+    if (!base || seen.has(base)) continue;
+    seen.add(base);
+    out.push(base);
+  }
+  return out.slice(0, 256);
+}
+
+function normalizePublicGatewayPath(cidOrPath) {
+  const raw = String(cidOrPath || '').trim();
+  if (!raw) throw new Error('missing_cid');
+  if (/^\/(ipfs|ipns)\//i.test(raw)) return raw;
+  if (/^(ipfs|ipns)\//i.test(raw)) return '/' + raw;
+  return '/ipfs/' + raw.replace(/^\/+/, '');
+}
+
+function emitPublicGatewayProgress(onProgress, payload) {
+  if (typeof onProgress !== 'function') return;
+  try {
+    onProgress(payload);
+  } catch {}
+}
+
+function getOfflineGatewayEntry(baseUrl) {
+  const key = normalizeHttpUrl(baseUrl);
+  if (!key) return null;
+  const entry = publicIpfsGatewayOfflineUntil.get(key) || null;
+  if (!entry) return null;
+  if (Number(entry.until || 0) <= Date.now()) {
+    publicIpfsGatewayOfflineUntil.delete(key);
+    return null;
+  }
+  return entry;
+}
+
+function markGatewayOffline(baseUrl, reason) {
+  const key = normalizeHttpUrl(baseUrl);
+  if (!key) return;
+  publicIpfsGatewayOfflineUntil.set(key, {
+    reason: String(reason || 'probe_failed'),
+    until: Date.now() + PUBLIC_IPFS_GATEWAY_OFFLINE_TTL_MS,
+  });
+}
+
+function clearGatewayOffline(baseUrl) {
+  const key = normalizeHttpUrl(baseUrl);
+  if (!key) return;
+  publicIpfsGatewayOfflineUntil.delete(key);
+}
+
+async function loadPublicIpfsGateways(opts = {}) {
+  const sourceUrlRaw =
+    String(opts?.sourceUrl || publicIpfsGatewaysCache.sourceUrl || PUBLIC_IPFS_GATEWAYS_SOURCE_URL).trim() ||
+    PUBLIC_IPFS_GATEWAYS_SOURCE_URL;
+  const sourceUrl = normalizeHttpUrl(sourceUrlRaw) || PUBLIC_IPFS_GATEWAYS_SOURCE_URL;
+  const timeoutMs = clampTimeoutMs(opts?.timeoutMs, 10_000, 30_000);
+  const force = !!opts?.force;
+  const outerSignal = opts?.signal;
+
+  if (!force && sourceUrl === publicIpfsGatewaysCache.sourceUrl && publicIpfsGatewaysCache.gateways.length) {
+    return {
+      ok: true,
+      sourceUrl: publicIpfsGatewaysCache.sourceUrl,
+      fetchedAt: publicIpfsGatewaysCache.fetchedAt,
+      gateways: [...publicIpfsGatewaysCache.gateways],
+      cached: true,
+    };
+  }
+
+  if (publicIpfsGatewaysInFlight && !outerSignal && !force) return publicIpfsGatewaysInFlight;
+
+  const job = (async () => {
+    const controller = new AbortController();
+    let timedOut = false;
+    const timeoutId = setTimeout(() => {
+      timedOut = true;
+      try {
+        controller.abort();
+      } catch {}
+    }, timeoutMs);
+
+    const onAbort = () => {
+      try {
+        controller.abort();
+      } catch {}
+    };
+
+    if (outerSignal) {
+      if (outerSignal.aborted) {
+        onAbort();
+      } else {
+        outerSignal.addEventListener('abort', onAbort, { once: true });
+      }
+    }
+
+    try {
+      const res = await fetch(sourceUrl, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        return { ok: false, error: 'http_' + res.status, sourceUrl };
+      }
+
+      const json = await res.json().catch(() => null);
+      const gateways = normalizePublicGatewayList(json);
+      if (!gateways.length) {
+        return { ok: false, error: 'no_public_gateways', sourceUrl };
+      }
+
+      const fetchedAt = Date.now();
+      publicIpfsGatewaysCache = {
+        sourceUrl,
+        fetchedAt,
+        gateways,
+      };
+
+      return {
+        ok: true,
+        sourceUrl,
+        fetchedAt,
+        gateways: [...gateways],
+        cached: false,
+      };
+    } catch (e) {
+      if (outerSignal?.aborted || toSafeAbortError(e)) {
+        return {
+          ok: false,
+          error: outerSignal?.aborted ? 'cancelled' : timedOut ? 'timeout' : 'cancelled',
+          cancelled: !!outerSignal?.aborted,
+          timeout: timedOut && !outerSignal?.aborted,
+          sourceUrl,
+        };
+      }
+      return { ok: false, error: String(e?.message || e || 'public_gateway_list_failed'), sourceUrl };
+    } finally {
+      try {
+        clearTimeout(timeoutId);
+      } catch {}
+      if (outerSignal) {
+        try {
+          outerSignal.removeEventListener('abort', onAbort);
+        } catch {}
+      }
+    }
+  })();
+
+  publicIpfsGatewaysInFlight = job;
+  try {
+    return await job;
+  } finally {
+    if (publicIpfsGatewaysInFlight === job) {
+      publicIpfsGatewaysInFlight = null;
+    }
+  }
+}
+
+async function prefetchPublicIpfsGateways(opts = {}) {
+  const res = await loadPublicIpfsGateways({ ...opts, force: true });
+  if (res?.ok) {
+    console.log(
+      '[electron][ipfs] public gateway list refreshed:',
+      Array.isArray(res.gateways) ? res.gateways.length : 0,
+      'gateways',
+    );
+  } else {
+    console.warn(
+      '[electron][ipfs] public gateway list refresh failed:',
+      String(res?.error || 'unknown_error'),
+    );
+  }
+  return res;
+}
+
+function buildPublicGatewayRequestUrl(baseUrl, cidOrPath) {
+  const base = normalizeHttpUrl(baseUrl);
+  if (!base) throw new Error('invalid_gateway_base');
+  const p = normalizePublicGatewayPath(cidOrPath);
+  return new URL(p.replace(/^\/+/, ''), `${base}/`).toString();
+}
+
+async function requestPublicGateway(baseUrl, cidOrPath, opts = {}) {
+  const outerSignal = opts?.signal;
+  const timeoutMs = clampTimeoutMs(opts?.timeoutMs, 15_000, 60_000);
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    try {
+      controller.abort();
+    } catch {}
+  }, timeoutMs);
+
+  const onAbort = () => {
+    try {
+      controller.abort();
+    } catch {}
+  };
+
+  if (outerSignal) {
+    if (outerSignal.aborted) onAbort();
+    else outerSignal.addEventListener('abort', onAbort, { once: true });
+  }
+
+  let url = '';
+
+  try {
+    url = buildPublicGatewayRequestUrl(baseUrl, cidOrPath);
+    const res = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal,
+    });
+
+    try {
+      await res.body?.cancel?.();
+    } catch {}
+
+    return {
+      gateway: baseUrl,
+      url,
+      ok: res.ok,
+      status: Number(res.status || 0),
+    };
+  } catch (e) {
+    const cancelled = !!outerSignal?.aborted;
+    return {
+      gateway: baseUrl,
+      url,
+      ok: false,
+      status: 0,
+      cancelled,
+      timeout: timedOut && !cancelled,
+      error: cancelled ? 'cancelled' : String(e?.message || e || 'gateway_request_failed'),
+    };
+  } finally {
+    try {
+      clearTimeout(timeoutId);
+    } catch {}
+    if (outerSignal) {
+      try {
+        outerSignal.removeEventListener('abort', onAbort);
+      } catch {}
+    }
+  }
+}
+
+async function probePublicGateway(baseUrl, opts = {}) {
+  const offline = getOfflineGatewayEntry(baseUrl);
+  if (offline) {
+    return {
+      gateway: baseUrl,
+      ok: false,
+      skipped: true,
+      cachedOffline: true,
+      offlineUntil: Number(offline.until || 0) || 0,
+      error: String(offline.reason || 'cached_offline'),
+    };
+  }
+
+  const res = await requestPublicGateway(baseUrl, PUBLIC_IPFS_GATEWAY_PROBE_PATH, {
+    signal: opts?.signal,
+    timeoutMs: opts?.timeoutMs,
+  });
+
+  if (res.ok) {
+    clearGatewayOffline(baseUrl);
+    return { ...res, probe: true };
+  }
+
+  markGatewayOffline(baseUrl, res.timeout ? 'probe_timeout' : res.error || `probe_http_${res.status || 0}`);
+  return { ...res, probe: true };
+}
+
+async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
+  const cidOrPath = String(input?.cid || input?.cidOrPath || '').trim();
+  if (!cidOrPath) return { ok: false, error: 'missing_cid' };
+
+  const signal = opts?.signal;
+  const onProgress = opts?.onProgress;
+  const timeoutMs = clampTimeoutMs(input?.timeoutMs ?? opts?.timeoutMs, 15_000, 60_000);
+  const probeTimeoutMs = clampTimeoutMs(input?.probeTimeoutMs ?? opts?.probeTimeoutMs, 3_000, 10_000);
+  const sourceTimeoutMs = clampTimeoutMs(
+    input?.sourceTimeoutMs ?? opts?.sourceTimeoutMs,
+    10_000,
+    30_000,
+  );
+  const sourceUrl =
+    String(input?.sourceUrl || publicIpfsGatewaysCache.sourceUrl || PUBLIC_IPFS_GATEWAYS_SOURCE_URL).trim() ||
+    PUBLIC_IPFS_GATEWAYS_SOURCE_URL;
+  const gatewayPath = normalizePublicGatewayPath(cidOrPath);
+
+  emitPublicGatewayProgress(onProgress, {
+    stage: 'fetching-list',
+    cid: cidOrPath,
+    path: gatewayPath,
+    total: 0,
+    completed: 0,
+    succeeded: 0,
+    failed: 0,
+    timedOut: 0,
+    skippedOffline: 0,
+  });
+
+  const gatewaysRes = await loadPublicIpfsGateways({
+    sourceUrl,
+    timeoutMs: sourceTimeoutMs,
+    signal,
+  });
+  if (!gatewaysRes?.ok) {
+    return {
+      ok: false,
+      error: String(gatewaysRes?.error || 'public_gateway_list_failed'),
+      cancelled: !!gatewaysRes?.cancelled,
+      timeout: !!gatewaysRes?.timeout,
+      total: 0,
+      completed: 0,
+      succeeded: 0,
+      failed: 0,
+      timedOut: 0,
+      skippedOffline: 0,
+    };
+  }
+
+  const gateways = Array.isArray(gatewaysRes.gateways) ? gatewaysRes.gateways : [];
+  if (!gateways.length) {
+    return {
+      ok: false,
+      error: 'no_public_gateways',
+      total: 0,
+      completed: 0,
+      succeeded: 0,
+      failed: 0,
+      timedOut: 0,
+      skippedOffline: 0,
+    };
+  }
+
+  let probeCompleted = 0;
+  let alive = 0;
+  let skippedOffline = 0;
+
+  emitPublicGatewayProgress(onProgress, {
+    stage: 'probing',
+    cid: cidOrPath,
+    path: gatewayPath,
+    total: gateways.length,
+    completed: probeCompleted,
+    succeeded: alive,
+    failed: 0,
+    timedOut: 0,
+    skippedOffline,
+  });
+
+  const probeResults = await Promise.all(
+    gateways.map(async (gateway) => {
+      const res = await probePublicGateway(gateway, {
+        signal,
+        timeoutMs: probeTimeoutMs,
+      });
+
+      probeCompleted += 1;
+      if (res.ok) alive += 1;
+      else if (res.skipped || res.cachedOffline) skippedOffline += 1;
+
+      emitPublicGatewayProgress(onProgress, {
+        stage: signal?.aborted ? 'cancelled' : 'probing',
+        cid: cidOrPath,
+        path: gatewayPath,
+        gateway,
+        status: Number(res.status || 0) || 0,
+        total: gateways.length,
+        completed: probeCompleted,
+        succeeded: alive,
+        failed: Math.max(0, probeCompleted - alive - skippedOffline),
+        timedOut: 0,
+        skippedOffline,
+      });
+
+      return res;
+    }),
+  );
+
+  if (signal?.aborted) {
+    emitPublicGatewayProgress(onProgress, {
+      stage: 'cancelled',
+      cid: cidOrPath,
+      path: gatewayPath,
+      total: gateways.length,
+      completed: probeCompleted,
+      succeeded: alive,
+      failed: Math.max(0, probeCompleted - alive - skippedOffline),
+      timedOut: 0,
+      skippedOffline,
+    });
+    return {
+      ok: false,
+      error: 'cancelled',
+      cancelled: true,
+      total: gateways.length,
+      completed: probeCompleted,
+      succeeded: alive,
+      failed: Math.max(0, probeCompleted - alive - skippedOffline),
+      timedOut: 0,
+      skippedOffline,
+      results: probeResults,
+      sourceUrl: gatewaysRes.sourceUrl,
+      fetchedAt: gatewaysRes.fetchedAt,
+    };
+  }
+
+  const aliveGateways = probeResults.filter((r) => r && r.ok).map((r) => String(r.gateway || '').trim()).filter(Boolean);
+
+  if (!aliveGateways.length) {
+    emitPublicGatewayProgress(onProgress, {
+      stage: 'done',
+      cid: cidOrPath,
+      path: gatewayPath,
+      total: 0,
+      completed: 0,
+      succeeded: 0,
+      failed: 0,
+      timedOut: 0,
+      skippedOffline,
+    });
+    return {
+      ok: true,
+      cid: cidOrPath,
+      path: gatewayPath,
+      total: 0,
+      completed: 0,
+      succeeded: 0,
+      failed: 0,
+      timedOut: 0,
+      skippedOffline,
+      results: [],
+      probeResults,
+      sourceUrl: gatewaysRes.sourceUrl,
+      fetchedAt: gatewaysRes.fetchedAt,
+    };
+  }
+
+  let completed = 0;
+  let succeeded = 0;
+  let failed = 0;
+  let timedOut = 0;
+
+  emitPublicGatewayProgress(onProgress, {
+    stage: 'propagating',
+    cid: cidOrPath,
+    path: gatewayPath,
+    total: aliveGateways.length,
+    completed,
+    succeeded,
+    failed,
+    timedOut,
+    skippedOffline,
+  });
+
+  const results = await Promise.all(
+    aliveGateways.map(async (gateway) => {
+      const res = await requestPublicGateway(gateway, gatewayPath, {
+        signal,
+        timeoutMs,
+      });
+
+      completed += 1;
+      if (res.ok) succeeded += 1;
+      else {
+        failed += 1;
+        if (res.timeout) timedOut += 1;
+      }
+
+      emitPublicGatewayProgress(onProgress, {
+        stage: signal?.aborted ? 'cancelled' : 'propagating',
+        cid: cidOrPath,
+        path: gatewayPath,
+        gateway,
+        status: res.status,
+        total: aliveGateways.length,
+        completed,
+        succeeded,
+        failed,
+        timedOut,
+        skippedOffline,
+      });
+
+      return res;
+    }),
+  );
+
+  if (signal?.aborted) {
+    emitPublicGatewayProgress(onProgress, {
+      stage: 'cancelled',
+      cid: cidOrPath,
+      path: gatewayPath,
+      total: aliveGateways.length,
+      completed,
+      succeeded,
+      failed,
+      timedOut,
+      skippedOffline,
+    });
+    return {
+      ok: false,
+      error: 'cancelled',
+      cancelled: true,
+      total: aliveGateways.length,
+      completed,
+      succeeded,
+      failed,
+      timedOut,
+      skippedOffline,
+      results,
+      probeResults,
+      sourceUrl: gatewaysRes.sourceUrl,
+      fetchedAt: gatewaysRes.fetchedAt,
+    };
+  }
+
+  emitPublicGatewayProgress(onProgress, {
+    stage: 'done',
+    cid: cidOrPath,
+    path: gatewayPath,
+    total: aliveGateways.length,
+    completed,
+    succeeded,
+    failed,
+    timedOut,
+    skippedOffline,
+  });
+
+  return {
+    ok: true,
+    cid: cidOrPath,
+    path: gatewayPath,
+    total: aliveGateways.length,
+    completed,
+    succeeded,
+    failed,
+    timedOut,
+    skippedOffline,
+    results,
+    probeResults,
+    sourceUrl: gatewaysRes.sourceUrl,
+    fetchedAt: gatewaysRes.fetchedAt,
+  };
 }
 
 function makeProgressReporter(onProgress, totalBytes) {
@@ -1695,6 +2284,7 @@ module.exports = {
   startIpfsDaemon,
   checkIpfsStatus,
   stopIpfsDaemon,
+  prefetchPublicIpfsGateways,
   ipfsCidToBase32,
   ipfsAdd,
   ipfsAddWithProgress,
@@ -1719,5 +2309,6 @@ module.exports = {
   ipfsResolveIPNS,
   ipfsKeyList,
   ipfsKeyGen,
-  ipfsSwarmPeers
+  ipfsSwarmPeers,
+  ipfsPropagateCidToPublicGateways,
 };
