@@ -147,7 +147,15 @@
           </div>
         </div>
 
-        <div v-else class="viewer" :class="{ 'viewer--bare': isBareHtmlView }">
+        <div
+          v-else
+          class="viewer"
+          :class="{
+            'viewer--bare': isBareHtmlView,
+            'viewer--document':
+              viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx',
+          }"
+        >
           <img
             v-if="viewKind === 'image'"
             :src="contentUrl"
@@ -209,6 +217,14 @@
           <pre v-else-if="viewKind === 'docx'" class="text">{{
             docxContent
           }}</pre>
+
+          <article
+            v-else-if="viewKind === 'markdown'"
+            class="markdown-body markdown-view"
+            data-color-mode="auto"
+            v-html="markdownHtml"
+            @click="onMarkdownClick"
+          ></article>
 
           <pre v-else-if="viewKind === 'text'" class="text">{{
             textContent
@@ -289,7 +305,10 @@
   watch,
 } from "vue";
 import JSZip from "jszip";
+import DOMPurify from "dompurify";
+import { marked } from "marked";
 import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
+import "github-markdown-css/github-markdown.css";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import {
   localIpfsGatewayBase,
@@ -327,7 +346,16 @@ const error = ref("");
 const entries = ref<Entry[]>([]);
 const isDir = ref(false);
 const viewKind = ref<
-  "image" | "video" | "audio" | "html" | "pdf" | "epub" | "docx" | "text" | "unknown"
+  | "image"
+  | "video"
+  | "audio"
+  | "html"
+  | "pdf"
+  | "epub"
+  | "docx"
+  | "markdown"
+  | "text"
+  | "unknown"
 >("unknown");
 const textContent = ref("");
 const docxContent = ref("");
@@ -611,6 +639,267 @@ const contentUrl = computed(() => {
   return `${b}/ipfs/${rootCid.value}${p}${suf}`;
 });
 
+type MarkdownTarget = {
+  proto: "ipfs" | "ipns";
+  id: string;
+  path: string;
+  dir: boolean;
+  suffix: string;
+};
+
+type MarkdownResolvedLink =
+  | { kind: "anchor"; value: string }
+  | { kind: "internal"; value: string }
+  | { kind: "external"; value: string };
+
+function isDangerousMarkdownScheme(value: string): boolean {
+  const s = String(value || "").trim().toLowerCase();
+  return (
+    s.startsWith("javascript:") ||
+    s.startsWith("vbscript:") ||
+    s.startsWith("file:")
+  );
+}
+
+function decodePathSegments(pathname: string): string {
+  return String(pathname || "")
+    .split("/")
+    .filter(Boolean)
+    .map((seg) => decodeSafe(seg))
+    .join("/");
+}
+
+function parseExplicitMarkdownTarget(raw: string): MarkdownTarget | null {
+  const input = String(raw || "").trim();
+  if (!input || isDangerousMarkdownScheme(input)) return null;
+
+  const lower = input.toLowerCase();
+  let proto: MarkdownTarget["proto"] | null = null;
+  let rest = "";
+
+  if (lower.startsWith("lumen://ipfs/")) {
+    proto = "ipfs";
+    rest = input.slice("lumen://ipfs/".length);
+  } else if (lower.startsWith("lumen://ipns/")) {
+    proto = "ipns";
+    rest = input.slice("lumen://ipns/".length);
+  } else if (lower.startsWith("ipfs://")) {
+    proto = "ipfs";
+    rest = input.slice("ipfs://".length);
+  } else if (lower.startsWith("ipns://")) {
+    proto = "ipns";
+    rest = input.slice("ipns://".length);
+  } else if (lower.startsWith("/ipfs/")) {
+    proto = "ipfs";
+    rest = input.slice("/ipfs/".length);
+  } else if (lower.startsWith("/ipns/")) {
+    proto = "ipns";
+    rest = input.slice("/ipns/".length);
+  }
+
+  if (!proto) return null;
+
+  const split = splitPathSuffix(String(rest || "").replace(/^\/+/, ""));
+  const pathOnly = String(split.path || "");
+  const dir = /\/$/.test(pathOnly);
+  const segs = pathOnly
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .split("/")
+    .filter(Boolean)
+    .map((seg) => decodeSafe(seg));
+  const id = String(segs[0] || "").trim();
+  if (!id) return null;
+
+  return {
+    proto,
+    id,
+    path: segs.slice(1).join("/"),
+    dir,
+    suffix: split.suffix || "",
+  };
+}
+
+function resolveRelativeMarkdownTarget(raw: string): MarkdownTarget | null {
+  const input = String(raw || "").trim();
+  if (!input || !rootCid.value || isDangerousMarkdownScheme(input)) return null;
+
+  const basePath = relPath.value ? `/${encodePath(relPath.value)}` : "/";
+
+  try {
+    const next = new URL(input, `https://markdown.local${basePath}`);
+    return {
+      proto: "ipfs",
+      id: rootCid.value,
+      path: decodePathSegments(next.pathname),
+      dir: next.pathname.endsWith("/"),
+      suffix: `${next.search || ""}${next.hash || ""}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function buildMarkdownLumenUrl(target: MarkdownTarget): string {
+  const rel = target.path
+    ? `/${encodePath(target.path)}`
+    : target.dir
+      ? "/"
+      : "";
+  return `lumen://${target.proto}/${target.id}${rel}${target.suffix || ""}`;
+}
+
+function buildMarkdownGatewayUrl(target: MarkdownTarget): string {
+  const base = String(
+    resolvedGatewayBase.value || localIpfsGatewayBase(),
+  ).replace(/\/+$/, "");
+  const rel = target.path
+    ? `/${encodePath(target.path)}`
+    : target.dir
+      ? "/"
+      : "";
+  return `${base}/${target.proto}/${target.id}${rel}${target.suffix || ""}`;
+}
+
+function resolveMarkdownLink(rawHref: string): MarkdownResolvedLink | null {
+  const href = String(rawHref || "").trim();
+  if (!href) return null;
+  if (href.startsWith("#")) return { kind: "anchor", value: href };
+  if (isDangerousMarkdownScheme(href)) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(href) || href.startsWith("//")) {
+    return { kind: "external", value: href };
+  }
+
+  const explicitTarget = parseExplicitMarkdownTarget(href);
+  if (explicitTarget) {
+    return { kind: "internal", value: buildMarkdownLumenUrl(explicitTarget) };
+  }
+
+  const relativeTarget = resolveRelativeMarkdownTarget(href);
+  if (relativeTarget) {
+    return { kind: "internal", value: buildMarkdownLumenUrl(relativeTarget) };
+  }
+
+  return { kind: "external", value: href };
+}
+
+function resolveMarkdownImageSource(rawSrc: string): string | null {
+  const src = String(rawSrc || "").trim();
+  if (!src || src.startsWith("#") || isDangerousMarkdownScheme(src)) return null;
+  if (/^(https?:|data:|blob:)/i.test(src) || src.startsWith("//")) return src;
+
+  const explicitTarget = parseExplicitMarkdownTarget(src);
+  if (explicitTarget) return buildMarkdownGatewayUrl(explicitTarget);
+
+  const relativeTarget = resolveRelativeMarkdownTarget(src);
+  if (relativeTarget) return buildMarkdownGatewayUrl(relativeTarget);
+
+  return null;
+}
+
+function slugifyMarkdownHeading(
+  text: string,
+  counts: Map<string, number>,
+): string {
+  const base =
+    String(text || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "") || "section";
+  const seen = counts.get(base) || 0;
+  counts.set(base, seen + 1);
+  return seen > 0 ? `${base}-${seen}` : base;
+}
+
+const markdownHtml = computed(() => {
+  if (viewKind.value !== "markdown") return "";
+  const source = String(textContent.value || "");
+  if (!source.trim()) return "";
+
+  const parsed = String(
+    marked.parse(source, {
+      gfm: true,
+      breaks: false,
+      async: false,
+    }),
+  );
+  const sanitized = String(
+    DOMPurify.sanitize(parsed, { USE_PROFILES: { html: true } }),
+  );
+  const doc = new DOMParser().parseFromString(
+    `<body>${sanitized}</body>`,
+    "text/html",
+  );
+  const body = doc.body;
+  const headingCounts = new Map<string, number>();
+
+  body.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((heading) => {
+    const text = String(heading.textContent || "").trim();
+    if (!text || heading.id) return;
+    heading.id = slugifyMarkdownHeading(text, headingCounts);
+  });
+
+  body.querySelectorAll("a[href]").forEach((anchor) => {
+    const resolved = resolveMarkdownLink(String(anchor.getAttribute("href") || ""));
+    anchor.removeAttribute("data-lumen-href");
+    if (!resolved) {
+      anchor.removeAttribute("href");
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+      return;
+    }
+    if (resolved.kind === "internal") {
+      anchor.setAttribute("href", "#");
+      anchor.setAttribute("data-lumen-href", resolved.value);
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+      return;
+    }
+    anchor.setAttribute("href", resolved.value);
+    if (resolved.kind === "external") {
+      anchor.setAttribute("target", "_blank");
+      anchor.setAttribute("rel", "noopener noreferrer");
+    } else {
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+    }
+  });
+
+  body.querySelectorAll("img[src]").forEach((img) => {
+    const src = resolveMarkdownImageSource(String(img.getAttribute("src") || ""));
+    if (!src) {
+      img.remove();
+      return;
+    }
+    img.setAttribute("src", src);
+    img.setAttribute("loading", "lazy");
+    img.setAttribute("decoding", "async");
+  });
+
+  return String(
+    DOMPurify.sanitize(body.innerHTML, { USE_PROFILES: { html: true } }),
+  );
+});
+
+function onMarkdownClick(event: MouseEvent) {
+  const target = event.target as HTMLElement | null;
+  const link = target?.closest?.("a[data-lumen-href]") as HTMLAnchorElement | null;
+  const href = String(link?.dataset?.lumenHref || "").trim();
+  if (!href) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (typeof navigate === "function") {
+    navigate(href);
+    return;
+  }
+  window.open(href, "_blank");
+}
+
 async function pickGatewayBaseForCurrentTarget(): Promise<string> {
   const cid = String(rootCid.value || "").trim();
   if (!cid) return localIpfsGatewayBase();
@@ -690,8 +979,40 @@ function guessViewKind(nameOrPath: string): typeof viewKind.value {
   if (["epub"].includes(ext)) return "epub";
   if (["docx"].includes(ext)) return "docx";
   if (["html", "htm"].includes(ext)) return "html";
-  if (["txt", "md", "json", "xml", "csv", "log"].includes(ext)) return "text";
+  if (["md", "markdown", "mdown", "mkd", "mkdn"].includes(ext))
+    return "markdown";
+  if (["txt", "json", "xml", "csv", "log"].includes(ext)) return "text";
   return "unknown";
+}
+
+function looksLikeMarkdown(text: string, nameOrPath = ""): boolean {
+  const path = String(nameOrPath || "").toLowerCase();
+  if (
+    [".md", ".markdown", ".mdown", ".mkd", ".mkdn"].some((ext) =>
+      path.endsWith(ext),
+    )
+  ) {
+    return true;
+  }
+
+  const sample = String(text || "").slice(0, 24_000);
+  if (!sample.trim()) return false;
+
+  let score = 0;
+
+  if (/^#{1,6}\s+\S+/m.test(sample)) score += 2;
+  if (/^[^\n]+\n(?:=+|-+)\s*$/m.test(sample)) score += 2;
+  if (/(^|\n)(`{3,}|~{3,})/.test(sample)) score += 2;
+  if (/^\|.+\|\s*$[\r\n]+\|(?:\s*:?-+:?\s*\|)+/m.test(sample)) score += 2;
+  if (/!\[[^\]\n]*\]\([^)]+\)/.test(sample)) score += 1;
+  if (/\[[^\]\n]+\]\([^)]+\)/.test(sample)) score += 1;
+  if (/^\s{0,3}(?:>|\-\s|\*\s|\+\s|\d+\.\s)\S+/m.test(sample)) score += 1;
+  if (/^\s{0,3}(?:[-*_])(?:\s*\1){2,}\s*$/m.test(sample)) score += 1;
+
+  const lineCount = sample.split(/\r?\n/).length;
+  if (lineCount >= 4 && /^\s*[-*+]\s+\S+/m.test(sample)) score += 1;
+
+  return score >= 2;
 }
 
 async function sniffViewKindFromHead(
@@ -737,6 +1058,8 @@ async function sniffViewKindFromHead(
     if (ct.includes("application/pdf")) return "pdf";
     if (ct.includes("application/epub+zip")) return "epub";
     if (ct.includes("officedocument.wordprocessingml")) return "docx";
+    if (ct.includes("text/markdown") || ct.includes("text/x-markdown"))
+      return "markdown";
     if (ct.startsWith("text/")) return "text";
     if (ct.includes("application/json") || ct.includes("application/xml"))
       return "text";
@@ -1524,7 +1847,7 @@ async function load() {
           if (magicKind !== "unknown") viewKind.value = magicKind;
         }
       }
-      if (viewKind.value === "text") {
+      if (viewKind.value === "text" || viewKind.value === "markdown") {
         const gateways = await loadWhitelistedGatewayBases().catch(() => []);
         const got = await (window as any).lumen
           ?.ipfsGet?.(target, { gateways })
@@ -1539,9 +1862,16 @@ async function load() {
           } else if (bytes.byteLength > 2_000_000) {
             viewKind.value = "unknown";
           } else {
-            textContent.value = new TextDecoder("utf-8", {
+            const decoded = new TextDecoder("utf-8", {
               fatal: false,
             }).decode(bytes);
+            textContent.value = decoded;
+            if (
+              viewKind.value === "text" &&
+              looksLikeMarkdown(decoded, relPath.value || rootCid.value)
+            ) {
+              viewKind.value = "markdown";
+            }
           }
         } else {
           viewKind.value = "unknown";
@@ -2393,6 +2723,11 @@ watch(
   flex: 1 1 auto;
 }
 
+.viewer--document {
+  display: block;
+  min-width: 0;
+}
+
 .hls-error {
   position: absolute;
   left: 1rem;
@@ -2441,6 +2776,80 @@ watch(
   white-space: pre-wrap;
   font-size: 0.85rem;
   color: var(--text-primary);
+}
+
+.markdown-view {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  max-height: 75vh;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: clamp(1.25rem, 2vw, 2rem);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: none;
+  background: var(--card-bg);
+  color-scheme: light;
+  --bgColor-default: #ffffff;
+  --bgColor-muted: #f6f8fa;
+  --bgColor-attention-muted: #fff8c5;
+  --bgColor-neutral-muted: #818b981f;
+  --borderColor-default: #d0d7de;
+  --borderColor-muted: #d8dee4b3;
+  --borderColor-neutral-muted: #afb8c133;
+  --borderColor-accent-emphasis: #0969da;
+  --fgColor-default: #1f2328;
+  --fgColor-muted: #59636e;
+  --fgColor-accent: #0969da;
+  --fgColor-attention: #9a6700;
+  --fgColor-danger: #d1242f;
+  --fgColor-success: #1a7f37;
+  --fgColor-done: #8250df;
+  --color-prettylights-syntax-comment: #59636e;
+  --color-prettylights-syntax-constant: #0550ae;
+  --color-prettylights-syntax-entity: #6639ba;
+  --color-prettylights-syntax-keyword: #cf222e;
+  --color-prettylights-syntax-string: #0a3069;
+  --color-prettylights-syntax-variable: #953800;
+}
+
+:global(:root.dark) .markdown-view {
+  color-scheme: dark;
+  --bgColor-default: #0d1117;
+  --bgColor-muted: #151b23;
+  --bgColor-attention-muted: #bb800926;
+  --bgColor-neutral-muted: #656c7633;
+  --borderColor-default: #3d444d;
+  --borderColor-muted: #3d444db3;
+  --borderColor-neutral-muted: #3d444db3;
+  --borderColor-accent-emphasis: #1f6feb;
+  --fgColor-default: #f0f6fc;
+  --fgColor-muted: #9198a1;
+  --fgColor-accent: #4493f8;
+  --fgColor-attention: #d29922;
+  --fgColor-danger: #f85149;
+  --fgColor-success: #3fb950;
+  --fgColor-done: #ab7df8;
+  --color-prettylights-syntax-comment: #9198a1;
+  --color-prettylights-syntax-constant: #79c0ff;
+  --color-prettylights-syntax-entity: #d2a8ff;
+  --color-prettylights-syntax-keyword: #ff7b72;
+  --color-prettylights-syntax-string: #a5d6ff;
+  --color-prettylights-syntax-variable: #ffa657;
+}
+
+.markdown-view :deep(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-view :deep(pre) {
+  overflow: auto;
+}
+
+.markdown-view :deep(code) {
+  word-break: break-word;
 }
 
 .unsupported {
