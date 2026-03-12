@@ -30,7 +30,7 @@ try {
   }
 } catch {}
 
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
@@ -368,6 +368,7 @@ ipcMain.handle('dialog:openFolder', async (evt, options) => {
 });
 
 const ACTIVE_IPFS_ADDS = new Map(); // wcId -> { abort: () => void }
+const ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS = new Map(); // wcId -> { abort: () => void }
 
 ipcMain.handle('ipfs:cancelAdd', async (evt) => {
   const wcId = String(evt?.sender?.id || '');
@@ -381,9 +382,51 @@ ipcMain.handle('ipfs:cancelAdd', async (evt) => {
   }
 });
 
+ipcMain.handle('ipfs:cancelPublicGatewayPropagation', async (evt) => {
+  const wcId = String(evt?.sender?.id || '');
+  const job = wcId ? ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS.get(wcId) : null;
+  if (!job) return { ok: false, error: 'no_active_job' };
+  try {
+    job.abort?.();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e || 'cancel_failed') };
+  }
+});
+
 ipcMain.handle('ipfs:add', async (_evt, data, filename) => {
   console.log('[electron][ipc] ipfs:add requested:', filename);
   return ipfsAdd(data, filename);
+});
+
+ipcMain.handle('ipfs:propagateCidToPublicGateways', async (evt, input) => {
+  const wcId = String(evt?.sender?.id || '');
+  if (wcId && ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS.has(wcId)) {
+    return { ok: false, error: 'propagation_in_progress' };
+  }
+
+  const controller = new AbortController();
+  const abort = () => {
+    try {
+      controller.abort();
+    } catch {}
+  };
+  if (wcId) ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS.set(wcId, { abort });
+
+  const sendProgress = (payload) => {
+    try {
+      evt?.sender?.send?.('ipfs:publicGatewayPropagationProgress', payload || {});
+    } catch {}
+  };
+
+  try {
+    return await ipfsPropagateCidToPublicGateways(input || {}, {
+      signal: controller.signal,
+      onProgress: sendProgress,
+    });
+  } finally {
+    if (wcId) ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS.delete(wcId);
+  }
 });
 
 ipcMain.handle('ipfs:addWithProgress', async (evt, data, filename) => {
@@ -1135,6 +1178,7 @@ app.whenReady().then(() => {
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
   startIpfsSeedBootstrapper();
+  void prefetchPublicIpfsGateways().catch(() => {});
 
   // CDN-style rolling cache for IPFS resources loaded by the browser.
   try {
