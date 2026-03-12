@@ -412,6 +412,12 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
       await store.linkAddress(address, keyName);
     }
 
+    if (!record && onChain.linked) {
+      throw new Error(
+        'Signer already has a PQC key on-chain but no matching local PQC key is available. Import the dual-signer backup (pqc_keys + dual-signer.json).'
+      );
+    }
+
     if (!record) {
       keyName = preferred;
       record = store.getKey(keyName);
@@ -519,6 +525,8 @@ function isPqcRelatedErrorText(text) {
     msg.includes('link') ||
     msg.includes('linked') ||
     msg.includes('missing pqc key') ||
+    msg.includes('not found in local store') ||
+    msg.includes('local store') ||
     msg.includes('pqc signature required') ||
     msg.includes('signature required') ||
     msg.includes('pub_key_hash') ||

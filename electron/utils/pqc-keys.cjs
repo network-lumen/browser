@@ -1,10 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson } = require('./fs.cjs');
-const { decryptWithPassword, isPasswordProtected } = require('./crypto.cjs');
+const { encryptWithPassword, decryptWithPassword, isPasswordProtected } = require('./crypto.cjs');
+
+function resolvePqcHomeDir() {
+  return process.env.LUMEN_PQC_HOME || userDataPath();
+}
 
 function pqcKeysFilePath() {
-  return path.join(userDataPath('pqc_keys'), 'keys.json');
+  return path.join(resolvePqcHomeDir(), 'pqc_keys', 'keys.json');
 }
 
 /**
@@ -53,12 +57,30 @@ function tempDecryptPqcKeys(password) {
 
     const decryptedKeys = JSON.parse(decryptedStr);
 
-    // Save decrypted version temporarily and keep backup to restore
+    // Save decrypted version temporarily and keep encrypted backup as fallback.
     const backup = JSON.stringify(data);
     fs.writeFileSync(keysFile, JSON.stringify(decryptedKeys, null, 2), 'utf8');
 
     return () => {
       try {
+        const current = readJson(keysFile, null);
+        const currentIsEncrypted =
+          !!current &&
+          typeof current === 'object' &&
+          !!current.crypto &&
+          (current._encrypted === true || isPasswordProtected(current));
+
+        if (currentIsEncrypted) {
+          return;
+        }
+
+        if (current && typeof current === 'object') {
+          const encryptedCurrent = encryptWithPassword(JSON.stringify(current), password);
+          encryptedCurrent._encrypted = true;
+          fs.writeFileSync(keysFile, JSON.stringify(encryptedCurrent, null, 2), 'utf8');
+          return;
+        }
+
         fs.writeFileSync(keysFile, backup, 'utf8');
       } catch (e) {
         console.error('[pqc-keys] failed to restore encrypted PQC keys', e);
