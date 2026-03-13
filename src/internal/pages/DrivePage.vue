@@ -2142,6 +2142,8 @@ const LEGACY_STORAGE_KEY = "lumen_drive_files";
 const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
+const DIRECTORY_UPLOAD_MAX_BYTES = 10 * 1024 * 1024 * 1024;
+const DIRECTORY_UPLOAD_MAX_LABEL = "10 GiB";
 
 function filesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim() || "default";
@@ -5478,8 +5480,8 @@ async function uploadDirectory(
     (acc, it) => acc + (Number(it?.file?.size || 0) || 0),
     0,
   );
-  if (estimatedBytes > 200 * 1024 * 1024) {
-    showToast(`Folder too large (max 200 MB): ${name}`, "error");
+  if (estimatedBytes > DIRECTORY_UPLOAD_MAX_BYTES) {
+    showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
     return { ok: false };
   }
 
@@ -5557,7 +5559,7 @@ async function uploadDirectory(
         return { ok: false, cancelled: true };
       }
       if (err === "directory_too_large") {
-        showToast(`Folder too large (max 200 MB): ${name}`, "error");
+        showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
         return { ok: false };
       }
       if (err === "add_in_progress") {
@@ -5613,7 +5615,7 @@ async function uploadDirectory(
       return { ok: false, cancelled: true };
     }
     if (msg === "directory_too_large") {
-      showToast(`Folder too large (max 200 MB): ${name}`, "error");
+      showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
       return { ok: false };
     }
     const detail = compactError(msg);
@@ -5670,7 +5672,7 @@ async function uploadDirectoryFromPath(
         return { ok: false, cancelled: true };
       }
       if (err === "directory_too_large") {
-        showToast(`Folder too large (max 200 MB): ${name}`, "error");
+        showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
         return { ok: false };
       }
       if (err === "too_many_files") {
@@ -5735,7 +5737,7 @@ async function uploadDirectoryFromPath(
       return { ok: false, cancelled: true };
     }
     if (msg === "directory_too_large") {
-      showToast(`Folder too large (max 200 MB): ${name}`, "error");
+      showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
       return { ok: false };
     }
     const detail = compactError(msg);
