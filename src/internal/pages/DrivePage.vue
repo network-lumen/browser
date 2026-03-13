@@ -324,10 +324,7 @@
               >Warning: this can take a while.</span
             >
             <span class="txt-xs color-gray-blue">
-              {{ convertingStatusLabel
-              }}<template v-if="convertingPercent != null">
-                ({{ convertingPercent }}%)
-              </template>
+              {{ convertingStatusText }}
             </span>
             <div class="progress-actions">
               <button
@@ -345,6 +342,36 @@
           <div
             class="progress-bar-fill"
             :style="{ width: `${convertingPercent}%` }"
+          ></div>
+        </div>
+      </div>
+
+      <div v-if="archiveDownloading" class="upload-progress">
+        <div class="progress-content">
+          <UiSpinner size="sm" />
+          <div class="progress-info">
+            <span class="txt-sm txt-weight-strong">
+              Downloading {{ archiveDownloadFile }}
+            </span>
+            <span class="txt-xs color-gray-blue">
+              {{ archiveDownloadStatusText }}
+            </span>
+            <div class="progress-actions">
+              <button
+                class="progress-cancel-btn"
+                type="button"
+                @click="cancelHlsArchiveDownload"
+                :disabled="archiveDownloadCanceling"
+              >
+                {{ archiveDownloadCanceling ? "Cancelling..." : "Cancel" }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-if="archiveDownloadPercent != null" class="progress-bar">
+          <div
+            class="progress-bar-fill"
+            :style="{ width: `${archiveDownloadPercent}%` }"
           ></div>
         </div>
       </div>
@@ -1855,6 +1882,7 @@ import {
 } from "../services/contentResolver";
 import { profilesState, activeProfileId } from "../profilesStore";
 import { useFavourites, setFavouritesForProfile } from "../favouritesStore";
+import JSZip from "jszip";
 
 interface DriveFile {
   cid: string;
@@ -1937,10 +1965,33 @@ const publicGatewayPropagationLastGateway = ref("");
 const converting = ref(false);
 const convertingFile = ref("");
 const convertingStage = ref<
-  "preparing" | "downloading" | "transcoding" | "adding" | "done" | "cancelling"
+  | "preparing"
+  | "downloading"
+  | "probing"
+  | "extracting-audio"
+  | "transcoding"
+  | "adding"
+  | "done"
+  | "cancelling"
 >("preparing");
 const convertingPercent = ref<number | null>(null);
+const convertingDownloadedBytes = ref<number | null>(null);
+const convertingDownloadTotalBytes = ref<number | null>(null);
 const convertingCanceling = ref(false);
+const archiveDownloading = ref(false);
+const archiveDownloadFile = ref("");
+const archiveDownloadStage = ref<
+  | "selecting-path"
+  | "preparing"
+  | "fetching"
+  | "zipping"
+  | "done"
+  | "cancelling"
+>("preparing");
+const archiveDownloadPercent = ref<number | null>(null);
+const archiveDownloadBytesProcessed = ref<number | null>(null);
+const archiveDownloadTotalBytes = ref<number | null>(null);
+const archiveDownloadCanceling = ref(false);
 const isDragging = ref(false);
 const showUploadMenu = ref(false);
 const fileUploadInput = ref<HTMLInputElement | null>(null);
@@ -2012,9 +2063,64 @@ const publicGatewayPropagationStatusLabel = computed(() => {
 
 const convertingStatusLabel = computed(() => {
   if (convertingCanceling.value) return "Cancelling…";
+  if (convertingStage.value === "downloading")
+    return "Downloading source video from IPFS…";
+  if (convertingStage.value === "probing") return "Inspecting source video…";
+  if (convertingStage.value === "extracting-audio")
+    return "Preparing audio track…";
   if (convertingStage.value === "adding") return "Adding HLS files to IPFS…";
   if (convertingStage.value === "done") return "Finalizing…";
   return "Building an HLS ladder locally…";
+});
+
+const convertingStatusText = computed(() => {
+  const label = convertingStatusLabel.value;
+  if (convertingPercent.value != null) return `${label} (${convertingPercent.value}%)`;
+  if (
+    convertingStage.value === "downloading" &&
+    convertingDownloadedBytes.value != null &&
+    convertingDownloadedBytes.value > 0
+  ) {
+    const downloaded = formatSize(convertingDownloadedBytes.value);
+    if (
+      convertingDownloadTotalBytes.value != null &&
+      convertingDownloadTotalBytes.value > 0
+    ) {
+      return `${label} (${downloaded} / ${formatSize(convertingDownloadTotalBytes.value)})`;
+    }
+    return `${label} (${downloaded} downloaded)`;
+  }
+  return label;
+});
+
+const archiveDownloadStatusLabel = computed(() => {
+  if (archiveDownloadCanceling.value) return "Cancelling…";
+  if (archiveDownloadStage.value === "selecting-path")
+    return "Waiting for save location…";
+  if (archiveDownloadStage.value === "fetching")
+    return "Collecting HLS files from local IPFS…";
+  if (archiveDownloadStage.value === "zipping") return "Creating ZIP archive…";
+  if (archiveDownloadStage.value === "done") return "Finalizing…";
+  return "Preparing HLS archive export…";
+});
+
+const archiveDownloadStatusText = computed(() => {
+  const label = archiveDownloadStatusLabel.value;
+  const pct = archiveDownloadPercent.value;
+  const done = archiveDownloadBytesProcessed.value;
+  const total = archiveDownloadTotalBytes.value;
+
+  if (pct != null && done != null && done > 0 && total != null && total > 0) {
+    return `${label} (${pct}%, ${formatSize(done)} / ${formatSize(total)})`;
+  }
+  if (pct != null) return `${label} (${pct}%)`;
+  if (done != null && done > 0 && total != null && total > 0) {
+    return `${label} (${formatSize(done)} / ${formatSize(total)})`;
+  }
+  if (done != null && done > 0) {
+    return `${label} (${formatSize(done)} processed)`;
+  }
+  return label;
 });
 
 const openInNewTab = inject<((url: string) => void) | null>(
@@ -2350,6 +2456,137 @@ function openTargetFor(file: DriveFile): string {
   const root = String(file?.rootCid || file?.cid || "").trim();
   if (!root) return target;
   return `${root}/master.m3u8`;
+}
+
+function isWindowsAppPlatform(): boolean {
+  try {
+    const platform = String((window as any).lumen?.appPlatform || "")
+      .trim()
+      .toLowerCase();
+    if (platform) return platform === "win32";
+  } catch {
+    // ignore
+  }
+
+  try {
+    return /windows/i.test(String(navigator.userAgent || ""));
+  } catch {
+    return false;
+  }
+}
+
+function encodeGatewayPath(p: string): string {
+  const cleaned = String(p || "").replace(/^\/+/, "");
+  if (!cleaned) return "";
+  return cleaned
+    .split("/")
+    .filter((seg) => seg.length > 0)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+}
+
+function bytesFromBase64(b64: string): Uint8Array {
+  const raw = String(b64 || "");
+  if (!raw) return new Uint8Array();
+  const bin = atob(raw);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function collectIpfsFilesRecursively(
+  rootCid: string,
+  relPath = "",
+): Promise<Array<{ archivePath: string; target: string }>> {
+  const target = relPath ? `${rootCid}/${relPath}` : rootCid;
+  const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
+  if (!res?.ok || !Array.isArray(res.entries)) {
+    throw new Error(String(res?.error || "Failed to list HLS directory"));
+  }
+
+  const out: Array<{ archivePath: string; target: string }> = [];
+  for (const entry of res.entries) {
+    const name = String(entry?.name || "")
+      .replace(/\\/g, "/")
+      .replace(/^\/+/, "")
+      .replace(/\/+$/, "");
+    if (!name) continue;
+    const childRel = relPath ? `${relPath}/${name}` : name;
+    const type = String(entry?.type || "");
+    if (type === "dir") {
+      out.push(...(await collectIpfsFilesRecursively(rootCid, childRel)));
+      continue;
+    }
+    if (type === "file") {
+      out.push({
+        archivePath: childRel,
+        target: `${rootCid}/${childRel}`,
+      });
+    }
+  }
+  return out;
+}
+
+async function downloadHlsAsZip(file: DriveFile): Promise<void> {
+  const root = String(file?.rootCid || file?.cid || "").trim();
+  if (!root) throw new Error("missing_root_cid");
+  const localBase = String(localIpfsGatewayBase() || "")
+    .replace(/\/+$/, "")
+    .trim();
+
+  const archiveRoot =
+    String(stripExt(file.name) || file.name || root)
+      .replace(/[<>:"/\\|?*\u0000-\u001F]+/g, " ")
+      .trim() || root;
+
+  const files = await collectIpfsFilesRecursively(root);
+  if (!files.length) throw new Error("empty_hls_directory");
+
+  const zip = new JSZip();
+  const concurrency = Math.min(8, Math.max(2, (navigator.hardwareConcurrency || 4)));
+  let cursor = 0;
+
+  async function fetchOne(item: { archivePath: string; target: string }) {
+    const httpUrl = localBase
+      ? `${localBase}/ipfs/${root}/${encodeGatewayPath(item.archivePath)}`
+      : "";
+    const fast = httpUrl
+      ? await (window as any).lumen?.httpGetBytes?.(httpUrl, { timeout: 120000 }).catch(() => null)
+      : null;
+
+    if (fast?.ok && typeof fast?.dataB64 === "string") {
+      zip.file(`${archiveRoot}/${item.archivePath}`, bytesFromBase64(fast.dataB64));
+      return;
+    }
+
+    const got = await (window as any).lumen?.ipfsGet?.(item.target, { gateways: [] }).catch(() => null);
+    if (!got?.ok || !Array.isArray(got.data)) {
+      throw new Error(`Failed to fetch ${item.archivePath}`);
+    }
+    zip.file(`${archiveRoot}/${item.archivePath}`, new Uint8Array(got.data));
+  }
+
+  async function worker() {
+    while (true) {
+      const idx = cursor++;
+      if (idx >= files.length) return;
+      await fetchOne(files[idx]!);
+    }
+  }
+
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+
+  const blob = await zip.generateAsync({
+    type: "blob",
+    compression: "STORE",
+    streamFiles: true,
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${archiveRoot}.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 const rootSavedEntries = computed<DriveFile[]>(() => {
@@ -2858,6 +3095,7 @@ let urlBarLastUserInputAt = 0;
 let tabUrlChangedHandler: ((ev: any) => void) | null = null;
 let tabHistoryStepHandler: ((ev: any) => void) | null = null;
 let hlsProgressUnsub: (() => void) | null = null;
+let hlsArchiveProgressUnsub: (() => void) | null = null;
 let ipfsAddProgressUnsub: (() => void) | null = null;
 let gatewayIngestProgressUnsub: (() => void) | null = null;
 let publicGatewayPropagationUnsub: (() => void) | null = null;
@@ -2939,9 +3177,28 @@ onMounted(async () => {
       hlsProgressUnsub = api.driveOnHlsProgress((payload: any) => {
         const stage = String(payload?.stage || "");
         if (stage === "downloading") convertingStage.value = "downloading";
+        else if (stage === "probing") convertingStage.value = "probing";
+        else if (stage === "extracting-audio")
+          convertingStage.value = "extracting-audio";
         else if (stage === "transcoding") convertingStage.value = "transcoding";
         else if (stage === "adding") convertingStage.value = "adding";
         else if (stage === "done") convertingStage.value = "done";
+
+        if (stage === "downloading") {
+          const bytesDownloaded = payload?.bytesDownloaded;
+          const totalBytes = payload?.totalBytes;
+          convertingDownloadedBytes.value =
+            typeof bytesDownloaded === "number" && Number.isFinite(bytesDownloaded)
+              ? Math.max(0, Math.round(bytesDownloaded))
+              : null;
+          convertingDownloadTotalBytes.value =
+            typeof totalBytes === "number" && Number.isFinite(totalBytes)
+              ? Math.max(0, Math.round(totalBytes))
+              : null;
+        } else {
+          convertingDownloadedBytes.value = null;
+          convertingDownloadTotalBytes.value = null;
+        }
 
         if (stage === "transcoding" || stage === "done") {
           const pct = payload?.percent;
@@ -2951,6 +3208,8 @@ onMounted(async () => {
               Math.min(100, Math.round(pct)),
             );
           }
+        } else {
+          convertingPercent.value = null;
         }
       });
     }
@@ -2969,6 +3228,38 @@ onMounted(async () => {
         } else {
           uploadingPercent.value = null;
         }
+      });
+    }
+  } catch {}
+
+  try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.driveOnHlsArchiveProgress === "function") {
+      hlsArchiveProgressUnsub = api.driveOnHlsArchiveProgress((payload: any) => {
+        const stage = String(payload?.stage || "");
+        if (stage === "selecting-path") archiveDownloadStage.value = "selecting-path";
+        else if (stage === "preparing") archiveDownloadStage.value = "preparing";
+        else if (stage === "fetching") archiveDownloadStage.value = "fetching";
+        else if (stage === "zipping") archiveDownloadStage.value = "zipping";
+        else if (stage === "done") archiveDownloadStage.value = "done";
+
+        const pct = payload?.percent;
+        archiveDownloadPercent.value =
+          typeof pct === "number" && Number.isFinite(pct)
+            ? Math.max(0, Math.min(100, Math.round(pct)))
+            : null;
+
+        const bytesProcessed = payload?.bytesProcessed;
+        archiveDownloadBytesProcessed.value =
+          typeof bytesProcessed === "number" && Number.isFinite(bytesProcessed)
+            ? Math.max(0, Math.round(bytesProcessed))
+            : null;
+
+        const totalBytes = payload?.totalBytes;
+        archiveDownloadTotalBytes.value =
+          typeof totalBytes === "number" && Number.isFinite(totalBytes)
+            ? Math.max(0, Math.round(totalBytes))
+            : null;
       });
     }
   } catch {}
@@ -3141,6 +3432,12 @@ onUnmounted(() => {
     // ignore
   }
   hlsProgressUnsub = null;
+  try {
+    hlsArchiveProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  hlsArchiveProgressUnsub = null;
   try {
     ipfsAddProgressUnsub?.();
   } catch {
@@ -5092,50 +5389,7 @@ async function finalizeLocalUpload(
   void loadPinnedFiles();
 
   const label = kind === "folder" ? `Uploaded folder: ${name}` : `Uploaded: ${name}`;
-  const propagated = await propagateLocalCidToPublicGateways(cid);
-
-  if (propagated.skipped) {
-    showToast(label, "success");
-    return;
-  }
-
-  if (!propagated.ok && propagated.cancelled) {
-    showToast(`${label}. Public propagation cancelled; the CID is still saved locally.`, "success");
-    return;
-  }
-
-  if (!propagated.ok) {
-    const detail = compactError(propagated.error);
-    showToast(
-      detail
-        ? `${label}. Public propagation failed (${detail}); the CID is still saved locally.`
-        : `${label}. Public propagation failed; the CID is still saved locally.`,
-      "error",
-    );
-    return;
-  }
-
-  if (propagated.total > 0 && propagated.succeeded > 0) {
-    showToast(label, "success");
-    return;
-  }
-
-  if (propagated.skippedOffline > 0 && propagated.total === 0) {
-    showToast(
-      `${label}. All public gateways were recently marked offline; the CID is still saved locally.`,
-      "error",
-    );
-    return;
-  }
-
-  if (propagated.total > 0) {
-    showToast(
-      `${label}. No live public gateway fetched the CID within 15s; the CID is still saved locally.`,
-      "error",
-    );
-    return;
-  }
-
+  await propagateLocalCidToPublicGateways(cid).catch(() => null);
   showToast(label, "success");
 }
 
@@ -5632,7 +5886,9 @@ async function convertToHls(file: DriveFile) {
   converting.value = true;
   convertingFile.value = file.name;
   convertingStage.value = "preparing";
-  convertingPercent.value = 0;
+  convertingPercent.value = null;
+  convertingDownloadedBytes.value = null;
+  convertingDownloadTotalBytes.value = null;
   convertingCanceling.value = false;
 
   try {
@@ -5695,6 +5951,8 @@ async function convertToHls(file: DriveFile) {
     convertingFile.value = "";
     convertingStage.value = "preparing";
     convertingPercent.value = null;
+    convertingDownloadedBytes.value = null;
+    convertingDownloadTotalBytes.value = null;
     convertingCanceling.value = false;
   }
 }
@@ -5773,8 +6031,103 @@ async function cancelHlsConversion() {
   }
 }
 
+function resetArchiveDownloadState() {
+  archiveDownloading.value = false;
+  archiveDownloadFile.value = "";
+  archiveDownloadStage.value = "preparing";
+  archiveDownloadPercent.value = null;
+  archiveDownloadBytesProcessed.value = null;
+  archiveDownloadTotalBytes.value = null;
+  archiveDownloadCanceling.value = false;
+}
+
+async function cancelHlsArchiveDownload() {
+  if (!archiveDownloading.value || archiveDownloadCanceling.value) return;
+  const prevStage = archiveDownloadStage.value;
+  archiveDownloadCanceling.value = true;
+  archiveDownloadStage.value = "cancelling";
+  try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.driveCancelHlsArchiveDownload !== "function") {
+      showToast("Cancel is unavailable.", "error");
+      archiveDownloadCanceling.value = false;
+      archiveDownloadStage.value = prevStage;
+      return;
+    }
+    const res = await api.driveCancelHlsArchiveDownload().catch(() => null);
+    if (!res?.ok) {
+      showToast(String(res?.error || "Cancel failed"), "error");
+      archiveDownloadCanceling.value = false;
+      archiveDownloadStage.value = prevStage;
+    }
+  } catch (e: any) {
+    showToast(String(e?.message || "Cancel failed"), "error");
+    archiveDownloadCanceling.value = false;
+    archiveDownloadStage.value = prevStage;
+  }
+}
+
 async function downloadFile(file: DriveFile) {
   try {
+    if (isHlsEntry(file)) {
+      if (isWindowsAppPlatform()) {
+        const api: any = (window as any).lumen;
+        if (typeof api?.driveDownloadHlsArchive === "function") {
+          if (archiveDownloading.value) {
+            showToast("Another HLS archive download is already running.", "error");
+            return;
+          }
+          archiveDownloading.value = true;
+          archiveDownloadFile.value = file.name;
+          archiveDownloadStage.value = "selecting-path";
+          archiveDownloadPercent.value = null;
+          archiveDownloadBytesProcessed.value = null;
+          archiveDownloadTotalBytes.value = null;
+          archiveDownloadCanceling.value = false;
+          const res = await api.driveDownloadHlsArchive({
+            rootCid: String(file?.rootCid || file?.cid || "").trim(),
+            name: String(file?.name || "").trim(),
+            expectedSizeBytes: Number(file?.size || 0) || 0,
+          });
+          if (res?.ok) {
+            showToast("Downloaded!", "success");
+            return;
+          }
+          if (String(res?.error || "").toLowerCase().includes("cancel")) {
+            return;
+          }
+          if (String(res?.error || "") === "download_in_progress") {
+            showToast("Another HLS archive download is already running.", "error");
+            return;
+          }
+          showToast(String(res?.error || "Download failed"), "error");
+          return;
+        }
+
+        await downloadHlsAsZip(file);
+        showToast("Downloaded!", "success");
+        return;
+      }
+
+      const root = String(file?.rootCid || file?.cid || "").trim();
+      const base = String(localIpfsGatewayBase() || "")
+        .replace(/\/+$/, "")
+        .trim();
+      if (!root || !base) {
+        showToast("Download failed", "error");
+        return;
+      }
+
+      const tarUrl = `${base}/ipfs/${root}?format=tar`;
+      const a = document.createElement("a");
+      a.href = tarUrl;
+      a.rel = "noopener";
+      a.download = `${stripExt(file.name) || file.name || root}.tar`;
+      a.click();
+      showToast("Download started.", "success");
+      return;
+    }
+
     const target = contentTargetFor(file);
     const gateways = await loadWhitelistedGatewayBases().catch(() => []);
     const result = await (window as any).lumen?.ipfsGet?.(target, { gateways });
@@ -5793,6 +6146,8 @@ async function downloadFile(file: DriveFile) {
     }
   } catch {
     showToast("Download error", "error");
+  } finally {
+    resetArchiveDownloadState();
   }
 }
 

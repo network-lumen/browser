@@ -1,13 +1,20 @@
-const { ipcMain, app } = require('electron');
+const { ipcMain, app, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const { spawn } = require('node:child_process');
 const { pipeline } = require('node:stream/promises');
-const { Readable } = require('node:stream');
+const { Readable, Transform } = require('node:stream');
 const crypto = require('node:crypto');
 const { getSetting } = require('../settings.cjs');
 
 const ACTIVE_HLS_CONVERSIONS = new Map(); // wcId -> { abort: () => void }
+const ACTIVE_HLS_ARCHIVE_EXPORTS = new Map(); // wcId -> { abort: () => void }
+const DOWNLOAD_PROGRESS_MIN_INTERVAL_MS = 500;
+const DOWNLOAD_PROGRESS_MIN_STEP_BYTES = 8 * 1024 * 1024;
+
+function logHls(...args) {
+  console.log('[electron][hls]', ...args);
+}
 
 function ipfsApiBase() {
   return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
@@ -32,6 +39,15 @@ function resolveFfprobeBin() {
   try {
     const mod = require('@ffprobe-installer/ffprobe');
     const p = mod && (mod.path || mod.ffprobePath) ? (mod.path || mod.ffprobePath) : null;
+    if (typeof p === 'string' && p) return unwrapAsarPath(p);
+  } catch {}
+  return null;
+}
+
+function resolveKuboBin() {
+  try {
+    const mod = require('kubo');
+    const p = typeof mod?.path === 'function' ? mod.path() : mod?.path;
     if (typeof p === 'string' && p) return unwrapAsarPath(p);
   } catch {}
   return null;
@@ -72,6 +88,7 @@ function spawnCapture(bin, args, opts) {
 
 async function kuboCatToFile(arg, outPath, opts = {}) {
   const signal = opts && opts.signal ? opts.signal : undefined;
+  const onProgress = typeof opts?.onProgress === 'function' ? opts.onProgress : null;
   const u = new URL(`${ipfsApiBase()}/api/v0/cat`);
   u.searchParams.set('arg', String(arg || '').trim());
   const res = await fetch(u.toString(), { method: 'POST', signal });
@@ -80,8 +97,37 @@ async function kuboCatToFile(arg, outPath, opts = {}) {
     throw new Error(`kubo_cat_http_${res.status}${txt ? ':' + txt.slice(0, 180) : ''}`);
   }
   if (!res.body) throw new Error('kubo_cat_no_body');
+  const totalBytesRaw = Number(res.headers.get('content-length'));
+  const totalBytes = Number.isFinite(totalBytesRaw) && totalBytesRaw > 0 ? totalBytesRaw : null;
   const nodeStream = Readable.fromWeb(res.body);
-  await pipeline(nodeStream, fs.createWriteStream(outPath));
+  let bytesDownloaded = 0;
+  let lastEmitAt = 0;
+  let lastEmitBytes = 0;
+  const counter = new Transform({
+    transform(chunk, _enc, cb) {
+      const size = Buffer.isBuffer(chunk) ? chunk.length : Buffer.byteLength(chunk);
+      bytesDownloaded += size;
+      const now = Date.now();
+      const shouldEmit =
+        !!onProgress &&
+        (now - lastEmitAt >= DOWNLOAD_PROGRESS_MIN_INTERVAL_MS ||
+          bytesDownloaded - lastEmitBytes >= DOWNLOAD_PROGRESS_MIN_STEP_BYTES);
+      if (shouldEmit) {
+        lastEmitAt = now;
+        lastEmitBytes = bytesDownloaded;
+        try {
+          onProgress({ bytesDownloaded, totalBytes });
+        } catch {}
+      }
+      cb(null, chunk);
+    },
+  });
+  await pipeline(nodeStream, counter, fs.createWriteStream(outPath));
+  if (onProgress) {
+    try {
+      onProgress({ bytesDownloaded, totalBytes });
+    } catch {}
+  }
   const st = fs.statSync(outPath);
   if (!st.size) throw new Error('kubo_cat_empty');
   return st.size;
@@ -290,6 +336,220 @@ async function ipfsAddDirFromDisk(dirPath, opts = {}) {
   return cid;
 }
 
+function psQuote(v) {
+  return `'${String(v || '').replace(/'/g, "''")}'`;
+}
+
+function pathSizeBytes(targetPath) {
+  try {
+    const st = fs.statSync(targetPath);
+    if (st.isFile()) return st.size;
+    if (st.isDirectory()) return walkSizeBytes(targetPath);
+  } catch {}
+  return 0;
+}
+
+async function spawnTrackedProcess({
+  bin,
+  args,
+  opts = {},
+  signal,
+  onSpawn,
+  onProgress,
+  stage,
+  watchPath,
+  totalBytes,
+  percentStart,
+  percentEnd,
+}) {
+  return await new Promise((resolve, reject) => {
+    const child = spawn(bin, args, { ...opts, stdio: ['ignore', 'pipe', 'pipe'] });
+    onSpawn?.(child);
+
+    let out = '';
+    let err = '';
+    const MAX_ERR = 2000;
+    child.stderr?.setEncoding('utf8');
+    child.stdout?.setEncoding('utf8');
+    child.stderr?.on('data', (d) => {
+      err = (err + String(d || '')).slice(-MAX_ERR);
+    });
+    child.stdout?.on('data', (d) => {
+      out = (out + String(d || '')).slice(-MAX_ERR);
+    });
+
+    let lastBytes = -1;
+    let lastPct = -1;
+    const timer = setInterval(() => {
+      if (!watchPath || typeof onProgress !== 'function') return;
+      const bytes = pathSizeBytes(watchPath);
+      if (bytes === lastBytes && !totalBytes) return;
+      lastBytes = bytes;
+
+      let percent = null;
+      if (Number.isFinite(totalBytes) && totalBytes > 0) {
+        const ratio = Math.max(0, Math.min(1, bytes / totalBytes));
+        percent = Math.max(
+          percentStart,
+          Math.min(percentEnd, Math.round(percentStart + ratio * (percentEnd - percentStart))),
+        );
+      }
+      if (percent === lastPct && bytes > 0) return;
+      lastPct = percent;
+      try {
+        onProgress({
+          stage,
+          percent,
+          bytesProcessed: bytes,
+          totalBytes: Number.isFinite(totalBytes) && totalBytes > 0 ? totalBytes : undefined,
+        });
+      } catch {}
+    }, 500);
+
+    const cleanup = () => {
+      try { clearInterval(timer); } catch {}
+    };
+
+    child.on('error', (e) => {
+      cleanup();
+      reject(e);
+    });
+    child.on('close', (code) => {
+      cleanup();
+      const finalBytes = watchPath ? pathSizeBytes(watchPath) : 0;
+      if (typeof onProgress === 'function') {
+        try {
+          onProgress({
+            stage,
+            percent: Number.isFinite(totalBytes) && totalBytes > 0 ? percentEnd : undefined,
+            bytesProcessed: finalBytes,
+            totalBytes: Number.isFinite(totalBytes) && totalBytes > 0 ? totalBytes : undefined,
+          });
+        } catch {}
+      }
+      resolve({ code: Number(code ?? -1), stdout: out, stderr: err, bytesProcessed: finalBytes });
+    });
+
+    if (signal) {
+      if (signal.aborted) killProcessTree(child);
+      signal.addEventListener('abort', () => killProcessTree(child), { once: true });
+    }
+  });
+}
+
+async function exportHlsArchiveWindows({ rootCid, name, expectedSizeBytes, signal, onProgress, onSpawn }) {
+  if (process.platform !== 'win32') throw new Error('unsupported_platform');
+  const cid = String(rootCid || '').trim();
+  if (!cid) throw new Error('missing_root_cid');
+
+  const ipfsBin = resolveKuboBin();
+  if (!ipfsBin) throw new Error('ipfs_unavailable');
+  const emit = (payload) => {
+    if (typeof onProgress !== 'function') return;
+    try { onProgress(payload); } catch {}
+  };
+
+  const baseNameRaw = safeBaseName(name).replace(/\s-\s*hls$/i, '').trim();
+  const baseName = baseNameRaw || 'video';
+  const defaultPath = path.join(app.getPath('downloads'), `${baseName}.zip`);
+  emit({ stage: 'selecting-path' });
+  const picked = await dialog.showSaveDialog({
+    title: 'Save HLS archive',
+    defaultPath,
+    filters: [{ name: 'Zip Archive', extensions: ['zip'] }],
+    properties: ['createDirectory', 'showOverwriteConfirmation'],
+  });
+  if (picked.canceled || !picked.filePath) return { ok: false, error: 'cancelled' };
+  if (signal?.aborted) throw new Error('cancelled');
+
+  const tmpRoot = fs.mkdtempSync(path.join(app.getPath('temp'), 'lumen-hls-export-'));
+  const sourcePath = path.join(tmpRoot, baseName);
+  const targetPath = String(picked.filePath);
+
+  try {
+    logHls('archive export start', { rootCid: cid, name, sourcePath, targetPath });
+    const env = { ...process.env, IPFS_PATH: userIpfsRepoPath() };
+    emit({ stage: 'preparing', percent: 0 });
+
+    const totalBytesHint =
+      Number.isFinite(Number(expectedSizeBytes)) && Number(expectedSizeBytes) > 0
+        ? Number(expectedSizeBytes)
+        : null;
+
+    const getRes = await spawnTrackedProcess({
+      bin: ipfsBin,
+      args: ['get', cid, '-o', sourcePath],
+      opts: { env },
+      signal,
+      onSpawn,
+      onProgress: emit,
+      stage: 'fetching',
+      watchPath: sourcePath,
+      totalBytes: totalBytesHint,
+      percentStart: 3,
+      percentEnd: 82,
+    });
+    if (getRes.code !== 0) {
+      if (signal?.aborted) throw new Error('cancelled');
+      throw new Error(String(getRes.stderr || getRes.stdout || 'ipfs_get_failed').trim());
+    }
+    if (signal?.aborted) throw new Error('cancelled');
+
+    const sourceBytes = pathSizeBytes(sourcePath) || totalBytesHint || null;
+    emit({
+      stage: 'zipping',
+      percent: sourceBytes ? 82 : null,
+      bytesProcessed: 0,
+      totalBytes: sourceBytes || undefined,
+    });
+
+    const psScript = [
+      "$ErrorActionPreference = 'Stop'",
+      `$src = ${psQuote(sourcePath)}`,
+      `$dst = ${psQuote(targetPath)}`,
+      "if (Test-Path -LiteralPath $dst) { Remove-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue }",
+      'try {',
+      '  Compress-Archive -LiteralPath $src -DestinationPath $dst -CompressionLevel NoCompression -Force',
+      '} catch {',
+      '  if (Test-Path -LiteralPath $dst) { Remove-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue }',
+      '  Compress-Archive -LiteralPath $src -DestinationPath $dst -Force',
+      '}',
+    ].join('; ');
+    const zipRes = await spawnTrackedProcess({
+      bin: 'powershell.exe',
+      args: ['-NoProfile', '-NonInteractive', '-Command', psScript],
+      signal,
+      onSpawn,
+      onProgress: emit,
+      stage: 'zipping',
+      watchPath: targetPath,
+      totalBytes: sourceBytes,
+      percentStart: 82,
+      percentEnd: 99,
+    });
+    if (zipRes.code !== 0) {
+      if (signal?.aborted) throw new Error('cancelled');
+      throw new Error(String(zipRes.stderr || zipRes.stdout || 'zip_failed').trim());
+    }
+    if (signal?.aborted) throw new Error('cancelled');
+
+    let sizeBytes = 0;
+    try {
+      sizeBytes = fs.statSync(targetPath).size;
+    } catch {}
+    emit({ stage: 'done', percent: 100, bytesProcessed: sizeBytes, totalBytes: sizeBytes });
+    logHls('archive export complete', { rootCid: cid, targetPath, sizeBytes });
+    return { ok: true, filePath: targetPath, sizeBytes };
+  } finally {
+    try {
+      if (signal?.aborted && targetPath && fs.existsSync(targetPath)) {
+        fs.rmSync(targetPath, { force: true });
+      }
+    } catch {}
+    try { fs.rmSync(tmpRoot, { recursive: true, force: true }); } catch {}
+  }
+}
+
 async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onProgress, onSpawn }) {
   const ffmpegBin = resolveFfmpegBin();
   const ffprobeBin = resolveFfprobeBin();
@@ -317,6 +577,7 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onPro
   };
 
   try {
+    logHls('convert start', { name, cidOrPath, tmpRoot });
     if (signal?.aborted) throw new Error('cancelled');
     const base = safeBaseName(name);
     const ext = extLower(base);
@@ -327,19 +588,45 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onPro
     ensureDirs(outDir, ladder.length);
 
     emit({ stage: 'downloading', percent: 0 });
-    await kuboCatToFile(String(cidOrPath || '').trim(), srcPath, { signal });
+    const downloadStartedAt = Date.now();
+    const downloadedBytes = await kuboCatToFile(String(cidOrPath || '').trim(), srcPath, {
+      signal,
+      onProgress: ({ bytesDownloaded, totalBytes }) => {
+        const payload = { stage: 'downloading', bytesDownloaded, totalBytes };
+        if (totalBytes && totalBytes > 0) {
+          payload.percent = Math.max(0, Math.min(100, Math.round((bytesDownloaded / totalBytes) * 100)));
+        }
+        emit(payload);
+      },
+    });
+    logHls('download complete', {
+      name,
+      bytes: downloadedBytes,
+      elapsedMs: Date.now() - downloadStartedAt,
+      srcPath,
+    });
     if (signal?.aborted) throw new Error('cancelled');
 
+    emit({ stage: 'probing' });
     const fps = await getFps(ffprobeBin, srcPath);
     const gop = Math.max(1, Math.round(gopSec * fps));
     const durationSec = await getDurationSec(ffprobeBin, srcPath);
     const durationMs = durationSec ? Math.round(durationSec * 1000) : null;
+    logHls('probe complete', { name, fps, gop, durationSec });
 
     let audioPresent = await hasAudio(ffprobeBin, srcPath);
     let cleanAudioPath = null;
     if (audioPresent) {
       const tmpAudio = path.join(tmpRoot, 'audio_clean.m4a');
+      emit({ stage: 'extracting-audio' });
+      const audioStartedAt = Date.now();
       const ok = await extractCleanAudio(ffmpegBin, srcPath, tmpAudio, audioBitrate || '128k');
+      logHls('audio extract complete', {
+        name,
+        ok,
+        elapsedMs: Date.now() - audioStartedAt,
+        audioBitrate: String(audioBitrate || '128k'),
+      });
       if (ok) cleanAudioPath = tmpAudio;
       else audioPresent = false;
     }
@@ -398,6 +685,12 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onPro
       'v%v/stream.m3u8',
     );
 
+    logHls('transcode start', {
+      name,
+      ladderCount: ladder.length,
+      hasCleanAudio: !!cleanAudioPath,
+      ffmpegBin,
+    });
     emit({ stage: 'transcoding', percent: 0 });
     const r = await new Promise((resolve, reject) => {
       const child = spawn(ffmpegBin, cmd, { cwd: outDir, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -410,7 +703,7 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onPro
         errTail = (errTail + String(d || '')).slice(-MAX_ERR);
       });
 
-      const prog = { outTimeMs: 0, frame: 0, fps: 0, speed: '', lastEmitAt: 0, lastPct: -1 };
+      const prog = { outTimeMs: 0, frame: 0, fps: 0, speed: '', lastEmitAt: 0, lastPct: -1, lastLoggedBucket: -1 };
       let buf = '';
       child.stdout?.setEncoding('utf8');
       child.stdout?.on('data', (d) => {
@@ -448,6 +741,17 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onPro
               if (shouldEmit) {
                 prog.lastEmitAt = now;
                 prog.lastPct = rawPct;
+                const bucket = Math.floor(rawPct / 10);
+                if (bucket !== prog.lastLoggedBucket || v === 'end') {
+                  prog.lastLoggedBucket = bucket;
+                  logHls('transcode progress', {
+                    name,
+                    percent: rawPct,
+                    frame: prog.frame,
+                    fps: prog.fps,
+                    speed: prog.speed,
+                  });
+                }
                 emit({
                   stage: 'transcoding',
                   percent: rawPct,
@@ -472,14 +776,18 @@ async function convertToHlsLadder({ cidOrPath, name, audioBitrate, signal, onPro
     if (r.code !== 0) {
       if (signal?.aborted) throw new Error('cancelled');
       const tail = String(r.stderr || '').trim().slice(-1400);
+      logHls('transcode failed', { name, error: tail || 'ffmpeg_failed' });
       throw new Error(tail || 'ffmpeg_failed');
     }
+    logHls('transcode complete', { name });
 
     if (signal?.aborted) throw new Error('cancelled');
     const sizeBytes = walkSizeBytes(outDir);
     emit({ stage: 'adding', percent: 0 });
+    logHls('ipfs add start', { name, outDir, sizeBytes });
     const cid = await ipfsAddDirFromDisk(outDir, { signal, onSpawn });
     if (signal?.aborted) throw new Error('cancelled');
+    logHls('convert complete', { name, cid, sizeBytes, hasAudio: !!cleanAudioPath });
 
     return { cid, sizeBytes, hasAudio: !!cleanAudioPath };
   } finally {
@@ -515,6 +823,7 @@ function registerHlsIpc() {
       if (!['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) {
         return { ok: false, error: 'not_a_video' };
       }
+      logHls('ipc request', { wcId, cidOrPath, name });
 
       const controller = new AbortController();
       let activeChild = null;
@@ -536,6 +845,14 @@ function registerHlsIpc() {
             frame: typeof payload?.frame === 'number' ? payload.frame : undefined,
             fps: typeof payload?.fps === 'number' ? payload.fps : undefined,
             speed: typeof payload?.speed === 'string' ? payload.speed : undefined,
+            bytesDownloaded:
+              typeof payload?.bytesDownloaded === 'number' && Number.isFinite(payload.bytesDownloaded)
+                ? payload.bytesDownloaded
+                : undefined,
+            totalBytes:
+              typeof payload?.totalBytes === 'number' && Number.isFinite(payload.totalBytes)
+                ? payload.totalBytes
+                : undefined,
           });
         } catch {}
       };
@@ -555,6 +872,7 @@ function registerHlsIpc() {
       return { ok: true, ...res };
     } catch (e) {
       const msg = String(e?.message || e || 'convert_failed');
+      logHls('ipc failure', { error: msg });
       const lower = msg.toLowerCase();
       if (lower.includes('abort') || lower.includes('cancel') || lower.includes('aborted')) {
         return { ok: false, error: 'cancelled' };
@@ -563,6 +881,77 @@ function registerHlsIpc() {
     } finally {
       const wcId = String(_evt?.sender?.id || '');
       if (wcId) ACTIVE_HLS_CONVERSIONS.delete(wcId);
+    }
+  });
+
+  ipcMain.handle('drive:cancelHlsArchiveDownload', async (evt) => {
+    const wcId = String(evt?.sender?.id || '');
+    const job = wcId ? ACTIVE_HLS_ARCHIVE_EXPORTS.get(wcId) : null;
+    if (!job) return { ok: false, error: 'no_active_job' };
+    try {
+      job.abort?.();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: String(e?.message || e || 'cancel_failed') };
+    }
+  });
+
+  ipcMain.handle('drive:downloadHlsArchive', async (_evt, args) => {
+    try {
+      const wcId = String(_evt?.sender?.id || '');
+      if (wcId && ACTIVE_HLS_ARCHIVE_EXPORTS.has(wcId)) {
+        return { ok: false, error: 'download_in_progress' };
+      }
+
+      const controller = new AbortController();
+      let activeChild = null;
+      const abort = () => {
+        try { controller.abort(); } catch {}
+        killProcessTree(activeChild);
+      };
+
+      if (wcId) ACTIVE_HLS_ARCHIVE_EXPORTS.set(wcId, { abort });
+
+      const sendProgress = (payload) => {
+        try {
+          _evt.sender.send('drive:hlsArchiveProgress', {
+            stage: String(payload?.stage || ''),
+            percent:
+              typeof payload?.percent === 'number' && Number.isFinite(payload.percent)
+                ? Math.max(0, Math.min(100, Math.round(payload.percent)))
+                : null,
+            bytesProcessed:
+              typeof payload?.bytesProcessed === 'number' && Number.isFinite(payload.bytesProcessed)
+                ? payload.bytesProcessed
+                : undefined,
+            totalBytes:
+              typeof payload?.totalBytes === 'number' && Number.isFinite(payload.totalBytes)
+                ? payload.totalBytes
+                : undefined,
+          });
+        } catch {}
+      };
+
+      return await exportHlsArchiveWindows({
+        rootCid: String(args?.rootCid || ''),
+        name: String(args?.name || ''),
+        expectedSizeBytes: Number(args?.expectedSizeBytes || 0) || 0,
+        signal: controller.signal,
+        onProgress: sendProgress,
+        onSpawn: (child) => {
+          activeChild = child;
+          if (controller.signal?.aborted) killProcessTree(child);
+        },
+      });
+    } catch (e) {
+      const msg = String(e?.message || e || 'download_failed');
+      logHls('archive export failure', { error: msg });
+      const lower = msg.toLowerCase();
+      if (lower.includes('cancel')) return { ok: false, error: 'cancelled' };
+      return { ok: false, error: msg };
+    } finally {
+      const wcId = String(_evt?.sender?.id || '');
+      if (wcId) ACTIVE_HLS_ARCHIVE_EXPORTS.delete(wcId);
     }
   });
 }
