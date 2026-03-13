@@ -18,6 +18,7 @@ const PUBLIC_IPFS_GATEWAY_PROBE_PATH =
   '/ipfs/bafybeifx7yeb55armcsxwwitkymga5xf53dxiarykms3ygqic223w5sk3m';
 const PUBLIC_IPFS_GATEWAY_OFFLINE_TTL_MS = 60 * 60 * 1000;
 const publicIpfsGatewayOfflineUntil = new Map();
+const MAX_DIRECTORY_UPLOAD_BYTES = 10 * 1024 * 1024 * 1024;
 
 function ipfsApiBase() {
   return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
@@ -1323,7 +1324,7 @@ async function ipfsAddDirectoryWithProgress(payload, opts = {}) {
       const fullName = rel;
       const dataBuf = toBufferPayload(f?.data);
       dataBytes += dataBuf.length;
-      if (dataBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
+      if (dataBytes > MAX_DIRECTORY_UPLOAD_BYTES) throw new Error('directory_too_large');
 
       const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
       const footer = `\r\n`;
@@ -1431,7 +1432,7 @@ async function ipfsAddDirectoryPathsWithProgress(payload, opts = {}) {
       if (!st || !st.isFile()) throw new Error('not_file');
 
       dataBytes += st.size;
-      if (dataBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
+      if (dataBytes > MAX_DIRECTORY_UPLOAD_BYTES) throw new Error('directory_too_large');
 
       const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
       const footer = `\r\n`;
@@ -1636,7 +1637,7 @@ async function ipfsAddDirectory(payload) {
       const fullName = rel;
       const dataBuf = toBufferPayload(f?.data);
       totalBytes += dataBuf.length;
-      if (totalBytes > 200 * 1024 * 1024) throw new Error('directory_too_large');
+      if (totalBytes > MAX_DIRECTORY_UPLOAD_BYTES) throw new Error('directory_too_large');
 
       const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
       const footer = `\r\n`;
