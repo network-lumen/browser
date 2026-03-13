@@ -160,6 +160,10 @@ const active = ref<ActiveState | null>(null);
 
 let suppressNextResolve = false;
 let hlsInstance: any = null;
+const IGNORABLE_HLS_WARNING_DETAILS = new Set([
+  "bufferStalledError",
+  "bufferNudgeOnStall",
+]);
 
 function parseLumenUrl(raw: string): { host: string; path: string; suffix: string } {
   const s = String(raw || "").trim();
@@ -238,6 +242,10 @@ async function ensureHlsPlaying(url: string) {
     const url = String(data?.context?.url || data?.frag?.url || data?.url || "");
     const code = data?.response?.code || data?.response?.status || data?.networkDetails?.status || "";
     const details = String(data?.details || "");
+    if (!data?.fatal && IGNORABLE_HLS_WARNING_DETAILS.has(details)) {
+      if (hlsError.value.includes(`HLS ${details}`)) hlsError.value = "";
+      return;
+    }
     const reason = String(data?.reason || "");
     const type = String(data?.type || "");
     const errMsg = String(data?.error?.message || "");

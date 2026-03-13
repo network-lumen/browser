@@ -183,7 +183,9 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsKeyGen: (name) => ipcRenderer.invoke('ipfs:keyGen', name),
   ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
   driveConvertToHls: (payload) => ipcRenderer.invoke('drive:convertToHls', payload || {}),
+  driveDownloadHlsArchive: (payload) => ipcRenderer.invoke('drive:downloadHlsArchive', payload || {}),
   driveCancelHlsConvert: () => ipcRenderer.invoke('drive:cancelHlsConvert'),
+  driveCancelHlsArchiveDownload: () => ipcRenderer.invoke('drive:cancelHlsArchiveDownload'),
   driveOnHlsProgress: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const handler = (_event, payload) => {
@@ -196,6 +198,20 @@ contextBridge.exposeInMainWorld('lumen', {
     ipcRenderer.on('drive:hlsProgress', handler);
     return () => {
       ipcRenderer.removeListener('drive:hlsProgress', handler);
+    };
+  },
+  driveOnHlsArchiveProgress: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        callback(payload);
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('drive:hlsArchiveProgress', handler);
+    return () => {
+      ipcRenderer.removeListener('drive:hlsArchiveProgress', handler);
     };
   },
   driveBackup: {
