@@ -44,7 +44,7 @@ const { registerProfilesIpc } = require('./ipc/profiles.cjs');
 const { registerWalletIpc } = require('./ipc/wallet.cjs');
 const { registerGatewayIpc } = require('./ipc/gateway.cjs');
 const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.cjs');
-const { registerSecurityIpc } = require('./ipc/security.cjs');
+const { registerSecurityIpc, syncActiveSessionTimeout } = require('./ipc/security.cjs');
 const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
 const { registerHlsIpc } = require('./ipc/hls.cjs');
 const { registerFindIpc } = require('./ipc/find.cjs');
@@ -639,6 +639,9 @@ ipcMain.handle('settings:set', async (_evt, partial) => {
   const res = setSettings(partial || {});
   if (res?.ok && res?.settings) {
     const after = res.settings;
+    if (before?.securitySessionTimeoutMs !== after?.securitySessionTimeoutMs) {
+      try { syncActiveSessionTimeout(after.securitySessionTimeoutMs); } catch {}
+    }
     const changed =
       String(before?.ipfsApiBase || '') !== String(after?.ipfsApiBase || '') ||
       String(before?.localGatewayBase || '') !== String(after?.localGatewayBase || '');

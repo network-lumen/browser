@@ -275,11 +275,7 @@
           <div v-if="securityStatus.enabled" class="setting-item">
             <div class="setting-info">
               <span class="setting-label">Session Status</span>
-              <span class="setting-desc">
-                {{ securitySessionActive 
-                  ? 'Session unlocked - password cached for 5 minutes' 
-                  : 'Session locked - password required for next operation' }}
-              </span>
+              <span class="setting-desc">{{ securitySessionStatusText }}</span>
             </div>
             <div class="setting-control">
               <button 
@@ -294,6 +290,31 @@
                 <LockKeyhole :size="14" />
                 Locked
               </span>
+            </div>
+          </div>
+
+          <div v-if="securityStatus.enabled" class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Password Cache Duration</span>
+              <span class="setting-desc">
+                Choose how long the password stays cached before the session locks.
+              </span>
+            </div>
+            <div class="setting-control">
+              <select
+                v-model="securitySessionTimeoutValue"
+                class="select-control"
+                :disabled="securitySessionTimeoutSaving"
+                @change="saveSecuritySessionTimeout"
+              >
+                <option
+                  v-for="option in SECURITY_SESSION_TIMEOUT_OPTIONS"
+                  :key="option.serialized"
+                  :value="option.serialized"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
             </div>
           </div>
 
@@ -455,7 +476,7 @@
           <p class="setting-hint" style="margin-top: 1rem;">
             <strong>How it works:</strong> When enabled, every wallet signing operation 
             (send tokens, delegate, create domain, etc.) will require your password. 
-            After entering the password, it stays cached for 5 minutes for convenience.
+            {{ securitySessionHintText }}
           </p>
         </div>
       </div>
@@ -900,6 +921,13 @@ import { exportProfilesBackup } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
 import { appSettingsState, setAppSettings } from '../services/appSettings';
+import {
+  SECURITY_SESSION_TIMEOUT_OPTIONS,
+  getSecuritySessionTimeoutCacheText,
+  getSecuritySessionTimeoutHelpText,
+  parseSecuritySessionTimeoutMs,
+  stringifySecuritySessionTimeoutMs,
+} from '../services/securitySessionTimeout';
 
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
@@ -1011,11 +1039,37 @@ const securitySessionActive = ref(false);
 const securityLoading = ref(false);
 const securityError = ref('');
 const securitySuccess = ref('');
+const securitySessionTimeoutValue = ref(
+  stringifySecuritySessionTimeoutMs(appSettingsState.value.securitySessionTimeoutMs),
+);
+const securitySessionTimeoutSaving = ref(false);
 const newPassword = ref('');
 const confirmPassword = ref('');
 const currentPassword = ref('');
 const removePasswordInput = ref('');
 const showRemovePasswordConfirm = ref(false);
+const securitySessionStatusText = computed(() => {
+  if (!securitySessionActive.value) {
+    return 'Session locked - password required for next operation';
+  }
+  return `Session unlocked - password cached ${getSecuritySessionTimeoutCacheText(
+    appSettingsState.value.securitySessionTimeoutMs,
+  )}`;
+});
+const securitySessionHintText = computed(
+  () =>
+    `After entering the password, it stays cached ${getSecuritySessionTimeoutHelpText(
+      appSettingsState.value.securitySessionTimeoutMs,
+    )} for convenience.`,
+);
+
+watch(
+  () => appSettingsState.value.securitySessionTimeoutMs,
+  (next) => {
+    securitySessionTimeoutValue.value = stringifySecuritySessionTimeoutMs(next);
+  },
+  { immediate: true },
+);
 
 // Security functions
 async function loadSecurityStatus() {
@@ -1026,6 +1080,27 @@ async function loadSecurityStatus() {
     securitySessionActive.value = !!session?.active;
   } catch (e) {
     console.error('Failed to load security status:', e);
+  }
+}
+
+async function saveSecuritySessionTimeout() {
+  if (securitySessionTimeoutSaving.value) return;
+
+  const currentTimeout = appSettingsState.value.securitySessionTimeoutMs;
+  const nextTimeout = parseSecuritySessionTimeoutMs(securitySessionTimeoutValue.value);
+  if (currentTimeout === nextTimeout) return;
+
+  securitySessionTimeoutSaving.value = true;
+  try {
+    const res = await setAppSettings({ securitySessionTimeoutMs: nextTimeout });
+    if (!res.ok) {
+      securitySessionTimeoutValue.value = stringifySecuritySessionTimeoutMs(currentTimeout);
+      toast.error(String(res.error || 'Failed to update password cache duration'));
+      return;
+    }
+    toast.success('Password cache duration updated');
+  } finally {
+    securitySessionTimeoutSaving.value = false;
   }
 }
 

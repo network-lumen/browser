@@ -1,4 +1,9 @@
 import { ref } from "vue";
+import {
+  DEFAULT_SECURITY_SESSION_TIMEOUT_MS,
+  type SecuritySessionTimeoutMs,
+  normalizeSecuritySessionTimeoutMs,
+} from "./securitySessionTimeout";
 
 export type AppSettings = {
   localGatewayBase: string;
@@ -6,6 +11,7 @@ export type AppSettings = {
   showSexualContent: boolean;
   showViolentContent: boolean;
   showDisturbingImagery: boolean;
+  securitySessionTimeoutMs: SecuritySessionTimeoutMs;
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
@@ -14,6 +20,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
   showSexualContent: false,
   showViolentContent: false,
   showDisturbingImagery: false,
+  securitySessionTimeoutMs: DEFAULT_SECURITY_SESSION_TIMEOUT_MS,
 });
 
 export const appSettingsState = ref<AppSettings>({ ...DEFAULT_APP_SETTINGS });
@@ -36,6 +43,10 @@ function normalizeBaseUrl(input: string, fallback: string): string {
 function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSettings {
   const cur = appSettingsState.value;
   const p = partial || {};
+  const hasSecuritySessionTimeoutMs = Object.prototype.hasOwnProperty.call(
+    p,
+    "securitySessionTimeoutMs",
+  );
   return {
     localGatewayBase: normalizeBaseUrl(
       String(p.localGatewayBase ?? cur.localGatewayBase),
@@ -48,6 +59,10 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
     showSexualContent: Boolean(p.showSexualContent ?? cur.showSexualContent),
     showViolentContent: Boolean(p.showViolentContent ?? cur.showViolentContent),
     showDisturbingImagery: Boolean(p.showDisturbingImagery ?? cur.showDisturbingImagery),
+    securitySessionTimeoutMs: normalizeSecuritySessionTimeoutMs(
+      hasSecuritySessionTimeoutMs ? p.securitySessionTimeoutMs : cur.securitySessionTimeoutMs,
+      DEFAULT_APP_SETTINGS.securitySessionTimeoutMs,
+    ),
   };
 }
 

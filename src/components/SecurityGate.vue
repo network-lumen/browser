@@ -12,6 +12,8 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { appSettingsState } from "../internal/services/appSettings";
+import { getSecuritySessionTimeoutIdleText } from "../internal/services/securitySessionTimeout";
 import PasswordPromptModal from "./PasswordPromptModal.vue";
 
 type LockReason = "startup" | "idle";
@@ -27,11 +29,17 @@ let unsubscribeSessionChanged: null | (() => void) = null;
 const mustUnlock = computed(
   () => passwordEnabled.value && hasPassword.value && !sessionActive.value,
 );
+const idleLockText = computed(() =>
+  getSecuritySessionTimeoutIdleText(appSettingsState.value.securitySessionTimeoutMs),
+);
 
 const unlockMessage = computed(() => {
   if (!mustUnlock.value) return "";
   if (lockReason.value === "idle") {
-    return "Session locked after 10 minutes of inactivity. Enter your password to continue.";
+    if (!idleLockText.value) {
+      return "Session locked. Enter your password to continue.";
+    }
+    return `Session locked after ${idleLockText.value}. Enter your password to continue.`;
   }
   return "Enter your password to unlock the app.";
 });
