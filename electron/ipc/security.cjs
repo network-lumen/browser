@@ -14,18 +14,18 @@ const {
 } = require('../utils/crypto.cjs');
 const {
   getSecurityStatus,
+  getSecuritySessionTimeoutMs,
   setSecurityPassword,
   removeSecurityPassword,
   getStoredPasswordHash
 } = require('../settings.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 
-// In-memory password cache for session (cleared on app quit)
-// The session stays unlocked until the app closes, but it is auto-locked
-// after a period of user inactivity ("touchSession").
+// In-memory password cache for session (cleared on app quit).
+// The session stays unlocked until the configured timeout expires, or until
+// the app closes when "Until restart" is selected.
 let sessionPassword = null;
-let sessionPasswordExpiry = 0;
-const SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+let sessionPasswordExpiry = null;
 let sessionLockTimer = null;
 let sessionTouchThrottleAt = 0;
 const SESSION_TOUCH_THROTTLE_MS = 1500;
@@ -53,13 +53,13 @@ function scheduleSessionAutoLock() {
       sessionLockTimer = null;
     }
 
-    if (!sessionPassword || !sessionPasswordExpiry) return;
+    if (!sessionPassword || sessionPasswordExpiry === null) return;
 
     const now = Date.now();
     const delay = Math.max(0, sessionPasswordExpiry - now) + 50;
     sessionLockTimer = setTimeout(() => {
       try {
-        if (!sessionPassword || !sessionPasswordExpiry) return;
+        if (!sessionPassword || sessionPasswordExpiry === null) return;
         if (Date.now() < sessionPasswordExpiry) {
           scheduleSessionAutoLock();
           return;
@@ -91,7 +91,7 @@ function pqcKeysDir() {
  */
 function clearSessionPassword() {
   sessionPassword = null;
-  sessionPasswordExpiry = 0;
+  sessionPasswordExpiry = null;
   try {
     if (sessionLockTimer) {
       clearTimeout(sessionLockTimer);
@@ -106,8 +106,7 @@ function clearSessionPassword() {
  */
 function setSessionPassword(password) {
   sessionPassword = password;
-  sessionPasswordExpiry = Date.now() + SESSION_IDLE_TIMEOUT_MS;
-  scheduleSessionAutoLock();
+  syncActiveSessionTimeout(getSecuritySessionTimeoutMs());
   broadcastSessionChanged(true);
 }
 
@@ -116,7 +115,7 @@ function setSessionPassword(password) {
  */
 function getSessionPassword() {
   if (!sessionPassword) return null;
-  if (Date.now() > sessionPasswordExpiry) {
+  if (sessionPasswordExpiry !== null && Date.now() > sessionPasswordExpiry) {
     clearSessionPassword();
     return null;
   }
@@ -128,7 +127,15 @@ function touchSession() {
   const now = Date.now();
   if (now - sessionTouchThrottleAt < SESSION_TOUCH_THROTTLE_MS) return true;
   sessionTouchThrottleAt = now;
-  sessionPasswordExpiry = now + SESSION_IDLE_TIMEOUT_MS;
+  const timeoutMs = getSecuritySessionTimeoutMs();
+  sessionPasswordExpiry = timeoutMs === null ? null : now + timeoutMs;
+  scheduleSessionAutoLock();
+  return true;
+}
+
+function syncActiveSessionTimeout(timeoutMs = getSecuritySessionTimeoutMs()) {
+  if (!sessionPassword) return false;
+  sessionPasswordExpiry = timeoutMs === null ? null : Date.now() + timeoutMs;
   scheduleSessionAutoLock();
   return true;
 }
@@ -371,7 +378,8 @@ function registerSecurityIpc() {
     return {
       passwordEnabled: status.passwordEnabled,
       hasPassword: status.hasPassword,
-      sessionActive: !!getSessionPassword()
+      sessionActive: !!getSessionPassword(),
+      sessionTimeoutMs: status.sessionTimeoutMs
     };
   });
 
@@ -497,5 +505,6 @@ module.exports = {
   getSessionPassword,
   setSessionPassword,
   clearSessionPassword,
+  syncActiveSessionTimeout,
   verifyStoredPassword
 };

@@ -2,12 +2,21 @@ const { app, BrowserWindow } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 5 * 60 * 1000;
+const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
+  5 * 60 * 1000,
+  15 * 60 * 1000,
+  30 * 60 * 1000,
+  2 * 60 * 60 * 1000
+]);
+
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8088',
   ipfsApiBase: 'http://127.0.0.1:5001',
   showSexualContent: false,
   showViolentContent: false,
   showDisturbingImagery: false,
+  securitySessionTimeoutMs: DEFAULT_SECURITY_SESSION_TIMEOUT_MS,
   securityPasswordEnabled: false,
   securityPasswordHash: null
 });
@@ -45,6 +54,20 @@ function tryNormalizeBaseUrl(input) {
   }
 }
 
+function normalizeSecuritySessionTimeoutMs(input, fallback = DEFAULT_SECURITY_SESSION_TIMEOUT_MS) {
+  if (input === null) return null;
+  if (typeof input !== 'number' || !Number.isFinite(input)) return fallback;
+  return VALID_SECURITY_SESSION_TIMEOUTS.has(input) ? input : fallback;
+}
+
+function isValidSecuritySessionTimeoutMs(input) {
+  return input === null || (
+    typeof input === 'number' &&
+    Number.isFinite(input) &&
+    VALID_SECURITY_SESSION_TIMEOUTS.has(input)
+  );
+}
+
 function settingsPath() {
   const userData = app.getPath('userData');
   return path.join(userData, 'settings.json');
@@ -80,6 +103,12 @@ function getSettings() {
     showSexualContent: !!disk.showSexualContent,
     showViolentContent: !!disk.showViolentContent,
     showDisturbingImagery: !!disk.showDisturbingImagery,
+    securitySessionTimeoutMs: normalizeSecuritySessionTimeoutMs(
+      Object.prototype.hasOwnProperty.call(disk, 'securitySessionTimeoutMs')
+        ? disk.securitySessionTimeoutMs
+        : DEFAULT_SETTINGS.securitySessionTimeoutMs,
+      DEFAULT_SETTINGS.securitySessionTimeoutMs,
+    ),
     securityPasswordEnabled: !!disk.securityPasswordEnabled,
     securityPasswordHash: disk.securityPasswordHash || null
   };
@@ -126,9 +155,21 @@ function setSettings(partial) {
   if (Object.prototype.hasOwnProperty.call(p, 'showDisturbingImagery')) {
     next.showDisturbingImagery = !!p.showDisturbingImagery;
   }
+  if (Object.prototype.hasOwnProperty.call(p, 'securitySessionTimeoutMs')) {
+    if (!isValidSecuritySessionTimeoutMs(p.securitySessionTimeoutMs)) {
+      return { ok: false, error: 'invalid_securitySessionTimeoutMs' };
+    }
+    next.securitySessionTimeoutMs = p.securitySessionTimeoutMs === null
+      ? null
+      : Number(p.securitySessionTimeoutMs);
+  }
 
   next.localGatewayBase = normalizeBaseUrl(next.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase);
   next.ipfsApiBase = normalizeBaseUrl(next.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase);
+  next.securitySessionTimeoutMs = normalizeSecuritySessionTimeoutMs(
+    next.securitySessionTimeoutMs,
+    DEFAULT_SETTINGS.securitySessionTimeoutMs,
+  );
 
   cached = next;
   persistSettingsToDisk(next);
@@ -148,8 +189,19 @@ function getSecurityStatus() {
   const s = getSettings();
   return {
     passwordEnabled: !!s.securityPasswordEnabled,
-    hasPassword: !!(s.securityPasswordHash && s.securityPasswordHash.hash)
+    hasPassword: !!(s.securityPasswordHash && s.securityPasswordHash.hash),
+    sessionTimeoutMs: normalizeSecuritySessionTimeoutMs(
+      s.securitySessionTimeoutMs,
+      DEFAULT_SETTINGS.securitySessionTimeoutMs,
+    )
   };
+}
+
+function getSecuritySessionTimeoutMs() {
+  return normalizeSecuritySessionTimeoutMs(
+    getSettings().securitySessionTimeoutMs,
+    DEFAULT_SETTINGS.securitySessionTimeoutMs,
+  );
 }
 
 /**
@@ -382,6 +434,7 @@ module.exports = {
   setSettings,
   getSetting,
   getSecurityStatus,
+  getSecuritySessionTimeoutMs,
   setSecurityPassword,
   removeSecurityPassword,
   getStoredPasswordHash,
