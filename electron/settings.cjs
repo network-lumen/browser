@@ -3,6 +3,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 5 * 60 * 1000;
+const BYTES_PER_GIB = 1024 * 1024 * 1024;
+const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
+const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / BYTES_PER_GIB);
 const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
   5 * 60 * 1000,
   15 * 60 * 1000,
@@ -13,6 +16,7 @@ const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8088',
   ipfsApiBase: 'http://127.0.0.1:5001',
+  localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
   showSexualContent: false,
   showViolentContent: false,
   showDisturbingImagery: false,
@@ -60,12 +64,28 @@ function normalizeSecuritySessionTimeoutMs(input, fallback = DEFAULT_SECURITY_SE
   return VALID_SECURITY_SESSION_TIMEOUTS.has(input) ? input : fallback;
 }
 
+function normalizeLocalDriveMaxUploadSizeGb(
+  input,
+  fallback = DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB
+) {
+  const n = Number(input);
+  if (!Number.isFinite(n)) return fallback;
+  const normalized = Math.trunc(n);
+  if (normalized < 1) return fallback;
+  return Math.min(normalized, MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB);
+}
+
 function isValidSecuritySessionTimeoutMs(input) {
   return input === null || (
     typeof input === 'number' &&
     Number.isFinite(input) &&
     VALID_SECURITY_SESSION_TIMEOUTS.has(input)
   );
+}
+
+function isValidLocalDriveMaxUploadSizeGb(input) {
+  const n = Number(input);
+  return Number.isFinite(n) && Number.isInteger(n) && n >= 1;
 }
 
 function settingsPath() {
@@ -100,6 +120,12 @@ function getSettings() {
   const settings = {
     localGatewayBase: normalizeBaseUrl(disk.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase),
     ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase),
+    localDriveMaxUploadSizeGb: normalizeLocalDriveMaxUploadSizeGb(
+      Object.prototype.hasOwnProperty.call(disk, 'localDriveMaxUploadSizeGb')
+        ? disk.localDriveMaxUploadSizeGb
+        : DEFAULT_SETTINGS.localDriveMaxUploadSizeGb,
+      DEFAULT_SETTINGS.localDriveMaxUploadSizeGb,
+    ),
     showSexualContent: !!disk.showSexualContent,
     showViolentContent: !!disk.showViolentContent,
     showDisturbingImagery: !!disk.showDisturbingImagery,
@@ -145,6 +171,15 @@ function setSettings(partial) {
     if (!r.ok) return { ok: false, error: 'invalid_ipfsApiBase' };
     next.ipfsApiBase = r.value;
   }
+  if (Object.prototype.hasOwnProperty.call(p, 'localDriveMaxUploadSizeGb')) {
+    if (!isValidLocalDriveMaxUploadSizeGb(p.localDriveMaxUploadSizeGb)) {
+      return { ok: false, error: 'invalid_localDriveMaxUploadSizeGb' };
+    }
+    next.localDriveMaxUploadSizeGb = normalizeLocalDriveMaxUploadSizeGb(
+      p.localDriveMaxUploadSizeGb,
+      DEFAULT_SETTINGS.localDriveMaxUploadSizeGb,
+    );
+  }
 
   if (Object.prototype.hasOwnProperty.call(p, 'showSexualContent')) {
     next.showSexualContent = !!p.showSexualContent;
@@ -166,6 +201,10 @@ function setSettings(partial) {
 
   next.localGatewayBase = normalizeBaseUrl(next.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase);
   next.ipfsApiBase = normalizeBaseUrl(next.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase);
+  next.localDriveMaxUploadSizeGb = normalizeLocalDriveMaxUploadSizeGb(
+    next.localDriveMaxUploadSizeGb,
+    DEFAULT_SETTINGS.localDriveMaxUploadSizeGb,
+  );
   next.securitySessionTimeoutMs = normalizeSecuritySessionTimeoutMs(
     next.securitySessionTimeoutMs,
     DEFAULT_SETTINGS.securitySessionTimeoutMs,
