@@ -608,6 +608,27 @@
             </div>
           </div>
 
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Max upload size (local drive)</span>
+              <span class="setting-desc">
+                Maximum size per local upload before it is rejected. Default 10 GB.
+              </span>
+            </div>
+            <div class="setting-control setting-number-control">
+              <input
+                type="number"
+                min="1"
+                step="1"
+                class="input-control"
+                v-model="localDriveMaxUploadSizeDraft"
+                :placeholder="String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB)"
+                style="width: 96px;"
+              />
+              <span class="setting-inline-note">GB</span>
+            </div>
+          </div>
+
           <div v-if="devSettingsError" class="setting-hint" style="color: var(--ios-red);">
             {{ devSettingsError }}
           </div>
@@ -920,7 +941,11 @@ import { profilesState, activeProfileId } from '../profilesStore';
 import { exportProfilesBackup } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
-import { appSettingsState, setAppSettings } from '../services/appSettings';
+import {
+  appSettingsState,
+  DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
+  setAppSettings,
+} from '../services/appSettings';
 import {
   SECURITY_SESSION_TIMEOUT_OPTIONS,
   getSecuritySessionTimeoutCacheText,
@@ -986,6 +1011,7 @@ const backupExportFailures = computed(() => {
 
 const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
+const localDriveMaxUploadSizeDraft = ref(String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB));
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
 const troubleshootingAction = ref<'' | 'copy' | 'open'>('');
@@ -1291,6 +1317,9 @@ watch(
     if (v !== 'advanced') return;
     localGatewayDraft.value = String(appSettingsState.value.localGatewayBase || '').trim();
     ipfsApiDraft.value = String(appSettingsState.value.ipfsApiBase || '').trim();
+    localDriveMaxUploadSizeDraft.value = String(
+      appSettingsState.value.localDriveMaxUploadSizeGb || DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
+    );
     devSettingsError.value = '';
   },
   { immediate: true },
@@ -1310,9 +1339,20 @@ function validateUrl(raw: string): string | null {
   }
 }
 
+function validatePositiveInteger(raw: string): number | null {
+  const value = String(raw || '').trim();
+  if (!/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 1) return null;
+  return parsed;
+}
+
 function resetDevSettings() {
   localGatewayDraft.value = String(appSettingsState.value.localGatewayBase || '').trim();
   ipfsApiDraft.value = String(appSettingsState.value.ipfsApiBase || '').trim();
+  localDriveMaxUploadSizeDraft.value = String(
+    appSettingsState.value.localDriveMaxUploadSizeGb || DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
+  );
   devSettingsError.value = '';
 }
 
@@ -1320,6 +1360,7 @@ async function saveDevSettings() {
   if (devSettingsSaving.value) return;
   const localGatewayBase = validateUrl(localGatewayDraft.value);
   const ipfsApiBase = validateUrl(ipfsApiDraft.value);
+  const localDriveMaxUploadSizeGb = validatePositiveInteger(localDriveMaxUploadSizeDraft.value);
   if (!localGatewayBase) {
     devSettingsError.value = 'Invalid Local IPFS Gateway URL.';
     return;
@@ -1328,17 +1369,28 @@ async function saveDevSettings() {
     devSettingsError.value = 'Invalid IPFS API URL.';
     return;
   }
+  if (localDriveMaxUploadSizeGb == null) {
+    devSettingsError.value = 'Invalid max upload size. Enter a whole number of GB.';
+    return;
+  }
 
   devSettingsSaving.value = true;
   devSettingsError.value = '';
   try {
-    const res = await setAppSettings({ localGatewayBase, ipfsApiBase });
+    const res = await setAppSettings({
+      localGatewayBase,
+      ipfsApiBase,
+      localDriveMaxUploadSizeGb,
+    });
     if (!res.ok) {
       devSettingsError.value = String(res.error || 'Failed to save settings.');
       return;
     }
     localGatewayDraft.value = String(appSettingsState.value.localGatewayBase || '').trim();
     ipfsApiDraft.value = String(appSettingsState.value.ipfsApiBase || '').trim();
+    localDriveMaxUploadSizeDraft.value = String(
+      appSettingsState.value.localDriveMaxUploadSizeGb || DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
+    );
   } finally {
     devSettingsSaving.value = false;
   }
@@ -1794,6 +1846,15 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 .setting-control {
   display: flex;
   align-items: center;
+}
+
+.setting-number-control {
+  gap: 0.5rem;
+}
+
+.setting-inline-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 .profile-backup-actions {

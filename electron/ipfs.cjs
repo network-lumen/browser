@@ -18,7 +18,8 @@ const PUBLIC_IPFS_GATEWAY_PROBE_PATH =
   '/ipfs/bafybeifx7yeb55armcsxwwitkymga5xf53dxiarykms3ygqic223w5sk3m';
 const PUBLIC_IPFS_GATEWAY_OFFLINE_TTL_MS = 60 * 60 * 1000;
 const publicIpfsGatewayOfflineUntil = new Map();
-const MAX_DIRECTORY_UPLOAD_BYTES = 10 * 1024 * 1024 * 1024;
+const BYTES_PER_GIB = 1024 * 1024 * 1024;
+const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
 
 function ipfsApiBase() {
   return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
@@ -30,6 +31,18 @@ function localGatewayBase() {
   const result = String(setting || defaultValue).replace(/\/+$/, '');
   console.log('[electron][ipfs] localGatewayBase - setting:', setting, 'default:', defaultValue, 'result:', result);
   return result;
+}
+
+function localDriveMaxUploadSizeGb() {
+  const n = Number(getSetting('localDriveMaxUploadSizeGb'));
+  if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1) {
+    return DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB;
+  }
+  return n;
+}
+
+function localDriveMaxUploadBytes() {
+  return localDriveMaxUploadSizeGb() * BYTES_PER_GIB;
 }
 
 function multiaddrForHttpBase(rawBase) {
@@ -314,6 +327,9 @@ async function checkIpfsStatus(retries = 3, delay = 1000) {
 async function ipfsAdd(data, filename) {
   try {
     const dataBuf = toBufferPayload(data);
+    if (dataBuf.length > localDriveMaxUploadBytes()) {
+      return { ok: false, error: 'file_too_large' };
+    }
     console.log('[electron][ipfs] adding file:', filename, 'size:', dataBuf.length);
     // Create multipart form data
     const boundary = '----LumenIPFS' + Date.now();
@@ -1196,6 +1212,9 @@ async function ipfsAddWithProgress(data, filename, opts = {}) {
 
   try {
     const dataBuf = toBufferPayload(data);
+    if (dataBuf.length > localDriveMaxUploadBytes()) {
+      return { ok: false, error: 'file_too_large' };
+    }
     console.log('[electron][ipfs] adding file (progress):', filename, 'size:', dataBuf.length);
 
     const boundary = '----LumenIPFS' + Date.now();
@@ -1255,6 +1274,7 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
 
     const st = await fs.promises.stat(p).catch(() => null);
     if (!st || !st.isFile()) return { ok: false, error: 'not_file' };
+    if (st.size > localDriveMaxUploadBytes()) return { ok: false, error: 'file_too_large' };
 
     const safeName = sanitizeFormFilename(filename || path.basename(p) || 'file') || 'file';
     console.log('[electron][ipfs] adding file path (progress):', safeName, 'path:', p, 'size:', st.size);
@@ -1318,13 +1338,14 @@ async function ipfsAddDirectoryWithProgress(payload, opts = {}) {
     const buffers = [];
     let dataBytes = 0;
     let totalBodyBytes = 0;
+    const maxUploadBytes = localDriveMaxUploadBytes();
 
     for (const f of filesRaw) {
       const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
       const fullName = rel;
       const dataBuf = toBufferPayload(f?.data);
       dataBytes += dataBuf.length;
-      if (dataBytes > MAX_DIRECTORY_UPLOAD_BYTES) throw new Error('directory_too_large');
+      if (dataBytes > maxUploadBytes) throw new Error('directory_too_large');
 
       const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
       const footer = `\r\n`;
@@ -1421,6 +1442,7 @@ async function ipfsAddDirectoryPathsWithProgress(payload, opts = {}) {
     const sources = [];
     let dataBytes = 0;
     let totalBodyBytes = 0;
+    const maxUploadBytes = localDriveMaxUploadBytes();
 
     for (const f of filesRaw) {
       const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
@@ -1432,7 +1454,7 @@ async function ipfsAddDirectoryPathsWithProgress(payload, opts = {}) {
       if (!st || !st.isFile()) throw new Error('not_file');
 
       dataBytes += st.size;
-      if (dataBytes > MAX_DIRECTORY_UPLOAD_BYTES) throw new Error('directory_too_large');
+      if (dataBytes > maxUploadBytes) throw new Error('directory_too_large');
 
       const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
       const footer = `\r\n`;
@@ -1631,13 +1653,14 @@ async function ipfsAddDirectory(payload) {
     const boundary = '----LumenIPFS' + Date.now();
     const parts = [];
     let totalBytes = 0;
+    const maxUploadBytes = localDriveMaxUploadBytes();
 
     for (const f of filesRaw) {
       const rel = sanitizeRelativePath(f?.path ?? f?.name ?? 'file');
       const fullName = rel;
       const dataBuf = toBufferPayload(f?.data);
       totalBytes += dataBuf.length;
-      if (totalBytes > MAX_DIRECTORY_UPLOAD_BYTES) throw new Error('directory_too_large');
+      if (totalBytes > maxUploadBytes) throw new Error('directory_too_large');
 
       const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fullName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
       const footer = `\r\n`;

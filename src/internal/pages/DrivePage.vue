@@ -1880,6 +1880,11 @@ import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
+import {
+  appSettingsState,
+  BYTES_PER_GIB,
+  normalizeLocalDriveMaxUploadSizeGb,
+} from "../services/appSettings";
 import { profilesState, activeProfileId } from "../profilesStore";
 import { useFavourites, setFavouritesForProfile } from "../favouritesStore";
 import JSZip from "jszip";
@@ -2142,8 +2147,13 @@ const LEGACY_STORAGE_KEY = "lumen_drive_files";
 const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
-const DIRECTORY_UPLOAD_MAX_BYTES = 10 * 1024 * 1024 * 1024;
-const DIRECTORY_UPLOAD_MAX_LABEL = "10 GiB";
+const localDriveMaxUploadSizeGb = computed(() =>
+  normalizeLocalDriveMaxUploadSizeGb(appSettingsState.value.localDriveMaxUploadSizeGb),
+);
+const localDriveMaxUploadBytes = computed(() => localDriveMaxUploadSizeGb.value * BYTES_PER_GIB);
+const localDriveMaxUploadLimitLabel = computed(() =>
+  formatUploadLimitLabel(localDriveMaxUploadBytes.value),
+);
 
 function filesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim() || "default";
@@ -5395,6 +5405,20 @@ async function finalizeLocalUpload(
   showToast(label, "success");
 }
 
+function showFolderTooLargeToast(name: string) {
+  showToast(
+    `Folder too large (max ${localDriveMaxUploadLimitLabel.value}): ${name}`,
+    "error",
+  );
+}
+
+function showFileTooLargeToast(name: string) {
+  showToast(
+    `File too large (max ${localDriveMaxUploadLimitLabel.value}): ${name}`,
+    "error",
+  );
+}
+
 function upsertFileMetadata(next: DriveFile) {
   const cid = String(next?.cid || "").trim();
   if (!cid) return;
@@ -5480,8 +5504,8 @@ async function uploadDirectory(
     (acc, it) => acc + (Number(it?.file?.size || 0) || 0),
     0,
   );
-  if (estimatedBytes > DIRECTORY_UPLOAD_MAX_BYTES) {
-    showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
+  if (estimatedBytes > localDriveMaxUploadBytes.value) {
+    showFolderTooLargeToast(name);
     return { ok: false };
   }
 
@@ -5559,7 +5583,7 @@ async function uploadDirectory(
         return { ok: false, cancelled: true };
       }
       if (err === "directory_too_large") {
-        showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
+        showFolderTooLargeToast(name);
         return { ok: false };
       }
       if (err === "add_in_progress") {
@@ -5615,7 +5639,7 @@ async function uploadDirectory(
       return { ok: false, cancelled: true };
     }
     if (msg === "directory_too_large") {
-      showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
+      showFolderTooLargeToast(name);
       return { ok: false };
     }
     const detail = compactError(msg);
@@ -5672,7 +5696,7 @@ async function uploadDirectoryFromPath(
         return { ok: false, cancelled: true };
       }
       if (err === "directory_too_large") {
-        showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
+        showFolderTooLargeToast(name);
         return { ok: false };
       }
       if (err === "too_many_files") {
@@ -5737,7 +5761,7 @@ async function uploadDirectoryFromPath(
       return { ok: false, cancelled: true };
     }
     if (msg === "directory_too_large") {
-      showToast(`Folder too large (max ${DIRECTORY_UPLOAD_MAX_LABEL}): ${name}`, "error");
+      showFolderTooLargeToast(name);
       return { ok: false };
     }
     const detail = compactError(msg);
@@ -5757,6 +5781,12 @@ async function uploadDirectoryFromPath(
 }
 
 async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
+  const fileSizeBytes = Number((file as any)?.size || 0) || 0;
+  if (fileSizeBytes > localDriveMaxUploadBytes.value) {
+    showFileTooLargeToast(file.name);
+    return { ok: false };
+  }
+
   uploading.value = true;
   uploadingFile.value = file.name;
   uploadingStage.value = "preparing";
@@ -5836,6 +5866,10 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
         showToast("Upload cancelled.", "success");
         return { ok: false, cancelled: true };
       }
+      if (err === "file_too_large") {
+        showFileTooLargeToast(file.name);
+        return { ok: false };
+      }
       if (err === "add_in_progress") {
         showToast("Another upload is already running. Please wait…", "error");
         return { ok: false };
@@ -5854,6 +5888,10 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
     if (lower.includes("cancel") || lower.includes("abort")) {
       showToast("Upload cancelled.", "success");
       return { ok: false, cancelled: true };
+    }
+    if (msg === "file_too_large") {
+      showFileTooLargeToast(file.name);
+      return { ok: false };
     }
     const detail = compactError(msg);
     showToast(
@@ -6910,6 +6948,12 @@ function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024 * 1024)
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
+function formatUploadLimitLabel(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "—";
+  const gb = bytes / (1024 * 1024 * 1024);
+  return Number.isInteger(gb) ? `${gb} GB` : `${gb.toFixed(1)} GB`;
 }
 
 function formatDate(ts: number): string {

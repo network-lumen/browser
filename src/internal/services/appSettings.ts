@@ -8,15 +8,21 @@ import {
 export type AppSettings = {
   localGatewayBase: string;
   ipfsApiBase: string;
+  localDriveMaxUploadSizeGb: number;
   showSexualContent: boolean;
   showViolentContent: boolean;
   showDisturbingImagery: boolean;
   securitySessionTimeoutMs: SecuritySessionTimeoutMs;
 };
 
+export const BYTES_PER_GIB = 1024 * 1024 * 1024;
+export const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
+const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / BYTES_PER_GIB);
+
 export const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
   localGatewayBase: "http://127.0.0.1:8080",
   ipfsApiBase: "http://127.0.0.1:5001",
+  localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
   showSexualContent: false,
   showViolentContent: false,
   showDisturbingImagery: false,
@@ -40,6 +46,17 @@ function normalizeBaseUrl(input: string, fallback: string): string {
   }
 }
 
+export function normalizeLocalDriveMaxUploadSizeGb(
+  input: unknown,
+  fallback = DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
+): number {
+  const n = Number(input);
+  if (!Number.isFinite(n)) return fallback;
+  const normalized = Math.trunc(n);
+  if (normalized < 1) return fallback;
+  return Math.min(normalized, MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB);
+}
+
 function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSettings {
   const cur = appSettingsState.value;
   const p = partial || {};
@@ -55,6 +72,10 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
     ipfsApiBase: normalizeBaseUrl(
       String(p.ipfsApiBase ?? cur.ipfsApiBase),
       DEFAULT_APP_SETTINGS.ipfsApiBase,
+    ),
+    localDriveMaxUploadSizeGb: normalizeLocalDriveMaxUploadSizeGb(
+      p.localDriveMaxUploadSizeGb ?? cur.localDriveMaxUploadSizeGb,
+      DEFAULT_APP_SETTINGS.localDriveMaxUploadSizeGb,
     ),
     showSexualContent: Boolean(p.showSexualContent ?? cur.showSexualContent),
     showViolentContent: Boolean(p.showViolentContent ?? cur.showViolentContent),
@@ -105,5 +126,16 @@ export function getLocalGatewayBase(): string {
 
 export function getIpfsApiBase(): string {
   return String(appSettingsState.value.ipfsApiBase || DEFAULT_APP_SETTINGS.ipfsApiBase).replace(/\/+$/, "");
+}
+
+export function getLocalDriveMaxUploadSizeGb(): number {
+  return normalizeLocalDriveMaxUploadSizeGb(
+    appSettingsState.value.localDriveMaxUploadSizeGb,
+    DEFAULT_APP_SETTINGS.localDriveMaxUploadSizeGb,
+  );
+}
+
+export function getLocalDriveMaxUploadSizeBytes(): number {
+  return getLocalDriveMaxUploadSizeGb() * BYTES_PER_GIB;
 }
 
