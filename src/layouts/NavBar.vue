@@ -38,7 +38,7 @@
         @input="onInput"
         type="text"
         class="url-bar-input"
-        placeholder="Search or enter lumen:// address"
+        placeholder="Search or enter a URL"
         @keydown.enter="onEnter"
       />
     </div>
@@ -360,6 +360,7 @@ import {
   importProfilesFromBackup
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
+import { normalizeAddressInput } from '../internal/navigationUrl';
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -516,44 +517,25 @@ function refresh() {
   emit('refresh-request');
 }
 
-  function normalizeInput(raw: string): string {
-    const v = String(raw || '').trim();
-    if (!v) return 'lumen://home';
-
-    // preserve any lumen:// URL as-is (including query/hash)
-    if (/^lumen:\/\//i.test(v)) return v;
-
-    // allow http(s) URLs
-    if (/^https?:\/\//i.test(v)) return v;
-
-    // allow bare internal routes ("home", "wallet"...)
-    const lowered = v.toLowerCase();
-    const builtin = [
-      'home',
-      'search',
-      'drive',
-      'wallet',
-      'network',
-      'settings',
-      'help',
-      'domain',
-      'explorer',
-      'dao',
-      'ipfs',
-      'gateways',
-      'release',
-      'newtab',
-    ];
-    if (builtin.includes(lowered)) return `lumen://${lowered}`;
-
-    // "mydomain.com" -> lumen://mydomain.com
-    if (!/^\w+:/i.test(v) && /\./.test(v) && !/\s/.test(v)) {
-      return `lumen://${v}`;
-    }
-
-    const q = encodeURIComponent(v);
-    return `lumen://search?q=${q}`;
-  }
+function normalizeInput(raw: string): string {
+  const builtin = [
+    'home',
+    'search',
+    'drive',
+    'wallet',
+    'network',
+    'settings',
+    'help',
+    'domain',
+    'explorer',
+    'dao',
+    'ipfs',
+    'gateways',
+    'release',
+    'newtab',
+  ];
+  return normalizeAddressInput(raw, builtin);
+}
 
 function onEnter(ev: KeyboardEvent) {
   const raw = urlField.value;

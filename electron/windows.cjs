@@ -8,7 +8,7 @@ let mainWindow = null;
 function isAllowedNewTabUrl(raw) {
   const s = String(raw || '').trim();
   if (!s) return false;
-  return /^https?:\/\//i.test(s) || /^lumen:\/\//i.test(s);
+  return /^(https?:\/\/|file:\/\/)/i.test(s) || /^lumen:\/\//i.test(s);
 }
 
 function wireWindowOpenToTabs(win) {

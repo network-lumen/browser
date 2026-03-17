@@ -1,10 +1,10 @@
 <template>
   <div class="web-page">
     <webview
-      v-if="currentHttpUrl"
+      v-if="currentBrowserUrl"
       ref="webviewRef"
       class="webview"
-      :src="currentHttpUrl"
+      :src="currentBrowserUrl"
       partition="persist:lumen"
       allowpopups
       :webpreferences="webprefs"
@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
  import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
+ import { isBrowserUrl } from "../navigationUrl";
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
@@ -39,13 +40,9 @@ const pendingAppNav = ref(false);
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
 
-function isHttpUrl(raw: string): boolean {
-  return /^\s*https?:\/\//i.test(String(raw || ""));
-}
-
 function isAllowedNewTabUrl(raw: string): boolean {
   const s = String(raw || "").trim();
-  return isHttpUrl(s) || /^lumen:\/\//i.test(s);
+  return isBrowserUrl(s) || /^lumen:\/\//i.test(s);
 }
 
 function onIpcMessage(ev: any) {
@@ -69,9 +66,9 @@ function onIpcMessage(ev: any) {
   else navigate?.(href, { push: true });
 }
 
-const currentHttpUrl = computed(() => {
+const currentBrowserUrl = computed(() => {
   const u = String(currentTabUrl?.value || "").trim();
-  return isHttpUrl(u) ? u : "";
+  return isBrowserUrl(u) ? u : "";
 });
 
 function loadUrl(url: string) {
@@ -90,7 +87,7 @@ function loadUrl(url: string) {
 }
 
 watch(
-  () => currentHttpUrl.value,
+  () => currentBrowserUrl.value,
   (u) => {
     if (!pageActive.value) return;
     if (!u) return;
@@ -125,7 +122,7 @@ function onWillNavigate(ev: any) {
     navigate?.(href.trim(), { push: true });
     return;
   }
-  if (!isHttpUrl(href)) {
+  if (!isBrowserUrl(href)) {
     ev.preventDefault?.();
   }
 }
@@ -142,7 +139,7 @@ function syncNavFromWebview(rawUrl: string) {
   if (!pageActive.value) return;
   if (!navigate) return;
   const next = String(rawUrl || "").trim();
-  if (!isHttpUrl(next)) return;
+  if (!isBrowserUrl(next)) return;
   const cur = String(currentTabUrl?.value || "").trim();
   if (cur && cur === next) {
     pendingAppNav.value = false;
@@ -188,7 +185,7 @@ function syncNavFromWebview(rawUrl: string) {
    const id = reportFindTargetOnce();
    if (id != null) return;
    if (attempts <= 0) return;
-   if (!currentHttpUrl.value) return;
+   if (!currentBrowserUrl.value) return;
    window.setTimeout(() => {
      reportFindTarget(attempts - 1);
    }, 50);
@@ -226,7 +223,7 @@ function syncNavFromWebview(rawUrl: string) {
  });
 
  watch(
-   () => currentHttpUrl.value,
+   () => currentBrowserUrl.value,
    (u) => {
      if (!u) {
        try {

@@ -95,6 +95,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import ReleaseUpdateOverlay from './ReleaseUpdateOverlay.vue';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
+  import { normalizeTabUrl } from '../internal/navigationUrl';
   import { activeProfileId } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
   import {
@@ -148,29 +149,6 @@ function nextTabId(): string {
   return `tab-${tabSeq}-${Date.now().toString(36)}`;
 }
 const GAP = 1;
-
-function normalizeTabUrl(raw: string): string {
-  const v = String(raw || "").trim();
-  if (!v) return "lumen://home";
-  if (/^https?:\/\//i.test(v)) return v;
-  const u = /^lumen:\/\//i.test(v) ? v : `lumen://${v}`;
-
-  // Canonicalize root lumen URLs so history/back doesn't bounce between
-  // `lumen://host` and `lumen://host/`.
-  try {
-    const rest = u.slice("lumen://".length);
-    const m = rest.match(/^([^/?#]+)(.*)$/);
-    const host = (m?.[1] || "").trim();
-    const tail = m?.[2] || "";
-    if (host && (!tail || tail.startsWith("?") || tail.startsWith("#"))) {
-      return `lumen://${host}/${tail}`;
-    }
-  } catch {
-    // ignore
-  }
-
-  return u;
-}
 
 function tabClasses(t: Tab) {
   return {

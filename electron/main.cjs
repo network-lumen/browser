@@ -1145,7 +1145,7 @@ app.whenReady().then(() => {
         try {
           const s = String(url || '').trim();
           if (!s) return;
-          if (!/^https?:\/\//i.test(s) && !/^lumen:\/\//i.test(s)) return;
+          if (!/^(https?:\/\/|file:\/\/)/i.test(s) && !/^lumen:\/\//i.test(s)) return;
           const owner =
             typeof contents.getOwnerBrowserWindow === 'function'
               ? contents.getOwnerBrowserWindow()
