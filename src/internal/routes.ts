@@ -18,6 +18,7 @@ import DomainPage from './pages/DomainPage.vue';
 import NewTabPage from './pages/NewTabPage.vue';
 import TransactionDetailPage from './pages/TransactionDetailPage.vue';
 import AddressDetailPage from './pages/AddressDetailPage.vue';
+import { getFileUrlTitle, isBrowserUrl, isFileUrl } from './navigationUrl';
 
 type InternalRoute = {
   component: any;
@@ -91,7 +92,7 @@ export const ALL_COMPONENTS = [
 
 export function resolveInternalComponent(rawUrl: string) {
   const asString = String(rawUrl || '').trim();
-  if (/^https?:\/\//i.test(asString)) return WebPage;
+  if (isBrowserUrl(asString)) return WebPage;
   const key = parseInternalKey(rawUrl);
   const route = INTERNAL_ROUTES[key];
   if (route) return route.component;
@@ -101,7 +102,8 @@ export function resolveInternalComponent(rawUrl: string) {
 
 export function getInternalTitle(rawUrl: string): string {
   const asString = String(rawUrl || '').trim();
-  if (/^https?:\/\//i.test(asString)) {
+  if (isBrowserUrl(asString)) {
+    if (isFileUrl(asString)) return getFileUrlTitle(asString);
     try {
       const u = new URL(asString);
       return (u.hostname || asString).trim();

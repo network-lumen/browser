@@ -17,6 +17,7 @@ import {
   resolveInternalComponent,
   getInternalTitle,
 } from "../internal/routes";
+import { isBrowserUrl, normalizeTabUrl } from "../internal/navigationUrl";
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -77,27 +78,6 @@ provide("navigate", (url: string, opts?: { push?: boolean }) => {
   navigateInternal(url, opts || {});
 });
 
-function normalizeInternalUrl(raw: string): string {
-  const v = String(raw || "").trim();
-  if (!v) return "lumen://home";
-  if (/^https?:\/\//i.test(v)) return v;
-  const u = /^lumen:\/\//i.test(v) ? v : `lumen://${v}`;
-  // Canonicalize root lumen URLs so history/back doesn't bounce between
-  // `lumen://host` and `lumen://host/`.
-  try {
-    const rest = u.slice("lumen://".length);
-    const m = rest.match(/^([^/?#]+)(.*)$/);
-    const host = (m?.[1] || "").trim();
-    const tail = m?.[2] || "";
-    if (host && (!tail || tail.startsWith("?") || tail.startsWith("#"))) {
-      return `lumen://${host}/${tail}`;
-    }
-  } catch {
-    // ignore
-  }
-  return u;
-}
-
 const INTERNAL_KEYS = new Set(
   (INTERNAL_ROUTE_KEYS || []).map((k: string) => String(k).toLowerCase()),
 );
@@ -105,7 +85,7 @@ const INTERNAL_KEYS = new Set(
 function cacheKeyForUrl(rawUrl: string): string {
   const s = String(rawUrl || "").trim();
   if (!s) return "home";
-  if (/^https?:\/\//i.test(s)) return "web";
+  if (isBrowserUrl(s)) return "web";
 
   const withoutScheme = /^lumen:\/\//i.test(s) ? s.slice("lumen://".length) : s;
   const host = (withoutScheme.split(/[\/?#]/, 1)[0] || "").toLowerCase();
@@ -120,7 +100,7 @@ function navigateInternal(url: string, opts: { push?: boolean } = {}) {
   const tab = tabState.value;
   if (!tab) return;
 
-  const u = normalizeInternalUrl(url);
+  const u = normalizeTabUrl(url);
 
   if (!Array.isArray(tab.history)) tab.history = [];
 

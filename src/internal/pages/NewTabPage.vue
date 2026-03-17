@@ -86,7 +86,7 @@
       </div>
 
       <div class="tip text-center">
-        Paste any link in the address bar — `lumen://…`, `http://…`, or `https://…`.
+        Paste any link in the address bar — `lumen://…`, `http://…`, `https://…`, or `file://…`.
       </div>
     </div>
   </div>
