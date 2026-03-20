@@ -16,7 +16,6 @@
       @refresh-request="onRefresh"
       @history-step="onHistoryStep"
       @open-settings="openSettings"
-      @update-draft="updateDraft"
     />
 
     <div class="content-stack flex w-full flex-1">
@@ -208,12 +207,6 @@ function onHistoryStep(payload: { delta: number }) {
 
 function openSettings() {
   emit("openInNewTab", "lumen://settings");
-}
-
-function updateDraft(val: string) {
-  const tab = activeTab.value;
-  if (!tab) return;
-  tab.draftUrl = val;
 }
 </script>
 
