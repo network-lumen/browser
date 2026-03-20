@@ -477,6 +477,7 @@
 
 <script setup lang="ts">
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useTabLoadingSync } from "../useTabLoading";
 import {
   ArrowUpRight,
   Bookmark,
@@ -622,6 +623,8 @@ let loadMoreObserver: IntersectionObserver | null = null;
 let restoringUrlState = false;
 let suppressAutoLoadUntil = 0;
 const loadingPrevious = ref(false);
+
+useTabLoadingSync(loading);
 
 const lastRunKey = ref("");
 let searchSeq = 0;

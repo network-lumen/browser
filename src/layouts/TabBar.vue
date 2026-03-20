@@ -10,7 +10,7 @@
       ref="nav"
       :tabActive="tabActive"
       :tabs="tabs"
-      :loading="false"
+      :loading="!!activeTab?.loading"
       :current-url="currentUrl()"
       @goto="onGotoFromNavbar"
       @refresh-request="onRefresh"

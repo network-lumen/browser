@@ -771,6 +771,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
+import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
@@ -841,6 +842,8 @@ const currentView = ref<'overview' | 'blocks' | 'transactions' | 'validators'>('
 const searchQuery = ref('');
 const isLoading = ref(true);
 const autoRefresh = ref(true);
+
+useTabLoadingSync(isLoading);
 
 // Filter states
 const blockFilter = ref<'all' | 'recent' | 'with-txs' | 'empty'>('all');

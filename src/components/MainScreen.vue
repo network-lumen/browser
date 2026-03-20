@@ -18,8 +18,8 @@
           @click="onTabClick(t.id)"
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
-            <div class="flex-align-justify-center border-radius-circle size-100">
-              <UiSpinner v-if="t.loading" class="color-gray-blue" size="sm" />
+            <div class="tab-icon flex-align-justify-center border-radius-circle size-100">
+              <UiSpinner v-if="t.loading" size="sm" class="tab-spinner color-gray-blue" />
               <img
                 v-else-if="t.favicon"
                 class="favicon"
@@ -707,6 +707,16 @@ function handleOnboardingSkip() {
     height: 16px;
     border-radius: 3px;
     object-fit: cover;
+  }
+
+  .tab-icon {
+    min-width: 16px;
+    min-height: 16px;
+  }
+
+  .tab-spinner {
+    --spinner-size: 14px;
+    --spinner-stroke: 1.5px;
   }
 
   .tabs-header .tab {

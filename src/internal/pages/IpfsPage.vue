@@ -198,6 +198,8 @@
              @did-navigate-in-page="onWebviewDidNavigateInPage"
              @new-window="onWebviewNewWindow"
              @ipc-message="onWebviewIpcMessage"
+             @did-start-loading="onWebviewDidStartLoading"
+             @did-stop-loading="onWebviewDidStopLoading"
              @dom-ready="onWebviewDomReady"
            ></webview>
 
@@ -310,6 +312,7 @@ import { marked } from "marked";
 import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
 import "github-markdown-css/github-markdown.css";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import { useTabLoadingSync } from "../useTabLoading";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
@@ -361,6 +364,7 @@ const textContent = ref("");
 const docxContent = ref("");
 const mediaErrored = ref(false);
 const hlsError = ref("");
+const webviewLoading = ref(false);
  const htmlSrcdoc = ref("");
  const htmlFrameUrl = ref("");
  const siteFrame = ref<HTMLIFrameElement | null>(null);
@@ -375,6 +379,8 @@ const IGNORABLE_HLS_WARNING_DETAILS = new Set([
    "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
  const pageActive = ref(false);
  const isBareHtmlView = ref(false);
+
+useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
 
  function getWebviewWebContentsId(): number | null {
    const w: any = siteWebview.value;
@@ -412,7 +418,16 @@ function registerFindTargetWithRetry(attempts = 40) {
 }
 
 function onWebviewDomReady() {
+  webviewLoading.value = false;
   void nextTick(() => registerFindTargetWithRetry());
+}
+
+function onWebviewDidStartLoading() {
+  webviewLoading.value = true;
+}
+
+function onWebviewDidStopLoading() {
+  webviewLoading.value = false;
 }
 
 const rootCid = ref("");
@@ -2254,6 +2269,7 @@ onActivated(() => {
 });
 onDeactivated(() => {
   pageActive.value = false;
+  webviewLoading.value = false;
   detachSiteMsgListener();
   stopUrlWatch();
   try {
@@ -2265,6 +2281,7 @@ onDeactivated(() => {
 });
 onBeforeUnmount(() => {
   pageActive.value = false;
+  webviewLoading.value = false;
   detachSiteMsgListener();
   stopUrlWatch();
   clearHtmlFrame();
@@ -2296,6 +2313,7 @@ watch(
     if (!tabId || typeof registerFindTarget !== "function") return;
 
     if (k !== "html" || !url) {
+      webviewLoading.value = false;
       try {
         registerFindTarget(tabId, null);
       } catch {

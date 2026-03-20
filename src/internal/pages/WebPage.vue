@@ -13,6 +13,8 @@
       @did-navigate-in-page="onDidNavigateInPage"
       @new-window="onNewWindow"
       @ipc-message="onIpcMessage"
+      @did-start-loading="onDidStartLoading"
+      @did-stop-loading="onDidStopLoading"
       @dom-ready="onDomReady"
     ></webview>
     <div v-else class="empty"></div>
@@ -22,6 +24,7 @@
 <script setup lang="ts">
  import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
  import { isBrowserUrl } from "../navigationUrl";
+ import { useTabLoadingSync } from "../useTabLoading";
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
@@ -36,6 +39,9 @@
 const webviewRef = ref<any>(null);
 const pageActive = ref(false);
 const pendingAppNav = ref(false);
+const webviewLoading = ref(false);
+
+useTabLoadingSync(webviewLoading);
 
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
@@ -76,6 +82,7 @@ function loadUrl(url: string) {
   if (!w || !url) return;
   try {
     pendingAppNav.value = true;
+    webviewLoading.value = true;
     if (typeof w.loadURL === "function") {
       w.loadURL(url);
     } else {
@@ -83,6 +90,7 @@ function loadUrl(url: string) {
     }
   } catch {
     pendingAppNav.value = false;
+    webviewLoading.value = false;
   }
 }
 
@@ -133,6 +141,14 @@ function onDidNavigate(ev: any) {
 
 function onDidNavigateInPage(ev: any) {
   syncNavFromWebview(String(ev?.url || ""));
+}
+
+function onDidStartLoading() {
+  webviewLoading.value = true;
+}
+
+function onDidStopLoading() {
+  webviewLoading.value = false;
 }
 
 function syncNavFromWebview(rawUrl: string) {
@@ -192,6 +208,7 @@ function syncNavFromWebview(rawUrl: string) {
  }
 
  function onDomReady() {
+   webviewLoading.value = false;
    void nextTick(() => reportFindTarget());
  }
 
@@ -205,6 +222,7 @@ function syncNavFromWebview(rawUrl: string) {
  });
  onDeactivated(() => {
    pageActive.value = false;
+   webviewLoading.value = false;
    try {
      const tabId = String(currentTabId?.value || "").trim();
      if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
@@ -214,6 +232,7 @@ function syncNavFromWebview(rawUrl: string) {
  });
  onBeforeUnmount(() => {
    pageActive.value = false;
+   webviewLoading.value = false;
    try {
      const tabId = String(currentTabId?.value || "").trim();
      if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);

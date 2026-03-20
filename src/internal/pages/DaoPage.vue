@@ -357,6 +357,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
+import { useTabLoadingSync } from '../useTabLoading';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import { 
@@ -386,6 +387,8 @@ const proposalForm = ref({
 });
 
 const isLoading = ref(true);
+
+useTabLoadingSync(isLoading);
 
 
 const activeProposalsCount = ref(0);
