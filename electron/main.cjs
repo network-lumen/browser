@@ -1,19 +1,123 @@
 const { app, BrowserWindow, ipcMain, session, dialog } = require('electron');
 const path = require('path');
+const {
+  APP_NAME,
+  getBootstrapRuntimeState,
+  resolveStartupUserDataPath,
+  resetCustomUserDataPath,
+  setCustomUserDataPath,
+} = require('./bootstrap_paths.cjs');
 const { initializeMainLogger } = require('./services/main_logger.cjs');
 
 function configureAppPaths() {
   try {
-    const appName = 'lumen';
-    app.setName(appName);
-    const userDataPath = path.join(app.getPath('appData'), appName);
+    app.setName(APP_NAME);
+    const resolved = resolveStartupUserDataPath();
+    if (!resolved?.ok || !resolved?.state?.effectiveUserDataPath) {
+      const state = resolved?.state || {};
+      const target = String(
+        state.usingCustomUserDataPath
+          ? state.customUserDataPath || ''
+          : state.effectiveUserDataPath || ''
+      ).trim();
+      const reason = String(resolved?.error || 'path_unavailable').trim();
+      const title = 'Lumen data folder unavailable';
+      const body = [
+        'Lumen could not start because the configured data folder is unavailable.',
+        '',
+        `Target: ${target || '(empty)'}`,
+        `Reason: ${reason}`,
+        '',
+        'Update the configured folder in the bootstrap config or restore access to that path.',
+      ].join('\n');
+      console.error('[electron] failed to configure userData path:', { target, reason });
+      return { ok: false, error: reason, title, body, state };
+    }
+    const userDataPath = resolved.state.effectiveUserDataPath;
     app.setPath('userData', userDataPath);
     app.setAppLogsPath(path.join(userDataPath, 'logs'));
-  } catch {}
+    return { ok: true, state: resolved.state };
+  } catch (e) {
+    const reason = String(e && e.message ? e.message : e || 'path_configuration_failed');
+    console.error('[electron] configureAppPaths exception:', reason);
+    return {
+      ok: false,
+      error: reason,
+      title: 'Lumen data folder unavailable',
+      body: `Lumen could not configure its data folder.\n\nReason: ${reason}`,
+      state: null,
+    };
+  }
 }
 
-configureAppPaths();
-initializeMainLogger();
+const configuredAppPaths = configureAppPaths();
+const startupPathConfigFailure = configuredAppPaths?.ok ? null : configuredAppPaths;
+
+async function showStartupPathRecoveryDialog(failure) {
+  let currentFailure = failure && typeof failure === 'object' ? { ...failure } : {};
+
+  while (true) {
+    const title = String(currentFailure?.title || 'Lumen data folder unavailable').trim();
+    const message = 'Lumen could not start because the configured data folder is unavailable.';
+    const detail = String(
+      currentFailure?.body ||
+      `Reason: ${String(currentFailure?.error || 'path_unavailable').trim()}`,
+    ).trim();
+
+    const action = dialog.showMessageBoxSync({
+      type: 'error',
+      buttons: ['Close Lumen', 'Update Folder and Restart'],
+      defaultId: 1,
+      cancelId: 0,
+      noLink: true,
+      title,
+      message,
+      detail: `${detail}\n\nChoose "Update Folder and Restart" to select a different data folder.`,
+    });
+
+    if (action !== 1) {
+      try { app.quit(); } catch {}
+      return;
+    }
+
+    const selected = dialog.showOpenDialogSync({
+      title: 'Select Lumen data folder',
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    if (!Array.isArray(selected) || !selected.length) {
+      continue;
+    }
+
+    const nextPath = String(selected[0] || '').trim();
+    const update = setCustomUserDataPath(nextPath);
+    if (update?.ok) {
+      try {
+        app.relaunch();
+      } catch {}
+      try {
+        app.exit(0);
+      } catch {
+        try { app.quit(); } catch {}
+      }
+      return;
+    }
+
+    currentFailure = {
+      ok: false,
+      error: String(update?.error || 'path_update_failed'),
+      title: 'Could not update Lumen data folder',
+      body: [
+        `Selected folder: ${nextPath || '(empty)'}`,
+        `Reason: ${String(update?.error || 'path_update_failed').trim()}`,
+      ].join('\n'),
+      state: null,
+    };
+  }
+}
+
+if (!startupPathConfigFailure) {
+  initializeMainLogger();
+}
 
 // Linux environments without a user session bus (containers, system services, root shells) can cause
 // portal-backed file pickers to hang. Prefer the native GTK dialog in that case.
@@ -657,6 +761,18 @@ ipcMain.handle('settings:set', async (_evt, partial) => {
   return res;
 });
 
+ipcMain.handle('bootstrapPath:getState', async () => {
+  return { ok: true, state: getBootstrapRuntimeState() };
+});
+
+ipcMain.handle('bootstrapPath:setCustomUserDataPath', async (_evt, nextPath) => {
+  return setCustomUserDataPath(nextPath);
+});
+
+ipcMain.handle('bootstrapPath:resetCustomUserDataPath', async () => {
+  return resetCustomUserDataPath();
+});
+
 // Gateway management IPC handlers
 ipcMain.handle('settings:loadGateways', async () => {
   try {
@@ -1069,6 +1185,14 @@ ipcMain.handle('window:open-main', async () => {
 });
 
 app.whenReady().then(() => {
+  if (startupPathConfigFailure) {
+    void showStartupPathRecoveryDialog(startupPathConfigFailure).catch((e) => {
+      console.error('[electron] startup path recovery failed:', e);
+      try { app.quit(); } catch {}
+    });
+    return;
+  }
+
   try {
     console.log('[electron] userData path set to', app.getPath('userData'));
     console.log('[electron] logs path set to', app.getPath('logs'));

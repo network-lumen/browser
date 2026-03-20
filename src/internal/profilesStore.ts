@@ -5,6 +5,7 @@ export type Profile = {
   name: string;
   colorIndex: number;
   role?: 'guest' | 'user';
+  avatarDataUrl?: string;
   walletAddress?: string;
   address?: string;
   favourites?: Record<string, string>;
@@ -19,6 +20,9 @@ declare global {
         isWalletFullyCreated?: (id: string) => Promise<{ ok: boolean; error?: string; details?: any; message?: string }>;
         select: (id: string) => Promise<string>;
         create: (name: string) => Promise<Profile | null>;
+        updateName?: (id: string, name: string) => Promise<{ ok: boolean; profile?: Profile; error?: string }>;
+        updateAvatar?: (id: string, sourcePath: string) => Promise<{ ok: boolean; profile?: Profile; error?: string }>;
+        clearAvatar?: (id: string) => Promise<{ ok: boolean; profile?: Profile; error?: string }>;
         export: (id: string) => Promise<string | null>;
         checkExportRequiresPassword?: (id: string) => Promise<{ ok: boolean; requiresPassword?: boolean; error?: string }>;
         exportBackup?: (id: string, password?: string) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
@@ -112,6 +116,74 @@ export async function createProfile(name: string): Promise<Profile | null> {
     return created;
   } catch {
     return null;
+  }
+}
+
+export async function updateProfileName(
+  id: string,
+  name: string,
+): Promise<{ ok: boolean; profile?: Profile; error?: string }> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.updateName !== 'function') {
+      return { ok: false, error: 'profiles_api_unavailable' };
+    }
+    const result = await api.updateName(id, name);
+    if (!result?.ok) {
+      return { ok: false, error: result?.error || 'update_failed' };
+    }
+    await initProfiles();
+    return {
+      ok: true,
+      profile: profilesState.value.find((p) => p.id === id) || result.profile,
+    };
+  } catch {
+    return { ok: false, error: 'update_failed' };
+  }
+}
+
+export async function updateProfileAvatarFromPath(
+  id: string,
+  sourcePath: string,
+): Promise<{ ok: boolean; profile?: Profile; error?: string }> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.updateAvatar !== 'function') {
+      return { ok: false, error: 'profiles_api_unavailable' };
+    }
+    const result = await api.updateAvatar(id, sourcePath);
+    if (!result?.ok) {
+      return { ok: false, error: result?.error || 'update_failed' };
+    }
+    await initProfiles();
+    return {
+      ok: true,
+      profile: profilesState.value.find((p) => p.id === id) || result.profile,
+    };
+  } catch {
+    return { ok: false, error: 'update_failed' };
+  }
+}
+
+export async function clearProfileAvatar(
+  id: string,
+): Promise<{ ok: boolean; profile?: Profile; error?: string }> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.clearAvatar !== 'function') {
+      return { ok: false, error: 'profiles_api_unavailable' };
+    }
+    const result = await api.clearAvatar(id);
+    if (!result?.ok) {
+      return { ok: false, error: result?.error || 'update_failed' };
+    }
+    await initProfiles();
+    return {
+      ok: true,
+      profile: profilesState.value.find((p) => p.id === id) || result.profile,
+    };
+  } catch {
+    return { ok: false, error: 'update_failed' };
   }
 }
 

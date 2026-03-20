@@ -97,6 +97,11 @@ contextBridge.exposeInMainWorld('lumen', {
       ipcRenderer.removeListener('settings:changed', handler);
     };
   },
+  bootstrapPathGetState: () => ipcRenderer.invoke('bootstrapPath:getState'),
+  bootstrapPathSetCustomUserDataPath: (nextPath) =>
+    ipcRenderer.invoke('bootstrapPath:setCustomUserDataPath', nextPath),
+  bootstrapPathResetCustomUserDataPath: () =>
+    ipcRenderer.invoke('bootstrapPath:resetCustomUserDataPath'),
   // Gateway management
   settingsLoadGateways: () => ipcRenderer.invoke('settings:loadGateways'),
   settingsSaveGateways: (gateways) => ipcRenderer.invoke('settings:saveGateways', gateways),
@@ -246,6 +251,9 @@ contextBridge.exposeInMainWorld('lumen', {
     isWalletFullyCreated: (id) => ipcRenderer.invoke('profiles:isWalletFullyCreated', id),
     select: (id) => ipcRenderer.invoke('profiles:setActive', id),
     create: (name) => ipcRenderer.invoke('profiles:create', name),
+    updateName: (id, name) => ipcRenderer.invoke('profiles:updateName', id, name),
+    updateAvatar: (id, sourcePath) => ipcRenderer.invoke('profiles:updateAvatar', id, sourcePath),
+    clearAvatar: (id) => ipcRenderer.invoke('profiles:clearAvatar', id),
     export: (id) => ipcRenderer.invoke('profiles:export', id),
     checkExportRequiresPassword: (id) => ipcRenderer.invoke('profiles:checkExportRequiresPassword', id),
     exportBackup: (id, password, encryptOutput) => ipcRenderer.invoke('profiles:exportBackup', id, password, encryptOutput),
