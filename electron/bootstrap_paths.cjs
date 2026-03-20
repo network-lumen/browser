@@ -48,7 +48,7 @@ function persistBootstrapConfig(next) {
       try {
         fs.unlinkSync(fp);
       } catch {}
-      return;
+      return { ok: true };
     }
     fs.writeFileSync(fp, JSON.stringify(data, null, 2), 'utf8');
   } catch (e) {
