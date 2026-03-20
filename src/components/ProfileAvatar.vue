@@ -5,7 +5,8 @@
     :style="avatarStyle"
     :title="titleText"
   >
-    <User v-if="showGuestIcon" :size="iconSize" stroke-width="2.5" />
+    <img v-if="imageSrc" class="lumen-avatar-image" :src="imageSrc" :alt="titleText" />
+    <User v-else-if="showGuestIcon" :size="iconSize" stroke-width="2.5" />
     <span v-else class="lumen-avatar-letter">{{ letter }}</span>
   </span>
 </template>
@@ -19,6 +20,7 @@ type ProfileLike = {
   name?: string;
   colorIndex?: number;
   role?: 'guest' | 'user';
+  avatarDataUrl?: string;
 };
 
 const props = withDefaults(defineProps<{
@@ -58,6 +60,11 @@ const bucket = computed(() => {
 
 const hueClass = computed(() => `avatar-hue-${bucket.value}`);
 
+const imageSrc = computed(() => {
+  const dataUrl = String(props.profile?.avatarDataUrl || '').trim();
+  return dataUrl.startsWith('data:image/') ? dataUrl : '';
+});
+
 const avatarStyle = computed(() => {
   const size = Number(props.size) || 36;
   const fontSize = Math.max(12, Math.round(size * 0.45));
@@ -70,7 +77,7 @@ const avatarStyle = computed(() => {
 
 const iconSize = computed(() => Math.max(14, Math.round((Number(props.size) || 36) * 0.55)));
 
-const showGuestIcon = computed(() => props.guestIcon && isGuest.value);
+const showGuestIcon = computed(() => props.guestIcon && isGuest.value && !imageSrc.value);
 
 const titleText = computed(() => props.title || baseText.value || 'Profile');
 </script>
@@ -86,6 +93,7 @@ const titleText = computed(() => props.title || baseText.value || 'Profile');
   font-weight: 800;
   line-height: 1;
   user-select: none;
+  overflow: hidden;
 }
 
 .lumen-avatar.is-guest {
@@ -97,6 +105,13 @@ const titleText = computed(() => props.title || baseText.value || 'Profile');
 
 .lumen-avatar-letter {
   transform: translateY(0.5px);
+}
+
+.lumen-avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 </style>
 

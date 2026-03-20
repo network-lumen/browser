@@ -649,8 +649,24 @@ async function checkOnboardingStatus() {
     const status = await securityApi.getStatus();
     const hasPassword = !!(status?.passwordEnabled && status?.hasPassword);
 
-    if (hasPassword) {
-      // Password already set, mark onboarding as complete for this profile
+    const profilesApi = anyWindow?.lumen?.profiles;
+    if (!profilesApi || typeof profilesApi.getActive !== 'function') {
+      return;
+    }
+
+    const activeProfile = await profilesApi.getActive();
+    const isGuestProfile = !!(activeProfile && activeProfile.role === 'guest');
+    let walletReady = false;
+    if (
+      !isGuestProfile &&
+      typeof profilesApi.isWalletFullyCreated === 'function' &&
+      profileId
+    ) {
+      const walletStatus = await profilesApi.isWalletFullyCreated(profileId);
+      walletReady = !!walletStatus?.ok;
+    }
+
+    if (hasPassword && walletReady) {
       localStorage.setItem(storageKey, 'true');
       return;
     }

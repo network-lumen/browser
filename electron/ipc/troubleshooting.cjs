@@ -9,6 +9,7 @@ const {
   loadGateways,
   loadPrivateCloudConfig
 } = require('../settings.cjs');
+const { getBootstrapRuntimeState } = require('../bootstrap_paths.cjs');
 const { getGatewayServerStatus, getGatewayDataDir } = require('../gateway-server.cjs');
 const { checkIpfsStatus, ipfsStats, ipfsSwarmPeers } = require('../ipfs.cjs');
 
@@ -450,6 +451,7 @@ async function prepareDebugBundle() {
   ensureDir(logsDir);
 
   const runtime = getRuntimeSummary();
+  const bootstrapPaths = getBootstrapRuntimeState();
   const settings = sanitizeSettings(getSettings());
   const security = getSecurityStatus();
   const privateCloud = loadPrivateCloudConfig();
@@ -470,6 +472,12 @@ async function prepareDebugBundle() {
 
   const paths = {
     userData: userDataDir,
+    activeUserData: bootstrapPaths.activeUserDataPath,
+    configuredUserData: bootstrapPaths.effectiveUserDataPath,
+    defaultUserData: bootstrapPaths.defaultUserDataPath,
+    customUserData: bootstrapPaths.customUserDataPath,
+    bootstrapConfigPath: bootstrapPaths.bootstrapConfigPath,
+    bootstrapRestartRequired: bootstrapPaths.restartRequired,
     logsDir,
     reportPath: getReportPath(),
     updatesDir: path.join(userDataDir, 'updates'),
@@ -493,6 +501,7 @@ async function prepareDebugBundle() {
   const fileInventory = [
     describeFile('Logs directory', logsDir),
     describeFile('Electron main log', path.join(logsDir, 'electron-main.log')),
+    describeFile('Bootstrap path config', bootstrapPaths.bootstrapConfigPath),
     describeFile('Settings file', path.join(userDataDir, 'settings.json')),
     describeFile('Gateways file', path.join(userDataDir, 'gateways.json')),
     describeFile('Private cloud config', path.join(userDataDir, 'private-cloud.json')),

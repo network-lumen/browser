@@ -1,4 +1,4 @@
-const { app, ipcMain, dialog } = require('electron');
+const { app, ipcMain, dialog, nativeImage } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');
@@ -125,6 +125,45 @@ function saveProfilesFile(data) {
   }
 }
 
+function normalizeAvatarDataUrl(value) {
+  const dataUrl = String(value || '').trim();
+  return dataUrl.startsWith('data:image/') ? dataUrl : '';
+}
+
+function persistProfileMetadata(profileId, updates) {
+  const id = String(profileId || '').trim();
+  if (!id || !updates || typeof updates !== 'object') return;
+  try {
+    const fp = profileJsonPath(id);
+    if (!fs.existsSync(fp)) return;
+    const current = readJson(fp, null);
+    if (!current || typeof current !== 'object') return;
+    const updated = { ...current };
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === undefined || value === null || value === '') {
+        delete updated[key];
+      } else {
+        updated[key] = value;
+      }
+    }
+    fs.writeFileSync(fp, JSON.stringify(updated, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('[profiles] failed to persist profile metadata', id, e?.message || e);
+  }
+}
+
+function persistProfileDisplayName(profileId, nextName) {
+  const id = String(profileId || '').trim();
+  const name = String(nextName || '').trim();
+  if (!id || !name) return;
+  persistProfileMetadata(id, { name });
+}
+
+function persistProfileAvatarDataUrl(profileId, nextAvatarDataUrl) {
+  const avatarDataUrl = normalizeAvatarDataUrl(nextAvatarDataUrl);
+  persistProfileMetadata(profileId, { avatarDataUrl: avatarDataUrl || null });
+}
+
 function makeProfileId(name) {
   const base = String(name || '')
     .trim()
@@ -153,6 +192,39 @@ function hasKeystore(id) {
     return fs.existsSync(keystorePath(id));
   } catch {
     return false;
+  }
+}
+
+function createAvatarDataUrlFromPath(sourcePath) {
+  const filePath = String(sourcePath || '').trim();
+  if (!filePath) return { ok: false, error: 'missing_avatar_path' };
+  if (!fs.existsSync(filePath)) return { ok: false, error: 'avatar_file_not_found' };
+  try {
+    const image = nativeImage.createFromPath(filePath);
+    if (!image || image.isEmpty()) {
+      return { ok: false, error: 'invalid_avatar_image' };
+    }
+    const { width, height } = image.getSize();
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+      return { ok: false, error: 'invalid_avatar_image' };
+    }
+
+    const cropSize = Math.min(width, height);
+    const square = image.crop({
+      x: Math.max(0, Math.floor((width - cropSize) / 2)),
+      y: Math.max(0, Math.floor((height - cropSize) / 2)),
+      width: cropSize,
+      height: cropSize,
+    });
+    const avatarDataUrl = normalizeAvatarDataUrl(
+      square.resize({ width: 160, height: 160, quality: 'best' }).toDataURL(),
+    );
+    if (!avatarDataUrl) {
+      return { ok: false, error: 'avatar_processing_failed' };
+    }
+    return { ok: true, avatarDataUrl };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e || 'avatar_processing_failed') };
   }
 }
 
@@ -253,6 +325,10 @@ async function ensureWalletForProfile(profile) {
       address: w.address,
       createdAt: Date.now()
     };
+    const avatarDataUrl = normalizeAvatarDataUrl(profile.avatarDataUrl);
+    if (avatarDataUrl) {
+      profileRecord.avatarDataUrl = avatarDataUrl;
+    }
     fs.writeFileSync(profileJsonPath(id), JSON.stringify(profileRecord, null, 2), 'utf8');
 
     return { ok: true, created: true, address: w.address };
@@ -380,7 +456,7 @@ function buildProfileBackupObject(p, decryptPassword) {
     colorIndex: p.colorIndex,
     role: p.role || 'user',
     walletAddress: p.walletAddress || p.address || null,
-      favourites: p.favourites || {},
+    avatarDataUrl: normalizeAvatarDataUrl(p.avatarDataUrl) || null,
     favourites: p.favourites || {},
     createdAt: Date.now(),
     mnemonic: mnemonicPlain || null,
@@ -472,6 +548,7 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
     : colorIndexForName(name);
   const role = imported.role === 'guest' ? 'guest' : 'user';
   const walletAddress = String(imported.walletAddress || imported.address || '').trim() || null;
+  const avatarDataUrl = normalizeAvatarDataUrl(imported.avatarDataUrl);
 
   const profile = {
     id,
@@ -480,6 +557,9 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
     role,
     walletAddress
   };
+  if (avatarDataUrl) {
+    profile.avatarDataUrl = avatarDataUrl;
+  }
 
   // Merge PQC key if present (supports both camelCase and snake_case backup fields).
   const pqc = imported.pqc;
@@ -537,6 +617,9 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
         address: walletAddress,
         createdAt: imported.createdAt || Date.now()
       };
+      if (avatarDataUrl) {
+        meta.avatarDataUrl = avatarDataUrl;
+      }
       fs.writeFileSync(
         path.join(dstDir, 'profile.json'),
         JSON.stringify(meta, null, 2),
@@ -597,6 +680,7 @@ function registerProfilesIpc() {
     const normalized = updatedProfiles.map((p) => ({
       ...p,
       walletAddress: p.walletAddress || p.address || null,
+      avatarDataUrl: normalizeAvatarDataUrl(p.avatarDataUrl) || undefined,
       favourites: p.favourites || {}
     }));
 
@@ -652,7 +736,13 @@ ipcMain.handle('profiles:getFavourites', async () => {
   ipcMain.handle('profiles:getActive', async () => {
     const { profiles, activeId } = loadProfilesFile();
     const active = profiles.find((p) => p.id === activeId) || profiles[0] || null;
-    return active || null;
+    if (!active) return null;
+    return {
+      ...active,
+      walletAddress: active.walletAddress || active.address || null,
+      avatarDataUrl: normalizeAvatarDataUrl(active.avatarDataUrl) || undefined,
+      favourites: active.favourites || {},
+    };
   });
 
   ipcMain.handle('profiles:isWalletFullyCreated', async (_evt, id) => {
@@ -689,6 +779,72 @@ ipcMain.handle('profiles:getFavourites', async () => {
     const next = [...profiles, profile];
     saveProfilesFile({ profiles: next, activeId: id });
     return profile;
+  });
+
+  ipcMain.handle('profiles:updateName', async (_evt, id, name) => {
+    const profileId = String(id || '').trim();
+    const nextName = String(name || '').trim();
+    if (!profileId) return { ok: false, error: 'missing_profile_id' };
+    if (!nextName) return { ok: false, error: 'missing_profile_name' };
+
+    const { profiles, activeId } = loadProfilesFile();
+    const index = profiles.findIndex((p) => String(p && p.id ? p.id : '') === profileId);
+    if (index === -1) return { ok: false, error: 'profile_not_found' };
+
+    const current = profiles[index] || {};
+    const updated = {
+      ...current,
+      name: nextName,
+      colorIndex: colorIndexForName(nextName),
+    };
+    const nextProfiles = profiles.slice();
+    nextProfiles[index] = updated;
+    saveProfilesFile({ profiles: nextProfiles, activeId });
+    persistProfileDisplayName(profileId, nextName);
+    return { ok: true, profile: updated };
+  });
+
+  ipcMain.handle('profiles:updateAvatar', async (_evt, id, sourcePath) => {
+    const profileId = String(id || '').trim();
+    if (!profileId) return { ok: false, error: 'missing_profile_id' };
+
+    const avatarResult = createAvatarDataUrlFromPath(sourcePath);
+    if (!avatarResult?.ok) {
+      return { ok: false, error: avatarResult?.error || 'avatar_processing_failed' };
+    }
+
+    const { profiles, activeId } = loadProfilesFile();
+    const index = profiles.findIndex((p) => String(p && p.id ? p.id : '') === profileId);
+    if (index === -1) return { ok: false, error: 'profile_not_found' };
+
+    const current = profiles[index] || {};
+    const updated = {
+      ...current,
+      avatarDataUrl: avatarResult.avatarDataUrl,
+    };
+    const nextProfiles = profiles.slice();
+    nextProfiles[index] = updated;
+    saveProfilesFile({ profiles: nextProfiles, activeId });
+    persistProfileAvatarDataUrl(profileId, avatarResult.avatarDataUrl);
+    return { ok: true, profile: updated };
+  });
+
+  ipcMain.handle('profiles:clearAvatar', async (_evt, id) => {
+    const profileId = String(id || '').trim();
+    if (!profileId) return { ok: false, error: 'missing_profile_id' };
+
+    const { profiles, activeId } = loadProfilesFile();
+    const index = profiles.findIndex((p) => String(p && p.id ? p.id : '') === profileId);
+    if (index === -1) return { ok: false, error: 'profile_not_found' };
+
+    const current = profiles[index] || {};
+    const updated = { ...current };
+    delete updated.avatarDataUrl;
+    const nextProfiles = profiles.slice();
+    nextProfiles[index] = updated;
+    saveProfilesFile({ profiles: nextProfiles, activeId });
+    persistProfileAvatarDataUrl(profileId, '');
+    return { ok: true, profile: updated };
   });
 
   ipcMain.handle('profiles:export', async (_evt, id) => {
@@ -956,6 +1112,7 @@ ipcMain.handle('profiles:getFavourites', async () => {
         ? Number(parsed.colorIndex)
         : colorIndexForName(name);
       const role = parsed.role === 'guest' ? 'guest' : 'user';
+      const avatarDataUrl = normalizeAvatarDataUrl(parsed.avatarDataUrl);
 
       const baseProfile = {
         id,
@@ -963,6 +1120,9 @@ ipcMain.handle('profiles:getFavourites', async () => {
         colorIndex,
         role
       };
+      if (avatarDataUrl) {
+        baseProfile.avatarDataUrl = avatarDataUrl;
+      }
 
       // Try to preserve/import an existing walletAddress/address if present.
       if (parsed.walletAddress || parsed.address) {

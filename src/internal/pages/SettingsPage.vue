@@ -522,6 +522,7 @@
                 :value="p.id"
                 v-model="selectedProfileIds"
               />
+              <ProfileAvatar class="profile-row-avatar" :profile="p" :size="32" :title="p.name || p.id" />
               <div class="profile-row-main">
                 <div class="profile-row-title">
                   <span class="profile-title">{{ p.name || p.id }}</span>
@@ -532,6 +533,105 @@
             </label>
           </div>
           <p v-else class="setting-hint">No profiles found.</p>
+
+          <div v-if="profiles.length" class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Display name</span>
+              <span class="setting-desc">Rename a profile without changing its internal profile ID.</span>
+            </div>
+            <div class="setting-control profile-select-actions">
+              <select
+                v-model="renameProfileId"
+                class="select-control"
+                :disabled="profileRenameSaving"
+              >
+                <option
+                  v-for="p in profiles"
+                  :key="`rename-${p.id}`"
+                  :value="p.id"
+                >
+                  {{ p.name || p.id }}
+                </option>
+              </select>
+              <input
+                v-model="renameProfileDraft"
+                type="text"
+                class="input-control wide"
+                placeholder="Enter a display name"
+                :disabled="profileRenameSaving || !renameProfileId"
+                @keyup.enter="saveProfileDisplayName"
+              />
+              <button
+                class="btn-secondary"
+                type="button"
+                :disabled="profileRenameSaving || !renameProfileId"
+                @click="resetProfileDisplayNameDraft"
+              >
+                Reset
+              </button>
+              <button
+                class="btn-secondary"
+                type="button"
+                :disabled="profileRenameSaving || !renameProfileId"
+                @click="saveProfileDisplayName"
+              >
+                {{ profileRenameSaving ? 'Saving...' : 'Save' }}
+              </button>
+            </div>
+          </div>
+          <p v-if="profileRenameError" class="setting-hint" style="color: var(--ios-red);">
+            {{ profileRenameError }}
+          </p>
+
+          <div v-if="profiles.length" class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Profile photo</span>
+              <span class="setting-desc">Override the generated profile thumbnail with a local image.</span>
+            </div>
+            <div class="setting-control profile-photo-control">
+              <select
+                v-model="avatarProfileId"
+                class="select-control"
+                :disabled="profileAvatarSaving"
+              >
+                <option
+                  v-for="p in profiles"
+                  :key="`avatar-${p.id}`"
+                  :value="p.id"
+                >
+                  {{ p.name || p.id }}
+                </option>
+              </select>
+              <ProfileAvatar
+                class="profile-photo-preview"
+                :profile="avatarProfileTarget"
+                :size="44"
+                :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
+              />
+              <button
+                class="btn-secondary"
+                type="button"
+                :disabled="profileAvatarSaving || !avatarProfileId"
+                @click="chooseProfileAvatar"
+              >
+                {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
+              </button>
+              <button
+                class="btn-secondary"
+                type="button"
+                :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
+                @click="resetProfileAvatar"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+          <p v-if="profileAvatarError" class="setting-hint" style="color: var(--ios-red);">
+            {{ profileAvatarError }}
+          </p>
+          <p v-if="profiles.length" class="setting-hint">
+            Lumen crops the selected image to a square thumbnail and stores it with the profile.
+          </p>
 
            <div class="setting-item">
              <div class="setting-info">
@@ -656,7 +756,101 @@
             Note: the local IPFS daemon must actually be configured to use these ports/addresses.
           </p>
           <p class="setting-hint">
-            Changes are applied automatically (no restart prompt).
+            Network changes are applied automatically (no restart prompt).
+          </p>
+
+          <div class="advanced-title">
+            <FolderOpen :size="18" />
+            <span>Lumen data folder</span>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Custom data folder target</span>
+              <span class="setting-desc">
+                Override the default folder used by the Lumen binary for IPFS, profiles, logs and app metadata.
+              </span>
+            </div>
+            <div class="setting-control data-folder-control">
+              <div class="data-folder-input-row">
+                <input
+                  type="text"
+                  class="input-control data-folder-input"
+                  v-model="lumenDataFolderDraft"
+                  :placeholder="defaultUserDataPath || 'D:\\Lumen'"
+                  :disabled="lumenDataFolderBusy"
+                />
+                <button
+                  class="btn-secondary troubleshooting-btn"
+                  type="button"
+                  :disabled="lumenDataFolderBusy"
+                  @click="browseLumenDataFolder"
+                >
+                  <FolderOpen :size="16" />
+                  <span>Browse...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-hint">
+            Active now: <span class="mono-path">{{ activeUserDataPath || 'Unavailable' }}</span>
+          </div>
+          <div class="setting-hint">
+            Next launch target: <span class="mono-path">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
+          </div>
+          <div class="setting-hint">
+            Default target: <span class="mono-path">{{ defaultUserDataPath || 'Unavailable' }}</span>
+          </div>
+          <div v-if="bootstrapConfigPath" class="setting-hint">
+            Bootstrap config: <span class="mono-path">{{ bootstrapConfigPath }}</span>
+          </div>
+          <div v-if="activeLogsPath" class="setting-hint">
+            Active logs folder: <span class="mono-path">{{ activeLogsPath }}</span>
+          </div>
+          <div
+            v-if="lumenDataFolderError"
+            class="setting-hint"
+            style="color: var(--ios-red);"
+          >
+            {{ lumenDataFolderError }}
+          </div>
+
+          <div class="profile-backup-actions" style="margin-top: 0.75rem;">
+            <button
+              class="btn-secondary"
+              type="button"
+              :disabled="lumenDataFolderBusy"
+              @click="revertLumenDataFolderDraft"
+            >
+              Revert
+            </button>
+            <button
+              class="btn-secondary"
+              type="button"
+              :disabled="lumenDataFolderBusy"
+              @click="useDefaultLumenDataFolderDraft"
+            >
+              Use default
+            </button>
+            <button
+              class="btn-secondary"
+              type="button"
+              :disabled="lumenDataFolderBusy"
+              @click="saveLumenDataFolder"
+            >
+              {{ lumenDataFolderSaving ? 'Applying...' : 'Apply' }}
+            </button>
+          </div>
+
+          <p class="setting-hint">
+            Leave the field empty to go back to the default folder target.
+          </p>
+          <p class="setting-hint">
+            Restart Lumen after changing this target. Existing files are not moved automatically.
+          </p>
+          <p v-if="bootstrapRestartRequired" class="setting-hint">
+            Restart required: the running app is still using <span class="mono-path">{{ activeUserDataPath }}</span>.
           </p>
         </div>
       </div>
@@ -912,7 +1106,7 @@
 import { ref, watch, computed, inject, onMounted } from 'vue';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
-import { 
+import {
   Settings,
   Palette,
   Shield,
@@ -937,8 +1131,15 @@ import {
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { useToast } from '../../composables/useToast';
-import { profilesState, activeProfileId } from '../profilesStore';
-import { exportProfilesBackup } from '../profilesStore';
+import ProfileAvatar from '../../components/ProfileAvatar.vue';
+import {
+  profilesState,
+  activeProfileId,
+  exportProfilesBackup,
+  updateProfileName,
+  updateProfileAvatarFromPath,
+  clearProfileAvatar,
+} from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
 import {
@@ -987,6 +1188,13 @@ const lastBackupExport = ref<
       error?: string;
     }
 >(null);
+const renameProfileId = ref('');
+const renameProfileDraft = ref('');
+const profileRenameSaving = ref(false);
+const profileRenameError = ref('');
+const avatarProfileId = ref('');
+const profileAvatarSaving = ref(false);
+const profileAvatarError = ref('');
 
 const backupExportSummary = computed(() => {
   const res = lastBackupExport.value;
@@ -1008,16 +1216,47 @@ const backupExportFailures = computed(() => {
   const results = Array.isArray(res.results) ? res.results : [];
   return results.filter((r) => r && r.ok === false);
 });
+const renameProfileTarget = computed(
+  () => profiles.value.find((p) => p.id === renameProfileId.value) || null,
+);
+const avatarProfileTarget = computed(
+  () => profiles.value.find((p) => p.id === avatarProfileId.value) || null,
+);
+
+type BootstrapPathState = {
+  bootstrapConfigPath: string;
+  defaultUserDataPath: string;
+  customUserDataPath: string;
+  usingCustomUserDataPath: boolean;
+  effectiveUserDataPath: string;
+  activeUserDataPath: string;
+  activeLogsPath: string;
+  restartRequired: boolean;
+};
 
 const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const localDriveMaxUploadSizeDraft = ref(String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB));
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
+const lumenDataFolderDraft = ref('');
+const lumenDataFolderSaving = ref(false);
+const lumenDataFolderLoading = ref(false);
+const lumenDataFolderError = ref('');
+const defaultUserDataPath = ref('');
+const effectiveUserDataPath = ref('');
+const activeUserDataPath = ref('');
+const activeLogsPath = ref('');
+const bootstrapConfigPath = ref('');
+const currentCustomUserDataPath = ref('');
+const bootstrapRestartRequired = ref(false);
 const troubleshootingAction = ref<'' | 'copy' | 'open'>('');
 const troubleshootingDir = ref('');
 const troubleshootingReportPath = ref('');
 const troubleshootingBusy = computed(() => troubleshootingAction.value !== '');
+const lumenDataFolderBusy = computed(
+  () => lumenDataFolderSaving.value || lumenDataFolderLoading.value,
+);
 
 // Private Cloud state
 const privateCloudEnabled = ref(false);
@@ -1321,6 +1560,7 @@ watch(
       appSettingsState.value.localDriveMaxUploadSizeGb || DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
     );
     devSettingsError.value = '';
+    loadBootstrapPathState();
   },
   { immediate: true },
 );
@@ -1345,6 +1585,52 @@ function validatePositiveInteger(raw: string): number | null {
   const parsed = Number(value);
   if (!Number.isSafeInteger(parsed) || parsed < 1) return null;
   return parsed;
+}
+
+function normalizeFolderDraft(raw: string): string {
+  const value = String(raw || '').trim();
+  if (!value) return '';
+  if (value === '/') return value;
+  if (/^[a-zA-Z]:[\\/]?$/.test(value)) {
+    return `${value.slice(0, 2)}\\`;
+  }
+  const trimmed = value.replace(/[\\/]+$/, '');
+  const platform = String((window as any).lumen?.appPlatform || '').toLowerCase();
+  return platform === 'win32' ? trimmed.toLowerCase() : trimmed;
+}
+
+function applyBootstrapPathState(state: Partial<BootstrapPathState> | null | undefined) {
+  const next = state || {};
+  defaultUserDataPath.value = String(next.defaultUserDataPath || '').trim();
+  currentCustomUserDataPath.value = String(next.customUserDataPath || '').trim();
+  effectiveUserDataPath.value = String(next.effectiveUserDataPath || '').trim();
+  activeUserDataPath.value = String(next.activeUserDataPath || '').trim();
+  activeLogsPath.value = String(next.activeLogsPath || '').trim();
+  bootstrapConfigPath.value = String(next.bootstrapConfigPath || '').trim();
+  bootstrapRestartRequired.value = !!next.restartRequired;
+  lumenDataFolderDraft.value = currentCustomUserDataPath.value;
+}
+
+async function loadBootstrapPathState() {
+  const api = (window as any).lumen;
+  if (!api || typeof api.bootstrapPathGetState !== 'function') {
+    lumenDataFolderError.value = 'Lumen data folder controls are unavailable.';
+    return;
+  }
+  lumenDataFolderLoading.value = true;
+  lumenDataFolderError.value = '';
+  try {
+    const result = await api.bootstrapPathGetState();
+    if (!result?.ok || !result?.state) {
+      lumenDataFolderError.value = String(result?.error || 'Failed to load Lumen data folder.');
+      return;
+    }
+    applyBootstrapPathState(result.state);
+  } catch (e: any) {
+    lumenDataFolderError.value = e?.message || 'Failed to load Lumen data folder.';
+  } finally {
+    lumenDataFolderLoading.value = false;
+  }
 }
 
 function resetDevSettings() {
@@ -1393,6 +1679,79 @@ async function saveDevSettings() {
     );
   } finally {
     devSettingsSaving.value = false;
+  }
+}
+
+function revertLumenDataFolderDraft() {
+  lumenDataFolderDraft.value = currentCustomUserDataPath.value;
+  lumenDataFolderError.value = '';
+}
+
+function useDefaultLumenDataFolderDraft() {
+  lumenDataFolderDraft.value = '';
+  lumenDataFolderError.value = '';
+}
+
+async function browseLumenDataFolder() {
+  const api = (window as any).lumen;
+  if (!api || typeof api.dialogOpenFolder !== 'function') {
+    lumenDataFolderError.value = 'Folder picker is unavailable.';
+    return;
+  }
+  lumenDataFolderError.value = '';
+  try {
+    const result = await api.dialogOpenFolder({ title: 'Select Lumen data folder' });
+    if (!result?.ok || !Array.isArray(result.paths) || !result.paths.length) {
+      if (result?.error && result.error !== 'canceled') {
+        lumenDataFolderError.value = String(result.error);
+      }
+      return;
+    }
+    lumenDataFolderDraft.value = String(result.paths[0] || '').trim();
+  } catch (e: any) {
+    lumenDataFolderError.value = e?.message || 'Failed to open folder picker.';
+  }
+}
+
+async function saveLumenDataFolder() {
+  if (lumenDataFolderBusy.value) return;
+  const api = (window as any).lumen;
+  if (
+    !api ||
+    typeof api.bootstrapPathSetCustomUserDataPath !== 'function' ||
+    typeof api.bootstrapPathResetCustomUserDataPath !== 'function'
+  ) {
+    lumenDataFolderError.value = 'Lumen data folder controls are unavailable.';
+    return;
+  }
+
+  const nextDraft = String(lumenDataFolderDraft.value || '').trim();
+  const currentDraft = String(currentCustomUserDataPath.value || '').trim();
+  if (normalizeFolderDraft(nextDraft) === normalizeFolderDraft(currentDraft)) {
+    lumenDataFolderError.value = '';
+    return;
+  }
+
+  lumenDataFolderSaving.value = true;
+  lumenDataFolderError.value = '';
+  try {
+    const result = nextDraft
+      ? await api.bootstrapPathSetCustomUserDataPath(nextDraft)
+      : await api.bootstrapPathResetCustomUserDataPath();
+    if (!result?.ok || !result?.state) {
+      lumenDataFolderError.value = String(result?.error || 'Failed to save Lumen data folder.');
+      return;
+    }
+    applyBootstrapPathState(result.state);
+    if (result.state.restartRequired) {
+      toast.success('Lumen data folder updated. Restart Lumen to apply the new location.');
+    } else {
+      toast.success('Lumen data folder updated.');
+    }
+  } catch (e: any) {
+    lumenDataFolderError.value = e?.message || 'Failed to save Lumen data folder.';
+  } finally {
+    lumenDataFolderSaving.value = false;
   }
 }
 
@@ -1557,7 +1916,7 @@ function getViewDescription(): string {
     security: 'Password protection for wallet operations',
     profiles: 'Backup or restore profiles and PQC keys',
     privatecloud: 'Configure your private IPFS gateways',
-    advanced: 'Advanced network configuration',
+    advanced: 'Advanced network and storage configuration',
     troubleshooting: 'Collect support info and open safe logs',
     about: 'Information about Lumen'
   };
@@ -1573,6 +1932,156 @@ function clearSelectedProfiles() {
   lastBackupExport.value = null;
 }
 
+function syncRenameProfileDraft() {
+  const target = renameProfileTarget.value;
+  renameProfileDraft.value = String(target?.name || target?.id || '').trim();
+  profileRenameError.value = '';
+}
+
+function resetProfileDisplayNameDraft() {
+  syncRenameProfileDraft();
+}
+
+function mapProfileAvatarError(error: string) {
+  switch (String(error || '').trim()) {
+    case 'missing_profile_id':
+      return 'Select a profile first.';
+    case 'missing_avatar_path':
+      return 'Select an image file first.';
+    case 'avatar_file_not_found':
+      return 'Selected image could not be found.';
+    case 'invalid_avatar_image':
+      return 'Selected file is not a supported image.';
+    case 'unsupported_environment':
+      return 'File picker is not available in this environment.';
+    case 'avatar_processing_failed':
+      return 'Could not generate the profile thumbnail.';
+    case 'profile_not_found':
+      return 'Profile not found.';
+    case 'profiles_api_unavailable':
+      return 'Profile photo editing is unavailable in this build.';
+    default:
+      return 'Failed to update the profile photo.';
+  }
+}
+
+async function saveProfileDisplayName() {
+  if (profileRenameSaving.value) return;
+  const profileId = String(renameProfileId.value || '').trim();
+  const nextName = String(renameProfileDraft.value || '').trim();
+  if (!profileId) {
+    profileRenameError.value = 'Select a profile first.';
+    return;
+  }
+  if (!nextName) {
+    profileRenameError.value = 'Display name is required.';
+    return;
+  }
+
+  const currentName = String(renameProfileTarget.value?.name || renameProfileTarget.value?.id || '').trim();
+  if (nextName === currentName) {
+    profileRenameError.value = '';
+    return;
+  }
+
+  profileRenameSaving.value = true;
+  profileRenameError.value = '';
+  try {
+    const result = await updateProfileName(profileId, nextName);
+    if (!result.ok) {
+      profileRenameError.value = String(result.error || 'Failed to update display name.');
+      return;
+    }
+    syncRenameProfileDraft();
+    toast.success('Profile display name updated');
+  } finally {
+    profileRenameSaving.value = false;
+  }
+}
+
+async function chooseProfileAvatar() {
+  if (profileAvatarSaving.value) return;
+  const profileId = String(avatarProfileId.value || '').trim();
+  if (!profileId) {
+    profileAvatarError.value = 'Select a profile first.';
+    return;
+  }
+
+  const dialogApi = (window as any).lumen?.dialogOpenFiles;
+  if (typeof dialogApi !== 'function') {
+    profileAvatarError.value = 'File picker unavailable.';
+    return;
+  }
+
+  profileAvatarSaving.value = true;
+  profileAvatarError.value = '';
+  try {
+    const pick = await dialogApi({
+      title: 'Select profile photo',
+      multi: false,
+      filters: [
+        { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'avif'] },
+      ],
+    });
+    if (!pick?.ok) {
+      if (pick?.error && pick.error !== 'canceled') {
+        const message = mapProfileAvatarError(String(pick.error || ''));
+        profileAvatarError.value = message;
+        toast.error(message);
+      }
+      return;
+    }
+
+    const sourcePath = Array.isArray(pick.paths) ? String(pick.paths[0] || '').trim() : '';
+    if (!sourcePath) return;
+
+    const result = await updateProfileAvatarFromPath(profileId, sourcePath);
+    if (!result.ok) {
+      const message = mapProfileAvatarError(String(result.error || ''));
+      profileAvatarError.value = message;
+      toast.error(message);
+      return;
+    }
+
+    profileAvatarError.value = '';
+    toast.success('Profile photo updated');
+  } catch {
+    profileAvatarError.value = 'Failed to update the profile photo.';
+    toast.error('Failed to update the profile photo');
+  } finally {
+    profileAvatarSaving.value = false;
+  }
+}
+
+async function resetProfileAvatar() {
+  if (profileAvatarSaving.value) return;
+  const profileId = String(avatarProfileId.value || '').trim();
+  if (!profileId) {
+    profileAvatarError.value = 'Select a profile first.';
+    return;
+  }
+
+  profileAvatarSaving.value = true;
+  profileAvatarError.value = '';
+  try {
+    const result = await clearProfileAvatar(profileId);
+    if (!result.ok) {
+      const message = mapProfileAvatarError(String(result.error || ''));
+      profileAvatarError.value = message;
+      toast.error(message);
+      return;
+    }
+
+    profileAvatarError.value = '';
+    toast.success('Profile photo reset');
+  } catch {
+    profileAvatarError.value = 'Failed to reset the profile photo.';
+    toast.error('Failed to reset the profile photo');
+  } finally {
+    profileAvatarSaving.value = false;
+  }
+}
+
 watch(
   () => profiles.value,
   (next) => {
@@ -1580,6 +2089,22 @@ watch(
     selectedProfileIds.value = selectedProfileIds.value.filter((id) => valid.has(id));
     if (!selectedProfileIds.value.length && activeProfileId.value && valid.has(activeProfileId.value)) {
       selectedProfileIds.value = [activeProfileId.value];
+    }
+    if (!renameProfileId.value || !valid.has(renameProfileId.value)) {
+      if (activeProfileId.value && valid.has(activeProfileId.value)) {
+        renameProfileId.value = activeProfileId.value;
+      } else {
+        renameProfileId.value = Array.isArray(next) && next.length ? next[0].id : '';
+      }
+    }
+    syncRenameProfileDraft();
+
+    if (!avatarProfileId.value || !valid.has(avatarProfileId.value)) {
+      if (activeProfileId.value && valid.has(activeProfileId.value)) {
+        avatarProfileId.value = activeProfileId.value;
+      } else {
+        avatarProfileId.value = Array.isArray(next) && next.length ? next[0].id : '';
+      }
     }
   },
   { immediate: true, deep: true },
@@ -1595,6 +2120,20 @@ watch(
     if (profiles.value.some((p) => p.id === activeId)) {
       selectedProfileIds.value = [activeId];
     }
+  },
+);
+
+watch(
+  () => renameProfileId.value,
+  () => {
+    syncRenameProfileDraft();
+  },
+);
+
+watch(
+  () => avatarProfileId.value,
+  () => {
+    profileAvatarError.value = '';
   },
 );
 
@@ -1899,6 +2438,10 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   height: 16px;
 }
 
+.profile-row-avatar {
+  flex-shrink: 0;
+}
+
 .profile-row-main {
   display: flex;
   flex-direction: column;
@@ -1939,6 +2482,16 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 520px;
+}
+
+.profile-photo-control {
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.profile-photo-preview {
+  flex-shrink: 0;
 }
 
 .backup-failures {
@@ -1992,6 +2545,28 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .input-control.wide {
   width: 320px;
+}
+
+.data-folder-control {
+  min-width: 420px;
+  justify-content: flex-end;
+}
+
+.data-folder-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.data-folder-input {
+  width: min(520px, 100%);
+}
+
+.mono-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  word-break: break-all;
 }
 
 .btn-secondary {
@@ -2304,6 +2879,20 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .data-folder-control {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .data-folder-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-folder-input {
+    width: 100%;
   }
 }
 

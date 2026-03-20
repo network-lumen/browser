@@ -73,6 +73,33 @@
             </div>
           </div>
 
+          <div v-else-if="step === 'profile-name'" class="onboarding-step">
+            <div class="success-box" v-if="passwordSet">
+              <CheckCircle :size="20" class="color-success" />
+              <p class="txt-sm margin-0">Password set successfully!</p>
+            </div>
+
+            <p class="txt-sm color-gray-blue margin-top-100 margin-bottom-100">
+              Choose a name for your first profile before creating your wallet.
+            </p>
+
+            <div class="form-group">
+              <label class="txt-xs txt-weight-strong margin-bottom-25">Profile name</label>
+              <input
+                v-model="profileName"
+                type="text"
+                class="form-input"
+                placeholder="Enter a profile name"
+                maxlength="64"
+                @keyup.enter="handleProfileNameSubmit"
+              />
+            </div>
+
+            <div v-if="profileNameError" class="error-message txt-xs color-red-base margin-top-50">
+              {{ profileNameError }}
+            </div>
+          </div>
+
           <div v-else-if="step === 'creating-wallet'" class="onboarding-step">
             <div class="success-box" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
@@ -193,6 +220,14 @@
           </button>
 
           <button
+            v-if="step === 'profile-name'"
+            class="btn-modal-primary"
+            @click="handleProfileNameSubmit"
+          >
+            Continue
+          </button>
+
+          <button
             v-if="step === 'backup'"
             class="btn-modal-secondary"
             @click="handleSkipBackup"
@@ -223,12 +258,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';
-import { activeProfileId } from '../internal/profilesStore';
+import { activeProfileId, createProfile, initProfiles } from '../internal/profilesStore';
 
-type OnboardingStep = 'intro' | 'password' | 'creating-wallet' | 'backup' | 'complete';
+type OnboardingStep = 'intro' | 'password' | 'profile-name' | 'creating-wallet' | 'backup' | 'complete';
 
 const props = defineProps<{
   visible: boolean;
@@ -243,6 +278,8 @@ const step = ref<OnboardingStep>('intro');
 const password = ref('');
 const confirmPassword = ref('');
 const passwordError = ref('');
+const profileName = ref('');
+const profileNameError = ref('');
 const passwordSet = ref(false);
 const settingPassword = ref(false);
 const creatingWallet = ref(false);
@@ -289,12 +326,8 @@ async function handlePasswordSubmit() {
       passwordSet.value = true;
       password.value = '';
       confirmPassword.value = '';
-      
-      // Move to wallet creation step instead of directly to backup
-      step.value = 'creating-wallet';
-      
-      // Automatically trigger wallet creation
-      await createWallet();
+
+      await moveToPostPasswordStep();
     } else {
       passwordError.value = result?.error || 'Failed to set password.';
     }
@@ -305,6 +338,38 @@ async function handlePasswordSubmit() {
   }
 }
 
+async function moveToPostPasswordStep() {
+  const anyWindow = window as any;
+  const profilesApi = anyWindow?.lumen?.profiles;
+  if (!profilesApi || typeof profilesApi.getActive !== 'function') {
+    walletError.value = 'Profiles API not available.';
+    step.value = 'creating-wallet';
+    return;
+  }
+
+  const profile = await profilesApi.getActive();
+  if (profile?.role === 'guest') {
+    step.value = 'profile-name';
+    if (!profileName.value.trim()) {
+      profileName.value = '';
+    }
+    return;
+  }
+
+  step.value = 'creating-wallet';
+  await createWallet();
+}
+
+async function handleProfileNameSubmit() {
+  profileNameError.value = '';
+  if (!String(profileName.value || '').trim()) {
+    profileNameError.value = 'Profile name is required.';
+    return;
+  }
+  step.value = 'creating-wallet';
+  await createWallet();
+}
+
 async function createWallet() {
   creatingWallet.value = true;
   walletError.value = '';
@@ -312,15 +377,48 @@ async function createWallet() {
 
   try {
     const anyWindow = window as any;
-    const profileId = activeProfileId.value;
+    const profilesApi = anyWindow?.lumen?.profiles;
+    if (!profilesApi) {
+      walletError.value = 'Profiles API not available.';
+      return;
+    }
 
+    let profile = await profilesApi.getActive();
+    if (!profile) {
+      walletError.value = 'Failed to load profile.';
+      return;
+    }
+
+    // First launch starts in guest mode. A guest profile cannot own a wallet,
+    // so onboarding must promote the user to a real profile before proceeding.
+    if (profile.role === 'guest') {
+      const requestedName = String(profileName.value || '').trim();
+      if (!requestedName) {
+        step.value = 'profile-name';
+        profileNameError.value = 'Profile name is required.';
+        return;
+      }
+      const created = await createProfile(requestedName);
+      if (!created) {
+        walletError.value = 'Failed to create a user profile.';
+        return;
+      }
+      await initProfiles();
+      profile = await profilesApi.getActive();
+      if (!profile || profile.role === 'guest') {
+        walletError.value = 'Failed to switch out of guest mode.';
+        return;
+      }
+    }
+
+    const profileId = String(profile.id || '').trim();
     if (!profileId) {
       walletError.value = 'No active profile found.';
       return;
     }
 
     // Check if wallet already exists
-    const walletCheck = await anyWindow.lumen.profiles.isWalletFullyCreated(profileId);
+    const walletCheck = await profilesApi.isWalletFullyCreated(profileId);
     
     if (walletCheck?.ok) {
       // Wallet already exists
@@ -329,28 +427,30 @@ async function createWallet() {
       return;
     }
 
-    // Get the current profile to trigger wallet creation
-    const profile = await anyWindow.lumen.profiles.getActive();
-    
-    if (!profile) {
-      walletError.value = 'Failed to load profile.';
-      return;
-    }
-
     // Refresh profile list to trigger wallet creation (ensureWalletForProfile)
-    await anyWindow.lumen.profiles.list();
+    await profilesApi.list();
 
     // Wait a bit for wallet creation to complete
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Verify wallet was created
-    const verifyCheck = await anyWindow.lumen.profiles.isWalletFullyCreated(profileId);
+    const verifyCheck = await profilesApi.isWalletFullyCreated(profileId);
     
     if (verifyCheck?.ok) {
       walletCreated.value = true;
       step.value = 'backup';
     } else {
-      walletError.value = verifyCheck?.error || 'Wallet creation failed. Please try again.';
+      const errorMessages: Record<string, string> = {
+        'guest_profile_no_wallet': 'Guest mode cannot hold a wallet. Please try again.',
+        'wallet_address_missing': 'Wallet address was not created.',
+        'keystore_missing': 'Wallet keystore was not created.',
+        'keystore_invalid': 'Wallet data is invalid.',
+        'keystore_read_failed': 'Wallet data could not be read.',
+      };
+      walletError.value =
+        errorMessages[String(verifyCheck?.error || '')] ||
+        verifyCheck?.error ||
+        'Wallet creation failed. Please try again.';
     }
   } catch (e: any) {
     walletError.value = e?.message || 'Failed to create wallet.';
@@ -430,6 +530,30 @@ async function handleExportBackup() {
 function handleComplete() {
   emit('complete');
 }
+
+watch(
+  () => props.visible,
+  async (visible) => {
+    if (!visible) return;
+
+    try {
+      const anyWindow = window as any;
+      const securityApi = anyWindow?.lumen?.security;
+      const profilesApi = anyWindow?.lumen?.profiles;
+      if (!securityApi || !profilesApi) return;
+
+      const status = await securityApi.getStatus?.();
+      const hasPassword = !!(status?.passwordEnabled && status?.hasPassword);
+      if (!hasPassword) return;
+
+      passwordSet.value = true;
+      await moveToPostPasswordStep();
+    } catch {
+      // ignore modal bootstrap errors
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>
