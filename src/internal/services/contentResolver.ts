@@ -263,7 +263,6 @@ export async function pickFastestSource(
   const publicGatewayBases = [
     "https://ipfs.io",
     "https://dweb.link",
-    "https://cloudflare-ipfs.com",
   ];
 
   const localP = (async () => {

@@ -2051,6 +2051,17 @@ function gatewayMatchesRouteKey(gateway: GatewayView | null | undefined, rawKey:
   );
 }
 
+function isSearchRouteUrl(raw: string): boolean {
+  const value = String(raw || "").trim();
+  if (!value) return false;
+  try {
+    const u = new URL(value);
+    return u.protocol.toLowerCase() === "lumen:" && u.hostname.toLowerCase() === "search";
+  } catch {
+    return false;
+  }
+}
+
 function routeCursorForGateway(
   cursorState: SearchRouteCursor | null,
   gateway: GatewayView | null | undefined,
@@ -2132,7 +2143,7 @@ function replaceUrlCursor(cursor: SearchRouteCursor | null, gateway: GatewayView
   const type = activeType.value;
   const nextUrl = makeSearchUrl(cleanQ, type, cleanCursor, cleanGateway);
   const curUrl = String(currentTabUrl?.value || "").trim();
-  if (!curUrl || curUrl === nextUrl) return;
+  if (!curUrl || !isSearchRouteUrl(curUrl) || curUrl === nextUrl) return;
   navigate(nextUrl, { push: false });
 }
 
@@ -2268,6 +2279,7 @@ function syncVisibleResultIndex() {
 function syncUrlToVisibleCursor() {
   if (restoringUrlState) return;
   if (!touched.value) return;
+  if (!isSearchRouteUrl(String(currentTabUrl?.value || ""))) return;
   const currentPage = pageCursorStateForIndex(firstVisibleResultIdx.value);
   const anchorId = resultAnchorIdForIndex(firstVisibleResultIdx.value);
   const cursorForUrl = withSearchRouteAnchor(currentPage?.cursor || null, anchorId);
@@ -4695,7 +4707,7 @@ watch(
   () => currentTabUrl?.value,
   (next) => {
     const url = String(next || "").trim();
-    if (!url) return;
+    if (!url || !isSearchRouteUrl(url)) return;
     const parsed = parseSearchUrl(url);
     const { q: qs, type } = parsed;
     const allowEmptyQuery = type === "site" || type === "image" || type === "all";
@@ -4730,6 +4742,7 @@ watch(
 watch(
   () => currentTabRefresh?.value,
   () => {
+    if (!isSearchRouteUrl(String(currentTabUrl?.value || ""))) return;
     void refreshPinnedCids();
     const parsed = parseSearchUrl(String(currentTabUrl?.value || ""));
     const allowEmptyQuery =

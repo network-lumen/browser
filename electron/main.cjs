@@ -342,6 +342,19 @@ function markSiteModalCooldown(siteKey, ms = 3000) {
   siteLastModalAt.set(key, Date.now() + cooldownMs);
 }
 
+function shouldIgnoreRendererConsoleMessage(contents, sourceId, message) {
+  const type =
+    contents && typeof contents.getType === 'function'
+      ? String(contents.getType() || 'unknown')
+      : 'unknown';
+  if (type !== 'webview') return false;
+
+  const source = String(sourceId || '');
+  const text = String(message || '');
+  if (source !== 'node:electron/js2c/sandbox_bundle') return false;
+  return text.includes('Electron Security Warning (Insecure Content-Security-Policy)');
+}
+
 ipcMain.on('tabs:state', (evt, tabIds) => {
   const okUi = ensureUiSender(evt);
   if (!okUi.ok) return;
@@ -1224,6 +1237,7 @@ app.whenReady().then(() => {
 
       try {
         contents.on('console-message', (_evt, level, message, line, sourceId) => {
+          if (shouldIgnoreRendererConsoleMessage(contents, sourceId, message)) return;
           const type =
             typeof contents.getType === 'function'
               ? String(contents.getType() || 'unknown')
