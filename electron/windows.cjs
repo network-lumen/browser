@@ -57,7 +57,8 @@ function createSplashWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),
       webviewTag: true,
-      webSecurity: false
+      webSecurity: true,
+      allowRunningInsecureContent: false
     }
   });
 
@@ -113,7 +114,8 @@ function createMainWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),
       webviewTag: true,
-      webSecurity: false
+      webSecurity: true,
+      allowRunningInsecureContent: false
     }
   });
 
