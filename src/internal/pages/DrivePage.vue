@@ -212,6 +212,52 @@
         </div>
       </div>
 
+      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bulk-toolbar" :class="{ active: selectedLocalCount > 0 }">
+        <label class="bulk-checkbox bulk-toolbar-checkbox" title="Select visible entries">
+          <input
+            type="checkbox"
+            :checked="allVisibleLocalEntriesSelected"
+            @change="handleVisibleLocalSelectionChange"
+          />
+          <span></span>
+        </label>
+        <div class="bulk-toolbar-copy">
+          <strong>{{ selectedLocalCount }} selected</strong>
+          <span v-if="canBulkConvertSelectedLocal">
+            {{ selectedLocalConvertibleCount }} video{{ selectedLocalConvertibleCount === 1 ? "" : "s" }} ready for HLS
+          </span>
+        </div>
+        <div class="bulk-toolbar-actions">
+          <button
+            class="bulk-action-btn"
+            type="button"
+            :disabled="!selectedLocalCount"
+            @click="clearLocalSelection"
+          >
+            Clear
+          </button>
+          <button
+            v-if="canBulkConvertSelectedLocal"
+            class="bulk-action-btn"
+            type="button"
+            @click="convertSelectedLocalToHls"
+          >
+            Convert to HLS
+            <span v-if="selectedLocalConvertibleCount" class="bulk-action-count">
+              {{ selectedLocalConvertibleCount }}
+            </span>
+          </button>
+          <button
+            class="bulk-action-btn danger"
+            type="button"
+            :disabled="!canBulkRemoveSelectedLocal"
+            @click="removeSelectedLocalFiles"
+          >
+            Remove selected
+          </button>
+        </div>
+      </div>
+
       <!-- Breadcrumb (folders) -->
       <div v-if="isBrowsing" class="browse-bar">
         <button class="btn-ghost" type="button" @click="exitBrowse">
@@ -346,6 +392,47 @@
         </div>
       </div>
 
+      <div v-if="hlsQueueVisible" class="hls-queue-panel">
+        <div class="hls-queue-header">
+          <div class="hls-queue-copy">
+            <strong>HLS queue</strong>
+            <span>{{ hlsQueueSummaryText() }}</span>
+          </div>
+          <button
+            class="hls-queue-clear-btn"
+            type="button"
+            @click="clearHlsQueue"
+            :disabled="!hlsQueue.length"
+          >
+            {{ converting ? "Clear finished" : "Clear queue" }}
+          </button>
+        </div>
+
+        <div class="hls-queue-list">
+          <div
+            v-for="item in visibleHlsQueueItems"
+            :key="item.id"
+            class="hls-queue-item"
+            :class="`status-${item.status}`"
+          >
+            <div class="hls-queue-item-copy">
+              <span class="hls-queue-item-name">{{ item.file.name }}</span>
+              <span v-if="item.error && item.status === 'failed'" class="hls-queue-item-error">
+                {{ compactError(item.error) }}
+              </span>
+            </div>
+            <span class="hls-queue-item-status">
+              <UiSpinner v-if="item.status === 'converting'" size="sm" />
+              <span>{{ hlsQueueStatusLabel(item) }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div v-if="hlsQueue.length > visibleHlsQueueItems.length" class="hls-queue-more">
+          +{{ hlsQueue.length - visibleHlsQueueItems.length }} more item{{ hlsQueue.length - visibleHlsQueueItems.length === 1 ? "" : "s" }}
+        </div>
+      </div>
+
       <div v-if="archiveDownloading" class="upload-progress">
         <div class="progress-content">
           <UiSpinner size="sm" />
@@ -390,8 +477,19 @@
           :key="file.cid"
           class="file-card"
           @click="handleEntryClick(file)"
-          :class="{ selected: selectedFile?.cid === file.cid }"
+          :class="{
+            selected: selectedFile?.cid === file.cid,
+            checked: isLocalFileSelected(file),
+          }"
         >
+          <label v-if="canUseLocalMultiSelect" class="bulk-checkbox file-select-toggle" @click.stop>
+            <input
+              type="checkbox"
+              :checked="isLocalFileSelected(file)"
+              @change.stop="handleLocalFileSelectionChange(file, $event)"
+            />
+            <span></span>
+          </label>
           <div class="file-preview" :class="getFileTypeClass(file)">
             <!-- Show actual image preview -->
             <img
@@ -503,6 +601,16 @@
       >
         <!-- List Header -->
         <div class="list-header">
+          <div v-if="canUseLocalMultiSelect" class="list-select-header">
+            <label class="bulk-checkbox" title="Select visible entries">
+              <input
+                type="checkbox"
+                :checked="allVisibleLocalEntriesSelected"
+                @change="handleVisibleLocalSelectionChange"
+              />
+              <span></span>
+            </label>
+          </div>
           <div class="list-icon-header"></div>
           <span class="list-name-header">Name</span>
           <span class="list-size-header">Size</span>
@@ -515,8 +623,21 @@
           :key="file.cid"
           class="list-item"
           @click="handleEntryClick(file)"
-          :class="{ selected: selectedFile?.cid === file.cid }"
+          :class="{
+            selected: selectedFile?.cid === file.cid,
+            checked: isLocalFileSelected(file),
+          }"
         >
+          <div v-if="canUseLocalMultiSelect" class="list-select-cell" @click.stop>
+            <label class="bulk-checkbox">
+              <input
+                type="checkbox"
+                :checked="isLocalFileSelected(file)"
+                @change.stop="handleLocalFileSelectionChange(file, $event)"
+              />
+              <span></span>
+            </label>
+          </div>
           <div class="list-icon" :class="getFileTypeClass(file)">
             <!-- Show small thumbnail for images -->
             <img
@@ -1899,6 +2020,20 @@ interface DriveFile {
   relPath?: string;
 }
 
+type HlsQueueItemStatus =
+  | "queued"
+  | "converting"
+  | "done"
+  | "failed"
+  | "cancelled";
+
+interface HlsQueueItem {
+  id: string;
+  file: DriveFile;
+  status: HlsQueueItemStatus;
+  error?: string;
+}
+
 interface IpfsStats {
   repoSize: number;
   storageMax: number;
@@ -1934,6 +2069,7 @@ const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
 const localPinnedLoading = ref(false);
 const selectedFile = ref<DriveFile | null>(null);
+const selectedLocalCids = ref<string[]>([]);
 const ipfsConnected = ref(false);
 const stats = ref<IpfsStats | null>(null);
 const hosting = ref<HostingState>({ kind: "local", gatewayId: "" });
@@ -1983,6 +2119,7 @@ const convertingPercent = ref<number | null>(null);
 const convertingDownloadedBytes = ref<number | null>(null);
 const convertingDownloadTotalBytes = ref<number | null>(null);
 const convertingCanceling = ref(false);
+const hlsQueue = ref<HlsQueueItem[]>([]);
 const archiveDownloading = ref(false);
 const archiveDownloadFile = ref("");
 const archiveDownloadStage = ref<
@@ -2634,6 +2771,88 @@ const displayFiles = computed<DriveFile[]>(() => {
   return filteredFiles.value.slice(start, end);
 });
 
+const canUseLocalMultiSelect = computed(
+  () => hosting.value.kind === "local" && !isBrowsing.value,
+);
+
+const selectedLocalCidSet = computed(
+  () =>
+    new Set(
+      selectedLocalCids.value
+        .map((cid) => normalizeCidKey(cid))
+        .filter((cid) => cid),
+    ),
+);
+
+const selectedLocalEntries = computed<DriveFile[]>(() => {
+  if (!canUseLocalMultiSelect.value) return [];
+  const byCid = new Map(
+    rootSavedEntries.value.map((entry) => [normalizeCidKey(entry.cid), entry] as const),
+  );
+  return selectedLocalCids.value
+    .map((cid) => byCid.get(normalizeCidKey(cid)) || null)
+    .filter((entry): entry is DriveFile => !!entry);
+});
+
+const visibleLocalEntries = computed<DriveFile[]>(() => {
+  if (!canUseLocalMultiSelect.value) return [];
+  return displayFiles.value.filter((entry) => isRootSavedEntry(entry));
+});
+
+const selectedLocalCount = computed(() => selectedLocalEntries.value.length);
+
+const selectedLocalConvertibleEntries = computed(() =>
+  selectedLocalEntries.value.filter(
+    (entry) => !isDirEntry(entry) && isVideoFile(entry.name),
+  ),
+);
+
+const selectedLocalConvertibleCount = computed(
+  () => selectedLocalConvertibleEntries.value.length,
+);
+
+const allVisibleLocalEntriesSelected = computed(() => {
+  const visible = visibleLocalEntries.value;
+  if (!visible.length) return false;
+  return visible.every((entry) =>
+    selectedLocalCidSet.value.has(normalizeCidKey(entry.cid)),
+  );
+});
+
+const hlsQueueActiveCount = computed(
+  () =>
+    hlsQueue.value.filter(
+      (item) => item.status === "queued" || item.status === "converting",
+    ).length,
+);
+
+const hlsQueueDoneCount = computed(
+  () => hlsQueue.value.filter((item) => item.status === "done").length,
+);
+
+const hlsQueueFailedCount = computed(
+  () => hlsQueue.value.filter((item) => item.status === "failed").length,
+);
+
+const hlsQueueCancelledCount = computed(
+  () => hlsQueue.value.filter((item) => item.status === "cancelled").length,
+);
+
+const hlsQueueVisible = computed(() => {
+  if (hlsQueue.value.length > 1) return true;
+  return hlsQueue.value.some((item) => item.status !== "converting");
+});
+
+const visibleHlsQueueItems = computed(() => hlsQueue.value.slice(0, 6));
+
+const canBulkRemoveSelectedLocal = computed(
+  () => selectedLocalCount.value > 0 && !uploading.value && !converting.value,
+);
+
+const canBulkConvertSelectedLocal = computed(
+  () => selectedLocalConvertibleCount.value > 0 && !uploading.value,
+);
+
 // Total pages
 const totalPages = computed(() => {
   return Math.ceil(filteredFiles.value.length / itemsPerPage.value) || 1;
@@ -2643,6 +2862,32 @@ watch(totalPages, (total) => {
   if (currentPage.value > total) currentPage.value = total;
   if (currentPage.value < 1) currentPage.value = 1;
 });
+
+watch(
+  canUseLocalMultiSelect,
+  (enabled) => {
+    if (!enabled && selectedLocalCids.value.length) {
+      selectedLocalCids.value = [];
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  rootSavedEntries,
+  (entries) => {
+    const valid = new Set(
+      entries.map((entry) => normalizeCidKey(entry.cid)).filter((cid) => cid),
+    );
+    const next = selectedLocalCids.value.filter((cid) =>
+      valid.has(normalizeCidKey(cid)),
+    );
+    if (next.length !== selectedLocalCids.value.length) {
+      selectedLocalCids.value = next;
+    }
+  },
+  { immediate: true },
+);
 
 // Page numbers for pagination
 const pageNumbers = computed(() => {
@@ -3111,6 +3356,7 @@ let hlsArchiveProgressUnsub: (() => void) | null = null;
 let ipfsAddProgressUnsub: (() => void) | null = null;
 let gatewayIngestProgressUnsub: (() => void) | null = null;
 let publicGatewayPropagationUnsub: (() => void) | null = null;
+let hlsQueueProcessing = false;
 
 function readUrlBarUrl(): string {
   try {
@@ -3170,6 +3416,13 @@ watch(
       void refreshActiveGatewayData();
     }
   }
+);
+
+watch(
+  uploading,
+  (busy) => {
+    if (!busy) void ensureHlsQueueProcessing();
+  },
 );
 
 onMounted(async () => {
@@ -5909,28 +6162,37 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
   }
 }
 
-async function convertToHls(file: DriveFile) {
-  const f = file as any;
-  if (!f || !String(f.cid || "").trim()) return;
-  if (isDirEntry(file)) return;
-  if (!isVideoFile(file.name)) return;
-  if (!ipfsConnected.value) {
-    showToast("IPFS not connected", "error");
-    return;
-  }
-  if (uploading.value || converting.value) {
-    showToast("Another task is already running. Please wait…", "error");
-    return;
-  }
-
+function startConvertingState(fileName: string) {
   converting.value = true;
-  convertingFile.value = file.name;
+  convertingFile.value = fileName;
   convertingStage.value = "preparing";
   convertingPercent.value = null;
   convertingDownloadedBytes.value = null;
   convertingDownloadTotalBytes.value = null;
   convertingCanceling.value = false;
+}
 
+function resetConvertingState() {
+  converting.value = false;
+  convertingFile.value = "";
+  convertingStage.value = "preparing";
+  convertingPercent.value = null;
+  convertingDownloadedBytes.value = null;
+  convertingDownloadTotalBytes.value = null;
+  convertingCanceling.value = false;
+}
+
+async function performHlsConversion(
+  file: DriveFile,
+  opts: {
+    targetHostingKind?: HostingKind;
+    silentSuccessToast?: boolean;
+    silentErrorToast?: boolean;
+  } = {},
+): Promise<
+  | { ok: true; newName: string }
+  | { ok: false; cancelled?: boolean; error: string }
+> {
   try {
     const target = contentTargetFor(file);
     const res = await (window as any).lumen?.driveConvertToHls?.({
@@ -5941,12 +6203,12 @@ async function convertToHls(file: DriveFile) {
 
     if (!res?.ok || !res?.cid) {
       const err = String(res?.error || "HLS conversion failed");
-      if (err.toLowerCase().includes("cancel")) {
-        showToast("Conversion cancelled.", "success");
-        return;
+      const cancelled = err.toLowerCase().includes("cancel");
+      if (!opts.silentErrorToast) {
+        if (cancelled) showToast("Conversion cancelled.", "success");
+        else showToast(err, "error");
       }
-      showToast(err, "error");
-      return;
+      return { ok: false, cancelled, error: err };
     }
 
     const newCid = String(res.cid);
@@ -5966,35 +6228,200 @@ async function convertToHls(file: DriveFile) {
       relPath: "master.m3u8",
     });
 
-    if (hosting.value.kind === "gateway") {
+    if ((opts.targetHostingKind ?? hosting.value.kind) === "gateway") {
       const pinned = await pinCidToActiveGateway(newCid, newName);
       if (!pinned.ok) {
-        showToast(pinned.error, "error");
-        return;
+        if (!opts.silentErrorToast) showToast(pinned.error, "error");
+        return {
+          ok: false,
+          cancelled: !!pinned.cancelled,
+          error: String(pinned.error || "Gateway pin failed"),
+        };
       }
-      showToast(`Converted & pinned to gateway: ${newName}`, "success");
+      if (!opts.silentSuccessToast) {
+        showToast(`Converted & pinned to gateway: ${newName}`, "success");
+      }
     } else {
       loadStats();
       await loadPinnedFiles();
-      showToast(`Converted to HLS: ${newName}`, "success");
+      if (!opts.silentSuccessToast) {
+        showToast(`Converted to HLS: ${newName}`, "success");
+      }
     }
+
+    return { ok: true, newName };
   } catch (e: any) {
     console.error("HLS conversion error:", e);
     const err = String(e?.message || "HLS conversion error");
-    if (err.toLowerCase().includes("cancel")) {
-      showToast("Conversion cancelled.", "success");
-      return;
+    const cancelled = err.toLowerCase().includes("cancel");
+    if (!opts.silentErrorToast) {
+      if (cancelled) showToast("Conversion cancelled.", "success");
+      else showToast(err, "error");
     }
-    showToast(err, "error");
-  } finally {
-    converting.value = false;
-    convertingFile.value = "";
-    convertingStage.value = "preparing";
-    convertingPercent.value = null;
-    convertingDownloadedBytes.value = null;
-    convertingDownloadTotalBytes.value = null;
-    convertingCanceling.value = false;
+    return { ok: false, cancelled, error: err };
   }
+}
+
+function enqueueHlsConversions(filesToQueue: DriveFile[]): {
+  added: number;
+  duplicates: number;
+} {
+  resetFinishedHlsQueueIfIdle();
+
+  const known = new Set(
+    hlsQueue.value.map((item) => hlsQueueKeyFor(item.file)).filter(Boolean),
+  );
+  const additions: HlsQueueItem[] = [];
+  let duplicates = 0;
+
+  for (const file of filesToQueue) {
+    const key = hlsQueueKeyFor(file);
+    if (!key) continue;
+    if (known.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    known.add(key);
+    additions.push({
+      id: nextHlsQueueItemId(),
+      file: { ...file },
+      status: "queued",
+    });
+  }
+
+  if (additions.length) {
+    hlsQueue.value = [...hlsQueue.value, ...additions];
+  }
+
+  return { added: additions.length, duplicates };
+}
+
+async function runQueuedHlsConversion(
+  item: HlsQueueItem,
+): Promise<"done" | "failed" | "cancelled"> {
+  updateHlsQueueItem(item.id, { status: "converting", error: undefined });
+  startConvertingState(item.file.name);
+  try {
+    const result = await performHlsConversion(item.file, {
+      targetHostingKind: "local",
+      silentSuccessToast: true,
+      silentErrorToast: true,
+    });
+    if (result.ok) {
+      updateHlsQueueItem(item.id, { status: "done", error: undefined });
+      return "done";
+    }
+    if (result.cancelled) {
+      updateHlsQueueItem(item.id, {
+        status: "cancelled",
+        error: result.error,
+      });
+      return "cancelled";
+    }
+    updateHlsQueueItem(item.id, {
+      status: "failed",
+      error: result.error,
+    });
+    return "failed";
+  } finally {
+    resetConvertingState();
+  }
+}
+
+async function ensureHlsQueueProcessing() {
+  if (hlsQueueProcessing || uploading.value) return;
+  hlsQueueProcessing = true;
+
+  const summary = { done: 0, failed: 0, cancelled: 0 };
+
+  try {
+    while (!uploading.value) {
+      const next = hlsQueue.value.find((item) => item.status === "queued");
+      if (!next) break;
+      const outcome = await runQueuedHlsConversion(next);
+      if (outcome === "done") summary.done += 1;
+      else if (outcome === "failed") summary.failed += 1;
+      else summary.cancelled += 1;
+    }
+  } finally {
+    hlsQueueProcessing = false;
+  }
+
+  const processed = summary.done + summary.failed + summary.cancelled;
+  if (!processed) return;
+
+  const parts: string[] = [];
+  if (summary.done) parts.push(`${summary.done} converted`);
+  if (summary.failed) parts.push(`${summary.failed} failed`);
+  if (summary.cancelled) parts.push(`${summary.cancelled} cancelled`);
+  showToast(`HLS queue: ${parts.join(", ")}`, summary.failed ? "error" : "success");
+}
+
+async function convertToHls(file: DriveFile) {
+  const f = file as any;
+  if (!f || !String(f.cid || "").trim()) return;
+  if (isDirEntry(file)) return;
+  if (!isVideoFile(file.name)) return;
+  if (!ipfsConnected.value) {
+    showToast("IPFS not connected", "error");
+    return;
+  }
+  if (uploading.value || converting.value || hlsQueueActiveCount.value) {
+    showToast("Another task is already running. Please wait…", "error");
+    return;
+  }
+
+  resetFinishedHlsQueueIfIdle();
+  startConvertingState(file.name);
+
+  try {
+    await performHlsConversion(file);
+  } finally {
+    resetConvertingState();
+  }
+}
+
+async function convertSelectedLocalToHls() {
+  if (!canUseLocalMultiSelect.value) return;
+  if (!ipfsConnected.value) {
+    showToast("IPFS not connected", "error");
+    return;
+  }
+  if (uploading.value) {
+    showToast("Another task is already running. Please wait…", "error");
+    return;
+  }
+  if (converting.value && !hlsQueueProcessing) {
+    showToast("Wait for the current conversion to finish before starting a queue.", "error");
+    return;
+  }
+
+  const selected = selectedLocalEntries.value.slice();
+  if (!selected.length) return;
+
+  const convertible = selected.filter(
+    (entry) => !isDirEntry(entry) && isVideoFile(entry.name),
+  );
+  if (!convertible.length) {
+    showToast("Select at least one video file to convert.", "error");
+    return;
+  }
+
+  const skipped = selected.length - convertible.length;
+  const { added, duplicates } = enqueueHlsConversions(convertible);
+  if (!added) {
+    showToast("Selected videos are already in the HLS queue.", "error");
+    return;
+  }
+
+  const notes: string[] = [];
+  if (skipped) notes.push(`${skipped} skipped`);
+  if (duplicates) notes.push(`${duplicates} already queued`);
+
+  const label =
+    added === 1 ? "Queued 1 video for HLS" : `Queued ${added} videos for HLS`;
+  showToast(notes.length ? `${label} (${notes.join(", ")})` : label, "success");
+  void ensureHlsQueueProcessing();
 }
 
 function convertSelectedToHls() {
@@ -6473,6 +6900,104 @@ function selectFile(file: DriveFile) {
   void handleEntryClick(file);
 }
 
+function isLocalFileSelected(file: DriveFile | null | undefined): boolean {
+  const cid = normalizeCidKey(file?.cid || "");
+  if (!cid) return false;
+  return selectedLocalCidSet.value.has(cid);
+}
+
+function setLocalFileSelected(file: DriveFile, checked: boolean) {
+  if (!canUseLocalMultiSelect.value) return;
+  const cid = normalizeCidKey(file?.cid || "");
+  if (!cid) return;
+  const next = new Set(selectedLocalCidSet.value);
+  if (checked) next.add(cid);
+  else next.delete(cid);
+  selectedLocalCids.value = Array.from(next);
+}
+
+function clearLocalSelection() {
+  selectedLocalCids.value = [];
+}
+
+function toggleVisibleLocalSelection(checked: boolean) {
+  if (!canUseLocalMultiSelect.value) return;
+  const next = new Set(selectedLocalCidSet.value);
+  for (const entry of visibleLocalEntries.value) {
+    const cid = normalizeCidKey(entry?.cid || "");
+    if (!cid) continue;
+    if (checked) next.add(cid);
+    else next.delete(cid);
+  }
+  selectedLocalCids.value = Array.from(next);
+}
+
+function handleVisibleLocalSelectionChange(event: Event) {
+  const checked = !!((event.target as HTMLInputElement | null)?.checked);
+  toggleVisibleLocalSelection(checked);
+}
+
+function handleLocalFileSelectionChange(file: DriveFile, event: Event) {
+  const checked = !!((event.target as HTMLInputElement | null)?.checked);
+  setLocalFileSelected(file, checked);
+}
+
+function nextHlsQueueItemId(): string {
+  return `hlsq-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function hlsQueueKeyFor(file: DriveFile | null | undefined): string {
+  if (!file) return "";
+  const target = contentTargetFor(file);
+  return String(target || "").trim().toLowerCase();
+}
+
+function updateHlsQueueItem(
+  id: string,
+  patch: Partial<Pick<HlsQueueItem, "status" | "error">>,
+) {
+  hlsQueue.value = hlsQueue.value.map((item) =>
+    item.id === id ? { ...item, ...patch } : item,
+  );
+}
+
+function resetFinishedHlsQueueIfIdle() {
+  if (converting.value) return;
+  const hasActive = hlsQueue.value.some(
+    (item) => item.status === "queued" || item.status === "converting",
+  );
+  if (!hasActive) hlsQueue.value = [];
+}
+
+function clearHlsQueue() {
+  if (converting.value) {
+    hlsQueue.value = hlsQueue.value.filter(
+      (item) => item.status === "queued" || item.status === "converting",
+    );
+    return;
+  }
+  hlsQueue.value = [];
+}
+
+function hlsQueueStatusLabel(item: HlsQueueItem): string {
+  if (item.status === "queued") return "Queued";
+  if (item.status === "converting") return "Converting";
+  if (item.status === "done") return "Done";
+  if (item.status === "cancelled") return "Cancelled";
+  return "Failed";
+}
+
+function hlsQueueSummaryText(): string {
+  const parts: string[] = [];
+  if (hlsQueueActiveCount.value) parts.push(`${hlsQueueActiveCount.value} active`);
+  if (hlsQueueDoneCount.value) parts.push(`${hlsQueueDoneCount.value} done`);
+  if (hlsQueueFailedCount.value) parts.push(`${hlsQueueFailedCount.value} failed`);
+  if (hlsQueueCancelledCount.value) {
+    parts.push(`${hlsQueueCancelledCount.value} cancelled`);
+  }
+  return parts.join(" • ");
+}
+
 watch(
   selectedFile,
   (f) => {
@@ -6669,6 +7194,81 @@ async function saveSelectedName() {
   selectedFile.value = { ...f, name: getSavedName(cid) };
 }
 
+async function removeLocalRootEntries(entries: DriveFile[]) {
+  const unique = Array.from(
+    new Map(
+      entries
+        .filter((entry) => isRootSavedEntry(entry))
+        .map((entry) => [normalizeCidKey(entry.cid), entry] as const),
+    ).values(),
+  );
+  if (!unique.length) return;
+
+  const cidSet = new Set(unique.map((entry) => normalizeCidKey(entry.cid)).filter(Boolean));
+  files.value = files.value.filter((entry) => !cidSet.has(normalizeCidKey(entry?.cid || "")));
+  saveFiles();
+
+  if (Object.keys(localNames.value).length) {
+    const nextNames = { ...localNames.value };
+    let changed = false;
+    for (const cid of cidSet) {
+      if (!(cid in nextNames)) continue;
+      delete nextNames[cid];
+      changed = true;
+    }
+    if (changed) {
+      localNames.value = nextNames;
+      saveLocalNames();
+    }
+  }
+
+  let unpinFailed = 0;
+  for (const cid of cidSet) {
+    try {
+      const res = await (window as any).lumen?.ipfsUnpin?.(cid);
+      if (res && res.ok === false) unpinFailed += 1;
+    } catch {
+      unpinFailed += 1;
+    }
+  }
+
+  await loadPinnedFiles();
+  void loadStats();
+
+  if (selectedFile.value?.cid && cidSet.has(normalizeCidKey(selectedFile.value.cid))) {
+    selectedFile.value = null;
+    renameDraft.value = "";
+  }
+
+  selectedLocalCids.value = selectedLocalCids.value.filter(
+    (cid) => !cidSet.has(normalizeCidKey(cid)),
+  );
+
+  const total = cidSet.size;
+  if (total === 1) {
+    showToast(
+      unpinFailed ? "Removed (couldn't unpin local data)" : "Removed",
+      "success",
+    );
+    return;
+  }
+
+  if (unpinFailed) {
+    showToast(
+      `Removed ${total} entries (${unpinFailed} couldn't be unpinned locally)`,
+      "success",
+    );
+    return;
+  }
+
+  showToast(`Removed ${total} entries`, "success");
+}
+
+async function removeSelectedLocalFiles() {
+  if (!canBulkRemoveSelectedLocal.value) return;
+  await removeLocalRootEntries(selectedLocalEntries.value.slice());
+}
+
 async function removeFile(file: DriveFile) {
   const cid = String(file?.cid || "").trim();
   if (!cid) return;
@@ -6678,27 +7278,7 @@ async function removeFile(file: DriveFile) {
   }
 
   if (hosting.value.kind === "local") {
-    // Drive state is metadata-based; always remove the reference, and best-effort unpin.
-    const filtered = files.value.filter((f) => String(f?.cid || "").trim() !== cid);
-    files.value = filtered;
-    saveFiles();
-    setSavedName(cid, "");
-
-    let unpinFailed = false;
-    try {
-      const res = await (window as any).lumen?.ipfsUnpin?.(cid);
-      if (res && res.ok === false) unpinFailed = true;
-    } catch {
-      unpinFailed = true;
-    }
-
-    await loadPinnedFiles();
-    void loadStats();
-    if (selectedFile.value?.cid === cid) {
-      selectedFile.value = null;
-      renameDraft.value = "";
-    }
-    showToast(unpinFailed ? "Removed (couldn't unpin local data)" : "Removed", "success");
+    await removeLocalRootEntries([file]);
     return;
   }
 
@@ -7861,6 +8441,300 @@ async function reloadForActiveProfileChange() {
   box-shadow: 0 0 0 2px var(--primary-a10);
 }
 
+.bulk-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.bulk-toolbar.active {
+  border-color: var(--primary-a30);
+  box-shadow: 0 0 0 3px var(--primary-a08);
+}
+
+.bulk-toolbar-checkbox {
+  flex-shrink: 0;
+}
+
+.bulk-toolbar-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.bulk-toolbar-copy strong {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.bulk-toolbar-copy span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.bulk-toolbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bulk-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.bulk-action-btn:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a08);
+}
+
+.bulk-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bulk-action-btn.danger {
+  color: var(--error-red);
+  border-color: rgba(255, 59, 48, 0.2);
+  background: rgba(255, 59, 48, 0.06);
+}
+
+.bulk-action-btn.danger:hover:not(:disabled) {
+  border-color: rgba(255, 59, 48, 0.38);
+  color: var(--error-red);
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.08);
+}
+
+.bulk-action-count {
+  min-width: 1.35rem;
+  height: 1.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--primary-a10);
+  color: var(--accent-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.bulk-checkbox {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bulk-checkbox input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.bulk-checkbox span {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.bulk-checkbox input:hover + span {
+  border-color: var(--accent-primary);
+}
+
+.bulk-checkbox input:checked + span {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
+}
+
+.bulk-checkbox input:checked + span::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.hls-queue-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
+  box-shadow: var(--shadow-sm);
+}
+
+.hls-queue-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hls-queue-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.hls-queue-copy strong {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.hls-queue-copy span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.hls-queue-clear-btn {
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.hls-queue-clear-btn:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.hls-queue-clear-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hls-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.hls-queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+}
+
+.hls-queue-item.status-converting {
+  border-color: var(--primary-a25);
+  background: var(--primary-a05);
+}
+
+.hls-queue-item.status-done {
+  border-color: rgba(52, 199, 89, 0.25);
+  background: rgba(52, 199, 89, 0.06);
+}
+
+.hls-queue-item.status-failed {
+  border-color: rgba(255, 59, 48, 0.2);
+  background: rgba(255, 59, 48, 0.06);
+}
+
+.hls-queue-item.status-cancelled {
+  border-color: rgba(255, 159, 10, 0.22);
+  background: rgba(255, 159, 10, 0.06);
+}
+
+.hls-queue-item-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.hls-queue-item-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hls-queue-item-error {
+  font-size: 0.72rem;
+  color: var(--error-red);
+}
+
+.hls-queue-item-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.hls-queue-item.status-done .hls-queue-item-status {
+  color: #1f8f46;
+}
+
+.hls-queue-item.status-failed .hls-queue-item-status {
+  color: var(--error-red);
+}
+
+.hls-queue-item.status-cancelled .hls-queue-item-status {
+  color: #c77b00;
+}
+
+.hls-queue-more {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
 /* Pagination */
 .pagination-bar {
   display: flex;
@@ -8795,6 +9669,23 @@ async function reloadForActiveProfileChange() {
   box-shadow: 0 0 0 2px var(--primary-a15);
 }
 
+.file-card.checked {
+  border-color: var(--primary-a25);
+  box-shadow: inset 0 0 0 1px var(--primary-a15);
+}
+
+.file-select-toggle {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 3;
+  padding: 0.2rem;
+  border-radius: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
 .file-preview {
   height: 80px;
   display: flex;
@@ -8888,7 +9779,8 @@ async function reloadForActiveProfileChange() {
 }
 
 .file-card:hover .file-actions,
-.file-card.selected .file-actions {
+.file-card.selected .file-actions,
+.file-card.checked .file-actions {
   border-top-color: var(--border-light);
   opacity: 1;
   pointer-events: auto;
@@ -9247,6 +10139,16 @@ async function reloadForActiveProfileChange() {
   flex-shrink: 0;
 }
 
+.list-select-header,
+.list-select-cell {
+  width: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .list-name-header {
   flex: 1;
   min-width: 0;
@@ -9294,6 +10196,10 @@ async function reloadForActiveProfileChange() {
 
 .list-item.selected {
   background: var(--fill-blue);
+}
+
+.list-item.checked {
+  background: var(--primary-a05);
 }
 
 .list-icon {
@@ -9374,7 +10280,8 @@ async function reloadForActiveProfileChange() {
   pointer-events: auto;
 }
 
-.list-item.selected .list-actions {
+.list-item.selected .list-actions,
+.list-item.checked .list-actions {
   opacity: 1;
   pointer-events: auto;
 }
