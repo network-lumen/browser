@@ -181,7 +181,8 @@ async function httpHead(url, options = {}) {
     };
   } catch (e) {
     const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
-    if (!isTimeout) {
+    const isDnsError = e.cause && (e.cause.code === 'ENOTFOUND' || e.cause.code === 'EAI_AGAIN');
+    if (!isTimeout && !isDnsError) {
       console.warn('[electron][http:head] error', e);
     }
     return {

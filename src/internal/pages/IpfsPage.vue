@@ -953,7 +953,7 @@ async function pickGatewayBaseForCurrentTarget(): Promise<string> {
     }
   }
 
-  const publicBases = ["https://ipfs.io", "https://dweb.link", "https://cloudflare-ipfs.com"];
+  const publicBases = ["https://ipfs.io", "https://dweb.link"];
   try {
     const best = await Promise.any(
       publicBases.map(async (b) => {

@@ -1774,7 +1774,6 @@ async function ipfsGet(cidOrPath, options = {}) {
     // conservative, well-known public fallbacks
     'https://ipfs.io',
     'https://dweb.link',
-    'https://cloudflare-ipfs.com',
   ];
 
   try {
