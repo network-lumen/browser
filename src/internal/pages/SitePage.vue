@@ -66,6 +66,8 @@
            @did-navigate-in-page="onDidNavigateInPage"
            @new-window="onNewWindow"
            @ipc-message="onIpcMessage"
+           @did-start-loading="onWebviewDidStartLoading"
+           @did-stop-loading="onWebviewDidStopLoading"
            @dom-ready="onDomReady"
          ></webview>
          <div v-else class="site-empty"></div>
@@ -75,9 +77,10 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
+import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { RefreshCw } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import { useTabLoadingSync } from "../useTabLoading";
 import {
   buildCandidateUrl,
   DomainTarget,
@@ -109,6 +112,9 @@ const siteWebview = ref<any>(null);
 const videoEl = ref<HTMLVideoElement | null>(null);
 const isHlsPath = ref(false);
 const hlsError = ref("");
+const webviewLoading = ref(false);
+
+useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
 
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
@@ -148,6 +154,7 @@ function registerFindTargetWithRetry(attempts = 40) {
 }
 
 function onDomReady() {
+  webviewLoading.value = false;
   void nextTick(() => registerFindTargetWithRetry());
 }
 
@@ -499,6 +506,14 @@ function onDidNavigateInPage(ev: any) {
   syncNavFromWebview(String(ev?.url || ""), { push: true });
 }
 
+function onWebviewDidStartLoading() {
+  webviewLoading.value = true;
+}
+
+function onWebviewDidStopLoading() {
+  webviewLoading.value = false;
+}
+
 function onNewWindow(ev: any) {
   ev.preventDefault?.();
   const href = safeString(ev?.url, 4096);
@@ -585,6 +600,7 @@ watch(
     if (!tabId || typeof registerFindTarget !== "function") return;
 
     if (!url || isHls) {
+      webviewLoading.value = false;
       try {
         registerFindTarget(tabId, null);
       } catch {
@@ -606,6 +622,7 @@ onActivated(() => {
   void nextTick(() => registerFindTargetWithRetry());
 });
 onDeactivated(() => {
+  webviewLoading.value = false;
   try {
     const tabId = String(currentTabId?.value || "").trim();
     if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
@@ -615,6 +632,7 @@ onDeactivated(() => {
 });
 
 onBeforeUnmount(() => {
+  webviewLoading.value = false;
   try {
     siteWebview.value?.stop?.();
   } catch {

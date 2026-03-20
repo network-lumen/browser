@@ -373,6 +373,7 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
+import { useTabLoadingSync } from '../useTabLoading';
 
 type ReleaseParams = {
   allowedPublishers: string[];
@@ -424,6 +425,8 @@ const loading = ref(true);
 const params = ref<ReleaseParams | null>(null);
 const releases = ref<ReleaseRecord[]>([]);
 const selectedRelease = ref<ReleaseRecord | null>(null);
+
+useTabLoadingSync(loading);
 
 const searchTerm = ref('');
 const channelFilter = ref<'all' | string>('all');

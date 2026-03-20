@@ -140,10 +140,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, watch } from 'vue';
+import { useTabLoadingSync } from '../useTabLoading';
 
 const loading = ref(true);
 const error = ref('');
 const address = ref<any>(null);
+
+useTabLoadingSync(loading);
 
 const lumen = (window as any).lumen;
 

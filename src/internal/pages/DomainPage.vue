@@ -337,6 +337,7 @@ import {
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
+import { useTabLoadingSync } from '../useTabLoading';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
@@ -360,6 +361,8 @@ const activeProfileDisplay = computed(
 const domains = ref<DomainRow[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+useTabLoadingSync(loading);
 
 const toast = useToast();
 function showToast(

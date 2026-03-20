@@ -387,6 +387,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { Server, List, Plus, Edit2, Trash2, AlertCircle } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
+import { useTabLoadingSync } from '../useTabLoading';
 
 interface Gateway {
   id: string;
@@ -402,6 +403,8 @@ interface Gateway {
 const gateways = ref<Gateway[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+useTabLoadingSync(loading);
 const showModal = ref(false);
 const showDeleteConfirm = ref(false);
 const editingGateway = ref<Gateway | null>(null);

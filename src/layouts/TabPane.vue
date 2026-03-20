@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, reactive } from "vue";
+import { computed, nextTick, provide, reactive, ref, watch } from "vue";
 import {
   INTERNAL_ROUTE_KEYS,
   resolveInternalComponent,
@@ -38,6 +38,8 @@ const props = defineProps<{
 }>();
 
 const tabState = computed(() => reactive(props.tab as any) as Tab);
+const loadCycle = ref(0);
+const loadCycleControlled = ref(0);
 
 function currentUrl(): string {
   const tab = tabState.value;
@@ -73,6 +75,15 @@ provide(
   "currentTabIsActive",
   computed(() => !!props.active),
 );
+
+function setCurrentTabLoading(next: boolean) {
+  const tab = tabState.value;
+  if (!tab) return;
+  loadCycleControlled.value = Math.max(loadCycleControlled.value, loadCycle.value);
+  tab.loading = !!next;
+}
+
+provide("setCurrentTabLoading", setCurrentTabLoading);
 
 provide("navigate", (url: string, opts?: { push?: boolean }) => {
   navigateInternal(url, opts || {});
@@ -133,6 +144,33 @@ function componentForTab(t: Tab) {
   const url = t.url || "lumen://home";
   return resolveInternalComponent(url);
 }
+
+async function beginTabLoad() {
+  const tab = tabState.value;
+  if (!tab) return;
+
+  const cycle = loadCycle.value + 1;
+  loadCycle.value = cycle;
+  tab.loading = true;
+
+  await nextTick();
+  await new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
+
+  if (loadCycle.value !== cycle) return;
+  if (loadCycleControlled.value < cycle) {
+    tab.loading = false;
+  }
+}
+
+watch(
+  () => [currentUrl(), Number(tabState.value?.refreshTick ?? 0)],
+  () => {
+    void beginTabLoad();
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>
