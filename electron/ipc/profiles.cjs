@@ -4,6 +4,17 @@ const path = require('path');
 const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');
 const { encryptMnemonicLocal, decryptMnemonicLocal, encryptWithPassword, decryptWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 const {
+  Bip39,
+  EnglishMnemonic,
+  Slip10,
+  Slip10Curve,
+  Secp256k1,
+  Ripemd160,
+  Sha256,
+  stringToPath,
+} = require('@cosmjs/crypto');
+const { toBech32 } = require('@cosmjs/encoding');
+const {
   getSessionPassword,
   isPasswordRequired,
   setSessionPassword,
@@ -193,6 +204,25 @@ function hasKeystore(id) {
   } catch {
     return false;
   }
+}
+
+const PROFILE_DERIVATION_PATH = "m/44'/118'/0'/0/0";
+
+async function deriveWalletAddressFromMnemonic(mnemonic, prefix = 'lmn') {
+  const normalizedMnemonic = String(mnemonic || '').trim().replace(/\s+/g, ' ');
+  if (!normalizedMnemonic) throw new Error('missing_mnemonic');
+
+  const seed = await Bip39.mnemonicToSeed(new EnglishMnemonic(normalizedMnemonic));
+  const { privkey } = Slip10.derivePath(
+    Slip10Curve.Secp256k1,
+    seed,
+    stringToPath(PROFILE_DERIVATION_PATH)
+  );
+  const { pubkey } = await Secp256k1.makeKeypair(privkey);
+  const pubkeyCompressed = Secp256k1.compressPubkey(pubkey);
+  const sha = new Sha256(pubkeyCompressed).digest();
+  const rawAddress = new Ripemd160(sha).digest();
+  return toBech32(String(prefix || 'lmn'), rawAddress);
 }
 
 function createAvatarDataUrlFromPath(sourcePath) {
@@ -1209,6 +1239,63 @@ ipcMain.handle('profiles:getFavourites', async () => {
       saveProfilesFile({ profiles, activeId });
 
       return { ok: true, selectedId: activeId, imported: importedCount, results };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('profiles:importManual', async (_evt, payload) => {
+    try {
+      const requestedName = String(payload && payload.name ? payload.name : '').trim();
+      if (!requestedName) {
+        return { ok: false, error: 'missing_profile_name' };
+      }
+
+      const mnemonic = String(payload && payload.mnemonic ? payload.mnemonic : '')
+        .trim()
+        .replace(/\s+/g, ' ');
+      if (!mnemonic) {
+        return { ok: false, error: 'missing_mnemonic' };
+      }
+
+      const pqcPublicKey = String(payload && payload.pqcPublicKey ? payload.pqcPublicKey : '').trim();
+      const pqcPrivateKey = String(payload && payload.pqcPrivateKey ? payload.pqcPrivateKey : '').trim();
+      if ((pqcPublicKey && !pqcPrivateKey) || (!pqcPublicKey && pqcPrivateKey)) {
+        return { ok: false, error: 'pqc_keys_incomplete' };
+      }
+
+      let walletAddress = '';
+      try {
+        walletAddress = await deriveWalletAddressFromMnemonic(mnemonic, 'lmn');
+      } catch {
+        return { ok: false, error: 'invalid_mnemonic' };
+      }
+
+      const imported = {
+        version: 1,
+        name: requestedName,
+        walletAddress,
+        mnemonic,
+      };
+
+      if (pqcPublicKey && pqcPrivateKey) {
+        imported.pqc = {
+          publicKey: pqcPublicKey,
+          privateKey: pqcPrivateKey,
+          scheme: 'dilithium3',
+          createdAt: new Date().toISOString(),
+        };
+      }
+
+      const all = loadProfilesFile();
+      let profiles = all.profiles.slice();
+      const result = importOneBackupObject(imported, profiles);
+      if (!result.ok) {
+        return { ok: false, error: result.error || 'import_failed' };
+      }
+
+      saveProfilesFile({ profiles, activeId: result.id });
+      return { ok: true, id: result.id, walletAddress };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

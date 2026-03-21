@@ -25,10 +25,15 @@ declare global {
         clearAvatar?: (id: string) => Promise<{ ok: boolean; profile?: Profile; error?: string }>;
         export: (id: string) => Promise<string | null>;
         checkExportRequiresPassword?: (id: string) => Promise<{ ok: boolean; requiresPassword?: boolean; error?: string }>;
-        exportBackup?: (id: string, password?: string) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
+        exportBackup?: (
+          id: string,
+          password?: string,
+          encryptOutput?: boolean
+        ) => Promise<{ ok: boolean; path?: string; error?: string } | null>;
         exportBackups?: (
           ids: string[],
-          password?: string
+          password?: string,
+          encryptOutput?: boolean
         ) => Promise<
           | {
               ok: boolean;
@@ -45,6 +50,21 @@ declare global {
               selectedId?: string;
               imported?: number;
               results?: { ok: boolean; path: string; id?: string; error?: string }[];
+              error?: string;
+              encryptedFiles?: string[];
+            }
+          | null
+        >;
+        importManual?: (payload: {
+          name: string;
+          mnemonic: string;
+          pqcPublicKey?: string;
+          pqcPrivateKey?: string;
+        }) => Promise<
+          | {
+              ok: boolean;
+              id?: string;
+              walletAddress?: string;
               error?: string;
             }
           | null
@@ -286,6 +306,32 @@ export async function importProfilesFromBackup(): Promise<{
       return { ok: false, error: 'backup_api_unavailable' };
     }
     const res = await api.importBackup();
+    if (!res) return { ok: false, error: 'backup_failed' };
+    if (res.ok === false) return res as any;
+    await initProfiles();
+    return res as any;
+  } catch {
+    return { ok: false, error: 'backup_failed' };
+  }
+}
+
+export async function importProfileManually(payload: {
+  name: string;
+  mnemonic: string;
+  pqcPublicKey?: string;
+  pqcPrivateKey?: string;
+}): Promise<{
+  ok: boolean;
+  id?: string;
+  walletAddress?: string;
+  error?: string;
+}> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.importManual !== 'function') {
+      return { ok: false, error: 'backup_api_unavailable' };
+    }
+    const res = await api.importManual(payload);
     if (!res) return { ok: false, error: 'backup_failed' };
     if (res.ok === false) return res as any;
     await initProfiles();

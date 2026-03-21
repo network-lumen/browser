@@ -260,6 +260,7 @@ contextBridge.exposeInMainWorld('lumen', {
     exportBackups: (ids, password, encryptOutput) => ipcRenderer.invoke('profiles:exportBackups', ids, password, encryptOutput),
     import: (json) => ipcRenderer.invoke('profiles:import', json),
     importBackup: () => ipcRenderer.invoke('profiles:importBackup'),
+    importManual: (payload) => ipcRenderer.invoke('profiles:importManual', payload || {}),
     importEncryptedBackup: (filePath, password) => ipcRenderer.invoke('profiles:importEncryptedBackup', filePath, password),
     delete: (id) => ipcRenderer.invoke('profiles:delete', id),
     onPqcLinked: (callback) => {
