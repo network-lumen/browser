@@ -5,9 +5,12 @@ import {
   normalizeSecuritySessionTimeoutMs,
 } from "./securitySessionTimeout";
 
+export type IpfsConnectivityMode = "light" | "normal" | "high";
+
 export type AppSettings = {
   localGatewayBase: string;
   ipfsApiBase: string;
+  ipfsConnectivityMode: IpfsConnectivityMode;
   localDriveMaxUploadSizeGb: number;
   showSexualContent: boolean;
   showViolentContent: boolean;
@@ -22,6 +25,7 @@ const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / 
 export const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
   localGatewayBase: "http://127.0.0.1:8080",
   ipfsApiBase: "http://127.0.0.1:5001",
+  ipfsConnectivityMode: "normal",
   localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
   showSexualContent: false,
   showViolentContent: false,
@@ -44,6 +48,17 @@ function normalizeBaseUrl(input: string, fallback: string): string {
   } catch {
     return fallback;
   }
+}
+
+function normalizeIpfsConnectivityMode(
+  input: unknown,
+  fallback: IpfsConnectivityMode = DEFAULT_APP_SETTINGS.ipfsConnectivityMode,
+): IpfsConnectivityMode {
+  const value = String(input ?? "").trim().toLowerCase();
+  if (value === "light" || value === "normal" || value === "high") {
+    return value;
+  }
+  return fallback;
 }
 
 export function normalizeLocalDriveMaxUploadSizeGb(
@@ -72,6 +87,10 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
     ipfsApiBase: normalizeBaseUrl(
       String(p.ipfsApiBase ?? cur.ipfsApiBase),
       DEFAULT_APP_SETTINGS.ipfsApiBase,
+    ),
+    ipfsConnectivityMode: normalizeIpfsConnectivityMode(
+      p.ipfsConnectivityMode ?? cur.ipfsConnectivityMode,
+      DEFAULT_APP_SETTINGS.ipfsConnectivityMode,
     ),
     localDriveMaxUploadSizeGb: normalizeLocalDriveMaxUploadSizeGb(
       p.localDriveMaxUploadSizeGb ?? cur.localDriveMaxUploadSizeGb,

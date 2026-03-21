@@ -6,6 +6,7 @@ const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 5 * 60 * 1000;
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
 const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
 const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / BYTES_PER_GIB);
+const VALID_IPFS_CONNECTIVITY_MODES = new Set(['light', 'normal', 'high']);
 const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
   5 * 60 * 1000,
   15 * 60 * 1000,
@@ -16,6 +17,7 @@ const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8088',
   ipfsApiBase: 'http://127.0.0.1:5001',
+  ipfsConnectivityMode: 'normal',
   localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
   showSexualContent: false,
   showViolentContent: false,
@@ -75,6 +77,11 @@ function normalizeLocalDriveMaxUploadSizeGb(
   return Math.min(normalized, MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB);
 }
 
+function normalizeIpfsConnectivityMode(input, fallback = DEFAULT_SETTINGS.ipfsConnectivityMode) {
+  const value = String(input ?? '').trim().toLowerCase();
+  return VALID_IPFS_CONNECTIVITY_MODES.has(value) ? value : fallback;
+}
+
 function isValidSecuritySessionTimeoutMs(input) {
   return input === null || (
     typeof input === 'number' &&
@@ -86,6 +93,11 @@ function isValidSecuritySessionTimeoutMs(input) {
 function isValidLocalDriveMaxUploadSizeGb(input) {
   const n = Number(input);
   return Number.isFinite(n) && Number.isInteger(n) && n >= 1;
+}
+
+function isValidIpfsConnectivityMode(input) {
+  const value = String(input ?? '').trim().toLowerCase();
+  return VALID_IPFS_CONNECTIVITY_MODES.has(value);
 }
 
 function settingsPath() {
@@ -120,6 +132,12 @@ function getSettings() {
   const settings = {
     localGatewayBase: normalizeBaseUrl(disk.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase),
     ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase),
+    ipfsConnectivityMode: normalizeIpfsConnectivityMode(
+      Object.prototype.hasOwnProperty.call(disk, 'ipfsConnectivityMode')
+        ? disk.ipfsConnectivityMode
+        : DEFAULT_SETTINGS.ipfsConnectivityMode,
+      DEFAULT_SETTINGS.ipfsConnectivityMode,
+    ),
     localDriveMaxUploadSizeGb: normalizeLocalDriveMaxUploadSizeGb(
       Object.prototype.hasOwnProperty.call(disk, 'localDriveMaxUploadSizeGb')
         ? disk.localDriveMaxUploadSizeGb
@@ -171,6 +189,15 @@ function setSettings(partial) {
     if (!r.ok) return { ok: false, error: 'invalid_ipfsApiBase' };
     next.ipfsApiBase = r.value;
   }
+  if (Object.prototype.hasOwnProperty.call(p, 'ipfsConnectivityMode')) {
+    if (!isValidIpfsConnectivityMode(p.ipfsConnectivityMode)) {
+      return { ok: false, error: 'invalid_ipfsConnectivityMode' };
+    }
+    next.ipfsConnectivityMode = normalizeIpfsConnectivityMode(
+      p.ipfsConnectivityMode,
+      DEFAULT_SETTINGS.ipfsConnectivityMode,
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(p, 'localDriveMaxUploadSizeGb')) {
     if (!isValidLocalDriveMaxUploadSizeGb(p.localDriveMaxUploadSizeGb)) {
       return { ok: false, error: 'invalid_localDriveMaxUploadSizeGb' };
@@ -201,6 +228,10 @@ function setSettings(partial) {
 
   next.localGatewayBase = normalizeBaseUrl(next.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase);
   next.ipfsApiBase = normalizeBaseUrl(next.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase);
+  next.ipfsConnectivityMode = normalizeIpfsConnectivityMode(
+    next.ipfsConnectivityMode,
+    DEFAULT_SETTINGS.ipfsConnectivityMode,
+  );
   next.localDriveMaxUploadSizeGb = normalizeLocalDriveMaxUploadSizeGb(
     next.localDriveMaxUploadSizeGb,
     DEFAULT_SETTINGS.localDriveMaxUploadSizeGb,

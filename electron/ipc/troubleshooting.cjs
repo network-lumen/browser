@@ -217,6 +217,7 @@ function sanitizeSettings(settings) {
   return {
     localGatewayBase: safeString(src.localGatewayBase, 1024),
     ipfsApiBase: safeString(src.ipfsApiBase, 1024),
+    ipfsConnectivityMode: safeString(src.ipfsConnectivityMode || 'normal', 32) || 'normal',
     localDriveMaxUploadSizeGb: (() => {
       const n = Number(src.localDriveMaxUploadSizeGb);
       return Number.isFinite(n) && Number.isInteger(n) && n >= 1 ? n : 10;

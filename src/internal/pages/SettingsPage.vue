@@ -26,6 +26,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'network' }"
+            @click="currentView = 'network'"
+          >
+            <Globe :size="18" />
+            <span>Network</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'privacy' }"
             disabled
             style="opacity:0.5; cursor:not-allowed;"
@@ -245,6 +254,65 @@
               <button class="btn-secondary">Clear Data</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Network View -->
+      <div v-else-if="currentView === 'network'" class="settings-section">
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Kubo connectivity</span>
+              <span class="setting-desc">
+                Controls how many peer connections the embedded IPFS node tries to keep.
+              </span>
+            </div>
+            <div class="setting-control network-mode-control">
+              <div class="theme-selector network-mode-selector">
+                <button
+                  type="button"
+                  class="theme-option network-mode-option"
+                  :class="{ active: ipfsConnectivityMode === 'light' }"
+                  :disabled="networkSettingsSaving"
+                  @click="saveIpfsConnectivityMode('light')"
+                >
+                  <span>Light</span>
+                </button>
+                <button
+                  type="button"
+                  class="theme-option network-mode-option"
+                  :class="{ active: ipfsConnectivityMode === 'normal' }"
+                  :disabled="networkSettingsSaving"
+                  @click="saveIpfsConnectivityMode('normal')"
+                >
+                  <span>Normal</span>
+                </button>
+                <button
+                  type="button"
+                  class="theme-option network-mode-option"
+                  :class="{ active: ipfsConnectivityMode === 'high' }"
+                  :disabled="networkSettingsSaving"
+                  @click="saveIpfsConnectivityMode('high')"
+                >
+                  <span>High connectivity</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="setting-hint">
+            If your network is unstable or your device is resource-constrained, Light is recommended.
+          </p>
+          <p class="setting-hint">
+            Changes are applied automatically by restarting the embedded Kubo daemon.
+          </p>
+          <p class="setting-hint">
+            Current idle connection target:
+            <span class="mono-path">{{ networkModeSummary }}</span>
+          </p>
+          <p v-if="networkSettingsError" class="setting-hint" style="color: var(--ios-red);">
+            {{ networkSettingsError }}
+          </p>
         </div>
       </div>
 
@@ -1145,6 +1213,7 @@ import pkg from '../../../package.json';
 import {
   appSettingsState,
   DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
+  type IpfsConnectivityMode,
   setAppSettings,
 } from '../services/appSettings';
 import {
@@ -1169,7 +1238,7 @@ function openInNewTabSafe(url: string) {
   navigate?.(url, { push: true });
 }
 
-const currentView = ref<'appearance' | 'content' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
+const currentView = ref<'appearance' | 'content' | 'network' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
@@ -1237,6 +1306,9 @@ type BootstrapPathState = {
 const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const localDriveMaxUploadSizeDraft = ref(String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB));
+const ipfsConnectivityMode = ref<IpfsConnectivityMode>('normal');
+const networkSettingsSaving = ref(false);
+const networkSettingsError = ref('');
 const devSettingsSaving = ref(false);
 const devSettingsError = ref('');
 const lumenDataFolderDraft = ref('');
@@ -1277,12 +1349,25 @@ const contentSaving = ref(false);
 watch(
   () => appSettingsState.value,
   (next) => {
+    ipfsConnectivityMode.value = next.ipfsConnectivityMode || 'normal';
     showSexualContent.value = !!next.showSexualContent;
     showViolentContent.value = !!next.showViolentContent;
     showDisturbingImagery.value = !!next.showDisturbingImagery;
   },
   { deep: true },
 );
+
+const networkModeSummary = computed(() => {
+  switch (ipfsConnectivityMode.value) {
+    case 'light':
+      return 'Light: trims idle peers back to 12 when it reaches 24.';
+    case 'high':
+      return 'High connectivity: trims idle peers back to 64 when it reaches 192.';
+    case 'normal':
+    default:
+      return 'Normal: trims idle peers back to 32 when it reaches 96.';
+  }
+});
 
 watch([showSexualContent, showViolentContent, showDisturbingImagery], async () => {
   if (contentSaving.value) return;
@@ -1297,6 +1382,29 @@ watch([showSexualContent, showViolentContent, showDisturbingImagery], async () =
     contentSaving.value = false;
   }
 });
+
+async function saveIpfsConnectivityMode(nextMode: IpfsConnectivityMode) {
+  if (networkSettingsSaving.value) return;
+  if (ipfsConnectivityMode.value === nextMode) return;
+
+  const previousMode = ipfsConnectivityMode.value;
+  networkSettingsSaving.value = true;
+  networkSettingsError.value = '';
+  ipfsConnectivityMode.value = nextMode;
+
+  try {
+    const res = await setAppSettings({ ipfsConnectivityMode: nextMode });
+    if (!res.ok) {
+      ipfsConnectivityMode.value = previousMode;
+      networkSettingsError.value = String(res.error || 'Failed to update Kubo connectivity mode.');
+      toast.error(networkSettingsError.value);
+      return;
+    }
+    toast.success('Kubo connectivity mode updated');
+  } finally {
+    networkSettingsSaving.value = false;
+  }
+}
 
 // Security state
 const securityStatus = ref<{ enabled: boolean }>({ enabled: false });
@@ -1514,6 +1622,9 @@ onMounted(() => {
 watch(
   () => currentView.value,
   (v) => {
+    if (v === 'network') {
+      networkSettingsError.value = '';
+    }
     if (v === 'security') {
       loadSecurityStatus();
       // Clear form state
@@ -1897,6 +2008,7 @@ function getViewTitle(): string {
   const titles: Record<string, string> = {
     appearance: 'Appearance',
     content: 'Content Settings',
+    network: 'Network',
     privacy: 'Privacy & Security',
     security: 'Security',
     profiles: 'Profiles & backups',
@@ -1912,6 +2024,7 @@ function getViewDescription(): string {
   const descs: Record<string, string> = {
     appearance: 'Customize the look and feel',
     content: 'Control sensitive content visibility',
+    network: 'Tune how aggressively the embedded Kubo node keeps peer connections',
     privacy: 'Manage your privacy settings',
     security: 'Password protection for wallet operations',
     profiles: 'Backup or restore profiles and PQC keys',
@@ -2647,6 +2760,19 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   background: var(--card-bg, white);
   color: var(--accent-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.network-mode-control {
+  justify-content: flex-end;
+}
+
+.network-mode-selector {
+  flex-wrap: wrap;
+}
+
+.network-mode-option {
+  min-width: 140px;
+  justify-content: center;
 }
 
 /* Toggle */
