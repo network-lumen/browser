@@ -234,6 +234,116 @@
     </div>
   </Teleport>
 
+  <!-- Import Modal -->
+  <Teleport to="body">
+    <div v-if="showImportModal" class="export-modal-overlay" @click.self="cancelImportModal">
+      <div class="export-modal import-modal">
+        <div class="export-modal-header">
+          <h3>Import profile</h3>
+          <button type="button" class="export-modal-close" @click="cancelImportModal">&times;</button>
+        </div>
+
+        <div class="export-modal-body">
+          <p class="export-modal-desc">
+            Choose how you want to import your profile.
+          </p>
+
+          <div class="import-mode-switch">
+            <button
+              type="button"
+              class="import-mode-btn"
+              :class="{ active: importMode === 'file' }"
+              @click="setImportMode('file')"
+            >
+              Via file
+            </button>
+            <button
+              type="button"
+              class="import-mode-btn"
+              :class="{ active: importMode === 'manual' }"
+              @click="setImportMode('manual')"
+            >
+              Manual
+            </button>
+          </div>
+
+          <div v-if="importMode === 'file'" class="import-mode-panel">
+            <p class="import-mode-copy">
+              Keep the current workflow and select a profile backup file or folder.
+            </p>
+          </div>
+
+          <div v-else class="import-mode-panel">
+            <div class="export-password-fields">
+              <div class="export-field">
+                <label>Profile Name</label>
+                <input
+                  v-model="manualImportName"
+                  type="text"
+                  class="export-input"
+                  placeholder="Enter profile name"
+                />
+              </div>
+
+              <div class="export-field">
+                <label>Mnemonic</label>
+                <textarea
+                  v-model="manualImportMnemonic"
+                  class="export-input import-textarea"
+                  rows="4"
+                  placeholder="Enter wallet mnemonic"
+                ></textarea>
+              </div>
+
+              <div class="export-field">
+                <label>PQC Public Key</label>
+                <textarea
+                  v-model="manualImportPqcPublicKey"
+                  class="export-input import-textarea import-mono"
+                  rows="3"
+                  placeholder="Optional"
+                ></textarea>
+              </div>
+
+              <div class="export-field">
+                <label>PQC Private Key</label>
+                <textarea
+                  v-model="manualImportPqcPrivateKey"
+                  class="export-input import-textarea import-mono"
+                  rows="3"
+                  placeholder="Optional"
+                ></textarea>
+              </div>
+            </div>
+
+            <p class="import-manual-hint">
+              If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
+            </p>
+          </div>
+
+          <div v-if="importModalError" class="export-error">
+            {{ importModalError }}
+          </div>
+
+          <div class="export-modal-actions">
+            <UiButton variant="none" class="export-btn cancel" @click="cancelImportModal">
+              Cancel
+            </UiButton>
+            <UiButton
+              variant="none"
+              class="export-btn confirm"
+              :disabled="importBusy"
+              @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
+            >
+              <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
+              <span v-else class="import-busy-label"><UiSpinner size="sm" /> Importing…</span>
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
   <!-- Import Password Modal (for encrypted backups) -->
   <Teleport to="body">
     <div v-if="showImportPasswordModal" class="export-modal-overlay" @click.self="cancelImportPasswordModal">
@@ -357,7 +467,8 @@ import {
   createProfile,
   deleteProfile,
   initProfiles,
-  importProfilesFromBackup
+  importProfilesFromBackup,
+  importProfileManually
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
 import { normalizeAddressInput } from '../internal/navigationUrl';
@@ -406,6 +517,17 @@ const exportRequiresPassword = ref(false); // true if keystore/pqc is password-p
 const exportPassword = ref('');
 const exportPasswordConfirm = ref('');
 const exportError = ref('');
+
+type ImportMode = 'file' | 'manual';
+
+const showImportModal = ref(false);
+const importMode = ref<ImportMode>('file');
+const importBusy = ref(false);
+const importModalError = ref('');
+const manualImportName = ref('');
+const manualImportMnemonic = ref('');
+const manualImportPqcPublicKey = ref('');
+const manualImportPqcPrivateKey = ref('');
 
 // Import encrypted modal state
 const showImportPasswordModal = ref(false);
@@ -693,28 +815,134 @@ async function confirmExportProfile() {
 }
 
 function onImportProfileClick() {
-  // Use backup import flow instead of raw JSON.
-  importProfilesFromBackup()
-    .then((result) => {
-      if (result.ok) {
-        profileMessage.value = `Imported ${result.imported || 1} profile(s) from backup.`;
-        showProfileMenu.value = false;
-        resetProfileUi();
-      } else if (result.error === 'encrypted_backup_found' && result.encryptedFiles?.length) {
-        // Show password modal for encrypted backup
-        pendingEncryptedFile.value = result.encryptedFiles[0];
-        importPassword.value = '';
-        importError.value = '';
-        showImportPasswordModal.value = true;
-      } else if (result.error === 'canceled') {
-        // User canceled, don't show error
-      } else {
-        profileMessage.value = result.error || 'Backup import failed.';
-      }
-    })
-    .catch(() => {
-      profileMessage.value = 'Backup import failed.';
+  showImportModal.value = true;
+  importMode.value = 'file';
+  importBusy.value = false;
+  importModalError.value = '';
+  manualImportName.value = '';
+  manualImportMnemonic.value = '';
+  manualImportPqcPublicKey.value = '';
+  manualImportPqcPrivateKey.value = '';
+}
+
+function cancelImportModal() {
+  showImportModal.value = false;
+  importBusy.value = false;
+  importModalError.value = '';
+  manualImportName.value = '';
+  manualImportMnemonic.value = '';
+  manualImportPqcPublicKey.value = '';
+  manualImportPqcPrivateKey.value = '';
+}
+
+function setImportMode(mode: ImportMode) {
+  importMode.value = mode;
+  importModalError.value = '';
+}
+
+function getImportErrorMessage(error?: string) {
+  const code = String(error || '').trim();
+  if (!code) return 'Import failed.';
+  if (code === 'backup_api_unavailable') return 'Import API not available.';
+  if (code === 'missing_profile_name') return 'Profile name is required.';
+  if (code === 'missing_mnemonic') return 'Mnemonic is required.';
+  if (code === 'invalid_mnemonic') return 'Invalid mnemonic. Check the words and try again.';
+  if (code === 'pqc_keys_incomplete') {
+    return 'Enter both PQC public and private keys, or leave both empty.';
+  }
+  if (code === 'password_required') {
+    return 'Unlock the app first to import PQC keys.';
+  }
+  if (code === 'invalid_password') {
+    return 'Unlock the app with the correct password to import PQC keys.';
+  }
+  if (code === 'no_valid_backups_found') return 'No valid backup file was found.';
+  if (code === 'profile_json_missing') return 'No profile backup file was found.';
+  return code;
+}
+
+async function startFileImport() {
+  if (importBusy.value) return;
+
+  importBusy.value = true;
+  importModalError.value = '';
+
+  try {
+    const result = await importProfilesFromBackup();
+    if (result.ok) {
+      cancelImportModal();
+      profileMessage.value = `Imported ${result.imported || 1} profile(s) from backup.`;
+      return;
+    }
+
+    if (result.error === 'encrypted_backup_found' && result.encryptedFiles?.length) {
+      pendingEncryptedFile.value = result.encryptedFiles[0];
+      importPassword.value = '';
+      importError.value = '';
+      cancelImportModal();
+      showImportPasswordModal.value = true;
+      return;
+    }
+
+    if (result.error !== 'canceled') {
+      importModalError.value = getImportErrorMessage(result.error || 'Backup import failed.');
+    }
+  } catch {
+    importModalError.value = 'Backup import failed.';
+  } finally {
+    importBusy.value = false;
+  }
+}
+
+async function confirmManualImport() {
+  if (importBusy.value) return;
+
+  const name = manualImportName.value.trim();
+  const mnemonic = manualImportMnemonic.value.trim().replace(/\s+/g, ' ');
+  const pqcPublicKey = manualImportPqcPublicKey.value.trim();
+  const pqcPrivateKey = manualImportPqcPrivateKey.value.trim();
+
+  if (!name) {
+    importModalError.value = 'Profile name is required.';
+    return;
+  }
+
+  if (!mnemonic) {
+    importModalError.value = 'Mnemonic is required.';
+    return;
+  }
+
+  if ((pqcPublicKey && !pqcPrivateKey) || (!pqcPublicKey && pqcPrivateKey)) {
+    importModalError.value = 'Enter both PQC public and private keys, or leave both empty.';
+    return;
+  }
+
+  importBusy.value = true;
+  importModalError.value = '';
+
+  try {
+    const result = await importProfileManually({
+      name,
+      mnemonic,
+      pqcPublicKey,
+      pqcPrivateKey,
     });
+
+    if (!result.ok) {
+      importModalError.value = getImportErrorMessage(result.error);
+      return;
+    }
+
+    cancelImportModal();
+    profileMessage.value =
+      pqcPublicKey && pqcPrivateKey
+        ? 'Profile imported manually.'
+        : 'Profile imported manually. PQC keys will be generated automatically when needed.';
+  } catch {
+    importModalError.value = 'Manual import failed.';
+  } finally {
+    importBusy.value = false;
+  }
 }
 
 function cancelImportPasswordModal() {
@@ -745,8 +973,6 @@ async function confirmImportEncrypted() {
       cancelImportPasswordModal();
       await initProfiles();
       profileMessage.value = 'Encrypted profile imported successfully.';
-      showProfileMenu.value = false;
-      resetProfileUi();
     } else if (res?.error === 'invalid_password') {
       importError.value = 'Invalid password. Please try again.';
     } else {
@@ -832,6 +1058,16 @@ async function confirmDeleteProfile() {
 }
 
 function onGlobalClick(e: MouseEvent) {
+  if (
+    showExportModal.value ||
+    showImportModal.value ||
+    showImportPasswordModal.value ||
+    showDeleteProfileModal.value ||
+    showPqcLinkedModal.value
+  ) {
+    return;
+  }
+
   const el = e.target as HTMLElement | null;
   if (!el) return;
   if (el.closest('.profile-trigger') || el.closest('.profile-menu')) return;
@@ -1392,5 +1628,81 @@ onBeforeUnmount(() => {
 
 .export-btn.confirm.danger {
   background: var(--ios-red, #ff3b30);
+}
+
+.import-modal {
+  width: min(560px, 92vw);
+}
+
+.import-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.import-mode-btn {
+  padding: 0.625rem 0.875rem;
+  border: 0.5px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.import-mode-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.import-mode-btn.active {
+  background: var(--primary-a08);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px var(--primary-a20) inset;
+}
+
+.import-mode-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.import-mode-copy {
+  margin: 0;
+  padding: 0.875rem;
+  border-radius: var(--border-radius-md);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.import-textarea {
+  resize: vertical;
+  min-height: 84px;
+  font-family: inherit;
+}
+
+.import-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.import-manual-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.import-busy-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 </style>
