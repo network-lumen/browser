@@ -6,6 +6,34 @@ function safeString(v, maxLen = 2048) {
   return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
+function safeDelayMs(v, fallback) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(250, Math.min(30_000, Math.trunc(n)));
+}
+
+function safeCount(v, fallback, max = 16) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.min(max, Math.trunc(n)));
+}
+
+function normalizeReconnectDelays(input) {
+  const fallback = [1000, 2000, 5000];
+  if (!Array.isArray(input) || !input.length) return fallback;
+  const out = input
+    .map((v) => safeDelayMs(v, 0))
+    .filter((n) => Number.isFinite(n) && n > 0)
+    .slice(0, 8);
+  return out.length ? out : fallback;
+}
+
+function callMaybe(fn, ...args) {
+  try {
+    if (typeof fn === 'function') fn(...args);
+  } catch {}
+}
+
 function currentHref() {
   try {
     return String(location.href || '');
@@ -165,34 +193,202 @@ const lumen = {
       ensureLumenSite();
       const encoding = (opts && opts.encoding) ? String(opts.encoding) : 'text';
       const autoConnect = !!(opts && opts.autoConnect);
-      const res = await ipcRenderer.invoke('ipfs:pubsub:subscribe', { topic: safeString(topic, 1024), encoding, autoConnect });
-      if (!res || res.ok === false) throw new Error((res && res.error) ? String(res.error) : 'subscribe_failed');
-      const subId = String(res.subId || '');
-      const topics = Array.isArray(res.topics) ? res.topics.map((t) => String(t || '')).filter(Boolean) : undefined;
+      const autoReconnect = !opts || opts.autoReconnect !== false;
+      const reconnectDelaysMs = normalizeReconnectDelays(opts && opts.reconnectDelaysMs);
+      const maxReconnectAttempts = safeCount(
+        opts && opts.maxReconnectAttempts,
+        reconnectDelaysMs.length,
+        Math.max(reconnectDelaysMs.length, 16)
+      );
+      const onStatus = opts && typeof opts.onStatus === 'function' ? opts.onStatus : null;
+      const onError = opts && typeof opts.onError === 'function' ? opts.onError : null;
+      const onEnd = opts && typeof opts.onEnd === 'function' ? opts.onEnd : null;
+      const topicRaw = safeString(topic, 1024);
+
+      let disposed = false;
+      let state = 'connecting';
+      let currentSubId = '';
+      let currentTopics = undefined;
+      let reconnectTimer = null;
+      let reconnectAttempt = 0;
+      let reconnectScheduledForSubId = '';
+      let terminalSubId = '';
+      let subscribeNonce = 0;
+
+      const syncHandle = () => {
+        handle.subId = currentSubId;
+        handle.topics = Array.isArray(currentTopics) ? currentTopics.slice() : undefined;
+        handle.state = state;
+      };
+
+      const emitStatus = (next, detail = {}) => {
+        state = String(next || '').trim() || state;
+        syncHandle();
+        callMaybe(onStatus, state, detail);
+      };
+
+      const clearReconnectTimer = () => {
+        try {
+          if (reconnectTimer) clearTimeout(reconnectTimer);
+        } catch {}
+        reconnectTimer = null;
+      };
+
+      const scheduleReconnect = (reason, detail = {}) => {
+        if (disposed) return false;
+        if (!autoReconnect) {
+          emitStatus('ended', { ...detail, reason: reason || 'stream_ended' });
+          return false;
+        }
+        if (reconnectTimer) return true;
+        if (reconnectAttempt >= maxReconnectAttempts) return false;
+        const attempt = reconnectAttempt + 1;
+        const delayMs = reconnectDelaysMs[Math.min(reconnectAttempt, reconnectDelaysMs.length - 1)];
+        reconnectAttempt = attempt;
+        emitStatus('reconnecting', { ...detail, attempt, delayMs, reason: reason || 'stream_ended', phase: 'scheduled' });
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          void subscribeInternal(true, reason || 'stream_ended');
+        }, delayMs);
+        return true;
+      };
+
+      const subscribeInternal = async (isReconnect, reason) => {
+        const myNonce = ++subscribeNonce;
+        if (disposed) return;
+        emitStatus(isReconnect ? 'reconnecting' : 'connecting', {
+          attempt: reconnectAttempt,
+          reason: reason || (isReconnect ? 'reconnect' : 'initial'),
+          phase: 'attempting'
+        });
+
+        let res;
+        try {
+          res = await ipcRenderer.invoke('ipfs:pubsub:subscribe', { topic: topicRaw, encoding, autoConnect });
+        } catch (e) {
+          res = { ok: false, error: String(e?.message || e || 'subscribe_failed') };
+        }
+
+        if (disposed) {
+          const subId = safeString(res && res.subId ? res.subId : '', 256);
+          if (subId) {
+            try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
+          }
+          return;
+        }
+        if (myNonce !== subscribeNonce) {
+          const subId = safeString(res && res.subId ? res.subId : '', 256);
+          if (subId) {
+            try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
+          }
+          return;
+        }
+        if (!res || res.ok === false) {
+          const error = (res && res.error) ? String(res.error) : 'subscribe_failed';
+          callMaybe(onError, { error, phase: isReconnect ? 'reconnect' : 'subscribe', attempt: reconnectAttempt });
+          if (!isReconnect) throw new Error(error);
+          clearReconnectTimer();
+          if (!scheduleReconnect('subscribe_failed', { error })) {
+            if (!disposed && autoReconnect) {
+              emitStatus('failed', { error, attempt: reconnectAttempt, reason: 'subscribe_failed' });
+            }
+          }
+          return;
+        }
+
+        currentSubId = String(res.subId || '');
+        currentTopics = Array.isArray(res.topics) ? res.topics.map((t) => String(t || '')).filter(Boolean) : undefined;
+        reconnectAttempt = 0;
+        reconnectScheduledForSubId = '';
+        terminalSubId = '';
+        emitStatus('connected', {
+          subId: currentSubId,
+          topics: currentTopics,
+          reason: reason || (isReconnect ? 'reconnected' : 'initial')
+        });
+      };
+
+      const handle = {
+        subId: '',
+        topics: undefined,
+        state,
+        getSubId: () => currentSubId,
+        getTopics: () => (Array.isArray(currentTopics) ? currentTopics.slice() : undefined),
+        getState: () => state,
+        unsubscribe: async () => {
+          if (disposed) return;
+          disposed = true;
+          clearReconnectTimer();
+          const subId = currentSubId;
+          currentSubId = '';
+          currentTopics = undefined;
+          try { ipcRenderer.removeListener('ipfs:pubsub:message', hMsg); } catch {}
+          try { ipcRenderer.removeListener('ipfs:pubsub:error', hErr); } catch {}
+          try { ipcRenderer.removeListener('ipfs:pubsub:end', hEnd); } catch {}
+          emitStatus('ended', { subId, reason: 'unsubscribe', manual: true });
+          callMaybe(onEnd, { subId, reason: 'unsubscribe', manual: true });
+          if (subId) {
+            try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
+          }
+        },
+      };
 
       const hMsg = (_e, payload) => {
         try {
-          if (!payload || payload.subId !== subId) return;
+          if (!payload || payload.subId !== currentSubId) return;
           // If binary came as array of numbers, restore Uint8Array.
           if (payload.binary && Array.isArray(payload.binary)) payload.binary = new Uint8Array(payload.binary);
           onMessage && onMessage(payload);
         } catch {}
       };
-      const hErr = (_e, payload) => { if (!payload || payload.subId !== subId) return; };
-      const hEnd = (_e, payload) => { if (!payload || payload.subId !== subId) return; };
+      const hErr = (_e, payload) => {
+        if (!payload) return;
+        const subId = String(payload.subId || '');
+        if (!subId) return;
+        if (subId !== currentSubId && subId !== terminalSubId) return;
+        callMaybe(onError, {
+          subId,
+          error: safeString(payload.error, 1024) || 'stream_error',
+          phase: 'stream',
+          state
+        });
+      };
+      const hEnd = (_e, payload) => {
+        if (!payload) return;
+        const subId = String(payload.subId || '');
+        if (!subId) return;
+        if (subId !== currentSubId && subId !== terminalSubId) return;
+        if (subId !== terminalSubId) {
+          terminalSubId = subId;
+          callMaybe(onEnd, { subId, reason: 'stream_ended', manual: false });
+        }
+        if (subId === currentSubId) {
+          currentSubId = '';
+          currentTopics = undefined;
+          syncHandle();
+        }
+        if (reconnectScheduledForSubId === subId) return;
+        reconnectScheduledForSubId = subId;
+        if (!scheduleReconnect('stream_ended', { subId })) {
+          if (!disposed && autoReconnect) emitStatus('failed', { subId, reason: 'stream_ended' });
+        }
+      };
 
       ipcRenderer.on('ipfs:pubsub:message', hMsg);
       ipcRenderer.on('ipfs:pubsub:error', hErr);
       ipcRenderer.on('ipfs:pubsub:end', hEnd);
 
-      const unsubscribe = async () => {
+      try {
+        await subscribeInternal(false, 'initial');
+        return handle;
+      } catch (e) {
+        disposed = true;
+        clearReconnectTimer();
         try { ipcRenderer.removeListener('ipfs:pubsub:message', hMsg); } catch {}
         try { ipcRenderer.removeListener('ipfs:pubsub:error', hErr); } catch {}
         try { ipcRenderer.removeListener('ipfs:pubsub:end', hEnd); } catch {}
-        try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
-      };
-
-      return { subId, topics, unsubscribe };
+        throw e;
+      }
     },
   },
 

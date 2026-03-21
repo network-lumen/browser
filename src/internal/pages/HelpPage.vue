@@ -804,17 +804,23 @@ const lumenApiGroups: ApiDocGroup[] = [
         name: 'lumen.pubsub.subscribe(topic, opts, onMessage)',
         short: 'Subscribe to a topic and receive messages via callback.',
         signature:
-          `const sub = await window.lumen.pubsub.subscribe(\n  'my-topic',\n  { encoding: 'json', autoConnect: true },\n  (msg) => console.log(msg.json)\n);\n\n// later\nawait sub.unsubscribe();`,
+          `const sub = await window.lumen.pubsub.subscribe(\n  'my-topic',\n  {\n    encoding: 'json',\n    autoConnect: true,\n    onStatus: (status, detail) => console.log(status, detail),\n    onError: (err) => console.warn(err),\n    onEnd: (detail) => console.log('ended', detail)\n  },\n  (msg) => console.log(msg.json)\n);\n\n// later\nawait sub.unsubscribe();`,
         params: [
           { name: 'topic', type: 'string', description: 'Topic name.' },
-          { name: 'opts', type: "{ encoding?: 'text'|'json'|'binary', autoConnect?: boolean }", description: 'Encoding determines msg.text/msg.json/msg.binary.' },
+          {
+            name: 'opts',
+            type: "{ encoding?: 'text'|'json'|'binary', autoConnect?: boolean, autoReconnect?: boolean, reconnectDelaysMs?: number[], maxReconnectAttempts?: number, onStatus?: (status, detail) => void, onError?: (detail) => void, onEnd?: (detail) => void }",
+            description: 'Encoding determines msg.text/msg.json/msg.binary. Auto-reconnect is enabled by default.'
+          },
           { name: 'onMessage', type: '(payload) => void', description: 'Callback for received messages.' },
         ],
-        returns: ['{ subId: string, topics?: string[], unsubscribe: () => Promise<void> }'],
+        returns: ['{ subId: string, topics?: string[], state: string, getSubId: () => string, getTopics: () => string[]|undefined, getState: () => string, unsubscribe: () => Promise<void> }'],
         errors: ["Rejects with Error('too_many_subscriptions') or other subscribe errors.", 'Throws if called outside /ipfs/* or /ipns/* pages.'],
         notes: [
           'Max subscriptions per tab is limited (currently 5).',
-          'Callback payload contains: subId, topic, from, seqno, dataB64, plus text/json/binary depending on encoding.'
+          'Callback payload contains: subId, topic, from, seqno, dataB64, plus text/json/binary depending on encoding.',
+          "Status values are: 'connecting', 'connected', 'reconnecting', 'failed', 'ended'.",
+          'Default reconnect delays are 1000ms, 2000ms, then 5000ms, with 3 attempts unless overridden.'
         ],
       },
     ],
