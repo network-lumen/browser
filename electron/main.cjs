@@ -761,9 +761,10 @@ ipcMain.handle('settings:set', async (_evt, partial) => {
     }
     const changed =
       String(before?.ipfsApiBase || '') !== String(after?.ipfsApiBase || '') ||
-      String(before?.localGatewayBase || '') !== String(after?.localGatewayBase || '');
+      String(before?.localGatewayBase || '') !== String(after?.localGatewayBase || '') ||
+      String(before?.ipfsConnectivityMode || '') !== String(after?.ipfsConnectivityMode || '');
 
-    // Apply without prompting: restart the embedded IPFS daemon so it binds to the new ports.
+    // Apply without prompting: restart the embedded IPFS daemon so endpoint/config changes take effect.
     if (changed) {
       try { stopIpfsDaemon(); } catch {}
       setTimeout(() => {

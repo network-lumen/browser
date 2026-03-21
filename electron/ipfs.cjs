@@ -20,6 +20,28 @@ const PUBLIC_IPFS_GATEWAY_OFFLINE_TTL_MS = 60 * 60 * 1000;
 const publicIpfsGatewayOfflineUntil = new Map();
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
 const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
+const DEFAULT_IPFS_CONNECTIVITY_MODE = 'normal';
+const IPFS_CONNECTIVITY_PROFILES = Object.freeze({
+  light: {
+    lowWater: 12,
+    highWater: 24,
+    gracePeriod: '20s',
+    silencePeriod: '10s',
+  },
+  normal: {
+    // Kubo implicit defaults, made explicit so the app owns the behavior.
+    lowWater: 32,
+    highWater: 96,
+    gracePeriod: '20s',
+    silencePeriod: '10s',
+  },
+  high: {
+    lowWater: 64,
+    highWater: 192,
+    gracePeriod: '20s',
+    silencePeriod: '10s',
+  },
+});
 
 function ipfsApiBase() {
   return String(getSetting('ipfsApiBase') || 'http://127.0.0.1:5001').replace(/\/+$/, '');
@@ -43,6 +65,19 @@ function localDriveMaxUploadSizeGb() {
 
 function localDriveMaxUploadBytes() {
   return localDriveMaxUploadSizeGb() * BYTES_PER_GIB;
+}
+
+function getIpfsConnectivityMode() {
+  const value = String(getSetting('ipfsConnectivityMode') || DEFAULT_IPFS_CONNECTIVITY_MODE)
+    .trim()
+    .toLowerCase();
+  return Object.prototype.hasOwnProperty.call(IPFS_CONNECTIVITY_PROFILES, value)
+    ? value
+    : DEFAULT_IPFS_CONNECTIVITY_MODE;
+}
+
+function getIpfsConnectivityProfile() {
+  return IPFS_CONNECTIVITY_PROFILES[getIpfsConnectivityMode()] || IPFS_CONNECTIVITY_PROFILES.normal;
 }
 
 function multiaddrForHttpBase(rawBase) {
@@ -83,8 +118,18 @@ function applyIpfsAddressesConfig(bin, repoPath) {
   try {
     const apiAddr = multiaddrForHttpBase(ipfsApiBase());
     const gwAddr = multiaddrForHttpBase(localGatewayBase());
+    const connectivityMode = getIpfsConnectivityMode();
+    const connectivityProfile = getIpfsConnectivityProfile();
     
-    console.log('[electron][ipfs] Applying config - API:', apiAddr, 'Gateway:', gwAddr);
+    console.log(
+      '[electron][ipfs] Applying config - API:',
+      apiAddr,
+      'Gateway:',
+      gwAddr,
+      'Connectivity:',
+      connectivityMode,
+      connectivityProfile,
+    );
     
     if (!apiAddr || !gwAddr) {
       console.warn('[electron][ipfs] Invalid addresses, skipping config');
@@ -123,6 +168,11 @@ function applyIpfsAddressesConfig(bin, repoPath) {
     setCfgJson('Swarm.RelayClient.Enabled', 'true');
     setCfgJson('Swarm.EnableAutoRelay', 'true');
     setCfgJson('Swarm.EnableHolePunching', 'true');
+    setCfgJson('Swarm.ConnMgr.Type', JSON.stringify('basic'));
+    setCfgJson('Swarm.ConnMgr.LowWater', String(connectivityProfile.lowWater));
+    setCfgJson('Swarm.ConnMgr.HighWater', String(connectivityProfile.highWater));
+    setCfgJson('Swarm.ConnMgr.GracePeriod', JSON.stringify(connectivityProfile.gracePeriod));
+    setCfgJson('Swarm.ConnMgr.SilencePeriod', JSON.stringify(connectivityProfile.silencePeriod));
 
     // Allow the renderer (http://localhost / app://) to fetch gateway resources (HLS needs this).
     // Without these, Chromium blocks cross-origin HLS playlist/segment requests (CORS).
