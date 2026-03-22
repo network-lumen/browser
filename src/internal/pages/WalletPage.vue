@@ -459,7 +459,7 @@
               <div class="modal-icon">
                 <Send :size="20" />
               </div>
-              <h3>Send LMN</h3>
+              <h3>{{ sendModalTitle }}</h3>
             </div>
             <button class="modal-close" @click="closeSendModal">
               <X :size="18" />
@@ -480,14 +480,53 @@
             </div>
 
             <div class="form-group">
-              <label>To <span class="required">*</span></label>
+              <label>Send to</label>
+              <div class="input-wrapper">
+                <select class="form-input form-select" v-model="sendTargetMode">
+                  <option value="lumen">To a Lumen wallet</option>
+                  <option value="ibc">To an IBC wallet (another chain)</option>
+                </select>
+              </div>
+            </div>
+
+            <div v-if="isIbcSend" class="form-group">
+              <label>IBC route <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <select
+                  class="form-input form-select"
+                  v-model="ibcForm.sourceChannel"
+                  :disabled="ibcChannelsLoading || !ibcChannels.length"
+                >
+                  <option value="" disabled>
+                    {{ ibcChannelsLoading ? 'Loading IBC channels...' : 'Select an IBC route' }}
+                  </option>
+                  <option
+                    v-for="channel in ibcChannels"
+                    :key="`${channel.portId}:${channel.channelId}`"
+                    :value="channel.channelId"
+                  >
+                    {{ channel.label }}
+                  </option>
+                </select>
+              </div>
+              <div v-if="selectedIbcChannel" class="field-hint">
+                Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
+                <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
+              </div>
+              <div v-else-if="ibcChannelsError" class="field-hint error">
+                {{ ibcChannelsError }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>{{ isIbcSend ? 'Destination address' : 'To' }} <span class="required">*</span></label>
               <div class="input-wrapper-relative">
                 <div class="input-wrapper">
                   <input 
                     class="form-input" 
                     type="text" 
                     v-model="sendForm.recipient" 
-                    placeholder="Enter recipient address (lmn1...)" 
+                    :placeholder="sendRecipientPlaceholder"
                   />
                   <button 
                     class="input-action-btn" 
@@ -552,26 +591,34 @@
 
             <div class="tx-summary">
               <div class="summary-header">
-                <span>Transaction Summary</span>
+                <span>{{ isIbcSend ? 'Transfer Summary' : 'Transaction Summary' }}</span>
               </div>
               <div class="summary-row">
-                <span>Amount debited</span>
+                <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
                 <span class="summary-value">{{ sendSummary.amount }} LMN</span>
               </div>
-              <div class="summary-row">
+              <div v-if="!isIbcSend" class="summary-row">
                 <span>Tax</span>
                 <span class="summary-value tax">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div class="summary-row total">
+              <div v-if="!isIbcSend" class="summary-row total">
                 <span>Receiver net</span>
                 <span class="summary-value">{{ sendSummary.receiver }} LMN</span>
+              </div>
+              <div v-if="isIbcSend" class="summary-row">
+                <span>Route</span>
+                <span class="summary-value">{{ sendSummary.routeLabel }}</span>
+              </div>
+              <div v-if="isIbcSend" class="summary-row total">
+                <span>Destination chain</span>
+                <span class="summary-value">{{ sendSummary.destinationChain }}</span>
               </div>
             </div>
 
             <button class="btn-modal-primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
               <Send :size="18" v-if="!sendingTransaction" />
               <span class="spinner" v-else></span>
-              <span>{{ sendingTransaction ? 'Sending...' : 'Preview Send' }}</span>
+              <span>{{ sendPrimaryActionLabel }}</span>
             </button>
           </div>
         </div>
@@ -739,7 +786,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect, onMounted, inject } from 'vue';
+import { computed, ref, watch, onMounted, inject } from 'vue';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import {
@@ -850,11 +897,33 @@ const txFilterType = ref<'all' | 'send' | 'receive'>('all');
 const txFilterStatus = ref<'all' | 'success' | 'pending' | 'failed'>('all');
 const txSearchQuery = ref('');
 
+type SendTargetMode = 'lumen' | 'ibc';
+type IbcChannelOption = {
+  channelId: string;
+  portId: string;
+  counterpartyChannelId: string;
+  counterpartyPortId: string;
+  connectionId: string;
+  state: string;
+  chainId: string;
+  prefixHints: string[];
+  label: string;
+};
+
 const sendForm = ref({
   recipient: '',
   amount: '',
   gasFee: 'medium'
 });
+const sendTargetMode = ref<SendTargetMode>('lumen');
+const ibcForm = ref({
+  sourceChannel: '',
+  sourcePort: 'transfer'
+});
+const ibcChannels = ref<IbcChannelOption[]>([]);
+const ibcChannelsLoading = ref(false);
+const ibcChannelsLoaded = ref(false);
+const ibcChannelsError = ref('');
 
 // QR Scanner
 const showQrScanner = ref(false);
@@ -886,6 +955,198 @@ const balanceLmnDisplay = computed(() => {
   if (balanceLmn.value == null) return '0.000000';
   return balanceLmn.value.toFixed(6);
 });
+
+function getAddressPrefix(value: string): string {
+  const raw = String(value || '').trim().toLowerCase();
+  const match = raw.match(/^([a-z0-9]{1,24})1[ac-hj-np-z02-9]{6,}$/);
+  return match ? match[1] : '';
+}
+
+function guessSendTargetMode(value: string): SendTargetMode | null {
+  const prefix = getAddressPrefix(value);
+  if (!prefix) return null;
+  return prefix === senderPrefix.value ? 'lumen' : 'ibc';
+}
+
+function derivePrefixHintsFromChainId(chainId: string): string[] {
+  const raw = String(chainId || '').trim().toLowerCase();
+  if (!raw) return [];
+
+  const candidates = new Set<string>();
+  const normalized = raw
+    .replace(/(?:[_-]?testnet.*$)|(?:[_-]?mainnet.*$)|(?:[_-]?devnet.*$)|(?:[_-]?localnet.*$)|(?:[_-]?stage.*$)|(?:[_-]?alpha.*$)|(?:[_-]?beta.*$)/, '')
+    .replace(/[_-]?\d+$/, '')
+    .replace(/[_-]+$/, '');
+  const firstToken = normalized.split(/[_-]/)[0] || normalized;
+
+  for (const entry of [normalized, firstToken]) {
+    const cleaned = entry.replace(/[^a-z0-9]/g, '');
+    if (cleaned) candidates.add(cleaned);
+  }
+
+  if (raw.includes('bzetestnet')) candidates.add('bze');
+  return Array.from(candidates);
+}
+
+function scoreIbcChannel(channel: IbcChannelOption, recipientPrefix: string): number {
+  const prefix = String(recipientPrefix || '').trim().toLowerCase();
+  if (!prefix) return 0;
+  if (channel.prefixHints.includes(prefix)) return 100;
+  if (channel.chainId.toLowerCase().includes(prefix)) return 40;
+  if (channel.label.toLowerCase().includes(prefix)) return 10;
+  return 0;
+}
+
+const senderPrefix = computed(() => getAddressPrefix(address.value) || 'lmn');
+const isIbcSend = computed(() => sendTargetMode.value === 'ibc');
+const selectedIbcChannel = computed(() =>
+  ibcChannels.value.find(
+    (channel) =>
+      channel.channelId === ibcForm.value.sourceChannel &&
+      channel.portId === ibcForm.value.sourcePort
+  ) || null
+);
+const sendModalTitle = computed(() => (isIbcSend.value ? 'Transfer' : 'Send'));
+const sendRecipientPlaceholder = computed(() =>
+  isIbcSend.value
+    ? 'Enter recipient address on the other chain'
+    : `Enter recipient address (${senderPrefix.value}1...)`
+);
+const sendPrimaryActionLabel = computed(() => {
+  if (sendingTransaction.value) return isIbcSend.value ? 'Transferring...' : 'Sending...';
+  return isIbcSend.value ? 'Preview Transfer' : 'Preview Send';
+});
+
+function autoSelectIbcChannel(force = false) {
+  const channels = ibcChannels.value;
+  if (!channels.length) {
+    ibcForm.value.sourceChannel = '';
+    return;
+  }
+
+  const current = selectedIbcChannel.value;
+  if (!force && current) return;
+
+  if (channels.length === 1) {
+    ibcForm.value.sourceChannel = channels[0].channelId;
+    ibcForm.value.sourcePort = channels[0].portId;
+    return;
+  }
+
+  const recipientPrefix = getAddressPrefix(sendForm.value.recipient);
+  const ranked = channels
+    .map((channel) => ({ channel, score: scoreIbcChannel(channel, recipientPrefix) }))
+    .sort((a, b) => b.score - a.score || a.channel.label.localeCompare(b.channel.label));
+
+  const best = ranked[0];
+  const fallback = channels[0];
+  const next = best && best.score > 0 ? best.channel : fallback;
+  ibcForm.value.sourceChannel = next.channelId;
+  ibcForm.value.sourcePort = next.portId;
+}
+
+async function loadIbcChannels(force = false) {
+  if (ibcChannelsLoading.value) return;
+  if (ibcChannelsLoaded.value && !force) {
+    autoSelectIbcChannel();
+    return;
+  }
+
+  const net = (window as any)?.lumen?.net;
+  if (!net || typeof net.restGet !== 'function') {
+    ibcChannelsError.value = 'Network API not available.';
+    ibcChannels.value = [];
+    ibcChannelsLoaded.value = false;
+    return;
+  }
+
+  ibcChannelsLoading.value = true;
+  ibcChannelsError.value = '';
+
+  try {
+    let payload: any[] = [];
+    const transferRes = await net.restGet('/ibc/apps/transfer/v1/channels', { timeout: 15000 });
+    if (transferRes && transferRes.ok !== false && Array.isArray(transferRes?.json?.channels)) {
+      payload = transferRes.json.channels;
+    }
+
+    if (!payload.length) {
+      const fallbackRes = await net.restGet('/ibc/core/channel/v1/channels?pagination.limit=200', { timeout: 15000 });
+      if (fallbackRes && fallbackRes.ok !== false && Array.isArray(fallbackRes?.json?.channels)) {
+        payload = fallbackRes.json.channels;
+      }
+    }
+
+    const normalized = payload
+      .map((entry) => {
+        const counterparty = entry?.counterparty || {};
+        return {
+          channelId: String(entry?.channel_id ?? entry?.channelId ?? '').trim(),
+          portId: String(entry?.port_id ?? entry?.portId ?? 'transfer').trim() || 'transfer',
+          counterpartyChannelId: String(counterparty?.channel_id ?? counterparty?.channelId ?? '').trim(),
+          counterpartyPortId: String(counterparty?.port_id ?? counterparty?.portId ?? '').trim(),
+          connectionId: String(entry?.connection_hops?.[0] ?? entry?.connectionHops?.[0] ?? '').trim(),
+          state: String(entry?.state || '').trim().toUpperCase()
+        };
+      })
+      .filter((entry) => {
+        if (!entry.channelId) return false;
+        if (entry.state && entry.state !== 'STATE_OPEN' && entry.state !== 'OPEN') return false;
+        return entry.portId === 'transfer';
+      });
+
+    const channels = await Promise.all(
+      normalized.map(async (entry) => {
+        let chainId = '';
+        try {
+          const clientRes = await net.restGet(
+            `/ibc/core/channel/v1/channels/${encodeURIComponent(entry.channelId)}/ports/${encodeURIComponent(entry.portId)}/client_state`,
+            { timeout: 10000 }
+          );
+          chainId = String(
+            clientRes?.json?.identified_client_state?.client_state?.chain_id ||
+            clientRes?.json?.identified_client_state?.client_state?.chainId ||
+            clientRes?.json?.client_state?.chain_id ||
+            clientRes?.json?.client_state?.chainId ||
+            ''
+          ).trim();
+        } catch {
+          chainId = '';
+        }
+
+        const prefixHints = derivePrefixHintsFromChainId(chainId);
+        const label = chainId
+          ? `${entry.channelId} -> ${chainId}`
+          : `${entry.channelId}${entry.counterpartyChannelId ? ` -> ${entry.counterpartyChannelId}` : ''}`;
+
+        return {
+          ...entry,
+          chainId,
+          prefixHints,
+          label
+        } satisfies IbcChannelOption;
+      })
+    );
+
+    ibcChannels.value = channels.sort((a, b) => a.label.localeCompare(b.label));
+    ibcChannelsLoaded.value = true;
+
+    if (!ibcChannels.value.length) {
+      ibcChannelsError.value = 'No open IBC transfer channels found on this network.';
+      ibcForm.value.sourceChannel = '';
+      return;
+    }
+
+    autoSelectIbcChannel(true);
+  } catch (error: any) {
+    ibcChannels.value = [];
+    ibcChannelsLoaded.value = false;
+    ibcForm.value.sourceChannel = '';
+    ibcChannelsError.value = error?.message || 'Failed to load IBC channels.';
+  } finally {
+    ibcChannelsLoading.value = false;
+  }
+}
 
 const enhancedActivities = computed(() => {
   const userAddr = address.value?.toLowerCase();
@@ -1410,6 +1671,8 @@ function closeSendModal() {
   }
   showSendModal.value = false;
   showContactPicker.value = false;
+  sendTargetMode.value = 'lumen';
+  ibcForm.value = { sourceChannel: '', sourcePort: 'transfer' };
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
 }
 
@@ -1617,8 +1880,11 @@ function openExplorer(txHash: string) {
 
 const canSend = computed(() => {
   if (!address.value) return false;
+  if (!String(sendForm.value.recipient || '').trim()) return false;
   const amount = Number(sendForm.value.amount || '0');
-  return Number.isFinite(amount) && amount > 0;
+  if (!Number.isFinite(amount) || amount <= 0) return false;
+  if (isIbcSend.value && (!selectedIbcChannel.value || ibcChannelsLoading.value)) return false;
+  return true;
 });
 
 function formatLmnAmount(value: number): string {
@@ -1651,7 +1917,11 @@ const sendSummary = computed(() => {
   return {
     amount: formatLmnAmount(amount),
     receiver: formatLmnAmount(received),
-    taxLabel
+    taxLabel,
+    routeLabel: selectedIbcChannel.value
+      ? `${selectedIbcChannel.value.portId}/${selectedIbcChannel.value.channelId}`
+      : 'Select an IBC route',
+    destinationChain: selectedIbcChannel.value?.chainId || 'Unknown'
   };
 });
 
@@ -1664,6 +1934,7 @@ async function confirmSendPreview() {
   }
   const from = address.value;
   const to = String(sendForm.value.recipient || '').trim();
+  const recipientPrefix = getAddressPrefix(to);
   const amountNum = Number(sendForm.value.amount || '0');
   
   if (!to) {
@@ -1683,11 +1954,6 @@ async function confirmSendPreview() {
 
   const anyWindow = window as any;
   const walletApi = anyWindow?.lumen?.wallet;
-  if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-    showToast('Wallet send bridge not available', 'error');
-    return;
-  }
-
   const activeId = activeProfileId.value;
   if (!activeId) {
     showToast('No active profile selected', 'error');
@@ -1697,25 +1963,76 @@ async function confirmSendPreview() {
   sendingTransaction.value = true;
 
   try {
-    const sendParams = {
-      profileId: activeId,
-      from,
-      to,
-      amount: amountNum,
-      denom: 'ulmn',
-      memo: ''
-    };
+    let sendParams: Record<string, any>;
+    let sendOperation: (params: Record<string, any>) => Promise<any>;
+    let successLabel = 'Send';
+    let failureLabel = 'Send';
 
-    const sendOperation = async (params: typeof sendParams) => {
-      const sendPromise = walletApi.sendTokens(params);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
-      );
-      return Promise.race([sendPromise, timeoutPromise]);
-    };
+    if (isIbcSend.value) {
+      if (recipientPrefix && recipientPrefix === senderPrefix.value) {
+        showToast('This address looks like a Lumen wallet. Use the Lumen send mode instead.', 'warning');
+        return;
+      }
 
-    // First attempt
-    let res = await sendOperation(sendParams);
+      if (!walletApi || typeof walletApi.ibcTransfer !== 'function') {
+        showToast('Wallet IBC bridge not available', 'error');
+        return;
+      }
+
+      if (!selectedIbcChannel.value) {
+        showToast('Please select an IBC route', 'error');
+        return;
+      }
+
+      sendParams = {
+        profileId: activeId,
+        from,
+        to,
+        amount: amountNum,
+        denom: 'ulmn',
+        memo: '',
+        sourceChannel: selectedIbcChannel.value.channelId,
+        sourcePort: selectedIbcChannel.value.portId,
+        timeoutSeconds: 600
+      };
+      successLabel = 'IBC transfer';
+      failureLabel = 'IBC transfer';
+      sendOperation = async (params: Record<string, any>) => {
+        const sendPromise = walletApi.ibcTransfer(params);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+        );
+        return Promise.race([sendPromise, timeoutPromise]);
+      };
+    } else {
+      if (recipientPrefix && recipientPrefix !== senderPrefix.value) {
+        showToast('This address looks like another chain. Switch to IBC transfer.', 'warning');
+        return;
+      }
+
+      if (!walletApi || typeof walletApi.sendTokens !== 'function') {
+        showToast('Wallet send bridge not available', 'error');
+        return;
+      }
+
+      sendParams = {
+        profileId: activeId,
+        from,
+        to,
+        amount: amountNum,
+        denom: 'ulmn',
+        memo: ''
+      };
+      sendOperation = async (params: Record<string, any>) => {
+        const sendPromise = walletApi.sendTokens(params);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+        );
+        return Promise.race([sendPromise, timeoutPromise]);
+      };
+    }
+
+    const res = await sendOperation(sendParams);
 
     if (!res || res.ok === false) {
       const err = String(res?.error || 'unknown error');
@@ -1737,11 +2054,11 @@ async function confirmSendPreview() {
         return;
       }
       
-      showToast(`Send failed: ${res?.error || 'unknown error'}`, 'error');
+      showToast(`${failureLabel} failed: ${res?.error || 'unknown error'}`, 'error');
       return;
     }
     
-    showToast(`Send successful! TxHash: ${res.txhash || 'N/A'}`, 'success');
+    showToast(`${successLabel} successful! TxHash: ${res.txhash || 'N/A'}`, 'success');
     closeSendModal();
     
     // Clear cache to force refresh
@@ -1759,6 +2076,29 @@ async function confirmSendPreview() {
     sendingTransaction.value = false;
   }
 }
+
+watch(sendTargetMode, (mode) => {
+  if (mode === 'ibc') {
+    void loadIbcChannels();
+    return;
+  }
+});
+
+watch(showSendModal, (open) => {
+  if (open && sendTargetMode.value === 'ibc') {
+    void loadIbcChannels();
+  }
+});
+
+watch(() => sendForm.value.recipient, (next) => {
+  const guess = guessSendTargetMode(next);
+  if (guess) {
+    sendTargetMode.value = guess;
+  }
+  if (sendTargetMode.value === 'ibc') {
+    autoSelectIbcChannel();
+  }
+});
 
 function openReceiveModal() {
   showReceiveModal.value = true;
@@ -3038,6 +3378,13 @@ function exportTransactions() {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
 }
 
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .form-input:focus {
   outline: none;
   border-color: var(--accent-primary);
@@ -3072,6 +3419,16 @@ function exportTransactions() {
   margin-top: 0.5rem;
   font-size: 0.8125rem;
   color: var(--text-secondary);
+}
+
+.field-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.field-hint.error {
+  color: var(--ios-red);
 }
 
 .tx-summary {

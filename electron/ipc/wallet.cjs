@@ -62,12 +62,13 @@ async function connectSigningClientWithFailover(mod, signer, connectArgs, { time
       rpcEndpoint: rpcBase,
       restEndpoint: restBase || rpcBase
     };
+    const chainId = String(peer.chainId || pool.networkChainId || '').trim() || undefined;
 
     try {
       const connectPromise = mod.LumenSigningClient.connectWithSigner(
         signer,
         endpoints,
-        undefined,
+        chainId,
         connectArgs
       );
       const timeoutPromise = new Promise((_, reject) =>
@@ -870,6 +871,123 @@ function registerWalletIpc() {
         console.error('[wallet:sendTokens] stack:', e && e.stack ? e.stack : 'no stack');
       }
       
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
+    }
+  });
+
+  ipcMain.handle('wallet:ibcTransfer', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const from = String(input && input.from ? input.from : '').trim();
+      const to = String(input && input.to ? input.to : '').trim();
+      const amount = Number(input && input.amount ? input.amount : 0);
+      const memo = String(input && input.memo ? input.memo : '');
+      const denom = String(input && input.denom ? input.denom : 'ulmn');
+      const sourcePort = String(input && input.sourcePort ? input.sourcePort : 'transfer').trim() || 'transfer';
+      const sourceChannel = String(input && input.sourceChannel ? input.sourceChannel : '').trim();
+      const timeoutSecondsRaw = Number(input && input.timeoutSeconds ? input.timeoutSeconds : 600);
+      const timeoutSeconds = Number.isFinite(timeoutSecondsRaw) && timeoutSecondsRaw > 0 ? timeoutSecondsRaw : 600;
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!from || !to || !(amount > 0)) return { ok: false, error: 'missing_from_to_amount' };
+      if (!sourceChannel) return { ok: false, error: 'missing_sourceChannel' };
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
+
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefix = prefixFromAddress(from);
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+      const client = await connectSigningClientWithFailover(
+        mod,
+        signer,
+        {
+          pqc: {
+            homeDir: resolvePqcHome()
+          }
+        },
+        { timeoutMs: 15_000 }
+      );
+
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
+      try {
+        const { MsgTransfer } = await import('cosmjs-types/ibc/applications/transfer/v1/tx.js');
+        const micro = Math.round(amount * 1_000_000);
+        const timeoutTimestamp = BigInt(Date.now() + timeoutSeconds * 1000) * 1_000_000n;
+
+        const msg = {
+          typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
+          value: MsgTransfer.fromPartial({
+            sourcePort,
+            sourceChannel,
+            token: { denom, amount: String(micro) },
+            sender: from,
+            receiver: to,
+            timeoutTimestamp,
+            memo
+          })
+        };
+
+        const fee = {
+          amount: [{ denom: 'ulmn', amount: '1000' }],
+          gas: '350000'
+        };
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address: from,
+          msgs: [msg],
+          fee,
+          memo,
+          label: 'wallet_ibcTransfer',
+        });
+
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      const raw = String(e && e.message ? e.message : e);
+      if (raw.includes('transaction indexing is disabled')) {
+        return {
+          ok: false,
+          error: 'indexing_disabled',
+          message: 'Transaction may have been broadcast but node indexing is disabled. Please check your balance after a few moments.'
+        };
+      }
       return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
   });

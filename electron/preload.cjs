@@ -354,6 +354,7 @@ contextBridge.exposeInMainWorld('lumen', {
     getBalance: (address, opts) => ipcRenderer.invoke('wallet:getBalance', { address, ...(opts || {}) }),
     getTokenomicsParams: () => ipcRenderer.invoke('chain:getTokenomicsParams'),
     sendTokens: (payload) => ipcRenderer.invoke('wallet:sendTokens', payload),
+    ibcTransfer: (payload) => ipcRenderer.invoke('wallet:ibcTransfer', payload),
     listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) }),
     getDelegations: (address) => ipcRenderer.invoke('wallet:getDelegations', { address }),
     delegate: (payload) => ipcRenderer.invoke('wallet:delegate', payload),
