@@ -17,6 +17,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'assets' }"
+            @click="currentView = 'assets'"
+          >
+            <Coins :size="18" />
+            <span>Assets</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -130,34 +139,105 @@
         </div>
       </div>
 
-      <!-- Tokens View -->
-      <div v-else-if="currentView === 'tokens'" class="content-section">
+      <!-- Assets View -->
+      <div v-else-if="currentView === 'assets'" class="content-section">
         <div class="section-header">
-          <h3>Your Tokens</h3>
+          <h3>Cross-chain Assets</h3>
+          <button class="action-btn secondary" @click="refreshAssets" :disabled="assetsLoading">
+            <Coins :size="16" />
+            <span>{{ assetsLoading ? 'Refreshing...' : 'Refresh' }}</span>
+          </button>
         </div>
         <div class="empty-state" v-if="!isConnected">
           <div class="empty-icon">
-            <Wallet :size="32" />
+            <Coins :size="32" />
           </div>
           <h3>Connect Your Wallet</h3>
-          <p>Connect a wallet to view your LMN balance.</p>
+          <p>Connect a wallet to view your assets across linked IBC chains.</p>
           <button class="connect-btn" @click="connectWallet">
             <Link :size="16" />
             <span>Connect Wallet</span>
           </button>
         </div>
-        <div class="assets-list" v-else>
-          <div class="asset-item">
-            <div class="asset-icon lmn">
-              <span>LMN</span>
+        <div v-else-if="assetsLoading && !assetRows.length" class="empty-state">
+          <div class="empty-icon">
+            <Coins :size="32" />
+          </div>
+          <h3>Loading assets…</h3>
+          <p>Fetching balances on Lumen and linked IBC chains.</p>
+        </div>
+        <div v-else-if="assetsError && !assetRows.length" class="empty-state">
+          <div class="empty-icon">
+            <AlertCircle :size="32" />
+          </div>
+          <h3>Unable to load assets</h3>
+          <p>{{ assetsError }}</p>
+        </div>
+        <div v-else>
+          <div v-if="assetsError && assetRows.length" class="info-banner warning" style="margin-bottom: 1rem;">
+            <span>{{ assetsError }}</span>
+          </div>
+          <div v-if="assetRows.length" class="assets-list rich-assets-list">
+            <div
+              v-for="asset in assetRows"
+              :key="asset.id"
+              class="asset-item asset-item-rich"
+            >
+              <div class="asset-main">
+                <div class="asset-icon" :class="asset.iconClass">
+                  <img
+                    v-if="asset.iconUrl"
+                    :src="asset.iconUrl"
+                    :alt="`${asset.displayName} icon`"
+                    class="asset-icon-image"
+                    @error="handleAssetIconError(asset)"
+                  />
+                  <span v-else>{{ asset.iconText }}</span>
+                </div>
+                <div class="asset-info">
+                  <div class="asset-title-row">
+                    <span class="asset-name">{{ asset.displayName }}</span>
+                    <span class="asset-chain-pill">{{ asset.chainLabel }}</span>
+                  </div>
+                  <span class="asset-symbol">{{ asset.displaySymbol }}</span>
+                  <span class="asset-meta">{{ asset.addressLabel }}</span>
+                  <span v-if="asset.traceLabel" class="asset-meta">{{ asset.traceLabel }}</span>
+                  <span v-if="asset.routeLabel" class="asset-meta">{{ asset.routeLabel }}</span>
+                  <span v-if="asset.error" class="asset-meta error">{{ asset.error }}</span>
+                </div>
+              </div>
+              <div class="asset-side">
+                <div class="asset-balance balance-column">
+                  <span class="asset-amount">{{ asset.displayAmount }}</span>
+                  <span class="asset-balance-symbol">{{ asset.displaySymbol }}</span>
+                </div>
+                <div class="asset-actions">
+                  <button
+                    class="action-icon copy-btn"
+                    @click="copyToClipboard(asset.ownerAddress, 'Address copied!')"
+                    title="Copy chain address"
+                    aria-label="Copy chain address"
+                  >
+                    <Copy :size="14" />
+                  </button>
+                  <button
+                    class="action-btn secondary asset-transfer-btn"
+                    @click="openAssetTransferModal(asset)"
+                    :disabled="!asset.transferTargets.length || !asset.transferEnabled"
+                  >
+                    <Send :size="16" />
+                    <span>{{ asset.transferButtonLabel }}</span>
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="asset-info">
-              <span class="asset-name">Lumen</span>
-              <span class="asset-symbol">LMN</span>
+          </div>
+          <div v-else class="empty-state">
+            <div class="empty-icon">
+              <Coins :size="32" />
             </div>
-            <div class="asset-balance">
-              <span class="asset-amount">{{ balanceLmnDisplay }}</span>
-            </div>
+            <h3>No assets yet</h3>
+            <p>No balances were found on Lumen or the linked IBC chains.</p>
           </div>
         </div>
       </div>
@@ -457,6 +537,135 @@
       </div>
 
     </main>
+
+    <!-- Asset Transfer Modal -->
+    <Transition name="fade">
+      <div v-if="showAssetTransferModal" class="modal-overlay" @click="closeAssetTransferModal">
+        <div class="modal-content send-modal asset-transfer-modal" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title-wrapper">
+              <div class="modal-icon">
+                <ArrowLeftRight :size="20" />
+              </div>
+              <h3>Asset Transfer</h3>
+            </div>
+            <button class="modal-close" @click="closeAssetTransferModal">
+              <X :size="18" />
+            </button>
+          </div>
+          <div class="modal-body" v-if="assetTransferContext">
+            <div class="info-banner">
+              <span>
+                Move this asset across linked IBC chains. The recipient field is prefilled with your wallet on the destination chain.
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Asset</label>
+              <div class="input-wrapper readonly">
+                <input
+                  class="form-input"
+                  type="text"
+                  :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="asset-modal-grid">
+              <div class="form-group">
+                <label>From chain</label>
+                <div class="input-wrapper readonly">
+                  <input class="form-input" type="text" :value="assetTransferContext.chainLabel" readonly />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>To chain</label>
+                <div class="input-wrapper">
+                  <select class="form-input form-select" v-model="assetTransferForm.destinationKey">
+                    <option
+                      v-for="target in assetTransferContext.transferTargets"
+                      :key="target.key"
+                      :value="target.key"
+                    >
+                      {{ target.chainLabel }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>From address</label>
+              <div class="input-wrapper readonly">
+                <input class="form-input" type="text" :value="assetTransferContext.ownerAddress" readonly />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Recipient <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input
+                  class="form-input"
+                  type="text"
+                  v-model="assetTransferForm.recipient"
+                  :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'"
+                />
+              </div>
+              <div v-if="selectedAssetTransferTarget" class="field-hint">
+                Default wallet on destination: {{ selectedAssetTransferTarget.defaultRecipient }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Amount <span class="required">*</span></label>
+              <div class="input-wrapper amount-input">
+                <input
+                  class="form-input"
+                  type="text"
+                  inputmode="decimal"
+                  v-model="assetTransferForm.amount"
+                  placeholder="0.000000"
+                  @input="validateAssetTransferAmountInput"
+                />
+                <span class="input-suffix">{{ assetTransferContext.displaySymbol }}</span>
+              </div>
+              <div class="balance-hint">
+                Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
+              </div>
+            </div>
+
+            <div class="tx-summary">
+              <div class="summary-header">
+                <span>Transfer Summary</span>
+              </div>
+              <div class="summary-row">
+                <span>Route</span>
+                <span class="summary-value">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Source chain</span>
+                <span class="summary-value">{{ assetTransferContext.chainLabel }}</span>
+              </div>
+              <div class="summary-row total">
+                <span>Destination chain</span>
+                <span class="summary-value">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
+              </div>
+            </div>
+
+            <button
+              class="btn-modal-primary"
+              @click="confirmAssetTransfer"
+              :disabled="!canSubmitAssetTransfer || assetTransferSending"
+            >
+              <ArrowLeftRight :size="18" v-if="!assetTransferSending" />
+              <span class="spinner" v-else></span>
+              <span>{{ assetTransferSending ? 'Transferring...' : 'Transfer Asset' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- Send Modal -->
     <Transition name="fade">
@@ -795,6 +1004,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, inject } from 'vue';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
@@ -837,7 +1047,7 @@ import { getRecurringPaymentsService } from '../services/recurringPayments';
 import { useToast } from '../../composables/useToast';
 import { useTheme } from '../../composables/useTheme';
 
-const currentView = ref<'overview' | 'tokens' | 'transactions' | 'addressbook' | 'recurring'>('overview');
+const currentView = ref<'overview' | 'assets' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
 const manualDisconnected = ref(false);
@@ -919,6 +1129,66 @@ type IbcChannelOption = {
   label: string;
 };
 
+type KnownIbcChainMeta = {
+  label: string;
+  addressPrefix: string;
+  restEndpoint: string;
+  rpcEndpoint: string;
+  nativeDenom: string;
+  feeDenom: string;
+  iconText: string;
+  chainRegistryName?: string;
+};
+
+type AssetTransferTarget = {
+  key: string;
+  chainId: string;
+  chainLabel: string;
+  addressPrefix: string;
+  defaultRecipient: string;
+  sourceChannel: string;
+  sourcePort: string;
+  routeLabel: string;
+};
+
+type AssetRow = {
+  id: string;
+  chainId: string;
+  chainLabel: string;
+  ownerAddress: string;
+  denom: string;
+  microAmount: string;
+  displayAmount: string;
+  displayName: string;
+  displaySymbol: string;
+  iconText: string;
+  iconClass: string;
+  iconUrl: string;
+  addressLabel: string;
+  traceLabel: string;
+  routeLabel: string;
+  error: string;
+  transferTargets: AssetTransferTarget[];
+  transferEnabled: boolean;
+  transferButtonLabel: string;
+  rpcEndpoint: string;
+  restEndpoint: string;
+  feeDenom: string;
+};
+
+const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
+  'bzetestnet-3': {
+    label: 'BeeZee Testnet',
+    addressPrefix: 'bze',
+    restEndpoint: 'https://testnet.getbze.com',
+    rpcEndpoint: 'https://testnet-rpc.getbze.com',
+    nativeDenom: 'ubze',
+    feeDenom: 'ubze',
+    iconText: 'BZE',
+    chainRegistryName: 'beezee'
+  }
+};
+
 const sendForm = ref({
   recipient: '',
   amount: '',
@@ -933,6 +1203,22 @@ const ibcChannels = ref<IbcChannelOption[]>([]);
 const ibcChannelsLoading = ref(false);
 const ibcChannelsLoaded = ref(false);
 const ibcChannelsError = ref('');
+const assetRows = ref<AssetRow[]>([]);
+const assetsLoading = ref(false);
+const assetsError = ref('');
+const currentNetworkChainId = ref('');
+const showAssetTransferModal = ref(false);
+const assetTransferSending = ref(false);
+const assetTransferContext = ref<AssetRow | null>(null);
+const assetTransferForm = ref({
+  destinationKey: '',
+  recipient: '',
+  amount: ''
+});
+const denomTraceCache = new Map<string, { baseDenom: string; path: string } | null>();
+const chainRegistryCache = new Map<string, Promise<{ chain: any | null; assets: any[] }>>();
+const CHAIN_REGISTRY_CACHE_STORAGE_KEY = 'lumen_chain_registry_cache_v2';
+const CHAIN_REGISTRY_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 // QR Scanner
 const showQrScanner = ref(false);
@@ -941,6 +1227,7 @@ const qrScannerTitle = ref('Scan QR Code');
 // Recurring Payments
 const subscriptionsRef = ref<any>(null);
 const recurringPaymentsService = getRecurringPaymentsService();
+const pendingPostTxRefreshTimers = ref<number[]>([]);
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
@@ -1522,7 +1809,7 @@ function getActivityBadgeClass(tx: Activity): string {
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     overview: 'Wallet Overview',
-    tokens: 'Token Balances',
+    assets: 'Assets',
     transactions: 'Transactions',
     addressbook: 'Address Book',
     recurring: 'Recurring Payments'
@@ -1533,7 +1820,7 @@ function getViewTitle(): string {
 function getViewDescription(): string {
   const descs: Record<string, string> = {
     overview: 'Manage your Lumen address and on-chain balance (read-only).',
-    tokens: 'View your LMN balance.',
+    assets: 'View balances and move assets across linked IBC chains.',
     transactions: 'Recent on-chain transactions for this wallet.',
     addressbook: 'Save frequently used addresses for quick access.',
     recurring: 'Schedule and manage automatic payments and subscriptions.'
@@ -1568,6 +1855,9 @@ function connectWallet() {
   manualDisconnected.value = false;
   isConnected.value = true;
   void refreshWallet();
+  if (currentView.value === 'assets') {
+    void refreshAssets();
+  }
 }
 
 function disconnectWallet() {
@@ -1583,12 +1873,17 @@ watch(
       balanceLmn.value = null;
       balanceError.value = '';
       activities.value = [];
+      assetRows.value = [];
+      assetsError.value = '';
       return;
     }
     isConnected.value = true;
     void refreshWallet();
     if (currentView.value === 'transactions') {
       void refreshActivities();
+    }
+    if (currentView.value === 'assets') {
+      void refreshAssets();
     }
   },
   { immediate: true }
@@ -1602,6 +1897,10 @@ watch(activeProfileId, () => {
 watch(currentView, (next) => {
   if (next === 'transactions' && isConnected.value) {
     void refreshActivities();
+    return;
+  }
+  if (next === 'assets' && isConnected.value) {
+    void refreshAssets();
   }
 });
 
@@ -1613,6 +1912,9 @@ watch(
       void refreshWallet();
       if (currentView.value === 'transactions') {
         void refreshActivities();
+      }
+      if (currentView.value === 'assets') {
+        void refreshAssets();
       }
     }
   }
@@ -1660,6 +1962,37 @@ async function refreshWallet() {
     balanceLmn.value = null;
   } finally {
     balanceLoading.value = false;
+  }
+}
+
+function clearPendingPostTransactionRefreshes() {
+  for (const timer of pendingPostTxRefreshTimers.value) {
+    window.clearTimeout(timer);
+  }
+  pendingPostTxRefreshTimers.value = [];
+}
+
+async function runPostTransactionRefresh(options: { includeSubscriptions?: boolean } = {}) {
+  await Promise.allSettled([
+    refreshWallet(),
+    refreshAssets(),
+    refreshActivities()
+  ]);
+  if (options.includeSubscriptions && subscriptionsRef.value?.loadData) {
+    subscriptionsRef.value.loadData();
+  }
+}
+
+function schedulePostTransactionRefresh(options: { includeSubscriptions?: boolean } = {}) {
+  clearActivitiesCache();
+  clearPendingPostTransactionRefreshes();
+  void runPostTransactionRefresh(options);
+
+  for (const delay of [3000, 8000]) {
+    const timer = window.setTimeout(() => {
+      void runPostTransactionRefresh(options);
+    }, delay);
+    pendingPostTxRefreshTimers.value.push(timer);
   }
 }
 
@@ -1829,10 +2162,7 @@ async function executeRecurringPayment(paymentId: string) {
 
     const result = { success: true, txHash: res.txhash };
     showToast('Recurring payment executed successfully', 'success');
-    await refreshWallet();
-    if (subscriptionsRef.value?.loadData) {
-      subscriptionsRef.value.loadData();
-    }
+    schedulePostTransactionRefresh({ includeSubscriptions: true });
     await recurringPaymentsService.executePayment(paymentId, async () => result);
   } catch (e: any) {
     showToast(`Failed to execute recurring payment: ${e?.message || 'Unexpected error'}`, 'error');
@@ -1918,6 +2248,440 @@ function formatDenom(denom: string): string {
     return denom.slice(1).toUpperCase();
   }
   return denom.toUpperCase();
+}
+
+function shortenAddress(value: string, start = 10, end = 8): string {
+  const raw = String(value || '').trim();
+  if (!raw) return '-';
+  if (raw.length <= start + end + 1) return raw;
+  return `${raw.slice(0, start)}…${raw.slice(-end)}`;
+}
+
+function trimTrailingSlash(value: string): string {
+  return String(value || '').replace(/\/+$/, '');
+}
+
+function humanizeChainId(chainId: string): string {
+  const raw = String(chainId || '').trim();
+  if (!raw) return 'Unknown chain';
+  const known = KNOWN_IBC_CHAIN_METADATA[raw];
+  if (known?.label) return known.label;
+  return raw
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (part) => part.toUpperCase());
+}
+
+function resolveKnownChainMeta(chainId: string, prefixHints: string[] = []): KnownIbcChainMeta {
+  const known = KNOWN_IBC_CHAIN_METADATA[String(chainId || '').trim()];
+  if (known) return known;
+
+  const prefix = String(prefixHints[0] || '').trim().toLowerCase();
+  return {
+    label: humanizeChainId(chainId || prefix || 'IBC chain'),
+    addressPrefix: prefix,
+    restEndpoint: '',
+    rpcEndpoint: '',
+    nativeDenom: prefix ? `u${prefix}` : '',
+    feeDenom: prefix ? `u${prefix}` : 'ulmn',
+    iconText: prefix ? prefix.slice(0, 3).toUpperCase() : 'IBC'
+  };
+}
+
+function reencodeAddressPrefix(value: string, targetPrefix: string): string {
+  try {
+    const decoded = fromBech32(String(value || '').trim());
+    return toBech32(String(targetPrefix || '').trim(), decoded.data);
+  } catch {
+    return '';
+  }
+}
+
+function buildAbsoluteUrl(base: string, path: string): string {
+  const normalizedBase = trimTrailingSlash(base);
+  const normalizedPath = String(path || '').startsWith('/') ? String(path || '') : `/${String(path || '')}`;
+  return `${normalizedBase}${normalizedPath}`;
+}
+
+function buildChainRegistryRawUrl(chainRegistryName: string, fileName: string): string {
+  return `https://raw.githubusercontent.com/cosmos/chain-registry/master/${encodeURIComponent(chainRegistryName)}/${fileName}`;
+}
+
+async function fetchAbsoluteJson(url: string, timeout = 15000): Promise<any> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { accept: 'application/json' },
+      signal: controller.signal
+    });
+    const text = await response.text().catch(() => '');
+    let json: any = null;
+    try {
+      json = text ? JSON.parse(text) : null;
+    } catch {
+      json = null;
+    }
+    if (!response.ok) {
+      const detail =
+        json?.message ||
+        json?.error ||
+        (typeof text === 'string' && text.trim() ? text.trim() : '') ||
+        `HTTP ${response.status}`;
+      throw new Error(String(detail));
+    }
+    return json;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function readChainRegistryStorageCache(): Record<string, { updatedAt: number; chain: any | null; assets: any[] }> {
+  try {
+    const raw = localStorage.getItem(CHAIN_REGISTRY_CACHE_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return {};
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function writeChainRegistryStorageCache(
+  next: Record<string, { updatedAt: number; chain: any | null; assets: any[] }>
+) {
+  try {
+    localStorage.setItem(CHAIN_REGISTRY_CACHE_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Ignore storage quota or serialization errors.
+  }
+}
+
+function getStoredChainRegistryBundle(
+  chainRegistryName: string,
+  { allowStale = false }: { allowStale?: boolean } = {}
+): { chain: any | null; assets: any[] } | null {
+  const cache = readChainRegistryStorageCache();
+  const entry = cache[String(chainRegistryName || '').trim()];
+  if (!entry) return null;
+
+  const age = Date.now() - Number(entry.updatedAt || 0);
+  const isFresh = Number.isFinite(age) && age >= 0 && age <= CHAIN_REGISTRY_CACHE_TTL_MS;
+  if (!isFresh && !allowStale) return null;
+
+  return {
+    chain: entry.chain || null,
+    assets: Array.isArray(entry.assets) ? entry.assets : []
+  };
+}
+
+function persistChainRegistryBundle(chainRegistryName: string, bundle: { chain: any | null; assets: any[] }) {
+  const key = String(chainRegistryName || '').trim();
+  if (!key) return;
+
+  const cache = readChainRegistryStorageCache();
+  cache[key] = {
+    updatedAt: Date.now(),
+    chain: bundle.chain || null,
+    assets: Array.isArray(bundle.assets) ? bundle.assets : []
+  };
+  writeChainRegistryStorageCache(cache);
+}
+
+async function loadChainRegistryBundle(chainRegistryName: string): Promise<{ chain: any | null; assets: any[] }> {
+  const key = String(chainRegistryName || '').trim();
+  if (!key) return { chain: null, assets: [] };
+
+  if (!chainRegistryCache.has(key)) {
+    chainRegistryCache.set(
+      key,
+      (async () => {
+        const freshStored = getStoredChainRegistryBundle(key);
+        if (freshStored) return freshStored;
+
+        try {
+          const [chain, assetList] = await Promise.all([
+            fetchAbsoluteJson(buildChainRegistryRawUrl(key, 'chain.json'), 10000).catch(() => null),
+            fetchAbsoluteJson(buildChainRegistryRawUrl(key, 'assetlist.json'), 10000).catch(() => null)
+          ]);
+
+          const bundle = {
+            chain: chain || null,
+            assets: Array.isArray(assetList?.assets) ? assetList.assets : []
+          };
+
+          if (bundle.chain || bundle.assets.length) {
+            persistChainRegistryBundle(key, bundle);
+            return bundle;
+          }
+
+          const staleStored = getStoredChainRegistryBundle(key, { allowStale: true });
+          const fallback = staleStored || bundle;
+          if (!fallback.chain && !fallback.assets.length) {
+            chainRegistryCache.delete(key);
+          }
+          return fallback;
+        } catch {
+          const staleStored = getStoredChainRegistryBundle(key, { allowStale: true });
+          const fallback = staleStored || { chain: null, assets: [] };
+          if (!fallback.chain && !fallback.assets.length) {
+            chainRegistryCache.delete(key);
+          }
+          return fallback;
+        }
+      })()
+    );
+  }
+
+  return chainRegistryCache.get(key)!;
+}
+
+function pickPreferredRegistryImage(entry: any): string {
+  const images = Array.isArray(entry?.images) ? entry.images : [];
+  for (const image of images) {
+    const svg = String(image?.svg || '').trim();
+    if (svg) return svg;
+    const png = String(image?.png || '').trim();
+    if (png) return png;
+  }
+
+  const logoSvg = String(entry?.logo_URIs?.svg || entry?.logo_uris?.svg || '').trim();
+  if (logoSvg) return logoSvg;
+  const logoPng = String(entry?.logo_URIs?.png || entry?.logo_uris?.png || '').trim();
+  if (logoPng) return logoPng;
+  return '';
+}
+
+async function resolveChainRegistryIconUrl(
+  chainRegistryName: string | undefined,
+  rawDenom: string,
+  trace: { baseDenom: string; path: string } | null
+): Promise<string> {
+  const registryName = String(chainRegistryName || '').trim();
+  if (!registryName) return '';
+
+  try {
+    const bundle = await loadChainRegistryBundle(registryName);
+    const denomCandidates = Array.from(
+      new Set(
+        [String(trace?.baseDenom || '').trim(), String(rawDenom || '').trim()]
+          .filter(Boolean)
+          .map((value) => value.toLowerCase())
+      )
+    );
+
+    for (const asset of bundle.assets) {
+      const base = String(asset?.base || '').trim().toLowerCase();
+      const denoms = Array.isArray(asset?.denom_units)
+        ? asset.denom_units.map((unit: any) => String(unit?.denom || '').trim().toLowerCase()).filter(Boolean)
+        : [];
+      const assetKeys = new Set([base, ...denoms]);
+      if (denomCandidates.some((candidate) => assetKeys.has(candidate))) {
+        const image = pickPreferredRegistryImage(asset);
+        if (image) return image;
+      }
+    }
+
+    return pickPreferredRegistryImage(bundle.chain);
+  } catch {
+    return '';
+  }
+}
+
+async function fetchLocalBalances(ownerAddress: string): Promise<Array<{ denom: string; amount: string }>> {
+  const net = (window as any)?.lumen?.net;
+  if (!net || typeof net.restGet !== 'function') {
+    throw new Error('Network API not available.');
+  }
+  const res = await net.restGet(`/cosmos/bank/v1beta1/balances/${encodeURIComponent(ownerAddress)}`, {
+    timeout: 15000
+  });
+  if (!res || res.ok === false) {
+    throw new Error(String(res?.error || 'Failed to fetch balances on Lumen.'));
+  }
+  const balances = Array.isArray(res?.json?.balances) ? res.json.balances : [];
+  return balances.map((coin: any) => ({
+    denom: String(coin?.denom || '').trim(),
+    amount: String(coin?.amount || '0').trim() || '0'
+  }));
+}
+
+async function fetchRemoteBalances(restEndpoint: string, ownerAddress: string): Promise<Array<{ denom: string; amount: string }>> {
+  const json = await fetchAbsoluteJson(
+    buildAbsoluteUrl(restEndpoint, `/cosmos/bank/v1beta1/balances/${encodeURIComponent(ownerAddress)}`),
+    15000
+  );
+  const balances = Array.isArray(json?.balances) ? json.balances : [];
+  return balances.map((coin: any) => ({
+    denom: String(coin?.denom || '').trim(),
+    amount: String(coin?.amount || '0').trim() || '0'
+  }));
+}
+
+async function resolveDenomTrace(
+  restEndpoint: string,
+  denom: string,
+  { isLocal = false }: { isLocal?: boolean } = {}
+): Promise<{ baseDenom: string; path: string } | null> {
+  const rawDenom = String(denom || '').trim();
+  if (!rawDenom || !rawDenom.toUpperCase().startsWith('IBC/')) return null;
+
+  const hash = rawDenom.slice(4);
+  const cacheKey = `${isLocal ? '__local__' : trimTrailingSlash(restEndpoint)}|${hash}`;
+  if (denomTraceCache.has(cacheKey)) {
+    return denomTraceCache.get(cacheKey) || null;
+  }
+
+  try {
+    let trace: any = null;
+    if (isLocal) {
+      const net = (window as any)?.lumen?.net;
+      if (!net || typeof net.restGet !== 'function') {
+        throw new Error('Network API not available.');
+      }
+      const res = await net.restGet(`/ibc/apps/transfer/v1/denom_traces/${encodeURIComponent(hash)}`, {
+        timeout: 10000
+      });
+      if (!res || res.ok === false) {
+        throw new Error(String(res?.error || 'Failed to resolve denom trace.'));
+      }
+      trace = res?.json?.denom_trace || res?.json?.denomTrace || null;
+    } else {
+      const json = await fetchAbsoluteJson(
+        buildAbsoluteUrl(restEndpoint, `/ibc/apps/transfer/v1/denom_traces/${encodeURIComponent(hash)}`),
+        10000
+      );
+      trace = json?.denom_trace || json?.denomTrace || null;
+    }
+
+    const resolved = trace
+      ? {
+          baseDenom: String(trace?.base_denom || trace?.baseDenom || '').trim(),
+          path: String(trace?.path || '').trim()
+        }
+      : null;
+    denomTraceCache.set(cacheKey, resolved);
+    return resolved;
+  } catch {
+    denomTraceCache.set(cacheKey, null);
+    return null;
+  }
+}
+
+function buildAssetDisplayName(denom: string, displaySymbol: string, trace: { baseDenom: string; path: string } | null): string {
+  const lower = String(denom || '').trim().toLowerCase();
+  if (trace?.baseDenom) return `${displaySymbol} via IBC`;
+  if (lower === 'ulmn') return 'Lumen';
+  if (lower === 'ubze') return 'BeeZee';
+  if (lower.startsWith('ibc/')) return `${displaySymbol} (IBC)`;
+  return displaySymbol;
+}
+
+function formatAssetAmount(amount: string): string {
+  const raw = Number(amount || '0');
+  if (!Number.isFinite(raw)) return '0';
+  return (raw / 1_000_000).toFixed(6).replace(/\.?0+$/, '');
+}
+
+function decimalToMicroUnits(value: string): bigint | null {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  const match = raw.match(/^(\d*)(?:\.(\d{0,6})?)?$/);
+  if (!match) return null;
+  const whole = match[1] || '0';
+  const frac = (match[2] || '').padEnd(6, '0').slice(0, 6);
+  return BigInt(whole || '0') * 1_000_000n + BigInt(frac || '0');
+}
+
+async function loadCurrentNetworkChainId(): Promise<string> {
+  const net = (window as any)?.lumen?.net;
+  if (!net || typeof net.getState !== 'function') {
+    currentNetworkChainId.value = currentNetworkChainId.value || '';
+    return currentNetworkChainId.value;
+  }
+  const res = await net.getState();
+  currentNetworkChainId.value = String(res?.state?.networkChainId || currentNetworkChainId.value || '').trim();
+  return currentNetworkChainId.value;
+}
+
+async function createAssetRow(input: {
+  chainId: string;
+  chainLabel: string;
+  ownerAddress: string;
+  coin: { denom: string; amount: string };
+  iconText: string;
+  iconClass: string;
+  chainRegistryName?: string;
+  transferTargets: AssetTransferTarget[];
+  routeLabel?: string;
+  restEndpoint?: string;
+  rpcEndpoint?: string;
+  feeDenom?: string;
+  isLocal?: boolean;
+  error?: string;
+}): Promise<AssetRow> {
+  const rawDenom = String(input.coin?.denom || '').trim();
+  const rawAmount = String(input.coin?.amount || '0').trim() || '0';
+  const trace = rawDenom
+    ? await resolveDenomTrace(String(input.restEndpoint || ''), rawDenom, { isLocal: !!input.isLocal })
+    : null;
+  const iconUrl = await resolveChainRegistryIconUrl(input.chainRegistryName, rawDenom, trace);
+  const baseDenom = trace?.baseDenom || rawDenom;
+  const displaySymbol = formatDenom(baseDenom);
+  const displayName = buildAssetDisplayName(rawDenom, displaySymbol, trace);
+  const addressPrefix = getAddressPrefix(input.ownerAddress);
+  const transferEnabled = input.transferTargets.length > 0 && BigInt(rawAmount || '0') > 0n;
+
+  return {
+    id: `${input.chainId}:${rawDenom || 'unknown'}`,
+    chainId: input.chainId,
+    chainLabel: input.chainLabel,
+    ownerAddress: input.ownerAddress,
+    denom: rawDenom,
+    microAmount: rawAmount,
+    displayAmount: formatAssetAmount(rawAmount),
+    displayName,
+    displaySymbol,
+    iconText: input.iconText,
+    iconClass: input.iconClass,
+    iconUrl,
+    addressLabel: `${shortenAddress(input.ownerAddress)}${addressPrefix ? ` · ${addressPrefix.toUpperCase()}` : ''}`,
+    traceLabel: trace?.path ? `Trace: ${trace.path}` : '',
+    routeLabel: String(input.routeLabel || ''),
+    error: String(input.error || ''),
+    transferTargets: input.transferTargets,
+    transferEnabled,
+    transferButtonLabel: input.transferTargets.length ? 'Transfer' : 'No route',
+    rpcEndpoint: String(input.rpcEndpoint || ''),
+    restEndpoint: String(input.restEndpoint || ''),
+    feeDenom: String(input.feeDenom || 'ulmn')
+  };
+}
+
+const selectedAssetTransferTarget = computed(() => {
+  const context = assetTransferContext.value;
+  if (!context) return null;
+  return (
+    context.transferTargets.find((target) => target.key === assetTransferForm.value.destinationKey) ||
+    context.transferTargets[0] ||
+    null
+  );
+});
+
+const canSubmitAssetTransfer = computed(() => {
+  const context = assetTransferContext.value;
+  const target = selectedAssetTransferTarget.value;
+  if (!context || !target) return false;
+  const recipient = String(assetTransferForm.value.recipient || '').trim();
+  if (!recipient) return false;
+  const amountMicro = decimalToMicroUnits(assetTransferForm.value.amount);
+  if (amountMicro == null || amountMicro <= 0n) return false;
+  return amountMicro <= BigInt(context.microAmount || '0');
+});
+
+function handleAssetIconError(asset: AssetRow) {
+  asset.iconUrl = '';
 }
 
 const sendSummary = computed(() => {
@@ -2059,11 +2823,7 @@ async function confirmSendPreview() {
       if (err === 'indexing_disabled') {
         showToast(res?.message || 'Transaction may have been sent but node indexing is disabled. Check your balance in a moment.', 'warning');
         closeSendModal();
-        // Still try to refresh after a delay
-        setTimeout(async () => {
-          await refreshWallet();
-          await refreshActivities();
-        }, 3000);
+        schedulePostTransactionRefresh();
         return;
       }
       
@@ -2073,20 +2833,365 @@ async function confirmSendPreview() {
     
     showToast(`${successLabel} successful! TxHash: ${res.txhash || 'N/A'}`, 'success');
     closeSendModal();
-    
-    // Clear cache to force refresh
-    clearActivitiesCache();
-    
-    // Wait a moment for the transaction to be processed on-chain
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Refresh balance and activities
-    await refreshWallet();
-    await refreshActivities();
+    schedulePostTransactionRefresh();
   } catch (e: any) {
     showToast(e?.message || 'Unexpected error while sending transaction', 'error');
   } finally {
     sendingTransaction.value = false;
+  }
+}
+
+async function refreshAssets() {
+  if (!isConnected.value || !address.value) {
+    assetRows.value = [];
+    assetsError.value = '';
+    return;
+  }
+
+  assetsLoading.value = true;
+  assetsError.value = '';
+
+  try {
+    await loadIbcChannels();
+    const localChainId = (await loadCurrentNetworkChainId()) || 'lumen';
+    const localChainLabel = humanizeChainId(localChainId);
+
+    const linkedChains = Array.from(
+      ibcChannels.value.reduce((map, channel) => {
+        const existing = map.get(channel.chainId || channel.channelId);
+        if (existing) return map;
+        const meta = resolveKnownChainMeta(channel.chainId, channel.prefixHints);
+        const ownerAddress = meta.addressPrefix
+          ? reencodeAddressPrefix(address.value, meta.addressPrefix)
+          : '';
+        map.set(channel.chainId || channel.channelId, {
+          channel,
+          meta,
+          ownerAddress
+        });
+        return map;
+      }, new Map<string, { channel: IbcChannelOption; meta: KnownIbcChainMeta; ownerAddress: string }>())
+    ).map(([, value]) => value);
+
+    const outboundTargets: AssetTransferTarget[] = linkedChains
+      .filter((entry) => !!entry.ownerAddress)
+      .map((entry) => ({
+        key: `${entry.channel.chainId}:${entry.channel.channelId}`,
+        chainId: entry.channel.chainId,
+        chainLabel: entry.meta.label,
+        addressPrefix: entry.meta.addressPrefix,
+        defaultRecipient: entry.ownerAddress,
+        sourceChannel: entry.channel.channelId,
+        sourcePort: entry.channel.portId,
+        routeLabel: `${entry.channel.portId}/${entry.channel.channelId}`
+      }));
+
+    const localBalances = await fetchLocalBalances(address.value);
+    const localCoins = localBalances.length ? localBalances : [{ denom: 'ulmn', amount: '0' }];
+    const localRows = await Promise.all(
+      localCoins.map((coin) =>
+        createAssetRow({
+          chainId: localChainId,
+          chainLabel: localChainLabel,
+          ownerAddress: address.value,
+          coin,
+          iconText: 'LMN',
+          iconClass: 'lmn',
+          chainRegistryName: senderPrefix.value === 'lmn' ? 'lumen' : '',
+          transferTargets: outboundTargets,
+          routeLabel: outboundTargets.length
+            ? `Destinations: ${outboundTargets.map((target) => target.chainLabel).join(', ')}`
+            : 'No linked IBC destination available.',
+          feeDenom: 'ulmn',
+          isLocal: true
+        })
+      )
+    );
+
+    const remoteErrors: string[] = [];
+    const remoteRowsNested = await Promise.all(
+      linkedChains.map(async (entry) => {
+        const returnTargets: AssetTransferTarget[] =
+          entry.channel.counterpartyChannelId && entry.ownerAddress && entry.meta.rpcEndpoint
+            ? [
+                {
+                  key: `${localChainId}:${entry.channel.counterpartyChannelId}`,
+                  chainId: localChainId,
+                  chainLabel: localChainLabel,
+                  addressPrefix: senderPrefix.value,
+                  defaultRecipient: address.value,
+                  sourceChannel: entry.channel.counterpartyChannelId,
+                  sourcePort: entry.channel.counterpartyPortId || 'transfer',
+                  routeLabel: `${entry.channel.counterpartyPortId || 'transfer'}/${entry.channel.counterpartyChannelId}`
+                }
+              ]
+            : [];
+
+        const fallbackCoin = {
+          denom: entry.meta.nativeDenom || `${entry.meta.addressPrefix ? `u${entry.meta.addressPrefix}` : 'uasset'}`,
+          amount: '0'
+        };
+
+        if (!entry.ownerAddress) {
+          return [
+            await createAssetRow({
+              chainId: entry.channel.chainId || entry.channel.channelId,
+              chainLabel: entry.meta.label,
+              ownerAddress: entry.ownerAddress,
+              coin: fallbackCoin,
+              iconText: entry.meta.iconText,
+              iconClass: 'remote',
+              chainRegistryName: entry.meta.chainRegistryName,
+              transferTargets: [],
+              routeLabel: 'Unable to derive destination address.',
+              restEndpoint: entry.meta.restEndpoint,
+              rpcEndpoint: entry.meta.rpcEndpoint,
+              feeDenom: entry.meta.feeDenom,
+              error: 'Unable to derive an address for this chain.'
+            })
+          ];
+        }
+
+        if (!entry.meta.restEndpoint) {
+          return [
+            await createAssetRow({
+              chainId: entry.channel.chainId || entry.channel.channelId,
+              chainLabel: entry.meta.label,
+              ownerAddress: entry.ownerAddress,
+              coin: fallbackCoin,
+              iconText: entry.meta.iconText,
+              iconClass: 'remote',
+              chainRegistryName: entry.meta.chainRegistryName,
+              transferTargets: returnTargets,
+              routeLabel: returnTargets.length
+                ? `Return route: ${returnTargets[0].routeLabel}`
+                : 'No return route configured.',
+              restEndpoint: entry.meta.restEndpoint,
+              rpcEndpoint: entry.meta.rpcEndpoint,
+              feeDenom: entry.meta.feeDenom,
+              error: 'REST endpoint not configured for this chain.'
+            })
+          ];
+        }
+
+        try {
+          const balances = await fetchRemoteBalances(entry.meta.restEndpoint, entry.ownerAddress);
+          const coins = balances.length ? balances : [fallbackCoin];
+          return Promise.all(
+            coins.map((coin) =>
+              createAssetRow({
+                chainId: entry.channel.chainId || entry.channel.channelId,
+                chainLabel: entry.meta.label,
+                ownerAddress: entry.ownerAddress,
+                coin,
+                iconText: entry.meta.iconText,
+                iconClass: 'remote',
+                chainRegistryName: entry.meta.chainRegistryName,
+                transferTargets: returnTargets,
+                routeLabel: returnTargets.length
+                  ? `Return route: ${returnTargets[0].routeLabel}`
+                  : 'No return route configured.',
+                restEndpoint: entry.meta.restEndpoint,
+                rpcEndpoint: entry.meta.rpcEndpoint,
+                feeDenom: entry.meta.feeDenom
+              })
+            )
+          );
+        } catch (error: any) {
+          remoteErrors.push(`${entry.meta.label}: ${String(error?.message || error || 'Failed to load balances')}`);
+          return [
+            await createAssetRow({
+              chainId: entry.channel.chainId || entry.channel.channelId,
+              chainLabel: entry.meta.label,
+              ownerAddress: entry.ownerAddress,
+              coin: fallbackCoin,
+              iconText: entry.meta.iconText,
+              iconClass: 'remote',
+              chainRegistryName: entry.meta.chainRegistryName,
+              transferTargets: returnTargets,
+              routeLabel: returnTargets.length
+                ? `Return route: ${returnTargets[0].routeLabel}`
+                : 'No return route configured.',
+              restEndpoint: entry.meta.restEndpoint,
+              rpcEndpoint: entry.meta.rpcEndpoint,
+              feeDenom: entry.meta.feeDenom,
+              error: String(error?.message || error || 'Failed to load balances')
+            })
+          ];
+        }
+      })
+    );
+
+    assetRows.value = [...localRows, ...remoteRowsNested.flat()].sort((a, b) => {
+      if (a.chainId !== b.chainId) {
+        if (a.chainId === localChainId) return -1;
+        if (b.chainId === localChainId) return 1;
+        return a.chainLabel.localeCompare(b.chainLabel);
+      }
+      const aEnabled = a.transferEnabled ? 1 : 0;
+      const bEnabled = b.transferEnabled ? 1 : 0;
+      if (aEnabled !== bEnabled) return bEnabled - aEnabled;
+      return a.displayName.localeCompare(b.displayName);
+    });
+
+    if (remoteErrors.length) {
+      assetsError.value = remoteErrors.join(' | ');
+    }
+  } catch (error: any) {
+    assetRows.value = [];
+    assetsError.value = String(error?.message || error || 'Failed to load assets.');
+  } finally {
+    assetsLoading.value = false;
+  }
+}
+
+function openAssetTransferModal(asset: AssetRow) {
+  if (!asset.transferTargets.length) {
+    showToast('No IBC route available for this asset.', 'warning');
+    return;
+  }
+  assetTransferContext.value = asset;
+  assetTransferForm.value = {
+    destinationKey: asset.transferTargets[0].key,
+    recipient: asset.transferTargets[0].defaultRecipient,
+    amount: ''
+  };
+  showAssetTransferModal.value = true;
+}
+
+function closeAssetTransferModal() {
+  if (assetTransferSending.value) {
+    showToast('Transfer in progress. Please wait...', 'info');
+    return;
+  }
+  showAssetTransferModal.value = false;
+  assetTransferContext.value = null;
+  assetTransferForm.value = {
+    destinationKey: '',
+    recipient: '',
+    amount: ''
+  };
+}
+
+function validateAssetTransferAmountInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
+  value = value.replace(/[^0-9.]/g, '');
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('');
+  }
+  if (parts.length === 2 && parts[1].length > 6) {
+    value = parts[0] + '.' + parts[1].slice(0, 6);
+  }
+  assetTransferForm.value.amount = value;
+  input.value = value;
+}
+
+async function confirmAssetTransfer() {
+  if (assetTransferSending.value) return;
+
+  const context = assetTransferContext.value;
+  const target = selectedAssetTransferTarget.value;
+  if (!context || !target) {
+    showToast('No asset transfer context available.', 'error');
+    return;
+  }
+
+  const recipient = String(assetTransferForm.value.recipient || '').trim();
+  const amountRaw = String(assetTransferForm.value.amount || '').trim();
+  const amountMicro = decimalToMicroUnits(amountRaw);
+  const availableMicro = BigInt(context.microAmount || '0');
+
+  if (!recipient) {
+    showToast('Please enter a destination address.', 'error');
+    return;
+  }
+  if (amountMicro == null || amountMicro <= 0n) {
+    showToast('Please enter a valid amount.', 'error');
+    return;
+  }
+  if (amountMicro > availableMicro) {
+    showToast('Insufficient balance for this transfer.', 'error');
+    return;
+  }
+
+  const recipientPrefix = getAddressPrefix(recipient);
+  if (target.addressPrefix && recipientPrefix && recipientPrefix !== target.addressPrefix) {
+    showToast(`Recipient must use the ${target.addressPrefix} address format.`, 'error');
+    return;
+  }
+
+  const activeId = activeProfileId.value;
+  if (!activeId) {
+    showToast('No active profile selected.', 'error');
+    return;
+  }
+
+  const anyWindow = window as any;
+  const walletApi = anyWindow?.lumen?.wallet;
+  if (!walletApi || typeof walletApi.ibcTransfer !== 'function') {
+    showToast('Wallet IBC bridge not available.', 'error');
+    return;
+  }
+
+  assetTransferSending.value = true;
+
+  try {
+    const params: Record<string, any> = {
+      profileId: activeId,
+      from: context.ownerAddress,
+      to: recipient,
+      amount: Number(amountRaw || '0'),
+      denom: context.denom,
+      memo: '',
+      sourceChannel: target.sourceChannel,
+      sourcePort: target.sourcePort,
+      timeoutSeconds: 600
+    };
+
+    if (context.rpcEndpoint) {
+      params.rpcEndpoint = context.rpcEndpoint;
+      params.restEndpoint = context.restEndpoint;
+      params.chainId = context.chainId;
+      params.feeDenom = context.feeDenom;
+      params.feeAmount = '1000';
+      params.feeGas = '350000';
+    }
+
+    const sendPromise = walletApi.ibcTransfer(params);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+    );
+    const res = await Promise.race([sendPromise, timeoutPromise]);
+
+    if (!res || res.ok === false) {
+      const err = String(res?.error || 'unknown error');
+      if (err === 'password_required' || err === 'invalid_password') {
+        try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+        showToast('Wallet locked. Unlock to continue.', 'warning');
+        return;
+      }
+      if (err === 'indexing_disabled') {
+        showToast(
+          res?.message || 'Transfer may have been broadcast but node indexing is disabled. Check balances shortly.',
+          'warning'
+        );
+        closeAssetTransferModal();
+        schedulePostTransactionRefresh();
+        return;
+      }
+      showToast(`Asset transfer failed: ${err}`, 'error');
+      return;
+    }
+
+    showToast(`Asset transfer submitted. TxHash: ${res.txhash || 'N/A'}`, 'success');
+    closeAssetTransferModal();
+    schedulePostTransactionRefresh();
+  } catch (error: any) {
+    showToast(error?.message || 'Unexpected error while transferring asset', 'error');
+  } finally {
+    assetTransferSending.value = false;
   }
 }
 
@@ -2112,6 +3217,21 @@ watch(() => sendForm.value.recipient, (next) => {
     autoSelectIbcChannel();
   }
 });
+
+watch(
+  () => assetTransferForm.value.destinationKey,
+  (next, prev) => {
+    const context = assetTransferContext.value;
+    if (!context || !next) return;
+    const nextTarget = context.transferTargets.find((target) => target.key === next);
+    const prevTarget = context.transferTargets.find((target) => target.key === prev);
+    const currentRecipient = String(assetTransferForm.value.recipient || '').trim();
+    if (!nextTarget) return;
+    if (!currentRecipient || currentRecipient === prevTarget?.defaultRecipient) {
+      assetTransferForm.value.recipient = nextTarget.defaultRecipient;
+    }
+  }
+);
 
 function openReceiveModal() {
   showReceiveModal.value = true;
@@ -2935,6 +4055,10 @@ function exportTransactions() {
   gap: 0.75rem;
 }
 
+.rich-assets-list {
+  gap: 1rem;
+}
+
 .asset-item {
   display: flex;
   align-items: center;
@@ -2945,27 +4069,62 @@ function exportTransactions() {
   border: 1px solid var(--border-color);
 }
 
+.asset-item-rich {
+  align-items: stretch;
+  gap: 1rem;
+}
+
 .asset-icon {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: white;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .asset-icon.lmn {
   background: var(--accent-secondary);
 }
 
+.asset-icon.remote {
+  background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue));
+}
+
+.asset-icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: white;
+}
+
+.asset-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
 .asset-info {
   flex: 1;
-  margin-left: 0.75rem;
   display: flex;
   flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.asset-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .asset-name {
@@ -2974,9 +4133,32 @@ function exportTransactions() {
   color: var(--text-primary);
 }
 
+.asset-chain-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
 .asset-symbol {
   font-size: 0.8rem;
   color: var(--text-tertiary);
+}
+
+.asset-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-meta.error {
+  color: var(--ios-red);
 }
 
 .asset-balance {
@@ -2984,6 +4166,45 @@ function exportTransactions() {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-primary);
+}
+
+.balance-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.asset-balance-symbol {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.asset-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.asset-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.asset-transfer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.asset-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 /* Transaction List */
@@ -4057,5 +5278,29 @@ function exportTransactions() {
   font-size: 0.75rem;
   color: var(--text-tertiary);
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+@media (max-width: 900px) {
+  .asset-item-rich {
+    flex-direction: column;
+  }
+
+  .asset-side {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .balance-column {
+    align-items: flex-start;
+  }
+
+  .asset-actions {
+    justify-content: flex-start;
+  }
+
+  .asset-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 </style>
