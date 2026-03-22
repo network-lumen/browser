@@ -154,6 +154,8 @@ const { registerHlsIpc } = require('./ipc/hls.cjs');
 const { registerFindIpc } = require('./ipc/find.cjs');
 const { registerDriveBackupIpc } = require('./ipc/drive_backup.cjs');
 const { registerTroubleshootingIpc } = require('./ipc/troubleshooting.cjs');
+const { registerExtensionsIpc } = require('./ipc/extensions.cjs');
+const { extensionManager } = require('./extensions/manager.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
 const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
@@ -172,6 +174,7 @@ registerHlsIpc();
 registerFindIpc();
 registerDriveBackupIpc();
 registerTroubleshootingIpc();
+registerExtensionsIpc();
 
 function safeString(v, maxLen = 2048) {
   const s = String(v ?? '').trim();
@@ -1198,7 +1201,7 @@ ipcMain.handle('window:open-main', async () => {
   return true;
 });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   if (startupPathConfigFailure) {
     void showStartupPathRecoveryDialog(startupPathConfigFailure).catch((e) => {
       console.error('[electron] startup path recovery failed:', e);
@@ -1212,6 +1215,13 @@ app.whenReady().then(() => {
     console.log('[electron] logs path set to', app.getPath('logs'));
   } catch (e) {
     console.warn('[electron] failed to resolve app paths', e);
+  }
+
+  try {
+    await extensionManager.initialize();
+    console.log('[electron] extension manager initialized');
+  } catch (e) {
+    console.warn('[electron] extension manager init failed:', e);
   }
 
   // Startup health: mark this launch as "in progress". If the previous launch didn't reach success

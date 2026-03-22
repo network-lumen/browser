@@ -1,6 +1,7 @@
 const LUMEN_URL_RE = /^\s*lumen:\/\//i;
 const HTTP_URL_RE = /^\s*https?:\/\//i;
 const FILE_URL_RE = /^\s*file:\/\//i;
+const EXTENSION_URL_RE = /^\s*chrome-extension:\/\//i;
 const WINDOWS_DRIVE_PATH_RE = /^[a-zA-Z]:[\\/]/;
 const WINDOWS_UNC_PATH_RE = /^\\\\[^\\]+\\[^\\]+/;
 
@@ -29,8 +30,12 @@ export function isFileUrl(raw: string): boolean {
   return FILE_URL_RE.test(String(raw || ""));
 }
 
+export function isExtensionUrl(raw: string): boolean {
+  return EXTENSION_URL_RE.test(String(raw || ""));
+}
+
 export function isBrowserUrl(raw: string): boolean {
-  return isHttpUrl(raw) || isFileUrl(raw);
+  return isHttpUrl(raw) || isFileUrl(raw) || isExtensionUrl(raw);
 }
 
 export function normalizeWindowsPathToFileUrl(raw: string): string | null {

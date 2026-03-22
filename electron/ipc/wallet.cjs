@@ -12,6 +12,7 @@ const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected }
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { runWithRpcRetry } = require('../utils/tx.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
+const { DEFAULT_BECH32_PREFIXES } = require('../extensions/wallet_injection.cjs');
 let pqcWorker = null;
 try {
   pqcWorker = require('../utils/pqc-worker.cjs');
@@ -130,6 +131,27 @@ async function loadBridge() {
 
 function keystoreFile(profileId) {
   return userDataPath('profiles', profileId, 'keystore.json');
+}
+
+function profilesFile() {
+  return userDataPath('profiles.json');
+}
+
+function loadProfilesSnapshot() {
+  const data = readJson(profilesFile(), { profiles: [], activeId: '' }) || {};
+  return {
+    profiles: Array.isArray(data.profiles) ? data.profiles : [],
+    activeId: String(data.activeId || '').trim()
+  };
+}
+
+function getActiveProfileSnapshot() {
+  const { profiles, activeId } = loadProfilesSnapshot();
+  return (
+    profiles.find((profile) => String(profile?.id || '').trim() === activeId) ||
+    profiles[0] ||
+    null
+  );
 }
 
 /**
@@ -252,6 +274,149 @@ function prefixFromAddress(address) {
   const a = String(address || '').trim();
   const i = a.indexOf('1');
   return i > 0 ? a.slice(0, i) : 'lmn';
+}
+
+function normalizeBech32Prefix(input, fallback = 'lmn') {
+  const prefix = String(input || '').trim().toLowerCase();
+  return /^[a-z0-9]{2,32}$/.test(prefix) ? prefix : String(fallback || 'lmn').trim().toLowerCase();
+}
+
+function buildBech32Config(prefix) {
+  const base = normalizeBech32Prefix(prefix || DEFAULT_BECH32_PREFIXES.accountAddress || 'lmn');
+  const validatorBase = `${base}valoper`;
+  const consensusBase = `${base}valcons`;
+  return {
+    bech32PrefixAccAddr: base,
+    bech32PrefixAccPub: `${base}pub`,
+    bech32PrefixValAddr: validatorBase,
+    bech32PrefixValPub: `${validatorBase}pub`,
+    bech32PrefixConsAddr: consensusBase,
+    bech32PrefixConsPub: `${consensusBase}pub`
+  };
+}
+
+function normalizeBytes(value) {
+  if (value instanceof Uint8Array) return new Uint8Array(value);
+  if (Buffer.isBuffer(value)) return new Uint8Array(value);
+  if (Array.isArray(value)) {
+    return Uint8Array.from(
+      value.map((item) => {
+        const n = Number(item);
+        return Number.isFinite(n) ? Math.max(0, Math.min(255, Math.trunc(n))) : 0;
+      })
+    );
+  }
+  if (value && typeof value === 'object' && value.type === 'Buffer' && Array.isArray(value.data)) {
+    return Uint8Array.from(value.data);
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return new Uint8Array();
+    try {
+      return new Uint8Array(Buffer.from(trimmed, 'base64'));
+    } catch {
+      return new Uint8Array();
+    }
+  }
+  return new Uint8Array();
+}
+
+function toBigIntSafe(value, fallback = 0n) {
+  if (typeof value === 'bigint') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return BigInt(Math.max(0, Math.trunc(value)));
+  const raw = String(value ?? '').trim();
+  if (!raw) return fallback;
+  try {
+    return BigInt(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function normalizeAminoPubkey(pubkey) {
+  const key = pubkey && typeof pubkey === 'object' ? pubkey : {};
+  return {
+    type: String(key.type || 'tendermint/PubKeySecp256k1'),
+    value: String(key.value || '')
+  };
+}
+
+function normalizeStdSignature(signature) {
+  const sig = signature && typeof signature === 'object' ? signature : {};
+  return {
+    pub_key: normalizeAminoPubkey(sig.pub_key),
+    signature: String(sig.signature || '')
+  };
+}
+
+function normalizeDirectSignResponse(response) {
+  const result = response && typeof response === 'object' ? response : {};
+  const signature = result.signature && typeof result.signature === 'object' ? result.signature : {};
+  const signed = result.signed && typeof result.signed === 'object' ? result.signed : {};
+  return {
+    signed: {
+      chainId: String(signed.chainId || ''),
+      accountNumber: String(signed.accountNumber ?? '0'),
+      bodyBytes: Array.from(normalizeBytes(signed.bodyBytes)),
+      authInfoBytes: Array.from(normalizeBytes(signed.authInfoBytes))
+    },
+    signature: {
+      pub_key: normalizeAminoPubkey(signature.pub_key),
+      signature: String(signature.signature || '')
+    }
+  };
+}
+
+async function resolveProfileContext(profileIdInput) {
+  const requested = String(profileIdInput || '').trim();
+  if (requested) {
+    const { profiles } = loadProfilesSnapshot();
+    const profile = profiles.find((item) => String(item?.id || '').trim() === requested) || null;
+    if (!profile) throw new Error('profile_not_found');
+    return { profileId: requested, profile };
+  }
+
+  const active = getActiveProfileSnapshot();
+  if (!active) throw new Error('active_profile_missing');
+  return {
+    profileId: String(active.id || '').trim(),
+    profile: active
+  };
+}
+
+async function buildSignerForProfileContext(profileIdInput, bech32PrefixInput, password) {
+  const { profileId, profile } = await resolveProfileContext(profileIdInput);
+  const walletAddress = String(profile?.walletAddress || profile?.address || '').trim();
+  const prefix = normalizeBech32Prefix(bech32PrefixInput || prefixFromAddress(walletAddress) || 'lmn');
+
+  let mnemonic;
+  try {
+    mnemonic = loadMnemonic(profileId, password);
+  } catch (loadErr) {
+    const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+    if (errMsg === 'password_required') throw new Error('password_required');
+    if (errMsg === 'invalid_password') throw new Error('invalid_password');
+    throw new Error(errMsg || 'mnemonic_unavailable');
+  }
+
+  const mod = await loadBridge();
+  if (!mod || !mod.walletFromMnemonic) {
+    throw new Error('wallet_bridge_unavailable');
+  }
+
+  const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+  const rawAccounts = await signer.getAccounts();
+  const accounts = Array.isArray(rawAccounts) ? rawAccounts : [];
+  const account = accounts[0] || null;
+  if (!account) throw new Error('wallet_account_unavailable');
+
+  return {
+    profileId,
+    profile,
+    signer,
+    account,
+    bech32Prefix: prefix
+  };
 }
 
 function sha256Utf8(payload) {
@@ -2174,6 +2339,142 @@ function registerWalletIpc() {
       } finally {
         if (cleanupPqc) cleanupPqc();
       }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getSignerAccounts', async (_evt, input) => {
+    try {
+      const password = input && input.password ? String(input.password) : null;
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      const signerContext = await buildSignerForProfileContext(
+        input && input.profileId ? String(input.profileId) : '',
+        input && input.bech32Prefix ? String(input.bech32Prefix) : '',
+        password
+      );
+
+      return {
+        ok: true,
+        profileId: signerContext.profileId,
+        bech32Prefix: signerContext.bech32Prefix,
+        accounts: [
+          {
+            address: String(signerContext.account.address || ''),
+            algo: String(signerContext.account.algo || 'secp256k1'),
+            pubkey: Array.from(normalizeBytes(signerContext.account.pubkey))
+          }
+        ]
+      };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getKeyInfo', async (_evt, input) => {
+    try {
+      const password = input && input.password ? String(input.password) : null;
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      const signerContext = await buildSignerForProfileContext(
+        input && input.profileId ? String(input.profileId) : '',
+        input && input.bech32Prefix ? String(input.bech32Prefix) : '',
+        password
+      );
+      const profileName = String(signerContext.profile?.name || '').trim();
+
+      return {
+        ok: true,
+        profileId: signerContext.profileId,
+        address: String(signerContext.account.address || ''),
+        bech32Address: String(signerContext.account.address || ''),
+        bech32PrefixAccAddr: signerContext.bech32Prefix,
+        bech32Config: buildBech32Config(signerContext.bech32Prefix),
+        algo: String(signerContext.account.algo || 'secp256k1'),
+        name: profileName || 'Lumen',
+        pubKey: Array.from(normalizeBytes(signerContext.account.pubkey)),
+        isNanoLedger: false,
+        isKeystone: false
+      };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:signAmino', async (_evt, input) => {
+    try {
+      const password = input && input.password ? String(input.password) : null;
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      const signerContext = await buildSignerForProfileContext(
+        input && input.profileId ? String(input.profileId) : '',
+        input && input.bech32Prefix ? String(input.bech32Prefix) : '',
+        password
+      );
+      const signerAddress =
+        String(input && input.signerAddress ? input.signerAddress : '').trim() ||
+        String(signerContext.account.address || '').trim();
+      const signDoc = input && input.signDoc && typeof input.signDoc === 'object' ? input.signDoc : null;
+      if (!signDoc) return { ok: false, error: 'missing_signDoc' };
+      if (typeof signerContext.signer.signAmino !== 'function') {
+        return { ok: false, error: 'sign_amino_unavailable' };
+      }
+
+      const response = await signerContext.signer.signAmino(signerAddress, signDoc);
+      return {
+        ok: true,
+        signed: response && response.signed ? response.signed : signDoc,
+        signature: normalizeStdSignature(response && response.signature ? response.signature : {})
+      };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:signDirect', async (_evt, input) => {
+    try {
+      const password = input && input.password ? String(input.password) : null;
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      const signerContext = await buildSignerForProfileContext(
+        input && input.profileId ? String(input.profileId) : '',
+        input && input.bech32Prefix ? String(input.bech32Prefix) : '',
+        password
+      );
+      const signerAddress =
+        String(input && input.signerAddress ? input.signerAddress : '').trim() ||
+        String(signerContext.account.address || '').trim();
+      const signDocRaw = input && input.signDoc && typeof input.signDoc === 'object' ? input.signDoc : null;
+      if (!signDocRaw) return { ok: false, error: 'missing_signDoc' };
+      if (typeof signerContext.signer.signDirect !== 'function') {
+        return { ok: false, error: 'sign_direct_unavailable' };
+      }
+
+      const signDoc = {
+        bodyBytes: normalizeBytes(signDocRaw.bodyBytes),
+        authInfoBytes: normalizeBytes(signDocRaw.authInfoBytes),
+        chainId: String(signDocRaw.chainId || ''),
+        accountNumber: toBigIntSafe(signDocRaw.accountNumber, 0n)
+      };
+
+      const response = await signerContext.signer.signDirect(signerAddress, signDoc);
+      return {
+        ok: true,
+        ...normalizeDirectSignResponse(response)
+      };
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

@@ -1679,6 +1679,17 @@ function onWebviewNewWindow(ev: any) {
 function onWebviewIpcMessage(ev: any) {
   if (!pageActive.value) return;
   const channel = String(ev?.channel || "").trim();
+  if (channel === "extensions:installFromStore") {
+    const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+    const input =
+      typeof payload === "string"
+        ? payload
+        : payload && typeof payload === "object"
+          ? String((payload as any).id || (payload as any).url || "").trim()
+          : "";
+    if (input) void installChromeWebStoreExtension(input);
+    return;
+  }
   if (channel !== "lumen:navigate") return;
 
   const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
@@ -1695,6 +1706,19 @@ function onWebviewIpcMessage(ev: any) {
     !!(payload && typeof payload === "object" && (payload as any).openInNewTab);
   if (openInNewTabFlag) openInNewTab?.(href);
   else navigate?.(href, { push: true });
+}
+
+async function installChromeWebStoreExtension(input: string) {
+  try {
+    const api = (window as any).lumen?.extensions;
+    if (!api || typeof api.installFromChromeWebStore !== "function") return;
+    const result = await api.installFromChromeWebStore(input);
+    if (!result || result.ok === false) {
+      console.warn("[ipfs-webview][extensions] install from store failed:", result?.error || "unknown_error");
+    }
+  } catch (error: any) {
+    console.warn("[ipfs-webview][extensions] install from store failed:", error?.message || error || "unknown_error");
+  }
 }
 
 function isHtmlLikePath(pathValue: string): boolean {
