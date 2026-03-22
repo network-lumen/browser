@@ -26,6 +26,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'dex' }"
+            @click="currentView = 'dex'"
+          >
+            <LayoutDashboard :size="18" />
+            <span>DEX</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -63,7 +72,7 @@
           <p>{{ getViewDescription() }}</p>
         </div>
 
-        <div class="header-actions">
+        <div v-if="currentView !== 'dex'" class="header-actions">
           <button class="action-btn primary" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
             <span>Connect Wallet</span>
@@ -238,6 +247,115 @@
             </div>
             <h3>No assets yet</h3>
             <p>No balances were found on Lumen or the linked IBC chains.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEX View -->
+      <div v-else-if="currentView === 'dex'" class="content-section">
+        <div v-if="dexError" class="info-banner warning" style="margin-bottom: 1rem;">
+          <span>{{ dexError }}</span>
+        </div>
+
+        <div class="dex-list">
+          <div
+            v-for="dex in dexRows"
+            :key="dex.key"
+            class="dex-item"
+            :class="`dex-item-${dex.status}`"
+          >
+            <div class="dex-top">
+              <button
+                type="button"
+                class="dex-summary-btn"
+                @click="toggleDexExpanded(dex.key)"
+              >
+                <div class="dex-logo">
+                  <img
+                    v-if="dex.logoUrl"
+                    :src="dex.logoUrl"
+                    :alt="`${dex.name} logo`"
+                    class="dex-logo-image"
+                    @error="handleDexLogoError(dex)"
+                  />
+                  <span v-else>{{ dex.iconText }}</span>
+                </div>
+
+                <div class="dex-main">
+                  <div class="dex-title-row">
+                    <span class="dex-name">{{ dex.name }}</span>
+                    <span class="asset-chain-pill">{{ dex.chainLabel }}</span>
+                    <span class="dex-status-badge" :class="`status-${dex.status}`">
+                      {{ getDexStatusLabel(dex.status) }}
+                    </span>
+                  </div>
+
+                  <span v-if="dex.error" class="dex-meta error">{{ dex.error }}</span>
+                </div>
+              </button>
+
+              <div class="dex-side">
+                <div class="dex-actions">
+                  <button
+                    type="button"
+                    class="action-btn secondary dex-detail-toggle"
+                    @click="toggleDexExpanded(dex.key)"
+                  >
+                    <ChevronDown
+                      :size="16"
+                      class="dex-chevron"
+                      :class="{ open: isDexExpanded(dex.key) }"
+                    />
+                    <span>{{ isDexExpanded(dex.key) ? 'Hide details' : 'Details' }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="action-btn primary dex-open-btn"
+                    @click="openDexTab(dex.baseUrl)"
+                  >
+                    <ExternalLink :size="16" />
+                    <span>Open DEX</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="isDexExpanded(dex.key)" class="dex-details">
+              <div class="dex-detail-grid">
+                <div class="dex-detail-card compact">
+                  <span class="dex-detail-label">Trading pairs</span>
+                  <span class="dex-detail-value">{{ formatDexCount(dex.tradingPairsCount) }}</span>
+                </div>
+
+                <div class="dex-detail-card compact">
+                  <span class="dex-detail-label">Liquidity pools</span>
+                  <span class="dex-detail-value">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
+                </div>
+
+                <div class="dex-detail-card">
+                  <span class="dex-detail-label">24h price</span>
+                  <span class="dex-detail-value">{{ getDexPriceLabel(dex) }}</span>
+                </div>
+
+                <div class="dex-detail-card">
+                  <span class="dex-detail-label">24h volume</span>
+                  <span class="dex-detail-value">{{ getDexVolumeLabel(dex) }}</span>
+                </div>
+              </div>
+
+              <div v-if="dex.quickLinks.length" class="dex-links">
+                <button
+                  v-for="link in dex.quickLinks"
+                  :key="`${dex.key}:${link.label}:${link.url}`"
+                  type="button"
+                  class="dex-link-chip"
+                  @click="openDexTab(link.url)"
+                >
+                  <span>{{ link.label }}</span>
+                  <ExternalLink :size="13" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1025,6 +1143,7 @@ import {
   X,
   Copy,
   ExternalLink,
+  ChevronDown,
   Check,
   AlertCircle,
   User,
@@ -1047,7 +1166,7 @@ import { getRecurringPaymentsService } from '../services/recurringPayments';
 import { useToast } from '../../composables/useToast';
 import { useTheme } from '../../composables/useTheme';
 
-const currentView = ref<'overview' | 'assets' | 'transactions' | 'addressbook' | 'recurring'>('overview');
+const currentView = ref<'overview' | 'assets' | 'dex' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
 const manualDisconnected = ref(false);
@@ -1176,6 +1295,45 @@ type AssetRow = {
   feeDenom: string;
 };
 
+type DexQuickLink = {
+  label: string;
+  url: string;
+};
+
+type DexMarketPreview = {
+  pair: string;
+  lastPrice: string;
+  quoteVolume: string;
+};
+
+type DexListingConfig = {
+  key: string;
+  name: string;
+  chainId: string;
+  chainLabel: string;
+  restEndpoint: string;
+  baseUrl: string;
+  logoUrl: string;
+  iconText: string;
+  description: string;
+  fallbackLinks: DexQuickLink[];
+};
+
+type DexStatus = 'idle' | 'loading' | 'online' | 'degraded' | 'error';
+
+type DexRow = DexListingConfig & {
+  status: DexStatus;
+  siteTitle: string;
+  tradingPairsCount: number | null;
+  liquidityPoolsCount: number | null;
+  featuredMarketPair: string;
+  featuredPoolPair: string;
+  quickLinks: DexQuickLink[];
+  marketPreview: DexMarketPreview | null;
+  error: string;
+  lastCheckedAt: string;
+};
+
 const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
   'bzetestnet-3': {
     label: 'BeeZee Testnet',
@@ -1188,6 +1346,27 @@ const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
     chainRegistryName: 'beezee'
   }
 };
+
+const DEX_LISTINGS: DexListingConfig[] = [
+  {
+    key: 'beezee-testnet',
+    name: 'BeeZee DEX',
+    chainId: 'bzetestnet-3',
+    chainLabel: 'BeeZee Testnet',
+    restEndpoint: 'https://testnet.getbze.com',
+    baseUrl: 'https://testnet-dex.getbze.com/',
+    logoUrl: 'https://testnet-dex.getbze.com/images/beezee_light.svg',
+    iconText: 'BZE',
+    description: 'Browse testnet markets and pools before jumping into the BeeZee DEX.',
+    fallbackLinks: [
+      { label: 'Swap', url: 'https://testnet-dex.getbze.com/' },
+      { label: 'Exchange', url: 'https://testnet-dex.getbze.com/exchange' },
+      { label: 'Pools', url: 'https://testnet-dex.getbze.com/pools' },
+      { label: 'Staking', url: 'https://staking.getbze.com/' },
+      { label: 'Website', url: 'https://getbze.com/' }
+    ]
+  }
+];
 
 const sendForm = ref({
   recipient: '',
@@ -1215,6 +1394,26 @@ const assetTransferForm = ref({
   recipient: '',
   amount: ''
 });
+const dexRows = ref<DexRow[]>(
+  DEX_LISTINGS.map((config) => ({
+    ...config,
+    status: 'idle',
+    siteTitle: config.name,
+    tradingPairsCount: null,
+    liquidityPoolsCount: null,
+    featuredMarketPair: '',
+    featuredPoolPair: '',
+    quickLinks: config.fallbackLinks.slice(),
+    marketPreview: null,
+    error: '',
+    lastCheckedAt: ''
+  }))
+);
+const dexLoading = ref(false);
+const dexError = ref('');
+const dexExpandedKeys = ref<string[]>([]);
+const dexLastLoadedAt = ref(0);
+const DEX_REFRESH_TTL_MS = 60_000;
 const denomTraceCache = new Map<string, { baseDenom: string; path: string } | null>();
 const chainRegistryCache = new Map<string, Promise<{ chain: any | null; assets: any[] }>>();
 const CHAIN_REGISTRY_CACHE_STORAGE_KEY = 'lumen_chain_registry_cache_v2';
@@ -1810,6 +2009,7 @@ function getViewTitle(): string {
   const titles: Record<string, string> = {
     overview: 'Wallet Overview',
     assets: 'Assets',
+    dex: 'DEX',
     transactions: 'Transactions',
     addressbook: 'Address Book',
     recurring: 'Recurring Payments'
@@ -1821,6 +2021,7 @@ function getViewDescription(): string {
   const descs: Record<string, string> = {
     overview: 'Manage your Lumen address and on-chain balance (read-only).',
     assets: 'View balances and move assets across linked IBC chains.',
+    dex: 'Inspect linked DEXs, check their current state, and open them in a new tab.',
     transactions: 'Recent on-chain transactions for this wallet.',
     addressbook: 'Save frequently used addresses for quick access.',
     recurring: 'Schedule and manage automatic payments and subscriptions.'
@@ -1895,6 +2096,10 @@ watch(activeProfileId, () => {
 });
 
 watch(currentView, (next) => {
+  if (next === 'dex') {
+    void ensureDexListingsLoaded();
+    return;
+  }
   if (next === 'transactions' && isConnected.value) {
     void refreshActivities();
     return;
@@ -1908,6 +2113,9 @@ watch(currentView, (next) => {
 watch(
   () => currentTabRefresh?.value,
   () => {
+    if (currentView.value === 'dex') {
+      void refreshDexListings();
+    }
     if (isConnected.value) {
       void refreshWallet();
       if (currentView.value === 'transactions') {
@@ -2300,6 +2508,379 @@ function buildAbsoluteUrl(base: string, path: string): string {
   const normalizedBase = trimTrailingSlash(base);
   const normalizedPath = String(path || '').startsWith('/') ? String(path || '') : `/${String(path || '')}`;
   return `${normalizedBase}${normalizedPath}`;
+}
+
+function normalizeWhitespace(value: string): string {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function buildAbsoluteHref(baseUrl: string, href: string): string {
+  try {
+    const rawHref = String(href || '').trim();
+    const base = trimTrailingSlash(baseUrl);
+    const resolved = base ? new URL(rawHref, base) : new URL(rawHref);
+    if (resolved.protocol !== 'http:' && resolved.protocol !== 'https:') return trimTrailingSlash(baseUrl);
+    return resolved.toString();
+  } catch {
+    return trimTrailingSlash(baseUrl);
+  }
+}
+
+async function fetchAbsoluteTextViaBridge(url: string, timeout = 15000): Promise<string> {
+  const anyWindow = window as any;
+  const httpGet = anyWindow?.lumen?.http?.get || anyWindow?.lumen?.httpGet;
+  if (typeof httpGet !== 'function') {
+    throw new Error('HTTP bridge not available.');
+  }
+
+  const res = await httpGet(String(url || ''), {
+    timeout,
+    headers: {
+      accept: 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8'
+    }
+  });
+
+  if (!res || res.ok === false) {
+    throw new Error(String(res?.error || `HTTP ${res?.status || 0}`));
+  }
+
+  return String(res.text || '');
+}
+
+function parseHtmlDocument(html: string): Document | null {
+  const source = String(html || '').trim();
+  if (!source) return null;
+
+  try {
+    return new DOMParser().parseFromString(source, 'text/html');
+  } catch {
+    return null;
+  }
+}
+
+function parseCountFromText(text: string, pattern: RegExp): number | null {
+  const match = normalizeWhitespace(text).match(pattern);
+  if (!match?.[1]) return null;
+  const parsed = Number(String(match[1]).replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getMetaContent(doc: Document | null, selector: string): string {
+  return normalizeWhitespace(doc?.querySelector(selector)?.getAttribute('content') || '');
+}
+
+function extractDexQuickLinks(doc: Document | null, config: DexListingConfig): DexQuickLink[] {
+  const baseUrl = trimTrailingSlash(config.baseUrl);
+  const fallback = config.fallbackLinks.slice();
+  if (!doc) return fallback;
+
+  const allowedLabels = new Set([
+    'swap',
+    'exchange',
+    'staking',
+    'pools',
+    'assets',
+    'burner',
+    'website',
+    'factory (coming soon)'
+  ]);
+  const preferredOrder = ['swap', 'exchange', 'pools', 'staking', 'assets', 'burner', 'website', 'factory (coming soon)'];
+  const deduped = new Map<string, DexQuickLink>();
+
+  for (const anchor of Array.from(doc.querySelectorAll('a[href]'))) {
+    const label = normalizeWhitespace(anchor.textContent || '');
+    const normalizedLabel = label.toLowerCase();
+    if (!allowedLabels.has(normalizedLabel)) continue;
+
+    const href = normalizeWhitespace(anchor.getAttribute('href') || '');
+    if (!href || href.startsWith('#')) continue;
+
+    const absoluteUrl = buildAbsoluteHref(baseUrl, href);
+    if (!absoluteUrl) continue;
+
+    if (!deduped.has(normalizedLabel)) {
+      deduped.set(normalizedLabel, { label, url: absoluteUrl });
+    }
+  }
+
+  for (const link of fallback) {
+    const normalizedLabel = normalizeWhitespace(link.label).toLowerCase();
+    if (!deduped.has(normalizedLabel)) {
+      deduped.set(normalizedLabel, link);
+    }
+  }
+
+  return Array.from(deduped.entries())
+    .sort((a, b) => preferredOrder.indexOf(a[0]) - preferredOrder.indexOf(b[0]))
+    .map((entry) => entry[1]);
+}
+
+function extractDexMarketPreview(doc: Document | null): DexMarketPreview | null {
+  if (!doc?.body) return null;
+
+  const candidates = Array.from(doc.body.querySelectorAll('a, button, article, section, div'))
+    .map((element) => normalizeWhitespace(element.textContent || ''))
+    .filter((text) => text.length >= 8 && text.length <= 260);
+
+  for (const text of candidates) {
+    const pairMatch = text.match(/\b([A-Z0-9]{2,12}\/[A-Z0-9]{2,12})\b/);
+    if (!pairMatch) continue;
+
+    const numericTokens = Array.from(text.matchAll(/\b\d[\d,]*(?:\.\d+)?\b/g))
+      .map((match) => String(match[0] || '').trim())
+      .filter((token) => token !== '24');
+
+    const [lastPrice = '', quoteVolume = ''] = numericTokens;
+    return {
+      pair: pairMatch[1],
+      lastPrice,
+      quoteVolume
+    };
+  }
+
+  return null;
+}
+
+function getDexDenomLabel(denom: string): string {
+  const raw = String(denom || '').trim();
+  if (!raw) return '';
+
+  const lower = raw.toLowerCase();
+  if (lower === 'ubze') return 'TBZE';
+  if (lower === 'ibc/9da252f9f9c86132cc282ea431dfb7de7729501f6dc9a3e0f50ec8c6ee380cc7') return 'LMN';
+  if (lower.endsWith('/testusd')) return 'TUSDC';
+
+  if (lower.startsWith('factory/')) {
+    const tail = raw.split('/').pop() || raw;
+    if (tail.toLowerCase() === 'testusd') return 'TUSDC';
+    return tail.toUpperCase();
+  }
+
+  if (lower.startsWith('ibc/')) return 'IBC';
+  return formatDenom(raw);
+}
+
+function buildDexPairLabel(baseDenom: string, quoteDenom: string): string {
+  const base = getDexDenomLabel(baseDenom);
+  const quote = getDexDenomLabel(quoteDenom);
+  if (base && quote) return `${base}/${quote}`;
+  return normalizeWhitespace([base, quote].filter(Boolean).join('/')) || 'Unknown pair';
+}
+
+async function fetchDexChainOverview(config: DexListingConfig): Promise<{
+  tradingPairsCount: number | null;
+  liquidityPoolsCount: number | null;
+  featuredMarketPair: string;
+  featuredPoolPair: string;
+}> {
+  if (!config.restEndpoint) {
+    return {
+      tradingPairsCount: null,
+      liquidityPoolsCount: null,
+      featuredMarketPair: '',
+      featuredPoolPair: ''
+    };
+  }
+
+  const [marketsJson, poolsJson] = await Promise.all([
+    fetchAbsoluteJson(buildAbsoluteUrl(config.restEndpoint, '/bze/tradebin/all_markets'), 12000).catch(() => null),
+    fetchAbsoluteJson(buildAbsoluteUrl(config.restEndpoint, '/bze/tradebin/all_liquidity_pools'), 12000).catch(() => null)
+  ]);
+
+  const markets = Array.isArray(marketsJson?.market) ? marketsJson.market : null;
+  const pools = Array.isArray(poolsJson?.list) ? poolsJson.list : null;
+
+  const firstMarket = markets?.[0] || null;
+  const firstPool = pools?.[0] || null;
+
+  return {
+    tradingPairsCount: markets ? markets.length : null,
+    liquidityPoolsCount: pools ? pools.length : null,
+    featuredMarketPair: firstMarket ? buildDexPairLabel(firstMarket.base, firstMarket.quote) : '',
+    featuredPoolPair: firstPool ? buildDexPairLabel(firstPool.base, firstPool.quote) : ''
+  };
+}
+
+function updateDexRow(key: string, updater: (row: DexRow) => DexRow) {
+  dexRows.value = dexRows.value.map((row) => (row.key === key ? updater(row) : row));
+}
+
+async function fetchDexSnapshot(config: DexListingConfig): Promise<DexRow> {
+  const [pages, chainOverview] = await Promise.all([
+    Promise.allSettled([
+      fetchAbsoluteTextViaBridge(config.baseUrl, 15000),
+      fetchAbsoluteTextViaBridge(buildAbsoluteUrl(config.baseUrl, '/exchange'), 15000),
+      fetchAbsoluteTextViaBridge(buildAbsoluteUrl(config.baseUrl, '/pools'), 15000)
+    ]),
+    fetchDexChainOverview(config).catch(() => ({
+      tradingPairsCount: null,
+      liquidityPoolsCount: null,
+      featuredMarketPair: '',
+      featuredPoolPair: ''
+    }))
+  ]);
+
+  const homeHtml = pages[0].status === 'fulfilled' ? pages[0].value : '';
+  const exchangeHtml = pages[1].status === 'fulfilled' ? pages[1].value : '';
+  const poolsHtml = pages[2].status === 'fulfilled' ? pages[2].value : '';
+  const successCount = pages.filter((result) => result.status === 'fulfilled').length;
+
+  const homeDoc = parseHtmlDocument(homeHtml);
+  const exchangeDoc = parseHtmlDocument(exchangeHtml);
+  const poolsDoc = parseHtmlDocument(poolsHtml);
+
+  const homeText = normalizeWhitespace(homeDoc?.body?.textContent || '');
+  const exchangeText = normalizeWhitespace(exchangeDoc?.body?.textContent || '');
+  const poolsText = normalizeWhitespace(poolsDoc?.body?.textContent || '');
+
+  const htmlTradingPairsCount = parseCountFromText(exchangeText, /(\d+)\s+trading pairs/i);
+  const htmlLiquidityPoolsCount = parseCountFromText(poolsText, /(\d+)\s+liquidity pools/i);
+  const title =
+    getMetaContent(homeDoc, 'meta[property="og:title"]') ||
+    getMetaContent(homeDoc, 'meta[name="twitter:title"]') ||
+    normalizeWhitespace(homeDoc?.title || '') ||
+    config.name;
+  const description =
+    getMetaContent(homeDoc, 'meta[name="description"]') ||
+    getMetaContent(homeDoc, 'meta[property="og:description"]') ||
+    config.description;
+  const quickLinks = extractDexQuickLinks(homeDoc, config);
+  const htmlMarketPreview = extractDexMarketPreview(exchangeDoc);
+  const marketPreview =
+    htmlMarketPreview ||
+    (chainOverview.featuredMarketPair
+      ? {
+          pair: chainOverview.featuredMarketPair,
+          lastPrice: '',
+          quoteVolume: ''
+        }
+      : null);
+  const tradingPairsCount =
+    chainOverview.tradingPairsCount != null ? chainOverview.tradingPairsCount : htmlTradingPairsCount;
+  const liquidityPoolsCount =
+    chainOverview.liquidityPoolsCount != null ? chainOverview.liquidityPoolsCount : htmlLiquidityPoolsCount;
+  const pageErrors = pages
+    .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+    .map((result) => String(result.reason?.message || result.reason || 'Request failed'));
+
+  let status: DexStatus = 'error';
+  if (successCount === pages.length) status = 'online';
+  else if (successCount > 0) status = 'degraded';
+
+  return {
+    ...config,
+    logoUrl: config.logoUrl,
+    siteTitle: title || config.name,
+    description: description || config.description,
+    status,
+    tradingPairsCount,
+    liquidityPoolsCount,
+    featuredMarketPair: chainOverview.featuredMarketPair,
+    featuredPoolPair: chainOverview.featuredPoolPair,
+    quickLinks,
+    marketPreview,
+    error: pageErrors.join(' | '),
+    lastCheckedAt: new Date().toISOString()
+  };
+}
+
+async function refreshDexListings() {
+  dexLoading.value = true;
+  dexError.value = '';
+
+  dexRows.value = dexRows.value.map((row) => ({
+    ...row,
+    status: 'loading',
+    error: ''
+  }));
+
+  try {
+    const nextRows = await Promise.all(DEX_LISTINGS.map((config) => fetchDexSnapshot(config)));
+    dexRows.value = nextRows;
+    dexLastLoadedAt.value = Date.now();
+
+    if (nextRows.some((row) => row.status === 'error')) {
+      dexError.value = 'Some DEX snapshots could not be loaded.';
+    } else if (nextRows.some((row) => row.status === 'degraded')) {
+      dexError.value = 'Some DEX details are partial right now, but the listings remain usable.';
+    }
+  } catch (error: any) {
+    dexRows.value = dexRows.value.map((row) => ({
+      ...row,
+      status: 'error',
+      error: String(error?.message || error || 'Failed to load DEX snapshot')
+    }));
+    dexError.value = String(error?.message || error || 'Failed to load DEX snapshot');
+  } finally {
+    dexLoading.value = false;
+  }
+}
+
+async function ensureDexListingsLoaded(force = false) {
+  const shouldRefresh =
+    force ||
+    !dexLastLoadedAt.value ||
+    Date.now() - dexLastLoadedAt.value > DEX_REFRESH_TTL_MS ||
+    dexRows.value.every((row) => row.status === 'idle');
+
+  if (!shouldRefresh || dexLoading.value) return;
+  await refreshDexListings();
+}
+
+function isDexExpanded(key: string): boolean {
+  return dexExpandedKeys.value.includes(String(key || '').trim());
+}
+
+function toggleDexExpanded(key: string) {
+  const normalized = String(key || '').trim();
+  if (!normalized) return;
+
+  if (isDexExpanded(normalized)) {
+    dexExpandedKeys.value = dexExpandedKeys.value.filter((entry) => entry !== normalized);
+    return;
+  }
+
+  dexExpandedKeys.value = [...dexExpandedKeys.value, normalized];
+}
+
+function handleDexLogoError(dex: DexRow) {
+  updateDexRow(dex.key, (row) => ({
+    ...row,
+    logoUrl: ''
+  }));
+}
+
+function openDexTab(url: string) {
+  const target = String(url || '').trim();
+  if (!target) return;
+
+  if (openInNewTab) {
+    openInNewTab(target);
+    return;
+  }
+
+  window.open(target, '_blank', 'noopener,noreferrer');
+}
+
+function getDexStatusLabel(status: DexStatus): string {
+  if (status === 'loading') return 'Refreshing';
+  if (status === 'online') return 'Online';
+  if (status === 'degraded') return 'Partial';
+  if (status === 'error') return 'Offline';
+  return 'Idle';
+}
+
+function formatDexCount(value: number | null): string {
+  if (value == null) return 'N/A';
+  return String(value);
+}
+
+function getDexPriceLabel(dex: DexRow): string {
+  return dex.marketPreview?.lastPrice || (dex.tradingPairsCount === 0 ? 'N/A' : 'Unavailable');
+}
+
+function getDexVolumeLabel(dex: DexRow): string {
+  return dex.marketPreview?.quoteVolume || (dex.tradingPairsCount === 0 ? 'N/A' : 'Unavailable');
 }
 
 function buildChainRegistryRawUrl(chainRegistryName: string, fileName: string): string {
@@ -4207,6 +4788,262 @@ function exportTransactions() {
   gap: 1rem;
 }
 
+.spin-icon {
+  animation: spin 0.9s linear infinite;
+}
+
+.dex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dex-item {
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.dex-item-online {
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.dex-item-degraded {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.dex-item-error {
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.dex-top {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.dex-summary-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dex-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.dex-logo-image {
+  width: 74%;
+  height: 74%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  margin: auto;
+  background: transparent;
+}
+
+.dex-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.dex-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.dex-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dex-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.dex-status-badge.status-idle,
+.dex-status-badge.status-loading {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--ios-blue);
+  border-color: rgba(59, 130, 246, 0.16);
+}
+
+.dex-status-badge.status-online {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--ios-green);
+  border-color: rgba(34, 197, 94, 0.16);
+}
+
+.dex-status-badge.status-degraded {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--ios-orange);
+  border-color: rgba(245, 158, 11, 0.18);
+}
+
+.dex-status-badge.status-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--ios-red);
+  border-color: rgba(239, 68, 68, 0.18);
+}
+
+.dex-meta {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.dex-meta.error {
+  color: var(--ios-red);
+}
+
+.dex-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.dex-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.dex-detail-toggle,
+.dex-open-btn {
+  justify-content: center;
+}
+
+.dex-chevron {
+  transition: transform 0.2s ease;
+}
+
+.dex-chevron.open {
+  transform: rotate(180deg);
+}
+
+.dex-details {
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.dex-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dex-detail-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.dex-detail-card.compact {
+  padding: 0.65rem 0.8rem;
+  gap: 0.2rem;
+}
+
+.dex-detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dex-detail-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dex-detail-card.compact .dex-detail-label {
+  font-size: 0.64rem;
+}
+
+.dex-detail-card.compact .dex-detail-value {
+  font-size: 0.82rem;
+}
+
+.dex-detail-sub {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.dex-links {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.dex-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dex-link-chip:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background: var(--primary-a10);
+}
+
 /* Transaction List */
 .activities-list {
   display: flex;
@@ -5281,6 +6118,17 @@ function exportTransactions() {
 }
 
 @media (max-width: 900px) {
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
   .asset-item-rich {
     flex-direction: column;
   }
@@ -5301,6 +6149,42 @@ function exportTransactions() {
   .asset-modal-grid {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .dex-top {
+    flex-direction: column;
+  }
+
+  .dex-side {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .dex-actions {
+    justify-content: flex-start;
+  }
+
+  .dex-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .dex-summary-btn {
+    flex-direction: column;
+  }
+
+  .dex-actions {
+    width: 100%;
+  }
+
+  .dex-detail-toggle,
+  .dex-open-btn {
+    flex: 1;
+  }
+
+  .dex-detail-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
