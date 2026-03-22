@@ -353,6 +353,14 @@
               <span class="hash-value" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
+              <button
+                class="action-icon explorer-btn"
+                @click.stop="openTransactionTab(tx.txhash)"
+                title="Open in explorer"
+                aria-label="Open transaction in new tab"
+              >
+                <ExternalLink :size="14" />
+              </button>
               <button class="action-icon copy-btn" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash">
                 <Copy :size="14" />
               </button>
@@ -789,6 +797,7 @@
 import { computed, ref, watch, onMounted, inject } from 'vue';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 import {
   Wallet,
   LayoutDashboard,
@@ -1873,9 +1882,13 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }
 }
 
-function openExplorer(txHash: string) {
-  const explorerUrl = `https://explorer.lumen.network/tx/${txHash}`;
-  window.open(explorerUrl, '_blank');
+function openTransactionTab(txHash: string) {
+  const explorerUrl = `lumen://explorer/tx/${txHash}`;
+  if (openInNewTab) {
+    openInNewTab(explorerUrl);
+    return;
+  }
+  window.location.href = explorerUrl;
 }
 
 const canSend = computed(() => {
