@@ -887,6 +887,12 @@ function registerWalletIpc() {
       const sourceChannel = String(input && input.sourceChannel ? input.sourceChannel : '').trim();
       const timeoutSecondsRaw = Number(input && input.timeoutSeconds ? input.timeoutSeconds : 600);
       const timeoutSeconds = Number.isFinite(timeoutSecondsRaw) && timeoutSecondsRaw > 0 ? timeoutSecondsRaw : 600;
+      const rpcEndpoint = String(input && input.rpcEndpoint ? input.rpcEndpoint : '').trim();
+      const restEndpoint = String(input && input.restEndpoint ? input.restEndpoint : '').trim();
+      const chainId = String(input && input.chainId ? input.chainId : '').trim();
+      const feeDenom = String(input && input.feeDenom ? input.feeDenom : 'ulmn').trim() || 'ulmn';
+      const feeAmount = String(input && input.feeAmount ? input.feeAmount : '1000').trim() || '1000';
+      const feeGas = String(input && input.feeGas ? input.feeGas : '350000').trim() || '350000';
       const password = input && input.password ? String(input.password) : null;
 
       if (!profileId) return { ok: false, error: 'missing_profileId' };
@@ -918,16 +924,40 @@ function registerWalletIpc() {
 
       const prefix = prefixFromAddress(from);
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
-      const client = await connectSigningClientWithFailover(
-        mod,
-        signer,
-        {
-          pqc: {
-            homeDir: resolvePqcHome()
+      let client;
+      if (rpcEndpoint) {
+        const endpoints = {
+          rpc: rpcEndpoint,
+          rest: restEndpoint || rpcEndpoint,
+          rpcEndpoint,
+          restEndpoint: restEndpoint || rpcEndpoint
+        };
+        const connectPromise = mod.LumenSigningClient.connectWithSigner(
+          signer,
+          endpoints,
+          chainId || undefined,
+          {
+            pqc: {
+              homeDir: resolvePqcHome()
+            }
           }
-        },
-        { timeoutMs: 15_000 }
-      );
+        );
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timeout after 15000ms')), 15_000)
+        );
+        client = await Promise.race([connectPromise, timeoutPromise]);
+      } else {
+        client = await connectSigningClientWithFailover(
+          mod,
+          signer,
+          {
+            pqc: {
+              homeDir: resolvePqcHome()
+            }
+          },
+          { timeoutMs: 15_000 }
+        );
+      }
 
       let cleanupPqc = null;
       const effectivePassword = password || getSessionPassword();
@@ -960,8 +990,8 @@ function registerWalletIpc() {
         };
 
         const fee = {
-          amount: [{ denom: 'ulmn', amount: '1000' }],
-          gas: '350000'
+          amount: [{ denom: feeDenom, amount: feeAmount }],
+          gas: feeGas
         };
         const res = await signAndBroadcastWithPqcAutoLink({
           bridgeMod: mod,
