@@ -341,6 +341,32 @@ contextBridge.exposeInMainWorld('lumen', {
       };
     }
   },
+  extensions: {
+    listExtensions: () => ipcRenderer.invoke('extensions:list'),
+    loadUnpacked: () => ipcRenderer.invoke('extensions:loadUnpacked'),
+    openStore: (url) => ipcRenderer.invoke('extensions:openStore', url),
+    installFromChromeWebStore: (input) =>
+      ipcRenderer.invoke('extensions:installFromChromeWebStore', input),
+    enableExtension: (id) => ipcRenderer.invoke('extensions:enable', id),
+    disableExtension: (id) => ipcRenderer.invoke('extensions:disable', id),
+    reloadExtension: (id) => ipcRenderer.invoke('extensions:reload', id),
+    removeExtension: (id) => ipcRenderer.invoke('extensions:remove', id),
+    getProviderFallbackState: () => ipcRenderer.invoke('extensions:getProviderFallbackState'),
+    onChanged: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // ignore callback errors
+        }
+      };
+      ipcRenderer.on('extensions:changed', handler);
+      return () => {
+        ipcRenderer.removeListener('extensions:changed', handler);
+      };
+    }
+  },
   dns: {
     getParams: () => ipcRenderer.invoke('dns:getParams'),
     getDomainInfo: (name) => ipcRenderer.invoke('dns:getDomainInfo', name),

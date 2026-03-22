@@ -533,6 +533,17 @@ function onNewWindow(ev: any) {
 
 function onIpcMessage(ev: any) {
   const channel = safeString(ev?.channel, 64);
+  if (channel === "extensions:installFromStore") {
+    const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+    const input =
+      typeof payload === "string"
+        ? payload
+        : payload && typeof payload === "object"
+          ? safeString((payload as any).id || (payload as any).url, 4096)
+          : "";
+    if (input) void installChromeWebStoreExtension(input);
+    return;
+  }
   if (channel !== "lumen:navigate") return;
 
   const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
@@ -549,6 +560,19 @@ function onIpcMessage(ev: any) {
     !!(payload && typeof payload === "object" && (payload as any).openInNewTab);
   if (openInNewTabFlag) openInNewTab?.(href);
   else navigate?.(href, { push: true });
+}
+
+async function installChromeWebStoreExtension(input: string) {
+  try {
+    const api = (window as any).lumen?.extensions;
+    if (!api || typeof api.installFromChromeWebStore !== "function") return;
+    const result = await api.installFromChromeWebStore(input);
+    if (!result || result.ok === false) {
+      console.warn("[site-webview][extensions] install from store failed:", result?.error || "unknown_error");
+    }
+  } catch (error: any) {
+    console.warn("[site-webview][extensions] install from store failed:", error?.message || error || "unknown_error");
+  }
 }
 
 watch(

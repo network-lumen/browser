@@ -18,6 +18,7 @@ import DomainPage from './pages/DomainPage.vue';
 import NewTabPage from './pages/NewTabPage.vue';
 import TransactionDetailPage from './pages/TransactionDetailPage.vue';
 import AddressDetailPage from './pages/AddressDetailPage.vue';
+import ExtensionsPage from './pages/ExtensionsPage.vue';
 import { getFileUrlTitle, isBrowserUrl, isFileUrl } from './navigationUrl';
 
 type InternalRoute = {
@@ -34,6 +35,7 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   ipfs: { component: IpfsPage, title: 'IPFS' },
   wallet: { component: WalletPage, title: 'Wallet' },
   domain: { component: DomainPage, title: 'Domain' },
+  extensions: { component: ExtensionsPage, title: 'Extensions' },
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
   'my-gateways': { component: MyGatewaysPage, title: 'My Gateways' },
@@ -87,6 +89,7 @@ export const ALL_COMPONENTS = [
   ReleasePage,
   WalletPage,
   DomainPage,
+  ExtensionsPage,
   NewTabPage
 ];
 

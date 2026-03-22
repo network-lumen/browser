@@ -69,6 +69,112 @@
       </button>
     </div>
 
+    <div class="extensions-section appregion-no-drag">
+      <button
+        type="button"
+        class="nav-btn extensions-trigger"
+        :class="{ 'is-active': showExtensionsMenu }"
+        title="Extensions"
+        @click.stop="toggleExtensionsMenu"
+      >
+        <Puzzle :size="16" />
+      </button>
+
+      <div v-if="showExtensionsMenu" class="extensions-menu" role="menu">
+        <div class="extensions-menu-title">Extensions</div>
+
+        <div v-if="extensions.length" class="extensions-list">
+          <div
+            v-for="ext in extensions"
+            :key="ext.id"
+            class="extension-row"
+          >
+            <div class="extension-main">
+              <div class="extension-name">{{ ext.name }}</div>
+              <div class="extension-meta">
+                <span class="extension-state" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
+                  {{ extensionStateLabel(ext) }}
+                </span>
+                <span v-if="ext.version" class="extension-version">v{{ ext.version }}</span>
+              </div>
+              <div v-if="ext.lastError" class="extension-error">{{ ext.lastError }}</div>
+            </div>
+
+            <div class="extension-actions">
+              <button
+                type="button"
+                class="extension-action-btn"
+                title="Open extension"
+                :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
+                @click.stop="openExtension(ext)"
+              >
+                <ExternalLink :size="14" />
+              </button>
+
+              <label class="extension-toggle" :title="ext.enabled ? 'Disable extension' : 'Enable extension'">
+                <input
+                  type="checkbox"
+                  :checked="ext.enabled"
+                  :disabled="extensionsBusy"
+                  @change="toggleExtensionEnabled(ext)"
+                />
+                <span class="extension-toggle-slider"></span>
+              </label>
+
+              <button
+                type="button"
+                class="extension-action-btn"
+                title="Reload extension"
+                :disabled="extensionsBusy || !ext.enabled"
+                @click.stop="reloadExtension(ext.id)"
+              >
+                <RefreshCw :size="14" />
+              </button>
+
+              <button
+                type="button"
+                class="extension-action-btn danger"
+                title="Remove extension"
+                :disabled="extensionsBusy"
+                @click.stop="removeExtension(ext.id)"
+              >
+                <Trash2 :size="14" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="extensions-menu-hint">
+          No extensions installed yet.
+        </div>
+
+        <div class="extensions-menu-actions">
+          <UiButton
+            variant="none"
+            class="profile-menu-action"
+            :disabled="extensionsBusy"
+            @click.stop="loadUnpackedExtension"
+          >
+            Load unpacked extension
+          </UiButton>
+
+          <button
+            type="button"
+            class="extensions-store-link"
+            :disabled="extensionsBusy"
+            @click.stop="openChromeWebStore"
+          >
+            <span>Import from Chrome Web Store</span>
+            <ExternalLink :size="13" />
+          </button>
+
+          <div v-if="extensionsMessage" class="extensions-menu-message">
+            {{ extensionsMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Profile -->
     <div class="profile-section appregion-no-drag">
       <button type="button" class="profile-trigger" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
@@ -454,8 +560,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown } from 'lucide-vue-next';
+import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown, Puzzle, ExternalLink } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
@@ -509,6 +615,22 @@ const showProfileMenu = ref(false);
 const creatingProfile = ref(false);
 const newProfileName = ref('');
 const profileMessage = ref('');
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+
+type InstalledExtension = {
+  id: string;
+  name: string;
+  version?: string;
+  enabled: boolean;
+  loaded?: boolean;
+  lastError?: string;
+  launchUrl?: string;
+};
+
+const showExtensionsMenu = ref(false);
+const extensions = ref<InstalledExtension[]>([]);
+const extensionsBusy = ref(false);
+const extensionsMessage = ref('');
 
 // Export modal state
 const showExportModal = ref(false);
@@ -645,6 +767,7 @@ function normalizeInput(raw: string): string {
     'search',
     'drive',
     'wallet',
+    'extensions',
     'network',
     'settings',
     'help',
@@ -676,6 +799,135 @@ function resetProfileUi() {
   creatingProfile.value = false;
   profileMessage.value = '';
   newProfileName.value = '';
+}
+
+function normalizeExtensionPayload(payload: any): InstalledExtension[] {
+  const items = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.extensions)
+      ? payload.extensions
+      : [];
+  return items
+    .map((entry: any) => ({
+      id: String(entry?.id || '').trim(),
+      name: String(entry?.name || 'Unnamed extension').trim() || 'Unnamed extension',
+      version: String(entry?.version || '').trim(),
+      enabled: !!entry?.enabled,
+      loaded: !!entry?.loaded,
+      lastError: String(entry?.lastError || '').trim(),
+      launchUrl: String(entry?.launchUrl || '').trim()
+    }))
+    .filter((entry: InstalledExtension) => !!entry.id)
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function refreshExtensions() {
+  try {
+    const api = (window as any).lumen?.extensions;
+    if (!api || typeof api.listExtensions !== 'function') return;
+    const result = await api.listExtensions();
+    if (result?.ok === false) {
+      extensionsMessage.value = result?.error || 'Failed to load extensions.';
+      return;
+    }
+    extensions.value = normalizeExtensionPayload(result);
+  } catch {
+    extensionsMessage.value = 'Failed to load extensions.';
+  }
+}
+
+function extensionStateLabel(ext: InstalledExtension) {
+  if (ext.lastError) return 'Unavailable';
+  if (!ext.enabled) return 'Disabled';
+  if (ext.loaded) return 'Enabled';
+  return 'Pending';
+}
+
+function toggleExtensionsMenu() {
+  showExtensionsMenu.value = !showExtensionsMenu.value;
+  if (showExtensionsMenu.value) {
+    extensionsMessage.value = '';
+    void refreshExtensions();
+  }
+}
+
+async function runExtensionAction(action: () => Promise<any>, successMessage = '') {
+  if (extensionsBusy.value) return;
+  extensionsBusy.value = true;
+  extensionsMessage.value = '';
+  try {
+    const result = await action();
+    if (!result || result.ok === false) {
+      extensionsMessage.value = result?.error || 'Extension action failed.';
+      return;
+    }
+    if (successMessage) {
+      extensionsMessage.value = successMessage;
+    }
+    if (result?.extension || result?.extensions) {
+      await refreshExtensions();
+    }
+  } catch {
+    extensionsMessage.value = 'Extension action failed.';
+  } finally {
+    extensionsBusy.value = false;
+  }
+}
+
+async function loadUnpackedExtension() {
+  const api = (window as any).lumen?.extensions;
+  if (!api || typeof api.loadUnpacked !== 'function') return;
+  await runExtensionAction(async () => {
+    const result = await api.loadUnpacked();
+    if (result?.canceled) {
+      return { ok: false, error: '' };
+    }
+    return result;
+  }, 'Extension loaded.');
+}
+
+async function toggleExtensionEnabled(ext: InstalledExtension) {
+  const api = (window as any).lumen?.extensions;
+  if (!api) return;
+  if (ext.enabled) {
+    await runExtensionAction(() => api.disableExtension(ext.id), 'Extension disabled.');
+  } else {
+    await runExtensionAction(() => api.enableExtension(ext.id), 'Extension enabled.');
+  }
+}
+
+async function reloadExtension(id: string) {
+  const api = (window as any).lumen?.extensions;
+  if (!api || typeof api.reloadExtension !== 'function') return;
+  await runExtensionAction(() => api.reloadExtension(id), 'Extension reloaded.');
+}
+
+async function removeExtension(id: string) {
+  const api = (window as any).lumen?.extensions;
+  if (!api || typeof api.removeExtension !== 'function') return;
+  await runExtensionAction(async () => {
+    const result = await api.removeExtension(id);
+    if (result?.ok) {
+      extensions.value = extensions.value.filter((entry) => entry.id !== id);
+    }
+    return result;
+  }, 'Extension removed.');
+}
+
+function openExtension(ext: InstalledExtension) {
+  const target = String(ext?.launchUrl || '').trim();
+  if (!target || !ext.enabled) return;
+  showExtensionsMenu.value = false;
+  if (typeof openInNewTab === 'function') {
+    openInNewTab(target);
+    return;
+  }
+  emit('goto', target);
+}
+
+function openChromeWebStore() {
+  showExtensionsMenu.value = false;
+  emit('goto', 'lumen://extensions');
 }
 
 function toggleProfileMenu() {
@@ -1070,14 +1322,18 @@ function onGlobalClick(e: MouseEvent) {
 
   const el = e.target as HTMLElement | null;
   if (!el) return;
+  if (el.closest('.extensions-trigger') || el.closest('.extensions-menu')) return;
   if (el.closest('.profile-trigger') || el.closest('.profile-menu')) return;
+  showExtensionsMenu.value = false;
   showProfileMenu.value = false;
   resetProfileUi();
 }
 
 let detachPqcLinkedListener: null | (() => void) = null;
+let detachExtensionsListener: null | (() => void) = null;
 onMounted(() => {
   void initProfiles();
+  void refreshExtensions();
   window.addEventListener('click', onGlobalClick);
 
   try {
@@ -1101,6 +1357,17 @@ onMounted(() => {
   } catch {
     // ignore
   }
+
+  try {
+    const api = (window as any).lumen?.extensions;
+    if (api && typeof api.onChanged === 'function') {
+      detachExtensionsListener = api.onChanged((payload: any) => {
+        extensions.value = normalizeExtensionPayload(payload);
+      });
+    }
+  } catch {
+    // ignore
+  }
 });
 
 onBeforeUnmount(() => {
@@ -1111,6 +1378,12 @@ onBeforeUnmount(() => {
     // ignore
   }
   detachPqcLinkedListener = null;
+  try {
+    detachExtensionsListener?.();
+  } catch {
+    // ignore
+  }
+  detachExtensionsListener = null;
 });
 </script>
 
@@ -1208,6 +1481,229 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+/* ===== EXTENSIONS ===== */
+.extensions-section {
+  position: relative;
+  margin-left: -0.5rem;
+}
+
+.extensions-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 340px;
+  max-width: min(92vw, 340px);
+  background: var(--card-bg);
+  border: 0.5px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 0.5rem;
+  box-shadow: var(--shadow-xl);
+  z-index: 100;
+}
+
+.extensions-menu-title {
+  padding: 0 0.5rem 0.5rem;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.extensions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 0.125rem;
+}
+
+.extension-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem;
+  border-radius: var(--border-radius-md);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border-light);
+}
+
+.extension-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.extension-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.extension-meta {
+  margin-top: 0.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.extension-state,
+.extension-version {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.extension-state.error {
+  color: var(--error-red);
+}
+
+.extension-state.disabled {
+  color: var(--text-tertiary);
+}
+
+.extension-error {
+  margin-top: 0.25rem;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--error-red);
+  word-break: break-word;
+}
+
+.extension-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.extension-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.extension-action-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.extension-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.extension-action-btn.danger:hover:not(:disabled) {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--error-red);
+}
+
+.extension-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.extension-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.extension-toggle-slider {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--border-color);
+  transition: background 0.15s ease;
+}
+
+.extension-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.extension-toggle input:checked + .extension-toggle-slider {
+  background: var(--accent-primary);
+}
+
+.extension-toggle input:checked + .extension-toggle-slider::after {
+  transform: translateX(14px);
+}
+
+.extension-toggle input:disabled + .extension-toggle-slider {
+  opacity: 0.5;
+}
+
+.extensions-menu-hint {
+  padding: 0.875rem 0.5rem;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.extensions-menu-actions {
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 0.5px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.extensions-store-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.extensions-store-link:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+
+.extensions-store-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.extensions-menu-message {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  padding: 0 0.125rem;
 }
 
 /* ===== PROFILE SECTION ===== */

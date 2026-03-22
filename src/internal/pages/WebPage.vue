@@ -1,7 +1,19 @@
 <template>
   <div class="web-page">
+    <div v-if="isChromeWebStorePage" class="store-proxy">
+      <div class="store-proxy-card">
+        <h3>Chrome Web Store opens in Lumen Extensions</h3>
+        <p>
+          Lumen fetches Chrome Web Store metadata directly and imports extensions
+          from the internal Extensions page.
+        </p>
+        <button type="button" class="store-proxy-btn" @click="openChromeWebStoreImport">
+          Open Extensions
+        </button>
+      </div>
+    </div>
     <webview
-      v-if="currentBrowserUrl"
+      v-else-if="currentBrowserUrl"
       ref="webviewRef"
       class="webview"
       :src="currentBrowserUrl"
@@ -51,9 +63,33 @@ function isAllowedNewTabUrl(raw: string): boolean {
   return isBrowserUrl(s) || /^lumen:\/\//i.test(s);
 }
 
+function isChromeWebStoreUrl(raw: string): boolean {
+  try {
+    const url = new URL(String(raw || '').trim());
+    const host = String(url.hostname || '').trim().toLowerCase();
+    return host === 'chromewebstore.google.com' || host.endsWith('.chromewebstore.google.com');
+  } catch {
+    return false;
+  }
+}
+
+const isChromeWebStorePage = computed(() => isChromeWebStoreUrl(currentBrowserUrl.value));
+
 function onIpcMessage(ev: any) {
   if (!pageActive.value) return;
   const channel = String(ev?.channel || "");
+  if (channel === "extensions:installFromStore") {
+    const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+    const input =
+      typeof payload === "string"
+        ? payload
+        : payload && typeof payload === "object"
+          ? String((payload as any).id || (payload as any).url || "").trim()
+          : "";
+    if (!input) return;
+    void installChromeWebStoreExtension(input);
+    return;
+  }
   if (channel !== "lumen:navigate") return;
 
   const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
@@ -72,10 +108,31 @@ function onIpcMessage(ev: any) {
   else navigate?.(href, { push: true });
 }
 
+async function installChromeWebStoreExtension(input: string) {
+  try {
+    const api = (window as any).lumen?.extensions;
+    if (!api || typeof api.installFromChromeWebStore !== "function") return;
+    const result = await api.installFromChromeWebStore(input);
+    if (!result || result.ok === false) {
+      console.warn("[webview][extensions] install from store failed:", result?.error || "unknown_error");
+      return;
+    }
+    console.log("[webview][extensions] extension imported from store:", input);
+  } catch (error: any) {
+    console.warn("[webview][extensions] install from store failed:", error?.message || error || "unknown_error");
+  }
+}
+
 const currentBrowserUrl = computed(() => {
   const u = String(currentTabUrl?.value || "").trim();
   return isBrowserUrl(u) ? u : "";
 });
+
+function openChromeWebStoreImport() {
+  const target = currentBrowserUrl.value;
+  if (!target) return;
+  navigate?.(`lumen://extensions?input=${encodeURIComponent(target)}`, { push: true });
+}
 
 function loadUrl(url: string) {
   const w: any = webviewRef.value;
@@ -99,6 +156,11 @@ watch(
   (u) => {
     if (!pageActive.value) return;
     if (!u) return;
+    if (isChromeWebStoreUrl(u)) {
+      pendingAppNav.value = false;
+      openChromeWebStoreImport();
+      return;
+    }
     const w: any = webviewRef.value;
     const current = String(
       typeof w?.getURL === "function" ? w.getURL() : w?.src || "",
@@ -274,5 +336,51 @@ function syncNavFromWebview(rawUrl: string) {
   height: 100%;
   border: none;
   background: var(--bg-primary);
+}
+
+.store-proxy {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--bg-primary);
+}
+
+.store-proxy-card {
+  max-width: 520px;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  text-align: center;
+}
+
+.store-proxy-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.store-proxy-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.store-proxy-btn {
+  align-self: center;
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  background: var(--accent-primary);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
 }
 </style>
