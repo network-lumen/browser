@@ -1435,6 +1435,10 @@ function createMinimalBrowserApi() {
     },
     getCurrent(callback) {
       return createAsyncCallbackResult(async () => {
+        const hostContext = await getHostTabContext();
+        if (hostContext?.tab) {
+          return sanitizeTabForExtension(hostContext.tab);
+        }
         const nativeValue = await callNativeMethod(
           nativeChromeTabs?.getCurrent,
           nativeChromeTabs,
@@ -1449,6 +1453,10 @@ function createMinimalBrowserApi() {
     },
     query(queryInfo, callback) {
       return createAsyncCallbackResult(async () => {
+        const hostContext = await getHostTabContext();
+        if (hostContext?.tab) {
+          return buildEffectiveTabsQueryResults(queryInfo);
+        }
         const nativeValue = await callNativeMethod(
           nativeChromeTabs?.query,
           nativeChromeTabs,
@@ -1554,6 +1562,10 @@ function createMinimalBrowserApi() {
           ? []
           : [getInfoOrCallback];
       return createAsyncCallbackResult(async () => {
+        const hostContext = await getHostTabContext();
+        if (hostContext?.window && hostContext?.tab) {
+          return sanitizeWindowForExtension(hostContext.window, hostContext.tab);
+        }
         const nativeValue = await callNativeMethod(
           nativeChromeWindows?.getCurrent,
           nativeChromeWindows,
@@ -1576,6 +1588,10 @@ function createMinimalBrowserApi() {
           ? [_windowId]
           : [_windowId, getInfoOrCallback];
       return createAsyncCallbackResult(async () => {
+        const hostContext = await getHostTabContext();
+        if (hostContext?.window && hostContext?.tab) {
+          return sanitizeWindowForExtension(hostContext.window, hostContext.tab);
+        }
         const nativeValue = await callNativeMethod(
           nativeChromeWindows?.get,
           nativeChromeWindows,
@@ -1597,22 +1613,28 @@ function createMinimalBrowserApi() {
         typeof getInfoOrCallback === 'function' || getInfoOrCallback === undefined
           ? []
           : [getInfoOrCallback];
-      return callNativeMethod(
-        nativeChromeWindows?.getAll,
-        nativeChromeWindows,
-        args,
-        callback,
-        () => [cloneValue(currentWindow())],
-        (value, fallback) =>
-          Array.isArray(value) && value.length > 0
-            ? value
-                .map((entry) => {
-                  const nativeTabs = Array.isArray(entry?.tabs) ? entry.tabs : [];
-                  return sanitizeWindowForExtension(entry, nativeTabs[0] || currentTab());
-                })
-                .filter(Boolean)
-            : fallback()
-      );
+      return createAsyncCallbackResult(async () => {
+        const hostContext = await getHostTabContext();
+        if (hostContext?.window && hostContext?.tab) {
+          return [sanitizeWindowForExtension(hostContext.window, hostContext.tab)].filter(Boolean);
+        }
+        return callNativeMethod(
+          nativeChromeWindows?.getAll,
+          nativeChromeWindows,
+          args,
+          undefined,
+          () => [cloneValue(currentWindow())],
+          (value, fallback) =>
+            Array.isArray(value) && value.length > 0
+              ? value
+                  .map((entry) => {
+                    const nativeTabs = Array.isArray(entry?.tabs) ? entry.tabs : [];
+                    return sanitizeWindowForExtension(entry, nativeTabs[0] || currentTab());
+                  })
+                  .filter(Boolean)
+              : fallback()
+        );
+      }, callback, () => [cloneValue(currentWindow())]);
     },
     create(createData, callback) {
       const nextUrl = normalizeExtensionTargetUrl(createData?.url);
@@ -1906,7 +1928,13 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
         const forceShimPaths = new Set([
           'runtime.sendMessage',
           'runtime.connect',
-          'tabs.sendMessage'
+          'tabs.sendMessage',
+          'tabs.get',
+          'tabs.getCurrent',
+          'tabs.query',
+          'windows.get',
+          'windows.getCurrent',
+          'windows.getAll'
         ]);
 
         const bindMethod = (fn, owner, fallback, fallbackOwner) =>
@@ -2005,6 +2033,8 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
               },
               set(value) {
                 mergeAssignedValue(assigned, value);
+                reapplyShimBindings();
+                lockShimMethods(assigned);
               }
             });
             return true;
@@ -2100,6 +2130,48 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
           }
         };
 
+        const lockShimMethods = (target) => {
+          if (!isObject(target)) return;
+          for (const path of forceShimPaths) {
+            const shimLocation = ensureParentPath(shim, path);
+            const shimMethod = shimLocation?.parent?.[shimLocation.methodName];
+            if (typeof shimMethod !== 'function') continue;
+            const location = ensureParentPath(target, path);
+            if (!location) continue;
+            const lockedMethod = (...args) => shimMethod.apply(shimLocation.parent || shim, args);
+            try {
+              Object.defineProperty(location.parent, location.methodName, {
+                configurable: true,
+                enumerable: true,
+                writable: false,
+                value: lockedMethod
+              });
+            } catch {
+              try {
+                location.parent[location.methodName] = lockedMethod;
+              } catch {}
+            }
+          }
+        };
+
+        const reapplyShimBindings = () => {
+          try {
+            forceShimMethods(root.chrome);
+          } catch {}
+          try {
+            forceShimMethods(root.browser);
+          } catch {}
+          try {
+            forceBrowserMethodsFromChrome(root.browser, root.chrome);
+          } catch {}
+          try {
+            lockShimMethods(root.chrome);
+          } catch {}
+          try {
+            lockShimMethods(root.browser);
+          } catch {}
+        };
+
         const aliasBrowserNamespaceToChrome = () => {
           try {
             Object.defineProperty(root, 'browser', {
@@ -2184,6 +2256,11 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
             return bytes;
           };
 
+          const isNullBodyStatus = (status) => {
+            const numericStatus = Number(status);
+            return numericStatus === 101 || numericStatus === 103 || numericStatus === 204 || numericStatus === 205 || numericStatus === 304;
+          };
+
           const serializeBody = async (body) => {
             if (body == null) return {};
             if (typeof body === 'string') return { bodyText: body };
@@ -2254,7 +2331,8 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
               );
             }
 
-            const response = new Response(fromBase64(result.bodyBase64), {
+            const body = isNullBodyStatus(result.status) ? undefined : fromBase64(result.bodyBase64);
+            const response = new Response(body, {
               status: Number(result.status) || 200,
               statusText: String(result.statusText || ''),
               headers: result.headers && typeof result.headers === 'object' ? result.headers : {}
@@ -2302,7 +2380,11 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
         forceShimMethods(root.chrome);
         forceShimMethods(root.browser);
         forceBrowserMethodsFromChrome(browserApi, root.chrome);
+        lockShimMethods(chromeApi);
+        lockShimMethods(browserApi);
+        reapplyShimBindings();
         const browserAliasedToChrome = aliasBrowserNamespaceToChrome();
+        reapplyShimBindings();
         installFetchFallback();
 
         log('[extension-preload] API installation result', {
