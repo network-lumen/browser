@@ -884,6 +884,108 @@ function createMinimalBrowserApi() {
     return context || cachedHostTabContext || null;
   };
 
+  const escapeRegExp = (value) => String(value || '').replace(/[|\\{}()[\]^$+?.]/g, '\\$&');
+
+  const pathMatchesPattern = (pattern, pathname) => {
+    const source = String(pattern || '/*');
+    const target = String(pathname || '/');
+    const matcher = new RegExp(`^${source.split('*').map(escapeRegExp).join('.*')}$`);
+    return matcher.test(target);
+  };
+
+  const hostMatchesPattern = (pattern, hostname) => {
+    const expected = safeString(pattern, 512).toLowerCase();
+    const actual = safeString(hostname, 512).toLowerCase();
+    if (!expected || !actual) return false;
+    if (expected === '*') return true;
+    if (expected.startsWith('*.')) {
+      const suffix = expected.slice(2);
+      return actual === suffix || actual.endsWith(`.${suffix}`);
+    }
+    return actual === expected;
+  };
+
+  const urlMatchesHostPermission = (pattern, rawUrl) => {
+    const value = safeString(pattern, 4096);
+    const target = safeString(rawUrl, 4096);
+    if (!value || !target) return false;
+
+    try {
+      const parsed = new URL(target);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return false;
+      }
+
+      if (value === '<all_urls>') {
+        return true;
+      }
+
+      const match = /^(\*|http|https):\/\/([^/]+)(\/.*)$/.exec(value);
+      if (!match) return false;
+
+      const [, schemePattern, hostPattern, pathPattern] = match;
+      const protocol = String(parsed.protocol || '').toLowerCase();
+      const schemeOk =
+        schemePattern === '*'
+          ? protocol === 'http:' || protocol === 'https:'
+          : protocol === `${String(schemePattern).toLowerCase()}:`;
+      if (!schemeOk) return false;
+      if (!hostMatchesPattern(hostPattern, parsed.hostname || '')) return false;
+      return pathMatchesPattern(pathPattern || '/*', parsed.pathname || '/');
+    } catch {
+      return false;
+    }
+  };
+
+  const canReadSensitiveHostTabFields = (rawUrl) => {
+    const tabUrl = safeString(rawUrl, 4096);
+    if (!/^https?:\/\//i.test(tabUrl)) {
+      return false;
+    }
+
+    const manifest = getExtensionManifest();
+    const grantedPermissions = new Set(
+      Array.isArray(manifest.permissions)
+        ? manifest.permissions.map((entry) => safeString(entry, 256)).filter(Boolean)
+        : []
+    );
+    if (grantedPermissions.has('tabs') || grantedPermissions.has('activeTab')) {
+      return true;
+    }
+
+    const hostPermissions = Array.isArray(manifest.host_permissions)
+      ? manifest.host_permissions.map((entry) => safeString(entry, 4096)).filter(Boolean)
+      : [];
+    return hostPermissions.some((pattern) => urlMatchesHostPermission(pattern, tabUrl));
+  };
+
+  const sanitizeTabForExtension = (tab) => {
+    const value = tab && typeof tab === 'object' ? cloneValue(tab) : null;
+    if (!value) return value;
+
+    const tabUrl = safeString(value.url, 4096);
+    if (/^chrome-extension:\/\//i.test(tabUrl)) {
+      return value;
+    }
+    if (canReadSensitiveHostTabFields(tabUrl)) {
+      return value;
+    }
+
+    delete value.url;
+    delete value.title;
+    delete value.favIconUrl;
+    return value;
+  };
+
+  const sanitizeWindowForExtension = (windowValue, fallbackTab) => {
+    const tab = sanitizeTabForExtension(fallbackTab);
+    const base = windowValue && typeof windowValue === 'object' ? cloneValue(windowValue) : {};
+    return {
+      ...base,
+      tabs: tab ? [cloneValue(tab)] : []
+    };
+  };
+
   const buildLocalTabsQueryResults = (queryInfo) => {
     const info = queryInfo && typeof queryInfo === 'object' ? queryInfo : {};
     let results = Array.from(tabs.values()).map((tab) => cloneValue(tab));
@@ -927,7 +1029,7 @@ function createMinimalBrowserApi() {
     if (!hostContext?.tab) {
       return buildLocalTabsQueryResults(queryInfo);
     }
-    let results = [cloneValue(hostContext.tab)];
+    let results = [sanitizeTabForExtension(hostContext.tab)].filter(Boolean);
     if (info.active !== undefined) results = results.filter((tab) => tab.active === info.active);
     if (info.currentWindow === true || info.lastFocusedWindow === true) {
       results = results.filter((tab) => tab.windowId === hostContext.window?.id);
@@ -950,14 +1052,17 @@ function createMinimalBrowserApi() {
     const numericTabId = Number(tabId);
     const hostContext = await getHostTabContext();
     if (hostContext?.tab && Number(hostContext.tab.id) === numericTabId) {
-      return cloneValue(hostContext.tab);
+      return sanitizeTabForExtension(hostContext.tab);
     }
     return cloneValue(tabs.get(numericTabId) || currentTab());
   };
 
   const getEffectiveCurrentWindow = async () => {
     const hostContext = await getHostTabContext();
-    return cloneValue(hostContext?.window || currentWindow());
+    if (!hostContext?.window || !hostContext?.tab) {
+      return cloneValue(currentWindow());
+    }
+    return sanitizeWindowForExtension(hostContext.window, hostContext.tab);
   };
 
   const readStorageArea = (areaName) => {
@@ -1214,7 +1319,7 @@ function createMinimalBrowserApi() {
           () => undefined,
           (value) => value
         );
-        if (nativeValue && typeof nativeValue === 'object') return cloneValue(nativeValue);
+        if (nativeValue && typeof nativeValue === 'object') return sanitizeTabForExtension(nativeValue);
         return getEffectiveTabById(tabId);
       }, callback, () => getEffectiveTabById(tabId));
     },
@@ -1243,7 +1348,7 @@ function createMinimalBrowserApi() {
           (value) => value
         );
         if (Array.isArray(nativeValue) && nativeValue.length > 0) {
-          return cloneValue(nativeValue);
+          return nativeValue.map((tab) => sanitizeTabForExtension(tab)).filter(Boolean);
         }
         return buildEffectiveTabsQueryResults(queryInfo);
       }, callback, () => buildLocalTabsQueryResults(queryInfo));
@@ -1347,7 +1452,10 @@ function createMinimalBrowserApi() {
           () => undefined,
           (value) => value
         );
-        if (nativeValue && typeof nativeValue === 'object') return cloneValue(nativeValue);
+        if (nativeValue && typeof nativeValue === 'object') {
+          const nativeTabs = Array.isArray(nativeValue.tabs) ? nativeValue.tabs : [];
+          return sanitizeWindowForExtension(nativeValue, nativeTabs[0] || currentTab());
+        }
         return getEffectiveCurrentWindow();
       }, callback, () => cloneValue(currentWindow()));
     },
@@ -1366,7 +1474,10 @@ function createMinimalBrowserApi() {
           () => undefined,
           (value) => value
         );
-        if (nativeValue && typeof nativeValue === 'object') return cloneValue(nativeValue);
+        if (nativeValue && typeof nativeValue === 'object') {
+          const nativeTabs = Array.isArray(nativeValue.tabs) ? nativeValue.tabs : [];
+          return sanitizeWindowForExtension(nativeValue, nativeTabs[0] || currentTab());
+        }
         return getEffectiveCurrentWindow();
       }, callback, () => cloneValue(currentWindow()));
     },
@@ -1382,7 +1493,15 @@ function createMinimalBrowserApi() {
         args,
         callback,
         () => [cloneValue(currentWindow())],
-        (value, fallback) => (Array.isArray(value) && value.length > 0 ? cloneValue(value) : fallback())
+        (value, fallback) =>
+          Array.isArray(value) && value.length > 0
+            ? value
+                .map((entry) => {
+                  const nativeTabs = Array.isArray(entry?.tabs) ? entry.tabs : [];
+                  return sanitizeWindowForExtension(entry, nativeTabs[0] || currentTab());
+                })
+                .filter(Boolean)
+            : fallback()
       );
     },
     create(createData, callback) {

@@ -139,7 +139,7 @@ const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
 const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
-const { registerHttpIpc } = require('./ipc/http.cjs');
+const { registerHttpIpc, registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
 const { registerNetworkIpc } = require('./ipc/network.cjs');
@@ -1445,6 +1445,7 @@ app.whenReady().then(async () => {
   }
 
   registerLumenSessionPreload();
+  registerExtensionNetworkRequestGuard(session.fromPartition(LUMEN_SESSION_PARTITION));
 
   try {
     await extensionManager.initialize();

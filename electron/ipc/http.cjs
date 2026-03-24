@@ -1,11 +1,12 @@
 const { URL } = require('node:url');
-const { BrowserWindow, dialog, ipcMain } = require('electron');
+const { BrowserWindow, dialog, ipcMain, webContents } = require('electron');
 const { extensionManager } = require('../extensions/manager.cjs');
 const { readJson, userDataPath, writeJson } = require('../utils/fs.cjs');
 
 const EXTENSION_NETWORK_PERMISSIONS_FILE = () => userDataPath('extension_network_permissions.json');
 const extensionPermissionSessionCache = new Map();
 const extensionPermissionInflight = new Map();
+const guardedSessions = new WeakSet();
 
 function normalizeHeaders(h) {
   return h && typeof h === 'object' ? { ...h } : {};
@@ -224,6 +225,106 @@ function normalizeExtensionContext(input) {
   };
 }
 
+function getExtensionRuntimeIdFromUrl(input) {
+  try {
+    const parsed = new URL(String(input || ''));
+    if (parsed.protocol !== 'chrome-extension:') return '';
+    return String(parsed.hostname || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function buildExtensionOrigin(runtimeId) {
+  const id = String(runtimeId || '').trim();
+  return id ? `chrome-extension://${id}` : '';
+}
+
+function buildExtensionContextFromRuntimeId(runtimeId, pageUrl = '') {
+  const id = String(runtimeId || '').trim();
+  if (!id) return null;
+  return normalizeExtensionContext({
+    runtimeId: id,
+    origin: buildExtensionOrigin(id),
+    pageUrl: String(pageUrl || '').trim() || buildExtensionOrigin(id)
+  });
+}
+
+function resolveExtensionContextFromRequestDetails(details) {
+  const candidateUrls = [
+    details?.initiator,
+    details?.origin,
+    details?.referrer,
+    details?.documentURL,
+    details?.documentUrl,
+    details?.frameUrl,
+    details?.frame?.url
+  ];
+
+  for (const candidate of candidateUrls) {
+    const runtimeId = getExtensionRuntimeIdFromUrl(candidate);
+    if (runtimeId) {
+      return buildExtensionContextFromRuntimeId(runtimeId, candidate);
+    }
+  }
+
+  const wcId = Number(details?.webContentsId);
+  if (Number.isFinite(wcId) && wcId > 0) {
+    try {
+      const sourceContents = webContents.fromId(Math.trunc(wcId));
+      const sourceUrl =
+        sourceContents && typeof sourceContents.getURL === 'function'
+          ? String(sourceContents.getURL() || '').trim()
+          : '';
+      const runtimeId = getExtensionRuntimeIdFromUrl(sourceUrl);
+      if (runtimeId) {
+        return buildExtensionContextFromRuntimeId(runtimeId, sourceUrl);
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
+function resolveOwnerWindowFromRequestDetails(details) {
+  const wcId = Number(details?.webContentsId);
+  if (Number.isFinite(wcId) && wcId > 0) {
+    try {
+      const sourceContents = webContents.fromId(Math.trunc(wcId));
+      if (sourceContents && !sourceContents.isDestroyed?.()) {
+        const owner =
+          (typeof sourceContents.getOwnerBrowserWindow === 'function' &&
+            sourceContents.getOwnerBrowserWindow()) ||
+          BrowserWindow.fromWebContents(sourceContents) ||
+          null;
+        if (owner && !owner.isDestroyed?.()) return owner;
+      }
+    } catch {}
+  }
+  return BrowserWindow.getFocusedWindow() || null;
+}
+
+function resolveExtensionAuthorizationSource(input = {}) {
+  const evt = input.evt || null;
+  const details = input.details || null;
+  const options = input.options && typeof input.options === 'object' ? input.options : {};
+
+  const ownerWindow =
+    (evt?.sender && BrowserWindow.fromWebContents(evt.sender)) ||
+    resolveOwnerWindowFromRequestDetails(details) ||
+    null;
+
+  const context =
+    normalizeExtensionContext(options.extensionContext) ||
+    resolveExtensionContextFromRequestDetails(details) ||
+    null;
+
+  return {
+    ownerWindow,
+    context
+  };
+}
+
 function getTargetOrigin(url) {
   try {
     const parsed = new URL(String(url || ''));
@@ -316,7 +417,7 @@ function persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed
   writeExtensionPermissionEntries(filtered);
 }
 
-async function promptForExtensionPermission(evt, extensionInfo, targetOrigin) {
+async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOrigin) {
   const cacheKey = buildPermissionCacheKey(
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
@@ -326,10 +427,7 @@ async function promptForExtensionPermission(evt, extensionInfo, targetOrigin) {
   }
 
   const promptPromise = (async () => {
-    const owner =
-      (evt?.sender && BrowserWindow.fromWebContents(evt.sender)) ||
-      BrowserWindow.getFocusedWindow() ||
-      undefined;
+    const owner = ownerWindow || BrowserWindow.getFocusedWindow() || undefined;
 
     const dialogOptions = {
       type: 'question',
@@ -362,7 +460,8 @@ async function promptForExtensionPermission(evt, extensionInfo, targetOrigin) {
 }
 
 async function ensureExtensionRequestAuthorized(evt, url, options) {
-  const context = normalizeExtensionContext(options?.extensionContext);
+  const source = resolveExtensionAuthorizationSource({ evt, options });
+  const context = normalizeExtensionContext(source.context);
   if (!context) return { allowed: true };
 
   const targetOrigin = getTargetOrigin(url);
@@ -387,8 +486,47 @@ async function ensureExtensionRequestAuthorized(evt, url, options) {
     return { allowed: !!persisted };
   }
 
-  const allowed = await promptForExtensionPermission(evt, extensionInfo, targetOrigin);
+  const allowed = await promptForExtensionPermission(source.ownerWindow, extensionInfo, targetOrigin);
   return { allowed };
+}
+
+async function authorizeExtensionRequestFromDetails(details) {
+  const source = resolveExtensionAuthorizationSource({ details });
+  const context = normalizeExtensionContext(source.context);
+  if (!context) return { allowed: true, context: null };
+
+  const targetUrl = String(details?.url || '').trim();
+  const targetOrigin = getTargetOrigin(targetUrl);
+  if (!targetOrigin) return { allowed: true, context };
+
+  const extensionInfo = resolveExtensionPermissionInfo(context);
+  const cacheKey = buildPermissionCacheKey(
+    extensionInfo.extensionId || extensionInfo.runtimeId,
+    targetOrigin,
+  );
+
+  if (extensionPermissionSessionCache.has(cacheKey)) {
+    return {
+      allowed: !!extensionPermissionSessionCache.get(cacheKey),
+      context
+    };
+  }
+
+  const persisted = readPersistedExtensionPermission(
+    extensionInfo.extensionId || extensionInfo.runtimeId,
+    targetOrigin,
+  );
+  if (persisted != null) {
+    extensionPermissionSessionCache.set(cacheKey, !!persisted);
+    return { allowed: !!persisted, context };
+  }
+
+  const allowed = await promptForExtensionPermission(
+    source.ownerWindow,
+    extensionInfo,
+    targetOrigin,
+  );
+  return { allowed, context };
 }
 
 async function httpRequest(url, options = {}, evt = null) {
@@ -476,10 +614,32 @@ function registerHttpIpc() {
   });
 }
 
+function registerExtensionNetworkRequestGuard(targetSession) {
+  if (!targetSession || !targetSession.webRequest) return false;
+  if (guardedSessions.has(targetSession)) return true;
+
+  targetSession.webRequest.onBeforeRequest(
+    { urls: ['http://*/*', 'https://*/*'] },
+    (details, callback) => {
+      void authorizeExtensionRequestFromDetails(details)
+        .then((authorization) => {
+          callback({ cancel: authorization.allowed === false });
+        })
+        .catch(() => {
+          callback({ cancel: true });
+        });
+    },
+  );
+
+  guardedSessions.add(targetSession);
+  return true;
+}
+
 module.exports = {
   httpGet,
   httpGetBytes,
   httpHead,
   httpRequest,
-  registerHttpIpc
+  registerHttpIpc,
+  registerExtensionNetworkRequestGuard
 };

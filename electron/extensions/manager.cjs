@@ -2780,7 +2780,7 @@ class ExtensionManager extends EventEmitter {
       } catch {}
 
       const loaded = await this.getSessionExtensions().loadExtension(targetPath, {
-        allowFileAccess: true
+        allowFileAccess: false
       });
       const manifestInfo = preparedManifest || readManifestFromDirectory(targetPath);
       try {
