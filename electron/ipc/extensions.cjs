@@ -388,7 +388,8 @@ function registerExtensionsIpc() {
   });
 
   ipcMain.handle('extensions:installFromChromeWebStore', async (_evt, input) => {
-    return resultFromOperation(await extensionManager.installFromChromeWebStore(input));
+    const owner = _evt?.sender ? BrowserWindow.fromWebContents(_evt.sender) : null;
+    return resultFromOperation(await extensionManager.installFromChromeWebStore(input, owner));
   });
 
   ipcMain.handle('extensions:enable', async (_evt, extensionId) => {
@@ -436,7 +437,8 @@ function registerExtensionsIpc() {
           : '';
     let result = { ok: false, error: 'invalid_chrome_web_store_id' };
     if (input) {
-      result = resultFromOperation(await extensionManager.installFromChromeWebStore(input));
+      const owner = evt?.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
+      result = resultFromOperation(await extensionManager.installFromChromeWebStore(input, owner));
     }
     try {
       evt.sender.send('extensions:storeInstallResult', result);

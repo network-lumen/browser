@@ -88,6 +88,182 @@ function readManifestFromDirectory(dirPath) {
   };
 }
 
+async function inspectManifestFromCrxBuffer(extensionId, crxBuffer) {
+  const tempRoot = fs.mkdtempSync(path.join(app.getPath('temp'), `lumen-ext-preview-${safeString(extensionId, 32) || 'tmp'}-`));
+  try {
+    await extractCrxArchiveToDirectory(crxBuffer, tempRoot);
+    const manifestInfo = readManifestFromDirectory(tempRoot);
+    return {
+      manifest: manifestInfo.manifest && typeof manifestInfo.manifest === 'object'
+        ? JSON.parse(JSON.stringify(manifestInfo.manifest))
+        : {},
+      name: manifestInfo.name,
+      version: manifestInfo.version
+    };
+  } finally {
+    removeDirectory(tempRoot);
+  }
+}
+
+function normalizeManifestList(values, maxLen = 4096) {
+  const items = Array.isArray(values) ? values : [];
+  return Array.from(
+    new Set(
+      items
+        .map((entry) => safeString(entry, maxLen))
+        .filter(Boolean)
+    )
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function collectContentScriptMatches(manifest) {
+  const scripts = Array.isArray(manifest?.content_scripts) ? manifest.content_scripts : [];
+  const matches = [];
+  for (const script of scripts) {
+    const items = Array.isArray(script?.matches) ? script.matches : [];
+    for (const entry of items) {
+      const value = safeString(entry, 4096);
+      if (value) matches.push(value);
+    }
+  }
+  return Array.from(new Set(matches)).sort((a, b) => a.localeCompare(b));
+}
+
+function collectExternallyConnectableMatches(manifest) {
+  const items = Array.isArray(manifest?.externally_connectable?.matches)
+    ? manifest.externally_connectable.matches
+    : [];
+  return Array.from(
+    new Set(items.map((entry) => safeString(entry, 4096)).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function summarizeManifestPermissions(manifest) {
+  return {
+    permissions: normalizeManifestList(manifest?.permissions, 256),
+    optionalPermissions: normalizeManifestList(manifest?.optional_permissions, 256),
+    hostPermissions: normalizeManifestList(manifest?.host_permissions, 4096),
+    optionalHostPermissions: normalizeManifestList(manifest?.optional_host_permissions, 4096),
+    contentScriptMatches: collectContentScriptMatches(manifest),
+    externallyConnectableMatches: collectExternallyConnectableMatches(manifest)
+  };
+}
+
+function summarizeSensitiveManifestWarnings(summary) {
+  const warnings = [];
+  const permissions = new Set(summary.permissions);
+  const allHosts = [
+    ...summary.hostPermissions,
+    ...summary.optionalHostPermissions,
+    ...summary.contentScriptMatches
+  ];
+  const hasBroadHostAccess = allHosts.some((entry) => {
+    const lower = String(entry || '').toLowerCase();
+    return lower === '<all_urls>' || lower === '*://*/*' || lower === 'http://*/*' || lower === 'https://*/*';
+  });
+
+  if (hasBroadHostAccess) warnings.push('Can access data on many or all websites');
+  if (permissions.has('tabs')) warnings.push('Can inspect tab metadata when permissions allow it');
+  if (permissions.has('cookies')) warnings.push('Can read and modify cookies');
+  if (permissions.has('history')) warnings.push('Can read browsing history');
+  if (permissions.has('downloads')) warnings.push('Can manage downloads');
+  if (permissions.has('clipboardRead') || permissions.has('clipboardWrite')) {
+    warnings.push('Can access the clipboard');
+  }
+  if (permissions.has('webRequest') || permissions.has('declarativeNetRequest')) {
+    warnings.push('Can observe or modify network traffic');
+  }
+  if (permissions.has('nativeMessaging')) warnings.push('Can communicate with native applications');
+
+  return warnings;
+}
+
+function formatInstallPermissionSection(title, items, emptyLabel = 'None declared', limit = 8) {
+  if (!Array.isArray(items) || !items.length) {
+    return [`${title}: ${emptyLabel}`];
+  }
+  const visible = items.slice(0, limit);
+  return [
+    `${title}:`,
+    ...visible.map((entry) => `- ${entry}`),
+    ...(items.length > limit ? [`- +${items.length - limit} more`] : [])
+  ];
+}
+
+function buildExtensionInstallDetail(input) {
+  const manifestInfo = input?.manifestInfo && typeof input.manifestInfo === 'object' ? input.manifestInfo : {};
+  const manifest = manifestInfo?.manifest && typeof manifestInfo.manifest === 'object' ? manifestInfo.manifest : {};
+  const summary = summarizeManifestPermissions(manifest);
+  const warnings = summarizeSensitiveManifestWarnings(summary);
+  const lines = [
+    `Extension ID: ${safeString(input?.extensionId, 128) || '(unknown)'}`,
+    `Source: ${safeString(input?.sourceLabel, 256) || 'Extension package'}`,
+    `Version: ${safeString(manifestInfo?.version || manifest?.version, 64) || '0.0.0'}`,
+    `Manifest version: ${safeString(manifest?.manifest_version, 16) || 'unknown'}`
+  ];
+
+  const installSource = safeString(input?.installSource, 4096);
+  if (installSource) {
+    lines.push(`Origin: ${installSource}`);
+  }
+
+  lines.push('');
+
+  if (warnings.length) {
+    lines.push('Notable capabilities:');
+    for (const warning of warnings.slice(0, 6)) {
+      lines.push(`- ${warning}`);
+    }
+    lines.push('');
+  }
+
+  lines.push(
+    ...formatInstallPermissionSection('API permissions', summary.permissions),
+    '',
+    ...formatInstallPermissionSection('Host permissions', summary.hostPermissions),
+    '',
+    ...formatInstallPermissionSection('Content script matches', summary.contentScriptMatches),
+    '',
+    ...formatInstallPermissionSection('Optional permissions', summary.optionalPermissions),
+    '',
+    ...formatInstallPermissionSection('Optional host permissions', summary.optionalHostPermissions),
+    '',
+    ...formatInstallPermissionSection('Externally connectable matches', summary.externallyConnectableMatches),
+    '',
+    'Lumen will still ask before this extension opens a new http/https/ws/wss origin.'
+  );
+
+  return lines.join('\n');
+}
+
+async function confirmExtensionInstall(ownerWindow, input) {
+  const owner =
+    ownerWindow && typeof ownerWindow.isDestroyed === 'function' && !ownerWindow.isDestroyed()
+      ? ownerWindow
+      : null;
+  const manifestInfo = input?.manifestInfo && typeof input.manifestInfo === 'object' ? input.manifestInfo : {};
+  const extensionName =
+    safeString(manifestInfo?.name, 256) ||
+    safeString(manifestInfo?.manifest?.name, 256) ||
+    'Unnamed extension';
+
+  const dialogOptions = {
+    type: 'warning',
+    buttons: ['Install', 'Cancel'],
+    defaultId: 1,
+    cancelId: 1,
+    noLink: true,
+    title: 'Install extension',
+    message: `Install "${extensionName}"?`,
+    detail: buildExtensionInstallDetail(input)
+  };
+
+  const result = owner
+    ? await dialog.showMessageBox(owner, dialogOptions)
+    : await dialog.showMessageBox(dialogOptions);
+  return result.response === 0;
+}
+
 function copyDirectoryContents(sourceDir, targetDir) {
   const src = getRealPath(sourceDir);
   if (!src || !fs.existsSync(src)) {
@@ -2917,6 +3093,15 @@ class ExtensionManager extends EventEmitter {
     }
 
     const extensionId = this.buildManagedId(manifestInfo.manifest, sourcePath);
+    const confirmed = await confirmExtensionInstall(owner, {
+      extensionId,
+      manifestInfo,
+      sourceLabel: 'Local unpacked folder',
+      installSource: sourcePath
+    });
+    if (!confirmed) {
+      return { ok: false, canceled: true, error: 'install_canceled' };
+    }
 
     try {
       const entry = await this.installManagedExtension(extensionId, sourcePath, {
@@ -2933,7 +3118,7 @@ class ExtensionManager extends EventEmitter {
     }
   }
 
-  async installFromChromeWebStore(input) {
+  async installFromChromeWebStore(input, browserWindow = null) {
     let extensionId = '';
     try {
       extensionId = extractChromeWebStoreId(input);
@@ -2942,8 +3127,22 @@ class ExtensionManager extends EventEmitter {
     }
 
     const targetDir = this.getManagedExtensionPath(extensionId);
+    const owner =
+      browserWindow && typeof browserWindow.isDestroyed === 'function' && !browserWindow.isDestroyed()
+        ? browserWindow
+        : null;
     try {
       const archive = await downloadCrxArchive(extensionId);
+      const manifestInfo = await inspectManifestFromCrxBuffer(extensionId, archive.buffer);
+      const confirmed = await confirmExtensionInstall(owner, {
+        extensionId,
+        manifestInfo,
+        sourceLabel: 'Chrome Web Store package',
+        installSource: archive.url
+      });
+      if (!confirmed) {
+        return { ok: false, canceled: true, error: 'install_canceled' };
+      }
       removeDirectory(targetDir);
       ensureDir(targetDir);
       await extractCrxArchiveToDirectory(archive.buffer, targetDir);
