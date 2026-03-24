@@ -862,7 +862,8 @@ async function runExtensionAction(action: () => Promise<any>, successMessage = '
   try {
     const result = await action();
     if (!result || result.ok === false) {
-      extensionsMessage.value = result?.error || 'Extension action failed.';
+      const errorMessage = String(result?.error || '').trim();
+      extensionsMessage.value = errorMessage;
       return;
     }
     if (successMessage) {
@@ -871,8 +872,8 @@ async function runExtensionAction(action: () => Promise<any>, successMessage = '
     if (result?.extension || result?.extensions) {
       await refreshExtensions();
     }
-  } catch {
-    extensionsMessage.value = 'Extension action failed.';
+  } catch (error: any) {
+    extensionsMessage.value = String(error?.message || '').trim();
   } finally {
     extensionsBusy.value = false;
   }

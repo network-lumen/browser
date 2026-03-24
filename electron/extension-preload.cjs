@@ -512,6 +512,107 @@ function getExtensionRequestContext() {
   };
 }
 
+const extensionGrantedPermissionsState = {
+  loaded: false,
+  permissions: new Set(),
+  origins: new Set()
+};
+
+function normalizeGrantedPermissionPayload(input) {
+  const value = input && typeof input === 'object' ? input : {};
+  return {
+    permissions: Array.isArray(value.permissions)
+      ? value.permissions.map((entry) => safeString(entry, 256)).filter(Boolean)
+      : [],
+    origins: Array.isArray(value.origins)
+      ? value.origins.map((entry) => safeString(entry, 4096)).filter(Boolean)
+      : []
+  };
+}
+
+function setGrantedPermissionsState(input) {
+  const normalized = normalizeGrantedPermissionPayload(input);
+  extensionGrantedPermissionsState.permissions = new Set(normalized.permissions);
+  extensionGrantedPermissionsState.origins = new Set(normalized.origins);
+  extensionGrantedPermissionsState.loaded = true;
+  return normalized;
+}
+
+function getGrantedPermissionsState() {
+  if (extensionGrantedPermissionsState.loaded) {
+    return {
+      permissions: Array.from(extensionGrantedPermissionsState.permissions),
+      origins: Array.from(extensionGrantedPermissionsState.origins)
+    };
+  }
+
+  try {
+    const result = ipcRenderer.sendSync(
+      'extensions:getGrantedPermissionsSync',
+      getExtensionRequestContext(),
+    );
+    if (result && result.ok !== false && result.granted) {
+      return setGrantedPermissionsState(result.granted);
+    }
+  } catch {}
+
+  return setGrantedPermissionsState({});
+}
+
+function buildEffectivePermissionLists(manifest) {
+  const granted = getGrantedPermissionsState();
+  return {
+    permissions: Array.from(
+      new Set([
+        ...(Array.isArray(manifest?.permissions) ? manifest.permissions.map((entry) => safeString(entry, 256)).filter(Boolean) : []),
+        ...granted.permissions
+      ])
+    ),
+    origins: Array.from(
+      new Set([
+        ...(Array.isArray(manifest?.host_permissions)
+          ? manifest.host_permissions.map((entry) => safeString(entry, 4096)).filter(Boolean)
+          : []),
+        ...granted.origins
+      ])
+    )
+  };
+}
+
+function requestDynamicPermissions(details, callback) {
+  return createAsyncCallbackResult(
+    async () => {
+      const result = await ipcRenderer.invoke('extensions:requestPermissions', {
+        extensionContext: getExtensionRequestContext(),
+        details: details || {}
+      });
+      if (result && result.ok !== false && result.granted) {
+        setGrantedPermissionsState(result.granted);
+      }
+      return !!result?.allowed;
+    },
+    callback,
+    false,
+  );
+}
+
+function removeDynamicPermissions(details, callback) {
+  return createAsyncCallbackResult(
+    async () => {
+      const result = await ipcRenderer.invoke('extensions:removePermissions', {
+        extensionContext: getExtensionRequestContext(),
+        details: details || {}
+      });
+      if (result && result.ok !== false && result.granted) {
+        setGrantedPermissionsState(result.granted);
+      }
+      return !!result?.removed;
+    },
+    callback,
+    false,
+  );
+}
+
 const runtimeBroadcastState = {
   channel: null,
   created: false,
@@ -944,18 +1045,13 @@ function createMinimalBrowserApi() {
     }
 
     const manifest = getExtensionManifest();
-    const grantedPermissions = new Set(
-      Array.isArray(manifest.permissions)
-        ? manifest.permissions.map((entry) => safeString(entry, 256)).filter(Boolean)
-        : []
-    );
+    const effective = buildEffectivePermissionLists(manifest);
+    const grantedPermissions = new Set(effective.permissions);
     if (grantedPermissions.has('tabs') || grantedPermissions.has('activeTab')) {
       return true;
     }
 
-    const hostPermissions = Array.isArray(manifest.host_permissions)
-      ? manifest.host_permissions.map((entry) => safeString(entry, 4096)).filter(Boolean)
-      : [];
+    const hostPermissions = effective.origins;
     return hostPermissions.some((pattern) => urlMatchesHostPermission(pattern, tabUrl));
   };
 
@@ -1556,24 +1652,27 @@ function createMinimalBrowserApi() {
   const permissionsApi = {
     contains(details, callback) {
       const manifest = getExtensionManifest();
-      const declared = new Set([
-        ...(manifest.permissions || []),
-        ...(manifest.host_permissions || []),
-        ...(manifest.optional_permissions || []),
-        ...(manifest.optional_host_permissions || [])
-      ]);
-      const requested = [...((details && details.permissions) || []), ...((details && details.origins) || [])];
-      return asyncResult(requested.every((item) => declared.has(item)), callback);
+      const effective = buildEffectivePermissionLists(manifest);
+      const permissions = new Set(effective.permissions);
+      const origins = new Set(effective.origins);
+      const requestedPermissions = Array.isArray(details?.permissions) ? details.permissions : [];
+      const requestedOrigins = Array.isArray(details?.origins) ? details.origins : [];
+      return asyncResult(
+        requestedPermissions.every((item) => permissions.has(safeString(item, 256))) &&
+          requestedOrigins.every((item) => origins.has(safeString(item, 4096))),
+        callback,
+      );
     },
     getAll(callback) {
       const manifest = getExtensionManifest();
+      const effective = buildEffectivePermissionLists(manifest);
       return asyncResult({
-        permissions: (manifest.permissions || []).slice(),
-        origins: (manifest.host_permissions || []).slice()
+        permissions: effective.permissions.slice(),
+        origins: effective.origins.slice()
       }, callback);
     },
-    request: createAsyncStub(true),
-    remove: createAsyncStub(false)
+    request: requestDynamicPermissions,
+    remove: removeDynamicPermissions
   };
 
   const namespaces = {
