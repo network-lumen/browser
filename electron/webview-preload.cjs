@@ -42,6 +42,46 @@ function currentHref() {
   }
 }
 
+function isChromeExtensionUrl(input = currentHref()) {
+  return /^chrome-extension:\/\//i.test(safeString(input, 4096));
+}
+
+function isGuestRendererContext() {
+  return typeof ipcRenderer.sendToHost === 'function';
+}
+
+function shouldInjectWebviewExtensionApi() {
+  return isGuestRendererContext() && !isChromeExtensionUrl();
+}
+
+function getUrlOrigin(input, fallback = '') {
+  const raw = safeString(input, 4096);
+  if (!raw) return safeString(fallback, 4096);
+  try {
+    const url = new URL(raw);
+    const origin = safeString(url.origin, 4096);
+    if (origin && origin !== 'null') return origin;
+    const protocol = safeString(url.protocol, 64);
+    const host = safeString(url.host, 512);
+    if (protocol && host) return `${protocol}//${host}`;
+  } catch {}
+  return safeString(fallback, 4096);
+}
+
+const RUNTIME_SENDMESSAGE_TIMEOUT_MS = 10_000;
+const EXTENSION_DEBUG =
+  typeof process !== 'undefined' &&
+  process &&
+  process.env &&
+  process.env.LUMEN_EXTENSION_DEBUG === '1';
+
+function debugLog(...args) {
+  if (!EXTENSION_DEBUG) return;
+  try {
+    console.log(...args);
+  } catch {}
+}
+
 function prefixFromAddress(address) {
   const value = safeString(address, 256);
   const index = value.indexOf('1');
@@ -253,6 +293,927 @@ function makeOfflineSigner(chainId) {
         },
         signature: serializeStdSignature(response.signature || {})
       };
+    }
+  };
+}
+
+// Minimal browser API for Keplr/Leap extension compatibility
+function createBrowserEvent() {
+  const listeners = new Set();
+  return {
+    listeners,
+    addListener(listener) {
+      if (typeof listener === 'function') listeners.add(listener);
+    },
+    removeListener(listener) {
+      listeners.delete(listener);
+    },
+    hasListener(listener) {
+      return listeners.has(listener);
+    },
+    hasListeners() {
+      return listeners.size > 0;
+    },
+    dispatch(...args) {
+      for (const listener of Array.from(listeners)) {
+        try {
+          listener(...args);
+        } catch {}
+      }
+    }
+  };
+}
+
+function cloneValue(value) {
+  if (value === undefined) return undefined;
+  try {
+    if (typeof structuredClone === 'function') {
+      return structuredClone(value);
+    }
+  } catch {}
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return value;
+  }
+}
+
+function asyncResult(value, callback) {
+  if (typeof callback === 'function') {
+    Promise.resolve().then(() => {
+      try {
+        callback(value);
+      } catch {}
+    });
+    return;
+  }
+  return Promise.resolve(value);
+}
+
+function trimTrailingUndefined(args) {
+  const trimmed = Array.isArray(args) ? args.slice() : [];
+  while (trimmed.length && trimmed[trimmed.length - 1] === undefined) {
+    trimmed.pop();
+  }
+  return trimmed;
+}
+
+function isRuntimeSendMessageOptions(value) {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    (
+      Object.prototype.hasOwnProperty.call(value, 'includeTlsChannelId') ||
+      Object.prototype.hasOwnProperty.call(value, 'toProxyScript') ||
+      Object.prototype.hasOwnProperty.call(value, 'frameId')
+    )
+  );
+}
+
+function normalizeRuntimeSendMessageCall(rawArgs) {
+  const args = trimTrailingUndefined(Array.from(rawArgs || []));
+  let callback;
+
+  if (typeof args[args.length - 1] === 'function') {
+    callback = args.pop();
+  }
+
+  const normalizedArgs = trimTrailingUndefined(args);
+
+  if (normalizedArgs.length === 2) {
+    const [first, second] = normalizedArgs;
+    if (typeof first === 'string' && isRuntimeSendMessageOptions(second)) {
+      return { args: [first, second], callback };
+    }
+  }
+
+  if (normalizedArgs.length > 3) {
+    return { args: normalizedArgs.slice(0, 3), callback };
+  }
+
+  return { args: normalizedArgs, callback };
+}
+
+function getRuntimeSendMessagePayload(args) {
+  if (!Array.isArray(args) || args.length === 0) return null;
+  if (typeof args[0] === 'string' && args.length >= 2) {
+    const targetMessage = args[1];
+    return targetMessage && typeof targetMessage === 'object' && !Array.isArray(targetMessage)
+      ? targetMessage
+      : null;
+  }
+  const message = args[0];
+  return message && typeof message === 'object' && !Array.isArray(message) ? message : null;
+}
+
+function isInternalExtensionRuntimeMessage(args) {
+  const message = getRuntimeSendMessagePayload(args);
+  return !!(
+    message &&
+    typeof message.port === 'string' &&
+    typeof message.type === 'string' &&
+    Object.prototype.hasOwnProperty.call(message, 'msg')
+  );
+}
+
+function normalizeRuntimeSendMessageResponse(args, value, fallbackValue) {
+  const fallback =
+    typeof fallbackValue === 'function' ? fallbackValue : () => cloneValue(fallbackValue);
+  let response = value !== null && value !== undefined ? cloneValue(value) : fallback();
+
+  if (response === null || response === undefined) {
+    response = {};
+  }
+
+  if (!isInternalExtensionRuntimeMessage(args)) {
+    return response;
+  }
+
+  if (response && typeof response === 'object' && !Array.isArray(response)) {
+    if (
+      Object.prototype.hasOwnProperty.call(response, 'return') ||
+      Object.prototype.hasOwnProperty.call(response, 'error')
+    ) {
+      return response;
+    }
+  }
+
+  return { return: response };
+}
+
+function normalizeRuntimeConnectCall(rawArgs) {
+  const args = trimTrailingUndefined(Array.from(rawArgs || []));
+  if (!args.length) return [];
+  if (args.length === 1) return args;
+
+  const [first, second] = args;
+  if (typeof first === 'string') {
+    return second === undefined ? [first] : [first, second];
+  }
+  if (first && typeof first === 'object' && !Array.isArray(first)) {
+    return [first];
+  }
+  return args.slice(0, 2);
+}
+
+function normalizeTabsSendMessageCall(rawArgs) {
+  const args = trimTrailingUndefined(Array.from(rawArgs || []));
+  let callback;
+
+  if (typeof args[args.length - 1] === 'function') {
+    callback = args.pop();
+  }
+
+  return {
+    args: trimTrailingUndefined(args).slice(0, 3),
+    callback
+  };
+}
+
+function callNativeMethod(nativeMethod, nativeThis, args, callback, fallbackValue, normalizeValue) {
+  const fallback =
+    typeof fallbackValue === 'function' ? fallbackValue : () => cloneValue(fallbackValue);
+  const finalizeValue =
+    typeof normalizeValue === 'function'
+      ? (value) => {
+          try {
+            return normalizeValue(value, fallback);
+          } catch {
+            const fallbackValue = fallback();
+            return fallbackValue !== null && fallbackValue !== undefined ? fallbackValue : {};
+          }
+        }
+      : (value) => value;
+
+  if (typeof nativeMethod !== 'function') {
+    return asyncResult(finalizeValue(fallback()), callback);
+  }
+
+  if (typeof callback === 'function') {
+    const wrappedCallback = (value) => {
+      try {
+        callback(finalizeValue(value));
+      } catch {}
+    };
+    try {
+      return nativeMethod.apply(nativeThis, [...args, wrappedCallback]);
+    } catch {
+      return asyncResult(finalizeValue(fallback()), callback);
+    }
+  }
+
+  try {
+    const result = nativeMethod.apply(nativeThis, args);
+    if (result && typeof result.then === 'function') {
+      return result.then((value) => finalizeValue(value)).catch(() => finalizeValue(fallback()));
+    }
+    return Promise.resolve(finalizeValue(result));
+  } catch {
+    return Promise.resolve(finalizeValue(fallback()));
+  }
+}
+
+function callNativeRuntimeSendMessage(nativeMethod, nativeThis, rawArgs, fallbackValue) {
+  const fallback =
+    typeof fallbackValue === 'function' ? fallbackValue : () => cloneValue(fallbackValue);
+  const { args, callback } = normalizeRuntimeSendMessageCall(rawArgs);
+  const retryDelaysMs = [0, 40, 80, 140, 220, 320];
+  const transientPatterns = [
+    'receiving end does not exist',
+    'message port closed',
+    'could not establish connection',
+    'port closed before a response was received',
+    'service worker context shut down'
+  ];
+
+  if (typeof nativeMethod !== 'function') {
+    return asyncResult(normalizeRuntimeSendMessageResponse(args, undefined, fallback), callback);
+  }
+
+  const finalizeResponse = (value) =>
+    normalizeRuntimeSendMessageResponse(args, value, fallback);
+
+  const isTransientFailure = (value, error) => {
+    if (value != null) return false;
+    const message = safeString(error?.message || error || '', 1024).toLowerCase();
+    if (!message) return true;
+    return transientPatterns.some((pattern) => message.includes(pattern));
+  };
+
+  const invokeAttempt = () =>
+    new Promise((resolve) => {
+      let settled = false;
+      let timeoutId = null;
+
+      const finish = (value, error) => {
+        if (settled) return;
+        settled = true;
+        if (timeoutId != null) {
+          try {
+            clearTimeout(timeoutId);
+          } catch {}
+        }
+        resolve({ value, error });
+      };
+
+      const invokeWithoutCallback = () => {
+        const result = nativeMethod.apply(nativeThis, args);
+        if (result && typeof result.then === 'function') {
+          result.then(
+            (value) => finish(value, nativeThis?.lastError || null),
+            (error) => finish(undefined, error)
+          );
+          return;
+        }
+        if (result !== undefined) {
+          finish(result, nativeThis?.lastError || null);
+        }
+      };
+
+      try {
+        if (typeof callback === 'function') {
+          const result = nativeMethod.apply(nativeThis, [
+            ...args,
+            (value) => {
+              finish(value, nativeThis?.lastError || null);
+            }
+          ]);
+          if (result && typeof result.then === 'function') {
+            result.then(
+              () => {},
+              (error) => finish(undefined, error)
+            );
+          }
+        } else {
+          try {
+            const result = nativeMethod.apply(nativeThis, [
+              ...args,
+              (value) => {
+                finish(value, nativeThis?.lastError || null);
+              }
+            ]);
+            if (result && typeof result.then === 'function') {
+              result.then(
+                (value) => {
+                  if (value !== undefined || nativeThis?.lastError) {
+                    finish(value, nativeThis?.lastError || null);
+                  }
+                },
+                (error) => finish(undefined, error)
+              );
+            }
+          } catch (callbackStyleError) {
+            try {
+              invokeWithoutCallback();
+            } catch (plainInvokeError) {
+              finish(undefined, plainInvokeError || callbackStyleError);
+            }
+          }
+        }
+      } catch (error) {
+        finish(undefined, error);
+        return;
+      }
+
+      timeoutId = setTimeout(() => {
+        finish(undefined, new Error('runtime.sendMessage timeout'));
+      }, RUNTIME_SENDMESSAGE_TIMEOUT_MS);
+    });
+
+  const runWithRetries = async () => {
+    let lastOutcome = null;
+
+    for (const delay of retryDelaysMs) {
+      if (delay > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+
+      const outcome = await invokeAttempt();
+      lastOutcome = outcome;
+
+      if (!isTransientFailure(outcome?.value, outcome?.error)) {
+        return outcome.value;
+      }
+    }
+
+    return finalizeResponse(lastOutcome?.value);
+  };
+
+  if (typeof callback === 'function') {
+    runWithRetries()
+      .then((value) => {
+        try {
+          callback(finalizeResponse(value));
+        } catch {}
+      })
+      .catch(() => {
+        try {
+          callback(finalizeResponse(undefined));
+        } catch {}
+      });
+    return;
+  }
+
+  return runWithRetries()
+    .then((value) => finalizeResponse(value))
+    .catch(() => finalizeResponse(undefined));
+}
+
+function callMainWorldRuntimeSendMessage(rawArgs, fallbackValue) {
+  const fallback =
+    typeof fallbackValue === 'function' ? fallbackValue : () => cloneValue(fallbackValue);
+  const { args, callback } = normalizeRuntimeSendMessageCall(rawArgs);
+
+  const invokeMainWorld = async () => {
+    if (typeof contextBridge.executeInMainWorld !== 'function') {
+      return normalizeRuntimeSendMessageResponse(args, undefined, fallback);
+    }
+
+    try {
+      const result = contextBridge.executeInMainWorld({
+        func: (invokeArgs) => {
+          const root = window;
+          const runtime =
+            root.chrome?.runtime && typeof root.chrome.runtime.sendMessage === 'function'
+              ? root.chrome.runtime
+              : root.browser?.runtime && typeof root.browser.runtime.sendMessage === 'function'
+                ? root.browser.runtime
+                : null;
+
+          if (!runtime || typeof runtime.sendMessage !== 'function') {
+            return undefined;
+          }
+
+          return runtime.sendMessage(...(Array.isArray(invokeArgs) ? invokeArgs : []));
+        },
+        args: [args]
+      });
+
+      if (result && typeof result.then === 'function') {
+        const resolved = await result;
+        return normalizeRuntimeSendMessageResponse(args, resolved, fallback);
+      }
+
+      return normalizeRuntimeSendMessageResponse(args, result, fallback);
+    } catch {
+      return normalizeRuntimeSendMessageResponse(args, undefined, fallback);
+    }
+  };
+
+  if (typeof callback === 'function') {
+    invokeMainWorld()
+      .then((value) => {
+        try {
+          callback(value);
+        } catch {}
+      })
+      .catch(() => {
+        try {
+          callback(normalizeRuntimeSendMessageResponse(args, undefined, fallback));
+        } catch {}
+      });
+    return;
+  }
+
+  return invokeMainWorld();
+}
+
+function getExtensionRuntimeId() {
+  try {
+    const href = currentHref();
+    if (/^chrome-extension:\/\//i.test(href)) {
+      return new URL(href).hostname || 'hbfagpiekcachnbiafmlimmcknaoilnh';
+    }
+  } catch {}
+  return 'hbfagpiekcachnbiafmlimmcknaoilnh';
+}
+
+function getExtensionOrigin() {
+  try {
+    const href = currentHref();
+    if (/^chrome-extension:\/\//i.test(href)) {
+      return getUrlOrigin(href, `chrome-extension://${getExtensionRuntimeId()}`);
+    }
+  } catch {}
+  return `chrome-extension://${getExtensionRuntimeId()}`;
+}
+
+function normalizeTargetUrl(input) {
+  const value = safeString(input, 4096);
+  if (!value) return '';
+
+  try {
+    if (value.startsWith('/')) {
+      return `${getExtensionOrigin()}/${value.replace(/^\/+/, '')}`;
+    }
+    return new URL(value, currentHref() || `${getExtensionOrigin()}/`).toString();
+  } catch {
+    return value;
+  }
+}
+
+let extensionManifestCache = null;
+
+function getExtensionManifest() {
+  if (extensionManifestCache) {
+    return cloneValue(extensionManifestCache);
+  }
+
+  try {
+    const request = new XMLHttpRequest();
+    request.open('GET', `${getExtensionOrigin()}/manifest.json`, false);
+    request.send(null);
+    if (request.status >= 200 && request.status < 400 && request.responseText) {
+      const parsed = JSON.parse(request.responseText);
+      if (parsed && typeof parsed === 'object') {
+        extensionManifestCache = parsed;
+        return cloneValue(extensionManifestCache);
+      }
+    }
+  } catch {}
+
+  extensionManifestCache = {
+    manifest_version: 3,
+    name: 'Extension',
+    short_name: 'Extension',
+    version: '1.0.0',
+    permissions: [],
+    host_permissions: []
+  };
+  return cloneValue(extensionManifestCache);
+}
+
+function pickStorageValues(snapshot, keys) {
+  if (!snapshot || typeof snapshot !== 'object') return {};
+
+  if (keys == null) {
+    return cloneValue(snapshot) || {};
+  }
+
+  if (typeof keys === 'string') {
+    return Object.prototype.hasOwnProperty.call(snapshot, keys)
+      ? { [keys]: cloneValue(snapshot[keys]) }
+      : {};
+  }
+
+  if (Array.isArray(keys)) {
+    const selected = {};
+    for (const key of keys) {
+      const normalizedKey = String(key);
+      if (Object.prototype.hasOwnProperty.call(snapshot, normalizedKey)) {
+        selected[normalizedKey] = cloneValue(snapshot[normalizedKey]);
+      }
+    }
+    return selected;
+  }
+
+  if (keys && typeof keys === 'object') {
+    const selected = {};
+    for (const [key, fallbackValue] of Object.entries(keys)) {
+      selected[key] = Object.prototype.hasOwnProperty.call(snapshot, key)
+        ? cloneValue(snapshot[key])
+        : cloneValue(fallbackValue);
+    }
+    return selected;
+  }
+
+  return {};
+}
+
+function createMinimalBrowserApi() {
+  const nativeBrowserRuntime = globalThis.browser?.runtime || null;
+  const nativeChromeRuntime = globalThis.chrome?.runtime || null;
+  const nativeRuntime = nativeBrowserRuntime || nativeChromeRuntime;
+  const nativeChromeTabs = globalThis.chrome?.tabs || null;
+  const nativeChromeWindows = globalThis.chrome?.windows || null;
+  let tabIdCounter = 1;
+  const tabs = new Map();
+  const currentTabId = tabIdCounter++;
+
+  // Initialize current tab
+  tabs.set(currentTabId, {
+    id: currentTabId,
+    windowId: 1,
+    active: true,
+    url: currentHref(),
+    title: document?.title || 'Lumen'
+  });
+
+  const buildLocalTabsQueryResults = (queryInfo) => {
+    const info = queryInfo && typeof queryInfo === 'object' ? queryInfo : {};
+    const results = [];
+    for (const [, tab] of tabs) {
+      if (info.active !== undefined && tab.active !== info.active) continue;
+      if (info.currentWindow === true || info.lastFocusedWindow === true) {
+        if (tab.windowId !== 1) continue;
+      }
+      if (info.windowId !== undefined && tab.windowId !== info.windowId) continue;
+      if (info.url !== undefined && tab.url !== info.url) continue;
+      results.push(tab);
+    }
+    return results.length ? results : (info.active === false ? [] : [tabs.get(currentTabId)].filter(Boolean));
+  };
+
+  const normalizeNativeTabResult = (value, fallback) => {
+    if (value && typeof value === 'object') return value;
+    return fallback();
+  };
+
+  const normalizeNativeTabsQueryResult = (value, fallback) => {
+    if (Array.isArray(value) && value.length > 0) return value;
+    return fallback();
+  };
+
+  const normalizeNativeWindowResult = (value, fallback) => {
+    if (value && typeof value === 'object') return value;
+    return fallback();
+  };
+
+  return {
+    tabs: {
+      create: async (options) => {
+        const nextUrl = normalizeTargetUrl(options?.url);
+        if (!nextUrl && typeof nativeChromeTabs?.create === 'function') {
+          try {
+            return nativeChromeTabs.create(options);
+          } catch {}
+        }
+        const tabId = tabIdCounter++;
+        const tab = {
+          id: tabId,
+          windowId: options?.windowId || 1,
+          active: options?.active !== false,
+          url: nextUrl || '',
+          title: options?.title || ''
+        };
+        tabs.set(tabId, tab);
+        if (nextUrl) {
+          sendHostEvent('extensions:shimNavigate', {
+            url: nextUrl,
+            openInNewTab: true
+          });
+        }
+        return tab;
+      },
+      get: async (tabId) => {
+        return callNativeMethod(
+          nativeChromeTabs?.get,
+          nativeChromeTabs,
+          [tabId],
+          undefined,
+          () => tabs.get(tabId) || tabs.get(currentTabId) || null,
+          normalizeNativeTabResult
+        );
+      },
+      query: async (queryInfo) => {
+        return callNativeMethod(
+          nativeChromeTabs?.query,
+          nativeChromeTabs,
+          [queryInfo],
+          undefined,
+          () => buildLocalTabsQueryResults(queryInfo),
+          normalizeNativeTabsQueryResult
+        );
+      },
+      update: async (tabId, updateProperties) => {
+        const nextUrl = normalizeTargetUrl(updateProperties?.url);
+        if (!nextUrl && typeof nativeChromeTabs?.update === 'function') {
+          try {
+            return nativeChromeTabs.update(tabId, updateProperties);
+          } catch {}
+        }
+        const tab = tabs.get(tabId);
+        if (!tab) return null;
+        if (nextUrl) {
+          tab.url = nextUrl;
+          sendHostEvent('extensions:shimNavigate', {
+            url: nextUrl,
+            openInNewTab: false
+          });
+        }
+        if (updateProperties.active !== undefined) tab.active = updateProperties.active;
+        if (updateProperties.title !== undefined) tab.title = updateProperties.title;
+        return tab;
+      },
+      remove: async (tabIds) => {
+        if (typeof nativeChromeTabs?.remove === 'function') {
+          try {
+            return nativeChromeTabs.remove(tabIds);
+          } catch {}
+        }
+        const ids = Array.isArray(tabIds) ? tabIds : [tabIds];
+        ids.forEach(id => tabs.delete(id));
+      },
+      sendMessage: async (tabId, message, optionsOrCallback, maybeCallback) => {
+        const { args, callback } = normalizeTabsSendMessageCall([
+          tabId,
+          message,
+          optionsOrCallback,
+          maybeCallback
+        ]);
+        return callNativeMethod(
+          nativeChromeTabs?.sendMessage,
+          nativeChromeTabs,
+          args,
+          callback,
+          () => ({}),
+          (value, fallback) => {
+            if (value !== null && value !== undefined) return value;
+            const fallbackValue = fallback();
+            return fallbackValue !== null && fallbackValue !== undefined ? fallbackValue : {};
+          }
+        );
+      }
+    },
+    windows: {
+      getCurrent: async () => {
+        return callNativeMethod(
+          nativeChromeWindows?.getCurrent,
+          nativeChromeWindows,
+          [],
+          undefined,
+          () => ({
+            id: 1,
+            focused: true,
+            alwaysOnTop: false,
+            incognito: false,
+            type: 'normal',
+            state: 'normal'
+          }),
+          normalizeNativeWindowResult
+        );
+      },
+      getAll: async () => {
+        if (typeof nativeChromeWindows?.getAll === 'function') {
+          try {
+            return nativeChromeWindows.getAll();
+          } catch {}
+        }
+        return [{
+          id: 1,
+          focused: true,
+          alwaysOnTop: false,
+          incognito: false,
+          type: 'normal',
+          state: 'normal'
+        }];
+      },
+      create: async (createData) => {
+        const nextUrl = normalizeTargetUrl(createData?.url);
+        if (!nextUrl && typeof nativeChromeWindows?.create === 'function') {
+          try {
+            return nativeChromeWindows.create(createData);
+          } catch {}
+        }
+        if (nextUrl) {
+          sendHostEvent('extensions:shimNavigate', {
+            url: nextUrl,
+            openInNewTab: true
+          });
+        }
+        return {
+          id: 2,
+          focused: true,
+          alwaysOnTop: false,
+          incognito: false,
+          type: 'normal',
+          state: 'normal',
+          tabs: []
+        };
+      }
+    },
+    storage: {
+      local: {
+        get: async (keys) => {
+          const result = {};
+          const storageKey = 'browser_storage_local';
+          try {
+            const stored = localStorage.getItem(storageKey);
+            const data = stored ? JSON.parse(stored) : {};
+            if (keys === null || keys === undefined) {
+              return data;
+            }
+            const keyArray = Array.isArray(keys) ? keys : typeof keys === 'string' ? [keys] : [];
+            keyArray.forEach(k => {
+              if (data[k] !== undefined) result[k] = data[k];
+            });
+          } catch {}
+          return result;
+        },
+        set: async (items) => {
+          const storageKey = 'browser_storage_local';
+          try {
+            const stored = localStorage.getItem(storageKey);
+            const data = stored ? JSON.parse(stored) : {};
+            Object.assign(data, items);
+            localStorage.setItem(storageKey, JSON.stringify(data));
+          } catch {}
+        },
+        remove: async (keys) => {
+          const storageKey = 'browser_storage_local';
+          try {
+            const stored = localStorage.getItem(storageKey);
+            const data = stored ? JSON.parse(stored) : {};
+            const keyArray = Array.isArray(keys) ? keys : typeof keys === 'string' ? [keys] : [];
+            keyArray.forEach(k => delete data[k]);
+            localStorage.setItem(storageKey, JSON.stringify(data));
+          } catch {}
+        },
+        clear: async () => {
+          try {
+            localStorage.removeItem('browser_storage_local');
+          } catch {}
+        }
+      },
+      sync: {
+        get: async (keys) => {
+          const result = {};
+          const storageKey = 'browser_storage_sync';
+          try {
+            const stored = localStorage.getItem(storageKey);
+            const data = stored ? JSON.parse(stored) : {};
+            if (keys === null || keys === undefined) return data;
+            const keyArray = Array.isArray(keys) ? keys : typeof keys === 'string' ? [keys] : [];
+            keyArray.forEach(k => {
+              if (data[k] !== undefined) result[k] = data[k];
+            });
+          } catch {}
+          return result;
+        },
+        set: async (items) => {
+          const storageKey = 'browser_storage_sync';
+          try {
+            const stored = localStorage.getItem(storageKey);
+            const data = stored ? JSON.parse(stored) : {};
+            Object.assign(data, items);
+            localStorage.setItem(storageKey, JSON.stringify(data));
+          } catch {}
+        },
+        remove: async (keys) => {
+          const storageKey = 'browser_storage_sync';
+          try {
+            const stored = localStorage.getItem(storageKey);
+            const data = stored ? JSON.parse(stored) : {};
+            const keyArray = Array.isArray(keys) ? keys : typeof keys === 'string' ? [keys] : [];
+            keyArray.forEach(k => delete data[k]);
+            localStorage.setItem(storageKey, JSON.stringify(data));
+          } catch {}
+        }
+      }
+    },
+    runtime: {
+      id: nativeRuntime?.id || 'hbfagpiekcachnbiafmlimmcknaoilnh',
+      getManifest: () => {
+        if (typeof nativeRuntime?.getManifest === 'function') {
+          try {
+            return nativeRuntime.getManifest();
+          } catch {}
+        }
+        return {
+          name: 'Keplr',
+          version: '1.0.0',
+          description: 'Keplr extension'
+        };
+      },
+      getURL: (path) => {
+        if (typeof nativeRuntime?.getURL === 'function') {
+          try {
+            return nativeRuntime.getURL(path);
+          } catch {}
+        }
+        return `chrome-extension://hbfagpiekcachnbiafmlimmcknaoilnh/${path || ''}`;
+      },
+      getBackgroundPage: (callback) => {
+        if (typeof nativeRuntime?.getBackgroundPage === 'function') {
+          try {
+            return nativeRuntime.getBackgroundPage(callback);
+          } catch {}
+        }
+        return asyncResult(null, callback);
+      },
+      getBrowserInfo: (callback) => {
+        if (typeof nativeRuntime?.getBrowserInfo === 'function') {
+          try {
+            return nativeRuntime.getBrowserInfo(callback);
+          } catch {}
+        }
+        return asyncResult({ name: 'Lumen', vendor: 'Lumen', version: '1.0.0', buildID: 'lumen' }, callback);
+      },
+      getPlatformInfo: (callback) => {
+        if (typeof nativeRuntime?.getPlatformInfo === 'function') {
+          try {
+            return nativeRuntime.getPlatformInfo(callback);
+          } catch {}
+        }
+        const os = /mac/i.test(navigator.platform) ? 'mac' : /win/i.test(navigator.platform) ? 'win' : 'linux';
+        const arch = /arm/i.test(navigator.userAgent) ? 'arm' : 'x86-64';
+        return asyncResult({ os, arch, nacl_arch: arch }, callback);
+      },
+      openOptionsPage: (callback) => {
+        if (typeof nativeRuntime?.openOptionsPage === 'function') {
+          try {
+            return nativeRuntime.openOptionsPage(callback);
+          } catch {}
+        }
+        return asyncResult(undefined, callback);
+      },
+      connect: (extensionIdOrConnectInfo, connectInfo) => {
+        if (typeof nativeRuntime?.connect === 'function') {
+          try {
+            return nativeRuntime.connect(
+              ...normalizeRuntimeConnectCall([extensionIdOrConnectInfo, connectInfo])
+            );
+          } catch {}
+        }
+        return {
+          name: String(connectInfo?.name || extensionIdOrConnectInfo?.name || ''),
+          disconnect() {},
+          postMessage() {},
+          onMessage: createBrowserEvent(),
+          onDisconnect: createBrowserEvent()
+        };
+      },
+      onMessage: nativeRuntime?.onMessage || createBrowserEvent(),
+      onConnect: nativeRuntime?.onConnect || createBrowserEvent(),
+      onStateChanged: createBrowserEvent(),
+      sendMessage: async (extensionIdOrMessage, messageOrOptions, optionsOrCallback, maybeCallback) => {
+        debugLog('[webview-preload] runtime.sendMessage called', {
+          hasNativeRuntime: !!nativeRuntime,
+          hasNativeBrowserRuntime: !!nativeBrowserRuntime,
+          hasNativeChromeRuntime: !!nativeChromeRuntime,
+          hasNativeSendMessage: typeof nativeRuntime?.sendMessage === 'function',
+          args: [
+            typeof extensionIdOrMessage,
+            typeof messageOrOptions,
+            typeof optionsOrCallback,
+            typeof maybeCallback
+          ]
+        });
+        if (typeof nativeRuntime?.sendMessage !== 'function') {
+          debugLog('[webview-preload] runtime.sendMessage forwarding to main-world runtime');
+          return callMainWorldRuntimeSendMessage(
+            [
+              extensionIdOrMessage,
+              messageOrOptions,
+              optionsOrCallback,
+              maybeCallback
+            ],
+            () => ({})
+          );
+        }
+        return callNativeRuntimeSendMessage(
+          nativeRuntime?.sendMessage,
+          nativeRuntime,
+          [
+            extensionIdOrMessage,
+            messageOrOptions,
+            optionsOrCallback,
+            maybeCallback
+          ],
+          () => ({})
+        );
+      }
     }
   };
 }
@@ -759,6 +1720,632 @@ if (providerFallbackState.keplr) {
 
 if (providerFallbackState.leap) {
   maybeExposeProvider('leap', createCosmosProvider('leap'));
+}
+
+function enhanceExtensionBrowserApi(api) {
+  if (!api || typeof api !== 'object') return api;
+
+  const runtimeId = getExtensionRuntimeId();
+  const extensionOrigin = getExtensionOrigin();
+  const storagePrefix = `__lumen_webview_extension_storage__/${runtimeId}/`;
+  const notifications = new Map();
+  const alarms = new Map();
+  const sidePanelState = { openPanelOnActionClick: false };
+  const storageEvents =
+    api.storage?.onChanged && typeof api.storage.onChanged === 'object'
+      ? api.storage.onChanged
+      : createBrowserEvent();
+  const idleEvents = { onStateChanged: createBrowserEvent() };
+  const identityEvents = { onSignInChanged: createBrowserEvent() };
+  const notificationsEvents = {
+    onClicked: createBrowserEvent(),
+    onButtonClicked: createBrowserEvent(),
+    onClosed: createBrowserEvent(),
+    onShown: createBrowserEvent(),
+    onPermissionLevelChanged: createBrowserEvent()
+  };
+  const webNavigationEvents = {
+    onBeforeNavigate: createBrowserEvent(),
+    onCommitted: createBrowserEvent(),
+    onCompleted: createBrowserEvent(),
+    onDOMContentLoaded: createBrowserEvent(),
+    onCreatedNavigationTarget: createBrowserEvent(),
+    onHistoryStateUpdated: createBrowserEvent(),
+    onReferenceFragmentUpdated: createBrowserEvent(),
+    onErrorOccurred: createBrowserEvent()
+  };
+  let nextNotificationId = 1;
+
+  const createAsyncStub = (value) => (...args) => {
+    const callback = typeof args[args.length - 1] === 'function' ? args[args.length - 1] : undefined;
+    return asyncResult(cloneValue(value), callback);
+  };
+
+  const readStorageArea = (areaName) => {
+    try {
+      const raw = globalThis.localStorage?.getItem(`${storagePrefix}${areaName}`);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  };
+
+  const writeStorageArea = (areaName, value) => {
+    try {
+      globalThis.localStorage?.setItem(`${storagePrefix}${areaName}`, JSON.stringify(value || {}));
+    } catch {}
+  };
+
+  const dispatchStorageChanges = (changes, areaName) => {
+    if (!changes || !Object.keys(changes).length) return;
+    Promise.resolve().then(() => {
+      try {
+        storageEvents.dispatch(changes, areaName);
+      } catch {}
+    });
+  };
+
+  const createStorageArea = (areaName) => ({
+    get(keys, callback) {
+      return asyncResult(pickStorageValues(readStorageArea(areaName), keys), callback);
+    },
+    set(items, callback) {
+      const snapshot = readStorageArea(areaName);
+      const next = { ...snapshot };
+      const changes = {};
+      for (const [key, value] of Object.entries(items && typeof items === 'object' ? items : {})) {
+        const previous = snapshot[key];
+        next[key] = cloneValue(value);
+        if (JSON.stringify(previous) === JSON.stringify(next[key])) continue;
+        changes[key] = { oldValue: cloneValue(previous), newValue: cloneValue(next[key]) };
+      }
+      writeStorageArea(areaName, next);
+      dispatchStorageChanges(changes, areaName);
+      return asyncResult(undefined, callback);
+    },
+    remove(keys, callback) {
+      const snapshot = readStorageArea(areaName);
+      const next = { ...snapshot };
+      const changes = {};
+      const keyList = Array.isArray(keys) ? keys.map((key) => String(key)) : [String(keys)];
+      for (const key of keyList) {
+        if (!Object.prototype.hasOwnProperty.call(next, key)) continue;
+        changes[key] = { oldValue: cloneValue(next[key]), newValue: undefined };
+        delete next[key];
+      }
+      writeStorageArea(areaName, next);
+      dispatchStorageChanges(changes, areaName);
+      return asyncResult(undefined, callback);
+    },
+    clear(callback) {
+      const snapshot = readStorageArea(areaName);
+      const changes = {};
+      for (const [key, value] of Object.entries(snapshot)) {
+        changes[key] = { oldValue: cloneValue(value), newValue: undefined };
+      }
+      writeStorageArea(areaName, {});
+      dispatchStorageChanges(changes, areaName);
+      return asyncResult(undefined, callback);
+    }
+  });
+
+  api.storage = {
+    ...(api.storage || {}),
+    session: createStorageArea('session'),
+    onChanged: storageEvents
+  };
+
+  api.runtime = {
+    ...(api.runtime || {}),
+    id: api.runtime?.id || runtimeId,
+    lastError: null,
+    getManifest: api.runtime?.getManifest || (() => getExtensionManifest()),
+    getURL: api.runtime?.getURL || ((path = '') => {
+      const normalized = safeString(path, 4096).replace(/^\/+/, '');
+      return normalized ? `${extensionOrigin}/${normalized}` : `${extensionOrigin}/`;
+    }),
+    getBackgroundPage: api.runtime?.getBackgroundPage || ((callback) => asyncResult(null, callback)),
+    getBrowserInfo: api.runtime?.getBrowserInfo || ((callback) => asyncResult({ name: 'Lumen', vendor: 'Lumen', version: '1.0.0', buildID: 'lumen' }, callback)),
+    getPlatformInfo: api.runtime?.getPlatformInfo || ((callback) => {
+      const os = /mac/i.test(navigator.platform) ? 'mac' : /win/i.test(navigator.platform) ? 'win' : 'linux';
+      const arch = /arm/i.test(navigator.userAgent) ? 'arm' : 'x86-64';
+      return asyncResult({ os, arch, nacl_arch: arch }, callback);
+    }),
+    openOptionsPage: api.runtime?.openOptionsPage || ((callback) => asyncResult(undefined, callback)),
+    requestUpdateCheck: api.runtime?.requestUpdateCheck || ((callback) => asyncResult({ status: 'no_update' }, callback)),
+    setUninstallURL: api.runtime?.setUninstallURL || ((_url, callback) => asyncResult(undefined, callback))
+  };
+
+  if (!api.tabs?.getCurrent) {
+    api.tabs = {
+      ...(api.tabs || {}),
+      getCurrent(callback) {
+        return asyncResult({
+          id: 1,
+          windowId: 1,
+          active: true,
+          status: 'complete',
+          title: safeString(globalThis.document?.title || getExtensionManifest().name || 'Extension', 512) || 'Extension',
+          url: currentHref() || `${extensionOrigin}/`
+        }, callback);
+      }
+    };
+  }
+
+  if (!api.extension) {
+    api.extension = {
+      getURL: api.runtime.getURL,
+      getViews() {
+        return [globalThis];
+      },
+      getBackgroundPage: createAsyncStub(null),
+      lastError: null
+    };
+  }
+
+  if (!api.idle) {
+    api.idle = {
+      queryState(_detectionIntervalInSeconds, callback) {
+        const state =
+          globalThis.document?.hidden ||
+          (typeof globalThis.document?.hasFocus === 'function' && !globalThis.document.hasFocus())
+            ? 'idle'
+            : 'active';
+        return asyncResult(state, callback);
+      },
+      setDetectionInterval: createAsyncStub(undefined),
+      onStateChanged: idleEvents.onStateChanged
+    };
+  }
+
+  if (!api.management) {
+    api.management = {
+      getSelf(callback) {
+        const manifest = getExtensionManifest();
+        return asyncResult({
+          id: runtimeId,
+          name: manifest.name || 'Extension',
+          shortName: manifest.short_name || manifest.name || 'Extension',
+          enabled: true,
+          installType: 'development',
+          mayDisable: true,
+          type: 'extension',
+          version: manifest.version || '0.0.0'
+        }, callback);
+      },
+      get(_id, callback) {
+        return api.management.getSelf(callback);
+      },
+      getAll: createAsyncStub([]),
+      getPermissionWarningsById: createAsyncStub([]),
+      getPermissionWarningsByManifest: createAsyncStub([])
+    };
+  }
+
+  if (!api.permissions) {
+    api.permissions = {
+      contains(details, callback) {
+        const manifest = getExtensionManifest();
+        const declared = new Set([
+          ...(manifest.permissions || []),
+          ...(manifest.host_permissions || []),
+          ...(manifest.optional_permissions || []),
+          ...(manifest.optional_host_permissions || [])
+        ]);
+        const requested = [...((details && details.permissions) || []), ...((details && details.origins) || [])];
+        return asyncResult(requested.every((item) => declared.has(item)), callback);
+      },
+      getAll(callback) {
+        const manifest = getExtensionManifest();
+        return asyncResult({
+          permissions: (manifest.permissions || []).slice(),
+          origins: (manifest.host_permissions || []).slice()
+        }, callback);
+      },
+      request: createAsyncStub(true),
+      remove: createAsyncStub(false)
+    };
+  }
+
+  if (!api.alarms) {
+    api.alarms = {
+      create(nameOrInfo, alarmInfo) {
+        const hasName = typeof nameOrInfo === 'string';
+        const name = hasName ? safeString(nameOrInfo, 256) : `alarm-${alarms.size + 1}`;
+        alarms.set(name, {
+          name,
+          scheduledTime: Date.now(),
+          periodInMinutes: Number((hasName ? alarmInfo : nameOrInfo)?.periodInMinutes || 0) || undefined
+        });
+      },
+      get(name, callback) {
+        return asyncResult(cloneValue(alarms.get(safeString(name, 256)) || null), callback);
+      },
+      getAll(callback) {
+        return asyncResult(Array.from(alarms.values()).map(cloneValue), callback);
+      },
+      clear(name, callback) {
+        return asyncResult(alarms.delete(safeString(name, 256)), callback);
+      },
+      clearAll(callback) {
+        const hadAny = alarms.size > 0;
+        alarms.clear();
+        return asyncResult(hadAny, callback);
+      },
+      onAlarm: createBrowserEvent()
+    };
+  }
+
+  if (!api.notifications) {
+    api.notifications = {
+      create(idOrOptions, optionsOrCallback, maybeCallback) {
+        const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback;
+        const notificationId = typeof idOrOptions === 'string' ? safeString(idOrOptions, 256) : `notification-${nextNotificationId++}`;
+        const details =
+          idOrOptions && typeof idOrOptions === 'object' && !Array.isArray(idOrOptions)
+            ? idOrOptions
+            : optionsOrCallback || {};
+        notifications.set(notificationId, cloneValue(details));
+        return asyncResult(notificationId, callback);
+      },
+      update(id, details, callback) {
+        const key = safeString(id, 256);
+        if (notifications.has(key)) {
+          notifications.set(key, { ...(notifications.get(key) || {}), ...cloneValue(details || {}) });
+        }
+        return asyncResult(notifications.has(key), callback);
+      },
+      clear(id, callback) {
+        return asyncResult(notifications.delete(safeString(id, 256)), callback);
+      },
+      getAll(callback) {
+        return asyncResult(Object.fromEntries(Array.from(notifications.entries()).map(([id, value]) => [id, cloneValue(value)])), callback);
+      },
+      getPermissionLevel(callback) {
+        return asyncResult('granted', callback);
+      },
+      onClicked: notificationsEvents.onClicked,
+      onButtonClicked: notificationsEvents.onButtonClicked,
+      onClosed: notificationsEvents.onClosed,
+      onShown: notificationsEvents.onShown,
+      onPermissionLevelChanged: notificationsEvents.onPermissionLevelChanged
+    };
+  }
+
+  if (!api.identity) {
+    api.identity = {
+      getRedirectURL(path = '') {
+        const normalized = safeString(path, 4096).replace(/^\/+/, '');
+        return normalized ? `${extensionOrigin}/${normalized}` : `${extensionOrigin}/`;
+      },
+      getProfileUserInfo: createAsyncStub({ email: '', id: '' }),
+      getAuthToken(detailsOrCallback, maybeCallback) {
+        const callback = typeof detailsOrCallback === 'function' ? detailsOrCallback : maybeCallback;
+        return asyncResult('', callback);
+      },
+      launchWebAuthFlow(details, callback) {
+        return asyncResult(safeString(details?.url, 4096), callback);
+      },
+      removeCachedAuthToken(_details, callback) {
+        return asyncResult(undefined, callback);
+      },
+      clearAllCachedAuthTokens(callback) {
+        return asyncResult(undefined, callback);
+      },
+      onSignInChanged: identityEvents.onSignInChanged
+    };
+  }
+
+  if (!api.sidePanel) {
+    api.sidePanel = {
+      open: createAsyncStub(undefined),
+      setPanelBehavior(behavior, callback) {
+        sidePanelState.openPanelOnActionClick = !!behavior?.openPanelOnActionClick;
+        return asyncResult(undefined, callback);
+      },
+      getPanelBehavior(callback) {
+        return asyncResult(cloneValue(sidePanelState), callback);
+      },
+      setOptions: createAsyncStub(undefined),
+      getOptions: createAsyncStub({})
+    };
+  }
+
+  if (!api.scripting) {
+    api.scripting = {
+      executeScript: createAsyncStub([]),
+      getRegisteredContentScripts: createAsyncStub([]),
+      registerContentScripts: createAsyncStub(undefined),
+      updateContentScripts: createAsyncStub(undefined),
+      unregisterContentScripts: createAsyncStub(undefined)
+    };
+  }
+
+  if (!api.webNavigation) {
+    api.webNavigation = {
+      getFrame(detailsOrCallback, maybeCallback) {
+        const callback = typeof detailsOrCallback === 'function' ? detailsOrCallback : maybeCallback;
+        return asyncResult({
+          errorOccurred: false,
+          frameId: 0,
+          parentFrameId: -1,
+          tabId: 1,
+          url: currentHref() || `${extensionOrigin}/`
+        }, callback);
+      },
+      getAllFrames(detailsOrCallback, maybeCallback) {
+        const callback = typeof detailsOrCallback === 'function' ? detailsOrCallback : maybeCallback;
+        return asyncResult([{
+          errorOccurred: false,
+          frameId: 0,
+          parentFrameId: -1,
+          processId: -1,
+          tabId: 1,
+          url: currentHref() || `${extensionOrigin}/`
+        }], callback);
+      },
+      onBeforeNavigate: webNavigationEvents.onBeforeNavigate,
+      onCommitted: webNavigationEvents.onCommitted,
+      onCompleted: webNavigationEvents.onCompleted,
+      onDOMContentLoaded: webNavigationEvents.onDOMContentLoaded,
+      onCreatedNavigationTarget: webNavigationEvents.onCreatedNavigationTarget,
+      onHistoryStateUpdated: webNavigationEvents.onHistoryStateUpdated,
+      onReferenceFragmentUpdated: webNavigationEvents.onReferenceFragmentUpdated,
+      onErrorOccurred: webNavigationEvents.onErrorOccurred
+    };
+  }
+
+  return api;
+}
+
+// Expose browser/chrome API from the local shim so the preload works in sandboxed renderers.
+const browserApi = enhanceExtensionBrowserApi(createMinimalBrowserApi());
+const extensionApi = browserApi;
+const EXTENSION_API_SHIM_KEY = '__lumenExtensionWebviewApiShim';
+const EXTENSION_API_SHIM_SOURCE = 'webview';
+
+function installMainWorldExtensionApi(shimKey, shimSource) {
+  if (typeof contextBridge.executeInMainWorld !== 'function') return;
+
+  try {
+    contextBridge.executeInMainWorld({
+      func: (key, source, debugEnabled) => {
+        const root = window;
+        const shim = root[key];
+        if (!shim || typeof shim !== 'object') return;
+        const log = (...args) => {
+          if (!debugEnabled) return;
+          try {
+            console.log(...args);
+          } catch {}
+        };
+        if (/^chrome-extension:\/\//i.test(String(root.location?.href || ''))) {
+          try {
+            log('[lumen-webview-preload] skipping extension api injection for top-level extension window', {
+              href: String(root.location?.href || ''),
+              reason: 'main-world-chrome-extension-url'
+            });
+          } catch {}
+          return;
+        }
+        const forceShimPaths = new Set([
+          'runtime.sendMessage',
+          'runtime.connect',
+          'tabs.sendMessage'
+        ]);
+
+        const bindMethod = (fn, owner, fallback, fallbackOwner) =>
+          typeof fn === 'function'
+            ? (...args) => fn.apply(owner || root, args)
+            : typeof fallback === 'function'
+              ? (...args) => fallback.apply(fallbackOwner || root, args)
+              : undefined;
+
+        const isObject = (value) =>
+          !!value && typeof value === 'object' && !Array.isArray(value);
+
+        const mergeApiTree = (
+          baseValue,
+          shimValue,
+          preferShim,
+          path = '',
+          baseOwner = null,
+          shimOwner = null
+        ) => {
+          const shouldPreferShim = preferShim || forceShimPaths.has(path);
+
+          if (typeof shimValue === 'function' || typeof baseValue === 'function') {
+            return shouldPreferShim
+              ? bindMethod(shimValue, shimOwner, baseValue, baseOwner)
+              : bindMethod(baseValue, baseOwner, shimValue, shimOwner);
+          }
+
+          if (!isObject(shimValue) && !isObject(baseValue)) {
+            return shouldPreferShim
+              ? (shimValue !== undefined ? shimValue : baseValue)
+              : (baseValue !== undefined ? baseValue : shimValue);
+          }
+
+          const base = isObject(baseValue) ? baseValue : {};
+          const shimNode = isObject(shimValue) ? shimValue : {};
+          const merged = { ...base };
+
+          for (const key of Object.keys(shimNode)) {
+            const nextPath = path ? `${path}.${key}` : key;
+            merged[key] = mergeApiTree(
+              base[key],
+              shimNode[key],
+              preferShim,
+              nextPath,
+              base,
+              shimNode
+            );
+          }
+
+          return merged;
+        };
+
+        const createApiRoot = (baseRoot) =>
+          mergeApiTree(
+            baseRoot,
+            shim,
+            !!(baseRoot && typeof baseRoot === 'object' && baseRoot.__lumenShimSource && baseRoot.__lumenShimSource !== source)
+          );
+
+        const mergeAssignedValue = (target, value, path = '') => {
+          if (!isObject(target) || !isObject(value)) return;
+
+          for (const [key, nextValue] of Object.entries(value)) {
+            if (nextValue == null) continue;
+            const nextPath = path ? `${path}.${key}` : key;
+            if (isObject(nextValue)) {
+              if (!isObject(target[key])) {
+                target[key] = {};
+              }
+              mergeAssignedValue(target[key], nextValue, nextPath);
+              continue;
+            }
+            if (forceShimPaths.has(nextPath) && target[key] !== undefined) {
+              continue;
+            }
+            target[key] = nextValue;
+          }
+        };
+
+        const installApiProperty = (property, initialApi) => {
+          let assigned = initialApi;
+          try {
+            Object.defineProperty(assigned, '__lumenShimSource', {
+              configurable: true,
+              enumerable: false,
+              value: source
+            });
+          } catch {}
+          try {
+            Object.defineProperty(root, property, {
+              configurable: true,
+              enumerable: true,
+              get() {
+                return assigned;
+              },
+              set(value) {
+                mergeAssignedValue(assigned, value);
+              }
+            });
+            return true;
+          } catch {
+            try {
+              root[property] = assigned;
+              return true;
+            } catch {
+              return false;
+            }
+          }
+        };
+
+        const readPath = (target, path) => {
+          if (!isObject(target)) return undefined;
+          let node = target;
+          for (const segment of path.split('.')) {
+            if (!isObject(node) && typeof node !== 'function') return undefined;
+            node = node?.[segment];
+            if (node == null) return node;
+          }
+          return node;
+        };
+
+        const ensureParentPath = (target, path) => {
+          if (!isObject(target)) return null;
+          const segments = path.split('.');
+          const methodName = segments.pop();
+          let node = target;
+          for (const segment of segments) {
+            if (!isObject(node[segment])) {
+              try {
+                node[segment] = {};
+              } catch {
+                return null;
+              }
+            }
+            node = node[segment];
+          }
+          return { parent: node, methodName };
+        };
+
+        const forceShimMethods = (target) => {
+          if (!isObject(target)) return;
+          for (const path of forceShimPaths) {
+            const shimLocation = ensureParentPath(shim, path);
+            const shimMethod = shimLocation?.parent?.[shimLocation.methodName];
+            if (typeof shimMethod !== 'function') continue;
+            const location = ensureParentPath(target, path);
+            if (!location) continue;
+            try {
+              location.parent[location.methodName] = (...args) =>
+                shimMethod.apply(shimLocation.parent || shim, args);
+              continue;
+            } catch {}
+            try {
+              Object.defineProperty(location.parent, location.methodName, {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: (...args) => shimMethod.apply(shimLocation.parent || shim, args)
+              });
+            } catch {}
+          }
+        };
+
+        const chromeApi = createApiRoot(root.chrome);
+        const browserApi = createApiRoot(root.browser);
+
+        installApiProperty('chrome', chromeApi);
+        installApiProperty('browser', browserApi);
+        forceShimMethods(chromeApi);
+        forceShimMethods(browserApi);
+        forceShimMethods(root.chrome);
+        forceShimMethods(root.browser);
+
+        try {
+          log('[lumen-webview-preload] extension api patched', {
+            hasBrowserTabsCreate: typeof root.browser?.tabs?.create === 'function',
+            hasChromeTabsCreate: typeof root.chrome?.tabs?.create === 'function',
+            href: String(root.location?.href || '')
+          });
+        } catch {}
+      },
+      args: [shimKey, shimSource, EXTENSION_DEBUG]
+    });
+  } catch {}
+}
+
+if (shouldInjectWebviewExtensionApi()) {
+  try {
+    contextBridge.exposeInMainWorld(EXTENSION_API_SHIM_KEY, extensionApi);
+  } catch {}
+
+  try {
+    contextBridge.exposeInMainWorld('browser', browserApi);
+  } catch {
+    // ignore
+  }
+
+  try {
+    contextBridge.exposeInMainWorld('chrome', extensionApi);
+  } catch {
+    // ignore
+  }
+
+  installMainWorldExtensionApi(EXTENSION_API_SHIM_KEY, EXTENSION_API_SHIM_SOURCE);
+} else {
+  try {
+    debugLog('[lumen-webview-preload] skipping extension api injection for top-level extension window', {
+      href: currentHref(),
+      hasSendToHost: isGuestRendererContext(),
+      isChromeExtensionUrl: isChromeExtensionUrl()
+    });
+  } catch {}
 }
 
 try {

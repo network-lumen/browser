@@ -19,6 +19,7 @@
         <ArrowRight :size="16" />
       </button>
       <button
+        v-if="!isExtensionTab"
         class="nav-btn"
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
@@ -577,7 +578,7 @@ import {
   importProfileManually
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
-import { normalizeAddressInput } from '../internal/navigationUrl';
+import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -592,6 +593,7 @@ const props = defineProps<{
   tabs: Tab[];
   loading: boolean;
   currentUrl?: string;
+  isExtensionTab?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -616,6 +618,7 @@ const creatingProfile = ref(false);
 const newProfileName = ref('');
 const profileMessage = ref('');
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+const openExtensionPopup = inject<((input: any) => void) | null>('openExtensionPopup', null);
 
 type InstalledExtension = {
   id: string;
@@ -707,6 +710,7 @@ const canGoForward = computed(() => {
 });
 
 const loading = computed(() => props.loading);
+const isExtensionTab = computed(() => !!props.isExtensionTab);
 
 // Sync displayed URL with current tab URL
 watch(
@@ -914,10 +918,18 @@ async function removeExtension(id: string) {
   }, 'Extension removed.');
 }
 
-function openExtension(ext: InstalledExtension) {
-  const target = String(ext?.launchUrl || '').trim();
-  if (!target || !ext.enabled) return;
+async function openExtension(ext: InstalledExtension) {
+  if (!ext?.enabled) return;
   showExtensionsMenu.value = false;
+  if (typeof openExtensionPopup === 'function') {
+    openExtensionPopup({
+      extensionId: ext.id,
+      name: String(ext?.name || '').trim(),
+      targetUrl: String(ext?.launchUrl || '').trim(),
+    });
+    return;
+  }
+  const target = buildExtensionTabUrl(ext.id, { name: String(ext?.name || '').trim() });
   if (typeof openInNewTab === 'function') {
     openInNewTab(target);
     return;

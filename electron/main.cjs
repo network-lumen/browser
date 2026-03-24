@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, session, dialog, webContents } = require('electron');
 const path = require('path');
 const {
   APP_NAME,
@@ -151,7 +151,7 @@ const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.
 const { registerSecurityIpc, syncActiveSessionTimeout } = require('./ipc/security.cjs');
 const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
 const { registerHlsIpc } = require('./ipc/hls.cjs');
-const { registerFindIpc } = require('./ipc/find.cjs');
+const { registerFindIpc, resolveActiveTargetWebContents } = require('./ipc/find.cjs');
 const { registerDriveBackupIpc } = require('./ipc/drive_backup.cjs');
 const { registerTroubleshootingIpc } = require('./ipc/troubleshooting.cjs');
 const { registerExtensionsIpc } = require('./ipc/extensions.cjs');
@@ -180,6 +180,99 @@ function safeString(v, maxLen = 2048) {
   const s = String(v ?? '').trim();
   if (!s) return '';
   return s.length > maxLen ? s.slice(0, maxLen) : s;
+}
+
+const LUMEN_SESSION_PARTITION = 'persist:lumen';
+const LUMEN_SESSION_PRELOAD_ID = 'lumen-extension-preload';
+const LUMEN_SESSION_SW_PRELOAD_ID = 'lumen-extension-service-worker-preload';
+
+function describeSessionPartition(ses) {
+  try {
+    if (!ses) return 'missing';
+    if (ses === session.defaultSession) return 'default';
+    if (ses === session.fromPartition(LUMEN_SESSION_PARTITION)) return LUMEN_SESSION_PARTITION;
+    if (typeof ses.getStoragePath === 'function') {
+      const storagePath = safeString(ses.getStoragePath(), 4096);
+      if (storagePath) return storagePath;
+    }
+    return 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+function listSessionPreloadScripts(ses) {
+  try {
+    const scripts =
+      ses && typeof ses.getPreloadScripts === 'function' ? ses.getPreloadScripts() : [];
+    return Array.isArray(scripts)
+      ? scripts.map((script) => ({
+          id: safeString(script?.id, 256),
+          type: safeString(script?.type, 64),
+          filePath: safeString(script?.filePath, 4096),
+        }))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function registerLumenSessionPreload() {
+  const ses = session.fromPartition(LUMEN_SESSION_PARTITION);
+  const preloadScripts = [
+    {
+      id: LUMEN_SESSION_PRELOAD_ID,
+      type: 'frame',
+      filePath: path.join(__dirname, 'webview-preload.cjs'),
+    },
+    {
+      id: LUMEN_SESSION_SW_PRELOAD_ID,
+      type: 'service-worker',
+      filePath: path.join(__dirname, 'extension-service-worker-preload.cjs'),
+    },
+  ];
+
+  try {
+    if (typeof ses.unregisterPreloadScript === 'function') {
+      for (const script of listSessionPreloadScripts(ses)) {
+        if (script.id === LUMEN_SESSION_PRELOAD_ID || script.id === LUMEN_SESSION_SW_PRELOAD_ID) {
+          try {
+            ses.unregisterPreloadScript(script.id);
+          } catch {}
+        }
+      }
+    }
+
+    if (typeof ses.registerPreloadScript === 'function') {
+      for (const preload of preloadScripts) {
+        const registeredId = String(ses.registerPreloadScript(preload) || '').trim();
+        console.log('[main] registered session preload', {
+          requestedId: preload.id,
+          registeredId,
+          partition: LUMEN_SESSION_PARTITION,
+          preloadPath: preload.filePath,
+          preloadType: preload.type,
+        });
+      }
+    } else {
+      ses.setPreloads(preloadScripts.map((preload) => preload.filePath));
+      console.log('[main] registered session preload via deprecated setPreloads', {
+        partition: LUMEN_SESSION_PARTITION,
+        preloadPaths: preloadScripts.map((preload) => preload.filePath),
+      });
+    }
+
+    console.log('[main] registered preloads =', {
+      partition: LUMEN_SESSION_PARTITION,
+      scripts: listSessionPreloadScripts(ses),
+    });
+  } catch (e) {
+    console.warn('[main] failed to register session preload', {
+      partition: LUMEN_SESSION_PARTITION,
+      preloadPath,
+      error: String(e && e.message ? e.message : e || 'unknown_error'),
+    });
+  }
 }
 
 function sleep(ms) {
@@ -373,13 +466,147 @@ ipcMain.on('tabs:state', (evt, tabIds) => {
 function isDevtoolsToggle(input) {
   const key = String(input && input.key ? input.key : '').toUpperCase();
   const f12 = key === 'F12';
-  const mod = (input && (input.control || input.meta)) && input && input.shift && key === 'I';
-  return f12 || mod;
+  const ctrlOrMeta = !!(input && (input.control || input.meta));
+  const ctrlAltI = !!(input && input.control && input.alt) && key === 'I';
+  const ctrlShiftI = ctrlOrMeta && !!(input && input.shift) && key === 'I';
+  return f12 || ctrlAltI || ctrlShiftI;
+}
+
+function isChromeExtensionUrl(rawUrl) {
+  return /^chrome-extension:\/\//i.test(safeString(rawUrl, 4096));
+}
+
+function isChromeExtensionWebviewContents(contents) {
+  if (!contents || contents.isDestroyed?.()) return false;
+  try {
+    const type = typeof contents.getType === 'function' ? String(contents.getType() || '') : '';
+    if (type.toLowerCase() !== 'webview') return false;
+  } catch {
+    return false;
+  }
+  try {
+    return isChromeExtensionUrl(contents.getURL?.());
+  } catch {
+    return false;
+  }
+}
+
+function resolveFocusedDevtoolsTarget(sourceContents) {
+  const fallback = resolveActiveTargetWebContents(sourceContents) || sourceContents;
+  let sourceOwner = null;
+  try {
+    sourceOwner =
+      sourceContents && typeof sourceContents.getOwnerBrowserWindow === 'function'
+        ? sourceContents.getOwnerBrowserWindow()
+        : sourceContents
+          ? BrowserWindow.fromWebContents(sourceContents)
+          : null;
+  } catch {
+    sourceOwner = null;
+  }
+
+  let focused = null;
+  try {
+    focused =
+      webContents && typeof webContents.getFocusedWebContents === 'function'
+        ? webContents.getFocusedWebContents()
+        : null;
+  } catch {
+    focused = null;
+  }
+
+  if (!focused || focused.isDestroyed?.()) return fallback;
+
+  let focusedOwner = null;
+  try {
+    focusedOwner =
+      typeof focused.getOwnerBrowserWindow === 'function'
+        ? focused.getOwnerBrowserWindow()
+        : BrowserWindow.fromWebContents(focused);
+  } catch {
+    focusedOwner = null;
+  }
+  if (!focusedOwner || (sourceOwner && focusedOwner !== sourceOwner)) return fallback;
+
+  return focused;
+}
+
+function focusDevToolsWindowForContents(targetContents) {
+  if (!targetContents || targetContents.isDestroyed?.()) return false;
+
+  try {
+    const devtoolsContents = targetContents.devToolsWebContents;
+    if (!devtoolsContents || devtoolsContents.isDestroyed?.()) return false;
+
+    const devtoolsWindow = BrowserWindow.fromWebContents(devtoolsContents);
+    if (devtoolsWindow && !devtoolsWindow.isDestroyed?.()) {
+      try { devtoolsWindow.show?.(); } catch {}
+      try { devtoolsWindow.restore?.(); } catch {}
+      try { devtoolsWindow.focus?.(); } catch {}
+      try { devtoolsWindow.moveTop?.(); } catch {}
+      return true;
+    }
+
+    try { devtoolsContents.focus?.(); } catch {}
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function openDevToolsForSourceContents(sourceContents, options = {}) {
+  const toggle = !!options.toggle;
+  const targetContents = resolveFocusedDevtoolsTarget(sourceContents);
+  if (!targetContents || targetContents.isDestroyed?.()) {
+    return { ok: false, error: 'target_missing' };
+  }
+
+  try {
+    targetContents.focus?.();
+  } catch {}
+
+  try {
+    if (toggle && typeof targetContents.isDevToolsOpened === 'function' && targetContents.isDevToolsOpened()) {
+      targetContents.closeDevTools?.();
+      return { ok: true, action: 'closed', targetWebContentsId: targetContents.id };
+    }
+
+    try {
+      targetContents.once?.('devtools-opened', () => {
+        setTimeout(() => {
+          focusDevToolsWindowForContents(targetContents);
+        }, 25);
+      });
+    } catch {}
+
+    targetContents.openDevTools?.({ mode: 'detach', activate: true });
+    setTimeout(() => {
+      focusDevToolsWindowForContents(targetContents);
+    }, 100);
+    return { ok: true, action: 'opened', targetWebContentsId: targetContents.id };
+  } catch (error) {
+    try {
+      if (toggle) {
+        targetContents.toggleDevTools?.();
+        return { ok: true, action: 'toggled', targetWebContentsId: targetContents.id };
+      }
+    } catch {}
+
+    return {
+      ok: false,
+      error: String(error && error.message ? error.message : error || 'open_devtools_failed'),
+      targetWebContentsId: targetContents.id,
+    };
+  }
 }
 
 ipcMain.handle('ipfs:status', async () => {
   console.log('[electron][ipc] ipfs:status requested');
   return checkIpfsStatus();
+});
+
+ipcMain.handle('devtools:openActive', async (evt) => {
+  return openDevToolsForSourceContents(evt?.sender, { toggle: false });
 });
 
 function sanitizeDialogOptions(input = {}) {
@@ -1217,6 +1444,8 @@ app.whenReady().then(async () => {
     console.warn('[electron] failed to resolve app paths', e);
   }
 
+  registerLumenSessionPreload();
+
   try {
     await extensionManager.initialize();
     console.log('[electron] extension manager initialized');
@@ -1229,16 +1458,6 @@ app.whenReady().then(async () => {
   try {
     recordLaunchStart().catch(() => {});
   } catch {}
-
-  // Preload for <webview partition="persist:lumen"> sites (demo websites, IPFS HTML, etc.).
-  try {
-    const preloadPath = path.join(__dirname, 'webview-preload.cjs');
-    const s = session.fromPartition('persist:lumen');
-    s.setPreloads([preloadPath]);
-    console.log('[electron] webview preload set for persist:lumen:', preloadPath);
-  } catch (e) {
-    console.warn('[electron] failed to set webview preloads:', e);
-  }
 
   // Route any window.open / target=_blank (including from <webview>) into our tab system.
   // This prevents Electron from creating a separate "Chromium-like" popup window.
@@ -1354,7 +1573,7 @@ app.whenReady().then(async () => {
       contents.on('before-input-event', (event, input) => {
         if (isDevtoolsToggle(input)) {
           event.preventDefault();
-          try { contents.toggleDevTools(); } catch {}
+          openDevToolsForSourceContents(contents, { toggle: true });
         }
       });
     });

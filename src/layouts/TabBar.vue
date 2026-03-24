@@ -10,7 +10,8 @@
       ref="nav"
       :tabActive="tabActive"
       :tabs="tabs"
-      :loading="!!activeTab?.loading"
+      :loading="!activeTabIsExtension && !!activeTab?.loading"
+      :is-extension-tab="activeTabIsExtension"
       :current-url="currentUrl()"
       @goto="onGotoFromNavbar"
       @refresh-request="onRefresh"
@@ -38,7 +39,7 @@ import FindBar from "../components/FindBar.vue";
 import {
   getInternalTitle,
 } from "../internal/routes";
-import { normalizeTabUrl } from "../internal/navigationUrl";
+import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -66,6 +67,7 @@ const emit = defineEmits<{
 const activeTab = computed<Tab | undefined>(() =>
   props.tabs.find((t) => t.id === props.tabActive)
 );
+const activeTabIsExtension = computed(() => !!parseExtensionTabUrl(currentUrl()));
 
 type RegisterFindTargetFn = (tabId: string, targetWebContentsId: number | null) => void;
 
@@ -179,6 +181,7 @@ function onGotoFromNavbar(url: string) {
 function onRefresh() {
   const tab = activeTab.value;
   if (!tab) return;
+  if (activeTabIsExtension.value) return;
   tab.refreshTick = (tab.refreshTick ?? 0) + 1;
   const history = tab.history || [];
   const pos = tab.history_position ?? history.length - 1;

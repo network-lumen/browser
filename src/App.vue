@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import StartupScreen from './components/StartupScreen.vue';
 import MainScreen from './components/MainScreen.vue';
 import SecurityGate from './components/SecurityGate.vue';
@@ -48,12 +48,33 @@ function handleStartupReady() {
   }
 }
 
+function isDevtoolsShortcut(event: KeyboardEvent) {
+  const key = String(event.key || '').toUpperCase();
+  if (key === 'F12') return true;
+  if (event.ctrlKey && event.altKey && key === 'I') return true;
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === 'I') return true;
+  return false;
+}
+
+function onGlobalKeydown(event: KeyboardEvent) {
+  if (!isDevtoolsShortcut(event)) return;
+  const api = (window as any).lumen?.devtools;
+  if (!api || typeof api.openActive !== 'function') return;
+  event.preventDefault();
+  void api.openActive();
+}
+
 onMounted(() => {
   syncWindowMode(stage.value);
+  window.addEventListener('keydown', onGlobalKeydown, true);
 });
 
 watch(stage, (s) => {
   syncWindowMode(s);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onGlobalKeydown, true);
 });
 </script>
 

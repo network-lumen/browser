@@ -17,7 +17,7 @@ import {
   resolveInternalComponent,
   getInternalTitle,
 } from "../internal/routes";
-import { isBrowserUrl, normalizeTabUrl } from "../internal/navigationUrl";
+import { isBrowserUrl, normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 
 type TabHistoryEntry = { url: string; title?: string };
 type Tab = {
@@ -40,6 +40,10 @@ const props = defineProps<{
 const tabState = computed(() => reactive(props.tab as any) as Tab);
 const loadCycle = ref(0);
 const loadCycleControlled = ref(0);
+
+function isExtensionTabUrl(rawUrl: string): boolean {
+  return !!parseExtensionTabUrl(String(rawUrl || "").trim());
+}
 
 function currentUrl(): string {
   const tab = tabState.value;
@@ -79,6 +83,10 @@ provide(
 function setCurrentTabLoading(next: boolean) {
   const tab = tabState.value;
   if (!tab) return;
+  if (isExtensionTabUrl(currentUrl())) {
+    tab.loading = false;
+    return;
+  }
   loadCycleControlled.value = Math.max(loadCycleControlled.value, loadCycle.value);
   tab.loading = !!next;
 }
@@ -148,6 +156,10 @@ function componentForTab(t: Tab) {
 async function beginTabLoad() {
   const tab = tabState.value;
   if (!tab) return;
+  if (isExtensionTabUrl(currentUrl())) {
+    tab.loading = false;
+    return;
+  }
 
   const cycle = loadCycle.value + 1;
   loadCycle.value = cycle;

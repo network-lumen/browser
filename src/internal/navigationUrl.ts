@@ -13,6 +13,15 @@ function safeDecode(segment: string): string {
   }
 }
 
+export type ExtensionTabRoute = {
+  extensionId: string;
+  targetUrl: string;
+  name: string;
+  sourceTabId: string;
+  sourceUrl: string;
+  sourceTitle: string;
+};
+
 function encodePathSegment(segment: string): string {
   if (!segment) return segment;
   return encodeURIComponent(safeDecode(segment));
@@ -128,4 +137,54 @@ export function getFileUrlTitle(raw: string): string {
   } catch {
     return value;
   }
+}
+
+export function parseExtensionTabUrl(raw: string): ExtensionTabRoute | null {
+  const value = String(raw || "").trim();
+  if (!isLumenUrl(value)) return null;
+
+  try {
+    const url = new URL(canonicalizeLumenUrl(value));
+    if (String(url.hostname || "").trim().toLowerCase() !== "extension") return null;
+    const segments = String(url.pathname || "")
+      .replace(/^\/+/, "")
+      .split("/")
+      .filter(Boolean);
+    const extensionId = safeDecode(segments[0] || "").trim();
+    if (!extensionId) return null;
+    return {
+      extensionId,
+      targetUrl: String(url.searchParams.get("url") || "").trim(),
+      name: String(url.searchParams.get("name") || "").trim(),
+      sourceTabId: String(url.searchParams.get("sourceTabId") || "").trim(),
+      sourceUrl: String(url.searchParams.get("sourceUrl") || "").trim(),
+      sourceTitle: String(url.searchParams.get("sourceTitle") || "").trim(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function buildExtensionTabUrl(
+  extensionId: string,
+  options: { url?: string; name?: string; sourceTabId?: string; sourceUrl?: string; sourceTitle?: string } = {},
+): string {
+  const id = String(extensionId || "").trim();
+  if (!id) return "lumen://extensions";
+
+  const params = new URLSearchParams();
+  const targetUrl = String(options.url || "").trim();
+  const name = String(options.name || "").trim();
+  const sourceTabId = String(options.sourceTabId || "").trim();
+  const sourceUrl = String(options.sourceUrl || "").trim();
+  const sourceTitle = String(options.sourceTitle || "").trim();
+  if (targetUrl) params.set("url", targetUrl);
+  if (name) params.set("name", name);
+  if (sourceTabId) params.set("sourceTabId", sourceTabId);
+  if (sourceUrl) params.set("sourceUrl", sourceUrl);
+  if (sourceTitle) params.set("sourceTitle", sourceTitle);
+
+  const query = params.toString();
+  const base = `lumen://extension/${encodeURIComponent(id)}`;
+  return canonicalizeLumenUrl(query ? `${base}?${query}` : base);
 }

@@ -81,6 +81,9 @@ contextBridge.exposeInMainWorld('lumen', {
       };
     }
   },
+  devtools: {
+    openActive: () => ipcRenderer.invoke('devtools:openActive')
+  },
   settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
   settingsSet: (partial) => ipcRenderer.invoke('settings:set', partial || {}),
   settingsOnChanged: (callback) => {
@@ -342,8 +345,11 @@ contextBridge.exposeInMainWorld('lumen', {
     }
   },
   extensions: {
+    getGuestPreloadUrl: () => ipcRenderer.invoke('extensions:getGuestPreloadUrl'),
     listExtensions: () => ipcRenderer.invoke('extensions:list'),
+    prepareTab: (id, targetUrl) => ipcRenderer.invoke('extensions:prepareTab', id, targetUrl),
     loadUnpacked: () => ipcRenderer.invoke('extensions:loadUnpacked'),
+    openExtension: (id) => ipcRenderer.invoke('extensions:open', id),
     openStore: (url) => ipcRenderer.invoke('extensions:openStore', url),
     installFromChromeWebStore: (input) =>
       ipcRenderer.invoke('extensions:installFromChromeWebStore', input),
