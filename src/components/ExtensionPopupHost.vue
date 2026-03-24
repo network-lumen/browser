@@ -1,7 +1,7 @@
 <template>
-  <div class="extension-popup-layer" @click="emit('close')">
+  <div class="extension-popup-layer" @click="requestClose()">
     <div class="extension-popup-shell" :style="popupShellStyle" @click.stop>
-      <button type="button" class="extension-popup-close" aria-label="Close extension popup" @click="emit('close')">
+      <button type="button" class="extension-popup-close" aria-label="Close extension popup" @click="requestClose()">
         <X :size="14" />
       </button>
 
@@ -85,6 +85,8 @@ const installedExtensions = ref<InstalledExtension[]>([]);
 const resolvedExtension = ref<InstalledExtension | null>(null);
 let guestLoadInFlight = false;
 let queuedGuestLoadUrl = "";
+let guestLoadGeneration = 0;
+let popupDisposed = false;
 
 const popupShellStyle = computed(() => ({
   top: `${Math.max(Number(props.topOffset || 0), 0)}px`,
@@ -176,6 +178,7 @@ function normalizeDocumentBase(rawUrl: string): string {
 }
 
 async function navigateGuestInPage(target: string): Promise<boolean> {
+  if (popupDisposed) return false;
   const w: any = webviewRef.value;
   if (!w || !target) return false;
   const current = safeString(typeof w?.getURL === "function" ? w.getURL() : w?.src);
@@ -187,6 +190,7 @@ async function navigateGuestInPage(target: string): Promise<boolean> {
     await Promise.resolve(
       w.executeJavaScript(`window.location.href = ${JSON.stringify(target)};`, true),
     );
+    if (popupDisposed) return false;
     return true;
   } catch {
     webviewLoading.value = false;
@@ -196,26 +200,31 @@ async function navigateGuestInPage(target: string): Promise<boolean> {
 
 async function flushGuestLoadQueue() {
   if (guestLoadInFlight) return;
+  const generation = guestLoadGeneration;
   guestLoadInFlight = true;
   try {
     while (queuedGuestLoadUrl) {
+      if (popupDisposed || generation !== guestLoadGeneration) return;
       const target = safeString(queuedGuestLoadUrl);
       queuedGuestLoadUrl = "";
       const w: any = webviewRef.value;
       if (!w || !target) continue;
 
       if (await navigateGuestInPage(target)) continue;
+      if (popupDisposed || generation !== guestLoadGeneration) return;
 
       const initialTarget = normalizeDocumentBase(target) || target;
       const shouldReplayInPage = initialTarget !== target;
 
       try {
         webviewLoading.value = true;
+        if (popupDisposed || generation !== guestLoadGeneration) return;
         if (typeof w.loadURL === "function") {
           await Promise.resolve(w.loadURL(initialTarget));
         } else {
           w.src = initialTarget;
         }
+        if (popupDisposed || generation !== guestLoadGeneration) return;
         if (shouldReplayInPage && !queuedGuestLoadUrl) {
           queuedGuestLoadUrl = target;
         }
@@ -239,8 +248,26 @@ function queueGuestLoad(url: string) {
 }
 
 function clearGuestLoadQueue() {
+  guestLoadGeneration += 1;
   queuedGuestLoadUrl = "";
   guestLoadInFlight = false;
+}
+
+function closeGuestDevTools() {
+  const w: any = webviewRef.value;
+  if (!w) return;
+  try {
+    if (typeof w.isDevToolsOpened === "function" && w.isDevToolsOpened()) {
+      w.closeDevTools?.();
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function requestClose() {
+  closeGuestDevTools();
+  emit("close");
 }
 
 function ensureLoaded(url: string) {
@@ -266,7 +293,7 @@ function toSyntheticTabId(raw: string): number {
 
 function getExtensionHostTabContext() {
   const sourceUrl = safeString(props.sourceUrl);
-  if (!sourceUrl) return null;
+  if (!sourceUrl || !isBrowserUrl(sourceUrl)) return null;
 
   const title = safeString(props.sourceTitle || sourceUrl) || sourceUrl;
   const tab = {
@@ -321,7 +348,7 @@ function handleNavigationRequest(rawUrl: string, openInNewTab = false) {
     const current = currentRuntimeId();
     if (current && runtimeId && runtimeId !== current) {
       emit("navigate", { url: href, openInNewTab });
-      emit("close");
+      requestClose();
       return;
     }
     resolvedExtensionUrl.value = href;
@@ -331,7 +358,7 @@ function handleNavigationRequest(rawUrl: string, openInNewTab = false) {
 
   if (/^lumen:\/\//i.test(href) || isBrowserUrl(href)) {
     emit("navigate", { url: href, openInNewTab });
-    emit("close");
+    requestClose();
   }
 }
 
@@ -461,7 +488,7 @@ function onDomReady() {
 function onKeydown(ev: KeyboardEvent) {
   if (ev.key === "Escape") {
     ev.preventDefault();
-    emit("close");
+    requestClose();
   }
 }
 
@@ -481,6 +508,7 @@ watch(
 );
 
 onMounted(async () => {
+  popupDisposed = false;
   window.addEventListener("keydown", onKeydown);
   await ensureGuestPreloadUrl();
   await refreshInstalledExtensions();
@@ -491,6 +519,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  popupDisposed = true;
+  closeGuestDevTools();
   window.removeEventListener("keydown", onKeydown);
   clearGuestLoadQueue();
 });
