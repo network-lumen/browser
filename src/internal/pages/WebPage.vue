@@ -139,7 +139,10 @@ async function navigateToResolvedTarget(rawUrl: string, openInNewTabFlag = false
   const href = String(rawUrl || "").trim();
   if (isExtensionUrl(href)) {
     if (typeof openExtensionPopup === "function") {
-      openExtensionPopup(href);
+      openExtensionPopup({
+        url: href,
+        userGesture: false,
+      });
       return;
     }
   }

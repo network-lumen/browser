@@ -76,6 +76,7 @@
       :extension-id="extensionPopup.extensionId"
       :extension-name="extensionPopup.name"
       :target-url="extensionPopup.targetUrl"
+      :user-gesture="extensionPopup.userGesture"
       :source-tab-id="activeId"
       :source-url="currentUrlForTab(getActiveTab())"
       :source-title="activeTabTitle"
@@ -167,6 +168,7 @@ const extensionPopup = ref({
   targetUrl: '',
   name: '',
   originTabId: '',
+  userGesture: false,
 });
 function nextTabId(): string {
   tabSeq += 1;
@@ -337,6 +339,7 @@ function closeExtensionPopup() {
     targetUrl: '',
     name: '',
     originTabId: '',
+    userGesture: false,
   };
 }
 
@@ -344,13 +347,15 @@ async function resolveExtensionPopupRequest(input: any): Promise<null | {
   extensionId: string;
   targetUrl: string;
   name: string;
+  userGesture: boolean;
 }> {
   if (input && typeof input === 'object' && !Array.isArray(input)) {
     const extensionId = String(input.extensionId || '').trim();
     const targetUrl = String(input.targetUrl || input.url || '').trim();
     const name = String(input.name || '').trim();
+    const userGesture = !!input.userGesture;
     if (extensionId) {
-      return { extensionId, targetUrl, name };
+      return { extensionId, targetUrl, name, userGesture };
     }
     if (targetUrl) {
       input = targetUrl;
@@ -366,6 +371,7 @@ async function resolveExtensionPopupRequest(input: any): Promise<null | {
       extensionId: String(routeInfo.extensionId || '').trim(),
       targetUrl: String(routeInfo.targetUrl || '').trim(),
       name: String(routeInfo.name || '').trim(),
+      userGesture: false,
     };
   }
 
@@ -384,6 +390,7 @@ async function resolveExtensionPopupRequest(input: any): Promise<null | {
     extensionId: String(entry?.id || '').trim(),
     targetUrl: normalized,
     name: String(entry?.name || '').trim(),
+    userGesture: false,
   };
 }
 
@@ -396,6 +403,7 @@ async function openExtensionPopup(input: any): Promise<boolean> {
     targetUrl: request.targetUrl,
     name: request.name,
     originTabId: activeId.value,
+    userGesture: !!request.userGesture,
   };
   return true;
 }

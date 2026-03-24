@@ -6,6 +6,7 @@ const { ensureDir, readJson, userDataPath, writeJson } = require('../utils/fs.cj
 
 const EXTENSION_NETWORK_PERMISSIONS_FILE = () => userDataPath('extension_network_permissions.json');
 const EXTENSION_NETWORK_AUDIT_FILE = () => userDataPath('logs', 'extension_network_audit.jsonl');
+const PROFILES_FILE = () => userDataPath('profiles.json');
 const extensionPermissionSessionCache = new Map();
 const extensionPermissionInflight = new Map();
 const guardedSessions = new WeakSet();
@@ -25,6 +26,7 @@ function appendExtensionNetworkAuditEntry(input) {
       `${JSON.stringify({
         timestamp: new Date().toISOString(),
         event: 'extension_network_authorization',
+        profileId: safeAuditText(entry.profileId, 128) || 'default',
         extensionId: safeAuditText(entry.extensionId, 128),
         runtimeId: safeAuditText(entry.runtimeId, 128),
         extensionName: safeAuditText(entry.extensionName, 256),
@@ -42,6 +44,7 @@ function appendExtensionNetworkAuditEntry(input) {
 
 function logExtensionAuthorizationDecision(extensionInfo, context, targetOrigin, allowed, meta = {}) {
   appendExtensionNetworkAuditEntry({
+    profileId: extensionInfo?.profileId,
     extensionId: extensionInfo?.extensionId,
     runtimeId: extensionInfo?.runtimeId,
     extensionName: extensionInfo?.extensionName,
@@ -296,6 +299,20 @@ function buildExtensionContextFromRuntimeId(runtimeId, pageUrl = '') {
   });
 }
 
+function getHeaderValue(headers, name) {
+  const target = String(name || '').trim().toLowerCase();
+  if (!target || !headers || typeof headers !== 'object') return '';
+  for (const [key, value] of Object.entries(headers)) {
+    if (String(key || '').trim().toLowerCase() !== target) continue;
+    if (Array.isArray(value)) {
+      const first = value.find((item) => String(item || '').trim());
+      return String(first || '').trim();
+    }
+    return String(value || '').trim();
+  }
+  return '';
+}
+
 function resolveExtensionContextFromRequestDetails(details) {
   const candidateUrls = [
     details?.initiator,
@@ -304,7 +321,9 @@ function resolveExtensionContextFromRequestDetails(details) {
     details?.documentURL,
     details?.documentUrl,
     details?.frameUrl,
-    details?.frame?.url
+    details?.frame?.url,
+    getHeaderValue(details?.requestHeaders, 'Origin'),
+    getHeaderValue(details?.requestHeaders, 'Referer')
   ];
 
   for (const candidate of candidateUrls) {
@@ -384,13 +403,32 @@ function buildPermissionCacheKey(extensionKey, targetOrigin) {
   return `${String(extensionKey || '').trim()}::${String(targetOrigin || '').trim()}`;
 }
 
+function getActiveProfileId() {
+  try {
+    const raw = readJson(PROFILES_FILE(), { profiles: [], activeId: '' }) || {};
+    const activeId = String(raw.activeId || '').trim();
+    return activeId || 'default';
+  } catch {
+    return 'default';
+  }
+}
+
+function buildScopedPermissionCacheKey(profileId, extensionKey, targetOrigin) {
+  return `${String(profileId || 'default').trim() || 'default'}::${buildPermissionCacheKey(
+    extensionKey,
+    targetOrigin,
+  )}`;
+}
+
 function normalizePermissionEntry(input) {
   const entry = input && typeof input === 'object' ? input : {};
+  const profileId = String(entry.profileId || '').trim() || 'default';
   const extensionId = String(entry.extensionId || '').trim();
   const runtimeId = String(entry.runtimeId || '').trim();
   const targetOrigin = String(entry.targetOrigin || '').trim();
-  if (!extensionId || !runtimeId || !targetOrigin) return null;
+  if (!profileId || !extensionId || !runtimeId || !targetOrigin) return null;
   return {
+    profileId,
     extensionId,
     runtimeId,
     extensionName: String(entry.extensionName || 'Extension').trim() || 'Extension',
@@ -401,14 +439,14 @@ function normalizePermissionEntry(input) {
 }
 
 function readExtensionPermissionEntries() {
-  const raw = readJson(EXTENSION_NETWORK_PERMISSIONS_FILE(), { version: 1, entries: [] }) || {};
+  const raw = readJson(EXTENSION_NETWORK_PERMISSIONS_FILE(), { version: 2, entries: [] }) || {};
   const items = Array.isArray(raw.entries) ? raw.entries : [];
   return items.map((entry) => normalizePermissionEntry(entry)).filter(Boolean);
 }
 
 function writeExtensionPermissionEntries(entries) {
   writeJson(EXTENSION_NETWORK_PERMISSIONS_FILE(), {
-    version: 1,
+    version: 2,
     updatedAt: new Date().toISOString(),
     entries: Array.isArray(entries) ? entries : []
   });
@@ -427,18 +465,24 @@ function resolveExtensionPermissionInfo(context) {
 
   const extensionId = String(match?.id || runtimeId).trim();
   return {
+    profileId: getActiveProfileId(),
     extensionId,
     runtimeId: String(match?.runtimeId || runtimeId).trim(),
     extensionName: String(match?.name || `Extension ${extensionId.slice(0, 8)}`).trim() || 'Extension'
   };
 }
 
-function readPersistedExtensionPermission(extensionKey, targetOrigin) {
-  const key = buildPermissionCacheKey(extensionKey, targetOrigin);
+function readPersistedExtensionPermission(profileId, extensionKey, targetOrigin) {
+  const key = buildScopedPermissionCacheKey(profileId, extensionKey, targetOrigin);
   const entries = readExtensionPermissionEntries();
   const match =
     entries.find(
-      (entry) => buildPermissionCacheKey(entry.extensionId || entry.runtimeId, entry.targetOrigin) === key,
+      (entry) =>
+        buildScopedPermissionCacheKey(
+          entry.profileId,
+          entry.extensionId || entry.runtimeId,
+          entry.targetOrigin,
+        ) === key,
     ) || null;
   return match ? !!match.allowed : null;
 }
@@ -446,6 +490,7 @@ function readPersistedExtensionPermission(extensionKey, targetOrigin) {
 function persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed) {
   const current = readExtensionPermissionEntries();
   const nextEntry = normalizePermissionEntry({
+    profileId: extensionInfo.profileId,
     extensionId: extensionInfo.extensionId,
     runtimeId: extensionInfo.runtimeId,
     extensionName: extensionInfo.extensionName,
@@ -455,16 +500,26 @@ function persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed
   });
   if (!nextEntry) return;
 
-  const key = buildPermissionCacheKey(extensionInfo.extensionId || extensionInfo.runtimeId, targetOrigin);
+  const key = buildScopedPermissionCacheKey(
+    extensionInfo.profileId,
+    extensionInfo.extensionId || extensionInfo.runtimeId,
+    targetOrigin,
+  );
   const filtered = current.filter(
-    (entry) => buildPermissionCacheKey(entry.extensionId || entry.runtimeId, entry.targetOrigin) !== key,
+    (entry) =>
+      buildScopedPermissionCacheKey(
+        entry.profileId,
+        entry.extensionId || entry.runtimeId,
+        entry.targetOrigin,
+      ) !== key,
   );
   filtered.push(nextEntry);
   writeExtensionPermissionEntries(filtered);
 }
 
 async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOrigin, context = null, targetUrl = '') {
-  const cacheKey = buildPermissionCacheKey(
+  const cacheKey = buildScopedPermissionCacheKey(
+    extensionInfo.profileId,
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
   );
@@ -477,21 +532,21 @@ async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOr
 
     const dialogOptions = {
       type: 'question',
-      buttons: ['Allow', 'Block'],
+      buttons: ['Block', 'Allow'],
       defaultId: 0,
-      cancelId: 1,
+      cancelId: 0,
       noLink: true,
       title: 'Extension Request Permission',
       message: `Extension "${extensionInfo.extensionName}" is requesting permission to make requests to "${targetOrigin}".`,
       detail: 'Allow this extension to access this network origin?',
       checkboxLabel: 'Remember this choice for this extension and origin',
-      checkboxChecked: true
+      checkboxChecked: false
     };
     const result = owner
       ? await dialog.showMessageBox(owner, dialogOptions)
       : await dialog.showMessageBox(dialogOptions);
 
-    const allowed = result.response === 0;
+    const allowed = result.response === 1;
     extensionPermissionSessionCache.set(cacheKey, allowed);
     if (result.checkboxChecked) {
       persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed);
@@ -519,7 +574,8 @@ async function ensureExtensionRequestAuthorized(evt, url, options) {
   if (!targetOrigin) return { allowed: true };
 
   const extensionInfo = resolveExtensionPermissionInfo(context);
-  const cacheKey = buildPermissionCacheKey(
+  const cacheKey = buildScopedPermissionCacheKey(
+    extensionInfo.profileId,
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
   );
@@ -529,6 +585,7 @@ async function ensureExtensionRequestAuthorized(evt, url, options) {
   }
 
   const persisted = readPersistedExtensionPermission(
+    extensionInfo.profileId,
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
   );
@@ -562,7 +619,8 @@ async function authorizeExtensionRequestFromDetails(details) {
   if (!targetOrigin) return { allowed: true, context };
 
   const extensionInfo = resolveExtensionPermissionInfo(context);
-  const cacheKey = buildPermissionCacheKey(
+  const cacheKey = buildScopedPermissionCacheKey(
+    extensionInfo.profileId,
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
   );
@@ -575,6 +633,7 @@ async function authorizeExtensionRequestFromDetails(details) {
   }
 
   const persisted = readPersistedExtensionPermission(
+    extensionInfo.profileId,
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
   );
@@ -696,6 +755,25 @@ function registerExtensionNetworkRequestGuard(targetSession) {
         })
         .catch(() => {
           callback({ cancel: true });
+        });
+    },
+  );
+
+  targetSession.webRequest.onBeforeSendHeaders(
+    { urls: ['http://*/*', 'https://*/*', 'ws://*/*', 'wss://*/*'] },
+    (details, callback) => {
+      void authorizeExtensionRequestFromDetails(details)
+        .then((authorization) => {
+          callback({
+            cancel: authorization.allowed === false,
+            requestHeaders: details?.requestHeaders || {}
+          });
+        })
+        .catch(() => {
+          callback({
+            cancel: true,
+            requestHeaders: details?.requestHeaders || {}
+          });
         });
     },
   );
