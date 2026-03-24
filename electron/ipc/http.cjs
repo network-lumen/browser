@@ -390,10 +390,69 @@ function resolveExtensionAuthorizationSource(input = {}) {
   };
 }
 
+function isIpHostname(hostname) {
+  const value = String(hostname || '').trim().toLowerCase();
+  return (
+    /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value) ||
+    value.includes(':')
+  );
+}
+
+function defaultPortForProtocol(protocol) {
+  if (protocol === 'http:' || protocol === 'ws:') return '80';
+  if (protocol === 'https:' || protocol === 'wss:') return '443';
+  return '';
+}
+
+function getRegistrableDomain(hostname) {
+  const parts = String(hostname || '')
+    .trim()
+    .toLowerCase()
+    .split('.')
+    .filter(Boolean);
+  if (parts.length <= 2) {
+    return parts.join('.');
+  }
+
+  const tld = parts[parts.length - 1] || '';
+  const sld = parts[parts.length - 2] || '';
+  const commonSecondLevelTlds = new Set(['ac', 'co', 'com', 'edu', 'gov', 'mil', 'net', 'nom', 'org']);
+  if (tld.length === 2 && commonSecondLevelTlds.has(sld) && parts.length >= 3) {
+    return parts.slice(-3).join('.');
+  }
+
+  return parts.slice(-2).join('.');
+}
+
 function getTargetOrigin(url) {
   try {
     const parsed = new URL(String(url || ''));
-    return String(parsed.origin || '').trim();
+    const protocol = String(parsed.protocol || '').trim().toLowerCase();
+    const hostname = String(parsed.hostname || '').trim().toLowerCase();
+    const origin = String(parsed.origin || '').trim();
+    if (!origin || !hostname) return '';
+
+    if (!['http:', 'https:', 'ws:', 'wss:'].includes(protocol)) {
+      return origin;
+    }
+
+    const defaultPort = defaultPortForProtocol(protocol);
+    const hasNonDefaultPort = !!parsed.port && parsed.port !== defaultPort;
+    if (
+      hasNonDefaultPort ||
+      hostname === 'localhost' ||
+      !hostname.includes('.') ||
+      isIpHostname(hostname)
+    ) {
+      return origin;
+    }
+
+    const registrableDomain = getRegistrableDomain(hostname);
+    if (!registrableDomain) return origin;
+    if (hostname === registrableDomain) {
+      return `${protocol}//${registrableDomain}`;
+    }
+    return `${protocol}//*.${registrableDomain}`;
   } catch {
     return '';
   }
@@ -538,7 +597,7 @@ async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOr
       noLink: true,
       title: 'Extension Request Permission',
       message: `Extension "${extensionInfo.extensionName}" is requesting permission to make requests to "${targetOrigin}".`,
-      detail: 'Allow this extension to access this network origin?',
+      detail: 'Allow this extension to access this network scope?',
       checkboxLabel: 'Remember this choice for this extension and origin',
       checkboxChecked: false
     };
