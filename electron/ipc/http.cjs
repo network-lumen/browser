@@ -1,12 +1,58 @@
+const fs = require('node:fs');
 const { URL } = require('node:url');
 const { BrowserWindow, dialog, ipcMain, webContents } = require('electron');
 const { extensionManager } = require('../extensions/manager.cjs');
-const { readJson, userDataPath, writeJson } = require('../utils/fs.cjs');
+const { ensureDir, readJson, userDataPath, writeJson } = require('../utils/fs.cjs');
 
 const EXTENSION_NETWORK_PERMISSIONS_FILE = () => userDataPath('extension_network_permissions.json');
+const EXTENSION_NETWORK_AUDIT_FILE = () => userDataPath('logs', 'extension_network_audit.jsonl');
 const extensionPermissionSessionCache = new Map();
 const extensionPermissionInflight = new Map();
 const guardedSessions = new WeakSet();
+
+function safeAuditText(value, maxLen = 4096) {
+  const text = String(value ?? '').trim();
+  if (!text) return '';
+  return text.length > maxLen ? text.slice(0, maxLen) : text;
+}
+
+function appendExtensionNetworkAuditEntry(input) {
+  try {
+    const entry = input && typeof input === 'object' ? input : {};
+    ensureDir(userDataPath('logs'));
+    fs.appendFileSync(
+      EXTENSION_NETWORK_AUDIT_FILE(),
+      `${JSON.stringify({
+        timestamp: new Date().toISOString(),
+        event: 'extension_network_authorization',
+        extensionId: safeAuditText(entry.extensionId, 128),
+        runtimeId: safeAuditText(entry.runtimeId, 128),
+        extensionName: safeAuditText(entry.extensionName, 256),
+        targetOrigin: safeAuditText(entry.targetOrigin, 4096),
+        targetUrl: safeAuditText(entry.targetUrl, 8192),
+        pageUrl: safeAuditText(entry.pageUrl, 8192),
+        allowed: !!entry.allowed,
+        decisionSource: safeAuditText(entry.decisionSource, 64) || 'unknown',
+        remembered: !!entry.remembered
+      })}\n`,
+      'utf8',
+    );
+  } catch {}
+}
+
+function logExtensionAuthorizationDecision(extensionInfo, context, targetOrigin, allowed, meta = {}) {
+  appendExtensionNetworkAuditEntry({
+    extensionId: extensionInfo?.extensionId,
+    runtimeId: extensionInfo?.runtimeId,
+    extensionName: extensionInfo?.extensionName,
+    targetOrigin,
+    targetUrl: meta?.targetUrl,
+    pageUrl: context?.pageUrl,
+    allowed,
+    decisionSource: meta?.decisionSource,
+    remembered: meta?.remembered
+  });
+}
 
 function normalizeHeaders(h) {
   return h && typeof h === 'object' ? { ...h } : {};
@@ -417,7 +463,7 @@ function persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed
   writeExtensionPermissionEntries(filtered);
 }
 
-async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOrigin) {
+async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOrigin, context = null, targetUrl = '') {
   const cacheKey = buildPermissionCacheKey(
     extensionInfo.extensionId || extensionInfo.runtimeId,
     targetOrigin,
@@ -450,6 +496,11 @@ async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOr
     if (result.checkboxChecked) {
       persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed);
     }
+    logExtensionAuthorizationDecision(extensionInfo, context, targetOrigin, allowed, {
+      decisionSource: 'prompt',
+      remembered: result.checkboxChecked,
+      targetUrl
+    });
     return allowed;
   })().finally(() => {
     extensionPermissionInflight.delete(cacheKey);
@@ -483,10 +534,21 @@ async function ensureExtensionRequestAuthorized(evt, url, options) {
   );
   if (persisted != null) {
     extensionPermissionSessionCache.set(cacheKey, !!persisted);
+    logExtensionAuthorizationDecision(extensionInfo, context, targetOrigin, !!persisted, {
+      decisionSource: 'persisted',
+      remembered: true,
+      targetUrl: url
+    });
     return { allowed: !!persisted };
   }
 
-  const allowed = await promptForExtensionPermission(source.ownerWindow, extensionInfo, targetOrigin);
+  const allowed = await promptForExtensionPermission(
+    source.ownerWindow,
+    extensionInfo,
+    targetOrigin,
+    context,
+    url,
+  );
   return { allowed };
 }
 
@@ -518,6 +580,11 @@ async function authorizeExtensionRequestFromDetails(details) {
   );
   if (persisted != null) {
     extensionPermissionSessionCache.set(cacheKey, !!persisted);
+    logExtensionAuthorizationDecision(extensionInfo, context, targetOrigin, !!persisted, {
+      decisionSource: 'persisted',
+      remembered: true,
+      targetUrl
+    });
     return { allowed: !!persisted, context };
   }
 
@@ -525,6 +592,8 @@ async function authorizeExtensionRequestFromDetails(details) {
     source.ownerWindow,
     extensionInfo,
     targetOrigin,
+    context,
+    targetUrl,
   );
   return { allowed, context };
 }
@@ -619,7 +688,7 @@ function registerExtensionNetworkRequestGuard(targetSession) {
   if (guardedSessions.has(targetSession)) return true;
 
   targetSession.webRequest.onBeforeRequest(
-    { urls: ['http://*/*', 'https://*/*'] },
+    { urls: ['http://*/*', 'https://*/*', 'ws://*/*', 'wss://*/*'] },
     (details, callback) => {
       void authorizeExtensionRequestFromDetails(details)
         .then((authorization) => {
