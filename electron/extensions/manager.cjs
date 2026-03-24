@@ -6,7 +6,8 @@ const { ensureDir, readJson, writeJson, userDataPath } = require('../utils/fs.cj
 const {
   extractChromeWebStoreId,
   downloadCrxArchive,
-  extractCrxArchiveToDirectory
+  extractCrxArchiveToDirectory,
+  verifyCrxArchive
 } = require('./crx.cjs');
 const {
   buildProviderFallbackState,
@@ -205,6 +206,13 @@ function buildExtensionInstallDetail(input) {
   const installSource = safeString(input?.installSource, 4096);
   if (installSource) {
     lines.push(`Origin: ${installSource}`);
+  }
+
+  const verification = input?.verification && typeof input.verification === 'object' ? input.verification : null;
+  if (verification) {
+    lines.push(`Verified package ID: ${safeString(verification.crxId, 128) || '(unknown)'}`);
+    lines.push(`Package SHA-256: ${safeString(verification.fileSha256, 128) || '(unknown)'}`);
+    lines.push(`Archive SHA-256: ${safeString(verification.archiveSha256, 128) || '(unknown)'}`);
   }
 
   lines.push('');
@@ -3133,10 +3141,12 @@ class ExtensionManager extends EventEmitter {
         : null;
     try {
       const archive = await downloadCrxArchive(extensionId);
+      const verification = verifyCrxArchive(archive.buffer, extensionId);
       const manifestInfo = await inspectManifestFromCrxBuffer(extensionId, archive.buffer);
       const confirmed = await confirmExtensionInstall(owner, {
         extensionId,
         manifestInfo,
+        verification,
         sourceLabel: 'Chrome Web Store package',
         installSource: archive.url
       });

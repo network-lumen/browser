@@ -1,12 +1,28 @@
-const { BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { extensionManager } = require('../extensions/manager.cjs');
+const {
+  getGrantedPermissions,
+  requestOptionalPermissions,
+  removeGrantedPermissions
+} = require('../extensions/dynamic_permissions.cjs');
 
 let registered = false;
 let broadcastAttached = false;
+let downloadInterceptorAttached = false;
+let downloadInterceptorPending = false;
 let extensionStoreWindow = null;
 const extensionWindows = new Map();
+const EXTENSION_SESSION_PARTITION = 'persist:lumen';
+const STORE_SESSION_PARTITION = 'persist:lumen-store';
+const attachedDownloadInterceptors = new Set();
+
+function safeString(value, maxLen = 4096) {
+  const text = String(value ?? '').trim();
+  if (!text) return '';
+  return text.length > maxLen ? text.slice(0, maxLen) : text;
+}
 
 function broadcastExtensionsChanged(entries) {
   const windows =
@@ -31,6 +47,121 @@ function normalizeChromeWebStoreUrl(input) {
   const raw = String(input || '').trim();
   if (!raw) return 'https://chromewebstore.google.com/category/extensions';
   return raw;
+}
+
+function isChromeWebStoreUrl(input) {
+  const raw = String(input || '').trim();
+  if (!raw) return false;
+  try {
+    const url = new URL(raw);
+    const host = String(url.hostname || '').trim().toLowerCase();
+    return host === 'chromewebstore.google.com' || host.endsWith('.chromewebstore.google.com');
+  } catch {
+    return false;
+  }
+}
+
+function isChromeCrxDownloadUrl(input) {
+  return String(input || '').trim().toLowerCase().includes('clients2.google.com/service/update2/crx');
+}
+
+function extractChromeWebStoreId(input) {
+  const raw = String(input || '').trim();
+  if (!raw) return '';
+
+  const direct = raw.match(/\b([a-p]{32})\b/i);
+  if (direct) return String(direct[1] || '').toLowerCase();
+
+  try {
+    const url = new URL(raw);
+    const segments = String(url.pathname || '')
+      .split('/')
+      .map((segment) => String(segment || '').trim())
+      .filter(Boolean);
+    const fromPath = segments.find((segment) => /^[a-p]{32}$/i.test(segment));
+    if (fromPath) return String(fromPath).toLowerCase();
+
+    const fromSearch =
+      String(url.searchParams.get('id') || '').trim() ||
+      String(url.searchParams.get('extension_id') || '').trim();
+    if (/^[a-p]{32}$/i.test(fromSearch)) return fromSearch.toLowerCase();
+
+    const nested = String(url.searchParams.get('x') || '').trim();
+    if (nested) {
+      const decoded = decodeURIComponent(nested);
+      const nestedMatch = decoded.match(/(?:^|&)id=([a-p]{32})(?:&|$)/i);
+      if (nestedMatch) return String(nestedMatch[1] || '').toLowerCase();
+    }
+  } catch {
+    // ignore
+  }
+
+  return '';
+}
+
+function attachExtensionDownloadInterceptor() {
+  if (downloadInterceptorAttached) return;
+  if (!app?.isReady?.()) {
+    if (!downloadInterceptorPending && typeof app?.once === 'function') {
+      downloadInterceptorPending = true;
+      app.once('ready', () => {
+        downloadInterceptorPending = false;
+        attachExtensionDownloadInterceptor();
+      });
+    }
+    return;
+  }
+  const attachForPartition = (partition) => {
+    const key = safeString(partition, 128);
+    if (!key || attachedDownloadInterceptors.has(key)) return;
+    const ses = session.fromPartition(key);
+    if (!ses || typeof ses.on !== 'function') return;
+
+    ses.on('will-download', (event, item, sourceWebContents) => {
+      try {
+        const downloadUrl = String(item?.getURL?.() || '').trim();
+        const sourceUrl = String(sourceWebContents?.getURL?.() || '').trim();
+        if (!isChromeCrxDownloadUrl(downloadUrl)) return;
+        if (!isChromeWebStoreUrl(sourceUrl)) return;
+
+        const extensionId = extractChromeWebStoreId(downloadUrl) || extractChromeWebStoreId(sourceUrl);
+        if (!extensionId) return;
+
+        event.preventDefault();
+        const owner =
+          (sourceWebContents &&
+            ((typeof sourceWebContents.getOwnerBrowserWindow === 'function' &&
+              sourceWebContents.getOwnerBrowserWindow()) ||
+              BrowserWindow.fromWebContents(sourceWebContents))) ||
+          null;
+
+        Promise.resolve(extensionManager.installFromChromeWebStore(extensionId, owner))
+          .then((result) => {
+            try {
+              sourceWebContents?.send?.('extensions:storeInstallResult', resultFromOperation(result));
+            } catch {}
+          })
+          .catch((error) => {
+            try {
+              sourceWebContents?.send?.('extensions:storeInstallResult', {
+                ok: false,
+                error: String(error?.message || error || 'chrome_web_store_install_failed')
+              });
+            } catch {}
+          });
+      } catch {
+        // ignore interception failures
+      }
+    });
+
+    attachedDownloadInterceptors.add(key);
+  };
+
+  attachForPartition(EXTENSION_SESSION_PARTITION);
+  attachForPartition(STORE_SESSION_PARTITION);
+
+  downloadInterceptorAttached = true;
+  downloadInterceptorPending = false;
 }
 
 function normalizeExtensionUrl(input) {
@@ -206,7 +337,8 @@ function createExtensionShellWindow(title) {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      partition: 'persist:lumen',
+      partition: EXTENSION_SESSION_PARTITION,
+      webSecurity: true,
       preload: path.join(__dirname, '..', 'extension-preload.cjs')
     }
   });
@@ -261,8 +393,9 @@ function createOrFocusExtensionStoreWindow(targetUrl) {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      partition: 'persist:lumen',
-      preload: path.join(__dirname, '..', 'webview-preload.cjs')
+      partition: STORE_SESSION_PARTITION,
+      webSecurity: true,
+      preload: path.join(__dirname, '..', 'store-preload.cjs')
     }
   });
 
@@ -363,6 +496,8 @@ function registerExtensionsIpc() {
   if (registered) return;
   registered = true;
 
+  attachExtensionDownloadInterceptor();
+
   if (!broadcastAttached) {
     broadcastAttached = true;
     extensionManager.on('changed', (entries) => {
@@ -422,6 +557,29 @@ function registerExtensionsIpc() {
   ipcMain.handle('extensions:openStore', async (_evt, url) => {
     createOrFocusExtensionStoreWindow(url);
     return { ok: true };
+  });
+
+  ipcMain.handle('extensions:getGrantedPermissions', async (_evt, context) => {
+    return getGrantedPermissions(context || {});
+  });
+
+  ipcMain.on('extensions:getGrantedPermissionsSync', (evt, context) => {
+    try {
+      evt.returnValue = getGrantedPermissions(context || {});
+    } catch (error) {
+      evt.returnValue = { ok: false, error: String(error?.message || error || 'permissions_lookup_failed') };
+    }
+  });
+
+  ipcMain.handle('extensions:requestPermissions', async (_evt, payload) => {
+    const owner = _evt?.sender ? BrowserWindow.fromWebContents(_evt.sender) : null;
+    const input = payload && typeof payload === 'object' ? payload : {};
+    return requestOptionalPermissions(owner, input.extensionContext || {}, input.details || {});
+  });
+
+  ipcMain.handle('extensions:removePermissions', async (_evt, payload) => {
+    const input = payload && typeof payload === 'object' ? payload : {};
+    return removeGrantedPermissions(input.extensionContext || {}, input.details || {});
   });
 
   ipcMain.handle('extensions:getProviderFallbackState', async () => {
