@@ -19,7 +19,8 @@ import NewTabPage from './pages/NewTabPage.vue';
 import TransactionDetailPage from './pages/TransactionDetailPage.vue';
 import AddressDetailPage from './pages/AddressDetailPage.vue';
 import ExtensionsPage from './pages/ExtensionsPage.vue';
-import { getFileUrlTitle, isBrowserUrl, isFileUrl } from './navigationUrl';
+import ExtensionPage from './pages/ExtensionPage.vue';
+import { getFileUrlTitle, isBrowserUrl, isFileUrl, parseExtensionTabUrl } from './navigationUrl';
 
 type InternalRoute = {
   component: any;
@@ -36,6 +37,7 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   wallet: { component: WalletPage, title: 'Wallet' },
   domain: { component: DomainPage, title: 'Domain' },
   extensions: { component: ExtensionsPage, title: 'Extensions' },
+  extension: { component: ExtensionPage, title: 'Extension' },
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
   'my-gateways': { component: MyGatewaysPage, title: 'My Gateways' },
@@ -90,6 +92,7 @@ export const ALL_COMPONENTS = [
   WalletPage,
   DomainPage,
   ExtensionsPage,
+  ExtensionPage,
   NewTabPage
 ];
 
@@ -115,6 +118,10 @@ export function getInternalTitle(rawUrl: string): string {
     }
   }
   const key = parseInternalKey(rawUrl);
+  if (key === 'extension') {
+    const routeInfo = parseExtensionTabUrl(rawUrl);
+    if (routeInfo?.name) return routeInfo.name;
+  }
   const route = INTERNAL_ROUTES[key];
   if (route) return route.title;
   if (isLikelyDomainHost(key)) return key;

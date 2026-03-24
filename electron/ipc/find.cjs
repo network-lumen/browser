@@ -165,6 +165,28 @@ function getWebContentsById(id) {
   }
 }
 
+function getActiveTargetWebContentsId(windowWebContentsId) {
+  return safeNumber(activeTargetByWindowWcId.get(windowWebContentsId));
+}
+
+function resolveActiveTargetWebContents(sourceContents) {
+  if (!sourceContents || sourceContents.isDestroyed?.()) return null;
+
+  const ownerWindow = ownerWindowForContents(sourceContents);
+  const windowWcId = safeNumber(ownerWindow?.webContents?.id);
+  if (windowWcId == null) return sourceContents;
+
+  const sourceId = safeNumber(sourceContents.id);
+  if (sourceId != null && sourceId !== windowWcId) {
+    activeTargetByWindowWcId.set(windowWcId, sourceId);
+    return sourceContents;
+  }
+
+  const activeId = getActiveTargetWebContentsId(windowWcId);
+  if (activeId == null) return sourceContents;
+  return getWebContentsById(activeId) || sourceContents;
+}
+
 function isUiSender(evt) {
   const sender = evt?.sender;
   if (!sender || sender.isDestroyed?.()) return false;
@@ -263,5 +285,6 @@ function registerFindIpc() {
 
 module.exports = {
   registerFindIpc,
+  getActiveTargetWebContentsId,
+  resolveActiveTargetWebContents,
 };
-

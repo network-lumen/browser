@@ -71,6 +71,19 @@
       />
     </div>
 
+    <ExtensionPopupHost
+      v-if="extensionPopup.visible"
+      :extension-id="extensionPopup.extensionId"
+      :extension-name="extensionPopup.name"
+      :target-url="extensionPopup.targetUrl"
+      :source-tab-id="activeId"
+      :source-url="currentUrlForTab(getActiveTab())"
+      :source-title="activeTabTitle"
+      :top-offset="tabsHeaderHeight() + 60"
+      @close="closeExtensionPopup"
+      @navigate="handleExtensionPopupNavigate"
+    />
+
     <WalletOnboardingModal
       :visible="showOnboarding"
       @complete="handleOnboardingComplete"
@@ -84,18 +97,19 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { Earth, Plus, X } from 'lucide-vue-next';
   import TabBar from '../layouts/TabBar.vue';
   import UiSpinner from '../ui/UiSpinner.vue';
   import UiButton from '../ui/UiButton.vue';
   import UiToast from '../ui/UiToast.vue';
+  import ExtensionPopupHost from './ExtensionPopupHost.vue';
   import WalletOnboardingModal from './WalletOnboardingModal.vue';
   import ReleaseUpdatePrompt from './ReleaseUpdatePrompt.vue';
   import ReleaseUpdateOverlay from './ReleaseUpdateOverlay.vue';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
-  import { normalizeTabUrl } from '../internal/navigationUrl';
+  import { isBrowserUrl, isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
   import { activeProfileId } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
   import {
@@ -144,6 +158,16 @@ const labelWidth = ref(200);
 const MIN_LABEL = 0;
 const MAX_LABEL = 220;
 let tabSeq = 0;
+const pendingOpenTargets = new Set<string>();
+let installedExtensionsCache: any[] = [];
+let installedExtensionsCacheAt = 0;
+const extensionPopup = ref({
+  visible: false,
+  extensionId: '',
+  targetUrl: '',
+  name: '',
+  originTabId: '',
+});
 function nextTabId(): string {
   tabSeq += 1;
   return `tab-${tabSeq}-${Date.now().toString(36)}`;
@@ -208,6 +232,29 @@ watch(
   }
 );
 
+watch(
+  () => activeId.value,
+  (next, prev) => {
+    if (!extensionPopup.value.visible) return;
+    if (!extensionPopup.value.originTabId) return;
+    if (prev && next && next !== prev && next !== extensionPopup.value.originTabId) {
+      closeExtensionPopup();
+    }
+  }
+);
+
+watch(
+  () => tabs.value.map((t) => t.id).join("|"),
+  () => {
+    if (!extensionPopup.value.visible) return;
+    if (!extensionPopup.value.originTabId) return;
+    const exists = tabs.value.some((tab) => tab.id === extensionPopup.value.originTabId);
+    if (!exists) {
+      closeExtensionPopup();
+    }
+  }
+);
+
 function reportTabsState() {
   try {
     const api: any = (window as any).lumen;
@@ -239,6 +286,167 @@ function currentTitle(t: Tab): string {
   const h = t.history || [];
   const idx = Math.min(Math.max(t.history_position ?? 0, 0), Math.max(h.length - 1, 0));
   return h[idx]?.title ?? 'New tab';
+}
+
+function currentUrlForTab(t: Tab | null | undefined): string {
+  if (!t) return '';
+  const h = Array.isArray(t.history) ? t.history : [];
+  const idx = Math.min(Math.max(t.history_position ?? 0, 0), Math.max(h.length - 1, 0));
+  return String(h[idx]?.url || t.url || '').trim();
+}
+
+function getActiveTab(): Tab | null {
+  return tabs.value.find((entry) => entry.id === activeId.value) || null;
+}
+
+const activeTabTitle = computed(() => {
+  const active = getActiveTab();
+  return active ? currentTitle(active) : '';
+});
+
+function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
+  try {
+    return String(new URL(String(rawUrl || '').trim()).hostname || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+async function listInstalledExtensions(force = false): Promise<any[]> {
+  const now = Date.now();
+  if (!force && installedExtensionsCache.length && now - installedExtensionsCacheAt < 5000) {
+    return installedExtensionsCache;
+  }
+  try {
+    const api: any = (window as any).lumen?.extensions;
+    if (!api || typeof api.listExtensions !== 'function') return installedExtensionsCache;
+    const result = await api.listExtensions();
+    if (!result || result.ok === false) return installedExtensionsCache;
+    installedExtensionsCache = Array.isArray(result.extensions) ? result.extensions : [];
+    installedExtensionsCacheAt = now;
+  } catch {
+    // ignore
+  }
+  return installedExtensionsCache;
+}
+
+function closeExtensionPopup() {
+  extensionPopup.value = {
+    visible: false,
+    extensionId: '',
+    targetUrl: '',
+    name: '',
+    originTabId: '',
+  };
+}
+
+async function resolveExtensionPopupRequest(input: any): Promise<null | {
+  extensionId: string;
+  targetUrl: string;
+  name: string;
+}> {
+  if (input && typeof input === 'object' && !Array.isArray(input)) {
+    const extensionId = String(input.extensionId || '').trim();
+    const targetUrl = String(input.targetUrl || input.url || '').trim();
+    const name = String(input.name || '').trim();
+    if (extensionId) {
+      return { extensionId, targetUrl, name };
+    }
+    if (targetUrl) {
+      input = targetUrl;
+    }
+  }
+
+  const raw = String(input || '').trim();
+  if (!raw) return null;
+
+  const routeInfo = parseExtensionTabUrl(raw);
+  if (routeInfo?.extensionId) {
+    return {
+      extensionId: String(routeInfo.extensionId || '').trim(),
+      targetUrl: String(routeInfo.targetUrl || '').trim(),
+      name: String(routeInfo.name || '').trim(),
+    };
+  }
+
+  const normalized = normalizeTabUrl(raw);
+  if (!isExtensionUrl(normalized)) return null;
+
+  const runtimeId = getRuntimeIdFromExtensionUrl(normalized);
+  if (!runtimeId) return null;
+
+  const installed = await listInstalledExtensions();
+  const entry =
+    installed.find((item: any) => String(item?.runtimeId || '').trim() === runtimeId) || null;
+  if (!entry) return null;
+
+  return {
+    extensionId: String(entry?.id || '').trim(),
+    targetUrl: normalized,
+    name: String(entry?.name || '').trim(),
+  };
+}
+
+async function openExtensionPopup(input: any): Promise<boolean> {
+  const request = await resolveExtensionPopupRequest(input);
+  if (!request?.extensionId) return false;
+  extensionPopup.value = {
+    visible: true,
+    extensionId: request.extensionId,
+    targetUrl: request.targetUrl,
+    name: request.name,
+    originTabId: activeId.value,
+  };
+  return true;
+}
+
+function navigateActiveTab(url: string, opts: { push?: boolean } = {}) {
+  const tab = getActiveTab();
+  if (!tab) return;
+
+  const push = opts.push ?? true;
+  const target = normalizeTabUrl(url);
+  if (!Array.isArray(tab.history)) tab.history = [];
+
+  const currentPos = tab.history_position ?? tab.history.length - 1;
+  const title = getInternalTitle(target);
+
+  if (!push && tab.history.length) {
+    const pos = currentPos >= 0 ? currentPos : tab.history.length - 1;
+    const entry = tab.history[pos];
+    if (entry) {
+      entry.url = target;
+      entry.title = title;
+      tab.history_position = pos;
+    }
+  } else {
+    if (currentPos >= 0 && currentPos < tab.history.length - 1) {
+      tab.history = tab.history.slice(0, currentPos + 1);
+    }
+    tab.history.push({ url: target, title });
+    tab.history_position = tab.history.length - 1;
+  }
+
+  tab.url = target;
+  tab.draftUrl = target;
+}
+
+function handleExtensionPopupNavigate(payload: { url: string; openInNewTab?: boolean }) {
+  const target = String(payload?.url || '').trim();
+  if (!target) return;
+  if (payload?.openInNewTab) {
+    void openInNewTab(target);
+    return;
+  }
+  if (parseExtensionTabUrl(target) || isExtensionUrl(target)) {
+    void openExtensionPopup(target);
+    return;
+  }
+  navigateActiveTab(target, { push: true });
+}
+
+async function resolveOpenTargetUrl(rawUrl: string): Promise<string> {
+  return normalizeTabUrl(rawUrl);
 }
 
 function makeTab(partial?: Partial<Tab>): Tab {
@@ -289,19 +497,38 @@ function closeTab(id: string) {
   nextTick(recalcLabelWidth);
 }
 
-function openInNewTab(url: string) {
-  const normalized = normalizeTabUrl(url);
-  const title = getInternalTitle(normalized);
-  const t = makeTab({ history: [{ url: normalized, title }], history_position: 0 });
-  t.url = normalized;
-  tabs.value.push(t);
-  activeId.value = t.id;
-  nextTick(recalcLabelWidth);
+async function openInNewTab(url: string) {
+  if (await openExtensionPopup(url)) {
+    return;
+  }
+  const normalized = await resolveOpenTargetUrl(url);
+  if (!normalized) return;
+  if (pendingOpenTargets.has(normalized)) return;
+  pendingOpenTargets.add(normalized);
+  try {
+    const existing = tabs.value.find((entry) => currentUrlForTab(entry) === normalized);
+    if (existing) {
+      activeId.value = existing.id;
+      return;
+    }
+
+    const title = getInternalTitle(normalized);
+    const t = makeTab({ history: [{ url: normalized, title }], history_position: 0 });
+    t.url = normalized;
+    tabs.value.push(t);
+    activeId.value = t.id;
+    nextTick(recalcLabelWidth);
+  } finally {
+    pendingOpenTargets.delete(normalized);
+  }
 }
 
   // Expose tab opening to internal pages via provide/inject
   provide('openInNewTab', (url: string) => {
-    openInNewTab(url);
+    void openInNewTab(url);
+  });
+  provide('openExtensionPopup', (input: any) => {
+    void openExtensionPopup(input);
   });
 
   const INTERNAL_KEYS = new Set((INTERNAL_ROUTE_KEYS || []).map((k: string) => String(k).toLowerCase()));
@@ -696,6 +923,7 @@ function handleOnboardingSkip() {
 
 <style scoped>
   .main-shell {
+    position: relative;
     min-height: 100vh;
     background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
                 radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),

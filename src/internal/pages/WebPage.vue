@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
  import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
- import { isBrowserUrl } from "../navigationUrl";
+ import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../navigationUrl";
  import { useTabLoadingSync } from "../useTabLoading";
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
@@ -43,6 +43,7 @@
  const currentTabRefresh = inject<any>("currentTabRefresh", null);
  const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
  const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
+ const openExtensionPopup = inject<((input: any) => void) | null>("openExtensionPopup", null);
  const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
    "findRegisterTarget",
    null,
@@ -52,6 +53,7 @@ const webviewRef = ref<any>(null);
 const pageActive = ref(false);
 const pendingAppNav = ref(false);
 const webviewLoading = ref(false);
+const installedExtensions = ref<any[]>([]);
 
 useTabLoadingSync(webviewLoading);
 
@@ -75,6 +77,78 @@ function isChromeWebStoreUrl(raw: string): boolean {
 
 const isChromeWebStorePage = computed(() => isChromeWebStoreUrl(currentBrowserUrl.value));
 
+async function refreshInstalledExtensions() {
+  try {
+    const api = (window as any).lumen?.extensions;
+    if (!api || typeof api.listExtensions !== "function") return;
+    const result = await api.listExtensions();
+    if (!result || result.ok === false) return;
+    installedExtensions.value = Array.isArray(result.extensions) ? result.extensions : [];
+  } catch {
+    // ignore
+  }
+}
+
+function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
+  try {
+    return String(new URL(String(rawUrl || "").trim()).hostname || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function findExtensionByRuntimeId(runtimeId: string): any | null {
+  const target = String(runtimeId || "").trim();
+  if (!target) return null;
+  return (
+    installedExtensions.value.find(
+      (entry: any) => String(entry?.runtimeId || "").trim() === target,
+    ) || null
+  );
+}
+
+async function resolveAppTargetUrl(rawUrl: string): Promise<string> {
+  const href = String(rawUrl || "").trim();
+  if (!href) return "";
+  if (/^lumen:\/\//i.test(href)) return href;
+  if (!isExtensionUrl(href)) return isBrowserUrl(href) ? href : "";
+
+  if (!installedExtensions.value.length) {
+    await refreshInstalledExtensions();
+  }
+
+  const runtimeId = getRuntimeIdFromExtensionUrl(href);
+  const target = findExtensionByRuntimeId(runtimeId);
+  const extensionId = String(target?.id || "").trim();
+  if (!extensionId) return "";
+
+  const sourceTabId = String(currentTabId?.value || "").trim();
+  const sourceUrl = String(currentBrowserUrl.value || "").trim();
+  const sourceTitle = sourceUrl;
+
+  return buildExtensionTabUrl(extensionId, {
+    url: href,
+    name: String(target?.name || "").trim(),
+    sourceTabId,
+    sourceUrl,
+    sourceTitle,
+  });
+}
+
+async function navigateToResolvedTarget(rawUrl: string, openInNewTabFlag = false) {
+  const href = String(rawUrl || "").trim();
+  if (isExtensionUrl(href)) {
+    if (typeof openExtensionPopup === "function") {
+      openExtensionPopup(href);
+      return;
+    }
+  }
+  const next = await resolveAppTargetUrl(rawUrl);
+  if (!next) return;
+  if (openInNewTabFlag) openInNewTab?.(next);
+  else navigate?.(next, { push: true });
+}
+
 function onIpcMessage(ev: any) {
   if (!pageActive.value) return;
   const channel = String(ev?.channel || "");
@@ -88,6 +162,22 @@ function onIpcMessage(ev: any) {
           : "";
     if (!input) return;
     void installChromeWebStoreExtension(input);
+    return;
+  }
+  if (channel === "extensions:shimNavigate") {
+    const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+    const url =
+      typeof payload === "string"
+        ? payload
+        : payload && typeof payload === "object" && typeof (payload as any).url === "string"
+          ? (payload as any).url
+          : "";
+    const href = String(url || "").trim();
+    if (!isAllowedNewTabUrl(href)) return;
+
+    const openInNewTabFlag =
+      !!(payload && typeof payload === "object" && (payload as any).openInNewTab);
+    void navigateToResolvedTarget(href, openInNewTabFlag);
     return;
   }
   if (channel !== "lumen:navigate") return;
@@ -125,8 +215,19 @@ async function installChromeWebStoreExtension(input: string) {
 
 const currentBrowserUrl = computed(() => {
   const u = String(currentTabUrl?.value || "").trim();
+  if (isExtensionUrl(u)) return "";
   return isBrowserUrl(u) ? u : "";
 });
+
+watch(
+  () => String(currentTabUrl?.value || "").trim(),
+  (u) => {
+    if (!pageActive.value) return;
+    if (!isExtensionUrl(u)) return;
+    void navigateToResolvedTarget(u, false);
+  },
+  { immediate: true },
+);
 
 function openChromeWebStoreImport() {
   const target = currentBrowserUrl.value;
@@ -186,10 +287,15 @@ watch(
 
 function onWillNavigate(ev: any) {
   if (!pageActive.value) return;
-  const href = String(ev?.url || "");
+  const href = String(ev?.url || "").trim();
   if (/^\s*lumen:\/\//i.test(href)) {
     ev.preventDefault?.();
-    navigate?.(href.trim(), { push: true });
+    navigate?.(href, { push: true });
+    return;
+  }
+  if (isExtensionUrl(href)) {
+    ev.preventDefault?.();
+    void navigateToResolvedTarget(href, false);
     return;
   }
   if (!isBrowserUrl(href)) {
@@ -217,6 +323,10 @@ function syncNavFromWebview(rawUrl: string) {
   if (!pageActive.value) return;
   if (!navigate) return;
   const next = String(rawUrl || "").trim();
+  if (isExtensionUrl(next)) {
+    void navigateToResolvedTarget(next, false);
+    return;
+  }
   if (!isBrowserUrl(next)) return;
   const cur = String(currentTabUrl?.value || "").trim();
   if (cur && cur === next) {
@@ -232,7 +342,8 @@ function syncNavFromWebview(rawUrl: string) {
    if (!pageActive.value) return;
    ev.preventDefault?.();
    const href = String(ev?.url || "").trim();
-   if (isAllowedNewTabUrl(href)) openInNewTab?.(href);
+   if (!isAllowedNewTabUrl(href)) return;
+   void navigateToResolvedTarget(href, true);
  }
 
  function getWebviewWebContentsId(): number | null {
@@ -276,6 +387,7 @@ function syncNavFromWebview(rawUrl: string) {
 
  onMounted(() => {
    pageActive.value = true;
+   void refreshInstalledExtensions();
    void nextTick(() => reportFindTarget());
  });
  onActivated(() => {
