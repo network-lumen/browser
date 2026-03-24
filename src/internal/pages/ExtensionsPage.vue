@@ -15,13 +15,6 @@
         >
           {{ primaryActionLabel }}
         </button>
-        <button
-          type="button"
-          class="extensions-store-btn secondary-hero-btn"
-          @click="copyOfficialListingUrl"
-        >
-          {{ copyButtonLabel }}
-        </button>
       </div>
     </header>
 
@@ -91,8 +84,6 @@ const installInFlight = ref(false);
 const storePageTitle = ref("");
 const storeListingVersion = ref("");
 const installedExtensions = ref<Array<{ id: string; version: string; enabled: boolean; loaded: boolean }>>([]);
-const copyButtonLabel = ref("Copy Listing URL");
-let copyButtonResetTimer: number | null = null;
 let removeExtensionsChangedListener: (() => void) | null = null;
 
 useTabLoadingSync(webviewLoading);
@@ -506,25 +497,6 @@ function importCurrentExtension() {
   void installChromeWebStoreExtension(storeInstallId.value);
 }
 
-async function copyOfficialListingUrl() {
-  const href = storeTargetUrl.value;
-  if (!href) return;
-  try {
-    await navigator.clipboard.writeText(href);
-    copyButtonLabel.value = "Copied";
-    if (copyButtonResetTimer) {
-      window.clearTimeout(copyButtonResetTimer);
-    }
-    copyButtonResetTimer = window.setTimeout(() => {
-      copyButtonLabel.value = "Copy Listing URL";
-      copyButtonResetTimer = null;
-    }, 1800);
-  } catch {
-    statusError.value = true;
-    statusMessage.value = "Could not copy the official listing URL.";
-  }
-}
-
 function openBrowserTarget(rawUrl: string, inNewTab = true) {
   const href = safeString(rawUrl, 8192);
   if (!href) return;
@@ -707,10 +679,6 @@ function activatePage() {
 
 function deactivatePage() {
   pageActive.value = false;
-  if (copyButtonResetTimer) {
-    window.clearTimeout(copyButtonResetTimer);
-    copyButtonResetTimer = null;
-  }
   const tabId = safeString(currentTabId?.value, 256);
   if (!tabId || typeof registerFindTarget !== "function") return;
   try {
@@ -736,10 +704,6 @@ onBeforeUnmount(() => {
   deactivatePage();
   removeExtensionsChangedListener?.();
   removeExtensionsChangedListener = null;
-  if (copyButtonResetTimer) {
-    window.clearTimeout(copyButtonResetTimer);
-    copyButtonResetTimer = null;
-  }
 });
 </script>
 
@@ -815,12 +779,6 @@ onBeforeUnmount(() => {
   color: #ffffff;
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
   box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
-}
-
-.extensions-store-btn.secondary-hero-btn {
-  min-height: 46px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.82);
 }
 
 .extensions-store-btn:disabled {
