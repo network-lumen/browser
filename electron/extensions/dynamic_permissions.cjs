@@ -7,6 +7,7 @@ const { extensionManager } = require('./manager.cjs');
 const EXTENSION_DYNAMIC_PERMISSIONS_FILE = () => userDataPath('extension_dynamic_permissions.json');
 const EXTENSION_DYNAMIC_PERMISSIONS_AUDIT_FILE = () =>
   userDataPath('logs', 'extension_dynamic_permissions_audit.jsonl');
+const PROFILES_FILE = () => userDataPath('profiles.json');
 
 function safeString(value, maxLen = 4096) {
   const text = String(value ?? '').trim();
@@ -32,12 +33,24 @@ function normalizeExtensionContext(input) {
   };
 }
 
+function getActiveProfileId() {
+  try {
+    const raw = readJson(PROFILES_FILE(), { profiles: [], activeId: '' }) || {};
+    const activeId = safeString(raw.activeId, 128);
+    return activeId || 'default';
+  } catch {
+    return 'default';
+  }
+}
+
 function normalizeGrantEntry(input) {
   const value = input && typeof input === 'object' ? input : {};
+  const profileId = safeString(value.profileId, 128) || 'default';
   const extensionId = safeString(value.extensionId, 128);
   const runtimeId = safeString(value.runtimeId, 128);
-  if (!extensionId || !runtimeId) return null;
+  if (!profileId || !extensionId || !runtimeId) return null;
   return {
+    profileId,
     extensionId,
     runtimeId,
     extensionName: safeString(value.extensionName, 256) || 'Extension',
@@ -48,14 +61,14 @@ function normalizeGrantEntry(input) {
 }
 
 function readGrantEntries() {
-  const raw = readJson(EXTENSION_DYNAMIC_PERMISSIONS_FILE(), { version: 1, entries: [] }) || {};
+  const raw = readJson(EXTENSION_DYNAMIC_PERMISSIONS_FILE(), { version: 2, entries: [] }) || {};
   const entries = Array.isArray(raw.entries) ? raw.entries : [];
   return entries.map((entry) => normalizeGrantEntry(entry)).filter(Boolean);
 }
 
 function writeGrantEntries(entries) {
   writeJson(EXTENSION_DYNAMIC_PERMISSIONS_FILE(), {
-    version: 1,
+    version: 2,
     updatedAt: new Date().toISOString(),
     entries: Array.isArray(entries) ? entries : []
   });
@@ -70,6 +83,7 @@ function appendAuditEntry(input) {
       `${JSON.stringify({
         timestamp: new Date().toISOString(),
         event: 'extension_dynamic_permissions',
+        profileId: safeString(entry.profileId, 128) || 'default',
         extensionId: safeString(entry.extensionId, 128),
         runtimeId: safeString(entry.runtimeId, 128),
         extensionName: safeString(entry.extensionName, 256),
@@ -102,6 +116,7 @@ function resolveExtensionInfo(context) {
   if (!entry) return null;
   return {
     context: normalized,
+    profileId: getActiveProfileId(),
     extensionId: safeString(entry.id, 128),
     runtimeId: safeString(entry.runtimeId, 128) || normalized.runtimeId,
     extensionName: safeString(entry.name, 256) || 'Extension',
@@ -124,11 +139,16 @@ function readManifest(info) {
 function getStoredGrant(info) {
   const entries = readGrantEntries();
   const match =
-    entries.find((entry) => entry.extensionId === info.extensionId) ||
-    entries.find((entry) => entry.runtimeId === info.runtimeId) ||
+    entries.find(
+      (entry) => entry.profileId === info.profileId && entry.extensionId === info.extensionId
+    ) ||
+    entries.find(
+      (entry) => entry.profileId === info.profileId && entry.runtimeId === info.runtimeId
+    ) ||
     null;
   return (
     match || {
+      profileId: info.profileId,
       extensionId: info.extensionId,
       runtimeId: info.runtimeId,
       extensionName: info.extensionName,
@@ -141,6 +161,7 @@ function getStoredGrant(info) {
 
 function persistGrant(info, grant) {
   const nextEntry = normalizeGrantEntry({
+    profileId: info.profileId,
     extensionId: info.extensionId,
     runtimeId: info.runtimeId,
     extensionName: info.extensionName,
@@ -151,7 +172,11 @@ function persistGrant(info, grant) {
   if (!nextEntry) return;
   const current = readGrantEntries();
   const filtered = current.filter(
-    (entry) => entry.extensionId !== info.extensionId && entry.runtimeId !== info.runtimeId
+    (entry) =>
+      !(
+        entry.profileId === info.profileId &&
+        (entry.extensionId === info.extensionId || entry.runtimeId === info.runtimeId)
+      )
   );
   filtered.push(nextEntry);
   writeGrantEntries(filtered);
@@ -212,6 +237,7 @@ async function requestOptionalPermissions(ownerWindow, context, details) {
 
   if (invalidPermissions.length || invalidOrigins.length) {
     appendAuditEntry({
+      profileId: info.profileId,
       extensionId: info.extensionId,
       runtimeId: info.runtimeId,
       extensionName: info.extensionName,
@@ -259,6 +285,7 @@ async function requestOptionalPermissions(ownerWindow, context, details) {
   const allowed = result.response === 0;
   if (!allowed) {
     appendAuditEntry({
+      profileId: info.profileId,
       extensionId: info.extensionId,
       runtimeId: info.runtimeId,
       extensionName: info.extensionName,
@@ -279,6 +306,7 @@ async function requestOptionalPermissions(ownerWindow, context, details) {
   };
   persistGrant(info, nextGrant);
   appendAuditEntry({
+    profileId: info.profileId,
     extensionId: info.extensionId,
     runtimeId: info.runtimeId,
     extensionName: info.extensionName,
@@ -313,6 +341,7 @@ function removeGrantedPermissions(context, details) {
   };
   persistGrant(info, nextGrant);
   appendAuditEntry({
+    profileId: info.profileId,
     extensionId: info.extensionId,
     runtimeId: info.runtimeId,
     extensionName: info.extensionName,

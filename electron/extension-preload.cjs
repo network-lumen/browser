@@ -923,13 +923,18 @@ function createMinimalBrowserApi() {
     tabs: [cloneValue(tab)]
   });
 
+  const normalizeHostPermissions = (value) => ({
+    activeTabGranted: value?.activeTabGranted === true
+  });
+
   const normalizeHostTabContext = (value) => {
     if (!value || typeof value !== 'object') return null;
     const tab = normalizeHostTab(value.tab || value);
     if (!tab) return null;
     return {
       tab,
-      window: normalizeHostWindow(value.window, tab)
+      window: normalizeHostWindow(value.window, tab),
+      permissions: normalizeHostPermissions(value.permissions)
     };
   };
 
@@ -1047,7 +1052,16 @@ function createMinimalBrowserApi() {
     const manifest = getExtensionManifest();
     const effective = buildEffectivePermissionLists(manifest);
     const grantedPermissions = new Set(effective.permissions);
-    if (grantedPermissions.has('tabs') || grantedPermissions.has('activeTab')) {
+    if (grantedPermissions.has('tabs')) {
+      return true;
+    }
+
+    const hostContext = cachedHostTabContext;
+    const activeTabGranted =
+      grantedPermissions.has('activeTab') &&
+      hostContext?.permissions?.activeTabGranted === true &&
+      safeString(hostContext?.tab?.url, 4096) === tabUrl;
+    if (activeTabGranted) {
       return true;
     }
 
@@ -2228,42 +2242,40 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
 
           const nativeFetch = root.fetch.bind(root);
           const patchedFetch = async (input, init) => {
-            try {
-              return await nativeFetch(input, init);
-            } catch (error) {
-              const normalized = await normalizeFetchArgs(input, init);
-              if (!normalized || !canProxyUrl(normalized.url)) {
-                throw error;
-              }
-
-              const result = await fetchBridge.request(normalized.url, normalized.init);
-              if (!result || Number(result.status) <= 0) {
-                throw error;
-              }
-
-              const response = new Response(fromBase64(result.bodyBase64), {
-                status: Number(result.status) || 200,
-                statusText: String(result.statusText || ''),
-                headers: result.headers && typeof result.headers === 'object' ? result.headers : {}
-              });
-
-              try {
-                Object.defineProperty(response, 'url', {
-                  configurable: true,
-                  enumerable: true,
-                  value: String(result.url || normalized.url)
-                });
-              } catch {}
-              try {
-                Object.defineProperty(response, 'redirected', {
-                  configurable: true,
-                  enumerable: true,
-                  value: !!result.redirected
-                });
-              } catch {}
-
-              return response;
+            const normalized = await normalizeFetchArgs(input, init);
+            if (!normalized || !canProxyUrl(normalized.url)) {
+              return nativeFetch(input, init);
             }
+
+            const result = await fetchBridge.request(normalized.url, normalized.init);
+            if (!result || Number(result.status) <= 0) {
+              throw new Error(
+                String(result?.error || 'extension_request_not_authorized')
+              );
+            }
+
+            const response = new Response(fromBase64(result.bodyBase64), {
+              status: Number(result.status) || 200,
+              statusText: String(result.statusText || ''),
+              headers: result.headers && typeof result.headers === 'object' ? result.headers : {}
+            });
+
+            try {
+              Object.defineProperty(response, 'url', {
+                configurable: true,
+                enumerable: true,
+                value: String(result.url || normalized.url)
+              });
+            } catch {}
+            try {
+              Object.defineProperty(response, 'redirected', {
+                configurable: true,
+                enumerable: true,
+                value: !!result.redirected
+              });
+            } catch {}
+
+            return response;
           };
 
           try {

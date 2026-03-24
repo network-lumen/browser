@@ -927,6 +927,7 @@ async function openExtension(ext: InstalledExtension) {
       extensionId: ext.id,
       name: String(ext?.name || '').trim(),
       targetUrl: String(ext?.launchUrl || '').trim(),
+      userGesture: true,
     });
     return;
   }

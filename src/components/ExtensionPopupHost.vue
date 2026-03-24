@@ -59,6 +59,7 @@ const props = defineProps<{
   extensionId: string;
   extensionName?: string;
   targetUrl?: string;
+  userGesture?: boolean;
   sourceTabId?: string;
   sourceUrl?: string;
   sourceTitle?: string;
@@ -291,6 +292,9 @@ function getExtensionHostTabContext() {
       type: "normal",
       state: "normal",
       tabs: [tab],
+    },
+    permissions: {
+      activeTabGranted: !!props.userGesture,
     },
   };
 }
