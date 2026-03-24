@@ -84,7 +84,7 @@ const registerFindTarget = inject<((tabId: string, targetWebContentsId: number |
 );
 
 const webprefs =
-  "contextIsolation=yes, nodeIntegration=no, sandbox=no, javascript=yes, nativeWindowOpen=no";
+  "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
 
 const webviewRef = ref<any>(null);
 const extensionGuestPreloadUrl = ref("");

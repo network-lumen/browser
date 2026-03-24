@@ -205,7 +205,7 @@ function createExtensionShellWindow(title) {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
+      sandbox: true,
       partition: 'persist:lumen',
       preload: path.join(__dirname, '..', 'extension-preload.cjs')
     }
