@@ -7,8 +7,11 @@ const { ensureDir, readJson, userDataPath, writeJson } = require('../utils/fs.cj
 const EXTENSION_NETWORK_PERMISSIONS_FILE = () => userDataPath('extension_network_permissions.json');
 const EXTENSION_NETWORK_AUDIT_FILE = () => userDataPath('logs', 'extension_network_audit.jsonl');
 const PROFILES_FILE = () => userDataPath('profiles.json');
+const EXTENSION_PERMISSION_PROMPT_AGGREGATION_MS = 650;
+const EXTENSION_PERMISSION_PROMPT_SCOPE_LIST_LIMIT = 12;
 const extensionPermissionSessionCache = new Map();
 const extensionPermissionInflight = new Map();
+const extensionPermissionPromptBatches = new Map();
 const guardedSessions = new WeakSet();
 
 function safeAuditText(value, maxLen = 4096) {
@@ -576,20 +579,45 @@ function persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed
   writeExtensionPermissionEntries(filtered);
 }
 
-async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOrigin, context = null, targetUrl = '') {
-  const cacheKey = buildScopedPermissionCacheKey(
-    extensionInfo.profileId,
-    extensionInfo.extensionId || extensionInfo.runtimeId,
-    targetOrigin,
+function buildExtensionPromptBatchKey(extensionInfo) {
+  return [
+    String(extensionInfo?.profileId || 'default').trim() || 'default',
+    String(extensionInfo?.extensionId || extensionInfo?.runtimeId || '').trim(),
+    String(extensionInfo?.runtimeId || '').trim()
+  ].join('::');
+}
+
+function createDeferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
+function buildAggregatedPromptDetail(origins) {
+  const uniqueOrigins = Array.from(
+    new Set((Array.isArray(origins) ? origins : []).map((entry) => String(entry || '').trim()).filter(Boolean)),
   );
-  if (extensionPermissionInflight.has(cacheKey)) {
-    return extensionPermissionInflight.get(cacheKey);
+  const visible = uniqueOrigins.slice(0, EXTENSION_PERMISSION_PROMPT_SCOPE_LIST_LIMIT);
+  const lines = visible.map((origin) => `- ${origin}`);
+  const remaining = uniqueOrigins.length - visible.length;
+  if (remaining > 0) {
+    lines.push(`- +${remaining} more scope${remaining > 1 ? 's' : ''}`);
   }
+  return lines.join('\n');
+}
 
-  const promptPromise = (async () => {
-    const owner = ownerWindow || BrowserWindow.getFocusedWindow() || undefined;
+function buildExtensionPermissionDialogOptions(extensionInfo, items) {
+  const batchItems = Array.isArray(items) ? items : [];
+  const targetOrigins = batchItems.map((item) => String(item?.targetOrigin || '').trim()).filter(Boolean);
+  const isAggregated = targetOrigins.length > 1;
 
-    const dialogOptions = {
+  if (!isAggregated) {
+    const targetOrigin = String(targetOrigins[0] || '').trim();
+    return {
       type: 'question',
       buttons: ['Block', 'Allow'],
       defaultId: 0,
@@ -601,27 +629,133 @@ async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOr
       checkboxLabel: 'Remember this choice for this extension and origin',
       checkboxChecked: false
     };
+  }
+
+  return {
+    type: 'question',
+    buttons: ['Block All', 'Allow All'],
+    defaultId: 0,
+    cancelId: 0,
+    noLink: true,
+    title: 'Extension Request Permissions',
+    message: `Extension "${extensionInfo.extensionName}" is requesting permission to make requests to ${targetOrigins.length} network scopes.`,
+    detail:
+      `Requests received during startup were grouped to avoid popup spam.\n\n` +
+      `Allow this extension to access these network scopes?\n\n${buildAggregatedPromptDetail(targetOrigins)}`,
+    checkboxLabel: 'Remember this choice for this extension and listed network scopes',
+    checkboxChecked: false
+  };
+}
+
+async function flushExtensionPermissionPromptBatch(batchKey) {
+  const batch = extensionPermissionPromptBatches.get(batchKey);
+  if (!batch) return;
+  extensionPermissionPromptBatches.delete(batchKey);
+
+  if (batch.timer) {
+    try {
+      clearTimeout(batch.timer);
+    } catch {}
+  }
+
+  const items = Array.from(batch.items.values());
+  if (!items.length) return;
+
+  let allowed = false;
+  let remembered = false;
+
+  try {
+    const owner =
+      (batch.ownerWindow && !batch.ownerWindow.isDestroyed?.() ? batch.ownerWindow : null) ||
+      BrowserWindow.getFocusedWindow() ||
+      undefined;
+    const dialogOptions = buildExtensionPermissionDialogOptions(batch.extensionInfo, items);
     const result = owner
       ? await dialog.showMessageBox(owner, dialogOptions)
       : await dialog.showMessageBox(dialogOptions);
+    allowed = result.response === 1;
+    remembered = !!result.checkboxChecked;
+  } catch {
+    allowed = false;
+    remembered = false;
+  }
 
-    const allowed = result.response === 1;
-    extensionPermissionSessionCache.set(cacheKey, allowed);
-    if (result.checkboxChecked) {
-      persistExtensionPermissionDecision(extensionInfo, targetOrigin, allowed);
+  for (const item of items) {
+    extensionPermissionSessionCache.set(item.cacheKey, allowed);
+    if (remembered) {
+      persistExtensionPermissionDecision(batch.extensionInfo, item.targetOrigin, allowed);
     }
-    logExtensionAuthorizationDecision(extensionInfo, context, targetOrigin, allowed, {
-      decisionSource: 'prompt',
-      remembered: result.checkboxChecked,
-      targetUrl
-    });
-    return allowed;
-  })().finally(() => {
-    extensionPermissionInflight.delete(cacheKey);
-  });
 
-  extensionPermissionInflight.set(cacheKey, promptPromise);
-  return promptPromise;
+    const latestContext =
+      item.contexts.length > 0 ? item.contexts[item.contexts.length - 1] : null;
+    const latestTargetUrl =
+      item.targetUrls.length > 0 ? item.targetUrls[item.targetUrls.length - 1] : '';
+    logExtensionAuthorizationDecision(
+      batch.extensionInfo,
+      latestContext,
+      item.targetOrigin,
+      allowed,
+      {
+        decisionSource: items.length > 1 ? 'prompt_aggregated' : 'prompt',
+        remembered,
+        targetUrl: latestTargetUrl
+      },
+    );
+
+    try {
+      item.deferred.resolve(allowed);
+    } catch {}
+    extensionPermissionInflight.delete(item.cacheKey);
+  }
+}
+
+async function promptForExtensionPermission(ownerWindow, extensionInfo, targetOrigin, context = null, targetUrl = '') {
+  const cacheKey = buildScopedPermissionCacheKey(
+    extensionInfo.profileId,
+    extensionInfo.extensionId || extensionInfo.runtimeId,
+    targetOrigin,
+  );
+  if (extensionPermissionInflight.has(cacheKey)) {
+    return extensionPermissionInflight.get(cacheKey);
+  }
+
+  const batchKey = buildExtensionPromptBatchKey(extensionInfo);
+  let batch = extensionPermissionPromptBatches.get(batchKey);
+  if (!batch) {
+    batch = {
+      ownerWindow: ownerWindow || null,
+      extensionInfo,
+      items: new Map(),
+      timer: setTimeout(() => {
+        void flushExtensionPermissionPromptBatch(batchKey);
+      }, EXTENSION_PERMISSION_PROMPT_AGGREGATION_MS)
+    };
+    extensionPermissionPromptBatches.set(batchKey, batch);
+  } else if (ownerWindow) {
+    batch.ownerWindow = ownerWindow;
+  }
+
+  let item = batch.items.get(cacheKey);
+  if (!item) {
+    item = {
+      cacheKey,
+      targetOrigin,
+      contexts: [],
+      targetUrls: [],
+      deferred: createDeferred()
+    };
+    batch.items.set(cacheKey, item);
+    extensionPermissionInflight.set(cacheKey, item.deferred.promise);
+  }
+
+  if (context) {
+    item.contexts.push(context);
+  }
+  if (targetUrl) {
+    item.targetUrls.push(String(targetUrl).trim());
+  }
+
+  return item.deferred.promise;
 }
 
 async function ensureExtensionRequestAuthorized(evt, url, options) {

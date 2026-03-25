@@ -567,6 +567,12 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
   };
 
   let traceWorker = () => {};
+  const nativeNamespacePassthrough = Object.freeze({
+    __lumenNativePassthrough: true
+  });
+  const nativeNamespaceHidden = Object.freeze({
+    __lumenHideNative: true
+  });
 
   const createEventTarget = (label = 'event') => {
     const listeners = new Set();
@@ -670,6 +676,12 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
   const patchNamespace = (target, source) => {
     if (!target || typeof target !== 'object') return;
     for (const [key, value] of Object.entries(source)) {
+      if (
+        value?.__lumenNativePassthrough === true ||
+        value?.__lumenHideNative === true
+      ) {
+        continue;
+      }
       if (value && typeof value === 'object' && !Array.isArray(value) && typeof value !== 'function') {
         if (!target[key] || typeof target[key] !== 'object') {
           try {
@@ -696,10 +708,11 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
 
     const nativeObject =
       nativeNamespace && typeof nativeNamespace === 'object' ? nativeNamespace : null;
+    const shimObject = shimNamespace;
     const overrides = new Map();
     const host = {};
 
-    for (const key of Object.keys(shimNamespace)) {
+    for (const key of Object.keys(shimObject)) {
       Object.defineProperty(host, key, {
         configurable: true,
         enumerable: true,
@@ -709,8 +722,16 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
           }
 
           const nativeValue = nativeObject ? nativeObject[key] : undefined;
-          const shimValue = shimNamespace[key];
+          const shimValue = shimObject[key];
+          const isNativePassthrough = shimValue?.__lumenNativePassthrough === true;
+          const isNativeHidden = shimValue?.__lumenHideNative === true;
+          if (isNativeHidden) {
+            return undefined;
+          }
           if (nativeValue != null) {
+            if (isNativePassthrough) {
+              return nativeValue;
+            }
             if (typeof nativeValue === 'function') {
               return nativeValue.bind(nativeObject);
             }
@@ -727,6 +748,9 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
             return nativeValue;
           }
 
+          if (isNativePassthrough) {
+            return undefined;
+          }
           return shimValue;
         },
         set(value) {
@@ -906,7 +930,9 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
         if (result && typeof result.then === 'function') {
           const awaited = await result;
           if (awaited !== undefined) return { handled: true, value: awaited };
-          if (responded) return { handled: true, value: responseValue };
+          if (responded && responseValue !== undefined) {
+            return { handled: true, value: responseValue };
+          }
           continue;
         }
         if (result === true) {
@@ -914,7 +940,10 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
             asyncResponse,
             new Promise((resolve) => setTimeout(() => resolve(listenerTimeout), runtimeBridgeTimeoutMs))
           ]);
-          if (awaited !== listenerTimeout || responded) {
+          if (
+            (awaited !== listenerTimeout && awaited !== undefined) ||
+            (responded && responseValue !== undefined)
+          ) {
             return { handled: true, value: responded ? responseValue : awaited };
           }
           traceWorker('runtime.bridge.listener.timeout', {
@@ -923,8 +952,11 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
           });
           continue;
         }
+        if (result === false) continue;
         if (result !== undefined) return { handled: true, value: result };
-        if (responded) return { handled: true, value: responseValue };
+        if (responded && responseValue !== undefined) {
+          return { handled: true, value: responseValue };
+        }
       } catch (error) {
         return {
           handled: true,
@@ -956,14 +988,15 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
       }
     }
 
-    const sender =
+    const sender = normalizeRuntimeMessageSender(
       payload?.sender && typeof payload.sender === 'object'
         ? payload.sender
         : {
             id: runtimeId,
             origin: extensionOrigin,
             url: href || extensionOrigin + '/'
-          };
+          }
+    );
 
     traceWorker('runtime.bridge.request', {
       requestId,
@@ -1030,6 +1063,9 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
     onShown: createEventTarget('notifications.onShown'),
     onPermissionLevelChanged: createEventTarget('notifications.onPermissionLevelChanged')
   };
+  const contextMenusEvents = {
+    onClicked: createEventTarget('contextMenus.onClicked')
+  };
   const identityEvents = {
     onSignInChanged: createEventTarget('identity.onSignInChanged')
   };
@@ -1060,6 +1096,47 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
     onReferenceFragmentUpdated: createEventTarget('webNavigation.onReferenceFragmentUpdated'),
     onErrorOccurred: createEventTarget('webNavigation.onErrorOccurred')
   };
+  const syntheticWebNavigationReplay = {
+    onBeforeNavigate: new Map(),
+    onCommitted: new Map(),
+    onCompleted: new Map(),
+    onDOMContentLoaded: new Map()
+  };
+
+  const installReplayableNavigationEvent = (eventTarget, backlog) => {
+    if (!eventTarget || typeof eventTarget.addListener !== 'function') {
+      return;
+    }
+    const originalAddListener = eventTarget.addListener.bind(eventTarget);
+    eventTarget.addListener = (listener) => {
+      originalAddListener(listener);
+      if (typeof listener !== 'function' || backlog.size === 0) {
+        return;
+      }
+      for (const details of backlog.values()) {
+        try {
+          listener(cloneValue(details));
+        } catch {}
+      }
+    };
+  };
+
+  installReplayableNavigationEvent(
+    webNavigationEvents.onBeforeNavigate,
+    syntheticWebNavigationReplay.onBeforeNavigate
+  );
+  installReplayableNavigationEvent(
+    webNavigationEvents.onCommitted,
+    syntheticWebNavigationReplay.onCommitted
+  );
+  installReplayableNavigationEvent(
+    webNavigationEvents.onCompleted,
+    syntheticWebNavigationReplay.onCompleted
+  );
+  installReplayableNavigationEvent(
+    webNavigationEvents.onDOMContentLoaded,
+    syntheticWebNavigationReplay.onDOMContentLoaded
+  );
 
   const storageMemory = new Map();
   let nextWindowId = 2;
@@ -1067,6 +1144,156 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
   const windowState = new Map();
   const tabState = new Map();
   const storageNamespacePrefix = \`__lumenExtensionWorkerStorage__/\${runtimeId || 'default'}/\`;
+
+  const isBrowserPageUrl = (value) => /^(https?:\\/\\/|file:\\/\\/)/i.test(safeString(value, 4096));
+
+  const getSyntheticActiveTab = (senderUrl = '') => {
+    const normalizedSenderUrl = safeString(senderUrl, 4096);
+    const existingActiveTab =
+      Array.from(tabState.values()).find((tab) => !!tab?.active && isBrowserPageUrl(tab?.url)) ||
+      Array.from(tabState.values()).find((tab) => isBrowserPageUrl(tab?.url)) ||
+      null;
+
+    if (existingActiveTab) {
+      if (normalizedSenderUrl) {
+        return ensureTab(existingActiveTab.id, {
+          url: normalizedSenderUrl,
+          title: safeString(existingActiveTab.title || normalizedSenderUrl, 1024),
+          active: true,
+          highlighted: true,
+          selected: true,
+          status: 'complete'
+        });
+      }
+      return ensureTab(existingActiveTab.id, {
+        active: true,
+        highlighted: true,
+        selected: true
+      });
+    }
+
+    return ensureTab(1, {
+      windowId: 1,
+      active: true,
+      highlighted: true,
+      selected: true,
+      status: 'complete',
+      url: normalizedSenderUrl || 'https://lumen.invalid/',
+      title: safeString(normalizedSenderUrl || 'Lumen', 1024)
+    });
+  };
+
+  const syntheticNavigationState = new Map();
+
+  const ensureSyntheticNavigationState = (sender) => {
+    if (!sender || typeof sender !== 'object') return sender;
+
+    const senderUrl =
+      safeString(sender.url, 4096) ||
+      safeString(sender.documentUrl, 4096) ||
+      safeString(sender.origin, 4096);
+    if (!isBrowserPageUrl(senderUrl)) {
+      return sender;
+    }
+
+    const tabId = Number(sender?.tab?.id) || 1;
+    const frameId = Number.isFinite(Number(sender?.frameId)) ? Number(sender.frameId) : 0;
+    const windowId = Number(sender?.tab?.windowId) || 1;
+    const parentFrameId = frameId > 0 ? 0 : -1;
+
+    ensureWindow(windowId, { focused: true, type: 'normal' });
+    const nextTab = ensureTab(tabId, {
+      windowId,
+      index: Number.isFinite(Number(sender?.tab?.index)) ? Number(sender.tab.index) : 0,
+      active: sender?.tab?.active !== false,
+      highlighted: sender?.tab?.highlighted !== false,
+      selected: sender?.tab?.selected !== false,
+      status: safeString(sender?.tab?.status, 32) || 'complete',
+      title: safeString(sender?.tab?.title || senderUrl, 1024),
+      url: senderUrl,
+      incognito: !!sender?.tab?.incognito,
+      pinned: !!sender?.tab?.pinned,
+      discarded: !!sender?.tab?.discarded,
+      autoDiscardable: sender?.tab?.autoDiscardable !== false
+    });
+    syncWindowTabs(windowId);
+    sender.tab = cloneValue(nextTab);
+
+    const navigationKey = String(tabId) + ':' + String(frameId);
+    const previousUrl = syntheticNavigationState.get(navigationKey);
+    if (previousUrl === senderUrl) {
+      return sender;
+    }
+    syntheticNavigationState.set(navigationKey, senderUrl);
+
+    const navigationDetails = {
+      tabId,
+      frameId,
+      parentFrameId,
+      url: senderUrl
+    };
+    const committedDetails = {
+      ...cloneValue(navigationDetails),
+      transitionQualifiers: [],
+      transitionType: 'link'
+    };
+    syntheticWebNavigationReplay.onBeforeNavigate.set(
+      navigationKey,
+      cloneValue(navigationDetails)
+    );
+    syntheticWebNavigationReplay.onCommitted.set(
+      navigationKey,
+      cloneValue(committedDetails)
+    );
+    syntheticWebNavigationReplay.onDOMContentLoaded.set(
+      navigationKey,
+      cloneValue(navigationDetails)
+    );
+    syntheticWebNavigationReplay.onCompleted.set(
+      navigationKey,
+      cloneValue(navigationDetails)
+    );
+
+    try {
+      webNavigationEvents.onBeforeNavigate.dispatch(cloneValue(navigationDetails));
+    } catch {}
+    try {
+      webNavigationEvents.onCommitted.dispatch(cloneValue(committedDetails));
+    } catch {}
+    try {
+      webNavigationEvents.onDOMContentLoaded.dispatch(cloneValue(navigationDetails));
+    } catch {}
+    try {
+      webNavigationEvents.onCompleted.dispatch(cloneValue(navigationDetails));
+    } catch {}
+
+    return sender;
+  };
+
+  const normalizeRuntimeMessageSender = (sender) => {
+    const baseSender =
+      sender && typeof sender === 'object'
+        ? { ...sender }
+        : {};
+    const senderUrl =
+      safeString(baseSender.url, 4096) ||
+      safeString(baseSender.documentUrl, 4096) ||
+      safeString(baseSender.origin, 4096);
+
+    if (!safeString(baseSender.id, 128)) {
+      baseSender.id = runtimeId;
+    }
+    if (baseSender.frameId == null) {
+      baseSender.frameId = 0;
+    }
+    if (!safeString(baseSender.url, 4096) && senderUrl) {
+      baseSender.url = senderUrl;
+    }
+    if (!baseSender.tab && isBrowserPageUrl(senderUrl)) {
+      baseSender.tab = cloneValue(getSyntheticActiveTab(senderUrl));
+    }
+    return ensureSyntheticNavigationState(baseSender);
+  };
 
   const callNativeAsync = (nativeMethod, nativeThis, args, callback, fallbackValue) => {
     const fallback =
@@ -1612,6 +1839,40 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
     onPermissionLevelChanged: notificationsEvents.onPermissionLevelChanged
   };
 
+  const contextMenuItems = new Map();
+  const contextMenusApi = {
+    create(createProperties = {}, callback) {
+      const id =
+        createProperties?.id != null
+          ? safeString(createProperties.id, 256)
+          : 'menu-' + String(contextMenuItems.size + 1);
+      if (!id) {
+        return asyncResult(undefined, callback);
+      }
+      contextMenuItems.set(id, cloneValue(createProperties || {}));
+      return asyncResult(id, callback);
+    },
+    update(menuItemId, updateProperties = {}, callback) {
+      const id = safeString(menuItemId, 256);
+      if (id) {
+        contextMenuItems.set(id, {
+          ...(contextMenuItems.get(id) || {}),
+          ...cloneValue(updateProperties || {})
+        });
+      }
+      return asyncResult(undefined, callback);
+    },
+    remove(menuItemId, callback) {
+      const removed = contextMenuItems.delete(safeString(menuItemId, 256));
+      return asyncResult(removed, callback);
+    },
+    removeAll(callback) {
+      contextMenuItems.clear();
+      return asyncResult(undefined, callback);
+    },
+    onClicked: contextMenusEvents.onClicked
+  };
+
   const identityApi = {
     getRedirectURL(path = '') {
       let normalized = safeString(path, 4096);
@@ -1646,9 +1907,173 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
     }
   };
 
-  const scriptingApi = {
-    executeScript(_injection, callback) {
+  const normalizeCssOrigin = (value, fallback = 'AUTHOR') => {
+    const normalized = safeString(value, 32).toUpperCase();
+    return normalized === 'USER' || normalized === 'AUTHOR' ? normalized : fallback;
+  };
+
+  const buildInjectionTarget = (tabId, details = {}) => {
+    const target = {
+      tabId: Number(tabId) || 1
+    };
+    const frameIds = Array.isArray(details?.frameIds)
+      ? details.frameIds.map((value) => Number(value)).filter((value) => Number.isFinite(value))
+      : details?.frameId != null
+        ? [Number(details.frameId)].filter((value) => Number.isFinite(value))
+        : [];
+    if (frameIds.length) {
+      target.frameIds = frameIds;
+    }
+    if (details?.allFrames === true) {
+      target.allFrames = true;
+    }
+    return target;
+  };
+
+  const runInsertCss = (detailsOrTabId, maybeDetails, callback) => {
+    const isScriptingShape =
+      detailsOrTabId && typeof detailsOrTabId === 'object' && !Array.isArray(detailsOrTabId);
+    const injection = isScriptingShape
+      ? cloneValue(detailsOrTabId)
+      : {
+          target: buildInjectionTarget(detailsOrTabId, maybeDetails || {}),
+          css: safeString(maybeDetails?.code, 1048576),
+          files: safeString(maybeDetails?.file, 4096) ? [safeString(maybeDetails.file, 4096)] : undefined,
+          origin: normalizeCssOrigin(maybeDetails?.origin || maybeDetails?.cssOrigin, 'USER')
+        };
+
+    if (!injection?.target?.tabId) {
+      return asyncResult(undefined, callback);
+    }
+
+    const nativeScripting = nativeChromeNamespace?.scripting;
+    if (typeof nativeScripting?.insertCSS === 'function') {
+      return callNativeAsync(nativeScripting.insertCSS, nativeScripting, [injection], callback, undefined);
+    }
+
+    const nativeTabs = nativeChromeNamespace?.tabs;
+    if (typeof nativeTabs?.insertCSS === 'function') {
+      return callNativeAsync(
+        nativeTabs.insertCSS,
+        nativeTabs,
+        [
+          injection.target.tabId,
+          {
+            code: safeString(injection.css, 1048576),
+            file:
+              Array.isArray(injection.files) && injection.files.length
+                ? safeString(injection.files[0], 4096)
+                : undefined,
+            frameId: Array.isArray(injection.target.frameIds) ? injection.target.frameIds[0] || 0 : 0,
+            allFrames: injection.target.allFrames === true,
+            matchAboutBlank: true,
+            cssOrigin: normalizeCssOrigin(injection.origin, 'USER').toLowerCase()
+          }
+        ],
+        callback,
+        undefined
+      );
+    }
+
+    return asyncResult(undefined, callback);
+  };
+
+  const runRemoveCss = (detailsOrTabId, maybeDetails, callback) => {
+    const isScriptingShape =
+      detailsOrTabId && typeof detailsOrTabId === 'object' && !Array.isArray(detailsOrTabId);
+    const injection = isScriptingShape
+      ? cloneValue(detailsOrTabId)
+      : {
+          target: buildInjectionTarget(detailsOrTabId, maybeDetails || {}),
+          css: safeString(maybeDetails?.code, 1048576),
+          files: safeString(maybeDetails?.file, 4096) ? [safeString(maybeDetails.file, 4096)] : undefined,
+          origin: normalizeCssOrigin(maybeDetails?.origin || maybeDetails?.cssOrigin, 'USER')
+        };
+
+    if (!injection?.target?.tabId) {
+      return asyncResult(undefined, callback);
+    }
+
+    const nativeScripting = nativeChromeNamespace?.scripting;
+    if (typeof nativeScripting?.removeCSS === 'function') {
+      return callNativeAsync(nativeScripting.removeCSS, nativeScripting, [injection], callback, undefined);
+    }
+
+    const nativeTabs = nativeChromeNamespace?.tabs;
+    if (typeof nativeTabs?.removeCSS === 'function') {
+      return callNativeAsync(
+        nativeTabs.removeCSS,
+        nativeTabs,
+        [
+          injection.target.tabId,
+          {
+            code: safeString(injection.css, 1048576),
+            file:
+              Array.isArray(injection.files) && injection.files.length
+                ? safeString(injection.files[0], 4096)
+                : undefined,
+            frameId: Array.isArray(injection.target.frameIds) ? injection.target.frameIds[0] || 0 : 0,
+            allFrames: injection.target.allFrames === true,
+            matchAboutBlank: true,
+            cssOrigin: normalizeCssOrigin(injection.origin, 'USER').toLowerCase()
+          }
+        ],
+        callback,
+        undefined
+      );
+    }
+
+    return asyncResult(undefined, callback);
+  };
+
+  const runExecuteScript = (detailsOrTabId, maybeDetails, callback) => {
+    const isScriptingShape =
+      detailsOrTabId && typeof detailsOrTabId === 'object' && !Array.isArray(detailsOrTabId);
+
+    if (isScriptingShape) {
+      const injection = cloneValue(detailsOrTabId);
+      const nativeScripting = nativeChromeNamespace?.scripting;
+      if (typeof nativeScripting?.executeScript === 'function') {
+        return callNativeAsync(nativeScripting.executeScript, nativeScripting, [injection], callback, []);
+      }
       return asyncResult([], callback);
+    }
+
+    const tabId = Number(detailsOrTabId) || 1;
+    const details =
+      maybeDetails && typeof maybeDetails === 'object' && !Array.isArray(maybeDetails)
+        ? cloneValue(maybeDetails)
+        : {};
+
+    const nativeTabs = nativeChromeNamespace?.tabs;
+    if (typeof nativeTabs?.executeScript === 'function') {
+      return callNativeAsync(nativeTabs.executeScript, nativeTabs, [tabId, details], callback, []);
+    }
+
+    const nativeScripting = nativeChromeNamespace?.scripting;
+    if (typeof nativeScripting?.executeScript === 'function') {
+      const injection = {
+        target: buildInjectionTarget(tabId, details)
+      };
+      const file = safeString(details.file, 4096);
+      if (file) {
+        injection.files = [file];
+        return callNativeAsync(nativeScripting.executeScript, nativeScripting, [injection], callback, []);
+      }
+    }
+
+    return asyncResult([], callback);
+  };
+
+  const scriptingApi = {
+    executeScript(injection, callback) {
+      return runExecuteScript(injection, undefined, callback);
+    },
+    insertCSS(injection, callback) {
+      return runInsertCss(injection, undefined, callback);
+    },
+    removeCSS(injection, callback) {
+      return runRemoveCss(injection, undefined, callback);
     },
     getRegisteredContentScripts(callback) {
       return asyncResult([], callback);
@@ -1814,6 +2239,7 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
               let messageResponseSent = false;
               let messageSendResponse = null;
               if (isRuntimeMessageEvent) {
+                args[1] = normalizeRuntimeMessageSender(args[1]);
                 const nativeSendResponse = args[2];
                 messageSendResponse = (value) => {
                   const responseValue = ensureMessageResult(value);
@@ -2083,9 +2509,6 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
           const target = isExternalMessage
             ? runtimeEvents.onMessageExternal
             : runtimeEvents.onMessage;
-          if (!target?.hasListeners?.()) {
-            return undefined;
-          }
 
           Promise.resolve(callRuntimeMessageListeners(target, message, sender))
             .then((result) => {
@@ -2177,6 +2600,21 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
           version: '1.0.0',
           buildID: 'lumen'
         })
+      );
+    },
+    getPlatformInfo(callback) {
+      return callNativeAsync(
+        nativeChromeRuntime?.getPlatformInfo,
+        nativeChromeRuntime,
+        [],
+        callback,
+        () => {
+          const platform = safeString(root.navigator?.platform || '', 128);
+          const userAgent = safeString(root.navigator?.userAgent || '', 512);
+          const os = /mac/i.test(platform) ? 'mac' : /win/i.test(platform) ? 'win' : 'linux';
+          const arch = /arm/i.test(userAgent) ? 'arm' : 'x86-64';
+          return { os, arch, nacl_arch: arch };
+        }
       );
     },
     openOptionsPage(callback) {
@@ -2501,6 +2939,15 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
       const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback;
       return asyncResult({}, callback);
     },
+    executeScript(tabId, details = {}, callback) {
+      return runExecuteScript(tabId, details, callback);
+    },
+    insertCSS(tabId, details = {}, callback) {
+      return runInsertCss(tabId, details, callback);
+    },
+    removeCSS(tabId, details = {}, callback) {
+      return runRemoveCss(tabId, details, callback);
+    },
     onCreated: tabsEvents.onCreated,
     onUpdated: tabsEvents.onUpdated,
     onRemoved: tabsEvents.onRemoved,
@@ -2517,13 +2964,20 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
     runtime: runtimeApi,
     windows: windowsApi,
     tabs: tabsApi,
+    action: nativeNamespacePassthrough,
     idle: idleApi,
     alarms: alarmsApi,
+    contextMenus: contextMenusApi,
+    declarativeNetRequest: nativeNamespaceHidden,
+    i18n: nativeNamespacePassthrough,
+    management: nativeNamespacePassthrough,
     notifications: notificationsApi,
+    permissions: nativeNamespacePassthrough,
     identity: identityApi,
     sidePanel: sidePanelApi,
     scripting: scriptingApi,
     webNavigation: webNavigationApi,
+    webRequest: nativeNamespacePassthrough,
     storage: {
       local: createStorageArea('local'),
       sync: createStorageArea('sync'),
@@ -2622,7 +3076,26 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
     } catch {}
     throw error;
   }
-})();`;
+})().catch((error) => {
+  try {
+    const payload =
+      error && typeof error === 'object'
+        ? {
+            name: String(error.name || 'Error'),
+            message: String(error.message || ''),
+            stack: String(error.stack || '').split('\\n').slice(0, 3)
+          }
+        : {
+            name: 'Error',
+            message: String(error || 'unknown_error'),
+            stack: []
+          };
+    console.error(
+      \`[lumen-managed-extension-background-shim] bootstrap failed \${JSON.stringify(payload)}\`
+    );
+  } catch {}
+  throw error;
+});`;
 }
 
 function prepareManagedExtensionDirectory(dirPath) {
