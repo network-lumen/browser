@@ -225,11 +225,6 @@ function registerLumenSessionPreload() {
       type: 'frame',
       filePath: path.join(__dirname, 'webview-preload.cjs'),
     },
-    {
-      id: LUMEN_SESSION_SW_PRELOAD_ID,
-      type: 'service-worker',
-      filePath: path.join(__dirname, 'extension-service-worker-preload.cjs'),
-    },
   ];
 
   try {

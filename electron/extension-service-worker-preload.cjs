@@ -624,10 +624,9 @@ function installExtensionServiceWorkerShim() {
   }
   patchNamespace(root.chrome, shimNamespaces);
 
-  if (!root.browser || typeof root.browser !== 'object') {
-    root.browser = {};
+  if (root.browser && typeof root.browser === 'object') {
+    patchNamespace(root.browser, shimNamespaces);
   }
-  patchNamespace(root.browser, shimNamespaces);
 
   try {
     console.log('[lumen-extension-sw-preload] ready', {
@@ -635,9 +634,12 @@ function installExtensionServiceWorkerShim() {
       runtimeId,
       hasWebNavigation: typeof root.browser?.webNavigation?.onBeforeNavigate?.addListener === 'function',
       hasBrowserRuntime: typeof root.browser?.runtime?.sendMessage === 'function',
+      hasChromeRuntime: typeof root.chrome?.runtime?.sendMessage === 'function',
+      hasChromeWebRequest: typeof root.chrome?.webRequest?.onBeforeRequest?.addListener === 'function',
+      hasChromeDnr: typeof root.chrome?.declarativeNetRequest === 'object',
       hasBrowserTabsCreate: typeof root.browser?.tabs?.create === 'function',
       hasChromeTabsCreate: typeof root.chrome?.tabs?.create === 'function',
-      hasChromeRuntime: typeof root.chrome?.runtime?.sendMessage === 'function'
+      hasBrowserNamespace: !!(root.browser && typeof root.browser === 'object')
     });
   } catch {}
 }
