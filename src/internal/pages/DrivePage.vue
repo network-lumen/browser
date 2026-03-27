@@ -2007,7 +2007,12 @@ import {
   normalizeLocalDriveMaxUploadSizeGb,
 } from "../services/appSettings";
 import { profilesState, activeProfileId } from "../profilesStore";
-import { useFavourites, setFavouritesForProfile } from "../favouritesStore";
+import {
+  useFavourites,
+  setFavouritesForProfile,
+  getFavouriteEntriesForProfile,
+  setFavouriteEntriesForProfile,
+} from "../favouritesStore";
 import JSZip from "jszip";
 
 interface DriveFile {
@@ -4984,6 +4989,29 @@ type DriveBackupSnapshotV1 = {
   favourites: string[];
 };
 
+type DriveBackupSnapshotV2 = {
+  type: "lumen.driveBackup.snapshot";
+  version: 2;
+  createdAt: number;
+  seq: number;
+  walletAddress: string;
+  drive: {
+    files: DriveFile[];
+    localNames: Record<string, string>;
+  };
+  favourites: string[];
+  shortcutEntries: {
+    id?: string;
+    url: string;
+    title?: string;
+    pinned?: boolean;
+    createdAt?: number;
+    updatedAt?: number;
+  }[];
+};
+
+type DriveBackupSnapshot = DriveBackupSnapshotV1 | DriveBackupSnapshotV2;
+
 const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
 const DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastExportAt:v1";
 const DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastImportAt:v1";
@@ -5101,7 +5129,7 @@ function makeDriveBackupSnapshot(): DriveBackupSnapshotV1 | null {
 
   return {
     type: "lumen.driveBackup.snapshot",
-    version: 1,
+    version: 2,
     createdAt: Date.now(),
     seq,
     walletAddress,
@@ -5113,9 +5141,17 @@ function makeDriveBackupSnapshot(): DriveBackupSnapshotV1 | null {
       new Set(
         (Array.isArray(favourites.value) ? favourites.value : [])
           .map((u) => String(u || "").trim())
-          .filter(Boolean),
+        .filter(Boolean),
       ),
     ),
+    shortcutEntries: getFavouriteEntriesForProfile(pid).map((entry) => ({
+      id: entry.id,
+      url: entry.url,
+      ...(entry.title ? { title: entry.title } : {}),
+      ...(entry.pinned ? { pinned: true } : {}),
+      ...(entry.createdAt ? { createdAt: entry.createdAt } : {}),
+      ...(entry.updatedAt ? { updatedAt: entry.updatedAt } : {}),
+    })),
   };
 }
 
@@ -5156,7 +5192,11 @@ function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: stri
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return { ok: false, error: "missing_profile_id" };
 
-  if (!snap || snap.type !== "lumen.driveBackup.snapshot" || snap.version !== 1) {
+  if (
+    !snap ||
+    snap.type !== "lumen.driveBackup.snapshot" ||
+    ![1, 2].includes(Number(snap.version))
+  ) {
     return { ok: false, error: "invalid_snapshot" };
   }
 
@@ -5201,12 +5241,17 @@ function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: stri
         .filter(Boolean),
     ),
   );
+  const nextShortcutEntries = Array.isArray(snap.shortcutEntries) ? snap.shortcutEntries : null;
 
   files.value = nextFiles;
   localNames.value = nextNames;
   saveFiles();
   saveLocalNames();
-  setFavouritesForProfile(pid, nextFav);
+  if (nextShortcutEntries) {
+    setFavouriteEntriesForProfile(pid, nextShortcutEntries as any);
+  } else {
+    setFavouritesForProfile(pid, nextFav);
+  }
 
   const seq = Number(snap.seq);
   if (Number.isFinite(seq) && seq > 0) {
@@ -5228,12 +5273,16 @@ function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: stri
 const driveBackupRestoreDetails = computed(() => {
   const pending = pendingDriveBackupRestore.value;
   if (!pending) return null;
-  const snap = pending.snapshot;
+  const snap = pending.snapshot as DriveBackupSnapshot | null;
   const createdAt = Number(snap?.createdAt) || 0;
   const seq = Number(snap?.seq) || 0;
   const walletAddress = String(snap?.walletAddress || "").trim();
   const filesCount = Array.isArray(snap?.drive?.files) ? snap.drive.files.length : 0;
-  const favCount = Array.isArray(snap?.favourites) ? snap.favourites.length : 0;
+  const favCount = Array.isArray((snap as any)?.shortcutEntries)
+    ? (snap as any).shortcutEntries.length
+    : Array.isArray(snap?.favourites)
+      ? snap.favourites.length
+      : 0;
   const pid = String(activeProfileId.value || "").trim();
   const localSeq = pid ? getCurrentDriveBackupSeq(pid) : 0;
   const rollback = !!seq && !!localSeq && seq < localSeq;

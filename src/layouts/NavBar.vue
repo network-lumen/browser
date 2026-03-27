@@ -42,18 +42,22 @@
         placeholder="Search or enter a URL"
         @keydown.enter="onEnter"
       />
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
       <button
-        class="nav-btn"
+        type="button"
+        class="url-bar-action"
         :class="{ 'is-active': favActive }"
-        title="Toggle favourite"
+        :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
+        :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
+        :aria-pressed="favActive ? 'true' : 'false'"
+        @mousedown.prevent
         @click="onToggleFavourite"
       >
         <Star :size="16" :fill="favActive ? 'currentColor' : 'none'" />
       </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
       <button
         class="nav-btn"
         title="Home"
@@ -611,7 +615,7 @@ const favActive = computed(() => {
 });
 function onToggleFavourite() {
   if (props.currentUrl == null) return;
-  toggleFavourite(props.currentUrl);
+  toggleFavourite(props.currentUrl, { title: currentHistoryTitle.value });
 }
 const showProfileMenu = ref(false);
 const creatingProfile = ref(false);
@@ -693,6 +697,15 @@ const pqcLinkedProfileDisplay = computed(() => {
 const activeTab = computed<Tab | null>(() => {
   const found = props.tabs.find((t) => t.id === props.tabActive) ?? null;
   return found;
+});
+
+const currentHistoryTitle = computed(() => {
+  const tab = activeTab.value;
+  if (!tab || !Array.isArray(tab.history) || !tab.history.length) return "";
+  const position = Number.isFinite(Number(tab.history_position))
+    ? Math.max(0, Math.min(tab.history.length - 1, Number(tab.history_position)))
+    : tab.history.length - 1;
+  return String(tab.history[position]?.title || "").trim();
 });
 
 const canGoBack = computed(() => {
@@ -1470,7 +1483,7 @@ onBeforeUnmount(() => {
 
 .url-bar-input {
   width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  padding: 0.5rem 2.75rem 0.5rem 2.25rem;
   border: 0.5px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   background: var(--bg-secondary);
@@ -1488,6 +1501,33 @@ onBeforeUnmount(() => {
   background: var(--bg-primary);
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px var(--primary-a10);
+}
+
+.url-bar-action {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.url-bar-action:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.url-bar-action.is-active {
+  color: #FFD60A;
 }
 
 /* ===== QUICK ACTIONS ===== */
