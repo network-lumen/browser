@@ -111,6 +111,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import { isBrowserUrl, isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
+  import { normalizeHistoryUrlForComparison, useHistory } from '../internal/historyStore';
   import { activeProfileId } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
   import {
@@ -135,6 +136,9 @@ type TabHistoryEntry = { url: string; title?: string };
 
 const tabs = ref<Tab[]>([]);
 const activeId = ref<string>('');
+const { recordHistoryVisit } = useHistory();
+const lastHistoryKeyByTabId = new Map<string, string>();
+let historySyncSeq = 0;
 
 const showOnboarding = ref(false);
 const ONBOARDING_KEY_PREFIX = 'lumen_wallet_onboarding_completed_';
@@ -277,6 +281,8 @@ watch(
   () => activeProfileId.value,
   async (newProfileId, oldProfileId) => {
     if (newProfileId && newProfileId !== oldProfileId) {
+      lastHistoryKeyByTabId.clear();
+      void syncHistoryTracking();
       // Small delay to ensure profile is fully loaded
       await new Promise(resolve => setTimeout(resolve, 500));
       await checkOnboardingStatus();
@@ -297,6 +303,13 @@ function currentUrlForTab(t: Tab | null | undefined): string {
   return String(h[idx]?.url || t.url || '').trim();
 }
 
+function currentSnapshotForTab(t: Tab): { url: string; title: string } {
+  return {
+    url: currentUrlForTab(t),
+    title: String(currentTitle(t) || '').trim(),
+  };
+}
+
 function getActiveTab(): Tab | null {
   return tabs.value.find((entry) => entry.id === activeId.value) || null;
 }
@@ -305,6 +318,49 @@ const activeTabTitle = computed(() => {
   const active = getActiveTab();
   return active ? currentTitle(active) : '';
 });
+
+async function syncHistoryTracking() {
+  const seq = ++historySyncSeq;
+  const snapshots = tabs.value.map((tab) => ({
+    id: tab.id,
+    ...currentSnapshotForTab(tab),
+  }));
+  const liveTabIds = new Set(snapshots.map((snapshot) => snapshot.id));
+
+  for (const snapshot of snapshots) {
+    if (seq !== historySyncSeq) return;
+    if (!snapshot.url) continue;
+
+    const comparisonKey = await normalizeHistoryUrlForComparison(snapshot.url);
+    if (seq !== historySyncSeq) return;
+    if (!comparisonKey) continue;
+    if (lastHistoryKeyByTabId.get(snapshot.id) === comparisonKey) continue;
+
+    lastHistoryKeyByTabId.set(snapshot.id, comparisonKey);
+    await recordHistoryVisit(snapshot.url, { title: snapshot.title });
+    if (seq !== historySyncSeq) return;
+  }
+
+  for (const tabId of Array.from(lastHistoryKeyByTabId.keys())) {
+    if (!liveTabIds.has(tabId)) {
+      lastHistoryKeyByTabId.delete(tabId);
+    }
+  }
+}
+
+watch(
+  () =>
+    tabs.value
+      .map((tab) => {
+        const snapshot = currentSnapshotForTab(tab);
+        return `${tab.id}::${snapshot.url}`;
+      })
+      .join('|'),
+  () => {
+    void syncHistoryTracking();
+  },
+  { immediate: true },
+);
 
 function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
   try {

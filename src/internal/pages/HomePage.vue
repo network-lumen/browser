@@ -153,7 +153,7 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { 
   Home, HardDrive, Wallet, Globe, Settings, 
   ArrowUpRight, Network, FileText, Hexagon,
-  Database, Vote, Package, AtSign, Search,
+  Database, Vote, Package, AtSign, Search, History,
   HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
@@ -550,6 +550,7 @@ function getRouteDescription(key: string): string {
     explorer: 'Browse the blockchain',
     network: 'View network status',
     search: 'Find content quickly',
+    history: 'Review recent browsing',
     help: 'Documentation & support',
     drive: 'Store & share files',
     wallet: 'Manage crypto assets',
@@ -569,6 +570,7 @@ function getCardTitle(key: string): string {
     explorer: 'Explorer',
     network: 'Network',
     search: 'Search',
+    history: 'History',
     help: 'Help',
     drive: 'Drive',
     wallet: 'Wallet',
@@ -600,6 +602,7 @@ function getCardIcon(key: string) {
     release: Package,
     newtab: Layers,
     search: Search,
+    history: History,
     gateways: Globe,
     help: HelpCircle,
     ipfs: Database
@@ -620,6 +623,7 @@ function getRouteIcon(key: string) {
     release: Package,
     newtab: Layers,
     search: Search,
+    history: History,
     gateways: Globe,
     help: HelpCircle
   };

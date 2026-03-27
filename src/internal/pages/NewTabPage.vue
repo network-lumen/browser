@@ -234,6 +234,43 @@
           </div>
         </div>
       </section>
+
+      <section
+        v-if="historyEnabled && renderedHistoryPreview.length"
+        class="shortcuts-panel history-preview-panel"
+      >
+        <div class="shortcuts-head">
+          <div>
+            <div class="section-kicker">Recent</div>
+          </div>
+
+          <div class="shortcuts-head-actions">
+            <button class="btn btn-secondary" type="button" @click="goto('lumen://history')">
+              <History :size="15" />
+              <span>Open history</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="history-preview-list">
+          <button
+            v-for="entry in renderedHistoryPreview"
+            :key="entry.id"
+            type="button"
+            class="history-preview-item"
+            @click="openTarget(entry.url, $event)"
+          >
+            <span class="shortcut-avatar" :class="`tone-${entry.kind}`">
+              {{ entry.monogram }}
+            </span>
+            <span class="history-preview-copy">
+              <span class="history-preview-title">{{ entry.title }}</span>
+              <span class="history-preview-subtitle">{{ entry.subtitle }}</span>
+            </span>
+            <span class="history-preview-time">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
+          </button>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -246,6 +283,7 @@ import {
   Globe,
   HardDrive,
   Hexagon,
+  History,
   House,
   Pencil,
   Plus,
@@ -259,7 +297,8 @@ import {
 } from "lucide-vue-next";
 import { describeFavouriteUrl } from "../favouriteMeta";
 import { FavouriteEntry, useFavourites } from "../favouritesStore";
-import { activeProfileId, profilesState } from "../profilesStore";
+import { useHistory } from "../historyStore";
+import { profilesState } from "../profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
 
 type QuickLink = {
@@ -282,6 +321,7 @@ const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null
     upsertFavourite,
     moveFavourite,
   } = useFavourites();
+const { historyEntries, historyEnabled } = useHistory();
 
 const hasProfiles = computed(() => profilesState.value.length > 0);
 
@@ -291,10 +331,17 @@ const renderedFavouriteEntries = computed(() =>
     ...describeFavouriteUrl(entry.url, entry.title),
   })),
 );
+const renderedHistoryPreview = computed(() =>
+  historyEntries.value.slice(0, 6).map((entry) => ({
+    ...entry,
+    ...describeFavouriteUrl(entry.url, entry.title),
+  })),
+);
 
 const builtinHosts = [
   "home",
   "search",
+  "history",
   "drive",
   "wallet",
   "extensions",
@@ -312,6 +359,7 @@ const builtinHosts = [
 
 const quickLinks: QuickLink[] = [
   { url: "lumen://search", label: "Search", icon: Search },
+  { url: "lumen://history", label: "History", icon: History },
   { url: "lumen://home", label: "My space", icon: House, requiresProfile: true },
   { url: "lumen://drive", label: "Drive", icon: HardDrive, requiresProfile: true },
   { url: "lumen://wallet", label: "Wallet", icon: Wallet, requiresProfile: true },
@@ -497,6 +545,13 @@ function onShortcutDragEnd() {
   dragOverShortcutId.value = "";
 }
 
+function formatPreviewTime(timestamp: number) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(timestamp));
+}
+
 onMounted(() => {
   try {
     const seen = localStorage.getItem(ONBOARDING_KEY) === "1";
@@ -549,7 +604,7 @@ onMounted(() => {
 .newtab-shell {
   position: relative;
   z-index: 1;
-  width: min(1080px, 100%);
+  width: min(1040px, 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -596,6 +651,10 @@ onMounted(() => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.shortcuts-head {
+  flex-wrap: wrap;
 }
 
 .brand-logo {
@@ -736,22 +795,23 @@ onMounted(() => {
 }
 
 .quick-links {
+  width: min(980px, 100%);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.6rem;
-  margin-top: 1rem;
+  gap: 0.5rem;
+  margin: 1rem auto 0;
 }
 
 .quick-link {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.58rem 0.82rem;
+  padding: 0.56rem 0.74rem;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.05);
   color: var(--text-secondary);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 650;
 }
 
@@ -792,7 +852,7 @@ onMounted(() => {
 .shortcut-grid {
   margin-top: 1.1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
   gap: 0.8rem;
 }
 
@@ -939,6 +999,85 @@ onMounted(() => {
   background: rgba(15, 23, 42, 0.02);
 }
 
+.history-preview-panel {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.history-preview-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.65rem;
+}
+
+.history-preview-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.03);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.history-preview-item:hover {
+  transform: translateY(-1px);
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(59, 130, 246, 0.14);
+}
+
+.history-preview-copy {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.history-preview-title,
+.history-preview-subtitle {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-preview-title {
+  font-weight: 700;
+}
+
+.history-preview-subtitle,
+.history-preview-time {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+}
+
+.history-preview-time {
+  flex: 0 0 auto;
+  font-weight: 700;
+  margin-left: auto;
+  padding-left: 0.5rem;
+}
+
+.shortcuts-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+.shortcuts-head-actions .btn {
+  white-space: nowrap;
+}
+
 .onboarding-overlay,
 .shortcut-modal-overlay {
   background: rgba(2, 6, 23, 0.56);
@@ -1032,6 +1171,32 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
+@media (max-width: 1040px) {
+  .newtab-page {
+    padding-inline: 0.85rem;
+  }
+
+  .hero {
+    padding: 2rem 1rem;
+  }
+
+  .hero-copy {
+    max-width: 34rem;
+  }
+
+  .quick-links {
+    width: min(880px, 100%);
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 1180px) {
+  .shortcuts-head-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 900px) {
   .shortcut-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1070,6 +1235,21 @@ onMounted(() => {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .history-preview-list {
+    grid-template-columns: 1fr;
+  }
+
+  .history-preview-item {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .history-preview-time {
+    width: calc(100% - 3.75rem);
+    margin-left: 3.75rem;
+    padding-left: 0;
+  }
+
   .shortcut-card {
     min-height: 0;
   }
@@ -1086,6 +1266,11 @@ onMounted(() => {
 
   .quick-links {
     justify-content: flex-start;
+  }
+
+  .quick-link {
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
   }
 
   .shortcut-grid {

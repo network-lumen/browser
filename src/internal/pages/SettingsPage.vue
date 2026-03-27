@@ -36,8 +36,7 @@
             type="button"
             class="lsb-item"
             :class="{ active: currentView === 'privacy' }"
-            disabled
-            style="opacity:0.5; cursor:not-allowed;"
+            @click="currentView = 'privacy'"
           >
             <Shield :size="18" />
             <span>Privacy</span>
@@ -235,24 +234,52 @@
         <div class="setting-group">
           <div class="setting-item">
             <div class="setting-info">
-              <span class="setting-label">Block Trackers</span>
-              <span class="setting-desc">Prevent websites from tracking you</span>
+              <span class="setting-label">Save browsing history</span>
+              <span class="setting-desc">
+                Keep recent web, domain, IPFS, and IPNS pages for
+                {{ activeHistoryProfileDisplay }}. Internal pages like New Tab, Wallet, Settings,
+                and Extensions are excluded automatically.
+              </span>
             </div>
             <div class="setting-control">
               <label class="toggle">
-                <input type="checkbox" v-model="blockTrackers" />
+                <input type="checkbox" :checked="historyEnabled" @change="onHistoryToggleChange" />
                 <span class="toggle-slider"></span>
               </label>
             </div>
           </div>
+
           <div class="setting-item">
             <div class="setting-info">
-              <span class="setting-label">Clear Browsing Data</span>
-              <span class="setting-desc">Remove history, cookies, and cache</span>
+              <span class="setting-label">Saved items</span>
+              <span class="setting-desc">
+                {{ historyEntries.length }} history item{{ historyEntries.length === 1 ? '' : 's' }}
+                saved for {{ activeHistoryProfileDisplay }}.
+              </span>
             </div>
             <div class="setting-control">
-              <button class="btn-secondary">Clear Data</button>
+              <button class="btn-secondary" @click="openInNewTabSafe('lumen://history')">
+                Open history
+              </button>
             </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Clear saved history</span>
+              <span class="setting-desc">
+                Permanently remove the saved browsing history for this profile.
+              </span>
+            </div>
+            <div class="setting-control">
+              <button class="btn-secondary" :disabled="!historyEntries.length" @click="clearProfileHistory">
+                Clear history
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-hint">
+            Turning history off stops new entries from being saved, but does not delete existing ones.
           </div>
         </div>
       </div>
@@ -1200,6 +1227,7 @@ import {
 import { useTheme } from '../../composables/useTheme';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
+import { useHistory } from '../historyStore';
 import {
   profilesState,
   activeProfileId,
@@ -1238,15 +1266,30 @@ function openInNewTabSafe(url: string) {
   navigate?.(url, { push: true });
 }
 
+function onHistoryToggleChange(event: Event) {
+  const enabled = !!(event.target as HTMLInputElement | null)?.checked;
+  setHistoryEnabled(enabled);
+  toast.success(enabled ? 'Browsing history enabled' : 'Browsing history disabled');
+}
+
+function clearProfileHistory() {
+  if (!historyEntries.value.length) return;
+  const confirmed = window.confirm(`Clear the saved history for ${activeHistoryProfileDisplay.value}?`);
+  if (!confirmed) return;
+  clearHistory();
+  toast.success('Browsing history cleared');
+}
+
 const currentView = ref<'appearance' | 'content' | 'network' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
 const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
-const blockTrackers = ref(true);
+const { historyEntries, historyEnabled, clearHistory, setHistoryEnabled } = useHistory();
 const exportingBackup = ref(false);
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
 const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
+const activeHistoryProfileDisplay = computed(() => activeProfileDisplay.value || 'this profile');
 const selectedProfileIds = ref<string[]>([]);
 const lastBackupExport = ref<
   | null

@@ -16,6 +16,7 @@ import ReleasePage from './pages/ReleasePage.vue';
 import WalletPage from './pages/WalletPage.vue';
 import DomainPage from './pages/DomainPage.vue';
 import NewTabPage from './pages/NewTabPage.vue';
+import HistoryPage from './pages/HistoryPage.vue';
 import TransactionDetailPage from './pages/TransactionDetailPage.vue';
 import AddressDetailPage from './pages/AddressDetailPage.vue';
 import ExtensionsPage from './pages/ExtensionsPage.vue';
@@ -29,6 +30,7 @@ type InternalRoute = {
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   newtab: { component: NewTabPage, title: 'New tab' },
+  history: { component: HistoryPage, title: 'History' },
   home: { component: HomePage, title: 'Home' },
   search: { component: SearchPage, title: 'Search' },
   settings: { component: SettingsPage, title: 'Settings' },
@@ -93,7 +95,8 @@ export const ALL_COMPONENTS = [
   DomainPage,
   ExtensionsPage,
   ExtensionPage,
-  NewTabPage
+  NewTabPage,
+  HistoryPage
 ];
 
 export function resolveInternalComponent(rawUrl: string) {
