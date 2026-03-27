@@ -36,7 +36,8 @@ import {
   HelpCircle,
   Globe,
   Users,
-  Layers
+  Layers,
+  History
 } from 'lucide-vue-next';
 
 const DEFAULT_EXCLUDE = new Set([
@@ -56,6 +57,7 @@ const DEFAULT_ORDER = [
   'domain',
   'network',
   'settings',
+  'history',
   'search',
   'explorer',
   'dao',
@@ -95,6 +97,7 @@ function iconFor(key: string) {
     wallet: Wallet,
     domain: AtSign,
     settings: Settings,
+    history: History,
     search: Search,
     help: HelpCircle,
     explorer: Globe,
