@@ -6,8 +6,16 @@
           <div class="header-icon">
             <Shield :size="32" class="color-primary" />
           </div>
-          <h2 class="modal-title">Protect Your Wallet</h2>
-          <p class="modal-subtitle">Your wallet is local and self-custodial</p>
+          <h2 class="modal-title">
+            {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
+          </h2>
+          <p class="modal-subtitle">
+            {{
+              requiresProfileCreation
+                ? "A profile is required to use Drive, Wallet, and personal storage."
+                : "Your wallet is local and self-custodial"
+            }}
+          </p>
         </div>
 
         <div class="modal-body">
@@ -188,7 +196,7 @@
 
         <div class="modal-footer">
           <button
-            v-if="step === 'intro'"
+            v-if="step === 'intro' && !requiresProfileCreation"
             class="btn-modal-secondary"
             @click="handleSkip"
           >
@@ -258,10 +266,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';
-import { activeProfileId, createProfile, initProfiles } from '../internal/profilesStore';
+import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
 
 type OnboardingStep = 'intro' | 'password' | 'profile-name' | 'creating-wallet' | 'backup' | 'complete';
 
@@ -288,6 +296,9 @@ const walletError = ref('');
 const backupError = ref('');
 const backupSuccess = ref('');
 const exportingBackup = ref(false);
+const requiresProfileCreation = computed(
+  () => !profilesState.value.some((profile) => profile && profile.role !== 'guest'),
+);
 
 function handleOverlayClick() {
   // Prevent closing by clicking overlay during onboarding
@@ -348,7 +359,7 @@ async function moveToPostPasswordStep() {
   }
 
   const profile = await profilesApi.getActive();
-  if (profile?.role === 'guest') {
+  if (!profile || profile?.role === 'guest') {
     step.value = 'profile-name';
     if (!profileName.value.trim()) {
       profileName.value = '';
@@ -384,14 +395,10 @@ async function createWallet() {
     }
 
     let profile = await profilesApi.getActive();
-    if (!profile) {
-      walletError.value = 'Failed to load profile.';
-      return;
-    }
+    const needsRealProfile = !profile || profile.role === 'guest';
 
-    // First launch starts in guest mode. A guest profile cannot own a wallet,
-    // so onboarding must promote the user to a real profile before proceeding.
-    if (profile.role === 'guest') {
+    // First launch requires a real profile before any wallet or Drive data exists.
+    if (needsRealProfile) {
       const requestedName = String(profileName.value || '').trim();
       if (!requestedName) {
         step.value = 'profile-name';
@@ -406,7 +413,7 @@ async function createWallet() {
       await initProfiles();
       profile = await profilesApi.getActive();
       if (!profile || profile.role === 'guest') {
-        walletError.value = 'Failed to switch out of guest mode.';
+        walletError.value = 'Failed to create the first profile.';
         return;
       }
     }

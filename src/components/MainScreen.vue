@@ -112,7 +112,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import { isBrowserUrl, isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
   import { normalizeHistoryUrlForComparison, useHistory } from '../internal/historyStore';
-  import { activeProfileId } from '../internal/profilesStore';
+  import { activeProfileId, initProfiles, profilesState } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
   import {
     buildCandidateUrl,
@@ -218,6 +218,8 @@ onMounted(async () => {
     // ignore
   }
 
+  await initProfiles();
+
   // Check if onboarding is needed
   await checkOnboardingStatus();
 });
@@ -280,10 +282,25 @@ watch(
 watch(
   () => activeProfileId.value,
   async (newProfileId, oldProfileId) => {
-    if (newProfileId && newProfileId !== oldProfileId) {
+    if (newProfileId !== oldProfileId) {
       lastHistoryKeyByTabId.clear();
       void syncHistoryTracking();
-      // Small delay to ensure profile is fully loaded
+      if (newProfileId) {
+        // Small delay to ensure profile is fully loaded
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      await checkOnboardingStatus();
+    }
+  }
+);
+
+watch(
+  () => profilesState.value.length,
+  async (nextCount, prevCount) => {
+    if (nextCount !== prevCount) {
+      if (!nextCount) {
+        lastHistoryKeyByTabId.clear();
+      }
       await new Promise(resolve => setTimeout(resolve, 500));
       await checkOnboardingStatus();
     }
@@ -912,13 +929,19 @@ function createResizeObserver() {
 
 async function checkOnboardingStatus() {
   try {
+    const hasUserProfiles = profilesState.value.some((profile) => profile?.role !== 'guest');
+    if (!hasUserProfiles) {
+      showOnboarding.value = true;
+      return;
+    }
+
     if (onboardingSkippedUntilRestart) {
       return;
     }
 
     const profileId = activeProfileId.value;
     if (!profileId) {
-      // No active profile, skip
+      showOnboarding.value = true;
       return;
     }
 
