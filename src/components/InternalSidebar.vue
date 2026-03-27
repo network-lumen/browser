@@ -22,18 +22,36 @@
         :exclude="allPagesExclude"
       />
 
-      <!-- ⭐ FAVOURITES -->
-      <div v-if="favourites.length" class="sidebar-section">
-        <div class="sidebar-section-title">Favourites</div>
-        <button
-          class="sidebar-fav-item"
-          v-for="url in favourites"
-          :key="url"
-          @click="openFavourite(url)"
-        >
-          <Star :size="14" />
-          <span>{{ url.replace('lumen://', '') }}</span>
-        </button>
+      <div v-if="renderedFavouriteEntries.length" class="sidebar-section">
+        <div class="sidebar-section-header">
+          <div class="sidebar-section-title">Shortcuts</div>
+          <div class="sidebar-section-count">{{ renderedFavouriteEntries.length }}</div>
+        </div>
+        <div class="sidebar-favs">
+          <div
+            v-for="entry in renderedFavouriteEntries"
+            :key="entry.id"
+            class="sidebar-fav-item"
+          >
+            <button class="sidebar-fav-hit" @click="openFavourite(entry.url, $event)">
+              <span class="sidebar-fav-avatar" :class="`tone-${entry.kind}`">
+                {{ entry.monogram }}
+              </span>
+              <span class="sidebar-fav-copy">
+                <span class="sidebar-fav-title">{{ entry.title }}</span>
+                <span class="sidebar-fav-subtitle">{{ entry.subtitle }}</span>
+              </span>
+            </button>
+            <button
+              class="sidebar-fav-remove"
+              type="button"
+              title="Remove shortcut"
+              @click.stop="removeFavouriteById(entry.id)"
+            >
+              <X :size="13" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -48,15 +66,16 @@
 
 <script setup lang="ts">
  import { computed, inject } from 'vue';
- import { Star } from 'lucide-vue-next';
+ import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../internal/profilesStore';
  import { useFavourites } from '../internal/favouritesStore';
+ import { describeFavouriteUrl } from '../internal/favouriteMeta';
 
 import ActiveProfileCard from './ActiveProfileCard.vue';
 import AllPagesDropdown from './AllPagesDropdown.vue';
 import pkg from '../../package.json';
 
-const { favourites } = useFavourites();
+const { favouriteEntries, removeFavouriteById } = useFavourites();
 
 const props = withDefaults(defineProps<{
   title: string;
@@ -82,34 +101,25 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
  const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
  const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
 
- function toOriginUrl(rawUrl: string): string {
-   const s = String(rawUrl || '').trim();
-   if (!s) return 'lumen://home';
+ const renderedFavouriteEntries = computed(() =>
+   favouriteEntries.value.map((entry) => ({
+     ...entry,
+     ...describeFavouriteUrl(entry.url, entry.title),
+   })),
+ );
 
-   if (/^https?:\/\//i.test(s)) {
-     try {
-       return new URL(s).origin;
-     } catch {
-       return s;
-     }
-   }
-
-   if (/^lumen:\/\//i.test(s)) {
-     const withoutScheme = s.slice('lumen://'.length);
-     const host = (withoutScheme.split(/[\/?#]/, 1)[0] || '').trim();
-     return host ? `lumen://${host}` : 'lumen://home';
-   }
-
-   return s;
- }
-
- function openFavourite(url: string) {
-   const target = toOriginUrl(url);
-   if (openInNewTab) {
+ function openFavourite(url: string, event?: MouseEvent) {
+   const target = String(url || '').trim() || 'lumen://newtab';
+   const wantsNewTab = !!(event && (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1));
+   if (wantsNewTab && openInNewTab) {
      openInNewTab(target);
      return;
    }
-   navigate?.(target, { push: true });
+   if (navigate) {
+     navigate(target, { push: true });
+     return;
+   }
+   openInNewTab?.(target);
  }
 </script>
 
@@ -205,34 +215,144 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0 0.5rem;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-section-count {
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fill-tertiary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sidebar-favs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .sidebar-fav-item {
   display: flex;
+  align-items: stretch;
+  gap: 0.375rem;
+}
+
+.sidebar-fav-hit {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
   width: 100%;
   text-align: left;
-  padding: 0.5rem 0.625rem;
+  padding: 0.55rem 0.625rem;
   border-radius: var(--border-radius-sm);
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 13px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.sidebar-fav-item:hover {
+.sidebar-fav-hit:hover {
   background: var(--hover-bg);
   color: var(--text-primary);
 }
 
-.sidebar-fav-item svg {
-  color: #FFD60A;
-  flex-shrink: 0;
+.sidebar-fav-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  background: var(--fill-tertiary);
+  border: 1px solid var(--border-light);
+}
+
+.sidebar-fav-avatar.tone-search {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--ios-blue);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+
+.sidebar-fav-avatar.tone-internal {
+  background: rgba(94, 92, 230, 0.12);
+  color: var(--ios-indigo);
+  border-color: rgba(94, 92, 230, 0.18);
+}
+
+.sidebar-fav-avatar.tone-web {
+  background: rgba(52, 199, 89, 0.12);
+  color: var(--ios-green);
+  border-color: rgba(52, 199, 89, 0.18);
+}
+
+.sidebar-fav-avatar.tone-file {
+  background: rgba(255, 149, 0, 0.12);
+  color: var(--ios-orange);
+  border-color: rgba(255, 149, 0, 0.18);
+}
+
+.sidebar-fav-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.sidebar-fav-title,
+.sidebar-fav-subtitle {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-fav-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sidebar-fav-subtitle {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.sidebar-fav-remove {
+  width: 30px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-fav-remove:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 /* ===== FOOTER ===== */

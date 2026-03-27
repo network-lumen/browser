@@ -1,5 +1,5 @@
 <template>
-  <div class="newtab-page internal-page relative flex-align-justify-center">
+  <div class="newtab-page internal-page">
     <div
       v-if="showOnboarding"
       class="onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
@@ -14,101 +14,411 @@
             <Hexagon :size="22" />
           </div>
           <div class="onboarding-text">
-            <div class="onboarding-kicker">Welcome</div>
-            <h2 id="lumen-onboarding-title">Learn what is Lumen?</h2>
+            <div class="section-kicker">Welcome</div>
+            <h2 id="lumen-onboarding-title">Learn what Lumen is</h2>
             <p id="lumen-onboarding-desc">
-              A quick 1‑minute overview of the Decentralized Internet Stack: domains, IPFS, and gateways.
+              Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
             </p>
           </div>
         </div>
 
-        <div class="onboarding-actions flex-align-center-justify-end flex-wrap-wrap gap-75">
-          <button
-            class="ob-btn ob-primary border-1px-solid border-color-default border-radius-10px padding-75 cursor-pointer transition-ui txt-weight-medium"
-            type="button"
-            @click="learnLumen"
-          >
-            Learn what is Lumen
+        <div class="onboarding-actions">
+          <button class="btn btn-primary" type="button" @click="learnLumen">
+            Learn Lumen
           </button>
-          <button
-            class="ob-btn ob-secondary border-1px-solid border-color-default border-radius-10px padding-75 cursor-pointer transition-ui txt-weight-medium"
-            type="button"
-            @click="dismissOnboarding"
-          >
-            I already know Lumen
+          <button class="btn btn-secondary" type="button" @click="dismissOnboarding">
+            Skip
           </button>
         </div>
       </div>
     </div>
 
-    <div class="shell w-full relative z-1 flex flex-column gap-100">
-      <div class="flex-justify-center margin-bottom-50" aria-hidden="true">
-        <div class="brand-logo brand-logo--lg">
-          <Hexagon :size="30" />
+    <Teleport to="body">
+      <div
+        v-if="showShortcutModal"
+        class="shortcut-modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shortcut-modal-title"
+        @click.self="closeShortcutModal"
+      >
+        <div class="shortcut-modal">
+          <div class="shortcut-modal-head">
+            <div>
+              <div class="section-kicker">Shortcut</div>
+              <h2 id="shortcut-modal-title">
+                {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
+              </h2>
+            </div>
+            <button
+              class="shortcut-modal-close"
+              type="button"
+              aria-label="Close shortcut editor"
+              @click="closeShortcutModal"
+            >
+              <X :size="16" />
+            </button>
+          </div>
+
+          <div class="shortcut-form">
+            <label class="shortcut-field">
+              <span>Name</span>
+              <input
+                v-model="shortcutDraft.title"
+                type="text"
+                placeholder="Optional custom title"
+                maxlength="60"
+                @keydown.enter.prevent="submitShortcutModal"
+              />
+            </label>
+
+            <label class="shortcut-field">
+              <span>URL or Lumen page</span>
+              <input
+                v-model="shortcutDraft.url"
+                type="text"
+                placeholder="lumen://home or example.lmn"
+                @keydown.enter.prevent="submitShortcutModal"
+              />
+            </label>
+
+            <label class="shortcut-checkbox">
+              <input v-model="shortcutDraft.pinned" type="checkbox" />
+              <span>Mark this shortcut as favourite</span>
+            </label>
+
+            <div v-if="shortcutError" class="shortcut-error">
+              {{ shortcutError }}
+            </div>
+          </div>
+
+          <div class="shortcut-modal-actions">
+            <button class="btn btn-secondary" type="button" @click="closeShortcutModal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" type="button" @click="submitShortcutModal">
+              {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
+            </button>
+          </div>
         </div>
       </div>
+    </Teleport>
 
-      <section class="actions gap-100">
-        <button
-          class="action primary flex-align-center gap-75 w-full text-left cursor-pointer transition-ui"
-          type="button"
-          @click="goExplore"
-        >
-          <div class="action-ico flex-align-justify-center">
-            <Telescope :size="18" />
-          </div>
-          <div class="action-copy flex flex-column gap-25 min-w-0 flex-1-1-auto">
-            <div class="action-title">Explore</div>
-            <div class="action-desc">Search content and open websites.</div>
-          </div>
-          <div class="action-cta">Open</div>
-        </button>
+    <div class="newtab-backdrop" aria-hidden="true">
+      <div class="newtab-glow newtab-glow--left"></div>
+      <div class="newtab-glow newtab-glow--right"></div>
+    </div>
 
-        <button
-          class="action flex-align-center gap-75 w-full text-left cursor-pointer transition-ui"
-          type="button"
-          @click="goHome"
-          :disabled="!hasProfiles"
-        >
-          <div class="action-ico flex-align-justify-center">
-            <User :size="18" />
-          </div>
-          <div class="action-copy flex flex-column gap-25 min-w-0 flex-1-1-auto">
-            <div class="action-title">My space</div>
-            <div class="action-desc">Drive, domains, wallet and tools.</div>
-          </div>
-          <div class="action-cta">{{ hasProfiles ? 'Open' : 'Locked' }}</div>
-        </button>
+    <div class="newtab-shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Search Lumen</h1>
+          <p>Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
+        </div>
+
+        <form class="omnibox" @submit.prevent="submitOmnibox">
+          <Search :size="18" class="omnibox-icon" />
+          <input
+            v-model="commandInput"
+            type="text"
+            class="omnibox-input"
+            placeholder="Search Lumen or enter a URL"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+            aria-label="Search Lumen or enter a URL"
+          />
+          <button class="omnibox-submit" type="submit">
+            <ArrowUpRight :size="15" />
+            <span>Go</span>
+          </button>
+        </form>
+
+        <div class="quick-links">
+          <button
+            v-for="link in quickLinks"
+            :key="link.url"
+            type="button"
+            class="quick-link"
+            :disabled="link.requiresProfile && !hasProfiles"
+            @click="openQuickLink(link, $event)"
+          >
+            <component :is="link.icon" :size="14" />
+            <span>{{ link.label }}</span>
+          </button>
+        </div>
+
+        <div v-if="!hasProfiles" class="hero-hint">
+          Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
+          Lumen space.
+        </div>
       </section>
 
-      <div v-if="!hasProfiles" class="hint">
-        No profile yet. Create one using the top-right profile button to unlock your space.
-      </div>
+      <section class="shortcuts-panel">
+        <div class="shortcuts-head">
+          <div>
+            <div class="section-kicker">Shortcuts</div>
+          </div>
 
-      <div class="tip text-center">
-        Paste any link in the address bar — `lumen://…`, `http://…`, `https://…`, or `file://…`.
-      </div>
+          <div class="shortcuts-head-actions">
+            <button class="btn btn-secondary" type="button" @click="beginCreateShortcut">
+              <Plus :size="15" />
+              <span>Add shortcut</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="shortcut-grid">
+          <article
+            v-for="entry in renderedFavouriteEntries"
+            :key="entry.id"
+            class="shortcut-card"
+            :class="{
+              pinned: entry.pinned,
+              'is-dragging': draggingShortcutId === entry.id,
+              'is-drop-target': dragOverShortcutId === entry.id && draggingShortcutId !== entry.id,
+            }"
+            draggable="true"
+            @dragstart="onShortcutDragStart($event, entry.id)"
+            @dragover.prevent="onShortcutDragOver(entry.id)"
+            @drop.prevent="onShortcutDrop(entry.id)"
+            @dragend="onShortcutDragEnd"
+          >
+            <button class="shortcut-card-main" type="button" @click="openTarget(entry.url, $event)">
+              <span class="shortcut-avatar" :class="`tone-${entry.kind}`">
+                {{ entry.monogram }}
+              </span>
+              <span class="shortcut-copy">
+                <span class="shortcut-title">{{ entry.title }}</span>
+                <span class="shortcut-subtitle">{{ entry.subtitle }}</span>
+              </span>
+            </button>
+
+            <div class="shortcut-card-actions">
+              <button
+                class="shortcut-action"
+                type="button"
+                :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
+                @click.stop="togglePinned(entry.id, entry.pinned)"
+              >
+                <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
+              </button>
+              <button
+                class="shortcut-action"
+                type="button"
+                title="Edit shortcut"
+                @click.stop="beginEditShortcut(entry)"
+              >
+                <Pencil :size="14" />
+              </button>
+              <button
+                class="shortcut-action shortcut-action--danger"
+                type="button"
+                title="Remove shortcut"
+                @click.stop="removeFavouriteById(entry.id)"
+              >
+                <Trash2 :size="14" />
+              </button>
+            </div>
+
+          </article>
+        </div>
+
+        <div v-if="!renderedFavouriteEntries.length" class="shortcuts-empty">
+          <div class="shortcuts-empty-copy">
+            <h3>No shortcuts yet</h3>
+            <p>
+              Star a page from the address bar or create a custom shortcut here. Favourite
+              shortcuts stay first.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, ref } from 'vue';
-import { Hexagon, Telescope, User } from 'lucide-vue-next';
-import { profilesState } from '../profilesStore';
+import { computed, inject, onMounted, reactive, ref } from "vue";
+import {
+  ArrowUpRight,
+  Database,
+  Globe,
+  HardDrive,
+  Hexagon,
+  House,
+  Pencil,
+  Plus,
+  Puzzle,
+  Search,
+  Star,
+  Trash2,
+  Vote,
+  Wallet,
+  X,
+} from "lucide-vue-next";
+import { describeFavouriteUrl } from "../favouriteMeta";
+import { FavouriteEntry, useFavourites } from "../favouritesStore";
+import { activeProfileId, profilesState } from "../profilesStore";
+import { normalizeAddressInput } from "../navigationUrl";
 
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+type QuickLink = {
+  url: string;
+  label: string;
+  icon: any;
+  requiresProfile?: boolean;
+};
+
+type ShortcutModalMode = "create" | "edit";
+
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
+const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
+
+  const {
+    favouriteEntries,
+    removeFavouriteById,
+    setFavouritePinned,
+    updateFavourite,
+    upsertFavourite,
+    moveFavourite,
+  } = useFavourites();
 
 const hasProfiles = computed(() => profilesState.value.length > 0);
 
-const ONBOARDING_KEY = 'lumen:onboarding:discover:v1';
+const renderedFavouriteEntries = computed(() =>
+  favouriteEntries.value.map((entry) => ({
+    ...entry,
+    ...describeFavouriteUrl(entry.url, entry.title),
+  })),
+);
+
+const builtinHosts = [
+  "home",
+  "search",
+  "drive",
+  "wallet",
+  "extensions",
+  "network",
+  "settings",
+  "help",
+  "domain",
+  "explorer",
+  "dao",
+  "ipfs",
+  "gateways",
+  "release",
+  "newtab",
+];
+
+const quickLinks: QuickLink[] = [
+  { url: "lumen://search", label: "Search", icon: Search },
+  { url: "lumen://home", label: "My space", icon: House, requiresProfile: true },
+  { url: "lumen://drive", label: "Drive", icon: HardDrive, requiresProfile: true },
+  { url: "lumen://wallet", label: "Wallet", icon: Wallet, requiresProfile: true },
+  { url: "lumen://extensions", label: "Extensions", icon: Puzzle },
+  { url: "lumen://network", label: "Network", icon: Globe },
+  { url: "lumen://dao", label: "DAO", icon: Vote },
+  { url: "lumen://ipfs", label: "IPFS", icon: Database },
+];
+
+const ONBOARDING_KEY = "lumen:onboarding:discover:v1";
 const showOnboarding = ref(false);
+const commandInput = ref("");
+
+const showShortcutModal = ref(false);
+const shortcutModalMode = ref<ShortcutModalMode>("create");
+const editingShortcutId = ref("");
+const shortcutError = ref("");
+const draggingShortcutId = ref("");
+const dragOverShortcutId = ref("");
+const shortcutDraft = reactive({
+  title: "",
+  url: "",
+  pinned: false,
+});
+
+function resetShortcutDraft() {
+  shortcutDraft.title = "";
+  shortcutDraft.url = "";
+  shortcutDraft.pinned = false;
+  shortcutError.value = "";
+  editingShortcutId.value = "";
+  shortcutModalMode.value = "create";
+}
+
+function closeShortcutModal() {
+  showShortcutModal.value = false;
+  resetShortcutDraft();
+}
+
+function beginCreateShortcut() {
+  resetShortcutDraft();
+  shortcutDraft.pinned = true;
+  showShortcutModal.value = true;
+}
+
+function beginEditShortcut(entry: FavouriteEntry) {
+  resetShortcutDraft();
+  shortcutModalMode.value = "edit";
+  editingShortcutId.value = entry.id;
+  shortcutDraft.title = String(entry.title || "").trim();
+  shortcutDraft.url = entry.url;
+  shortcutDraft.pinned = !!entry.pinned;
+  showShortcutModal.value = true;
+}
+
+function normalizeShortcutUrl(rawUrl: string): string {
+  return normalizeAddressInput(rawUrl, builtinHosts);
+}
+
+function submitShortcutModal() {
+  const nextUrl = normalizeShortcutUrl(shortcutDraft.url);
+  if (!String(nextUrl || "").trim()) {
+    shortcutError.value = "Please enter a valid URL or Lumen page.";
+    return;
+  }
+
+  if (shortcutModalMode.value === "create") {
+    const result = upsertFavourite({
+      url: nextUrl,
+      title: shortcutDraft.title,
+      pinned: shortcutDraft.pinned,
+    });
+    if (!result.ok) {
+      shortcutError.value = "Unable to add this shortcut.";
+      return;
+    }
+    closeShortcutModal();
+    return;
+  }
+
+  const updateResult = updateFavourite(editingShortcutId.value, {
+    url: nextUrl,
+    title: shortcutDraft.title,
+  });
+  if (!updateResult.ok) {
+    shortcutError.value =
+      updateResult.error === "duplicate_url"
+        ? "A shortcut with this URL already exists."
+        : "Unable to update this shortcut.";
+    return;
+  }
+
+  const pinResult = setFavouritePinned(editingShortcutId.value, shortcutDraft.pinned);
+  if (!pinResult.ok) {
+    shortcutError.value = "Unable to update the favourite state.";
+    return;
+  }
+
+  closeShortcutModal();
+}
 
 function markOnboardingDone() {
   try {
-    localStorage.setItem(ONBOARDING_KEY, '1');
-  } catch {}
+    localStorage.setItem(ONBOARDING_KEY, "1");
+  } catch {
+    // ignore
+  }
 }
 
 function dismissOnboarding() {
@@ -116,31 +426,80 @@ function dismissOnboarding() {
   showOnboarding.value = false;
 }
 
-function learnLumen() {
-  dismissOnboarding();
-  goto('lumen://help/discover');
-}
-
 function goto(url: string) {
+  const target = String(url || "").trim() || "lumen://newtab";
   if (navigate) {
-    navigate(url, { push: true });
+    navigate(target, { push: true });
     return;
   }
-  openInNewTab?.(url);
+  openInNewTab?.(target);
 }
 
-function goExplore() {
-  goto('lumen://search');
+function openTarget(url: string, event?: MouseEvent) {
+  const target = String(url || "").trim() || "lumen://newtab";
+  const wantsNewTab = !!(event && (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1));
+  if (wantsNewTab && openInNewTab) {
+    openInNewTab(target);
+    return;
+  }
+  goto(target);
 }
 
-function goHome() {
-  if (!hasProfiles.value) return;
-  goto('lumen://home');
+function submitOmnibox() {
+  const target = normalizeAddressInput(commandInput.value, builtinHosts);
+  commandInput.value = target;
+  goto(target);
+}
+
+function openQuickLink(link: QuickLink, event?: MouseEvent) {
+  if (link.requiresProfile && !hasProfiles.value) return;
+  openTarget(link.url, event);
+}
+
+function learnLumen() {
+  dismissOnboarding();
+  goto("lumen://help/discover");
+}
+
+function togglePinned(id: string, currentlyPinned: boolean) {
+  setFavouritePinned(id, !currentlyPinned);
+}
+
+function onShortcutDragStart(event: DragEvent, id: string) {
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", id);
+  }
+  draggingShortcutId.value = id;
+  dragOverShortcutId.value = id;
+}
+
+function onShortcutDragOver(id: string) {
+  if (!draggingShortcutId.value || draggingShortcutId.value === id) return;
+  dragOverShortcutId.value = id;
+}
+
+function onShortcutDrop(id: string) {
+  const draggedId = String(draggingShortcutId.value || "").trim();
+  if (!draggedId || draggedId === id) {
+    onShortcutDragEnd();
+    return;
+  }
+  const targetIndex = renderedFavouriteEntries.value.findIndex((entry) => entry.id === id);
+  if (targetIndex >= 0) {
+    moveFavourite(draggedId, targetIndex);
+  }
+  onShortcutDragEnd();
+}
+
+function onShortcutDragEnd() {
+  draggingShortcutId.value = "";
+  dragOverShortcutId.value = "";
 }
 
 onMounted(() => {
   try {
-    const seen = localStorage.getItem(ONBOARDING_KEY) === '1';
+    const seen = localStorage.getItem(ONBOARDING_KEY) === "1";
     showOnboarding.value = !seen;
   } catch {
     showOnboarding.value = true;
@@ -150,40 +509,102 @@ onMounted(() => {
 
 <style scoped>
 .newtab-page {
-  padding: 2.25rem 1.5rem;
+  position: relative;
+  overflow: auto;
+  padding: 1.5rem 1rem 2rem;
+  background:
+    radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%),
+    radial-gradient(700px 340px at 100% 10%, rgba(94, 92, 230, 0.1), transparent 62%),
+    var(--bg-tertiary);
 }
 
-.newtab-page::before {
-  content: '';
+.newtab-backdrop {
   position: absolute;
-  inset: -20%;
-  background:
-    radial-gradient(900px 380px at 15% 0%, var(--primary-a15), transparent 60%),
-    radial-gradient(900px 380px at 85% 100%, var(--lime-a15), transparent 60%);
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.onboarding-overlay {
-  background: rgba(2, 6, 23, 0.55);
-  z-index: 10;
+.newtab-glow {
+  position: absolute;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 999px;
+  filter: blur(36px);
+  opacity: 0.55;
 }
 
-.onboarding-modal {
-  width: min(560px, 100%);
-  border-radius: 18px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: 0 40px 80px rgba(15, 23, 42, 0.35);
-  padding: 1.25rem 1.25rem 1rem;
+.newtab-glow--left {
+  top: -14rem;
+  left: -10rem;
+  background: rgba(10, 132, 255, 0.18);
+}
+
+.newtab-glow--right {
+  top: 2rem;
+  right: -12rem;
+  background: rgba(94, 92, 230, 0.12);
+}
+
+.newtab-shell {
+  position: relative;
+  z-index: 1;
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hero,
+.shortcuts-panel,
+.onboarding-modal,
+.shortcut-modal {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  box-shadow:
+    0 22px 48px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.hero,
+.shortcuts-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: 1.15rem;
+}
+
+.hero {
+  padding: 2.3rem 1.15rem;
+}
+
+.hero::before,
+.shortcuts-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 25%);
+  pointer-events: none;
+}
+
+.shortcuts-head,
+.shortcut-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .brand-logo {
-  --brand-logo-size: 44px;
-  --brand-logo-radius: 14px;
+  --brand-logo-size: 46px;
+  --brand-logo-radius: 15px;
   width: var(--brand-logo-size);
   height: var(--brand-logo-size);
   border-radius: var(--brand-logo-radius);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background: var(--gradient-primary);
@@ -192,146 +613,487 @@ onMounted(() => {
   flex: 0 0 auto;
 }
 
-.brand-logo--lg {
-  --brand-logo-size: 58px;
-  --brand-logo-radius: 18px;
-}
-
-.onboarding-kicker {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-primary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-}
-
-.onboarding-text h2 {
-  margin: 0;
-  font-size: 1.1rem;
+.section-kicker {
+  font-size: 0.72rem;
   font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--accent-primary);
 }
 
-.onboarding-text p {
-  margin: 0.45rem 0 0;
-  font-size: 0.9rem;
+.hero-copy {
+  max-width: 40rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 7vw, 4.3rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  color: var(--text-primary);
+}
+
+.hero-copy p {
+  margin: 0.85rem auto 0;
   color: var(--text-secondary);
-  line-height: 1.35;
+  font-size: 1rem;
+  line-height: 1.55;
 }
 
-.ob-btn {
-  border-radius: 12px;
-  font-weight: 700;
-  user-select: none;
+.omnibox {
+  width: min(760px, 100%);
+  margin: 1.2rem auto 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
 
-.ob-btn:active {
-  transform: scale(0.99);
-}
-
-.ob-primary {
-  background: var(--gradient-primary);
-  color: white;
-  border-color: transparent;
-  box-shadow: var(--shadow-primary);
-}
-
-.ob-primary:hover {
-  box-shadow: 0 16px 30px rgba(59, 130, 246, 0.25);
-}
-
-.ob-secondary {
-  background: rgba(15, 23, 42, 0.04);
-  color: var(--text-primary);
-}
-
-.ob-secondary:hover {
-  background: rgba(15, 23, 42, 0.07);
-}
-
-.shell {
-  max-width: 760px;
-}
-
-.tip {
-  font-size: 0.85rem;
-  color: var(--text-tertiary);
-  line-height: 1.35;
-}
-
-.actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.action {
-  padding: 1.05rem 1.1rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-sm);
-}
-
-.action:hover:not(:disabled) {
-  transform: translateY(-1px);
+.omnibox:focus-within {
   border-color: var(--primary-a50);
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.10);
+  box-shadow:
+    0 14px 30px rgba(15, 23, 42, 0.08),
+    0 0 0 4px var(--primary-a12);
 }
 
-.action:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.action-ico {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.18);
-  color: var(--ios-blue);
+.omnibox-icon {
+  color: var(--text-tertiary);
   flex: 0 0 auto;
 }
 
-.action.primary {
-  background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 60%);
+.omnibox-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1rem;
 }
 
-.action-title {
-  font-size: 0.9rem;
+.omnibox-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.omnibox-submit,
+.btn,
+.shortcut-action,
+.quick-link,
+.shortcut-modal-close {
+  border: none;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.omnibox-submit,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 999px;
   font-weight: 700;
+}
+
+.omnibox-submit {
+  padding: 0.78rem 1rem;
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-primary);
+  flex: 0 0 auto;
+}
+
+.btn {
+  padding: 0.75rem 1rem;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-secondary {
+  background: rgba(15, 23, 42, 0.05);
   color: var(--text-primary);
 }
 
-.action-desc {
-  font-size: 0.82rem;
+.btn:hover,
+.omnibox-submit:hover,
+.shortcut-action:hover,
+.quick-link:hover {
+  transform: translateY(-1px);
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.quick-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.58rem 0.82rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
   color: var(--text-secondary);
-  line-height: 1.25;
-}
-
-.action-cta {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 650;
-  color: var(--accent-primary);
 }
 
-.hint {
+.quick-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.hero-hint {
+  width: min(760px, 100%);
+  margin: 1rem auto 0;
   padding: 0.9rem 1rem;
-  border-radius: 14px;
-  border: 1px solid #fde68a;
-  background: rgba(255, 204, 0, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 149, 0, 0.08);
+  border: 1px solid rgba(255, 149, 0, 0.14);
+  color: var(--text-secondary);
+  line-height: 1.45;
+  text-align: center;
+}
+
+.shortcuts-head h2,
+.shortcut-modal-head h2,
+.shortcuts-empty h3 {
+  margin: 0.2rem 0 0;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.shortcuts-head p,
+.shortcuts-empty p,
+.onboarding-text p {
+  margin: 0.4rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.shortcut-grid {
+  margin-top: 1.1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+  gap: 0.8rem;
+}
+
+.shortcut-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 150px;
+  padding: 0.9rem;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+}
+
+.shortcut-card.pinned {
+  border-color: rgba(59, 130, 246, 0.18);
+  box-shadow:
+    0 14px 28px rgba(15, 23, 42, 0.06),
+    inset 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.shortcut-card.is-dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+.shortcut-card.is-drop-target {
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow:
+    0 16px 32px rgba(15, 23, 42, 0.08),
+    inset 0 0 0 2px rgba(59, 130, 246, 0.18);
+}
+
+.shortcut-card-main {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 0.8rem;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.shortcut-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--text-primary);
+}
+
+.shortcut-avatar.tone-search {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--ios-blue);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+
+.shortcut-avatar.tone-internal {
+  background: rgba(94, 92, 230, 0.12);
+  color: var(--ios-indigo);
+  border-color: rgba(94, 92, 230, 0.18);
+}
+
+.shortcut-avatar.tone-web {
+  background: rgba(52, 199, 89, 0.12);
+  color: var(--ios-green);
+  border-color: rgba(52, 199, 89, 0.18);
+}
+
+.shortcut-avatar.tone-file {
+  background: rgba(255, 149, 0, 0.12);
   color: var(--ios-orange);
+  border-color: rgba(255, 149, 0, 0.18);
+}
+
+.shortcut-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.shortcut-title,
+.shortcut-subtitle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shortcut-title {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.shortcut-subtitle {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.shortcut-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.shortcut-action {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.05);
+  color: var(--text-secondary);
+}
+
+.shortcut-action--danger:hover {
+  background: rgba(255, 59, 48, 0.12);
+  color: #ff3b30;
+}
+
+.shortcuts-empty {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 20px;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.onboarding-overlay,
+.shortcut-modal-overlay {
+  background: rgba(2, 6, 23, 0.56);
+  z-index: 20;
+}
+
+.shortcut-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.onboarding-modal,
+.shortcut-modal {
+  width: min(34rem, 100%);
+  border-radius: 24px;
+  padding: 1.2rem;
+}
+
+.shortcut-modal {
+  width: min(32rem, 100%);
+}
+
+.shortcut-modal-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shortcut-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.shortcut-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.shortcut-field span,
+.shortcut-checkbox span {
+  color: var(--text-secondary);
   font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.shortcut-field input {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  background: rgba(15, 23, 42, 0.03);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.shortcut-field input:focus {
+  border-color: var(--primary-a50);
+  box-shadow: 0 0 0 4px var(--primary-a12);
+}
+
+.shortcut-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.shortcut-error {
+  color: #ff3b30;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.shortcut-modal-actions,
+.onboarding-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .shortcut-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
-  .actions {
+  .newtab-page {
+    padding: 0.85rem 0.75rem 1.2rem;
+  }
+
+  .hero,
+  .shortcuts-panel {
+    border-radius: 22px;
+    padding: 0.95rem;
+  }
+
+  .hero {
+    padding: 1.9rem 0.95rem;
+  }
+
+  .shortcuts-head {
+    flex-direction: column;
+  }
+
+  .omnibox {
+    flex-wrap: wrap;
+    border-radius: 24px;
+  }
+
+  .omnibox-submit {
+    width: 100%;
+  }
+
+  .shortcut-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shortcut-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-copy h1 {
+    font-size: 2.45rem;
+  }
+
+  .hero-copy p {
+    font-size: 0.92rem;
+  }
+
+  .quick-links {
+    justify-content: flex-start;
+  }
+
+  .shortcut-grid {
     grid-template-columns: 1fr;
   }
-  .newtab-page {
-    padding: 1.75rem 1rem;
+
+  .shortcut-card-actions {
+    justify-content: flex-start;
   }
 }
 </style>
