@@ -565,7 +565,10 @@ onMounted(() => {
 <style scoped>
 .newtab-page {
   position: relative;
-  overflow: auto;
+  display: block;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 1.5rem 1rem 2rem;
   background:
     radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%),
@@ -628,6 +631,7 @@ onMounted(() => {
 .shortcuts-panel {
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
   border-radius: 28px;
   padding: 1.15rem;
 }
@@ -1005,6 +1009,7 @@ onMounted(() => {
 }
 
 .history-preview-list {
+  margin-top: 0.65rem;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 0.65rem;
@@ -1187,6 +1192,72 @@ onMounted(() => {
   .quick-links {
     width: min(880px, 100%);
     gap: 0.5rem;
+  }
+}
+
+@media (max-height: 760px) {
+  .newtab-page {
+    padding-top: 1rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .newtab-shell {
+    gap: 0.85rem;
+  }
+
+  .hero,
+  .shortcuts-panel {
+    border-radius: 24px;
+    padding: 1rem;
+  }
+
+  .hero {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .hero-copy {
+    max-width: 32rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.3rem, 9vh, 3.7rem);
+  }
+
+  .hero-copy p {
+    margin-top: 0.6rem;
+    font-size: 0.95rem;
+  }
+
+  .omnibox {
+    margin-top: 0.95rem;
+    padding: 0.75rem 0.82rem;
+  }
+
+  .quick-links {
+    margin-top: 0.75rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .newtab-page {
+    padding-top: 0.85rem;
+  }
+
+  .hero {
+    padding-top: 1.2rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.05rem, 8vh, 3.2rem);
+  }
+
+  .hero-copy p {
+    font-size: 0.9rem;
+  }
+
+  .omnibox {
+    margin-top: 0.8rem;
   }
 }
 
