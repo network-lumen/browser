@@ -714,34 +714,18 @@ function registerProfilesIpc() {
       favourites: p.favourites || {}
     }));
 
-    // No profiles at all -> bootstrap a guest profile without on-chain wallet.
-    if (!normalized.length) {
-      const name = 'Guest';
-      const p = {
-        id: 'guest',
-        name,
-        colorIndex: colorIndexForName(name),
-        role: 'guest',
-        walletAddress: null
-      };
-      const next = [p];
-      saveProfilesFile({ profiles: next, activeId: p.id });
-      return { profiles: next, activeId: p.id };
+    // Guest mode is no longer a supported bootstrap state.
+    const filtered = normalized.filter((p) => p.role !== 'guest');
+    let nextActive = activeId;
+    if (!filtered.find((p) => p.id === activeId)) {
+      nextActive = filtered[0] ? filtered[0].id : '';
     }
 
-    // If at least one non-guest profile exists, drop the guest from the list.
-    const hasUser = normalized.some((p) => p.role !== 'guest');
-    if (hasUser) {
-      const filtered = normalized.filter((p) => p.role !== 'guest');
-      let nextActive = activeId;
-      if (!filtered.find((p) => p.id === activeId)) {
-        nextActive = filtered[0] ? filtered[0].id : '';
-      }
+    if (filtered.length !== normalized.length || nextActive !== activeId) {
       saveProfilesFile({ profiles: filtered, activeId: nextActive });
-      return { profiles: filtered, activeId: nextActive };
     }
 
-    return { profiles: normalized, activeId };
+    return { profiles: filtered, activeId: nextActive };
   });
 
 ipcMain.handle('profiles:getFavourites', async () => {
@@ -765,7 +749,8 @@ ipcMain.handle('profiles:getFavourites', async () => {
 
   ipcMain.handle('profiles:getActive', async () => {
     const { profiles, activeId } = loadProfilesFile();
-    const active = profiles.find((p) => p.id === activeId) || profiles[0] || null;
+    const userProfiles = profiles.filter((p) => p && p.role !== 'guest');
+    const active = userProfiles.find((p) => p.id === activeId) || userProfiles[0] || null;
     if (!active) return null;
     return {
       ...active,
@@ -793,6 +778,7 @@ ipcMain.handle('profiles:getFavourites', async () => {
     const trimmed = String(name || '').trim();
     if (!trimmed) return null;
     const { profiles } = loadProfilesFile();
+    const userProfiles = profiles.filter((p) => p && p.role !== 'guest');
     const id = makeProfileId(trimmed);
     const baseProfile = {
       id,
@@ -806,7 +792,7 @@ ipcMain.handle('profiles:getFavourites', async () => {
     const walletAddress = ensured && ensured.address ? ensured.address : null;
 
     const profile = { ...baseProfile, walletAddress };
-    const next = [...profiles, profile];
+    const next = [...userProfiles, profile];
     saveProfilesFile({ profiles: next, activeId: id });
     return profile;
   });

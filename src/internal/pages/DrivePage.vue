@@ -2298,13 +2298,13 @@ const localDriveMaxUploadLimitLabel = computed(() =>
 );
 
 function filesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${STORAGE_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${STORAGE_KEY_PREFIX}:${pid}` : "";
 }
 
 function localNamesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${LOCAL_NAMES_KEY_PREFIX}:${pid}` : "";
 }
 const localNames = ref<Record<string, string>>({});
 const renameDraft = ref("");
@@ -4879,6 +4879,7 @@ function loadFiles() {
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return;
   const key = filesStorageKey(pid);
+  if (!key) return;
   try {
     const stored = localStorage.getItem(key);
     const storedParsed = stored ? JSON.parse(stored) : null;
@@ -4919,8 +4920,10 @@ function loadFiles() {
 
 function saveFiles() {
   try {
-    const pid = String(activeProfileId.value || "").trim() || "default";
+    const pid = String(activeProfileId.value || "").trim();
+    if (!pid) return;
     const key = filesStorageKey(pid);
+    if (!key) return;
     localStorage.setItem(key, JSON.stringify(files.value));
     nextDriveBackupSeq(pid);
   } catch {
@@ -4933,6 +4936,7 @@ function loadLocalNames() {
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return;
   const key = localNamesStorageKey(pid);
+  if (!key) return;
   try {
     const stored = localStorage.getItem(key);
     const storedParsed = stored ? JSON.parse(stored) : null;
@@ -4967,8 +4971,10 @@ function loadLocalNames() {
 
 function saveLocalNames() {
   try {
-    const pid = String(activeProfileId.value || "").trim() || "default";
+    const pid = String(activeProfileId.value || "").trim();
+    if (!pid) return;
     const key = localNamesStorageKey(pid);
+    if (!key) return;
     localStorage.setItem(key, JSON.stringify(localNames.value));
     nextDriveBackupSeq(pid);
   } catch {
@@ -5017,18 +5023,18 @@ const DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastExportAt:v
 const DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastImportAt:v1";
 
 function driveBackupSeqKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : "";
 }
 
 function driveBackupLastExportAtKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}` : "";
 }
 
 function driveBackupLastImportAtKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}` : "";
 }
 
 function activeWalletAddress(): string {
@@ -5039,6 +5045,7 @@ function activeWalletAddress(): string {
 
 function nextDriveBackupSeq(profileId: string): number {
   const key = driveBackupSeqKey(profileId);
+  if (!key) return 0;
   const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
   const base = Number.isFinite(current) && current >= 0 ? current : 0;
   const next = base + 1;
@@ -5050,6 +5057,7 @@ function nextDriveBackupSeq(profileId: string): number {
 
 function bumpDriveBackupSeq(profileId: string, nextSeq: number) {
   const key = driveBackupSeqKey(profileId);
+  if (!key) return;
   const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
   const base = Number.isFinite(current) && current >= 0 ? current : 0;
   const next = Number.isFinite(nextSeq) && nextSeq > base ? Math.floor(nextSeq) : base;
@@ -5059,16 +5067,31 @@ function bumpDriveBackupSeq(profileId: string, nextSeq: number) {
 }
 
 function getCurrentDriveBackupSeq(profileId: string): number {
-  const pid = String(profileId || "").trim() || "default";
-  const raw = localStorage.getItem(driveBackupSeqKey(pid));
+  const pid = String(profileId || "").trim();
+  if (!pid) return 0;
+  const key = driveBackupSeqKey(pid);
+  if (!key) return 0;
+  const raw = localStorage.getItem(key);
   const v = raw ? Number.parseInt(raw, 10) : NaN;
   return Number.isFinite(v) && v > 0 ? v : 0;
 }
 
 function loadDriveBackupMeta() {
-  const pid = String(activeProfileId.value || "").trim() || "default";
-  const exportAtRaw = localStorage.getItem(driveBackupLastExportAtKey(pid));
-  const importAtRaw = localStorage.getItem(driveBackupLastImportAtKey(pid));
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) {
+    driveBackupLastExportAt.value = null;
+    driveBackupLastImportAt.value = null;
+    return;
+  }
+  const exportKey = driveBackupLastExportAtKey(pid);
+  const importKey = driveBackupLastImportAtKey(pid);
+  if (!exportKey || !importKey) {
+    driveBackupLastExportAt.value = null;
+    driveBackupLastImportAt.value = null;
+    return;
+  }
+  const exportAtRaw = localStorage.getItem(exportKey);
+  const importAtRaw = localStorage.getItem(importKey);
   const exportAt = exportAtRaw ? Number.parseInt(exportAtRaw, 10) : NaN;
   const importAt = importAtRaw ? Number.parseInt(importAtRaw, 10) : NaN;
   driveBackupLastExportAt.value = Number.isFinite(exportAt) ? exportAt : null;
@@ -5076,8 +5099,10 @@ function loadDriveBackupMeta() {
 }
 
 function setDriveBackupMeta(kind: "export" | "import", ts: number) {
-  const pid = String(activeProfileId.value || "").trim() || "default";
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return;
   const key = kind === "export" ? driveBackupLastExportAtKey(pid) : driveBackupLastImportAtKey(pid);
+  if (!key) return;
   try {
     localStorage.setItem(key, String(ts));
   } catch {}
