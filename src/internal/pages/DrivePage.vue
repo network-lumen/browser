@@ -376,8 +376,18 @@
               <button
                 class="progress-cancel-btn"
                 type="button"
+                @click="pauseHlsQueue"
+                :disabled="convertingCanceling || convertingPauseRequested"
+              >
+                {{
+                  convertingPauseRequested ? "Pausing..." : "Pause"
+                }}
+              </button>
+              <button
+                class="progress-cancel-btn"
+                type="button"
                 @click="cancelHlsConversion"
-                :disabled="convertingCanceling"
+                :disabled="convertingCanceling || convertingPauseRequested"
               >
                 {{ convertingCanceling ? "Cancelling..." : "Cancel" }}
               </button>
@@ -398,14 +408,35 @@
             <strong>HLS queue</strong>
             <span>{{ hlsQueueSummaryText() }}</span>
           </div>
-          <button
-            class="hls-queue-clear-btn"
-            type="button"
-            @click="clearHlsQueue"
-            :disabled="!hlsQueue.length"
-          >
-            {{ converting ? "Clear finished" : "Clear queue" }}
-          </button>
+          <div class="hls-queue-actions">
+            <button
+              v-if="hlsQueueCanPause"
+              class="hls-queue-action-btn"
+              type="button"
+              @click="pauseHlsQueue"
+              :disabled="convertingPauseRequested"
+            >
+              <Pause :size="14" />
+              <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
+            </button>
+            <button
+              v-if="hlsQueueCanResume"
+              class="hls-queue-action-btn"
+              type="button"
+              @click="resumeHlsQueue"
+            >
+              <Play :size="14" />
+              <span>Resume</span>
+            </button>
+            <button
+              class="hls-queue-clear-btn"
+              type="button"
+              @click="clearHlsQueue"
+              :disabled="!hlsQueue.length"
+            >
+              {{ converting ? "Clear finished" : "Clear queue" }}
+            </button>
+          </div>
         </div>
 
         <div class="hls-queue-list">
@@ -1989,6 +2020,8 @@ import {
   File,
   CheckCircle,
   AlertCircle,
+  Pause,
+  Play,
   LayoutGrid,
   List,
   TableProperties,
@@ -2023,11 +2056,13 @@ interface DriveFile {
   type?: "file" | "dir";
   rootCid?: string;
   relPath?: string;
+  sourceTarget?: string;
 }
 
 type HlsQueueItemStatus =
   | "queued"
   | "converting"
+  | "paused"
   | "done"
   | "failed"
   | "cancelled";
@@ -2124,7 +2159,10 @@ const convertingPercent = ref<number | null>(null);
 const convertingDownloadedBytes = ref<number | null>(null);
 const convertingDownloadTotalBytes = ref<number | null>(null);
 const convertingCanceling = ref(false);
+const convertingPauseRequested = ref(false);
 const hlsQueue = ref<HlsQueueItem[]>([]);
+const hlsQueueProfileId = ref("");
+const hlsQueuePauseRequested = ref(false);
 const archiveDownloading = ref(false);
 const archiveDownloadFile = ref("");
 const archiveDownloadStage = ref<
@@ -2209,6 +2247,7 @@ const publicGatewayPropagationStatusLabel = computed(() => {
 });
 
 const convertingStatusLabel = computed(() => {
+  if (convertingPauseRequested.value) return "Pausing…";
   if (convertingCanceling.value) return "Cancelling…";
   if (convertingStage.value === "downloading")
     return "Downloading source video from IPFS…";
@@ -2289,6 +2328,7 @@ const LEGACY_STORAGE_KEY = "lumen_drive_files";
 const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
+const HLS_QUEUE_KEY_PREFIX = "lumen:drive:hlsQueue:v1";
 const localDriveMaxUploadSizeGb = computed(() =>
   normalizeLocalDriveMaxUploadSizeGb(appSettingsState.value.localDriveMaxUploadSizeGb),
 );
@@ -2305,6 +2345,11 @@ function filesStorageKey(profileId: string): string {
 function localNamesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim();
   return pid ? `${LOCAL_NAMES_KEY_PREFIX}:${pid}` : "";
+}
+
+function hlsQueueStorageKey(profileId: string): string {
+  const pid = String(profileId || "").trim();
+  return pid ? `${HLS_QUEUE_KEY_PREFIX}:${pid}` : "";
 }
 const localNames = ref<Record<string, string>>({});
 const renameDraft = ref("");
@@ -2835,6 +2880,10 @@ const hlsQueueDoneCount = computed(
   () => hlsQueue.value.filter((item) => item.status === "done").length,
 );
 
+const hlsQueuePausedCount = computed(
+  () => hlsQueue.value.filter((item) => item.status === "paused").length,
+);
+
 const hlsQueueFailedCount = computed(
   () => hlsQueue.value.filter((item) => item.status === "failed").length,
 );
@@ -2849,6 +2898,24 @@ const hlsQueueVisible = computed(() => {
 });
 
 const visibleHlsQueueItems = computed(() => hlsQueue.value.slice(0, 6));
+
+const hlsQueueCanPause = computed(
+  () =>
+    !uploading.value &&
+    !convertingCanceling.value &&
+    !convertingPauseRequested.value &&
+    hlsQueue.value.some(
+      (item) => item.status === "queued" || item.status === "converting",
+    ),
+);
+
+const hlsQueueCanResume = computed(
+  () =>
+    !uploading.value &&
+    !converting.value &&
+    !convertingPauseRequested.value &&
+    hlsQueuePausedCount.value > 0,
+);
 
 const canBulkRemoveSelectedLocal = computed(
   () => selectedLocalCount.value > 0 && !uploading.value && !converting.value,
@@ -3434,6 +3501,7 @@ onMounted(async () => {
   await checkIpfsStatus();
   loadFiles();
   loadLocalNames();
+  loadHlsQueue();
   loadDriveBackupMeta();
   loadStats();
   void loadPinnedFiles();
@@ -5719,6 +5787,117 @@ async function propagateLocalCidToPublicGateways(
   }
 }
 
+function normalizeStoredHlsQueueStatus(rawStatus: unknown): HlsQueueItemStatus {
+  const status = String(rawStatus || "").trim().toLowerCase();
+  if (status === "done") return "done";
+  if (status === "failed") return "failed";
+  if (status === "cancelled") return "cancelled";
+  return "paused";
+}
+
+function sanitizeStoredHlsQueueFile(raw: any): DriveFile | null {
+  const cid = String(raw?.cid || "").trim();
+  const name = String(raw?.name || "").trim();
+  if (!cid || !name) return null;
+
+  const size = Number(raw?.size);
+  const uploadedAt = Number(raw?.uploadedAt);
+  const type = raw?.type === "dir" ? "dir" : raw?.type === "file" ? "file" : undefined;
+  const rootCid = String(raw?.rootCid || "").trim();
+  const relPath = String(raw?.relPath || "").trim();
+
+  return {
+    cid,
+    name,
+    size: Number.isFinite(size) && size > 0 ? Math.round(size) : 0,
+    uploadedAt:
+      Number.isFinite(uploadedAt) && uploadedAt > 0 ? Math.round(uploadedAt) : undefined,
+    type,
+    rootCid: rootCid || undefined,
+    relPath: relPath || undefined,
+  };
+}
+
+function persistHlsQueue(
+  items: HlsQueueItem[] = hlsQueue.value,
+  profileId: string = hlsQueueProfileId.value,
+) {
+  try {
+    const key = hlsQueueStorageKey(profileId);
+    if (!key) return;
+    if (!items.length) {
+      localStorage.removeItem(key);
+      return;
+    }
+    const payload = items.map((item) => ({
+      id: item.id,
+      file: item.file,
+      status: item.status,
+      error: item.status === "failed" || item.status === "cancelled" ? item.error : undefined,
+    }));
+    localStorage.setItem(key, JSON.stringify(payload));
+  } catch {
+    // ignore
+  }
+}
+
+function loadHlsQueue(profileId: string = String(activeProfileId.value || "").trim()) {
+  hlsQueueProfileId.value = String(profileId || "").trim();
+  hlsQueuePauseRequested.value = false;
+  convertingPauseRequested.value = false;
+
+  const key = hlsQueueStorageKey(hlsQueueProfileId.value);
+  if (!key) {
+    hlsQueue.value = [];
+    return;
+  }
+
+  try {
+    const stored = localStorage.getItem(key);
+    const parsed = stored ? JSON.parse(stored) : null;
+    const items = Array.isArray(parsed) ? parsed : [];
+    const restored: HlsQueueItem[] = [];
+
+    for (const raw of items) {
+      const file = sanitizeStoredHlsQueueFile(raw?.file);
+      if (!file) continue;
+      restored.push({
+        id: String(raw?.id || nextHlsQueueItemId()),
+        file,
+        status: normalizeStoredHlsQueueStatus(raw?.status),
+        error:
+          normalizeStoredHlsQueueStatus(raw?.status) === "failed" ||
+          normalizeStoredHlsQueueStatus(raw?.status) === "cancelled"
+            ? String(raw?.error || "").trim() || undefined
+            : undefined,
+      });
+    }
+
+    hlsQueue.value = restored;
+    persistHlsQueue(restored, hlsQueueProfileId.value);
+  } catch {
+    hlsQueue.value = [];
+  }
+}
+
+function hlsQueueHasPendingItems(items: HlsQueueItem[] = hlsQueue.value): boolean {
+  return items.some(
+    (item) =>
+      item.status === "queued" ||
+      item.status === "converting" ||
+      item.status === "paused",
+  );
+}
+
+function hlsQueueIsPaused(): boolean {
+  return (
+    hlsQueue.value.some((item) => item.status === "paused") &&
+    !hlsQueue.value.some(
+      (item) => item.status === "queued" || item.status === "converting",
+    )
+  );
+}
+
 async function finalizeLocalUpload(
   kind: "file" | "folder",
   name: string,
@@ -6244,6 +6423,7 @@ function startConvertingState(fileName: string) {
   convertingDownloadedBytes.value = null;
   convertingDownloadTotalBytes.value = null;
   convertingCanceling.value = false;
+  convertingPauseRequested.value = false;
 }
 
 function resetConvertingState() {
@@ -6254,6 +6434,7 @@ function resetConvertingState() {
   convertingDownloadedBytes.value = null;
   convertingDownloadTotalBytes.value = null;
   convertingCanceling.value = false;
+  convertingPauseRequested.value = false;
 }
 
 async function performHlsConversion(
@@ -6300,6 +6481,7 @@ async function performHlsConversion(
       type: "file",
       rootCid: newCid,
       relPath: "master.m3u8",
+      sourceTarget: target,
     });
 
     if ((opts.targetHostingKind ?? hosting.value.kind) === "gateway") {
@@ -6339,8 +6521,11 @@ async function performHlsConversion(
 function enqueueHlsConversions(filesToQueue: DriveFile[]): {
   added: number;
   duplicates: number;
+  status: "queued" | "paused";
 } {
   resetFinishedHlsQueueIfIdle();
+  const nextStatus: "queued" | "paused" =
+    hlsQueuePauseRequested.value || hlsQueueIsPaused() ? "paused" : "queued";
 
   const known = new Set(
     hlsQueue.value.map((item) => hlsQueueKeyFor(item.file)).filter(Boolean),
@@ -6359,7 +6544,7 @@ function enqueueHlsConversions(filesToQueue: DriveFile[]): {
     additions.push({
       id: nextHlsQueueItemId(),
       file: { ...file },
-      status: "queued",
+      status: nextStatus,
     });
   }
 
@@ -6367,12 +6552,12 @@ function enqueueHlsConversions(filesToQueue: DriveFile[]): {
     hlsQueue.value = [...hlsQueue.value, ...additions];
   }
 
-  return { added: additions.length, duplicates };
+  return { added: additions.length, duplicates, status: nextStatus };
 }
 
 async function runQueuedHlsConversion(
   item: HlsQueueItem,
-): Promise<"done" | "failed" | "cancelled"> {
+): Promise<"done" | "failed" | "cancelled" | "paused"> {
   updateHlsQueueItem(item.id, { status: "converting", error: undefined });
   startConvertingState(item.file.name);
   try {
@@ -6386,11 +6571,12 @@ async function runQueuedHlsConversion(
       return "done";
     }
     if (result.cancelled) {
+      const paused = hlsQueuePauseRequested.value || convertingPauseRequested.value;
       updateHlsQueueItem(item.id, {
-        status: "cancelled",
-        error: result.error,
+        status: paused ? "paused" : "cancelled",
+        error: paused ? undefined : result.error,
       });
-      return "cancelled";
+      return paused ? "paused" : "cancelled";
     }
     updateHlsQueueItem(item.id, {
       status: "failed",
@@ -6398,6 +6584,8 @@ async function runQueuedHlsConversion(
     });
     return "failed";
   } finally {
+    hlsQueuePauseRequested.value = false;
+    convertingPauseRequested.value = false;
     resetConvertingState();
   }
 }
@@ -6406,7 +6594,7 @@ async function ensureHlsQueueProcessing() {
   if (hlsQueueProcessing || uploading.value) return;
   hlsQueueProcessing = true;
 
-  const summary = { done: 0, failed: 0, cancelled: 0 };
+  const summary = { done: 0, failed: 0, cancelled: 0, paused: 0 };
 
   try {
     while (!uploading.value) {
@@ -6415,19 +6603,21 @@ async function ensureHlsQueueProcessing() {
       const outcome = await runQueuedHlsConversion(next);
       if (outcome === "done") summary.done += 1;
       else if (outcome === "failed") summary.failed += 1;
-      else summary.cancelled += 1;
+      else if (outcome === "cancelled") summary.cancelled += 1;
+      else summary.paused += 1;
     }
   } finally {
     hlsQueueProcessing = false;
   }
 
-  const processed = summary.done + summary.failed + summary.cancelled;
+  const processed = summary.done + summary.failed + summary.cancelled + summary.paused;
   if (!processed) return;
 
   const parts: string[] = [];
   if (summary.done) parts.push(`${summary.done} converted`);
   if (summary.failed) parts.push(`${summary.failed} failed`);
   if (summary.cancelled) parts.push(`${summary.cancelled} cancelled`);
+  if (summary.paused) parts.push(`${summary.paused} paused`);
   showToast(`HLS queue: ${parts.join(", ")}`, summary.failed ? "error" : "success");
 }
 
@@ -6440,19 +6630,22 @@ async function convertToHls(file: DriveFile) {
     showToast("IPFS not connected", "error");
     return;
   }
-  if (uploading.value || converting.value || hlsQueueActiveCount.value) {
+  if (uploading.value) {
     showToast("Another task is already running. Please wait…", "error");
     return;
   }
 
-  resetFinishedHlsQueueIfIdle();
-  startConvertingState(file.name);
-
-  try {
-    await performHlsConversion(file);
-  } finally {
-    resetConvertingState();
+  const { added, status } = enqueueHlsConversions([file]);
+  if (!added) {
+    showToast("This video is already in the HLS queue.", "error");
+    return;
   }
+
+  showToast(
+    status === "paused" ? "Added 1 video to paused HLS queue" : "Queued 1 video for HLS",
+    "success",
+  );
+  if (status === "queued") void ensureHlsQueueProcessing();
 }
 
 async function convertSelectedLocalToHls() {
@@ -6463,10 +6656,6 @@ async function convertSelectedLocalToHls() {
   }
   if (uploading.value) {
     showToast("Another task is already running. Please wait…", "error");
-    return;
-  }
-  if (converting.value && !hlsQueueProcessing) {
-    showToast("Wait for the current conversion to finish before starting a queue.", "error");
     return;
   }
 
@@ -6482,7 +6671,7 @@ async function convertSelectedLocalToHls() {
   }
 
   const skipped = selected.length - convertible.length;
-  const { added, duplicates } = enqueueHlsConversions(convertible);
+  const { added, duplicates, status } = enqueueHlsConversions(convertible);
   if (!added) {
     showToast("Selected videos are already in the HLS queue.", "error");
     return;
@@ -6493,9 +6682,15 @@ async function convertSelectedLocalToHls() {
   if (duplicates) notes.push(`${duplicates} already queued`);
 
   const label =
-    added === 1 ? "Queued 1 video for HLS" : `Queued ${added} videos for HLS`;
+    status === "paused"
+      ? added === 1
+        ? "Added 1 video to paused HLS queue"
+        : `Added ${added} videos to paused HLS queue`
+      : added === 1
+        ? "Queued 1 video for HLS"
+        : `Queued ${added} videos for HLS`;
   showToast(notes.length ? `${label} (${notes.join(", ")})` : label, "success");
-  void ensureHlsQueueProcessing();
+  if (status === "queued") void ensureHlsQueueProcessing();
 }
 
 function convertSelectedToHls() {
@@ -6548,7 +6743,7 @@ async function cancelUpload() {
 }
 
 async function cancelHlsConversion() {
-  if (!converting.value || convertingCanceling.value) return;
+  if (!converting.value || convertingCanceling.value || convertingPauseRequested.value) return;
   convertingCanceling.value = true;
   convertingStage.value = "cancelling";
   try {
@@ -6570,6 +6765,77 @@ async function cancelHlsConversion() {
     convertingCanceling.value = false;
     convertingStage.value = "transcoding";
   }
+}
+
+async function waitForHlsConversionToSettle(timeoutMs = 8000) {
+  const startedAt = Date.now();
+  while (converting.value && Date.now() - startedAt < timeoutMs) {
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
+  }
+}
+
+async function pauseHlsQueue(options: { silent?: boolean } = {}) {
+  if (convertingCanceling.value || convertingPauseRequested.value) return;
+
+  const queueSnapshot = hlsQueue.value.map((item) => ({
+    id: item.id,
+    status: item.status,
+    error: item.error,
+  }));
+  const hasQueued = hlsQueue.value.some((item) => item.status === "queued");
+  const hasRunning = converting.value;
+  if (!hasQueued && !hasRunning) return;
+
+  hlsQueuePauseRequested.value = true;
+  if (hasQueued) {
+    hlsQueue.value = hlsQueue.value.map((item) =>
+      item.status === "queued" ? { ...item, status: "paused", error: undefined } : item,
+    );
+  }
+
+  if (!hasRunning) {
+    hlsQueuePauseRequested.value = false;
+    convertingPauseRequested.value = false;
+    if (!options.silent) showToast("HLS queue paused.", "success");
+    return;
+  }
+
+  convertingPauseRequested.value = true;
+  convertingStage.value = "cancelling";
+
+  try {
+    const api: any = (window as any).lumen;
+    if (typeof api?.driveCancelHlsConvert !== "function") {
+      throw new Error("Pause is unavailable.");
+    }
+    const res = await api.driveCancelHlsConvert().catch(() => null);
+    if (!res?.ok) {
+      throw new Error(String(res?.error || "Pause failed"));
+    }
+    await waitForHlsConversionToSettle();
+    if (!options.silent) showToast("HLS queue paused.", "success");
+  } catch (e: any) {
+    const previous = new Map(queueSnapshot.map((item) => [item.id, item]));
+    hlsQueue.value = hlsQueue.value.map((item) => {
+      const prior = previous.get(item.id);
+      return prior ? { ...item, status: prior.status, error: prior.error } : item;
+    });
+    hlsQueuePauseRequested.value = false;
+    convertingPauseRequested.value = false;
+    convertingStage.value = "transcoding";
+    if (!options.silent) {
+      showToast(String(e?.message || "Pause failed"), "error");
+    }
+  }
+}
+
+async function resumeHlsQueue() {
+  if (!hlsQueueCanResume.value) return;
+  hlsQueue.value = hlsQueue.value.map((item) =>
+    item.status === "paused" ? { ...item, status: "queued", error: undefined } : item,
+  );
+  showToast("Resumed HLS queue.", "success");
+  void ensureHlsQueueProcessing();
 }
 
 function resetArchiveDownloadState() {
@@ -7037,16 +7303,16 @@ function updateHlsQueueItem(
 
 function resetFinishedHlsQueueIfIdle() {
   if (converting.value) return;
-  const hasActive = hlsQueue.value.some(
-    (item) => item.status === "queued" || item.status === "converting",
-  );
-  if (!hasActive) hlsQueue.value = [];
+  if (!hlsQueueHasPendingItems()) hlsQueue.value = [];
 }
 
 function clearHlsQueue() {
   if (converting.value) {
     hlsQueue.value = hlsQueue.value.filter(
-      (item) => item.status === "queued" || item.status === "converting",
+      (item) =>
+        item.status === "queued" ||
+        item.status === "converting" ||
+        item.status === "paused",
     );
     return;
   }
@@ -7056,6 +7322,7 @@ function clearHlsQueue() {
 function hlsQueueStatusLabel(item: HlsQueueItem): string {
   if (item.status === "queued") return "Queued";
   if (item.status === "converting") return "Converting";
+  if (item.status === "paused") return "Paused";
   if (item.status === "done") return "Done";
   if (item.status === "cancelled") return "Cancelled";
   return "Failed";
@@ -7064,6 +7331,7 @@ function hlsQueueStatusLabel(item: HlsQueueItem): string {
 function hlsQueueSummaryText(): string {
   const parts: string[] = [];
   if (hlsQueueActiveCount.value) parts.push(`${hlsQueueActiveCount.value} active`);
+  if (hlsQueuePausedCount.value) parts.push(`${hlsQueuePausedCount.value} paused`);
   if (hlsQueueDoneCount.value) parts.push(`${hlsQueueDoneCount.value} done`);
   if (hlsQueueFailedCount.value) parts.push(`${hlsQueueFailedCount.value} failed`);
   if (hlsQueueCancelledCount.value) {
@@ -7082,6 +7350,14 @@ watch(
     renameDraft.value = canRenameEntry(f) ? getSavedName(f.cid) : f.name;
   },
   { immediate: true },
+);
+
+watch(
+  hlsQueue,
+  (items) => {
+    persistHlsQueue(items);
+  },
+  { deep: true },
 );
 
 watch(activeProfileId, (next, prev) => {
@@ -7645,6 +7921,7 @@ function basenameFromPath(p: string) {
 
 async function reloadForActiveProfileChange() {
   const seq = ++profileReloadSeq;
+  await pauseHlsQueue({ silent: true });
 
   // Reset per-profile UI state.
   exitBrowseSilent();
@@ -7675,6 +7952,7 @@ async function reloadForActiveProfileChange() {
   // Reload per-profile local state immediately (don't block on network/gateway calls).
   loadFiles();
   loadLocalNames();
+  loadHlsQueue();
   loadDriveBackupMeta();
 
   await refreshGatewayOverview();
@@ -8685,6 +8963,14 @@ async function reloadForActiveProfileChange() {
   gap: 1rem;
 }
 
+.hls-queue-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .hls-queue-copy {
   display: flex;
   flex-direction: column;
@@ -8712,6 +8998,31 @@ async function reloadForActiveProfileChange() {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s ease;
+}
+
+.hls-queue-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.hls-queue-action-btn:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.hls-queue-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .hls-queue-clear-btn:hover:not(:disabled) {
@@ -8749,6 +9060,11 @@ async function reloadForActiveProfileChange() {
 .hls-queue-item.status-done {
   border-color: rgba(52, 199, 89, 0.25);
   background: rgba(52, 199, 89, 0.06);
+}
+
+.hls-queue-item.status-paused {
+  border-color: rgba(0, 122, 255, 0.2);
+  background: rgba(0, 122, 255, 0.05);
 }
 
 .hls-queue-item.status-failed {
@@ -8794,6 +9110,10 @@ async function reloadForActiveProfileChange() {
 
 .hls-queue-item.status-done .hls-queue-item-status {
   color: #1f8f46;
+}
+
+.hls-queue-item.status-paused .hls-queue-item-status {
+  color: var(--accent-primary);
 }
 
 .hls-queue-item.status-failed .hls-queue-item-status {

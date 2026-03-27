@@ -11,9 +11,70 @@ const ACTIVE_HLS_CONVERSIONS = new Map(); // wcId -> { abort: () => void }
 const ACTIVE_HLS_ARCHIVE_EXPORTS = new Map(); // wcId -> { abort: () => void }
 const DOWNLOAD_PROGRESS_MIN_INTERVAL_MS = 500;
 const DOWNLOAD_PROGRESS_MIN_STEP_BYTES = 8 * 1024 * 1024;
+const HLS_RESULT_INDEX_PATH = path.join(app.getPath('userData'), 'hls-results.v1.json');
+const HLS_RESULT_INDEX_MAX_ENTRIES = 1000;
 
 function logHls(...args) {
   console.log('[electron][hls]', ...args);
+}
+
+function readHlsResultIndex() {
+  try {
+    const raw = fs.readFileSync(HLS_RESULT_INDEX_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeHlsResultIndex(index) {
+  try {
+    fs.mkdirSync(path.dirname(HLS_RESULT_INDEX_PATH), { recursive: true });
+    fs.writeFileSync(HLS_RESULT_INDEX_PATH, JSON.stringify(index, null, 2), 'utf8');
+  } catch {}
+}
+
+function hlsResultKeyFor(args) {
+  const cidOrPath = String(args?.cidOrPath || '').trim();
+  if (!cidOrPath) return '';
+  const audioBitrate = String(args?.audioBitrate || '128k').trim() || '128k';
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify({ version: 1, cidOrPath, audioBitrate }))
+    .digest('hex');
+}
+
+function getPersistedHlsResult(args) {
+  const key = hlsResultKeyFor(args);
+  if (!key) return null;
+  const entry = readHlsResultIndex()[key];
+  const cid = String(entry?.cid || '').trim();
+  if (!cid) return null;
+  const sizeBytesRaw = Number(entry?.sizeBytes || 0);
+  return {
+    cid,
+    sizeBytes: Number.isFinite(sizeBytesRaw) && sizeBytesRaw > 0 ? Math.round(sizeBytesRaw) : 0,
+  };
+}
+
+function persistHlsResult(args, result) {
+  const key = hlsResultKeyFor(args);
+  const cid = String(result?.cid || '').trim();
+  if (!key || !cid) return;
+
+  const index = readHlsResultIndex();
+  index[key] = {
+    cid,
+    sizeBytes: Number(result?.sizeBytes || 0) || 0,
+    storedAt: Date.now(),
+  };
+
+  const entries = Object.entries(index).sort(
+    (a, b) => Number(b?.[1]?.storedAt || 0) - Number(a?.[1]?.storedAt || 0),
+  );
+  const trimmed = Object.fromEntries(entries.slice(0, HLS_RESULT_INDEX_MAX_ENTRIES));
+  writeHlsResultIndex(trimmed);
 }
 
 function ipfsApiBase() {
@@ -825,6 +886,12 @@ function registerHlsIpc() {
       }
       logHls('ipc request', { wcId, cidOrPath, name });
 
+      const persisted = getPersistedHlsResult(args);
+      if (persisted?.cid) {
+        logHls('reuse persisted result', { cidOrPath, cid: persisted.cid });
+        return { ok: true, ...persisted, reused: true };
+      }
+
       const controller = new AbortController();
       let activeChild = null;
       const abort = () => {
@@ -868,6 +935,7 @@ function registerHlsIpc() {
           if (controller.signal?.aborted) killProcessTree(child);
         },
       });
+      persistHlsResult(args, res);
       sendProgress({ stage: 'done', percent: 100 });
       return { ok: true, ...res };
     } catch (e) {
