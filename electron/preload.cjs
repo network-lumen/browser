@@ -182,6 +182,27 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsGet: (cid, options) => ipcRenderer.invoke('ipfs:get', cid, options || {}),
   ipfsLs: (cidOrPath) => ipcRenderer.invoke('ipfs:ls', cidOrPath),
   ipfsPinList: () => ipcRenderer.invoke('ipfs:pinList'),
+  ipfsPinStart: (payload) => ipcRenderer.invoke('ipfs:pinStart', payload || {}),
+  ipfsPinPause: (jobId) => ipcRenderer.invoke('ipfs:pinPause', jobId),
+  ipfsPinResume: (jobId) => ipcRenderer.invoke('ipfs:pinResume', jobId),
+  ipfsPinCancel: (jobId) => ipcRenderer.invoke('ipfs:pinCancel', jobId),
+  ipfsPinWait: (jobId, options) => ipcRenderer.invoke('ipfs:pinWait', jobId, options || {}),
+  ipfsPinGet: (jobId) => ipcRenderer.invoke('ipfs:pinGet', jobId),
+  ipfsPinJobs: () => ipcRenderer.invoke('ipfs:pinJobs'),
+  ipfsOnPinProgress: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, payload) => {
+      try {
+        callback(payload);
+      } catch {
+        // ignore callback errors
+      }
+    };
+    ipcRenderer.on('ipfs:pinProgress', handler);
+    return () => {
+      ipcRenderer.removeListener('ipfs:pinProgress', handler);
+    };
+  },
   ipfsPinAdd: (cidOrPath) => ipcRenderer.invoke('ipfs:pinAdd', cidOrPath),
   ipfsUnpin: (cid) => ipcRenderer.invoke('ipfs:unpin', cid),
   ipfsStats: () => ipcRenderer.invoke('ipfs:stats'),

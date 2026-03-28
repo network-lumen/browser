@@ -1,5 +1,8 @@
 const { app } = require('electron');
+const { EventEmitter } = require('node:events');
 const path = require('node:path');
+const http = require('node:http');
+const https = require('node:https');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./ipfs_seed.cjs');
@@ -21,6 +24,10 @@ const publicIpfsGatewayOfflineUntil = new Map();
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
 const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
 const DEFAULT_IPFS_CONNECTIVITY_MODE = 'normal';
+const DEFAULT_IPFS_PIN_ADD_TIMEOUT_MS = 30 * 60 * 1000;
+const DEFAULT_IPFS_PIN_RETRY_BASE_MS = 5_000;
+const DEFAULT_IPFS_PIN_MAX_RETRIES = 8;
+const IPFS_PIN_JOBS_FILE = 'ipfs_pin_jobs.json';
 const IPFS_CONNECTIVITY_PROFILES = Object.freeze({
   light: {
     lowWater: 12,
@@ -65,6 +72,705 @@ function localDriveMaxUploadSizeGb() {
 
 function localDriveMaxUploadBytes() {
   return localDriveMaxUploadSizeGb() * BYTES_PER_GIB;
+}
+
+function getHttpModuleForUrl(urlObj) {
+  return urlObj.protocol === 'https:' ? https : http;
+}
+
+async function requestTextViaNodeHttp(urlString, { method = 'GET', headers = {}, body = null, timeoutMs = 30_000 } = {}) {
+  const urlObj = new URL(String(urlString || '').trim());
+  const transport = getHttpModuleForUrl(urlObj);
+  const effectiveTimeoutMs = clampTimeoutMs(timeoutMs, 30_000, DEFAULT_IPFS_PIN_ADD_TIMEOUT_MS);
+
+  return new Promise((resolve, reject) => {
+    const req = transport.request(
+      urlObj,
+      {
+        method,
+        headers
+      },
+      (res) => {
+        const status = Number(res.statusCode || 0);
+        const chunks = [];
+
+        res.on('data', (chunk) => {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+        res.on('end', () => {
+          resolve({
+            ok: status >= 200 && status < 300,
+            status,
+            text: Buffer.concat(chunks).toString('utf8')
+          });
+        });
+        res.on('error', reject);
+      }
+    );
+
+    req.setTimeout(effectiveTimeoutMs, () => {
+      req.destroy(new Error(`ipfs_request_timeout_${effectiveTimeoutMs}ms`));
+    });
+    req.on('error', reject);
+
+    if (body != null) req.write(body);
+    req.end();
+  });
+}
+
+const pinJobEmitter = new EventEmitter();
+const pinJobs = new Map(); // jobId -> persisted snapshot
+const activePinJobProcesses = new Map(); // jobId -> runtime
+let pinJobsLoaded = false;
+let pinJobsResumeScheduled = false;
+let pinJobsPersistTimer = null;
+
+function getPinJobsFilePath() {
+  return path.join(app.getPath('userData'), IPFS_PIN_JOBS_FILE);
+}
+
+function sanitizePinJobName(input) {
+  return String(input || '').trim().replace(/\s+/g, ' ').slice(0, 256);
+}
+
+function isFinalPinJobStatus(status) {
+  const normalized = String(status || '').trim().toLowerCase();
+  return normalized === 'completed' || normalized === 'failed' || normalized === 'cancelled';
+}
+
+function snapshotPinJob(job) {
+  if (!job || typeof job !== 'object') return null;
+  return {
+    id: String(job.id || ''),
+    target: String(job.target || ''),
+    name: String(job.name || ''),
+    status: String(job.status || ''),
+    progressText: String(job.progressText || ''),
+    progressCurrent:
+      Number.isFinite(Number(job.progressCurrent)) && Number(job.progressCurrent) >= 0
+        ? Number(job.progressCurrent)
+        : null,
+    progressTotal:
+      Number.isFinite(Number(job.progressTotal)) && Number(job.progressTotal) > 0
+        ? Number(job.progressTotal)
+        : null,
+    progressPercent:
+      Number.isFinite(Number(job.progressPercent)) && Number(job.progressPercent) >= 0
+        ? Number(job.progressPercent)
+        : null,
+    progressUnit: String(job.progressUnit || ''),
+    pinnedCid: String(job.pinnedCid || ''),
+    error: String(job.error || ''),
+    retryCount: Number(job.retryCount || 0),
+    nextRetryAt:
+      Number.isFinite(Number(job.nextRetryAt)) && Number(job.nextRetryAt) > 0
+        ? Number(job.nextRetryAt)
+        : 0,
+    createdAt: Number(job.createdAt || 0) || Date.now(),
+    updatedAt: Number(job.updatedAt || 0) || Date.now(),
+    startedAt: Number(job.startedAt || 0) || 0,
+    completedAt: Number(job.completedAt || 0) || 0
+  };
+}
+
+function persistPinJobsNow() {
+  try {
+    const jobs = Array.from(pinJobs.values())
+      .map((job) => snapshotPinJob(job))
+      .filter(Boolean)
+      .sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+
+    const finalJobs = jobs.filter((job) => isFinalPinJobStatus(job.status));
+    const nonFinalJobs = jobs.filter((job) => !isFinalPinJobStatus(job.status));
+    const pruned = [...nonFinalJobs, ...finalJobs.slice(0, 50)];
+    fs.writeFileSync(getPinJobsFilePath(), JSON.stringify({ version: 1, jobs: pruned }, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('[electron][ipfs] persist pin jobs failed:', String(e?.message || e));
+  }
+}
+
+function schedulePersistPinJobs(immediate = false) {
+  if (immediate) {
+    if (pinJobsPersistTimer) {
+      try {
+        clearTimeout(pinJobsPersistTimer);
+      } catch {}
+      pinJobsPersistTimer = null;
+    }
+    persistPinJobsNow();
+    return;
+  }
+  if (pinJobsPersistTimer) return;
+  pinJobsPersistTimer = setTimeout(() => {
+    pinJobsPersistTimer = null;
+    persistPinJobsNow();
+  }, 250);
+}
+
+function loadPersistedPinJobs() {
+  if (pinJobsLoaded) return;
+  pinJobsLoaded = true;
+  try {
+    const filePath = getPinJobsFilePath();
+    if (!fs.existsSync(filePath)) return;
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const parsed = raw ? JSON.parse(raw) : null;
+    const jobs = Array.isArray(parsed?.jobs) ? parsed.jobs : [];
+    for (const entry of jobs) {
+      const snapshot = snapshotPinJob(entry);
+      if (!snapshot?.id || !snapshot?.target) continue;
+      pinJobs.set(snapshot.id, snapshot);
+    }
+  } catch (e) {
+    console.warn('[electron][ipfs] load pin jobs failed:', String(e?.message || e));
+  }
+}
+
+function emitPinJobUpdate(job, reason = 'update') {
+  if (!job || !job.id) return;
+  job.updatedAt = Date.now();
+  const snapshot = snapshotPinJob(job);
+  if (!snapshot) return;
+  pinJobs.set(snapshot.id, snapshot);
+  schedulePersistPinJobs(isFinalPinJobStatus(snapshot.status));
+  try {
+    pinJobEmitter.emit('update', { reason: String(reason || 'update'), job: snapshot });
+  } catch {}
+}
+
+function addPinJobListener(listener) {
+  if (typeof listener !== 'function') return () => {};
+  pinJobEmitter.on('update', listener);
+  return () => {
+    try {
+      pinJobEmitter.off('update', listener);
+    } catch {}
+  };
+}
+
+function getOrCreatePinJobRuntime(jobId) {
+  const key = String(jobId || '').trim();
+  if (!key) return null;
+  let runtime = activePinJobProcesses.get(key) || null;
+  if (!runtime) {
+    runtime = {
+      child: null,
+      stdoutBuffer: '',
+      stderrBuffer: '',
+      retryTimer: null,
+      pauseRequested: false,
+      cancelRequested: false
+    };
+    activePinJobProcesses.set(key, runtime);
+  }
+  return runtime;
+}
+
+function clearPinJobRetryTimer(jobId) {
+  const runtime = getOrCreatePinJobRuntime(jobId);
+  if (!runtime?.retryTimer) return;
+  try {
+    clearTimeout(runtime.retryTimer);
+  } catch {}
+  runtime.retryTimer = null;
+}
+
+function destroyPinJobRuntime(jobId) {
+  const runtime = activePinJobProcesses.get(String(jobId || '').trim()) || null;
+  if (!runtime) return;
+  clearPinJobRetryTimer(jobId);
+  activePinJobProcesses.delete(String(jobId || '').trim());
+}
+
+function normalizePinJobError(input) {
+  return String(input?.message || input || 'pin_failed').trim() || 'pin_failed';
+}
+
+function isRetryablePinError(input) {
+  const msg = normalizePinJobError(input).toLowerCase();
+  if (!msg) return false;
+  if (
+    msg.includes('empty cid or path') ||
+    msg.includes('cid/path too long') ||
+    msg.includes('invalid cid') ||
+    msg.includes('invalid path') ||
+    msg.includes('unknown option') ||
+    msg.includes('is already pinned recursively')
+  ) {
+    return false;
+  }
+  return (
+    msg.includes('timeout') ||
+    msg.includes('timed out') ||
+    msg.includes('connection refused') ||
+    msg.includes('connection reset') ||
+    msg.includes('headers timeout') ||
+    msg.includes('fetch failed') ||
+    msg.includes('context deadline exceeded') ||
+    msg.includes('temporarily unavailable') ||
+    msg.includes('no route to host') ||
+    msg.includes('network is unreachable') ||
+    msg.includes('stream reset') ||
+    msg.includes('eof') ||
+    msg.includes('no provider') ||
+    msg.includes('routing') ||
+    msg.includes('api endpoint') ||
+    msg.includes('daemon')
+  );
+}
+
+function parsePinProgressLine(job, line) {
+  const raw = String(line || '').trim();
+  if (!raw) return false;
+
+  let changed = false;
+  if (job.progressText !== raw) {
+    job.progressText = raw;
+    changed = true;
+  }
+
+  const pairMatch = raw.match(/(\d+)\s*\/\s*(\d+)\s+(nodes?|blocks?)/i);
+  if (pairMatch) {
+    const current = Number(pairMatch[1]);
+    const total = Number(pairMatch[2]);
+    const unit = String(pairMatch[3] || '').trim().toLowerCase();
+    if (Number.isFinite(current) && job.progressCurrent !== current) {
+      job.progressCurrent = current;
+      changed = true;
+    }
+    if (Number.isFinite(total) && total > 0 && job.progressTotal !== total) {
+      job.progressTotal = total;
+      changed = true;
+    }
+    if (unit && job.progressUnit !== unit) {
+      job.progressUnit = unit;
+      changed = true;
+    }
+    if (Number.isFinite(current) && Number.isFinite(total) && total > 0) {
+      const percent = Math.max(0, Math.min(100, (current / total) * 100));
+      if (job.progressPercent !== percent) {
+        job.progressPercent = percent;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  const singleMatch = raw.match(/Fetched\/Processed\s+(\d+)\s+(nodes?|blocks?)/i);
+  if (singleMatch) {
+    const current = Number(singleMatch[1]);
+    const unit = String(singleMatch[2] || '').trim().toLowerCase();
+    if (Number.isFinite(current) && job.progressCurrent !== current) {
+      job.progressCurrent = current;
+      changed = true;
+    }
+    if (unit && job.progressUnit !== unit) {
+      job.progressUnit = unit;
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
+function createPinJobId() {
+  return `pin-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function createPinJob(target, name) {
+  const now = Date.now();
+  return {
+    id: createPinJobId(),
+    target,
+    name,
+    status: 'queued',
+    progressText: '',
+    progressCurrent: null,
+    progressTotal: null,
+    progressPercent: null,
+    progressUnit: '',
+    pinnedCid: '',
+    error: '',
+    retryCount: 0,
+    nextRetryAt: 0,
+    createdAt: now,
+    updatedAt: now,
+    startedAt: 0,
+    completedAt: 0
+  };
+}
+
+function attachLineBuffer(stream, runtime, bufferKey, onLine) {
+  if (!stream || typeof stream.on !== 'function') return;
+  stream.setEncoding('utf8');
+  stream.on('data', (chunk) => {
+    runtime[bufferKey] = String(runtime[bufferKey] || '') + String(chunk || '');
+    const parts = runtime[bufferKey].split(/[\r\n]+/);
+    runtime[bufferKey] = parts.pop() || '';
+    for (const part of parts) {
+      const line = String(part || '').trim();
+      if (line) onLine(line);
+    }
+  });
+}
+
+function flushPinJobBuffers(job, runtime) {
+  for (const key of ['stdoutBuffer', 'stderrBuffer']) {
+    const line = String(runtime?.[key] || '').trim();
+    if (!line) continue;
+    parsePinProgressLine(job, line);
+    runtime[key] = '';
+  }
+}
+
+async function finalizePinJobSuccess(job) {
+  const check = await ipfsPinLs(job.target, 'recursive').catch(() => null);
+  const keys = check?.ok && Array.isArray(check.keys) ? check.keys : [];
+  job.pinnedCid = String(keys[0] || job.pinnedCid || '').trim();
+  job.status = 'completed';
+  job.error = '';
+  job.nextRetryAt = 0;
+  job.completedAt = Date.now();
+  if (job.progressPercent == null) job.progressPercent = 100;
+  emitPinJobUpdate(job, 'completed');
+}
+
+function schedulePinJobRetry(job, errorMessage) {
+  const runtime = getOrCreatePinJobRuntime(job.id);
+  if (!runtime) return;
+
+  clearPinJobRetryTimer(job.id);
+  job.retryCount = Number(job.retryCount || 0) + 1;
+  const delay = Math.min(
+    60_000,
+    DEFAULT_IPFS_PIN_RETRY_BASE_MS * Math.max(1, 2 ** (Math.max(0, job.retryCount - 1)))
+  );
+  job.status = 'retry_waiting';
+  job.error = normalizePinJobError(errorMessage);
+  job.nextRetryAt = Date.now() + delay;
+  emitPinJobUpdate(job, 'retry_scheduled');
+
+  runtime.retryTimer = setTimeout(() => {
+    runtime.retryTimer = null;
+    void startPinJob(job.id);
+  }, delay);
+}
+
+async function handlePinJobExit(jobId, code, signal) {
+  const job = pinJobs.get(String(jobId || '').trim()) || null;
+  const runtime = activePinJobProcesses.get(String(jobId || '').trim()) || null;
+  if (!job || !runtime) return;
+
+  flushPinJobBuffers(job, runtime);
+  const pauseRequested = !!runtime.pauseRequested;
+  const cancelRequested = !!runtime.cancelRequested;
+  runtime.child = null;
+  runtime.pauseRequested = false;
+  runtime.cancelRequested = false;
+
+  if (cancelRequested) {
+    job.status = 'cancelled';
+    job.error = 'user_cancelled';
+    job.nextRetryAt = 0;
+    job.completedAt = Date.now();
+    emitPinJobUpdate(job, 'cancelled');
+    destroyPinJobRuntime(job.id);
+    return;
+  }
+
+  if (pauseRequested) {
+    job.status = 'paused';
+    job.error = '';
+    job.nextRetryAt = 0;
+    emitPinJobUpdate(job, 'paused');
+    return;
+  }
+
+  if (Number(code) === 0) {
+    await finalizePinJobSuccess(job).catch((e) => {
+      job.status = 'failed';
+      job.error = normalizePinJobError(e);
+      job.nextRetryAt = 0;
+      job.completedAt = Date.now();
+      emitPinJobUpdate(job, 'failed');
+    });
+    destroyPinJobRuntime(job.id);
+    return;
+  }
+
+  const exitDetails = [job.error, runtime.stderrBuffer, runtime.stdoutBuffer, signal ? `signal:${signal}` : '', Number.isFinite(Number(code)) ? `code:${Number(code)}` : '']
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+    .join(' | ');
+  const errorMessage = normalizePinJobError(exitDetails || 'pin_add_failed');
+  job.error = errorMessage;
+
+  if (job.retryCount < DEFAULT_IPFS_PIN_MAX_RETRIES && isRetryablePinError(errorMessage)) {
+    schedulePinJobRetry(job, errorMessage);
+    return;
+  }
+
+  job.status = 'failed';
+  job.nextRetryAt = 0;
+  job.completedAt = Date.now();
+  emitPinJobUpdate(job, 'failed');
+  destroyPinJobRuntime(job.id);
+}
+
+async function startPinJob(jobId) {
+  loadPersistedPinJobs();
+
+  const key = String(jobId || '').trim();
+  const job = pinJobs.get(key) || null;
+  if (!job) return { ok: false, error: 'pin_job_not_found' };
+  if (isFinalPinJobStatus(job.status)) return { ok: true, job: snapshotPinJob(job) };
+
+  const runtime = getOrCreatePinJobRuntime(job.id);
+  if (!runtime) return { ok: false, error: 'pin_job_runtime_missing' };
+  if (runtime.child) return { ok: true, job: snapshotPinJob(job) };
+
+  clearPinJobRetryTimer(job.id);
+  job.status = 'running';
+  job.error = '';
+  job.nextRetryAt = 0;
+  job.startedAt = Date.now();
+  emitPinJobUpdate(job, 'started');
+
+  const bin = resolveKuboBin();
+  const repoPath = getIpfsRepoPath();
+  const args = ['pin', 'add', '--progress'];
+  if (job.name) args.push('--name', job.name);
+  args.push('--', job.target);
+
+  try {
+    const child = spawn(bin, args, {
+      env: {
+        ...process.env,
+        IPFS_PATH: repoPath,
+        IPFS_ALLOW_BIG_BLOCK: '1'
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+      detached: false
+    });
+    runtime.child = child;
+    runtime.stdoutBuffer = '';
+    runtime.stderrBuffer = '';
+
+    attachLineBuffer(child.stdout, runtime, 'stdoutBuffer', (line) => {
+      if (parsePinProgressLine(job, line)) emitPinJobUpdate(job, 'progress');
+    });
+    attachLineBuffer(child.stderr, runtime, 'stderrBuffer', (line) => {
+      job.error = String(line || '').trim();
+      const changed = parsePinProgressLine(job, line);
+      emitPinJobUpdate(job, changed ? 'progress' : 'log');
+    });
+
+    child.on('error', (err) => {
+      job.error = normalizePinJobError(err);
+    });
+    child.on('exit', (code, signal) => {
+      void handlePinJobExit(job.id, code, signal);
+    });
+    return { ok: true, job: snapshotPinJob(job) };
+  } catch (e) {
+    job.error = normalizePinJobError(e);
+    if (job.retryCount < DEFAULT_IPFS_PIN_MAX_RETRIES && isRetryablePinError(job.error)) {
+      schedulePinJobRetry(job, job.error);
+      return { ok: true, job: snapshotPinJob(job) };
+    }
+    job.status = 'failed';
+    job.completedAt = Date.now();
+    emitPinJobUpdate(job, 'failed');
+    destroyPinJobRuntime(job.id);
+    return { ok: false, error: job.error, job: snapshotPinJob(job) };
+  }
+}
+
+function scheduleResumePersistedPinJobs() {
+  if (pinJobsResumeScheduled) return;
+  pinJobsResumeScheduled = true;
+  setTimeout(() => {
+    loadPersistedPinJobs();
+    for (const job of pinJobs.values()) {
+      if (!job?.id || isFinalPinJobStatus(job.status) || job.status === 'paused') continue;
+      job.status = 'queued';
+      job.error = '';
+      job.nextRetryAt = 0;
+      emitPinJobUpdate(job, 'restored');
+      void startPinJob(job.id);
+    }
+  }, 4_000);
+}
+
+function getPinJob(jobId) {
+  loadPersistedPinJobs();
+  const key = String(jobId || '').trim();
+  return snapshotPinJob(pinJobs.get(key) || null);
+}
+
+function listPinJobs() {
+  loadPersistedPinJobs();
+  return Array.from(pinJobs.values())
+    .map((job) => snapshotPinJob(job))
+    .filter(Boolean)
+    .sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+}
+
+async function startManagedPinJob(input) {
+  loadPersistedPinJobs();
+
+  const target = sanitizeCidOrPath(input?.cidOrPath ?? input?.target ?? input);
+  const name = sanitizePinJobName(input?.name || '');
+  const existing = Array.from(pinJobs.values()).find(
+    (job) =>
+      String(job?.target || '').trim() === target &&
+      !isFinalPinJobStatus(job?.status) &&
+      String(job?.status || '').trim().toLowerCase() !== 'cancelled'
+  );
+  if (existing) {
+    if (String(existing.status || '').trim().toLowerCase() === 'paused') {
+      await startPinJob(existing.id);
+    }
+    return { ok: true, reused: true, job: snapshotPinJob(existing) };
+  }
+
+  const job = createPinJob(target, name);
+  pinJobs.set(job.id, job);
+  emitPinJobUpdate(job, 'created');
+  const res = await startPinJob(job.id);
+  return { ok: !!res?.ok, reused: false, job: snapshotPinJob(pinJobs.get(job.id) || job), error: res?.error };
+}
+
+async function pauseManagedPinJob(jobId) {
+  loadPersistedPinJobs();
+  const key = String(jobId || '').trim();
+  const job = pinJobs.get(key) || null;
+  if (!job) return { ok: false, error: 'pin_job_not_found' };
+  if (isFinalPinJobStatus(job.status)) return { ok: false, error: 'pin_job_finished', job: snapshotPinJob(job) };
+
+  const runtime = getOrCreatePinJobRuntime(key);
+  if (!runtime) return { ok: false, error: 'pin_job_runtime_missing' };
+
+  if (runtime.retryTimer) {
+    clearPinJobRetryTimer(key);
+    job.status = 'paused';
+    job.nextRetryAt = 0;
+    emitPinJobUpdate(job, 'paused');
+    return { ok: true, job: snapshotPinJob(job) };
+  }
+
+  if (runtime.child) {
+    runtime.pauseRequested = true;
+    try {
+      runtime.child.kill();
+    } catch (e) {
+      return { ok: false, error: normalizePinJobError(e), job: snapshotPinJob(job) };
+    }
+    return { ok: true, job: snapshotPinJob(job) };
+  }
+
+  job.status = 'paused';
+  job.nextRetryAt = 0;
+  emitPinJobUpdate(job, 'paused');
+  return { ok: true, job: snapshotPinJob(job) };
+}
+
+async function resumeManagedPinJob(jobId) {
+  loadPersistedPinJobs();
+  const key = String(jobId || '').trim();
+  const job = pinJobs.get(key) || null;
+  if (!job) return { ok: false, error: 'pin_job_not_found' };
+  if (String(job.status || '').trim().toLowerCase() === 'completed') {
+    return { ok: false, error: 'pin_job_finished', job: snapshotPinJob(job) };
+  }
+  if (String(job.status || '').trim().toLowerCase() === 'cancelled') {
+    return { ok: false, error: 'pin_job_cancelled', job: snapshotPinJob(job) };
+  }
+  job.status = 'queued';
+  job.error = '';
+  job.nextRetryAt = 0;
+  job.completedAt = 0;
+  emitPinJobUpdate(job, 'queued');
+  const res = await startPinJob(key);
+  return { ok: !!res?.ok, error: res?.error, job: snapshotPinJob(pinJobs.get(key) || job) };
+}
+
+async function cancelManagedPinJob(jobId) {
+  loadPersistedPinJobs();
+  const key = String(jobId || '').trim();
+  const job = pinJobs.get(key) || null;
+  if (!job) return { ok: false, error: 'pin_job_not_found' };
+  if (isFinalPinJobStatus(job.status)) return { ok: true, job: snapshotPinJob(job) };
+
+  const runtime = getOrCreatePinJobRuntime(key);
+  if (runtime?.retryTimer) {
+    clearPinJobRetryTimer(key);
+  }
+
+  if (runtime?.child) {
+    runtime.cancelRequested = true;
+    try {
+      runtime.child.kill();
+    } catch (e) {
+      return { ok: false, error: normalizePinJobError(e), job: snapshotPinJob(job) };
+    }
+    return { ok: true, job: snapshotPinJob(job) };
+  }
+
+  job.status = 'cancelled';
+  job.error = 'user_cancelled';
+  job.nextRetryAt = 0;
+  job.completedAt = Date.now();
+  emitPinJobUpdate(job, 'cancelled');
+  destroyPinJobRuntime(key);
+  return { ok: true, job: snapshotPinJob(job) };
+}
+
+async function waitForManagedPinJob(jobId, timeoutMs = 0) {
+  loadPersistedPinJobs();
+  const key = String(jobId || '').trim();
+  const current = pinJobs.get(key) || null;
+  if (!current) return { ok: false, error: 'pin_job_not_found' };
+  if (isFinalPinJobStatus(current.status)) {
+    return {
+      ok: String(current.status) === 'completed',
+      cancelled: String(current.status) === 'cancelled',
+      error: String(current.error || ''),
+      job: snapshotPinJob(current)
+    };
+  }
+
+  return await new Promise((resolve) => {
+    const cleanup = [];
+    const finish = (payload) => {
+      for (const fn of cleanup) {
+        try { fn(); } catch {}
+      }
+      resolve(payload);
+    };
+
+    const handler = (payload) => {
+      const job = payload?.job || null;
+      if (!job || String(job.id || '') !== key) return;
+      if (!isFinalPinJobStatus(job.status)) return;
+      finish({
+        ok: String(job.status) === 'completed',
+        cancelled: String(job.status) === 'cancelled',
+        error: String(job.error || ''),
+        job
+      });
+    };
+    pinJobEmitter.on('update', handler);
+    cleanup.push(() => pinJobEmitter.off('update', handler));
+
+    if (Number(timeoutMs) > 0) {
+      const timer = setTimeout(() => {
+        finish({ ok: false, error: 'pin_wait_timeout', job: getPinJob(key) });
+      }, Math.floor(Number(timeoutMs)));
+      cleanup.push(() => clearTimeout(timer));
+    }
+  });
 }
 
 function getIpfsConnectivityMode() {
@@ -333,6 +1039,7 @@ function startIpfsDaemon() {
       console.log('[electron][ipfs] daemon exited');
       ipfsProcess = null;
     });
+    scheduleResumePersistedPinJobs();
   } catch (e) {
     console.error('[electron][ipfs] failed to spawn daemon:', e);
     ipfsProcess = null;
@@ -2029,15 +2736,18 @@ async function ipfsPinAdd(cidOrPath) {
     const url = new URL(`${ipfsApiBase()}/api/v0/pin/add`);
     url.searchParams.set('arg', arg);
     url.searchParams.set('recursive', 'true');
-    const res = await fetch(url.toString(), { method: 'POST' });
+    const res = await requestTextViaNodeHttp(url.toString(), {
+      method: 'POST',
+      timeoutMs: DEFAULT_IPFS_PIN_ADD_TIMEOUT_MS
+    });
 
     if (!res.ok) {
-      const errText = await res.text().catch(() => '');
+      const errText = String(res.text || '').trim();
       console.warn('[electron][ipfs] pin add failed:', res.status, errText);
       return { ok: false, error: 'http_' + res.status };
     }
 
-    const bodyText = await res.text().catch(() => '');
+    const bodyText = String(res.text || '');
     let pins = [];
     try {
       const json = JSON.parse(bodyText || 'null');
@@ -2072,7 +2782,11 @@ async function ipfsPinAdd(cidOrPath) {
     return pins.length ? { ok: true, pins, pinnedCid: pins[0] } : { ok: true };
   } catch (e) {
     console.error('[electron][ipfs] pin add error:', e);
-    return { ok: false, error: String(e?.message || e) };
+    const msg = String(e?.message || e);
+    if (/ipfs_request_timeout_\d+ms/i.test(msg)) {
+      return { ok: false, error: 'pin_add_timeout' };
+    }
+    return { ok: false, error: msg };
   }
 }
 
@@ -2374,6 +3088,14 @@ module.exports = {
   ipfsPinList,
   ipfsPinLs,
   ipfsPinAdd,
+  startManagedPinJob,
+  pauseManagedPinJob,
+  resumeManagedPinJob,
+  cancelManagedPinJob,
+  waitForManagedPinJob,
+  getPinJob,
+  listPinJobs,
+  addPinJobListener,
   ipfsPinRm,
   ipfsObjectStat,
   ipfsUnpin,

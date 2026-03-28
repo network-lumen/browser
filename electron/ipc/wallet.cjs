@@ -89,6 +89,42 @@ async function connectSigningClientWithFailover(mod, signer, connectArgs, { time
   throw lastErr || new Error('connect_failed');
 }
 
+function isNativeLumenSigningTarget({ chainId, address, feeDenom } = {}) {
+  const cid = String(chainId || '').trim().toLowerCase();
+  if (cid.includes('lumen')) return true;
+
+  const prefix = normalizeBech32Prefix(prefixFromAddress(address), '');
+  if (prefix === 'lmn') return true;
+
+  const fee = String(feeDenom || '').trim().toLowerCase();
+  if (fee === 'ulmn' || fee === 'ulumen') return true;
+
+  return false;
+}
+
+async function connectStandardSigningClient(endpoint, signer, { timeoutMs = 15_000 } = {}) {
+  const rpcEndpoint = String(endpoint || '').trim();
+  if (!rpcEndpoint) throw new Error('missing_rpc_endpoint');
+
+  const { SigningStargateClient } = require('@cosmjs/stargate');
+  const connectPromise = SigningStargateClient.connectWithSigner(rpcEndpoint, signer);
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`Connection timeout after ${timeoutMs}ms`)), timeoutMs)
+  );
+  return await Promise.race([connectPromise, timeoutPromise]);
+}
+
+async function signAndBroadcastStandard({ client, address, msgs, fee, memo }) {
+  const res = await client.signAndBroadcast(address, msgs, fee, memo);
+  if (res && typeof res.code === 'number' && res.code !== 0) {
+    const raw = res.rawLog || `broadcast failed (code ${res.code})`;
+    const err = new Error(String(raw));
+    err.txhash = res.transactionHash || res.txhash || res.hash || '';
+    throw err;
+  }
+  return res;
+}
+
 function broadcastPqcLinked(payload) {
   try {
     const wins =
@@ -1089,8 +1125,18 @@ function registerWalletIpc() {
 
       const prefix = prefixFromAddress(from);
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+      const useRemoteStandardClient =
+        !!rpcEndpoint &&
+        !isNativeLumenSigningTarget({
+          chainId,
+          address: from,
+          feeDenom
+        });
+
       let client;
-      if (rpcEndpoint) {
+      if (useRemoteStandardClient) {
+        client = await connectStandardSigningClient(rpcEndpoint, signer, { timeoutMs: 15_000 });
+      } else if (rpcEndpoint) {
         const endpoints = {
           rpc: rpcEndpoint,
           rest: restEndpoint || rpcEndpoint,
@@ -1126,7 +1172,7 @@ function registerWalletIpc() {
 
       let cleanupPqc = null;
       const effectivePassword = password || getSessionPassword();
-      if (arePqcKeysEncrypted()) {
+      if (!useRemoteStandardClient && arePqcKeysEncrypted()) {
         if (!effectivePassword) {
           return { ok: false, error: 'password_required' };
         }
@@ -1158,16 +1204,24 @@ function registerWalletIpc() {
           amount: [{ denom: feeDenom, amount: feeAmount }],
           gas: feeGas
         };
-        const res = await signAndBroadcastWithPqcAutoLink({
-          bridgeMod: mod,
-          client,
-          profileId,
-          address: from,
-          msgs: [msg],
-          fee,
-          memo,
-          label: 'wallet_ibcTransfer',
-        });
+        const res = useRemoteStandardClient
+          ? await signAndBroadcastStandard({
+              client,
+              address: from,
+              msgs: [msg],
+              fee,
+              memo
+            })
+          : await signAndBroadcastWithPqcAutoLink({
+              bridgeMod: mod,
+              client,
+              profileId,
+              address: from,
+              msgs: [msg],
+              fee,
+              memo,
+              label: 'wallet_ibcTransfer',
+            });
 
         const txhash = res.transactionHash || res.hash || '';
         return { ok: true, txhash };

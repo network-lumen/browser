@@ -273,19 +273,45 @@
             <div v-if="saveModalError" class="modal-error">
               {{ saveModalError }}
             </div>
+
+            <div v-if="savePinJobId" class="pin-progress-card">
+              <div class="pin-progress-head">
+                <span class="pin-progress-status">{{ savePinStatusLabel }}</span>
+                <span v-if="savePinProgressCounter" class="pin-progress-counter">{{ savePinProgressCounter }}</span>
+              </div>
+              <div class="pin-progress-track">
+                <div
+                  class="pin-progress-fill"
+                  :class="{ indeterminate: savePinProgressPercent == null && savePinIsRunning }"
+                  :style="{ width: savePinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, savePinProgressPercent))}%` }"
+                ></div>
+              </div>
+              <div class="pin-progress-text">
+                {{ savePinProgressText || (savePinIsRunning ? "Saving content from the network…" : "Waiting for action.") }}
+              </div>
+            </div>
           </div>
 
           <footer class="modal-actions">
-            <button class="btn-secondary" type="button" @click="closeSaveModal">
+            <button class="btn-secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
               Cancel
+            </button>
+            <button v-if="savePinCanPause" class="btn-secondary" type="button" @click="pauseSavePinJob">
+              Pause
+            </button>
+            <button v-if="savePinCanResume" class="btn-secondary" type="button" @click="resumeSavePinJob">
+              Resume
+            </button>
+            <button v-if="savePinCanStop" class="btn-danger" type="button" @click="cancelSavePinJob">
+              Stop
             </button>
             <button
               class="btn-primary"
               type="button"
-              :disabled="savePreparing || saving"
+              :disabled="savePreparing || savePinIsRunning"
               @click="confirmSaveToDrive"
             >
-              {{ saving ? "Saving..." : "Save" }}
+              {{ savePinJobId ? (savePinCanResume ? "Resume save" : (savePinIsRunning ? "Saving..." : "Save")) : (saving ? "Saving..." : "Save") }}
             </button>
           </footer>
         </div>
@@ -443,11 +469,95 @@ const saveNameDraft = ref("");
 const saveModalError = ref("");
 const savePreparing = ref(false);
 const saveTargetCid = ref("");
+const savePinJobId = ref("");
+const savePinJobStatus = ref("");
+const savePinProgressText = ref("");
+const savePinProgressCurrent = ref<number | null>(null);
+const savePinProgressTotal = ref<number | null>(null);
+const savePinProgressPercent = ref<number | null>(null);
+const savePinProgressUnit = ref("");
+const savePinWaitJobId = ref("");
+let stopPinProgressListener: null | (() => void) = null;
 
 const saveNamePlaceholder = computed(() => {
   const name = inferDefaultName();
   return name || "Enter a name";
 });
+
+const savePinIsRunning = computed(() =>
+  ["queued", "running", "retry_waiting"].includes(String(savePinJobStatus.value || "").trim().toLowerCase()),
+);
+const savePinCanPause = computed(() => !!savePinJobId.value && savePinIsRunning.value);
+const savePinCanResume = computed(() =>
+  !!savePinJobId.value &&
+  ["paused", "failed"].includes(String(savePinJobStatus.value || "").trim().toLowerCase()),
+);
+const savePinCanStop = computed(() =>
+  !!savePinJobId.value &&
+  !["completed", "cancelled"].includes(String(savePinJobStatus.value || "").trim().toLowerCase()),
+);
+const savePinStatusLabel = computed(() => {
+  const status = String(savePinJobStatus.value || "").trim().toLowerCase();
+  if (status === "queued") return "Queued";
+  if (status === "running") return "Saving";
+  if (status === "retry_waiting") return "Retrying";
+  if (status === "paused") return "Paused";
+  if (status === "failed") return "Failed";
+  if (status === "completed") return "Completed";
+  if (status === "cancelled") return "Stopped";
+  return saving.value ? "Saving" : "Idle";
+});
+const savePinProgressCounter = computed(() => {
+  const current =
+    savePinProgressCurrent.value != null && Number.isFinite(savePinProgressCurrent.value)
+      ? String(savePinProgressCurrent.value)
+      : "";
+  const total =
+    savePinProgressTotal.value != null && Number.isFinite(savePinProgressTotal.value)
+      ? String(savePinProgressTotal.value)
+      : "";
+  const unit = String(savePinProgressUnit.value || "").trim();
+  if (current && total) return `${current}/${total}${unit ? ` ${unit}` : ""}`;
+  if (current) return `${current}${unit ? ` ${unit}` : ""}`;
+  if (savePinProgressPercent.value != null && Number.isFinite(savePinProgressPercent.value)) {
+    return `${savePinProgressPercent.value.toFixed(0)}%`;
+  }
+  return "";
+});
+
+function clearSavePinJobState() {
+  savePinJobId.value = "";
+  savePinJobStatus.value = "";
+  savePinProgressText.value = "";
+  savePinProgressCurrent.value = null;
+  savePinProgressTotal.value = null;
+  savePinProgressPercent.value = null;
+  savePinProgressUnit.value = "";
+  savePinWaitJobId.value = "";
+}
+
+function applySavePinJobSnapshot(job: any) {
+  if (!job || typeof job !== "object") return;
+  savePinJobId.value = String(job.id || "").trim();
+  savePinJobStatus.value = String(job.status || "").trim();
+  savePinProgressText.value = String(job.progressText || "").trim();
+  savePinProgressCurrent.value =
+    job.progressCurrent == null || !Number.isFinite(Number(job.progressCurrent))
+      ? null
+      : Number(job.progressCurrent);
+  savePinProgressTotal.value =
+    job.progressTotal == null || !Number.isFinite(Number(job.progressTotal))
+      ? null
+      : Number(job.progressTotal);
+  savePinProgressPercent.value =
+    job.progressPercent == null || !Number.isFinite(Number(job.progressPercent))
+      ? null
+      : Number(job.progressPercent);
+  savePinProgressUnit.value = String(job.progressUnit || "").trim();
+  saving.value = ["queued", "running", "retry_waiting"].includes(
+    String(job.status || "").trim().toLowerCase(),
+  );
+}
 
 type DriveSavedFile = {
   cid: string;
@@ -2136,6 +2246,7 @@ async function openSaveModal() {
   saveModalError.value = "";
   saveTargetCid.value = "";
   saveNameDraft.value = inferDefaultName();
+  clearSavePinJobState();
 
   savePreparing.value = true;
   try {
@@ -2149,15 +2260,52 @@ async function openSaveModal() {
 }
 
 function closeSaveModal() {
-  if (saving.value) return;
+  if (savePinIsRunning.value) return;
   showSaveModal.value = false;
   savePreparing.value = false;
   saveTargetCid.value = "";
   saveModalError.value = "";
 }
 
+async function waitForSavePinCompletion(jobId: string, cid: string, name: string) {
+  const api: any = (window as any).lumen;
+  const id = String(jobId || "").trim();
+  if (!id || savePinWaitJobId.value === id) return;
+  savePinWaitJobId.value = id;
+  try {
+    const res = await api?.ipfsPinWait?.(id, { timeoutMs: 0 });
+    if (savePinWaitJobId.value !== id) return;
+    if (res?.job) applySavePinJobSnapshot(res.job);
+
+    if (res?.ok) {
+      upsertDriveSavedFile(cid, name);
+      setDriveSavedName(cid, name);
+      savedCid.value = cid;
+      saved.value = true;
+      showSaveModal.value = false;
+      return;
+    }
+
+    if (res?.cancelled || String(res?.error || "").trim().toLowerCase() === "user_cancelled") {
+      saveModalError.value = "Save cancelled.";
+      saving.value = false;
+      return;
+    }
+
+    error.value = String(res?.error || "save_failed");
+    saveModalError.value = error.value;
+    saving.value = false;
+  } catch (e: any) {
+    error.value = String(e?.message || e);
+    saveModalError.value = error.value;
+    saving.value = false;
+  } finally {
+    if (savePinWaitJobId.value === id) savePinWaitJobId.value = "";
+  }
+}
+
 async function confirmSaveToDrive() {
-  if (!rootCid.value || saving.value) return;
+  if (!rootCid.value || savePinIsRunning.value) return;
   const name = String(saveNameDraft.value || "").trim();
   if (!name) {
     saveModalError.value = "Please enter a name.";
@@ -2167,19 +2315,47 @@ async function confirmSaveToDrive() {
   saving.value = true;
   try {
     const cid = saveTargetCid.value || (await resolveSaveTargetCid());
-    const ok = await (window as any).lumen?.ipfsPinAdd?.(cid).catch(() => null);
-    if (!ok?.ok) throw new Error(String(ok?.error || "save_failed"));
-    upsertDriveSavedFile(cid, name);
-    setDriveSavedName(cid, name);
-    savedCid.value = cid;
-    saved.value = true;
-    showSaveModal.value = false;
+    const api: any = (window as any).lumen;
+    const started = await api?.ipfsPinStart?.({ cidOrPath: cid, name }).catch(() => null);
+    if (!started?.ok || !started?.job?.id) {
+      throw new Error(String(started?.error || "save_failed"));
+    }
+    applySavePinJobSnapshot(started.job);
+    void waitForSavePinCompletion(String(started.job.id || ""), cid, name);
   } catch (e: any) {
     error.value = String(e?.message || e);
     saveModalError.value = error.value;
-  } finally {
     saving.value = false;
   }
+}
+
+async function pauseSavePinJob() {
+  const api: any = (window as any).lumen;
+  if (!savePinJobId.value || !api?.ipfsPinPause) return;
+  const res = await api.ipfsPinPause(savePinJobId.value).catch(() => null);
+  if (res?.job) applySavePinJobSnapshot(res.job);
+}
+
+async function resumeSavePinJob() {
+  const api: any = (window as any).lumen;
+  if (!savePinJobId.value || !api?.ipfsPinResume) return;
+  saveModalError.value = "";
+  const res = await api.ipfsPinResume(savePinJobId.value).catch(() => null);
+  if (res?.job) {
+    applySavePinJobSnapshot(res.job);
+    const cid = saveTargetCid.value || (await resolveSaveTargetCid().catch(() => ""));
+    const name = String(saveNameDraft.value || "").trim();
+    if (cid && name) void waitForSavePinCompletion(String(res.job.id || ""), cid, name);
+    return;
+  }
+  if (res?.error) saveModalError.value = String(res.error);
+}
+
+async function cancelSavePinJob() {
+  const api: any = (window as any).lumen;
+  if (!savePinJobId.value || !api?.ipfsPinCancel) return;
+  const res = await api.ipfsPinCancel(savePinJobId.value).catch(() => null);
+  if (res?.job) applySavePinJobSnapshot(res.job);
 }
 
 async function refreshSavedState() {
@@ -2284,6 +2460,18 @@ onMounted(() => {
   attachSiteMsgListener();
   startUrlWatch();
   void nextTick(() => registerFindTargetWithRetry());
+  try {
+    const api: any = (window as any).lumen;
+    if (api?.ipfsOnPinProgress) {
+      stopPinProgressListener = api.ipfsOnPinProgress((payload: any) => {
+        const job = payload?.job || null;
+        if (!job || String(job.id || "") !== String(savePinJobId.value || "")) return;
+        applySavePinJobSnapshot(job);
+      });
+    }
+  } catch {
+    // ignore
+  }
 });
 onActivated(() => {
   pageActive.value = true;
@@ -2316,6 +2504,12 @@ onBeforeUnmount(() => {
   } catch {
     // ignore
   }
+  try {
+    stopPinProgressListener?.();
+  } catch {
+    // ignore
+  }
+  stopPinProgressListener = null;
 });
 
 watch(
@@ -2493,7 +2687,8 @@ watch(
 }
 
 .btn-secondary,
-.btn-primary {
+.btn-primary,
+.btn-danger {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 0.65rem 0.9rem;
@@ -2518,10 +2713,73 @@ watch(
   color: white;
 }
 
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--ios-red);
+}
+
 .btn-primary:disabled,
-.btn-secondary:disabled {
+.btn-secondary:disabled,
+.btn-danger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.pin-progress-card {
+  margin-top: 0.9rem;
+  border: 1px solid rgba(var(--accent-primary-rgb, 59, 130, 246), 0.18);
+  background: rgba(var(--accent-primary-rgb, 59, 130, 246), 0.08);
+  border-radius: 12px;
+  padding: 0.85rem 0.9rem;
+}
+
+.pin-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.pin-progress-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pin-progress-counter {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.pin-progress-track {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.pin-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gradient-primary);
+  transition: width 0.2s ease;
+}
+
+.pin-progress-fill.indeterminate {
+  width: 42% !important;
+  animation: pin-progress-slide 1.2s ease-in-out infinite;
+}
+
+.pin-progress-text {
+  margin-top: 0.55rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  word-break: break-word;
 }
 
 .main-content {
@@ -2530,6 +2788,15 @@ watch(
   flex-direction: column;
   padding: 1.5rem;
   overflow: auto;
+}
+
+@keyframes pin-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
 }
 
 .content-header {

@@ -134,7 +134,7 @@ try {
   }
 } catch {}
 
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
@@ -181,6 +181,21 @@ function safeString(v, maxLen = 2048) {
   if (!s) return '';
   return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
+
+function broadcastPinJobUpdate(payload) {
+  try {
+    const wins = typeof BrowserWindow.getAllWindows === 'function' ? BrowserWindow.getAllWindows() : [];
+    for (const win of wins) {
+      try {
+        win?.webContents?.send?.('ipfs:pinProgress', payload || {});
+      } catch {}
+    }
+  } catch {}
+}
+
+addPinJobListener((payload) => {
+  broadcastPinJobUpdate(payload);
+});
 
 const LUMEN_SESSION_PARTITION = 'persist:lumen';
 const LUMEN_SESSION_PRELOAD_ID = 'lumen-extension-preload';
@@ -934,9 +949,58 @@ ipcMain.handle('ipfs:pinList', async () => {
   return ipfsPinList();
 });
 
+ipcMain.handle('ipfs:pinStart', async (_evt, input) => {
+  console.log('[electron][ipc] ipfs:pinStart requested:', input);
+  return startManagedPinJob(input || {});
+});
+
+ipcMain.handle('ipfs:pinPause', async (_evt, jobId) => {
+  return pauseManagedPinJob(jobId);
+});
+
+ipcMain.handle('ipfs:pinResume', async (_evt, jobId) => {
+  return resumeManagedPinJob(jobId);
+});
+
+ipcMain.handle('ipfs:pinCancel', async (_evt, jobId) => {
+  return cancelManagedPinJob(jobId);
+});
+
+ipcMain.handle('ipfs:pinWait', async (_evt, jobId, options) => {
+  const timeoutMs = Number(options?.timeoutMs || 0) || 0;
+  return waitForManagedPinJob(jobId, timeoutMs);
+});
+
+ipcMain.handle('ipfs:pinGet', async (_evt, jobId) => {
+  const job = getPinJob(jobId);
+  return job ? { ok: true, job } : { ok: false, error: 'pin_job_not_found' };
+});
+
+ipcMain.handle('ipfs:pinJobs', async () => {
+  return { ok: true, jobs: listPinJobs() };
+});
+
 ipcMain.handle('ipfs:pinAdd', async (_evt, cidOrPath) => {
   console.log('[electron][ipc] ipfs:pinAdd requested:', cidOrPath);
-  return ipfsPinAdd(cidOrPath);
+  const started = await startManagedPinJob({ cidOrPath });
+  if (!started?.ok || !started?.job?.id) return started || { ok: false, error: 'pin_start_failed' };
+  const waited = await waitForManagedPinJob(started.job.id);
+  if (!waited?.ok) {
+    return {
+      ok: false,
+      cancelled: !!waited?.cancelled,
+      error: String(waited?.error || 'pin_failed'),
+      job: waited?.job || started.job
+    };
+  }
+  const job = waited.job || started.job;
+  const pins = job?.pinnedCid ? [String(job.pinnedCid)] : [];
+  return {
+    ok: true,
+    pins,
+    pinnedCid: String(job?.pinnedCid || pins[0] || '').trim(),
+    job
+  };
 });
 
 ipcMain.handle('ipfs:unpin', async (_evt, cid) => {
