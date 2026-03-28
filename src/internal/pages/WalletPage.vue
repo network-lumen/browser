@@ -270,7 +270,7 @@
                 class="dex-summary-btn"
                 @click="toggleDexExpanded(dex.key)"
               >
-                <div class="dex-logo">
+                <div class="dex-logo" :class="{ 'dex-logo-dark': dex.logoTheme === 'dark' }">
                   <img
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
@@ -311,7 +311,7 @@
                   <button
                     type="button"
                     class="action-btn primary dex-open-btn"
-                    @click="openDexTab(dex.baseUrl)"
+                    @click="openDexTab(dex.openUrl || dex.baseUrl)"
                   >
                     <ExternalLink :size="16" />
                     <span>Open DEX</span>
@@ -1313,7 +1313,9 @@ type DexListingConfig = {
   chainLabel: string;
   restEndpoint: string;
   baseUrl: string;
+  openUrl?: string;
   logoUrl: string;
+  logoTheme?: 'default' | 'dark';
   iconText: string;
   description: string;
   fallbackLinks: DexQuickLink[];
@@ -1335,6 +1337,16 @@ type DexRow = DexListingConfig & {
 };
 
 const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
+  'beezee-1': {
+    label: 'BeeZee',
+    addressPrefix: 'bze',
+    restEndpoint: 'https://rest.getbze.com',
+    rpcEndpoint: 'https://rpc.getbze.com',
+    nativeDenom: 'ubze',
+    feeDenom: 'ubze',
+    iconText: 'BZE',
+    chainRegistryName: 'beezee'
+  },
   'bzetestnet-3': {
     label: 'BeeZee Testnet',
     addressPrefix: 'bze',
@@ -1349,19 +1361,21 @@ const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
 
 const DEX_LISTINGS: DexListingConfig[] = [
   {
-    key: 'beezee-testnet',
+    key: 'beezee',
     name: 'BeeZee DEX',
-    chainId: 'bzetestnet-3',
-    chainLabel: 'BeeZee Testnet',
-    restEndpoint: 'https://testnet.getbze.com',
-    baseUrl: 'https://testnet-dex.getbze.com/',
-    logoUrl: 'https://testnet-dex.getbze.com/images/beezee_light.svg',
+    chainId: 'beezee-1',
+    chainLabel: 'BeeZee',
+    restEndpoint: 'https://rest.getbze.com',
+    baseUrl: 'https://dex.getbze.com/',
+    openUrl: 'https://dex.getbze.com/',
+    logoUrl: 'https://dex.getbze.com/images/beezee_light.svg',
+    logoTheme: 'dark',
     iconText: 'BZE',
-    description: 'Browse testnet markets and pools before jumping into the BeeZee DEX.',
+    description: 'Browse mainnet markets and pools before jumping into the BeeZee DEX.',
     fallbackLinks: [
-      { label: 'Swap', url: 'https://testnet-dex.getbze.com/' },
-      { label: 'Exchange', url: 'https://testnet-dex.getbze.com/exchange' },
-      { label: 'Pools', url: 'https://testnet-dex.getbze.com/pools' },
+      { label: 'Swap', url: 'https://dex.getbze.com/' },
+      { label: 'Exchange', url: 'https://dex.getbze.com/exchange' },
+      { label: 'Pools', url: 'https://dex.getbze.com/pools' },
       { label: 'Staking', url: 'https://staking.getbze.com/' },
       { label: 'Website', url: 'https://getbze.com/' }
     ]
@@ -2646,7 +2660,7 @@ function getDexDenomLabel(denom: string): string {
   if (!raw) return '';
 
   const lower = raw.toLowerCase();
-  if (lower === 'ubze') return 'TBZE';
+  if (lower === 'ubze') return 'BZE';
   if (lower === 'ibc/9da252f9f9c86132cc282ea431dfb7de7729501f6dc9a3e0f50ec8c6ee380cc7') return 'LMN';
   if (lower.endsWith('/testusd')) return 'TUSDC';
 
@@ -4853,6 +4867,11 @@ function exportTransactions() {
   flex-shrink: 0;
   font-size: 0.95rem;
   font-weight: 700;
+}
+
+.dex-logo-dark {
+  background: #111827;
+  border-color: rgba(17, 24, 39, 0.65);
 }
 
 .dex-logo-image {
