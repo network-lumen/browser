@@ -11,6 +11,29 @@ export type Profile = {
   favourites?: Record<string, string>;
 };
 
+type ManualProfileSourceResult = {
+  ok: boolean;
+  name?: string;
+  mnemonic?: string;
+  pqcPublicKey?: string;
+  pqcPrivateKey?: string;
+  fileName?: string;
+  sourcePath?: string;
+  hasPqc?: boolean;
+  error?: string;
+};
+
+type ManualPqcSourceResult = {
+  ok: boolean;
+  pqcPublicKey?: string;
+  pqcPrivateKey?: string;
+  fileName?: string;
+  sourcePath?: string;
+  scheme?: string;
+  createdAt?: string;
+  error?: string;
+};
+
 declare global {
   interface Window {
     lumen?: {
@@ -55,6 +78,8 @@ declare global {
             }
           | null
         >;
+        pickManualProfileSource?: () => Promise<ManualProfileSourceResult | null>;
+        pickManualPqcSource?: () => Promise<ManualPqcSourceResult | null>;
         importManual?: (payload: {
           name: string;
           mnemonic: string;
@@ -336,6 +361,34 @@ export async function importProfileManually(payload: {
     if (res.ok === false) return res as any;
     await initProfiles();
     return res as any;
+  } catch {
+    return { ok: false, error: 'backup_failed' };
+  }
+}
+
+export async function pickManualProfileSource(): Promise<ManualProfileSourceResult> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.pickManualProfileSource !== 'function') {
+      return { ok: false, error: 'backup_api_unavailable' };
+    }
+    const res = await api.pickManualProfileSource();
+    if (!res) return { ok: false, error: 'backup_failed' };
+    return res;
+  } catch {
+    return { ok: false, error: 'backup_failed' };
+  }
+}
+
+export async function pickManualPqcSource(): Promise<ManualPqcSourceResult> {
+  try {
+    const api = getApi();
+    if (!api || typeof api.pickManualPqcSource !== 'function') {
+      return { ok: false, error: 'backup_api_unavailable' };
+    }
+    const res = await api.pickManualPqcSource();
+    if (!res) return { ok: false, error: 'backup_failed' };
+    return res;
   } catch {
     return { ok: false, error: 'backup_failed' };
   }

@@ -380,11 +380,42 @@
 
           <div v-if="importMode === 'file'" class="import-mode-panel">
             <p class="import-mode-copy">
-              Keep the current workflow and select a profile backup file or folder.
+              Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
 
           <div v-else class="import-mode-panel">
+            <div class="import-manual-actions">
+              <UiButton
+                variant="none"
+                class="import-source-btn"
+                :disabled="importBusy"
+                @click="loadManualProfileSourceIntoForm"
+              >
+                Load profile backup…
+              </UiButton>
+              <UiButton
+                variant="none"
+                class="import-source-btn"
+                :disabled="importBusy"
+                @click="loadManualPqcSourceIntoForm"
+              >
+                Load Dilithium backup…
+              </UiButton>
+            </div>
+
+            <div
+              v-if="manualImportProfileSourceName || manualImportPqcSourceName"
+              class="import-source-summary"
+            >
+              <div v-if="manualImportProfileSourceName" class="import-source-line">
+                Profile source: {{ manualImportProfileSourceName }}
+              </div>
+              <div v-if="manualImportPqcSourceName" class="import-source-line">
+                Dilithium source: {{ manualImportPqcSourceName }}
+              </div>
+            </div>
+
             <div class="export-password-fields">
               <div class="export-field">
                 <label>Profile Name</label>
@@ -426,6 +457,10 @@
                 ></textarea>
               </div>
             </div>
+
+            <p class="import-manual-hint">
+              You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.
+            </p>
 
             <p class="import-manual-hint">
               If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
@@ -579,7 +614,9 @@ import {
   deleteProfile,
   initProfiles,
   importProfilesFromBackup,
-  importProfileManually
+  importProfileManually,
+  pickManualProfileSource,
+  pickManualPqcSource
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
@@ -657,6 +694,8 @@ const manualImportName = ref('');
 const manualImportMnemonic = ref('');
 const manualImportPqcPublicKey = ref('');
 const manualImportPqcPrivateKey = ref('');
+const manualImportProfileSourceName = ref('');
+const manualImportPqcSourceName = ref('');
 
 // Import encrypted modal state
 const showImportPasswordModal = ref(false);
@@ -1102,6 +1141,8 @@ function onImportProfileClick() {
   manualImportMnemonic.value = '';
   manualImportPqcPublicKey.value = '';
   manualImportPqcPrivateKey.value = '';
+  manualImportProfileSourceName.value = '';
+  manualImportPqcSourceName.value = '';
 }
 
 function cancelImportModal() {
@@ -1112,6 +1153,8 @@ function cancelImportModal() {
   manualImportMnemonic.value = '';
   manualImportPqcPublicKey.value = '';
   manualImportPqcPrivateKey.value = '';
+  manualImportProfileSourceName.value = '';
+  manualImportPqcSourceName.value = '';
 }
 
 function setImportMode(mode: ImportMode) {
@@ -1134,6 +1177,21 @@ function getImportErrorMessage(error?: string) {
   }
   if (code === 'invalid_password') {
     return 'Unlock the app with the correct password to import PQC keys.';
+  }
+  if (code === 'invalid_profile_backup') {
+    return 'The selected profile backup file is invalid or unsupported.';
+  }
+  if (code === 'encrypted_backup_source_unsupported') {
+    return 'Encrypted backups cannot prefill manual import. Use Via file instead.';
+  }
+  if (code === 'mnemonic_missing_in_selected_file') {
+    return 'The selected file does not contain a mnemonic.';
+  }
+  if (code === 'pqc_missing_in_selected_file') {
+    return 'The selected file does not contain Dilithium key material.';
+  }
+  if (code === 'invalid_pqc_backup') {
+    return 'The selected Dilithium backup is invalid or unsupported.';
   }
   if (code === 'no_valid_backups_found') return 'No valid backup file was found.';
   if (code === 'profile_json_missing') return 'No profile backup file was found.';
@@ -1171,6 +1229,51 @@ async function startFileImport() {
   } finally {
     importBusy.value = false;
   }
+}
+
+async function loadManualProfileSourceIntoForm() {
+  if (importBusy.value) return;
+
+  importModalError.value = '';
+  const result = await pickManualProfileSource();
+  if (!result.ok) {
+    if (result.error && result.error !== 'canceled') {
+      importModalError.value = getImportErrorMessage(result.error);
+    }
+    return;
+  }
+
+  if (result.name) {
+    manualImportName.value = result.name;
+  }
+  if (result.mnemonic) {
+    manualImportMnemonic.value = result.mnemonic;
+  }
+  if (result.pqcPublicKey && result.pqcPrivateKey) {
+    manualImportPqcPublicKey.value = result.pqcPublicKey;
+    manualImportPqcPrivateKey.value = result.pqcPrivateKey;
+    manualImportPqcSourceName.value = result.fileName
+      ? `${result.fileName} (embedded PQC)`
+      : 'Embedded PQC';
+  }
+  manualImportProfileSourceName.value = result.fileName || 'Loaded profile backup';
+}
+
+async function loadManualPqcSourceIntoForm() {
+  if (importBusy.value) return;
+
+  importModalError.value = '';
+  const result = await pickManualPqcSource();
+  if (!result.ok) {
+    if (result.error && result.error !== 'canceled') {
+      importModalError.value = getImportErrorMessage(result.error);
+    }
+    return;
+  }
+
+  manualImportPqcPublicKey.value = String(result.pqcPublicKey || '');
+  manualImportPqcPrivateKey.value = String(result.pqcPrivateKey || '');
+  manualImportPqcSourceName.value = result.fileName || 'Loaded Dilithium backup';
 }
 
 async function confirmManualImport() {
@@ -2221,6 +2324,29 @@ onBeforeUnmount(() => {
   gap: 0.75rem;
 }
 
+.import-manual-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.import-source-btn {
+  flex: 1;
+  min-width: 180px;
+  justify-content: center;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--border-radius-md);
+  border: 0.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.import-source-btn:hover {
+  background: var(--hover-bg);
+}
+
 .import-mode-copy {
   margin: 0;
   padding: 0.875rem;
@@ -2240,6 +2366,23 @@ onBeforeUnmount(() => {
 
 .import-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.import-source-summary {
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--border-radius-md);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.import-source-line {
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 .import-manual-hint {

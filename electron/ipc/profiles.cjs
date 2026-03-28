@@ -408,6 +408,84 @@ function sanitizeBackupFolderSegment(input) {
   return name;
 }
 
+function normalizeBinaryKeyToBase64(input) {
+  if (input == null) return '';
+
+  if (Array.isArray(input)) {
+    try {
+      return Buffer.from(input).toString('base64');
+    } catch {
+      return '';
+    }
+  }
+
+  const raw = String(input || '').trim().replace(/\s+/g, '');
+  if (!raw) return '';
+
+  if (/^[0-9a-f]+$/i.test(raw) && raw.length % 2 === 0) {
+    try {
+      return Buffer.from(raw, 'hex').toString('base64');
+    } catch {
+      return '';
+    }
+  }
+
+  try {
+    const buf = Buffer.from(raw, 'base64');
+    if (!buf.length) return '';
+    const canonical = buf.toString('base64').replace(/=+$/g, '');
+    const candidate = raw.replace(/=+$/g, '');
+    return canonical === candidate ? buf.toString('base64') : '';
+  } catch {
+    return '';
+  }
+}
+
+function extractNormalizedPqcBackup(input, fallbackName = 'pqc-import') {
+  if (!input || typeof input !== 'object') return { found: false, record: null };
+
+  const raw =
+    input.pqc && typeof input.pqc === 'object'
+      ? input.pqc
+      : input.pqcKey && typeof input.pqcKey === 'object'
+        ? input.pqcKey
+        : null;
+
+  if (!raw) return { found: false, record: null };
+
+  const publicKey = normalizeBinaryKeyToBase64(raw.publicKey || raw.public_key);
+  const privateKey = normalizeBinaryKeyToBase64(raw.privateKey || raw.private_key);
+  if (!publicKey || !privateKey) {
+    return { found: true, record: null };
+  }
+
+  const keyName = String(raw.name || raw.keyName || fallbackName || 'pqc-import').trim();
+  return {
+    found: true,
+    record: {
+      name: keyName || 'pqc-import',
+      scheme: String(raw.scheme || raw.Scheme || raw.schemeName || 'dilithium3').trim() || 'dilithium3',
+      publicKey,
+      privateKey,
+      createdAt: raw.createdAt || raw.created_at || new Date().toISOString()
+    }
+  };
+}
+
+async function pickSingleJsonFile(title) {
+  const res = await dialog.showOpenDialog({
+    title,
+    properties: ['openFile'],
+    filters: [{ name: 'JSON', extensions: ['json'] }]
+  });
+  if (res.canceled || !Array.isArray(res.filePaths) || !res.filePaths.length) {
+    return { ok: false, error: 'canceled' };
+  }
+  const filePath = String(res.filePaths[0] || '').trim();
+  if (!filePath) return { ok: false, error: 'canceled' };
+  return { ok: true, filePath };
+}
+
 function buildProfileBackupObject(p, decryptPassword) {
   const srcProfileDir = profileDir(p.id);
   const srcPqcDir = pqcKeysDir();
@@ -592,13 +670,9 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
   }
 
   // Merge PQC key if present (supports both camelCase and snake_case backup fields).
-  const pqc = imported.pqc;
-  const pqcPublicKey = pqc && (pqc.publicKey || pqc.public_key);
-  const pqcPrivateKey = pqc && (pqc.privateKey || pqc.private_key);
-  const pqcScheme = pqc && (pqc.scheme || pqc.Scheme || pqc.schemeName);
-  const pqcCreatedAt = pqc && (pqc.createdAt || pqc.created_at);
+  const normalizedPqc = extractNormalizedPqcBackup(imported, `profile:${id}`);
 
-  if (pqc && pqcPublicKey && pqcPrivateKey && walletAddress) {
+  if (normalizedPqc.record && walletAddress) {
     const effectivePassword = passwordOverride || getSessionPassword();
     const readRes = readPqcKeysForMerge(effectivePassword);
     if (!readRes.ok) {
@@ -609,14 +683,14 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
     let links = {};
     if (fs.existsSync(linksFile)) links = readJson(linksFile, {}) || {};
 
-    const keyName = String(pqc.name || pqc.keyName || `profile:${id}`);
+    const keyName = String(normalizedPqc.record.name || `profile:${id}`);
     const nextKeys = readRes.keys || {};
     nextKeys[keyName] = {
       name: keyName,
-      scheme: pqcScheme || 'dilithium3',
-      publicKey: pqcPublicKey,
-      privateKey: pqcPrivateKey,
-      createdAt: pqcCreatedAt || new Date().toISOString()
+      scheme: normalizedPqc.record.scheme || 'dilithium3',
+      publicKey: normalizedPqc.record.publicKey,
+      privateKey: normalizedPqc.record.privateKey,
+      createdAt: normalizedPqc.record.createdAt || new Date().toISOString()
     };
     links[walletAddress] = keyName;
 
@@ -1230,6 +1304,90 @@ ipcMain.handle('profiles:getFavourites', async () => {
     }
   });
 
+  ipcMain.handle('profiles:pickManualProfileSource', async () => {
+    try {
+      const picked = await pickSingleJsonFile('Select profile backup or dual-signer backup');
+      if (!picked.ok) return picked;
+
+      const abs = picked.filePath;
+      if (!fs.existsSync(abs)) {
+        return { ok: false, error: 'file_not_found' };
+      }
+
+      const imported = readJson(abs, null);
+      if (!imported || typeof imported !== 'object') {
+        return { ok: false, error: 'invalid_profile_backup' };
+      }
+
+      if (imported.passwordProtected === true && imported.crypto) {
+        return { ok: false, error: 'encrypted_backup_source_unsupported' };
+      }
+
+      const mnemonic = String(imported.mnemonic || '').trim().replace(/\s+/g, ' ');
+      if (!mnemonic) {
+        return { ok: false, error: 'mnemonic_missing_in_selected_file' };
+      }
+
+      const fallbackName = path.basename(abs, path.extname(abs)) || 'pqc-import';
+      const normalizedPqc = extractNormalizedPqcBackup(imported, fallbackName);
+
+      return {
+        ok: true,
+        fileName: path.basename(abs),
+        sourcePath: abs,
+        name: String(imported.name || '').trim(),
+        mnemonic,
+        pqcPublicKey: normalizedPqc.record ? normalizedPqc.record.publicKey : '',
+        pqcPrivateKey: normalizedPqc.record ? normalizedPqc.record.privateKey : '',
+        hasPqc: !!normalizedPqc.record
+      };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('profiles:pickManualPqcSource', async () => {
+    try {
+      const picked = await pickSingleJsonFile('Select Dilithium backup');
+      if (!picked.ok) return picked;
+
+      const abs = picked.filePath;
+      if (!fs.existsSync(abs)) {
+        return { ok: false, error: 'file_not_found' };
+      }
+
+      const imported = readJson(abs, null);
+      if (!imported || typeof imported !== 'object') {
+        return { ok: false, error: 'invalid_pqc_backup' };
+      }
+
+      if (imported.passwordProtected === true && imported.crypto) {
+        return { ok: false, error: 'encrypted_backup_source_unsupported' };
+      }
+
+      const fallbackName = path.basename(abs, path.extname(abs)) || 'pqc-import';
+      const normalizedPqc = extractNormalizedPqcBackup(imported, fallbackName);
+      if (!normalizedPqc.found) {
+        return { ok: false, error: 'pqc_missing_in_selected_file' };
+      }
+      if (!normalizedPqc.record) {
+        return { ok: false, error: 'invalid_pqc_backup' };
+      }
+
+      return {
+        ok: true,
+        fileName: path.basename(abs),
+        sourcePath: abs,
+        pqcPublicKey: normalizedPqc.record.publicKey,
+        pqcPrivateKey: normalizedPqc.record.privateKey,
+        scheme: normalizedPqc.record.scheme,
+        createdAt: normalizedPqc.record.createdAt
+      };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('profiles:importManual', async (_evt, payload) => {
     try {
       const requestedName = String(payload && payload.name ? payload.name : '').trim();
@@ -1250,6 +1408,12 @@ ipcMain.handle('profiles:getFavourites', async () => {
         return { ok: false, error: 'pqc_keys_incomplete' };
       }
 
+      const normalizedPqcPublicKey = pqcPublicKey ? normalizeBinaryKeyToBase64(pqcPublicKey) : '';
+      const normalizedPqcPrivateKey = pqcPrivateKey ? normalizeBinaryKeyToBase64(pqcPrivateKey) : '';
+      if ((pqcPublicKey || pqcPrivateKey) && (!normalizedPqcPublicKey || !normalizedPqcPrivateKey)) {
+        return { ok: false, error: 'invalid_pqc_backup' };
+      }
+
       let walletAddress = '';
       try {
         walletAddress = await deriveWalletAddressFromMnemonic(mnemonic, 'lmn');
@@ -1264,10 +1428,10 @@ ipcMain.handle('profiles:getFavourites', async () => {
         mnemonic,
       };
 
-      if (pqcPublicKey && pqcPrivateKey) {
+      if (normalizedPqcPublicKey && normalizedPqcPrivateKey) {
         imported.pqc = {
-          publicKey: pqcPublicKey,
-          privateKey: pqcPrivateKey,
+          publicKey: normalizedPqcPublicKey,
+          privateKey: normalizedPqcPrivateKey,
           scheme: 'dilithium3',
           createdAt: new Date().toISOString(),
         };
