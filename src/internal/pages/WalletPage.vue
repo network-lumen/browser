@@ -152,10 +152,6 @@
       <div v-else-if="currentView === 'assets'" class="content-section">
         <div class="section-header">
           <h3>Cross-chain Assets</h3>
-          <button class="action-btn secondary" @click="refreshAssets" :disabled="assetsLoading">
-            <Coins :size="16" />
-            <span>{{ assetsLoading ? 'Refreshing...' : 'Refresh' }}</span>
-          </button>
         </div>
         <div class="empty-state" v-if="!isConnected">
           <div class="empty-icon">
@@ -221,6 +217,15 @@
                   <span class="asset-balance-symbol">{{ asset.displaySymbol }}</span>
                 </div>
                 <div class="asset-actions">
+                  <button
+                    class="action-icon asset-refresh-btn"
+                    @click="refreshAssetRow(asset)"
+                    :disabled="assetRowRefreshingId === asset.id"
+                    title="Refresh this asset"
+                    aria-label="Refresh this asset"
+                  >
+                    <RefreshCw :size="14" :class="{ 'spin-icon': assetRowRefreshingId === asset.id }" />
+                  </button>
                   <button
                     class="action-icon copy-btn"
                     @click="copyToClipboard(asset.ownerAddress, 'Address copied!')"
@@ -1121,7 +1126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, inject } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount, inject } from 'vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
@@ -1153,7 +1158,8 @@ import {
   Download,
   Upload,
   QrCode,
-  Calendar
+  Calendar,
+  RefreshCw
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
@@ -1399,6 +1405,10 @@ const ibcChannelsError = ref('');
 const assetRows = ref<AssetRow[]>([]);
 const assetsLoading = ref(false);
 const assetsError = ref('');
+let assetRefreshRequestId = 0;
+const assetRowRefreshingId = ref('');
+let assetPollingTimer: number | null = null;
+const ASSET_POLL_INTERVAL_MS = 15_000;
 const currentNetworkChainId = ref('');
 const showAssetTransferModal = ref(false);
 const assetTransferSending = ref(false);
@@ -1450,6 +1460,14 @@ const { effectiveTheme } = useTheme();
 
 onMounted(() => {
   loadContacts();
+});
+
+onBeforeUnmount(() => {
+  if (assetPollingTimer !== null) {
+    window.clearInterval(assetPollingTimer);
+    assetPollingTimer = null;
+  }
+  clearPendingPostTransactionRefreshes();
 });
 
 const balanceLabel = computed(() => {
@@ -2071,7 +2089,7 @@ function connectWallet() {
   isConnected.value = true;
   void refreshWallet();
   if (currentView.value === 'assets') {
-    void refreshAssets();
+    void refreshAssets({ force: true });
   }
 }
 
@@ -2098,7 +2116,7 @@ watch(
       void refreshActivities();
     }
     if (currentView.value === 'assets') {
-      void refreshAssets();
+      void refreshAssets({ force: true });
     }
   },
   { immediate: true }
@@ -2119,9 +2137,21 @@ watch(currentView, (next) => {
     return;
   }
   if (next === 'assets' && isConnected.value) {
-    void refreshAssets();
+    void refreshAssets({ force: true });
   }
 });
+
+watch(
+  [currentView, isConnected],
+  ([view, connected]) => {
+    if (view === 'assets' && connected) {
+      startAssetPolling();
+      return;
+    }
+    stopAssetPolling();
+  },
+  { immediate: true }
+);
 
 // Watch for refresh signal from navbar
 watch(
@@ -2131,12 +2161,13 @@ watch(
       void refreshDexListings();
     }
     if (isConnected.value) {
+      clearActivitiesCache();
       void refreshWallet();
       if (currentView.value === 'transactions') {
         void refreshActivities();
       }
       if (currentView.value === 'assets') {
-        void refreshAssets();
+        void refreshAssets({ force: true });
       }
     }
   }
@@ -2194,10 +2225,27 @@ function clearPendingPostTransactionRefreshes() {
   pendingPostTxRefreshTimers.value = [];
 }
 
+function stopAssetPolling() {
+  if (assetPollingTimer !== null) {
+    window.clearInterval(assetPollingTimer);
+    assetPollingTimer = null;
+  }
+}
+
+function startAssetPolling() {
+  if (assetPollingTimer !== null) return;
+  assetPollingTimer = window.setInterval(() => {
+    if (document.hidden) return;
+    if (currentView.value !== 'assets' || !isConnected.value) return;
+    if (assetsLoading.value || assetTransferSending.value || sendingTransaction.value) return;
+    void refreshAssets({ force: true, silent: true });
+  }, ASSET_POLL_INTERVAL_MS);
+}
+
 async function runPostTransactionRefresh(options: { includeSubscriptions?: boolean } = {}) {
   await Promise.allSettled([
     refreshWallet(),
-    refreshAssets(),
+    refreshAssets({ force: true }),
     refreshActivities()
   ]);
   if (options.includeSubscriptions && subscriptionsRef.value?.loadData) {
@@ -2210,7 +2258,7 @@ function schedulePostTransactionRefresh(options: { includeSubscriptions?: boolea
   clearPendingPostTransactionRefreshes();
   void runPostTransactionRefresh(options);
 
-  for (const delay of [3000, 8000]) {
+  for (const delay of [1500, 5000, 15000, 30000, 60000, 120000]) {
     const timer = window.setTimeout(() => {
       void runPostTransactionRefresh(options);
     }, delay);
@@ -2901,12 +2949,65 @@ function buildChainRegistryRawUrl(chainRegistryName: string, fileName: string): 
   return `https://raw.githubusercontent.com/cosmos/chain-registry/master/${encodeURIComponent(chainRegistryName)}/${fileName}`;
 }
 
-async function fetchAbsoluteJson(url: string, timeout = 15000): Promise<any> {
+function waitMs(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isTransientFetchError(error: unknown): boolean {
+  const message = String((error as any)?.message || error || '').toLowerCase();
+  if (!message) return false;
+  return (
+    message.includes('failed to fetch') ||
+    message.includes('fetch failed') ||
+    message.includes('network') ||
+    message.includes('timeout') ||
+    message.includes('aborted') ||
+    message.includes('econnreset') ||
+    message.includes('eai_again') ||
+    message.includes('enotfound') ||
+    message.includes('socket')
+  );
+}
+
+async function fetchAbsoluteJsonOnce(url: string, timeout = 15000): Promise<any> {
+  const anyWindow = window as any;
+  const httpGet = anyWindow?.lumen?.http?.get || anyWindow?.lumen?.httpGet;
+  if (typeof httpGet === 'function') {
+    const res = await httpGet(String(url || ''), {
+      timeout,
+      headers: { accept: 'application/json' }
+    });
+
+    let json: any = res?.json ?? null;
+    if (json == null) {
+      const text = String(res?.text || '');
+      if (text) {
+        try {
+          json = JSON.parse(text);
+        } catch {
+          json = null;
+        }
+      }
+    }
+
+    if (!res || res.ok === false) {
+      const detail =
+        json?.message ||
+        json?.error ||
+        String(res?.text || '').trim() ||
+        String(res?.error || `HTTP ${res?.status || 0}`);
+      throw new Error(String(detail));
+    }
+
+    return json;
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
     const response = await fetch(url, {
       method: 'GET',
+      cache: 'no-store',
       headers: { accept: 'application/json' },
       signal: controller.signal
     });
@@ -2929,6 +3030,22 @@ async function fetchAbsoluteJson(url: string, timeout = 15000): Promise<any> {
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function fetchAbsoluteJson(url: string, timeout = 15000): Promise<any> {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await fetchAbsoluteJsonOnce(url, timeout);
+    } catch (error) {
+      lastError = error;
+      if (attempt >= 2 || !isTransientFetchError(error)) {
+        throw error;
+      }
+      await waitMs(350 * (attempt + 1));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Failed to fetch JSON.');
 }
 
 function readChainRegistryStorageCache(): Record<string, { updatedAt: number; chain: any | null; assets: any[] }> {
@@ -3279,6 +3396,15 @@ function handleAssetIconError(asset: AssetRow) {
   asset.iconUrl = '';
 }
 
+function refreshAssetRow(asset: AssetRow) {
+  assetRowRefreshingId.value = asset.id;
+  void refreshAssets({
+    force: true,
+    silent: true,
+    contextAssetId: asset.id
+  });
+}
+
 const sendSummary = computed(() => {
   const amount = Number(sendForm.value.amount || '0') || 0;
   const rate = tokenomicsTaxRate.value ?? 0;
@@ -3436,18 +3562,38 @@ async function confirmSendPreview() {
   }
 }
 
-async function refreshAssets() {
+async function refreshAssets(options: { force?: boolean; silent?: boolean; contextAssetId?: string } = {}) {
+  const requestId = ++assetRefreshRequestId;
+  const hadRows = assetRows.value.length > 0;
+  const force = !!options.force;
+  const silent = !!options.silent && hadRows;
+  const contextAssetId = String(options.contextAssetId || '').trim();
+  if (contextAssetId) {
+    assetRowRefreshingId.value = contextAssetId;
+  }
   if (!isConnected.value || !address.value) {
-    assetRows.value = [];
-    assetsError.value = '';
+    if (requestId === assetRefreshRequestId) {
+      assetRows.value = [];
+      assetsError.value = '';
+    }
+    if (contextAssetId && assetRowRefreshingId.value === contextAssetId) {
+      assetRowRefreshingId.value = '';
+    }
     return;
   }
 
-  assetsLoading.value = true;
+  if (force) {
+    denomTraceCache.clear();
+    ibcChannelsLoaded.value = false;
+  }
+
+  if (!silent) {
+    assetsLoading.value = true;
+  }
   assetsError.value = '';
 
   try {
-    await loadIbcChannels();
+    await loadIbcChannels(force);
     const localChainId = (await loadCurrentNetworkChainId()) || 'lumen';
     const localChainLabel = humanizeChainId(localChainId);
 
@@ -3617,7 +3763,7 @@ async function refreshAssets() {
       })
     );
 
-    assetRows.value = [...localRows, ...remoteRowsNested.flat()].sort((a, b) => {
+    const nextRows = [...localRows, ...remoteRowsNested.flat()].sort((a, b) => {
       if (a.chainId !== b.chainId) {
         if (a.chainId === localChainId) return -1;
         if (b.chainId === localChainId) return 1;
@@ -3629,14 +3775,29 @@ async function refreshAssets() {
       return a.displayName.localeCompare(b.displayName);
     });
 
+    if (requestId !== assetRefreshRequestId) {
+      return;
+    }
+
+    assetRows.value = nextRows;
     if (remoteErrors.length) {
       assetsError.value = remoteErrors.join(' | ');
     }
   } catch (error: any) {
-    assetRows.value = [];
+    if (requestId !== assetRefreshRequestId) {
+      return;
+    }
+    if (!hadRows) {
+      assetRows.value = [];
+    }
     assetsError.value = String(error?.message || error || 'Failed to load assets.');
   } finally {
-    assetsLoading.value = false;
+    if (!silent && requestId === assetRefreshRequestId) {
+      assetsLoading.value = false;
+    }
+    if (contextAssetId && assetRowRefreshingId.value === contextAssetId) {
+      assetRowRefreshingId.value = '';
+    }
   }
 }
 
@@ -5282,6 +5443,22 @@ function exportTransactions() {
 .action-icon:hover {
   background: var(--hover-bg);
   transform: scale(1.05);
+}
+
+.action-icon:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-icon:disabled:hover {
+  background: var(--card-bg);
+  transform: none;
+}
+
+.action-icon.asset-refresh-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .action-icon.copy-btn:hover {
