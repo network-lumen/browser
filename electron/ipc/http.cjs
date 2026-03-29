@@ -128,9 +128,15 @@ async function httpGet(url, options = {}) {
         : 60000;
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const rewritten = rewriteLocalhostSubdomain(url, options.headers);
+    const headers = {
+      ...(rewritten.headers || {}),
+      'cache-control': 'no-cache, no-store, must-revalidate',
+      pragma: 'no-cache'
+    };
     const res = await fetch(rewritten.url, {
       method: 'GET',
-      headers: rewritten.headers || {},
+      cache: 'no-store',
+      headers,
       signal: controller.signal
     });
     clearTimeout(t);
