@@ -941,6 +941,12 @@ function registerWalletIpc() {
       const amount = Number(input && input.amount ? input.amount : 0);
       const memo = String(input && input.memo ? input.memo : '');
       const denom = String(input && input.denom ? input.denom : 'ulmn');
+      const rpcEndpoint = String(input && input.rpcEndpoint ? input.rpcEndpoint : '').trim();
+      const restEndpoint = String(input && input.restEndpoint ? input.restEndpoint : '').trim();
+      const chainId = String(input && input.chainId ? input.chainId : '').trim();
+      const feeDenom = String(input && input.feeDenom ? input.feeDenom : 'ulmn').trim() || 'ulmn';
+      const feeAmount = String(input && input.feeAmount ? input.feeAmount : '1000').trim() || '1000';
+      const feeGas = String(input && input.feeGas ? input.feeGas : '250000').trim() || '250000';
       const password = input && input.password ? String(input.password) : null;
       
       if (!profileId) return { ok: false, error: 'missing_profileId' };
@@ -976,18 +982,51 @@ function registerWalletIpc() {
       const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
 
       const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+      const useRemoteStandardClient =
+        !!rpcEndpoint &&
+        !isNativeLumenSigningTarget({
+          chainId,
+          address: from,
+          feeDenom
+        });
 
       console.log('[wallet:sendTokens] connecting to client...');
-      const client = await connectSigningClientWithFailover(
-        mod,
-        signer,
-        {
-          pqc: {
-            homeDir: resolvePqcHome()
+      let client;
+      if (useRemoteStandardClient) {
+        client = await connectStandardSigningClient(rpcEndpoint, signer, { timeoutMs: 15_000 });
+      } else if (rpcEndpoint) {
+        const endpoints = {
+          rpc: rpcEndpoint,
+          rest: restEndpoint || rpcEndpoint,
+          rpcEndpoint,
+          restEndpoint: restEndpoint || rpcEndpoint
+        };
+        const connectPromise = mod.LumenSigningClient.connectWithSigner(
+          signer,
+          endpoints,
+          chainId || undefined,
+          {
+            pqc: {
+              homeDir: resolvePqcHome()
+            }
           }
-        },
-        { timeoutMs: 15_000 }
-      );
+        );
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timeout after 15000ms')), 15_000)
+        );
+        client = await Promise.race([connectPromise, timeoutPromise]);
+      } else {
+        client = await connectSigningClientWithFailover(
+          mod,
+          signer,
+          {
+            pqc: {
+              homeDir: resolvePqcHome()
+            }
+          },
+          { timeoutMs: 15_000 }
+        );
+      }
       console.log('[wallet:sendTokens] connected, client:', client ? 'ok' : 'null');
 
       // Temporarily decrypt PQC keys if password-protected
@@ -995,7 +1034,7 @@ function registerWalletIpc() {
       const effectivePassword = password || getSessionPassword();
       const keysEncrypted = arePqcKeysEncrypted();
       console.log('[wallet:sendTokens] keysEncrypted:', keysEncrypted, 'hasPassword:', !!password, 'hasSession:', !!getSessionPassword());
-      if (keysEncrypted) {
+      if (!useRemoteStandardClient && keysEncrypted) {
         if (!effectivePassword) {
           console.log('[wallet:sendTokens] no password available, returning password_required');
           return { ok: false, error: 'password_required' };
@@ -1028,18 +1067,31 @@ function registerWalletIpc() {
           (mod.utils && mod.utils.zeroFee) ||
           (() => ({ amount: [], gas: '250000' }));
 
-        const fee = zeroFee();
-        console.log('[wallet:sendTokens] calling signAndBroadcast (PQC middleware)...');
-        const res = await signAndBroadcastWithPqcAutoLink({
-          bridgeMod: mod,
-          client,
-          profileId,
-          address: from,
-          msgs: [msg],
-          fee,
-          memo,
-          label: 'wallet_sendTokens',
-        });
+        const fee = useRemoteStandardClient
+          ? {
+              amount: [{ denom: feeDenom, amount: feeAmount }],
+              gas: feeGas
+            }
+          : zeroFee();
+        console.log('[wallet:sendTokens] broadcasting via', useRemoteStandardClient ? 'standard client' : 'PQC middleware');
+        const res = useRemoteStandardClient
+          ? await signAndBroadcastStandard({
+              client,
+              address: from,
+              msgs: [msg],
+              fee,
+              memo
+            })
+          : await signAndBroadcastWithPqcAutoLink({
+              bridgeMod: mod,
+              client,
+              profileId,
+              address: from,
+              msgs: [msg],
+              fee,
+              memo,
+              label: 'wallet_sendTokens',
+            });
         console.log('[wallet:sendTokens] signAndBroadcast result:', res);
         
         const txhash = res.transactionHash || res.hash || '';

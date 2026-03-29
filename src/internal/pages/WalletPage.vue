@@ -235,11 +235,19 @@
                     <Copy :size="14" />
                   </button>
                   <button
+                    class="action-btn secondary asset-send-btn"
+                    @click="openAssetSendModal(asset)"
+                    :disabled="!asset.sendEnabled"
+                  >
+                    <Send :size="16" />
+                    <span>Send</span>
+                  </button>
+                  <button
                     class="action-btn secondary asset-transfer-btn"
                     @click="openAssetTransferModal(asset)"
                     :disabled="!asset.transferTargets.length || !asset.transferEnabled"
                   >
-                    <Send :size="16" />
+                    <ArrowLeftRight :size="16" />
                     <span>{{ asset.transferButtonLabel }}</span>
                   </button>
                 </div>
@@ -670,7 +678,7 @@
               <div class="modal-icon">
                 <ArrowLeftRight :size="20" />
               </div>
-              <h3>Asset Transfer</h3>
+              <h3>IBC Transfer</h3>
             </div>
             <button class="modal-close" @click="closeAssetTransferModal">
               <X :size="18" />
@@ -679,7 +687,7 @@
           <div class="modal-body" v-if="assetTransferContext">
             <div class="info-banner">
               <span>
-                Move this asset across linked IBC chains. The recipient field is prefilled with your wallet on the destination chain.
+                Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
               </span>
             </div>
 
@@ -783,7 +791,7 @@
             >
               <ArrowLeftRight :size="18" v-if="!assetTransferSending" />
               <span class="spinner" v-else></span>
-              <span>{{ assetTransferSending ? 'Transferring...' : 'Transfer Asset' }}</span>
+              <span>{{ assetTransferSending ? 'Transferring...' : 'IBC Transfer' }}</span>
             </button>
           </div>
         </div>
@@ -807,7 +815,10 @@
           </div>
           <div class="modal-body">
             <div class="info-banner">
-              <span>
+              <span v-if="sendAssetContext">
+                Send this asset on {{ sendSourceChainLabel }}. Use the IBC Transfer action from Assets if you want to move it across chains.
+              </span>
+              <span v-else>
                 💡 Your first transaction may take up to 60 seconds. <br>
                 After that, transactions are confirmed within ~6 seconds.</span>
             </div>
@@ -815,16 +826,24 @@
             <div class="form-group">
               <label>From</label>
               <div class="input-wrapper readonly">
-                <input class="form-input" type="text" :value="address" readonly />
+                <input class="form-input" type="text" :value="sendSourceAddress" readonly />
               </div>
+              <div class="field-hint">Chain: {{ sendSourceChainLabel }}</div>
             </div>
 
             <div class="form-group">
+              <label>Asset</label>
+              <div class="input-wrapper readonly">
+                <input class="form-input" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly />
+              </div>
+            </div>
+
+            <div v-if="!sendAssetContext" class="form-group">
               <label>Send to</label>
               <div class="input-wrapper">
                 <select class="form-input form-select" v-model="sendTargetMode">
-                  <option value="lumen">To a Lumen wallet</option>
-                  <option value="ibc">To an IBC wallet (another chain)</option>
+                  <option value="lumen">On the current chain</option>
+                  <option value="ibc">Across IBC to another chain</option>
                 </select>
               </div>
             </div>
@@ -859,7 +878,7 @@
             </div>
 
             <div class="form-group">
-              <label>{{ isIbcSend ? 'Destination address' : 'To' }} <span class="required">*</span></label>
+              <label>{{ isIbcSend ? 'Destination address' : 'Recipient' }} <span class="required">*</span></label>
               <div class="input-wrapper-relative">
                 <div class="input-wrapper">
                   <input 
@@ -912,7 +931,7 @@
             </div>
 
             <div class="form-group">
-              <label>Amount (LMN) <span class="required">*</span></label>
+              <label>Amount ({{ sendAssetSymbol }}) <span class="required">*</span></label>
               <div class="input-wrapper amount-input">
                 <input 
                   class="form-input" 
@@ -922,10 +941,10 @@
                   placeholder="0.000000"
                   @input="validateAmountInput"
                 />
-                <span class="input-suffix">LMN</span>
+                <span class="input-suffix">{{ sendAssetSymbol }}</span>
               </div>
-              <div class="balance-hint" v-if="balanceLmn !== null">
-                Available: {{ balanceLmnDisplay }} LMN
+              <div class="balance-hint" v-if="sendAvailableLabel">
+                Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
               </div>
             </div>
 
@@ -935,15 +954,19 @@
               </div>
               <div class="summary-row">
                 <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
-                <span class="summary-value">{{ sendSummary.amount }} LMN</span>
+                <span class="summary-value">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
               </div>
               <div v-if="!isIbcSend" class="summary-row">
+                <span>Chain</span>
+                <span class="summary-value">{{ sendSourceChainLabel }}</span>
+              </div>
+              <div v-if="showSendTaxBreakdown" class="summary-row">
                 <span>Tax</span>
                 <span class="summary-value tax">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div v-if="!isIbcSend" class="summary-row total">
+              <div v-if="showSendTaxBreakdown" class="summary-row total">
                 <span>Receiver net</span>
-                <span class="summary-value">{{ sendSummary.receiver }} LMN</span>
+                <span class="summary-value">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
               </div>
               <div v-if="isIbcSend" class="summary-row">
                 <span>Route</span>
@@ -1261,6 +1284,7 @@ type KnownIbcChainMeta = {
   rpcEndpoint: string;
   nativeDenom: string;
   feeDenom: string;
+  minGasPrice: number;
   iconText: string;
   chainRegistryName?: string;
 };
@@ -1293,6 +1317,7 @@ type AssetRow = {
   traceLabel: string;
   routeLabel: string;
   error: string;
+  sendEnabled: boolean;
   transferTargets: AssetTransferTarget[];
   transferEnabled: boolean;
   transferButtonLabel: string;
@@ -1350,6 +1375,7 @@ const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
     rpcEndpoint: 'https://rpc.getbze.com',
     nativeDenom: 'ubze',
     feeDenom: 'ubze',
+    minGasPrice: 0.01,
     iconText: 'BZE',
     chainRegistryName: 'beezee'
   },
@@ -1360,6 +1386,7 @@ const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
     rpcEndpoint: 'https://testnet-rpc.getbze.com',
     nativeDenom: 'ubze',
     feeDenom: 'ubze',
+    minGasPrice: 0.01,
     iconText: 'BZE',
     chainRegistryName: 'beezee'
   }
@@ -1393,6 +1420,7 @@ const sendForm = ref({
   amount: '',
   gasFee: 'medium'
 });
+const sendAssetContext = ref<AssetRow | null>(null);
 const sendTargetMode = ref<SendTargetMode>('lumen');
 const ibcForm = ref({
   sourceChannel: '',
@@ -1526,6 +1554,31 @@ function scoreIbcChannel(channel: IbcChannelOption, recipientPrefix: string): nu
 
 const senderPrefix = computed(() => getAddressPrefix(address.value) || 'lmn');
 const isIbcSend = computed(() => sendTargetMode.value === 'ibc');
+const sendSourceAddress = computed(() => String(sendAssetContext.value?.ownerAddress || address.value || '').trim());
+const sendSourcePrefix = computed(() => getAddressPrefix(sendSourceAddress.value) || senderPrefix.value || 'lmn');
+const sendAssetDenom = computed(() => String(sendAssetContext.value?.denom || 'ulmn').trim() || 'ulmn');
+const sendAssetName = computed(() => sendAssetContext.value?.displayName || 'Lumen');
+const sendAssetSymbol = computed(() => sendAssetContext.value?.displaySymbol || 'LMN');
+const sendSourceChainLabel = computed(() => {
+  if (sendAssetContext.value?.chainLabel) return sendAssetContext.value.chainLabel;
+  return currentNetworkChainId.value ? humanizeChainId(currentNetworkChainId.value) : 'Lumen';
+});
+const sendAvailableMicro = computed<bigint | null>(() => {
+  if (sendAssetContext.value) return BigInt(sendAssetContext.value.microAmount || '0');
+  if (balanceLmn.value == null) return null;
+  return decimalToMicroUnits(balanceLmn.value.toFixed(6));
+});
+const sendAvailableLabel = computed(() => {
+  if (sendAssetContext.value) return sendAssetContext.value.displayAmount;
+  if (balanceLmn.value == null) return '';
+  return balanceLmnDisplay.value;
+});
+const showSendTaxBreakdown = computed(
+  () =>
+    !isIbcSend.value &&
+    sendAssetDenom.value.toLowerCase() === 'ulmn' &&
+    sendSourcePrefix.value === 'lmn'
+);
 const selectedIbcChannel = computed(() =>
   ibcChannels.value.find(
     (channel) =>
@@ -1533,11 +1586,14 @@ const selectedIbcChannel = computed(() =>
       channel.portId === ibcForm.value.sourcePort
   ) || null
 );
-const sendModalTitle = computed(() => (isIbcSend.value ? 'Transfer' : 'Send'));
+const sendModalTitle = computed(() => {
+  if (isIbcSend.value) return 'IBC Transfer';
+  return sendAssetContext.value ? 'Send Asset' : 'Send';
+});
 const sendRecipientPlaceholder = computed(() =>
   isIbcSend.value
     ? 'Enter recipient address on the other chain'
-    : `Enter recipient address (${senderPrefix.value}1...)`
+    : `Enter recipient address (${sendSourcePrefix.value}1...)`
 );
 const sendPrimaryActionLabel = computed(() => {
   if (sendingTransaction.value) return isIbcSend.value ? 'Transferring...' : 'Sending...';
@@ -2272,7 +2328,11 @@ function sendTransaction() {
     return;
   }
   void refreshActivities();
+  sendAssetContext.value = null;
   showContactPicker.value = false;
+  sendTargetMode.value = 'lumen';
+  ibcForm.value = { sourceChannel: '', sourcePort: 'transfer' };
+  sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
   showSendModal.value = true;
 }
 
@@ -2283,6 +2343,7 @@ function closeSendModal() {
   }
   showSendModal.value = false;
   showContactPicker.value = false;
+  sendAssetContext.value = null;
   sendTargetMode.value = 'lumen';
   ibcForm.value = { sourceChannel: '', sourcePort: 'transfer' };
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
@@ -2492,7 +2553,7 @@ function openTransactionTab(txHash: string) {
 }
 
 const canSend = computed(() => {
-  if (!address.value) return false;
+  if (!sendSourceAddress.value) return false;
   if (!String(sendForm.value.recipient || '').trim()) return false;
   const amount = Number(sendForm.value.amount || '0');
   if (!Number.isFinite(amount) || amount <= 0) return false;
@@ -2553,8 +2614,20 @@ function resolveKnownChainMeta(chainId: string, prefixHints: string[] = []): Kno
     rpcEndpoint: '',
     nativeDenom: prefix ? `u${prefix}` : '',
     feeDenom: prefix ? `u${prefix}` : 'ulmn',
+    minGasPrice: 0,
     iconText: prefix ? prefix.slice(0, 3).toUpperCase() : 'IBC'
   };
+}
+
+function estimateRemoteFeeAmount(chainId: string, gas: string, fallback = '1000'): string {
+  const gasUnits = Number(String(gas || '').trim());
+  if (!Number.isFinite(gasUnits) || gasUnits <= 0) return fallback;
+
+  const meta = KNOWN_IBC_CHAIN_METADATA[String(chainId || '').trim()];
+  const minGasPrice = Number(meta?.minGasPrice || 0);
+  if (!Number.isFinite(minGasPrice) || minGasPrice <= 0) return fallback;
+
+  return String(Math.ceil(gasUnits * minGasPrice));
 }
 
 function reencodeAddressPrefix(value: string, targetPrefix: string): string {
@@ -3343,6 +3416,7 @@ async function createAssetRow(input: {
   const displaySymbol = formatDenom(baseDenom);
   const displayName = buildAssetDisplayName(rawDenom, displaySymbol, trace);
   const addressPrefix = getAddressPrefix(input.ownerAddress);
+  const sendEnabled = BigInt(rawAmount || '0') > 0n;
   const transferEnabled = input.transferTargets.length > 0 && BigInt(rawAmount || '0') > 0n;
 
   return {
@@ -3362,9 +3436,10 @@ async function createAssetRow(input: {
     traceLabel: trace?.path ? `Trace: ${trace.path}` : '',
     routeLabel: String(input.routeLabel || ''),
     error: String(input.error || ''),
+    sendEnabled,
     transferTargets: input.transferTargets,
     transferEnabled,
-    transferButtonLabel: input.transferTargets.length ? 'Transfer' : 'No route',
+    transferButtonLabel: input.transferTargets.length ? 'IBC Transfer' : 'No route',
     rpcEndpoint: String(input.rpcEndpoint || ''),
     restEndpoint: String(input.restEndpoint || ''),
     feeDenom: String(input.feeDenom || 'ulmn')
@@ -3405,6 +3480,24 @@ function refreshAssetRow(asset: AssetRow) {
   });
 }
 
+function openAssetSendModal(asset: AssetRow) {
+  if (!asset.sendEnabled) {
+    showToast('No balance available for this asset.', 'warning');
+    return;
+  }
+  void refreshActivities();
+  sendAssetContext.value = asset;
+  showContactPicker.value = false;
+  sendTargetMode.value = 'lumen';
+  ibcForm.value = { sourceChannel: '', sourcePort: 'transfer' };
+  sendForm.value = {
+    recipient: '',
+    amount: '',
+    gasFee: 'medium'
+  };
+  showSendModal.value = true;
+}
+
 const sendSummary = computed(() => {
   const amount = Number(sendForm.value.amount || '0') || 0;
   const rate = tokenomicsTaxRate.value ?? 0;
@@ -3426,14 +3519,15 @@ const sendSummary = computed(() => {
 async function confirmSendPreview() {
   if (sendingTransaction.value) return;
   
-  if (!address.value) {
+  if (!sendSourceAddress.value) {
     showToast('No sender address available', 'error');
     return;
   }
-  const from = address.value;
+  const from = sendSourceAddress.value;
   const to = String(sendForm.value.recipient || '').trim();
   const recipientPrefix = getAddressPrefix(to);
   const amountNum = Number(sendForm.value.amount || '0');
+  const amountMicro = decimalToMicroUnits(sendForm.value.amount);
   
   if (!to) {
     showToast('Please enter recipient address', 'error');
@@ -3445,8 +3539,13 @@ async function confirmSendPreview() {
     return;
   }
 
-  if (balanceLmn.value !== null && amountNum > balanceLmn.value) {
-    showToast('Insufficient balance', 'error');
+  if (amountMicro == null || amountMicro <= 0n) {
+    showToast('Please enter a valid amount', 'error');
+    return;
+  }
+
+  if (sendAvailableMicro.value !== null && amountMicro > sendAvailableMicro.value) {
+    showToast(`Insufficient ${sendAssetSymbol.value} balance`, 'error');
     return;
   }
 
@@ -3467,8 +3566,8 @@ async function confirmSendPreview() {
     let failureLabel = 'Send';
 
     if (isIbcSend.value) {
-      if (recipientPrefix && recipientPrefix === senderPrefix.value) {
-        showToast('This address looks like a Lumen wallet. Use the Lumen send mode instead.', 'warning');
+      if (recipientPrefix && recipientPrefix === sendSourcePrefix.value) {
+        showToast(`This address looks like the current chain. Use Send instead of IBC transfer for ${sendAssetSymbol.value}.`, 'warning');
         return;
       }
 
@@ -3487,7 +3586,7 @@ async function confirmSendPreview() {
         from,
         to,
         amount: amountNum,
-        denom: 'ulmn',
+        denom: sendAssetDenom.value,
         memo: '',
         sourceChannel: selectedIbcChannel.value.channelId,
         sourcePort: selectedIbcChannel.value.portId,
@@ -3503,8 +3602,8 @@ async function confirmSendPreview() {
         return Promise.race([sendPromise, timeoutPromise]);
       };
     } else {
-      if (recipientPrefix && recipientPrefix !== senderPrefix.value) {
-        showToast('This address looks like another chain. Switch to IBC transfer.', 'warning');
+      if (recipientPrefix && recipientPrefix !== sendSourcePrefix.value) {
+        showToast(`Recipient must use the ${sendSourcePrefix.value} address format.`, 'warning');
         return;
       }
 
@@ -3518,9 +3617,18 @@ async function confirmSendPreview() {
         from,
         to,
         amount: amountNum,
-        denom: 'ulmn',
+        denom: sendAssetDenom.value,
         memo: ''
       };
+      if (sendAssetContext.value?.rpcEndpoint) {
+        const feeGas = '250000';
+        sendParams.rpcEndpoint = sendAssetContext.value.rpcEndpoint;
+        sendParams.restEndpoint = sendAssetContext.value.restEndpoint;
+        sendParams.chainId = sendAssetContext.value.chainId;
+        sendParams.feeDenom = sendAssetContext.value.feeDenom;
+        sendParams.feeAmount = estimateRemoteFeeAmount(sendAssetContext.value.chainId, feeGas, '2500');
+        sendParams.feeGas = feeGas;
+      }
       sendOperation = async (params: Record<string, any>) => {
         const sendPromise = walletApi.sendTokens(params);
         const timeoutPromise = new Promise((_, reject) =>
@@ -3907,12 +4015,13 @@ async function confirmAssetTransfer() {
     };
 
     if (context.rpcEndpoint) {
+      const feeGas = '350000';
       params.rpcEndpoint = context.rpcEndpoint;
       params.restEndpoint = context.restEndpoint;
       params.chainId = context.chainId;
       params.feeDenom = context.feeDenom;
-      params.feeAmount = '1000';
-      params.feeGas = '350000';
+      params.feeAmount = estimateRemoteFeeAmount(context.chainId, feeGas, '3500');
+      params.feeGas = feeGas;
     }
 
     const sendPromise = walletApi.ibcTransfer(params);
@@ -3965,6 +4074,7 @@ watch(showSendModal, (open) => {
 });
 
 watch(() => sendForm.value.recipient, (next) => {
+  if (sendAssetContext.value) return;
   const guess = guessSendTargetMode(next);
   if (guess) {
     sendTargetMode.value = guess;
@@ -4122,7 +4232,11 @@ function cancelDeleteContact() {
 }
 
 function sendToContact(contact: any) {
-  sendForm.value.recipient = contact.address;
+  sendAssetContext.value = null;
+  sendTargetMode.value = 'lumen';
+  ibcForm.value = { sourceChannel: '', sourcePort: 'transfer' };
+  sendForm.value = { recipient: contact.address, amount: '', gasFee: 'medium' };
+  showContactPicker.value = false;
   showSendModal.value = true;
 }
 
@@ -4949,8 +5063,10 @@ function exportTransactions() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
+.asset-send-btn,
 .asset-transfer-btn {
   display: inline-flex;
   align-items: center;
