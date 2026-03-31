@@ -21,7 +21,7 @@
     "@cosmjs/encoding": "^0.36.0",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@ffprobe-installer/ffprobe": "^2.1.2",
-    "@lumen-chain/sdk": "^1.3.0",
+    "@lumen-chain/sdk": "^1.6.0",
     "@noble/post-quantum": "^0.5.4",
     "@zxing/library": "^0.21.3",
     "cors": "^2.8.5",

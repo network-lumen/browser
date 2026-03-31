@@ -240,7 +240,7 @@
                     :disabled="!asset.sendEnabled"
                   >
                     <Send :size="16" />
-                    <span>Send</span>
+                    <span>{{ asset.sendButtonLabel }}</span>
                   </button>
                   <button
                     class="action-btn secondary asset-transfer-btn"
@@ -816,7 +816,12 @@
           <div class="modal-body">
             <div class="info-banner">
               <span v-if="sendAssetContext">
-                Send this asset on {{ sendSourceChainLabel }}. Use the IBC Transfer action from Assets if you want to move it across chains.
+                <template v-if="isIbcSend">
+                  Move this asset from {{ sendSourceChainLabel }} to another linked chain over IBC.
+                </template>
+                <template v-else>
+                  Send this asset on {{ sendSourceChainLabel }} to any {{ sendSourcePrefix }}1... address. Use “To Other Chain” only when you want to bridge it.
+                </template>
               </span>
               <span v-else>
                 💡 Your first transaction may take up to 60 seconds. <br>
@@ -1318,6 +1323,7 @@ type AssetRow = {
   routeLabel: string;
   error: string;
   sendEnabled: boolean;
+  sendButtonLabel: string;
   transferTargets: AssetTransferTarget[];
   transferEnabled: boolean;
   transferButtonLabel: string;
@@ -1587,8 +1593,8 @@ const selectedIbcChannel = computed(() =>
   ) || null
 );
 const sendModalTitle = computed(() => {
-  if (isIbcSend.value) return 'IBC Transfer';
-  return sendAssetContext.value ? 'Send Asset' : 'Send';
+  if (isIbcSend.value) return `Transfer ${sendAssetSymbol.value} To Other Chain`;
+  return sendAssetContext.value ? `Send ${sendAssetSymbol.value} On ${sendSourceChainLabel.value}` : 'Send';
 });
 const sendRecipientPlaceholder = computed(() =>
   isIbcSend.value
@@ -3418,6 +3424,7 @@ async function createAssetRow(input: {
   const addressPrefix = getAddressPrefix(input.ownerAddress);
   const sendEnabled = BigInt(rawAmount || '0') > 0n;
   const transferEnabled = input.transferTargets.length > 0 && BigInt(rawAmount || '0') > 0n;
+  const sendButtonLabel = input.chainLabel ? `Send on ${input.chainLabel}` : 'Send';
 
   return {
     id: `${input.chainId}:${rawDenom || 'unknown'}`,
@@ -3437,9 +3444,10 @@ async function createAssetRow(input: {
     routeLabel: String(input.routeLabel || ''),
     error: String(input.error || ''),
     sendEnabled,
+    sendButtonLabel,
     transferTargets: input.transferTargets,
     transferEnabled,
-    transferButtonLabel: input.transferTargets.length ? 'IBC Transfer' : 'No route',
+    transferButtonLabel: input.transferTargets.length ? 'To Other Chain' : 'No route',
     rpcEndpoint: String(input.rpcEndpoint || ''),
     restEndpoint: String(input.restEndpoint || ''),
     feeDenom: String(input.feeDenom || 'ulmn')
