@@ -4,6 +4,7 @@ interface ToastOptions {
   title?: string;
   duration?: number;
   dismissible?: boolean;
+  copyable?: boolean;
 }
 
 export { type ToastType, type Toast };
@@ -13,7 +14,7 @@ export function useToast() {
     addToast('success', message, options);
   
   const error = (message: string, options?: ToastOptions) => 
-    addToast('error', message, { duration: 6000, ...options });
+    addToast('error', message, options);
   
   const warning = (message: string, options?: ToastOptions) => 
     addToast('warning', message, options);

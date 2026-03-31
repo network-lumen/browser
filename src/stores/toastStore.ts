@@ -9,6 +9,7 @@ export interface Toast {
   message: string;
   duration?: number;
   dismissible?: boolean;
+  copyable?: boolean;
 }
 
 // Global shared toast state - singleton pattern
@@ -19,15 +20,16 @@ function generateId(): string {
   return `toast-${++toastCounter}-${Date.now()}`;
 }
 
-export function addToast(type: ToastType, message: string, options: { title?: string; duration?: number; dismissible?: boolean } = {}) {
+export function addToast(type: ToastType, message: string, options: { title?: string; duration?: number; dismissible?: boolean; copyable?: boolean } = {}) {
   const id = generateId();
   const toast: Toast = {
     id,
     type,
     message,
     title: options.title,
-    duration: options.duration ?? 4000,
+    duration: options.duration ?? (type === 'error' ? 10000 : 4000),
     dismissible: options.dismissible ?? true,
+    copyable: options.copyable ?? type === 'error',
   };
 
   toasts.value.push(toast);
