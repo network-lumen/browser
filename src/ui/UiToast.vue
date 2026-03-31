@@ -18,19 +18,70 @@
           <span v-if="toast.title" class="toast-title">{{ toast.title }}</span>
           <span class="toast-message">{{ toast.message }}</span>
         </div>
-        <button v-if="toast.dismissible" class="toast-close" @click.stop="removeToast(toast.id)">
-          <X :size="14" />
-        </button>
+        <div v-if="toast.copyable || toast.dismissible" class="toast-actions">
+          <button
+            v-if="toast.copyable"
+            class="toast-action"
+            :class="{ 'toast-action-copied': copiedState[toast.id] }"
+            :title="copiedState[toast.id] ? 'Copied' : 'Copy message'"
+            @click.stop="copyToast(toast)"
+          >
+            <Check v-if="copiedState[toast.id]" :size="14" />
+            <Copy v-else :size="14" />
+          </button>
+          <button v-if="toast.dismissible" class="toast-action" title="Dismiss" @click.stop="removeToast(toast.id)">
+            <X :size="14" />
+          </button>
+        </div>
       </div>
     </TransitionGroup>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-vue-next';
-import { toastList, removeToast } from '../stores/toastStore';
+import { ref } from 'vue';
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X, Copy, Check } from 'lucide-vue-next';
+import { toastList, removeToast, type Toast } from '../stores/toastStore';
 
 const toasts = toastList;
+const copiedState = ref<Record<string, boolean>>({});
+
+function markToastCopied(id: string) {
+  copiedState.value = { ...copiedState.value, [id]: true };
+  window.setTimeout(() => {
+    const nextState = { ...copiedState.value };
+    delete nextState[id];
+    copiedState.value = nextState;
+  }, 2000);
+}
+
+function fallbackCopy(value: string) {
+  const textarea = document.createElement('textarea');
+  textarea.value = value;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+}
+
+async function copyToast(toast: Toast) {
+  const value = [toast.title, toast.message].filter(Boolean).join('\n');
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      fallbackCopy(value);
+    }
+    markToastCopied(toast.id);
+  } catch {
+    fallbackCopy(value);
+    markToastCopied(toast.id);
+  }
+}
 </script>
 
 <style scoped>
@@ -119,9 +170,17 @@ const toasts = toastList;
   color: var(--text-secondary, #86868b);
   line-height: 1.4;
   word-break: break-word;
+  user-select: text;
 }
 
-.toast-close {
+.toast-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.toast-action {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -137,9 +196,13 @@ const toasts = toastList;
   margin: -2px -4px -2px 0;
 }
 
-.toast-close:hover {
+.toast-action:hover {
   background: var(--bg-tertiary, rgba(0,0,0,0.05));
   color: var(--text-primary, #1d1d1f);
+}
+
+.toast-action-copied {
+  color: var(--ios-green, #30d158);
 }
 
 /* Animations */
