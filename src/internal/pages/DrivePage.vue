@@ -2037,7 +2037,9 @@ import {
 import {
   appSettingsState,
   BYTES_PER_GIB,
+  type IpfsConnectivityMode,
   normalizeLocalDriveMaxUploadSizeGb,
+  setAppSettings,
 } from "../services/appSettings";
 import { profilesState, activeProfileId } from "../profilesStore";
 import {
@@ -2333,6 +2335,10 @@ const localDriveMaxUploadSizeGb = computed(() =>
   normalizeLocalDriveMaxUploadSizeGb(appSettingsState.value.localDriveMaxUploadSizeGb),
 );
 const localDriveMaxUploadBytes = computed(() => localDriveMaxUploadSizeGb.value * BYTES_PER_GIB);
+const PUBLIC_GATEWAY_PROPAGATION_MAX_BYTES = 10 * BYTES_PER_GIB;
+const PUBLIC_GATEWAY_PROPAGATION_MAX_LABEL = "10 GiB";
+const TEMP_LIGHT_MODE_IPFS_READY_TIMEOUT_MS = 20_000;
+const TEMP_LIGHT_MODE_IPFS_READY_POLL_MS = 400;
 const localDriveMaxUploadLimitLabel = computed(() =>
   formatUploadLimitLabel(localDriveMaxUploadBytes.value),
 );
@@ -3878,12 +3884,14 @@ async function openFilePicker() {
     const ok = await ensureIpfsConnected();
     if (!ok) return;
 
-    for (const filePath of selected) {
-      const name = basenameFromPath(filePath) || "file";
-      const pseudo: any = { name, path: filePath };
-      const out = await uploadFile(pseudo as File);
-      if ((out as any)?.cancelled) break;
-    }
+    await withTemporaryLocalUploadLightMode(async () => {
+      for (const filePath of selected) {
+        const name = basenameFromPath(filePath) || "file";
+        const pseudo: any = { name, path: filePath };
+        const out = await uploadFile(pseudo as File);
+        if ((out as any)?.cancelled) break;
+      }
+    });
     return;
   }
 
@@ -3926,10 +3934,12 @@ async function openFolderPicker() {
     const ok = await ensureIpfsConnected();
     if (!ok) return;
 
-    for (const dirPath of selected) {
-      const out = await uploadDirectoryFromPath(dirPath);
-      if ((out as any)?.cancelled) break;
-    }
+    await withTemporaryLocalUploadLightMode(async () => {
+      for (const dirPath of selected) {
+        const out = await uploadDirectoryFromPath(dirPath);
+        if ((out as any)?.cancelled) break;
+      }
+    });
     return;
   }
 
@@ -4002,19 +4012,23 @@ async function submitUploadPathModal() {
 
   try {
     if (uploadPathMode.value === "folder") {
-      for (const dirPath of paths) {
-        const res = await uploadDirectoryFromPath(dirPath);
-        if ((res as any)?.cancelled) break;
-      }
+      await withTemporaryLocalUploadLightMode(async () => {
+        for (const dirPath of paths) {
+          const res = await uploadDirectoryFromPath(dirPath);
+          if ((res as any)?.cancelled) break;
+        }
+      });
       return;
     }
 
-    for (const filePath of paths) {
-      const name = basenameFromPath(filePath) || "file";
-      const pseudo: any = { name, path: filePath };
-      const res = await uploadFile(pseudo as File);
-      if ((res as any)?.cancelled) break;
-    }
+    await withTemporaryLocalUploadLightMode(async () => {
+      for (const filePath of paths) {
+        const name = basenameFromPath(filePath) || "file";
+        const pseudo: any = { name, path: filePath };
+        const res = await uploadFile(pseudo as File);
+        if ((res as any)?.cancelled) break;
+      }
+    });
   } finally {
     uploadPathBusy.value = false;
   }
@@ -4101,23 +4115,27 @@ async function handleDrop(e: DragEvent) {
       }
     }
 
-    for (const f of rootFiles) {
-      const res = await uploadFile(f);
-      if ((res as any)?.cancelled) return;
-    }
-    for (const [rootName, files] of folderGroups.entries()) {
-      const res = await uploadDirectory(rootName, files);
-      if ((res as any)?.cancelled) return;
-    }
+    await withTemporaryLocalUploadLightMode(async () => {
+      for (const f of rootFiles) {
+        const res = await uploadFile(f);
+        if ((res as any)?.cancelled) return;
+      }
+      for (const [rootName, files] of folderGroups.entries()) {
+        const res = await uploadDirectory(rootName, files);
+        if ((res as any)?.cancelled) return;
+      }
+    });
     return;
   }
 
   const droppedFiles = dt.files;
   if (droppedFiles?.length) {
-    for (const file of Array.from(droppedFiles)) {
-      const res = await uploadFile(file);
-      if ((res as any)?.cancelled) break;
-    }
+    await withTemporaryLocalUploadLightMode(async () => {
+      for (const file of Array.from(droppedFiles)) {
+        const res = await uploadFile(file);
+        if ((res as any)?.cancelled) break;
+      }
+    });
   }
 }
 
@@ -5661,10 +5679,12 @@ async function handleFileUpload(e: Event) {
   const ok = await ensureIpfsConnected();
   if (!ok) return;
 
-  for (const file of selected) {
-    const res = await uploadFile(file);
-    if ((res as any)?.cancelled) break;
-  }
+  await withTemporaryLocalUploadLightMode(async () => {
+    for (const file of selected) {
+      const res = await uploadFile(file);
+      if ((res as any)?.cancelled) break;
+    }
+  });
 }
 
 async function handleFolderUpload(e: Event) {
@@ -5689,10 +5709,12 @@ async function handleFolderUpload(e: Event) {
     groups.get(rootName)!.push({ path: rel || f.name, file: f });
   }
 
-  for (const [rootName, list] of groups.entries()) {
-    const res = await uploadDirectory(rootName, list);
-    if ((res as any)?.cancelled) break;
-  }
+  await withTemporaryLocalUploadLightMode(async () => {
+    for (const [rootName, list] of groups.entries()) {
+      const res = await uploadDirectory(rootName, list);
+      if ((res as any)?.cancelled) break;
+    }
+  });
 
 }
 
@@ -5784,6 +5806,86 @@ async function propagateLocalCidToPublicGateways(
     };
   } finally {
     resetPublicGatewayPropagationState();
+  }
+}
+
+function shouldSkipPublicGatewayPropagation(totalBytes: number | null | undefined): boolean {
+  const size = Number(totalBytes || 0);
+  if (!Number.isFinite(size) || size <= 0) return false;
+  return size >= PUBLIC_GATEWAY_PROPAGATION_MAX_BYTES;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function waitForIpfsConnected(
+  timeoutMs = TEMP_LIGHT_MODE_IPFS_READY_TIMEOUT_MS,
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    await checkIpfsStatus();
+    if (ipfsConnected.value) return true;
+    await delay(TEMP_LIGHT_MODE_IPFS_READY_POLL_MS);
+  }
+  await checkIpfsStatus();
+  return ipfsConnected.value;
+}
+
+async function restoreIpfsConnectivityMode(mode: IpfsConnectivityMode): Promise<void> {
+  const currentMode = appSettingsState.value.ipfsConnectivityMode;
+  if (currentMode === mode) return;
+
+  const restoreRes = await setAppSettings({ ipfsConnectivityMode: mode }).catch(
+    (e: any) => ({ ok: false, error: String(e?.message || e) }),
+  );
+  if (!restoreRes?.ok) {
+    console.warn("[drive] failed to restore IPFS connectivity mode:", restoreRes?.error);
+    showToast("Couldn't restore the previous IPFS network mode.", "error");
+    return;
+  }
+
+  const ready = await waitForIpfsConnected().catch(() => false);
+  if (!ready) {
+    console.warn("[drive] IPFS did not reconnect after restoring connectivity mode");
+    showToast("IPFS took too long to reconnect after the upload.", "error");
+  }
+}
+
+async function withTemporaryLocalUploadLightMode(task: () => Promise<void>): Promise<void> {
+  if (hosting.value.kind !== "local") {
+    await task();
+    return;
+  }
+
+  const originalMode = appSettingsState.value.ipfsConnectivityMode;
+  if (originalMode === "light") {
+    await task();
+    return;
+  }
+
+  const switchRes = await setAppSettings({ ipfsConnectivityMode: "light" }).catch(
+    (e: any) => ({ ok: false, error: String(e?.message || e) }),
+  );
+  if (!switchRes?.ok) {
+    console.warn("[drive] failed to switch IPFS connectivity mode to light:", switchRes?.error);
+    showToast("Couldn't switch IPFS to light mode. Upload will continue normally.", "error");
+    await task();
+    return;
+  }
+
+  const ready = await waitForIpfsConnected().catch(() => false);
+  if (!ready) {
+    console.warn("[drive] IPFS did not reconnect after switching to light mode");
+    showToast("IPFS restart timed out while preparing the upload.", "error");
+    await restoreIpfsConnectivityMode(originalMode);
+    return;
+  }
+
+  try {
+    await task();
+  } finally {
+    await restoreIpfsConnectivityMode(originalMode);
   }
 }
 
@@ -5902,11 +6004,19 @@ async function finalizeLocalUpload(
   kind: "file" | "folder",
   name: string,
   cid: string,
+  totalBytes: number,
 ): Promise<void> {
   void loadStats();
   void loadPinnedFiles();
 
   const label = kind === "folder" ? `Uploaded folder: ${name}` : `Uploaded: ${name}`;
+  if (shouldSkipPublicGatewayPropagation(totalBytes)) {
+    showToast(
+      `${label} Public gateway warm-up skipped for uploads over ${PUBLIC_GATEWAY_PROPAGATION_MAX_LABEL}.`,
+      "success",
+    );
+    return;
+  }
   await propagateLocalCidToPublicGateways(cid).catch(() => null);
   showToast(label, "success");
 }
@@ -6132,7 +6242,7 @@ async function uploadDirectory(
       }
       showToast(`Uploaded folder to gateway: ${name}`, "success");
     } else {
-      await finalizeLocalUpload("folder", name, cid);
+      await finalizeLocalUpload("folder", name, cid, totalBytes);
     }
 
     return { ok: true };
@@ -6254,7 +6364,7 @@ async function uploadDirectoryFromPath(
       }
       showToast(`Uploaded folder to gateway: ${name}`, "success");
     } else {
-      await finalizeLocalUpload("folder", name, cid);
+      await finalizeLocalUpload("folder", name, cid, totalBytes);
     }
 
     return { ok: true };
@@ -6361,7 +6471,7 @@ async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cance
         }
         showToast(`Uploaded to gateway: ${file.name}`, "success");
       } else {
-        await finalizeLocalUpload("file", file.name, cid);
+        await finalizeLocalUpload("file", file.name, cid, sizeBytes);
       }
 
       return { ok: true };
