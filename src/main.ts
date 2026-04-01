@@ -1,7 +1,8 @@
+/// <reference types="vite/client" />
 import { createApp } from 'vue';
 import App from './App.vue';
 import './css/index.css';
-import { ALL_COMPONENTS } from './internal/routes.ts';
+import { ALL_COMPONENTS } from './internal/routes';
 import { initAppSettings } from './internal/services/appSettings';
 
 // Prevent tree-shaking of route components
