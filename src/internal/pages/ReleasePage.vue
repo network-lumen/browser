@@ -420,6 +420,7 @@ type ArtifactDraft = {
 };
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
 const loading = ref(true);
 const params = ref<ReleaseParams | null>(null);
@@ -637,6 +638,13 @@ watch(
     if (!loading.value && params.value && !ok) {
       navigate?.('lumen://home', { push: true });
     }
+  }
+);
+
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    void refreshAll();
   }
 );
 
