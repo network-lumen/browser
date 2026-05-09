@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session, dialog, webContents } = require('electron');
+const { app, BrowserWindow, ipcMain, session, dialog, webContents, desktopCapturer } = require('electron');
 const path = require('path');
 const {
   APP_NAME,
@@ -346,6 +346,111 @@ function isSenderSiteContextStillValid(ctx) {
   } catch {
     return false;
   }
+}
+
+function configureDisplayMediaForSession(ses, label) {
+  if (!ses) return;
+
+  try {
+    if (typeof ses.setPermissionRequestHandler === 'function') {
+      ses.setPermissionRequestHandler((webContentsRef, permission, callback) => {
+        const perm = safeString(permission, 128);
+        if (perm === 'display-capture' || perm === 'media') {
+          const href = safeString(webContentsRef?.getURL?.(), 4096);
+          const siteKey = deriveSiteKeyFromHref(href);
+          callback(!!siteKey);
+          return;
+        }
+        callback(false);
+      });
+    }
+  } catch (e) {
+    console.warn('[main] display media permission handler failed', {
+      label,
+      error: String(e?.message || e || 'unknown_error'),
+    });
+  }
+
+  try {
+    if (typeof ses.setDisplayMediaRequestHandler !== 'function') {
+      console.warn('[main] display media request handler unavailable', { label });
+      return;
+    }
+
+    ses.setDisplayMediaRequestHandler(
+      async (request, callback) => {
+        try {
+          const href = safeString(
+            request?.frame?.url || request?.securityOrigin || '',
+            4096,
+          );
+          const siteKey = deriveSiteKeyFromHref(href);
+          if (!siteKey) {
+            callback({});
+            return;
+          }
+
+          const sources = await desktopCapturer.getSources({
+            types: ['window', 'screen'],
+            thumbnailSize: { width: 320, height: 180 },
+            fetchWindowIcons: true,
+          });
+          const choices = sources.slice(0, 12);
+          let selectedIndex = 0;
+          if (choices.length > 1) {
+            const win = getMainWindow() || BrowserWindow.getAllWindows()[0] || null;
+            const result = await dialog.showMessageBox(win || undefined, {
+              type: 'question',
+              title: 'Share screen or window',
+              message: 'Select a source to share with this Lumen site.',
+              detail: safeString(siteKey, 256),
+              buttons: choices.map((item, index) => {
+                const name = safeString(item?.name, 80) || `Source ${index + 1}`;
+                const kind = String(item?.id || '').startsWith('screen:') ? 'Screen' : 'Window';
+                return `${kind}: ${name}`;
+              }),
+              cancelId: choices.length - 1,
+              noLink: true,
+            });
+            selectedIndex = Number.isInteger(result?.response) ? result.response : 0;
+          }
+          const source = choices[selectedIndex] || choices[0];
+          if (!source) {
+            callback({});
+            return;
+          }
+          const streams = {
+            video: {
+              id: String(source.id || ''),
+              name: String(source.name || 'Shared screen'),
+            },
+          };
+          if (request?.audioRequested) {
+            streams.audio = 'loopback';
+          }
+          callback(streams);
+        } catch (e) {
+          console.warn('[main] display media request failed', {
+            label,
+            error: String(e?.message || e || 'unknown_error'),
+          });
+          callback({});
+        }
+      },
+      { useSystemPicker: true },
+    );
+    console.log('[main] display media enabled', { label });
+  } catch (e) {
+    console.warn('[main] display media handler registration failed', {
+      label,
+      error: String(e?.message || e || 'unknown_error'),
+    });
+  }
+}
+
+function configureDisplayMedia() {
+  configureDisplayMediaForSession(session.fromPartition(LUMEN_SESSION_PARTITION), LUMEN_SESSION_PARTITION);
+  configureDisplayMediaForSession(session.defaultSession, 'default');
 }
 
 function getUiWebContents() {
@@ -1505,6 +1610,7 @@ app.whenReady().then(async () => {
 
   registerLumenSessionPreload();
   registerExtensionNetworkRequestGuard(session.fromPartition(LUMEN_SESSION_PARTITION));
+  configureDisplayMedia();
 
   try {
     await extensionManager.initialize();
