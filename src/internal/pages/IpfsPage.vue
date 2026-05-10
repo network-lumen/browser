@@ -1892,14 +1892,13 @@ async function load() {
 
   if (parsed.proto === "ipns" && parsed.cid) {
     const target = await resolveStableLinkTarget(parsed.cid).catch(() => null);
-    if (target && navigate) {
+    if (target) {
       const path = joinStableLinkTargetPath(target.basePath, parsed.rel);
-      const next = `lumen://${target.proto}/${target.id}${path}${parsed.suffix || ""}`;
-      const raw = String(url || "").trim();
-      if (next && next !== raw) {
-        navigate(next, { push: false });
-        return;
-      }
+      parsed.proto = target.proto;
+      parsed.cid = target.id;
+      parsed.rel = path.replace(/^\/+/, "");
+      parsed.dir = path.endsWith("/");
+      if (target.suffix) parsed.suffix = target.suffix;
     }
   }
 

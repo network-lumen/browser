@@ -16,7 +16,7 @@
         <div class="modal-body">
           <div class="info-banner">
             <span>
-              Allow this website to open wallet/save modals?
+              Allow this website to open Lumen action modals?
             </span>
           </div>
 
@@ -212,11 +212,96 @@
       </div>
     </div>
   </Transition>
+
+  <Transition name="fade">
+    <div v-if="current && modalType === 'stableLink'" class="modal-overlay" @click="closeStableLink(false)">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <div class="modal-icon">
+              <Link :size="18" />
+            </div>
+            <h3>Choose or create a stable link for your live</h3>
+          </div>
+          <button class="modal-close" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
+            <X :size="18" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="info-banner" v-if="siteLabel">
+            <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
+          </div>
+          <div v-if="stableLinkError" class="modal-error">{{ stableLinkError }}</div>
+
+          <div class="segmented-control">
+            <button type="button" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+              Existing
+            </button>
+            <button type="button" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+              Create new
+            </button>
+          </div>
+
+          <div class="form-group" v-if="stableLinkMode === 'existing'">
+            <label>Stable link</label>
+            <div class="input-wrapper">
+              <select class="form-input" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
+                <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
+                <option v-for="item in stableLinks" :key="item.name" :value="item.name">
+                  {{ item.label }} — {{ shortStableIpns(item.id) }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" v-else>
+            <label>New stable link label</label>
+            <div class="input-wrapper">
+              <input
+                class="form-input"
+                type="text"
+                v-model="stableLinkNewLabel"
+                placeholder="my-live"
+                :disabled="stableLinkSaving"
+                @keydown.enter.prevent="submitStableLink"
+              />
+            </div>
+          </div>
+
+          <div class="perm-box">
+            <div class="perm-row">
+              <span class="perm-k">Live</span>
+              <span class="perm-v">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
+            </div>
+            <div class="perm-row">
+              <span class="perm-k">Records</span>
+              <span class="perm-v mono">{{ stableLinkRecords.length }} endpoint{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
+
+          <p class="balance-hint">
+            The stable link URL will be copied after it is attached to this live.
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
+            Cancel
+          </button>
+          <button class="btn-primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
+            <span class="spinner" v-if="stableLinkSaving"></span>
+            <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
+            <Save v-else :size="16" />
+            <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { Save, Send, Shield, X } from "lucide-vue-next";
+import { Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 
 type UiReq = { id: string; type: string; data: any };
 
@@ -710,6 +795,164 @@ function closePin(confirm: boolean) {
   if (!confirm) respond({ ok: false, error: "user_cancelled" });
 }
 
+type StableLinkItem = { name: string; id: string; label: string };
+
+const stableLinkLoading = ref(false);
+const stableLinkSaving = ref(false);
+const stableLinkError = ref("");
+const stableLinkMode = ref<"existing" | "create">("existing");
+const stableLinkSelectedName = ref("");
+const stableLinkNewLabel = ref("");
+const stableLinks = ref<StableLinkItem[]>([]);
+
+const stableLinkRecords = computed(() => {
+  const records = Array.isArray(current.value?.data?.records) ? current.value?.data?.records : [];
+  return records
+    .map((record: any) => ({
+      key: String(record?.key || "").trim(),
+      value: String(record?.value || "").trim(),
+    }))
+    .filter((record: { key: string; value: string }) => record.key && record.value);
+});
+
+const stableLinkLiveTitle = computed(() => String(current.value?.data?.title || "").trim());
+
+const canSubmitStableLink = computed(() => {
+  if (stableLinkSaving.value) return false;
+  if (!stableLinkRecords.value.length) return false;
+  if (stableLinkMode.value === "existing") return !!stableLinkSelectedName.value;
+  return !!sanitizeStableLinkLabel(stableLinkNewLabel.value);
+});
+
+function sanitizeStableLinkLabel(input: string): string {
+  return String(input || "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 96);
+}
+
+function stableLinkKeyNameFromLabel(input: string): string {
+  const label = sanitizeStableLinkLabel(input);
+  return label ? `stable:${label}` : "";
+}
+
+function stableLinkDisplayName(name: string): string {
+  const raw = String(name || "").trim();
+  const parts = raw.split(":").map((part) => part.trim()).filter(Boolean);
+  if (parts[0] === "stable" && parts.length > 1) return parts[parts.length - 1];
+  return raw;
+}
+
+function shortStableIpns(id: string): string {
+  const s = String(id || "").trim();
+  if (s.length <= 16) return s || "-";
+  return `${s.slice(0, 8)}…${s.slice(-6)}`;
+}
+
+function defaultStableLiveLabel(): string {
+  const suggested = sanitizeStableLinkLabel(String(current.value?.data?.suggestedName || ""));
+  if (suggested) return suggested;
+  const title = sanitizeStableLinkLabel(stableLinkLiveTitle.value);
+  return title || `live-${Date.now().toString(36)}`;
+}
+
+async function loadStableLinksForModal() {
+  const api: any = (window as any).lumen;
+  stableLinkLoading.value = true;
+  stableLinks.value = [];
+  try {
+    const res = await api?.ipfsKeyList?.();
+    const keys = Array.isArray(res?.keys) ? res.keys : [];
+    stableLinks.value = keys
+      .map((key: any) => {
+        const name = String(key?.Name || key?.name || "").trim();
+        const id = String(key?.Id || key?.id || "").trim();
+        return { name, id, label: stableLinkDisplayName(name) };
+      })
+      .filter((item: StableLinkItem) => item.name.startsWith("stable:"))
+      .sort((a: StableLinkItem, b: StableLinkItem) => a.label.localeCompare(b.label));
+    stableLinkSelectedName.value = stableLinks.value[0]?.name || "";
+    if (!stableLinks.value.length) stableLinkMode.value = "create";
+  } finally {
+    stableLinkLoading.value = false;
+  }
+}
+
+function resetStableLinkState() {
+  stableLinkError.value = "";
+  stableLinkSaving.value = false;
+  stableLinkMode.value = "existing";
+  stableLinkSelectedName.value = "";
+  stableLinkNewLabel.value = defaultStableLiveLabel();
+  void loadStableLinksForModal();
+}
+
+async function publishStableLinkRecords(keyName: string) {
+  const api: any = (window as any).lumen;
+  const body = JSON.stringify({
+    lumenRecordsVersion: 1,
+    type: "lumen.stable-link.records",
+    updatedAt: new Date().toISOString(),
+    records: stableLinkRecords.value,
+  }, null, 2);
+  const bodyBytes = Array.from(new TextEncoder().encode(body));
+  const add = await api?.ipfsAdd?.(bodyBytes, `${stableLinkDisplayName(keyName) || "stable-link"}.lumen-records.json`);
+  if (!add?.ok || !add.cid) return { ok: false, error: add?.error || "ipfs_add_failed" };
+  const published = await api?.ipfsPublishToIPNS?.(add.cid, keyName);
+  if (!published?.ok) return { ok: false, error: published?.error || "ipns_publish_failed" };
+  return { ok: true };
+}
+
+async function submitStableLink() {
+  if (!canSubmitStableLink.value) return;
+  const api: any = (window as any).lumen;
+  stableLinkSaving.value = true;
+  stableLinkError.value = "";
+  try {
+    let keyName = "";
+    let ipnsName = "";
+    if (stableLinkMode.value === "create") {
+      keyName = stableLinkKeyNameFromLabel(stableLinkNewLabel.value);
+      const created = await api?.ipfsKeyGen?.(keyName);
+      if (!created?.ok) {
+        stableLinkError.value = String(created?.error || "Could not create stable link.");
+        return;
+      }
+      keyName = String(created.name || keyName);
+      ipnsName = String(created.id || "");
+    } else {
+      keyName = String(stableLinkSelectedName.value || "").trim();
+      const existing = stableLinks.value.find((item) => item.name === keyName);
+      ipnsName = String(existing?.id || "");
+    }
+
+    const saved = await publishStableLinkRecords(keyName);
+    if (!saved.ok) {
+      stableLinkError.value = String(saved.error || "Could not attach live records.");
+      return;
+    }
+
+    if (!ipnsName) {
+      await loadStableLinksForModal();
+      ipnsName = String(stableLinks.value.find((item) => item.name === keyName)?.id || "");
+    }
+    const url = ipnsName ? `lumen://ipns/${ipnsName}/` : "";
+    if (url && api?.clipboardWriteText) await api.clipboardWriteText(url).catch(() => null);
+    respond({ ok: true, url, keyName, ipnsName, copied: !!url });
+  } catch (e: any) {
+    stableLinkError.value = String(e?.message || e || "stable_link_failed");
+  } finally {
+    stableLinkSaving.value = false;
+  }
+}
+
+function closeStableLink(confirm: boolean) {
+  if (stableLinkSaving.value) return;
+  if (!confirm) respond({ ok: false, error: "user_cancelled" });
+}
+
 watch(
   () => current.value?.id,
   async (id) => {
@@ -721,6 +964,10 @@ watch(
     }
     if (modalType.value === "pin") {
       resetPinState();
+      return;
+    }
+    if (modalType.value === "stableLink") {
+      resetStableLinkState();
       return;
     }
   },
@@ -897,6 +1144,29 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   font-size: 13px;
   margin-bottom: 12px;
+}
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.06);
+}
+.segmented-control button {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  color: rgba(15, 23, 42, 0.72);
+  cursor: pointer;
+  font-weight: 700;
+}
+.segmented-control button.active {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
 }
 .pin-progress-card {
   margin-top: 12px;

@@ -1526,6 +1526,58 @@ ipcMain.handle('lumenSite:pin', async (evt, input) => {
   });
 });
 
+ipcMain.handle('lumenSite:stableLinkForLive', async (evt, input) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+
+  const title = safeString(input && input.title ? input.title : '', 256);
+  const suggestedName = safeString(input && input.suggestedName ? input.suggestedName : '', 128);
+  const records = Array.isArray(input && input.records)
+    ? input.records
+        .map((record) => ({
+          key: safeString(record && record.key ? record.key : '', 128),
+          value: safeString(record && record.value ? record.value : '', 4096),
+        }))
+        .filter((record) => record.key && record.value)
+        .slice(0, 16)
+    : [];
+  if (!records.length) return { ok: false, error: 'missing_records' };
+
+  const meta = { href: ctx.href, title };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'StableLink', {
+        title,
+        suggestedName,
+      });
+      if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
+
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      await enforceSiteModalDelay(ctx.siteKey);
+
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      const res = await requestUi('stableLink', {
+        siteKey: ctx.siteKey,
+        meta,
+        title,
+        suggestedName,
+        records,
+      });
+      markSiteModalCooldown(ctx.siteKey);
+      return res || { ok: false, error: 'stable_link_modal_failed' };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
 function ensureUiSender(evt) {
   const ui = getUiWebContents();
   if (!ui) return { ok: false, error: 'ui_unavailable' };
