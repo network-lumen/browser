@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session, dialog, webContents, desktopCapturer } = require('electron');
+const { app, BrowserWindow, ipcMain, session, dialog, webContents, desktopCapturer, clipboard } = require('electron');
 const path = require('path');
 const {
   APP_NAME,
@@ -134,7 +134,7 @@ try {
   }
 } catch {}
 
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsKeyRename, ipfsKeyImportFromPath, ipfsKeyExportToPath, ipfsKeyRm, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
@@ -563,7 +563,10 @@ function shouldIgnoreRendererConsoleMessage(contents, sourceId, message) {
   const source = String(sourceId || '');
   const text = String(message || '');
   if (source !== 'node:electron/js2c/sandbox_bundle') return false;
-  return text.includes('Electron Security Warning (Insecure Content-Security-Policy)');
+  return (
+    text.includes('Electron Security Warning (Insecure Content-Security-Policy)') ||
+    text.includes('Electron Security Warning (Insecure Resources)')
+  );
 }
 
 ipcMain.on('tabs:state', (evt, tabIds) => {
@@ -1135,6 +1138,75 @@ ipcMain.handle('ipfs:keyList', async () => {
 ipcMain.handle('ipfs:keyGen', async (_evt, name) => {
   console.log('[electron][ipc] ipfs:keyGen requested:', name);
   return ipfsKeyGen(name);
+});
+
+ipcMain.handle('ipfs:keyRename', async (_evt, oldName, newName) => {
+  console.log('[electron][ipc] ipfs:keyRename requested:', oldName, '->', newName);
+  return ipfsKeyRename(oldName, newName);
+});
+
+ipcMain.handle('ipfs:keyImport', async (_evt, name) => {
+  const keyName = String(name || '').trim();
+  if (!keyName) return { ok: false, error: 'missing_key_name' };
+  const win = getMainWindow();
+  const selected = win
+    ? await dialog.showOpenDialog(win, {
+        title: 'Import stable link key',
+        properties: ['openFile'],
+        filters: [
+          { name: 'Private key files', extensions: ['key', 'pem', 'txt'] },
+          { name: 'All files', extensions: ['*'] },
+        ],
+      })
+    : await dialog.showOpenDialog({
+        title: 'Import stable link key',
+        properties: ['openFile'],
+        filters: [
+          { name: 'Private key files', extensions: ['key', 'pem', 'txt'] },
+          { name: 'All files', extensions: ['*'] },
+        ],
+      });
+  if (selected.canceled || !selected.filePaths?.length) return { ok: false, canceled: true };
+  return ipfsKeyImportFromPath(keyName, selected.filePaths[0]);
+});
+
+ipcMain.handle('ipfs:keyExport', async (_evt, name) => {
+  const keyName = String(name || '').trim();
+  if (!keyName) return { ok: false, error: 'missing_key_name' };
+  const safeName = keyName.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'stable-link';
+  const win = getMainWindow();
+  const selected = win
+    ? await dialog.showSaveDialog(win, {
+        title: 'Export stable link key',
+        defaultPath: `${safeName}.pem`,
+        filters: [
+          { name: 'PEM private key', extensions: ['pem'] },
+          { name: 'All files', extensions: ['*'] },
+        ],
+      })
+    : await dialog.showSaveDialog({
+        title: 'Export stable link key',
+        defaultPath: `${safeName}.pem`,
+        filters: [
+          { name: 'PEM private key', extensions: ['pem'] },
+          { name: 'All files', extensions: ['*'] },
+        ],
+      });
+  if (selected.canceled || !selected.filePath) return { ok: false, canceled: true };
+  return ipfsKeyExportToPath(keyName, selected.filePath);
+});
+
+ipcMain.handle('ipfs:keyRm', async (_evt, name) => {
+  return ipfsKeyRm(name);
+});
+
+ipcMain.handle('clipboard:writeText', async (_evt, text) => {
+  try {
+    clipboard.writeText(String(text ?? ''));
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
 });
 
 ipcMain.handle('ipfs:swarmPeers', async () => {

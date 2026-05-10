@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('lumen', {
       return false;
     }
   })(),
+  clipboardWriteText: (text) => ipcRenderer.invoke('clipboard:writeText', String(text ?? '')),
   tabsOnOpenInNewTab: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const handler = (_event, payload) => {
@@ -210,6 +211,10 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsResolveIPNS: (name) => ipcRenderer.invoke('ipfs:resolveIPNS', name),
   ipfsKeyList: () => ipcRenderer.invoke('ipfs:keyList'),
   ipfsKeyGen: (name) => ipcRenderer.invoke('ipfs:keyGen', name),
+  ipfsKeyRename: (oldName, newName) => ipcRenderer.invoke('ipfs:keyRename', oldName, newName),
+  ipfsKeyImport: (name) => ipcRenderer.invoke('ipfs:keyImport', name),
+  ipfsKeyExport: (name) => ipcRenderer.invoke('ipfs:keyExport', name),
+  ipfsKeyRm: (name) => ipcRenderer.invoke('ipfs:keyRm', name),
   ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
   driveConvertToHls: (payload) => ipcRenderer.invoke('drive:convertToHls', payload || {}),
   driveDownloadHlsArchive: (payload) => ipcRenderer.invoke('drive:downloadHlsArchive', payload || {}),

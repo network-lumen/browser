@@ -28,7 +28,7 @@
             type="button"
             @click="openSaveModal"
             :class="{ 'save-active': saved }"
-            :disabled="!rootCid || loading || saving || saved"
+            :disabled="!canSaveToDrive || saving || saved"
             :title="
               saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'
             "
@@ -343,6 +343,7 @@ import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
   probeUrl,
+  resolveStableLinkTarget,
 } from "../services/contentResolver";
 import { activeProfileId } from "../profilesStore";
 
@@ -457,6 +458,7 @@ function onWebviewDidStopLoading() {
 }
 
 const rootCid = ref("");
+const rootProto = ref<"ipfs" | "ipns">("ipfs");
 const relPath = ref("");
 const wantsDir = ref(false);
 const suffix = ref("");
@@ -645,7 +647,7 @@ const epubBookUrl = computed(() => {
   const base = resolvedGatewayBase.value || localIpfsGatewayBase();
   const b = String(base).replace(/\/+$/, "");
   const suf = suffix.value || "";
-  return `${b}/ipfs/${rootCid.value}${p}${suf}`;
+  return `${b}/${rootProto.value}/${rootCid.value}${p}${suf}`;
 });
 
 const epubReaderUrl = computed(() => {
@@ -712,16 +714,18 @@ function splitPathSuffix(rawPath: string): { path: string; suffix: string } {
 }
 
 function parseIpfsUrl(raw: string): {
+  proto: "ipfs" | "ipns";
   cid: string;
   rel: string;
   dir: boolean;
   suffix: string;
 } {
   const s = String(raw || "").trim();
-  if (!s) return { cid: "", rel: "", dir: false, suffix: "" };
+  if (!s) return { proto: "ipfs", cid: "", rel: "", dir: false, suffix: "" };
 
   const withoutScheme = /^lumen:\/\//i.test(s) ? s.slice("lumen://".length) : s;
-  const afterHost = withoutScheme.replace(/^ipfs\/?/i, "");
+  const proto = /^ipns(\/|$)/i.test(withoutScheme) ? "ipns" : "ipfs";
+  const afterHost = withoutScheme.replace(/^(ipfs|ipns)\/?/i, "");
   const split = splitPathSuffix(afterHost);
   const hasTrailingSlash = /\/$/.test(split.path);
   const cleaned = split.path.replace(/^\/+/, "").replace(/\/+$/, "");
@@ -729,17 +733,17 @@ function parseIpfsUrl(raw: string): {
   const segs = cleaned.split("/").filter(Boolean).map(decodeSafe);
   const cid = segs[0] || "";
   const rel = segs.slice(1).join("/");
-  return { cid, rel, dir: hasTrailingSlash, suffix: split.suffix };
+  return { proto, cid, rel, dir: hasTrailingSlash, suffix: split.suffix };
 }
 
 const displayLumenUrl = computed(() => {
-  if (!rootCid.value) return "lumen://ipfs/";
+  if (!rootCid.value) return `lumen://${rootProto.value}/`;
   const p = relPath.value
     ? `/${encodePath(relPath.value)}`
     : wantsDir.value || isDir.value
       ? "/"
       : "";
-  return `lumen://ipfs/${rootCid.value}${p}${suffix.value || ""}`;
+  return `lumen://${rootProto.value}/${rootCid.value}${p}${suffix.value || ""}`;
 });
 
 const contentUrl = computed(() => {
@@ -755,7 +759,7 @@ const contentUrl = computed(() => {
     const u = new URL(b);
     const host = String(u.hostname || "").toLowerCase();
     const isLocal = host === "localhost" || host === "127.0.0.1";
-    const isCidV1B32 = /^bafy[a-z0-9]{20,}$/i.test(rootCid.value);
+    const isCidV1B32 = rootProto.value === "ipfs" && /^bafy[a-z0-9]{20,}$/i.test(rootCid.value);
     if (isLocal && isCidV1B32) {
       const port = u.port ? `:${u.port}` : "";
       const proto = u.protocol || "http:";
@@ -765,7 +769,7 @@ const contentUrl = computed(() => {
     }
   } catch {}
 
-  return `${b}/ipfs/${rootCid.value}${p}${suf}`;
+  return `${b}/${rootProto.value}/${rootCid.value}${p}${suf}`;
 });
 
 type MarkdownTarget = {
@@ -858,7 +862,7 @@ function resolveRelativeMarkdownTarget(raw: string): MarkdownTarget | null {
   try {
     const next = new URL(input, `https://markdown.local${basePath}`);
     return {
-      proto: "ipfs",
+      proto: rootProto.value,
       id: rootCid.value,
       path: decodePathSegments(next.pathname),
       dir: next.pathname.endsWith("/"),
@@ -1039,7 +1043,7 @@ async function pickGatewayBaseForCurrentTarget(): Promise<string> {
     const b = String(base || "").replace(/\/+$/, "");
     if (!b) return "";
     const rel = relEncoded ? `/${relEncoded}` : "";
-    return `${b}/ipfs/${cid}${rel}${suffixStr}`;
+    return `${b}/${rootProto.value}/${cid}${rel}${suffixStr}`;
   };
 
   const localBase = localIpfsGatewayBase();
@@ -1093,6 +1097,7 @@ const crumbs = computed(() => {
 });
 
 const canDownload = computed(() => !!rootCid.value && !loading.value);
+const canSaveToDrive = computed(() => rootProto.value === "ipfs" && !!rootCid.value && !loading.value);
 const isPreviewUnavailable = computed(
   () => !loading.value && !!rootCid.value && !isDir.value && viewKind.value === "unknown",
 );
@@ -1541,18 +1546,20 @@ function safeInjectIntoHead(html: string, inject: string): string {
 
 function buildIpfsSiteSrcdoc(params: {
   html: string;
+  proto: "ipfs" | "ipns";
   cid: string;
   relEncoded: string;
   suffix: string;
   baseHref: string;
 }): string {
   const cid = String(params.cid || "").trim();
+  const proto = params.proto === "ipns" ? "ipns" : "ipfs";
   const relEncoded = String(params.relEncoded || "").replace(/^\/+/, "");
   const suffix = String(params.suffix || "");
   const baseHref = String(params.baseHref || "");
 
-  const lumenPath = `lumen://ipfs/${cid}${relEncoded ? `/${relEncoded}` : ""}`;
-  const pseudoPath = `/ipfs/${cid}${relEncoded ? `/${relEncoded}` : ""}`;
+  const lumenPath = `lumen://${proto}/${cid}${relEncoded ? `/${relEncoded}` : ""}`;
+  const pseudoPath = `/${proto}/${cid}${relEncoded ? `/${relEncoded}` : ""}`;
 
   const escapedBaseHref = baseHref.replace(/"/g, "&quot;");
   const inject = `
@@ -1595,11 +1602,12 @@ function buildIpfsSiteSrcdoc(params: {
       const raw = String(href || '').trim();
       if (raw && raw[0] === '#') return LUMEN_PATH + (location.search || '') + raw;
       const u = new URL(String(href || ''), BASE_HREF);
-      const m = u.pathname.match(/\\/ipfs\\/([^\\/]+)(\\/.*)?$/);
+      const m = u.pathname.match(/\\/(ipfs|ipns)\\/([^\\/]+)(\\/.*)?$/);
       if (!m) return null;
-      const nextCid = m[1] || '';
-      const rest = m[2] || '';
-      return 'lumen://ipfs/' + nextCid + rest + (u.search || '') + (u.hash || '');
+      const nextProto = m[1] || 'ipfs';
+      const nextCid = m[2] || '';
+      const rest = m[3] || '';
+      return 'lumen://' + nextProto + '/' + nextCid + rest + (u.search || '') + (u.hash || '');
     }catch{
       return null;
     }
@@ -1670,6 +1678,13 @@ function isOnlyHashChange(prev: string, next: string): boolean {
   const a = normalizeSuffix(prev);
   const b = normalizeSuffix(next);
   return a.search === b.search && a.hash !== b.hash;
+}
+
+function joinStableLinkTargetPath(basePath: string | undefined, rel: string): string {
+  const base = String(basePath || "").trim().replace(/^\/+|\/+$/g, "");
+  const rest = String(rel || "").trim().replace(/^\/+|\/+$/g, "");
+  const parts = [base, rest].filter(Boolean);
+  return parts.length ? `/${parts.join("/")}` : "";
 }
 
 function onSiteMessage(evt: MessageEvent) {
@@ -1875,8 +1890,21 @@ async function load() {
   const url = String(currentTabUrl?.value || window.location.href || "");
   const parsed = parseIpfsUrl(url);
 
+  if (parsed.proto === "ipns" && parsed.cid) {
+    const target = await resolveStableLinkTarget(parsed.cid).catch(() => null);
+    if (target && navigate) {
+      const path = joinStableLinkTargetPath(target.basePath, parsed.rel);
+      const next = `lumen://${target.proto}/${target.id}${path}${parsed.suffix || ""}`;
+      const raw = String(url || "").trim();
+      if (next && next !== raw) {
+        navigate(next, { push: false });
+        return;
+      }
+    }
+  }
+
   // Auto-convert CIDv0 (Qm...) to CIDv1 base32 (bafy...) so localhost subdomain gateways work.
-  if (/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(parsed.cid)) {
+  if (parsed.proto === "ipfs" && /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(parsed.cid)) {
     const api: any = (window as any).lumen;
     if (api && typeof api.ipfsCidToBase32 === "function") {
       const res = await api.ipfsCidToBase32(parsed.cid).catch(() => null);
@@ -1900,6 +1928,7 @@ async function load() {
   if (
     rootCid.value &&
     viewKind.value === "html" &&
+    rootProto.value === parsed.proto &&
     rootCid.value === parsed.cid &&
     relPath.value === parsed.rel &&
     isOnlyHashChange(suffix.value, parsed.suffix)
@@ -1908,6 +1937,7 @@ async function load() {
     return;
   }
 
+  rootProto.value = parsed.proto;
   rootCid.value = parsed.cid;
   relPath.value = parsed.rel;
   wantsDir.value = parsed.dir;
@@ -1938,8 +1968,8 @@ async function load() {
 
   try {
     const target = relPath.value
-      ? `${rootCid.value}/${relPath.value}`
-      : rootCid.value;
+      ? `/${rootProto.value}/${rootCid.value}/${relPath.value}`
+      : `/${rootProto.value}/${rootCid.value}`;
     const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
     const list = Array.isArray(res?.entries) ? res.entries : [];
     const mapped: Entry[] = list
@@ -1981,7 +2011,7 @@ async function load() {
           null;
 
         if (idx) {
-          const next = `lumen://ipfs/${rootCid.value}/${encodePath(idx.relPath)}${suffix.value || ""}`;
+          const next = `lumen://${rootProto.value}/${rootCid.value}/${encodePath(idx.relPath)}${suffix.value || ""}`;
           const cur = String(currentTabUrl?.value || "").trim();
           if (cur !== next) {
             navigate(next, { push: false });
@@ -2084,10 +2114,11 @@ async function load() {
             );
             const relEncoded = relPath.value ? encodePath(relPath.value) : "";
             const baseHref = relEncoded
-              ? `${localIpfsGatewayBase()}/ipfs/${rootCid.value}/${relEncoded}`
-              : `${localIpfsGatewayBase()}/ipfs/${rootCid.value}/`;
+              ? `${localIpfsGatewayBase()}/${rootProto.value}/${rootCid.value}/${relEncoded}`
+              : `${localIpfsGatewayBase()}/${rootProto.value}/${rootCid.value}/`;
             htmlSrcdoc.value = buildIpfsSiteSrcdoc({
               html,
+              proto: rootProto.value,
               cid: rootCid.value,
               relEncoded,
               suffix: suffix.value,
@@ -2111,33 +2142,33 @@ async function load() {
 function openIndexHtml() {
   const entry = indexHtmlEntry.value;
   if (!entry || !navigate) return;
-  navigate(`lumen://ipfs/${rootCid.value}/${encodePath(entry.relPath)}`);
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/${encodePath(entry.relPath)}`);
 }
 
 function openMasterHls() {
   const entry = masterM3u8Entry.value;
   if (!entry || !navigate) return;
-  navigate(`lumen://ipfs/${rootCid.value}/${encodePath(entry.relPath)}`);
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/${encodePath(entry.relPath)}`);
 }
 
 function openEntry(it: Entry) {
   if (!navigate) return;
   const dirSuffix = it.type === "dir" ? "/" : "";
   navigate(
-    `lumen://ipfs/${rootCid.value}/${encodePath(it.relPath)}${dirSuffix}`,
+    `lumen://${rootProto.value}/${rootCid.value}/${encodePath(it.relPath)}${dirSuffix}`,
   );
 }
 
 function openDirRoot() {
   if (!navigate) return;
-  navigate(`lumen://ipfs/${rootCid.value}/`);
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/`);
 }
 
 function openDirCrumb(idx: number) {
   if (!navigate) return;
   const c = crumbs.value[idx];
   if (!c) return;
-  navigate(`lumen://ipfs/${rootCid.value}/${encodePath(c.path)}/`);
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/${encodePath(c.path)}/`);
 }
 
 async function copyText(v: string) {
@@ -2155,7 +2186,7 @@ async function copyLink() {
 async function copyLinkFor(it: Entry) {
   const dirSuffix = it.type === "dir" ? "/" : "";
   await copyText(
-    `lumen://ipfs/${rootCid.value}/${encodePath(it.relPath)}${dirSuffix}`,
+    `lumen://${rootProto.value}/${rootCid.value}/${encodePath(it.relPath)}${dirSuffix}`,
   );
 }
 
@@ -2362,6 +2393,7 @@ async function refreshSavedState() {
   try {
     saved.value = false;
     savedCid.value = "";
+    if (rootProto.value !== "ipfs") return;
     if (!rootCid.value) return;
     const cid = await resolveSaveTargetCid();
     savedCid.value = cid;
@@ -2401,7 +2433,7 @@ async function download() {
 
     const dirRel = isHlsMaster ? "" : rel;
     const p = dirRel ? `/${encodePath(dirRel)}` : "";
-    const tarUrl = `${base}/ipfs/${rootCid.value}${p}?format=tar`;
+    const tarUrl = `${base}/${rootProto.value}/${rootCid.value}${p}?format=tar`;
 
     const a = document.createElement("a");
     a.href = tarUrl;
@@ -2410,7 +2442,7 @@ async function download() {
     return;
   }
 
-  const target = rel ? `${rootCid.value}/${rel}` : rootCid.value;
+  const target = rel ? `/${rootProto.value}/${rootCid.value}/${rel}` : `/${rootProto.value}/${rootCid.value}`;
   const gateways = await loadWhitelistedGatewayBases().catch(() => []);
   const got = await (window as any).lumen?.ipfsGet?.(target, { gateways }).catch(() => null);
   if (!got?.ok || !Array.isArray(got.data)) return;

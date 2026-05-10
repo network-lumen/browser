@@ -36,8 +36,10 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   settings: { component: SettingsPage, title: 'Settings' },
   drive: { component: DrivePage, title: 'Drive' },
   ipfs: { component: IpfsPage, title: 'IPFS' },
+  ipns: { component: IpfsPage, title: 'IPNS' },
   wallet: { component: WalletPage, title: 'Wallet' },
   domain: { component: DomainPage, title: 'Domain' },
+  domains: { component: DomainPage, title: 'Domains' },
   extensions: { component: ExtensionsPage, title: 'Extensions' },
   extension: { component: ExtensionPage, title: 'Extension' },
   network: { component: NetworkPage, title: 'Network' },
@@ -57,7 +59,7 @@ function isLikelyDomainHost(host: string): boolean {
   const h = String(host || '').trim().toLowerCase();
   if (!h) return false;
   if (INTERNAL_ROUTES[h]) return false;
-  if (h === 'ipfs') return false;
+  if (h === 'ipfs' || h === 'ipns') return false;
   // keep it simple: anything with a dot behaves like a domain
   return h.includes('.');
 }

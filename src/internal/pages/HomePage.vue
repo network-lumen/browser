@@ -176,7 +176,7 @@ const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
 
   const allRoutes = computed(() => {
     const routes = INTERNAL_ROUTE_KEYS.filter(
-      (key) => !['home', 'ipfs', 'gateways', 'release', 'block', 'transaction', 'tx', 'address'].includes(key),
+      (key) => !['home', 'ipfs', 'ipns', 'domains', 'gateways', 'release', 'block', 'transaction', 'tx', 'address'].includes(key),
     );
     if (customOrder.value.length === 0) return routes;
     

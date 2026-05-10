@@ -36,7 +36,7 @@ export function isCidLike(v: string): boolean {
   return false;
 }
 
-function parseRecordTarget(value: any): DomainTarget | null {
+export function parseRecordTarget(value: any): DomainTarget | null {
   const v = String(value ?? '').trim();
   if (!v) return null;
   const lower = v.toLowerCase();
@@ -79,6 +79,82 @@ function parseRecordTarget(value: any): DomainTarget | null {
   }
   if (isCidLike(v)) return { proto: 'ipfs', id: v };
   return null;
+}
+
+export function parseIpnsRecordTarget(value: any): DomainTarget | null {
+  const parsed = parseRecordTarget(value);
+  if (parsed) return parsed;
+  const id = String(value ?? '').trim().replace(/^\/+/, '');
+  if (!id || /[/?#\s]/.test(id)) return null;
+  return { proto: 'ipns', id };
+}
+
+export type ResolverRecord = { key: string; value: string };
+
+export function normalizeResolverRecords(input: any): ResolverRecord[] {
+  const rawRecords = Array.isArray(input)
+    ? input
+    : Array.isArray(input?.records)
+      ? input.records
+      : input && typeof input === 'object'
+        ? Object.entries(input)
+            .filter(([key]) => !['version', 'lumenRecordsVersion', 'createdAt', 'updatedAt'].includes(String(key)))
+            .map(([key, value]) => ({ key, value }))
+        : [];
+
+  return rawRecords
+    .map((record: any) => ({
+      key: String(record?.key || '').trim(),
+      value: String(record?.value ?? '').trim(),
+    }))
+    .filter((record: ResolverRecord) => record.key && record.value);
+}
+
+export function pickRecordTarget(records: ResolverRecord[]): DomainTarget | null {
+  const list = normalizeResolverRecords(records);
+  const preferredKeys = ['cid', 'ipfs', 'ipns', 'root', 'site', 'website'];
+  for (const k of preferredKeys) {
+    const rec = list.find((r) => String(r.key || '').toLowerCase() === k);
+    const parsed = rec ? (k === 'ipns' ? parseIpnsRecordTarget(rec.value) : parseRecordTarget(rec.value)) : null;
+    if (parsed) return parsed;
+  }
+  return null;
+}
+
+function bytesToText(data: any): string {
+  try {
+    const bytes = data instanceof Uint8Array
+      ? data
+      : Array.isArray(data)
+        ? new Uint8Array(data)
+        : null;
+    if (!bytes) return '';
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return '';
+  }
+}
+
+export async function loadStableLinkRecords(name: string): Promise<ResolverRecord[]> {
+  const cid = await resolveIpnsToCid(name);
+  if (!cid) return [];
+  const api: any = (window as any).lumen;
+  if (!api || typeof api.ipfsGet !== 'function') return [];
+  const res = await api.ipfsGet(`/ipfs/${cid}`, { timeoutMs: 8000 }).catch(() => null);
+  if (!res?.ok) return [];
+  const text = bytesToText(res.data);
+  if (!text) return [];
+  try {
+    const parsed = JSON.parse(text);
+    return normalizeResolverRecords(parsed);
+  } catch {
+    return [];
+  }
+}
+
+export async function resolveStableLinkTarget(name: string): Promise<DomainTarget | null> {
+  const records = await loadStableLinkRecords(name);
+  return pickRecordTarget(records);
 }
 
 function splitSubdomain(host: string): { baseDomain: string; recordKey: string | null } {
@@ -139,12 +215,8 @@ export async function resolveDomainTarget(
   }
 
   if (info && Array.isArray(info.records)) {
-    const preferredKeys = ['cid', 'ipfs', 'ipns', 'root', 'site', 'website'];
-    for (const k of preferredKeys) {
-      const rec = info.records.find((r: any) => String(r?.key || '').toLowerCase() === k);
-      const parsed = rec ? parseRecordTarget(rec.value) : null;
-      if (parsed) return { target: await normalizeIpfsTarget(parsed), baseDomain };
-    }
+    const parsed = pickRecordTarget(info.records);
+    if (parsed) return { target: await normalizeIpfsTarget(parsed), baseDomain };
   }
 
   const cid = info?.cid ? String(info.cid).trim() : '';
@@ -152,7 +224,7 @@ export async function resolveDomainTarget(
   if (parsedCid) return { target: await normalizeIpfsTarget(parsedCid), baseDomain };
 
   const ipns = info?.ipns ? String(info.ipns).trim() : '';
-  const parsedIpns = ipns ? parseRecordTarget(ipns) : null;
+  const parsedIpns = ipns ? parseIpnsRecordTarget(ipns) : null;
   if (parsedIpns) return { target: await normalizeIpfsTarget(parsedIpns), baseDomain };
 
   if (isCidLike(baseDomain)) return { target: await normalizeIpfsTarget({ proto: 'ipfs', id: baseDomain }), baseDomain };

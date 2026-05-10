@@ -1033,6 +1033,7 @@ function startIpfsDaemon() {
       String(d)
         .split(/\r?\n/)
         .filter(Boolean)
+        .filter((line) => !shouldIgnoreIpfsStderrLine(line))
         .forEach((line) => console.warn('[electron][ipfs][stderr]', line));
     });
     ipfsProcess.on('exit', () => {
@@ -1044,6 +1045,17 @@ function startIpfsDaemon() {
     console.error('[electron][ipfs] failed to spawn daemon:', e);
     ipfsProcess = null;
   }
+}
+
+function shouldIgnoreIpfsStderrLine(line) {
+  const text = String(line || '');
+  return (
+    text.includes('A NEW VERSION OF KUBO DETECTED') ||
+    text.includes('This Kubo node is running an outdated version') ||
+    text.includes('sampled Kubo peers are running a higher version') ||
+    text.includes('github.com/ipfs/kubo/releases') ||
+    text.includes('dist.ipfs.tech/#kubo')
+  );
 }
 
 async function checkIpfsStatus(retries = 3, delay = 1000) {
@@ -2385,6 +2397,7 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
 
 function toBufferPayload(data) {
   if (Buffer.isBuffer(data)) return data;
+  if (typeof data === 'string') return Buffer.from(data, 'utf8');
   if (data instanceof ArrayBuffer) return Buffer.from(data);
   if (ArrayBuffer.isView(data)) return Buffer.from(data.buffer, data.byteOffset, data.byteLength);
   if (Array.isArray(data)) return Buffer.from(Uint8Array.from(data));
@@ -3001,21 +3014,72 @@ async function ipfsResolveIPNS(name) {
 
 async function ipfsKeyList() {
   try {
-    const res = await fetch(`${ipfsApiBase()}/api/v0/key/list`, {
-      method: 'POST'
-    });
+    let lastError = '';
+    for (const endpoint of ['key/ls', 'key/list']) {
+      const res = await fetch(`${ipfsApiBase()}/api/v0/${endpoint}?ipns-base=base36`, {
+        method: 'POST'
+      });
 
-    if (!res.ok) {
-      return { ok: false, error: 'http_' + res.status };
+      if (!res.ok) {
+        lastError = 'http_' + res.status;
+        if (res.status === 404) continue;
+        return { ok: false, error: lastError };
+      }
+
+      const json = await res.json();
+      console.log('[electron][ipfs] key list:', json.Keys?.length || 0, 'keys');
+      return { ok: true, keys: json.Keys || [] };
     }
-
-    const json = await res.json();
-    console.log('[electron][ipfs] key list:', json.Keys?.length || 0, 'keys');
-    return { ok: true, keys: json.Keys || [] };
+    return { ok: false, error: lastError || 'key_list_unavailable' };
   } catch (e) {
     console.error('[electron][ipfs] key list error:', e);
     return { ok: false, error: String(e?.message || e) };
   }
+}
+
+function runKuboCommand(args, { timeoutMs = 30_000 } = {}) {
+  return new Promise((resolve) => {
+    const bin = resolveKuboBin();
+    const repoPath = getIpfsRepoPath();
+    const child = spawn(bin, args, {
+      env: {
+        ...process.env,
+        IPFS_PATH: repoPath,
+        IPFS_ALLOW_BIG_BLOCK: '1'
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+      detached: false
+    });
+    let stdout = '';
+    let stderr = '';
+    const timer = setTimeout(() => {
+      try { child.kill(); } catch {}
+      resolve({ ok: false, code: null, stdout, stderr, error: `kubo_timeout_${timeoutMs}ms` });
+    }, timeoutMs);
+
+    child.stdout?.on('data', (chunk) => {
+      stdout += String(chunk || '');
+    });
+    child.stderr?.on('data', (chunk) => {
+      stderr += String(chunk || '');
+    });
+    child.on('error', (e) => {
+      clearTimeout(timer);
+      resolve({ ok: false, code: null, stdout, stderr, error: String(e?.message || e) });
+    });
+    child.on('exit', (code) => {
+      clearTimeout(timer);
+      const ok = Number(code) === 0;
+      resolve({
+        ok,
+        code: Number.isFinite(Number(code)) ? Number(code) : null,
+        stdout,
+        stderr,
+        error: ok ? '' : String(stderr || stdout || `kubo_exit_${code}`).trim(),
+      });
+    });
+  });
 }
 
 async function ipfsKeyGen(name) {
@@ -3038,6 +3102,104 @@ async function ipfsKeyGen(name) {
     return { ok: true, name: json.Name, id: json.Id };
   } catch (e) {
     console.error('[electron][ipfs] key gen error:', e);
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+async function ipfsKeyRename(oldName, newName) {
+  const currentName = String(oldName || '').trim();
+  const nextName = String(newName || '').trim();
+  if (!currentName) return { ok: false, error: 'missing_key_name' };
+  if (!nextName) return { ok: false, error: 'missing_new_key_name' };
+  if (currentName === 'self' || nextName === 'self') return { ok: false, error: 'cannot_rename_self_key' };
+  if (currentName === nextName) return { ok: true, name: nextName, unchanged: true };
+
+  try {
+    const url = new URL(`${ipfsApiBase()}/api/v0/key/rename`);
+    url.searchParams.append('arg', currentName);
+    url.searchParams.append('arg', nextName);
+    url.searchParams.set('ipns-base', 'base36');
+    const res = await fetch(url.toString(), { method: 'POST' });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: errText || 'http_' + res.status };
+    }
+    const json = await res.json().catch(() => ({}));
+    return {
+      ok: true,
+      id: String(json?.Id || '').trim(),
+      name: String(json?.Now || nextName).trim(),
+      oldName: String(json?.Was || currentName).trim(),
+      overwrite: !!json?.Overwrite,
+    };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+async function ipfsKeyImportFromPath(name, filePath) {
+  const keyName = String(name || '').trim();
+  const sourcePath = String(filePath || '').trim();
+  if (!keyName) return { ok: false, error: 'missing_key_name' };
+  if (!sourcePath) return { ok: false, error: 'missing_key_path' };
+  if (!fs.existsSync(sourcePath)) return { ok: false, error: 'key_file_not_found' };
+
+  const formats = ['pem-pkcs8-cleartext', 'libp2p-protobuf-cleartext'];
+  let lastError = '';
+  for (const format of formats) {
+    const res = await runKuboCommand(
+      ['key', 'import', keyName, sourcePath, '--format', format, '--ipns-base', 'base36'],
+      { timeoutMs: 30_000 }
+    );
+    if (res.ok) {
+      const listed = await ipfsKeyList();
+      const keys = Array.isArray(listed?.keys) ? listed.keys : [];
+      const hit = keys.find((key) => String(key?.Name || key?.name || '').trim() === keyName);
+      return {
+        ok: true,
+        name: keyName,
+        id: String(hit?.Id || hit?.id || '').trim(),
+        format,
+      };
+    }
+    lastError = String(res.error || '').trim();
+  }
+  return { ok: false, error: lastError || 'key_import_failed' };
+}
+
+async function ipfsKeyExportToPath(name, filePath) {
+  const keyName = String(name || '').trim();
+  const targetPath = String(filePath || '').trim();
+  if (!keyName) return { ok: false, error: 'missing_key_name' };
+  if (keyName === 'self') return { ok: false, error: 'cannot_export_self_key' };
+  if (!targetPath) return { ok: false, error: 'missing_export_path' };
+
+  const dir = path.dirname(targetPath);
+  if (!fs.existsSync(dir)) return { ok: false, error: 'export_directory_not_found' };
+  const res = await runKuboCommand(
+    ['key', 'export', keyName, '--format', 'pem-pkcs8-cleartext', '-o', targetPath],
+    { timeoutMs: 30_000 }
+  );
+  if (!res.ok) return { ok: false, error: String(res.error || 'key_export_failed') };
+  return { ok: true, path: targetPath, name: keyName, format: 'pem-pkcs8-cleartext' };
+}
+
+async function ipfsKeyRm(name) {
+  const keyName = String(name || '').trim();
+  if (!keyName) return { ok: false, error: 'missing_key_name' };
+  if (keyName === 'self') return { ok: false, error: 'cannot_delete_self_key' };
+  try {
+    const url = new URL(`${ipfsApiBase()}/api/v0/key/rm`);
+    url.searchParams.set('arg', keyName);
+    url.searchParams.set('ipns-base', 'base36');
+    const res = await fetch(url.toString(), { method: 'POST' });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: errText || 'http_' + res.status };
+    }
+    const json = await res.json().catch(() => ({}));
+    return { ok: true, keys: Array.isArray(json?.Keys) ? json.Keys : [] };
+  } catch (e) {
     return { ok: false, error: String(e?.message || e) };
   }
 }
@@ -3104,6 +3266,10 @@ module.exports = {
   ipfsResolveIPNS,
   ipfsKeyList,
   ipfsKeyGen,
+  ipfsKeyRename,
+  ipfsKeyImportFromPath,
+  ipfsKeyExportToPath,
+  ipfsKeyRm,
   ipfsSwarmPeers,
   ipfsPropagateCidToPublicGateways,
 };

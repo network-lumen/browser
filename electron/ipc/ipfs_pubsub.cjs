@@ -8,6 +8,7 @@ function ipfsApiBase() {
 }
 
 const LIMITS = { maxSubsPerWebContents: 5, pubPerSec: 10, pubBurst: 20, maxMsgBytes: 256 * 1024 };
+const ENABLE_ROUTING_FINDPROVS = process.env.LUMEN_ENABLE_PUBSUB_DHT_DISCOVERY === '1';
 const ACTIVE_SUBS = new Map(); // subId -> { wcId, topic, stop }
 const WC_SUBS = new Map(); // wcId -> Set<subId>
 const BUCKETS = new Map(); // wcId -> { cap,tokens,refill,last }
@@ -344,6 +345,10 @@ async function routingProvideBestEffort(cid) {
 }
 
 async function routingFindprovs(cid, numProviders, timeoutMs) {
+  // Kubo 0.37 can panic while JSON-encoding /routing/findprovs responses when
+  // some peers contain nil multiaddrs. Keep PubSub usable and leave this DHT
+  // helper opt-in until the bundled daemon is upgraded.
+  if (!ENABLE_ROUTING_FINDPROVS) return new Map();
   const out = new Map(); // peerId -> Set<addr>
   let t = null;
   try {

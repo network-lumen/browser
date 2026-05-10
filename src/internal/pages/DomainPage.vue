@@ -1,24 +1,57 @@
 <template>
   <div class="domain-page internal-page">
     <!-- Sidebar -->
-    <InternalSidebar title="Domains" :icon="Globe" activeKey="domain" />
+    <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
+      <nav class="names-nav">
+        <button
+          type="button"
+          class="names-nav-item"
+          :class="{ active: activeNameTab === 'lumen' }"
+          @click="activeNameTab = 'lumen'"
+        >
+          <Globe :size="16" />
+          <span>Lumen Domains</span>
+        </button>
+        <button
+          type="button"
+          class="names-nav-item"
+          :class="{ active: activeNameTab === 'stable' }"
+          @click="activeNameTab = 'stable'"
+        >
+          <KeyRound :size="16" />
+          <span>Stable links</span>
+        </button>
+      </nav>
+    </InternalSidebar>
 
     <!-- Main Content -->
     <main class="main-content">
       <header class="content-header">
         <div>
-          <h1>My domains</h1>
-          <p>Human links to your content on the Lumen network.</p>
+          <h1>{{ pageTitle }}</h1>
+          <p>{{ pageDescription }}</p>
         </div>
         <div class="header-actions">
-          <button class="btn primary" type="button" @click="openRegisterModal">
-            <Plus :size="16" />
-            <span>Buy domain</span>
-          </button>
+          <template v-if="activeNameTab === 'lumen'">
+            <button class="btn primary" type="button" @click="openRegisterModal">
+              <Plus :size="16" />
+              <span>Buy domain</span>
+            </button>
+          </template>
+          <template v-else>
+            <button class="btn secondary" type="button" @click="importStableLink">
+              <Upload :size="16" />
+              <span>Import</span>
+            </button>
+            <button class="btn primary" type="button" @click="createStableLink">
+              <Plus :size="16" />
+              <span>Generate</span>
+            </button>
+          </template>
         </div>
       </header>
 
-      <section class="card">
+      <section v-if="activeNameTab === 'lumen'" class="card">
 
 
         <div v-if="error" class="empty error">
@@ -89,6 +122,221 @@
           </li>
         </ul>
       </section>
+
+      <section v-else class="card">
+        <div v-if="rawDomainsLoading" class="empty">
+          <div class="spinner"></div>
+          <p>Loading stable links...</p>
+        </div>
+        <div v-else-if="rawDomainsError" class="empty error">
+          <p>{{ rawDomainsError }}</p>
+        </div>
+        <div v-else-if="!rawDomains.length" class="empty hero">
+          <p class="hero-title">Generate a stable link</p>
+          <p class="hero-text">
+            Stable links are cryptographic names backed by IPNS.
+          </p>
+          <button class="btn primary" type="button" @click="createStableLink">
+            <Plus :size="16" />
+            <span>Generate</span>
+          </button>
+        </div>
+        <ul v-else class="domains-list">
+          <li v-for="d in rawDomains" :key="d.name" class="domain-row">
+            <div class="domain-main">
+              <div class="stable-link-label-row">
+                <input
+                  class="stable-link-label-input"
+                  type="text"
+                  :value="stableLinkDisplayName(d.name)"
+                  :disabled="renamingStableLinkName === d.name"
+                  title="Local stable link label"
+                  @keydown.enter.prevent="renameStableLinkFromEvent(d, $event)"
+                  @blur="renameStableLinkFromEvent(d, $event)"
+                />
+                <Check
+                  v-if="renamingStableLinkName === d.name"
+                  class="stable-link-saving-icon"
+                  :size="14"
+                />
+              </div>
+              <span class="domain-subtitle mono">{{ d.id || 'IPNS id unavailable' }}</span>
+            </div>
+            <div class="domain-right">
+              <button
+                class="icon-btn"
+                type="button"
+                title="Open stable link"
+                :disabled="!d.id"
+                @click="openRawDomain(d)"
+              >
+                <ExternalLink :size="16" />
+              </button>
+              <button
+                class="icon-btn"
+                type="button"
+                title="Copy stable link URL"
+                :disabled="!d.id"
+                @click="copyRawDomainUrl(d)"
+              >
+                <Copy :size="16" />
+              </button>
+              <button
+                class="icon-btn"
+                type="button"
+                title="Edit records"
+                :disabled="!d.name"
+                @click="openStableSettingsModal(d)"
+              >
+                <Settings :size="16" />
+              </button>
+              <button
+                class="icon-btn"
+                type="button"
+                title="Export private key"
+                :disabled="!d.name"
+                @click="exportStableLink(d)"
+              >
+                <Download :size="16" />
+              </button>
+              <button
+                class="icon-btn danger"
+                type="button"
+                title="Delete stable link"
+                :disabled="!d.name"
+                @click="deleteStableLink(d)"
+              >
+                <Trash2 :size="16" />
+              </button>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <Transition name="fade">
+        <div v-if="stableLinkModalMode" class="modal-overlay" @click="closeStableLinkModal">
+          <div class="modal" @click.stop>
+            <header class="modal-header">
+              <h3>{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
+              <button class="modal-close" type="button" @click="closeStableLinkModal">
+                <X :size="16" />
+              </button>
+            </header>
+            <form class="modal-body" @submit.prevent="confirmStableLinkModal">
+              <p class="modal-desc">
+                {{ stableLinkModalMode === 'import'
+                  ? 'Choose a local private key file and attach it to this stable link name.'
+                  : 'Create a new IPNS-backed stable link with a local private key.' }}
+              </p>
+              <div class="form-group">
+                <label>Stable link name</label>
+                <input
+                  v-model="stableLinkNameDraft"
+                  class="form-input"
+                  type="text"
+                  autocomplete="off"
+                  placeholder="my-link"
+                  :disabled="stableLinkSaving"
+                  autofocus
+                />
+              </div>
+              <div class="modal-actions">
+                <button class="btn secondary full" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
+                  Cancel
+                </button>
+                <button
+                  class="btn primary full"
+                  type="submit"
+                  :disabled="stableLinkSaving || !stableLinkNameDraft.trim()"
+                >
+                  <span v-if="!stableLinkSaving">
+                    <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
+                    {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
+                  </span>
+                  <span v-else class="spinner"></span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Transition>
+
+      <Transition name="fade">
+        <div v-if="showStableSettingsModal" class="modal-overlay" @click="closeStableSettingsModal">
+          <div class="modal" @click.stop>
+            <header class="modal-header">
+              <h3>Stable link records</h3>
+              <button class="modal-close" type="button" @click="closeStableSettingsModal">
+                <X :size="16" />
+              </button>
+            </header>
+            <div class="modal-body">
+              <p class="modal-desc">Publish resolver records for this stable link.</p>
+              <div class="info-card">
+                <div class="info-name">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
+                <div class="info-expiry mono">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Records (key / value)</label>
+                <div v-if="stableSettingsLoading" class="records-empty">
+                  Loading records...
+                </div>
+                <div v-else-if="!stableSettingsRecords.length" class="records-empty">
+                  No records yet. Add a target like <span class="mono">cid</span>, <span class="mono">ipfs</span>, or <span class="mono">ipns</span>.
+                </div>
+                <div v-else class="records-list">
+                  <div
+                    class="record-row"
+                    v-for="(r, idx) in stableSettingsRecords"
+                    :key="idx"
+                  >
+                    <input
+                      type="text"
+                      class="form-input key-input"
+                      v-model="r.key"
+                      placeholder="cid | ipns | site | ..."
+                      :disabled="stableSettingsSaving"
+                    />
+                    <input
+                      type="text"
+                      class="form-input value-input"
+                      v-model="r.value"
+                      placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
+                      :disabled="stableSettingsSaving"
+                    />
+                    <button
+                      class="icon-btn danger"
+                      type="button"
+                      @click="removeStableSettingsRecord(idx)"
+                      title="Remove row"
+                      :disabled="stableSettingsSaving"
+                    >
+                      <X :size="14" />
+                    </button>
+                  </div>
+                </div>
+                <button class="btn secondary full" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
+                  Add record
+                </button>
+              </div>
+
+              <div class="modal-actions">
+                <button class="btn secondary full" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
+                  Cancel
+                </button>
+                <button class="btn primary full" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
+                  <span v-if="!stableSettingsSaving">
+                    <Check :size="16" />
+                    Save records
+                  </span>
+                  <span v-else class="spinner"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
 
       <!-- Register Domain Modal -->
       <Transition name="fade">
@@ -324,20 +572,23 @@
 import { computed, inject, ref, watch, watchEffect } from 'vue';
 import {
   Globe,
-  List,
+  KeyRound,
   Plus,
+  Upload,
+  Download,
   ExternalLink,
   Copy,
+  Check,
   Settings,
-  RefreshCw,
   X,
-  User,
-  Send
+  Send,
+  Trash2
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
+import { loadStableLinkRecords } from '../services/contentResolver';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
@@ -345,6 +596,11 @@ const openInNewTab = inject<(url: string) => void>('openInNewTab');
 type DomainRow = {
   name: string;
   expireAtSeconds: number | null;
+};
+
+type RawDomainRow = {
+  name: string;
+  id: string;
 };
 
 const profiles = profilesState;
@@ -355,12 +611,22 @@ const profileAddress = computed(() => {
   const p: any = activeProfile.value as any;
   return (p && (p.address || p.walletAddress)) || '';
 });
-const activeProfileDisplay = computed(
-  () => activeProfile.value?.name || activeProfile.value?.id || ''
-);
 const domains = ref<DomainRow[]>([]);
 const loading = ref(false);
 const error = ref('');
+const activeNameTab = ref<'lumen' | 'stable'>('lumen');
+const rawDomains = ref<RawDomainRow[]>([]);
+const rawDomainsLoading = ref(false);
+const rawDomainsError = ref('');
+
+const pageTitle = computed(() =>
+  activeNameTab.value === 'stable' ? 'Stable links' : 'Lumen Domains'
+);
+const pageDescription = computed(() =>
+  activeNameTab.value === 'stable'
+    ? 'Cryptographic links powered by IPNS.'
+    : 'Human-readable domains secured by the Lumen chain.'
+);
 
 useTabLoadingSync(loading);
 
@@ -398,6 +664,11 @@ const settingsRecords = ref<SettingsRecord[]>([]);
 const settingsPqcParams = ref<any | null>(null);
 const settingsWalletBalanceLMN = ref<number | null>(null);
 const savingSettings = ref(false);
+const showStableSettingsModal = ref(false);
+const selectedStableLink = ref<RawDomainRow | null>(null);
+const stableSettingsRecords = ref<SettingsRecord[]>([]);
+const stableSettingsLoading = ref(false);
+const stableSettingsSaving = ref(false);
 
 const showTransferModal = ref(false);
 const transferDomain = ref<DomainRow | null>(null);
@@ -405,6 +676,10 @@ const transferForm = ref({
   newOwner: ''
 });
 const transferring = ref(false);
+const stableLinkModalMode = ref<'generate' | 'import' | null>(null);
+const stableLinkNameDraft = ref('');
+const stableLinkSaving = ref(false);
+const renamingStableLinkName = ref('');
 
 function coinToLmn(coin: any): number | null {
   if (!coin) return null;
@@ -486,6 +761,335 @@ const canTransfer = computed(() => {
   return true;
 });
 
+async function loadRawDomains() {
+  rawDomainsLoading.value = true;
+  rawDomainsError.value = '';
+  try {
+    const api = (window as any).lumen;
+    if (!api?.ipfsKeyList) {
+      rawDomainsError.value = 'Stable link bridge not available.';
+      rawDomains.value = [];
+      return;
+    }
+    const res = await api.ipfsKeyList();
+    if (!res?.ok) {
+      rawDomainsError.value = String(res?.error || 'Failed to load stable links.');
+      rawDomains.value = [];
+      return;
+    }
+    const keys = Array.isArray(res.keys) ? res.keys : [];
+    rawDomains.value = keys
+      .map((key: any) => {
+        const name = String(key?.Name || key?.name || '').trim();
+        const id = String(key?.Id || key?.id || '').trim();
+        return {
+          name,
+          id,
+        };
+      })
+      .filter((key: RawDomainRow) => key.name && key.name !== 'self');
+  } catch (e: any) {
+    rawDomainsError.value = String(e?.message || e || 'Failed to load stable links.');
+    rawDomains.value = [];
+  } finally {
+    rawDomainsLoading.value = false;
+  }
+}
+
+function defaultStableLinkName(): string {
+  const suffix = Date.now().toString(36);
+  return suffix;
+}
+
+function sanitizeStableLinkLabel(input: string): string {
+  return String(input || '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 96);
+}
+
+function stableLinkKeyNameFromLabel(input: string): string {
+  const label = sanitizeStableLinkLabel(input);
+  return label ? `stable:${label}` : '';
+}
+
+function stableLinkDisplayName(name: string): string {
+  const raw = String(name || '').trim();
+  if (!raw) return '';
+  const parts = raw.split(':').map((part) => part.trim()).filter(Boolean);
+  if (parts[0] === 'stable' && parts.length > 1) return parts[parts.length - 1];
+  return raw;
+}
+
+function openStableLinkModal(mode: 'generate' | 'import') {
+  stableLinkModalMode.value = mode;
+  stableLinkNameDraft.value = defaultStableLinkName();
+}
+
+function closeStableLinkModal() {
+  if (stableLinkSaving.value) return;
+  stableLinkModalMode.value = null;
+  stableLinkNameDraft.value = '';
+}
+
+function createStableLink() {
+  openStableLinkModal('generate');
+}
+
+function importStableLink() {
+  openStableLinkModal('import');
+}
+
+async function confirmStableLinkModal() {
+  const mode = stableLinkModalMode.value;
+  if (!mode || stableLinkSaving.value) return;
+  const label = sanitizeStableLinkLabel(stableLinkNameDraft.value);
+  const keyName = stableLinkKeyNameFromLabel(label);
+  if (!keyName) return;
+  const api = (window as any).lumen;
+  if (mode === 'generate' && !api?.ipfsKeyGen) {
+    showToast('Stable link bridge not available.', 'error');
+    return;
+  }
+  if (mode === 'import' && !api?.ipfsKeyImport) {
+    showToast('Stable link import is not available.', 'error');
+    return;
+  }
+
+  stableLinkSaving.value = true;
+  try {
+    const res = mode === 'import'
+      ? await api.ipfsKeyImport(keyName)
+      : await api.ipfsKeyGen(keyName);
+    if (res?.canceled) return;
+    if (!res?.ok) {
+      showToast(
+        String(res?.error || (mode === 'import' ? 'Failed to import stable link.' : 'Failed to generate stable link.')),
+        'error'
+      );
+      return;
+    }
+    showToast(mode === 'import' ? 'Stable link imported.' : 'Stable link generated.', 'success');
+    if (mode === 'generate') {
+      showToast('Export this stable link private key so you can import it again later.', 'warning');
+    }
+    stableLinkModalMode.value = null;
+    stableLinkNameDraft.value = '';
+    await loadRawDomains();
+  } finally {
+    stableLinkSaving.value = false;
+  }
+}
+
+async function renameStableLink(d: RawDomainRow, nextLabelRaw: string) {
+  const currentName = String(d?.name || '').trim();
+  const nextName = stableLinkKeyNameFromLabel(nextLabelRaw);
+  if (!currentName || !nextName || currentName === nextName) return;
+  const api = (window as any).lumen;
+  if (!api?.ipfsKeyRename) {
+    showToast('Stable link rename is not available.', 'error');
+    return;
+  }
+  renamingStableLinkName.value = currentName;
+  try {
+    const res = await api.ipfsKeyRename(currentName, nextName);
+    if (!res?.ok) {
+      showToast(String(res?.error || 'Failed to rename stable link.'), 'error');
+      return;
+    }
+    showToast('Stable link label updated.', 'success');
+    await loadRawDomains();
+  } finally {
+    renamingStableLinkName.value = '';
+  }
+}
+
+function renameStableLinkFromEvent(d: RawDomainRow, event: Event) {
+  const input = event.target as HTMLInputElement | null;
+  void renameStableLink(d, input?.value || '');
+}
+
+function rawDomainUrl(d: RawDomainRow): string {
+  const id = String(d?.id || '').trim();
+  return id ? `lumen://ipns/${id}/` : '';
+}
+
+function openRawDomain(d: RawDomainRow) {
+  const url = rawDomainUrl(d);
+  if (!url) return;
+  openInNewTab?.(url);
+}
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  const value = String(text || '');
+  if (!value) return false;
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    // Electron pages can deny navigator.clipboard depending on origin and focus.
+  }
+
+  try {
+    const api = (window as any).lumen;
+    if (typeof api?.clipboardWriteText === 'function') {
+      const result = await api.clipboardWriteText(value);
+      return result === true || result?.ok === true;
+    }
+  } catch (e) {
+    console.error('[domains] electron clipboard failed', e);
+  }
+  return false;
+}
+
+async function copyRawDomainUrl(d: RawDomainRow) {
+  const url = rawDomainUrl(d);
+  if (!url) return;
+  const ok = await copyTextToClipboard(url);
+  if (ok) {
+    showToast('Stable link URL copied.', 'success');
+  } else {
+    showToast('Failed to copy stable link URL.', 'error');
+  }
+}
+
+async function exportStableLink(d: RawDomainRow) {
+  const api = (window as any).lumen;
+  if (!api?.ipfsKeyExport) {
+    showToast('Stable link export is not available.', 'error');
+    return;
+  }
+  const res = await api.ipfsKeyExport(d.name);
+  if (res?.canceled) return;
+  if (!res?.ok) {
+    showToast(String(res?.error || 'Failed to export stable link.'), 'error');
+    return;
+  }
+  showToast('Stable link private key exported.', 'success');
+}
+
+async function deleteStableLink(d: RawDomainRow) {
+  const api = (window as any).lumen;
+  if (!api?.ipfsKeyRm) {
+    showToast('Stable link delete is not available.', 'error');
+    return;
+  }
+  const confirmed = window.confirm(
+    `Delete stable link "${d.name}"?\n\nExport it first if you need to restore this IPNS name later.`
+  );
+  if (!confirmed) return;
+  rawDomainsLoading.value = true;
+  try {
+    const res = await api.ipfsKeyRm(d.name);
+    if (!res?.ok) {
+      showToast(String(res?.error || 'Failed to delete stable link.'), 'error');
+      return;
+    }
+    showToast('Stable link deleted.', 'success');
+    await loadRawDomains();
+  } finally {
+    rawDomainsLoading.value = false;
+  }
+}
+
+async function openStableSettingsModal(d: RawDomainRow) {
+  selectedStableLink.value = d;
+  stableSettingsRecords.value = [];
+  showStableSettingsModal.value = true;
+  stableSettingsLoading.value = true;
+  try {
+    const records = d.id ? await loadStableLinkRecords(d.id) : [];
+    stableSettingsRecords.value = records.map((record) => ({
+      key: String(record.key || '').trim(),
+      value: String(record.value || '').trim(),
+    }));
+  } catch (e) {
+    console.error('[domains] load stable link records error', e);
+    showToast('Failed to load stable link records.', 'error');
+  } finally {
+    stableSettingsLoading.value = false;
+  }
+}
+
+function closeStableSettingsModal() {
+  if (stableSettingsSaving.value) return;
+  showStableSettingsModal.value = false;
+  selectedStableLink.value = null;
+  stableSettingsRecords.value = [];
+  stableSettingsLoading.value = false;
+}
+
+function addStableSettingsRecord() {
+  stableSettingsRecords.value = [...stableSettingsRecords.value, { key: '', value: '' }];
+}
+
+function removeStableSettingsRecord(index: number) {
+  if (index < 0 || index >= stableSettingsRecords.value.length) return;
+  const next = stableSettingsRecords.value.slice();
+  next.splice(index, 1);
+  stableSettingsRecords.value = next;
+}
+
+async function saveStableSettings() {
+  if (stableSettingsSaving.value) return;
+  const stable = selectedStableLink.value;
+  if (!stable?.name) {
+    showToast('Select a stable link first.', 'error');
+    return;
+  }
+  const records = stableSettingsRecords.value
+    .map((r) => ({
+      key: String(r.key || '').trim(),
+      value: String(r.value || '').trim(),
+    }))
+    .filter((r) => r.key || r.value);
+
+  if (!records.length) {
+    showToast('Add at least one record before saving.', 'error');
+    return;
+  }
+  if (records.some((r) => !r.key || !r.value)) {
+    showToast('Each stable link record needs both a key and a value.', 'error');
+    return;
+  }
+
+  const api = (window as any).lumen;
+  if (!api?.ipfsAdd || !api?.ipfsPublishToIPNS) {
+    showToast('Stable link publish bridge not available.', 'error');
+    return;
+  }
+
+  stableSettingsSaving.value = true;
+  try {
+    const body = JSON.stringify({
+      lumenRecordsVersion: 1,
+      type: 'lumen.stable-link.records',
+      updatedAt: new Date().toISOString(),
+      records,
+    }, null, 2);
+    const bodyBytes = Array.from(new TextEncoder().encode(body));
+    const add = await api.ipfsAdd(bodyBytes, `${stableLinkDisplayName(stable.name) || 'stable-link'}.lumen-records.json`);
+    if (!add?.ok || !add.cid) {
+      showToast(String(add?.error || 'Failed to publish stable link records.'), 'error');
+      return;
+    }
+    const published = await api.ipfsPublishToIPNS(add.cid, stable.name);
+    if (!published?.ok) {
+      showToast(String(published?.error || 'Failed to update stable link.'), 'error');
+      return;
+    }
+    showToast('Stable link records saved.', 'success');
+    showStableSettingsModal.value = false;
+    selectedStableLink.value = null;
+    stableSettingsRecords.value = [];
+    await loadRawDomains();
+  } finally {
+    stableSettingsSaving.value = false;
+  }
+}
+
 function sanitizeDomainInput(event: Event) {
   const input = event.target as HTMLInputElement;
   const cursorPos = input.selectionStart;
@@ -515,6 +1119,14 @@ watch(
     }
     await refreshPrice();
   }
+);
+
+watch(
+  () => activeNameTab.value,
+  (tab) => {
+    if (tab === 'stable') void loadRawDomains();
+  },
+  { immediate: true }
 );
 
 async function loadSettingsPqcParams() {
@@ -656,11 +1268,10 @@ function openDomain(d: DomainRow) {
 
 async function copyDomainUrl(d: DomainRow) {
   const url = `lumen://${d.name}`;
-  try {
-    await navigator.clipboard.writeText(url);
+  const ok = await copyTextToClipboard(url);
+  if (ok) {
     showToast('Domain URL copied to clipboard', 'success');
-  } catch (e) {
-    console.error('[domains] copyDomainUrl error', e);
+  } else {
     showToast('Failed to copy domain URL', 'error');
   }
 }
@@ -1024,6 +1635,7 @@ async function confirmTransfer() {
 }
 
 void loadDomains();
+void loadRawDomains();
 </script>
 
 <style scoped>
@@ -1169,6 +1781,34 @@ void loadDomains();
   font-size: 0.85rem;
 }
 
+.names-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.names-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.names-nav-item:hover,
+.names-nav-item.active {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
 .owner-block {
   margin-top: 1rem;
 }
@@ -1272,6 +1912,11 @@ void loadDomains();
   justify-content: center;
 }
 
+.btn.compact {
+  padding: 0.38rem 0.65rem;
+  font-size: 0.78rem;
+}
+
 .card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -1362,10 +2007,57 @@ void loadDomains();
   background: var(--bg-secondary);
 }
 
+.domain-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
 .domain-name {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.stable-link-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.stable-link-label-input {
+  width: min(260px, 100%);
+  min-width: 120px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.35rem;
+}
+
+.stable-link-label-input:hover,
+.stable-link-label-input:focus {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  outline: none;
+}
+
+.stable-link-saving-icon {
+  flex-shrink: 0;
+  color: var(--ios-green);
+}
+
+.domain-subtitle {
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
 }
 
 .domain-right {
