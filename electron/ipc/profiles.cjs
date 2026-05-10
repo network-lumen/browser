@@ -122,7 +122,13 @@ function loadProfilesFile() {
   const file = profilesFilePath();
   const fallback = { profiles: [], activeId: '' };
   const data = readJson(file, fallback);
-  const profiles = Array.isArray(data.profiles) ? data.profiles : [];
+  const profiles = (Array.isArray(data.profiles) ? data.profiles : []).map((profile) => {
+    if (!profile || typeof profile !== 'object') return profile;
+    const clean = { ...profile };
+    delete clean.ipnsKeyName;
+    delete clean.ipnsName;
+    return clean;
+  });
   const activeId = typeof data.activeId === 'string' ? data.activeId : '';
   return { profiles, activeId };
 }
@@ -865,7 +871,10 @@ ipcMain.handle('profiles:getFavourites', async () => {
     const ensured = await ensureWalletForProfile(baseProfile);
     const walletAddress = ensured && ensured.address ? ensured.address : null;
 
-    const profile = { ...baseProfile, walletAddress };
+    const profile = {
+      ...baseProfile,
+      walletAddress,
+    };
     const next = [...userProfiles, profile];
     saveProfilesFile({ profiles: next, activeId: id });
     return profile;
