@@ -1563,6 +1563,25 @@ async function pinCid(cidOrUrl, optsMaybe) {
   }
 }
 
+async function chooseStableLinkForLive(input) {
+  ensureLumenSite();
+  const payload = input && typeof input === 'object' ? input : {};
+  try {
+    return await ipcRenderer.invoke('lumenSite:stableLinkForLive', {
+      title: safeString(payload.title || document?.title || '', 256),
+      suggestedName: safeString(payload.suggestedName || payload.name || '', 128),
+      records: Array.isArray(payload.records)
+        ? payload.records.map((record) => ({
+            key: safeString(record && record.key ? record.key : '', 128),
+            value: safeString(record && record.value ? record.value : '', 4096),
+          }))
+        : [],
+    });
+  } catch (e) {
+    return { ok: false, error: safeString(e?.message || e || 'stable_link_failed', 512) };
+  }
+}
+
 const lumen = {
   // Minimal "action" API (requested)
   SendToken: sendToken,
@@ -1575,6 +1594,11 @@ const lumen = {
   pin: pinCid,
   save: pinCid,
   resolveUrl,
+  chooseStableLinkForLive,
+
+  stableLinks: {
+    chooseForLive: chooseStableLinkForLive,
+  },
 
   profiles: {
     getActive: async () => {

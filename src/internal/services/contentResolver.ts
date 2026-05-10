@@ -11,6 +11,7 @@ export type DomainTarget = {
    * Normalized form: '' (none) or '/path/without/trailing/slash'.
    */
   basePath?: string;
+  suffix?: string;
 };
 
 export function localIpfsGatewayBase(): string {
@@ -50,13 +51,15 @@ export function parseRecordTarget(value: any): DomainTarget | null {
   const parseProto = (proto: DomainTarget['proto'], raw: string): DomainTarget | null => {
     const cleaned = String(raw || '').trim().replace(/^\/+/, '');
     if (!cleaned) return null;
-    const pathOnly = cleaned.split(/[?#]/, 1)[0] || '';
+    const suffixIndex = cleaned.search(/[?#]/);
+    const pathOnly = (suffixIndex >= 0 ? cleaned.slice(0, suffixIndex) : cleaned) || '';
+    const suffix = suffixIndex >= 0 ? cleaned.slice(suffixIndex) : '';
     const segs = pathOnly.split('/');
     const id = String(segs[0] || '').trim();
     if (!id) return null;
     const rest = segs.slice(1).join('/');
     const basePath = rest ? normalizeBasePath('/' + rest) : '';
-    return { proto, id, ...(basePath ? { basePath } : {}) };
+    return { proto, id, ...(basePath ? { basePath } : {}), ...(suffix ? { suffix } : {}) };
   };
 
   if (lower.startsWith('ipfs://')) {
