@@ -462,6 +462,7 @@ const rootProto = ref<"ipfs" | "ipns">("ipfs");
 const relPath = ref("");
 const wantsDir = ref(false);
 const suffix = ref("");
+const stableDisplayUrl = ref("");
 const resolvedGatewayBase = ref("");
 const saving = ref(false);
 const saved = ref(false);
@@ -1687,6 +1688,18 @@ function joinStableLinkTargetPath(basePath: string | undefined, rel: string): st
   return parts.length ? `/${parts.join("/")}` : "";
 }
 
+function buildStableDisplayUrl(parsed: ReturnType<typeof parseIpfsUrl>): string {
+  const rel = String(parsed.rel || "").replace(/^\/+/, "");
+  const path = rel ? `/${encodePath(rel)}` : (parsed.dir ? "/" : "");
+  return `lumen://ipns/${parsed.cid}${path}${parsed.suffix || ""}`;
+}
+
+function isResolvedStableTargetUrl(input: string): boolean {
+  if (!stableDisplayUrl.value) return false;
+  const parsed = parseIpfsUrl(input);
+  return !!parsed.cid && parsed.proto === rootProto.value && parsed.cid === rootCid.value;
+}
+
 function onSiteMessage(evt: MessageEvent) {
   const d: any = (evt as any)?.data;
   if (!d || d.__lumen_ipfs_site !== true) return;
@@ -1697,10 +1710,12 @@ function onSiteMessage(evt: MessageEvent) {
     return;
   }
   if (d.type === "sync") {
+    if (isResolvedStableTargetUrl(next)) return;
     navigate?.(next, { push: false });
     return;
   }
   if (d.type === "navigate") {
+    if (isResolvedStableTargetUrl(next)) return;
     navigate?.(next);
   }
 }
@@ -1755,6 +1770,7 @@ function syncNavFromWebview(rawUrl: string, opts: { push?: boolean } = {}) {
   if (!navigate) return;
   const next = toLumenFromWebHref(rawUrl);
   if (!next) return;
+  if (isResolvedStableTargetUrl(next)) return;
   const cur = String(currentTabUrl?.value || "").trim();
   if (cur && cur === next) return;
   navigate(next, { push: opts.push ?? true });
@@ -1889,10 +1905,13 @@ async function precheckHtmlDocument(url: string): Promise<boolean> {
 async function load() {
   const url = String(currentTabUrl?.value || window.location.href || "");
   const parsed = parseIpfsUrl(url);
+  const visibleParsed = { ...parsed };
+  stableDisplayUrl.value = "";
 
   if (parsed.proto === "ipns" && parsed.cid) {
     const target = await resolveStableLinkTarget(parsed.cid).catch(() => null);
     if (target) {
+      stableDisplayUrl.value = buildStableDisplayUrl(visibleParsed);
       const path = joinStableLinkTargetPath(target.basePath, parsed.rel);
       parsed.proto = target.proto;
       parsed.cid = target.id;
