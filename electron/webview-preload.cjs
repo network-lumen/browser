@@ -1582,6 +1582,46 @@ async function chooseStableLinkForLive(input) {
   }
 }
 
+async function selectStableLinkForLiveSetup(input) {
+  ensureLumenSite();
+  const payload = input && typeof input === 'object' ? input : {};
+  try {
+    return await ipcRenderer.invoke('lumenSite:stableLinkSetup', {
+      title: safeString(payload.title || document?.title || '', 256),
+    });
+  } catch (e) {
+    return { ok: false, error: safeString(e?.message || e || 'stable_link_setup_failed', 512) };
+  }
+}
+
+async function publishStableLinkForLive(input) {
+  ensureLumenSite();
+  const payload = input && typeof input === 'object' ? input : {};
+  try {
+    return await ipcRenderer.invoke('lumenSite:publishStableLinkForLive', {
+      title: safeString(payload.title || document?.title || '', 256),
+      keyName: safeString(payload.keyName || '', 256),
+      records: Array.isArray(payload.records)
+        ? payload.records.map((record) => ({
+            key: safeString(record && record.key ? record.key : '', 128),
+            value: safeString(record && record.value ? record.value : '', 4096),
+          }))
+        : [],
+    });
+  } catch (e) {
+    return { ok: false, error: safeString(e?.message || e || 'stable_link_publish_failed', 512) };
+  }
+}
+
+async function setWindowFullscreen(active) {
+  ensureLumenSite();
+  try {
+    return await ipcRenderer.invoke('lumenSite:setFullscreen', { active: !!active });
+  } catch (e) {
+    return { ok: false, error: safeString(e?.message || e || 'window_fullscreen_failed', 512) };
+  }
+}
+
 const lumen = {
   // Minimal "action" API (requested)
   SendToken: sendToken,
@@ -1595,9 +1635,16 @@ const lumen = {
   save: pinCid,
   resolveUrl,
   chooseStableLinkForLive,
+  setWindowFullscreen,
+
+  window: {
+    setFullscreen: setWindowFullscreen,
+  },
 
   stableLinks: {
     chooseForLive: chooseStableLinkForLive,
+    selectForLiveSetup: selectStableLinkForLiveSetup,
+    publishForLive: publishStableLinkForLive,
   },
 
   profiles: {
@@ -1605,6 +1652,31 @@ const lumen = {
       ensureLumenSite();
       return await ipcRenderer.invoke('profiles:getActive');
     }
+  },
+
+  ipfsAdd: async (data, filename) => {
+    ensureLumenSite();
+    return await ipcRenderer.invoke('ipfs:add', data, safeString(filename || 'site-data.json', 256));
+  },
+
+  ipfsGet: async (cid, options) => {
+    ensureLumenSite();
+    return await ipcRenderer.invoke('ipfs:get', safeString(cid || '', 4096), options || {});
+  },
+
+  ipfsResolveIPNS: async (name) => {
+    ensureLumenSite();
+    return await ipcRenderer.invoke('ipfs:resolveIPNS', safeString(name || '', 512));
+  },
+
+  ipfsPublishToIPNS: async (cid, key, options) => {
+    ensureLumenSite();
+    return await ipcRenderer.invoke(
+      'ipfs:publishToIPNS',
+      safeString(cid || '', 512),
+      safeString(key || '', 256),
+      options || {}
+    );
   },
 
   pubsub: {

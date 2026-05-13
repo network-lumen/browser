@@ -1,5 +1,5 @@
 <template>
-  <div class="site-page">
+  <div class="site-page" :class="{ 'html-fullscreen': webviewHtmlFullscreen }">
     <main class="main-content">
       <header v-if="error" class="content-header">
         <div class="header-actions">
@@ -60,6 +60,8 @@
           :src="resolvedHttpUrl"
           partition="persist:lumen"
           allowpopups
+          allowfullscreen
+          allow="fullscreen"
            :webpreferences="webprefs"
            @will-navigate="onWillNavigate"
            @did-navigate="onDidNavigate"
@@ -69,6 +71,8 @@
            @did-start-loading="onWebviewDidStartLoading"
            @did-stop-loading="onWebviewDidStopLoading"
            @dom-ready="onDomReady"
+           @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
+           @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
          ></webview>
          <div v-else class="site-empty"></div>
        </div>
@@ -113,6 +117,7 @@ const videoEl = ref<HTMLVideoElement | null>(null);
 const isHlsPath = ref(false);
 const hlsError = ref("");
 const webviewLoading = ref(false);
+const webviewHtmlFullscreen = ref(false);
 
 useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
 
@@ -156,6 +161,22 @@ function registerFindTargetWithRetry(attempts = 40) {
 function onDomReady() {
   webviewLoading.value = false;
   void nextTick(() => registerFindTargetWithRetry());
+}
+
+function onWebviewEnterHtmlFullscreen() {
+  webviewHtmlFullscreen.value = true;
+  document.body.classList.add("lumen-webview-html-fullscreen");
+  try {
+    (window as any).lumen?.setWindowMode?.("fullscreen");
+  } catch {}
+}
+
+function onWebviewLeaveHtmlFullscreen() {
+  webviewHtmlFullscreen.value = false;
+  document.body.classList.remove("lumen-webview-html-fullscreen");
+  try {
+    (window as any).lumen?.setWindowMode?.("exit-fullscreen");
+  } catch {}
 }
 
 type ActiveState = {
@@ -657,6 +678,7 @@ onDeactivated(() => {
 
 onBeforeUnmount(() => {
   webviewLoading.value = false;
+  onWebviewLeaveHtmlFullscreen();
   try {
     siteWebview.value?.stop?.();
   } catch {
@@ -680,6 +702,20 @@ onBeforeUnmount(() => {
   min-height: 0;
   background: var(--bg-tertiary);
   overflow: hidden;
+}
+
+.site-page.html-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #000;
+}
+
+.site-page.html-fullscreen .main-content,
+.site-page.html-fullscreen .viewer,
+.site-page.html-fullscreen .site-webview {
+  width: 100vw;
+  height: 100vh;
 }
 
 .main-content {

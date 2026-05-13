@@ -2967,13 +2967,23 @@ async function ipfsStats() {
   }
 }
 
-async function ipfsPublishToIPNS(cid, key = 'self') {
+async function ipfsPublishToIPNS(cid, key = 'self', options = {}) {
   try {
     console.log('[electron][ipfs] publishing to IPNS:', cid, 'key:', key);
     const url = new URL(`${ipfsApiBase()}/api/v0/name/publish`);
     url.searchParams.set('arg', `/ipfs/${String(cid ?? '')}`);
     url.searchParams.set('key', String(key ?? 'self'));
-    const res = await fetch(url.toString(), { method: 'POST' });
+    url.searchParams.set('allow-offline', 'true');
+    url.searchParams.set('resolve', 'false');
+    const timeoutMs =
+      typeof options?.timeoutMs === 'number' && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
+        ? Math.floor(options.timeoutMs)
+        : 60000;
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url.toString(), { method: 'POST', signal: controller.signal }).finally(() => {
+      try { clearTimeout(t); } catch {}
+    });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
@@ -2986,7 +2996,8 @@ async function ipfsPublishToIPNS(cid, key = 'self') {
     return { ok: true, name: json.Name, value: json.Value };
   } catch (e) {
     console.error('[electron][ipfs] IPNS publish error:', e);
-    return { ok: false, error: String(e?.message || e) };
+    const aborted = e?.name === 'AbortError';
+    return { ok: false, error: aborted ? 'ipns_publish_timeout' : String(e?.message || e) };
   }
 }
 
@@ -2995,6 +3006,7 @@ async function ipfsResolveIPNS(name) {
     console.log('[electron][ipfs] resolving IPNS:', name);
     const url = new URL(`${ipfsApiBase()}/api/v0/name/resolve`);
     url.searchParams.set('arg', String(name ?? ''));
+    url.searchParams.set('nocache', 'true');
     const res = await fetch(url.toString(), { method: 'POST' });
 
     if (!res.ok) {

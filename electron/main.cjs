@@ -135,7 +135,7 @@ try {
 } catch {}
 
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsKeyRename, ipfsKeyImportFromPath, ipfsKeyExportToPath, ipfsKeyRm, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
-const { startIpfsCache } = require('./ipfs_cache.cjs');
+const { startIpfsCache, invalidateIpnsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
 const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
@@ -355,7 +355,7 @@ function configureDisplayMediaForSession(ses, label) {
     if (typeof ses.setPermissionRequestHandler === 'function') {
       ses.setPermissionRequestHandler((webContentsRef, permission, callback) => {
         const perm = safeString(permission, 128);
-        if (perm === 'display-capture' || perm === 'media') {
+        if (perm === 'display-capture' || perm === 'media' || perm === 'fullscreen') {
           const href = safeString(webContentsRef?.getURL?.(), 4096);
           const siteKey = deriveSiteKeyFromHref(href);
           callback(!!siteKey);
@@ -462,6 +462,8 @@ function getUiWebContents() {
 
 let uiSeq = 0;
 const pendingUi = new Map(); // id -> { resolve, timeout }
+const UI_REQUEST_TIMEOUT_MS = 60_000;
+const UI_INTERACTIVE_TIMEOUT_MS = 10 * 60_000;
 
 ipcMain.on('lumenSite:uiResponse', (_evt, payload) => {
   const id = safeString(payload && payload.id ? payload.id : '', 128);
@@ -477,25 +479,29 @@ ipcMain.on('lumenSite:uiResponse', (_evt, payload) => {
   } catch {}
 });
 
-function requestUi(type, data) {
+function requestUi(type, data, options = {}) {
   const wc = getUiWebContents();
   if (!wc) return Promise.resolve({ ok: false, error: 'ui_unavailable' });
 
   uiSeq += 1;
   const id = `lumenSite-${Date.now().toString(36)}-${uiSeq.toString(36)}`;
   const payload = { id, type: safeString(type, 64), data: data ?? null };
+  const timeoutMsRaw = Number(options && Object.prototype.hasOwnProperty.call(options, 'timeoutMs') ? options.timeoutMs : UI_REQUEST_TIMEOUT_MS);
+  const timeoutMs = Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? Math.floor(timeoutMsRaw) : 0;
 
   return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      pendingUi.delete(id);
-      resolve({ ok: false, error: 'ui_timeout' });
-    }, 60_000);
+    const timeout = timeoutMs
+      ? setTimeout(() => {
+          pendingUi.delete(id);
+          resolve({ ok: false, error: 'ui_timeout' });
+        }, timeoutMs)
+      : null;
     pendingUi.set(id, { resolve, timeout });
     try {
       wc.send('lumenSite:uiRequest', payload);
     } catch {
       pendingUi.delete(id);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       resolve({ ok: false, error: 'ui_send_failed' });
     }
   });
@@ -1120,9 +1126,19 @@ ipcMain.handle('ipfs:stats', async () => {
   return ipfsStats();
 });
 
-ipcMain.handle('ipfs:publishToIPNS', async (_evt, cid, key) => {
+ipcMain.handle('ipfs:publishToIPNS', async (_evt, cid, key, options) => {
   console.log('[electron][ipc] ipfs:publishToIPNS requested:', cid, 'key:', key);
-  return ipfsPublishToIPNS(cid, key);
+  const timeoutMs = Number(options && options.timeoutMs);
+  const res = await ipfsPublishToIPNS(cid, key, {
+    timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? Math.floor(timeoutMs) : 60000,
+  });
+  if (res?.ok) {
+    try {
+      invalidateIpnsCache(res.name);
+      invalidateIpnsCache(key);
+    } catch {}
+  }
+  return res;
 });
 
 ipcMain.handle('ipfs:resolveIPNS', async (_evt, name) => {
@@ -1411,6 +1427,23 @@ ipcMain.handle('lumenSite:getLocalGatewayBase', async () => {
   return safeString(s && s.localGatewayBase ? s.localGatewayBase : '', 1024);
 });
 
+ipcMain.handle('lumenSite:setFullscreen', async (evt, input) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+  const active = !!(input && input.active);
+  const win = browserWindowForWebContents(evt.sender);
+  if (!win || win.isDestroyed?.()) return { ok: false, error: 'window_unavailable' };
+  try {
+    win.setFullScreen(active);
+    return {
+      ok: true,
+      active: typeof win.isFullScreen === 'function' ? !!win.isFullScreen() : active
+    };
+  } catch (e) {
+    return { ok: false, error: safeString(e?.message || e || 'window_fullscreen_failed', 512) };
+  }
+});
+
 async function ensureLumenSitePermission(siteKey, meta, actionKind, actionDetails) {
   const key = safeString(siteKey, 256);
   if (!key) return { ok: false, error: 'missing_siteKey' };
@@ -1421,7 +1454,7 @@ async function ensureLumenSitePermission(siteKey, meta, actionKind, actionDetail
     meta: meta ?? null,
     actionKind: safeString(actionKind, 64),
     actionDetails: actionDetails ?? null
-  });
+  }, { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS });
 
   if (!res || res.ok === false) return res || { ok: false, error: 'permission_prompt_failed' };
 
@@ -1569,9 +1602,92 @@ ipcMain.handle('lumenSite:stableLinkForLive', async (evt, input) => {
         title,
         suggestedName,
         records,
-      });
+      }, { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS });
       markSiteModalCooldown(ctx.siteKey);
       return res || { ok: false, error: 'stable_link_modal_failed' };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
+ipcMain.handle('lumenSite:stableLinkSetup', async (evt, input) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+
+  const title = safeString(input && input.title ? input.title : '', 256);
+  const meta = { href: ctx.href, title };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'StableLink', { title, mode: 'setup' });
+      if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      await enforceSiteModalDelay(ctx.siteKey);
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const res = await requestUi('stableLinkSetup', { siteKey: ctx.siteKey, meta, title }, { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS });
+      markSiteModalCooldown(ctx.siteKey);
+      return res || { ok: false, error: 'stable_link_setup_modal_failed' };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
+ipcMain.handle('lumenSite:publishStableLinkForLive', async (evt, input) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+
+  const title = safeString(input && input.title ? input.title : '', 256);
+  const keyName = safeString(input && input.keyName ? input.keyName : '', 256);
+  if (!keyName || !keyName.startsWith('stable:')) return { ok: false, error: 'invalid_key_name' };
+  const records = Array.isArray(input && input.records)
+    ? input.records
+        .map((record) => ({
+          key: safeString(record && record.key ? record.key : '', 128),
+          value: safeString(record && record.value ? record.value : '', 4096),
+        }))
+        .filter((record) => record.key && record.value)
+        .slice(0, 24)
+    : [];
+  if (!records.length) return { ok: false, error: 'missing_records' };
+
+  const meta = { href: ctx.href, title };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'StableLink', { title, keyName, mode: 'publish' });
+      if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
+
+      const body = JSON.stringify({
+        lumenRecordsVersion: 1,
+        type: 'lumen.stable-link.records',
+        updatedAt: new Date().toISOString(),
+        records,
+      }, null, 2);
+      const added = await ipfsAdd(Buffer.from(body, 'utf8'), 'stable-live.lumen-records.json');
+      if (!added?.ok || !added.cid) return { ok: false, error: added?.error || 'ipfs_add_failed' };
+      const published = await ipfsPublishToIPNS(added.cid, keyName, { timeoutMs: 60000 });
+      if (!published?.ok) return { ok: false, error: published?.error || 'ipns_publish_failed' };
+
+      const keys = await ipfsKeyList().catch(() => null);
+      const list = Array.isArray(keys?.keys) ? keys.keys : [];
+      const key = list.find((item) => String(item?.Name || item?.name || '') === keyName);
+      const ipnsName = String(key?.Id || key?.id || published.name || '').trim();
+      try {
+        invalidateIpnsCache(ipnsName);
+        invalidateIpnsCache(keyName);
+      } catch {}
+      const url = ipnsName ? `lumen://ipns/${ipnsName}/` : '';
+      if (url) clipboard.writeText(url);
+      markSiteModalCooldown(ctx.siteKey);
+      return { ok: true, url, keyName, ipnsName, copied: !!url };
     } finally {
       endSiteAction(lock.key);
     }
@@ -1694,7 +1810,11 @@ ipcMain.on('window:mode', (_evt, mode) => {
     getSplashWindow() ||
     BrowserWindow.getAllWindows()[0];
   if (!win) return;
-  if (mode === 'startup') {
+  if (mode === 'fullscreen') {
+    try { win.setFullScreen(true); } catch {}
+  } else if (mode === 'exit-fullscreen') {
+    try { win.setFullScreen(false); } catch {}
+  } else if (mode === 'startup') {
     win.setResizable(false);
     win.setMinimumSize(500, 250);
     win.setSize(500, 250, true);
@@ -1715,6 +1835,41 @@ ipcMain.handle('window:open-main', async () => {
   }
   return true;
 });
+
+function browserWindowForWebContents(contents) {
+  const fromContents = (target) => {
+    if (!target) return null;
+    try {
+      if (typeof target.getOwnerBrowserWindow === 'function') {
+        const owner = target.getOwnerBrowserWindow();
+        if (owner && !owner.isDestroyed?.()) return owner;
+      }
+    } catch {}
+    try {
+      const owner = BrowserWindow.fromWebContents(target);
+      if (owner && !owner.isDestroyed?.()) return owner;
+    } catch {}
+    return null;
+  };
+
+  const direct = fromContents(contents);
+  if (direct) return direct;
+
+  try {
+    const host = typeof contents?.hostWebContents === 'function'
+      ? contents.hostWebContents()
+      : contents?.hostWebContents;
+    const owner = fromContents(host);
+    if (owner) return owner;
+  } catch {}
+
+  return (
+    getMainWindow() ||
+    BrowserWindow.getFocusedWindow() ||
+    BrowserWindow.getAllWindows()[0] ||
+    null
+  );
+}
 
 app.whenReady().then(async () => {
   if (startupPathConfigFailure) {
@@ -1796,6 +1951,17 @@ app.whenReady().then(async () => {
             validatedURL: String(validatedURL || ''),
             isMainFrame: !!isMainFrame
           });
+        });
+      } catch {}
+
+      try {
+        contents.on('enter-html-full-screen', () => {
+          const owner = browserWindowForWebContents(contents);
+          if (owner && !owner.isDestroyed?.()) owner.setFullScreen(true);
+        });
+        contents.on('leave-html-full-screen', () => {
+          const owner = browserWindowForWebContents(contents);
+          if (owner && !owner.isDestroyed?.()) owner.setFullScreen(false);
         });
       } catch {}
 

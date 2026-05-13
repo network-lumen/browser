@@ -1,5 +1,5 @@
 <template>
-  <div class="web-page">
+  <div class="web-page" :class="{ 'html-fullscreen': webviewHtmlFullscreen }">
     <div v-if="isChromeWebStorePage" class="store-proxy">
       <div class="store-proxy-card">
         <h3>Chrome Web Store opens in Lumen Extensions</h3>
@@ -19,6 +19,8 @@
       :src="currentBrowserUrl"
       partition="persist:lumen"
       allowpopups
+      allowfullscreen
+      allow="fullscreen"
       :webpreferences="webprefs"
       @will-navigate="onWillNavigate"
       @did-navigate="onDidNavigate"
@@ -28,6 +30,8 @@
       @did-start-loading="onDidStartLoading"
       @did-stop-loading="onDidStopLoading"
       @dom-ready="onDomReady"
+      @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
+      @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
     ></webview>
     <div v-else class="empty"></div>
   </div>
@@ -53,6 +57,7 @@ const webviewRef = ref<any>(null);
 const pageActive = ref(false);
 const pendingAppNav = ref(false);
 const webviewLoading = ref(false);
+const webviewHtmlFullscreen = ref(false);
 const installedExtensions = ref<any[]>([]);
 
 useTabLoadingSync(webviewLoading);
@@ -388,6 +393,22 @@ function syncNavFromWebview(rawUrl: string) {
    void nextTick(() => reportFindTarget());
  }
 
+ function onWebviewEnterHtmlFullscreen() {
+   webviewHtmlFullscreen.value = true;
+   document.body.classList.add("lumen-webview-html-fullscreen");
+   try {
+     (window as any).lumen?.setWindowMode?.("fullscreen");
+   } catch {}
+ }
+
+ function onWebviewLeaveHtmlFullscreen() {
+   webviewHtmlFullscreen.value = false;
+   document.body.classList.remove("lumen-webview-html-fullscreen");
+   try {
+     (window as any).lumen?.setWindowMode?.("exit-fullscreen");
+   } catch {}
+ }
+
  onMounted(() => {
    pageActive.value = true;
    void refreshInstalledExtensions();
@@ -410,6 +431,7 @@ function syncNavFromWebview(rawUrl: string) {
  onBeforeUnmount(() => {
    pageActive.value = false;
    webviewLoading.value = false;
+   onWebviewLeaveHtmlFullscreen();
    try {
      const tabId = String(currentTabId?.value || "").trim();
      if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
@@ -443,6 +465,18 @@ function syncNavFromWebview(rawUrl: string) {
   min-height: 0;
   background: var(--bg-tertiary);
   overflow: hidden;
+}
+
+.web-page.html-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #000;
+}
+
+.web-page.html-fullscreen .webview {
+  width: 100vw;
+  height: 100vh;
 }
 
 .webview,
