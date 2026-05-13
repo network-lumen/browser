@@ -43,6 +43,15 @@ function safeString(v, maxLen = 4096) {
   return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
+function invalidateIpnsCache(name) {
+  const n = safeString(name, 512);
+  if (!n) {
+    ipnsToCidCache.clear();
+    return;
+  }
+  ipnsToCidCache.delete(n);
+}
+
 function loadCacheFromDisk() {
   const fallback = { version: 1, entries: {} };
   const raw = readJson(CACHE_FILE(), fallback) || fallback;
@@ -497,5 +506,6 @@ function startIpfsCache(opts = {}) {
 
 module.exports = {
   startIpfsCache,
-  touchIpfsPath
+  touchIpfsPath,
+  invalidateIpnsCache
 };

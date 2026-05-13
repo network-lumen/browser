@@ -125,6 +125,7 @@ export function pickRecordTarget(records: ResolverRecord[]): DomainTarget | null
 }
 
 function bytesToText(data: any): string {
+  if (typeof data === 'string') return data;
   try {
     const bytes = data instanceof Uint8Array
       ? data
@@ -238,6 +239,7 @@ export async function resolveDomainTarget(
 export function buildCandidateUrl(base: string, target: DomainTarget, path: string, suffix: string): string {
   const b = String(base || '').replace(/\/+$/, '');
   const canonical = normalizePath(path);
+  const effectiveSuffix = suffix || (canonical === '/' ? String(target?.suffix || '') : '');
   const basePath = target && target.basePath ? normalizePath(String(target.basePath)) : '/';
   const baseNorm = basePath === '/' ? '' : basePath.replace(/\/+$/, '');
 
@@ -268,11 +270,11 @@ export function buildCandidateUrl(base: string, target: DomainTarget, path: stri
       const proto = u.protocol || 'http:';
       const idLower = String(target.id).toLowerCase();
       const subHost = `${idLower}.ipfs.localhost`;
-      return `${proto}//${subHost}${port}${effectivePath}${suffix || ''}`;
+      return `${proto}//${subHost}${port}${effectivePath}${effectiveSuffix}`;
     }
   } catch {}
 
-  return `${b}/${target.proto}/${target.id}${effectivePath}${suffix || ''}`;
+  return `${b}/${target.proto}/${target.id}${effectivePath}${effectiveSuffix}`;
 }
 
 export async function probeUrl(url: string, timeoutMs = 2500): Promise<boolean> {

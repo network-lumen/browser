@@ -207,7 +207,7 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsPinAdd: (cidOrPath) => ipcRenderer.invoke('ipfs:pinAdd', cidOrPath),
   ipfsUnpin: (cid) => ipcRenderer.invoke('ipfs:unpin', cid),
   ipfsStats: () => ipcRenderer.invoke('ipfs:stats'),
-  ipfsPublishToIPNS: (cid, key) => ipcRenderer.invoke('ipfs:publishToIPNS', cid, key),
+  ipfsPublishToIPNS: (cid, key, options) => ipcRenderer.invoke('ipfs:publishToIPNS', cid, key, options || {}),
   ipfsResolveIPNS: (name) => ipcRenderer.invoke('ipfs:resolveIPNS', name),
   ipfsKeyList: () => ipcRenderer.invoke('ipfs:keyList'),
   ipfsKeyGen: (name) => ipcRenderer.invoke('ipfs:keyGen', name),

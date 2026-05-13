@@ -275,7 +275,16 @@
             </div>
             <div class="perm-row">
               <span class="perm-k">Records</span>
-              <span class="perm-v mono">{{ stableLinkRecords.length }} endpoint{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
+              <button class="records-toggle" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
+                <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
+                <ChevronDown :size="14" :class="{ open: stableLinkRecordsExpanded }" />
+              </button>
+            </div>
+            <div v-if="stableLinkRecordsExpanded" class="records-detail-list">
+              <div v-for="record in stableLinkRecords" :key="record.key" class="record-detail-row">
+                <span class="record-key mono">{{ record.key }}</span>
+                <span class="record-value mono" :title="record.value">{{ record.value }}</span>
+              </div>
             </div>
           </div>
 
@@ -297,11 +306,59 @@
       </div>
     </div>
   </Transition>
+
+  <Transition name="fade">
+    <div v-if="current && modalType === 'stableLinkSetup'" class="modal-overlay" @click="closeStableLinkSetup(false)">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <div class="modal-icon">
+              <Link :size="18" />
+            </div>
+            <h3>Select a live link</h3>
+          </div>
+          <button class="modal-close" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
+            <X :size="18" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="info-banner" v-if="siteLabel">
+            <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
+          </div>
+          <div v-if="stableLinkSetupError" class="modal-error">{{ stableLinkSetupError }}</div>
+          <div class="form-group">
+            <label>Live link</label>
+            <div class="input-wrapper">
+              <select class="form-input" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
+                <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
+                <option v-for="item in stableLinks" :key="item.name" :value="item.name">
+                  {{ item.label }} — {{ shortStableIpns(item.id) }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <p class="balance-hint">
+            Previous live settings will be loaded from this link if records are available.
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
+            Cancel
+          </button>
+          <button class="btn-primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
+            <span class="spinner" v-if="stableLinkSetupLoading"></span>
+            <Link v-else :size="16" />
+            <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
+import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 
 type UiReq = { id: string; type: string; data: any };
 
@@ -804,6 +861,10 @@ const stableLinkMode = ref<"existing" | "create">("existing");
 const stableLinkSelectedName = ref("");
 const stableLinkNewLabel = ref("");
 const stableLinks = ref<StableLinkItem[]>([]);
+const stableLinkRecordsExpanded = ref(false);
+const stableLinkSetupLoading = ref(false);
+const stableLinkSetupError = ref("");
+const stableLinkSetupSelectedName = ref("");
 
 const stableLinkRecords = computed(() => {
   const records = Array.isArray(current.value?.data?.records) ? current.value?.data?.records : [];
@@ -880,13 +941,135 @@ async function loadStableLinksForModal() {
   }
 }
 
+function bytesToText(data: any): string {
+  if (typeof data === "string") return data;
+  try {
+    const bytes = data instanceof Uint8Array
+      ? data
+      : Array.isArray(data)
+        ? new Uint8Array(data)
+        : null;
+    return bytes ? new TextDecoder().decode(bytes) : "";
+  } catch {
+    return "";
+  }
+}
+
+function normalizeSetupRecords(input: any): Array<{ key: string; value: string }> {
+  const raw = Array.isArray(input)
+    ? input
+    : Array.isArray(input?.records)
+      ? input.records
+      : input && typeof input === "object"
+        ? Object.entries(input).map(([key, value]) => ({ key, value }))
+        : [];
+  return raw
+    .map((record: any) => ({
+      key: String(record?.key || "").trim(),
+      value: String(record?.value ?? "").trim(),
+    }))
+    .filter((record: { key: string; value: string }) => record.key && record.value);
+}
+
+function setupRecordsMap(records: Array<{ key: string; value: string }>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const record of records) {
+    const key = String(record?.key || "").trim();
+    if (key) out[key] = String(record?.value ?? "").trim();
+  }
+  const site = String(out.site || "");
+  const queryIndex = site.indexOf("?");
+  if (queryIndex >= 0) {
+    const query = site.slice(queryIndex + 1).split("#")[0] || "";
+    const params = new URLSearchParams(query);
+    ["title", "description", "tags", "audioSource", "imageCid", "offlineImageCid"].forEach((key) => {
+      if (!out[key] && params.get(key)) out[key] = String(params.get(key) || "");
+    });
+  }
+  return out;
+}
+
+function normalizeIpfsCid(value: any): string {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const lumenMatch = raw.match(/^lumen:\/\/ipfs\/([^/?#]+)/i);
+  if (lumenMatch) return lumenMatch[1] || "";
+  const ipfsMatch = raw.match(/^\/?ipfs\/([^/?#]+)/i);
+  if (ipfsMatch) return ipfsMatch[1] || "";
+  return raw.split(/[/?#]/)[0] || raw;
+}
+
+async function loadStableLinkSetupRecords(ipnsName: string) {
+  const api: any = (window as any).lumen;
+  const resolved = await api?.ipfsResolveIPNS?.(ipnsName).catch(() => null);
+  const path = String(resolved?.path || "");
+  const m = path.match(/\/ipfs\/([^/]+)/i);
+  const cid = String(m?.[1] || "").trim();
+  if (!cid) return [];
+  const got = await api?.ipfsGet?.(`/ipfs/${cid}`, { timeoutMs: 8000 }).catch(() => null);
+  if (!got?.ok) return [];
+  const text = bytesToText(got.data);
+  if (!text) return [];
+  try {
+    return normalizeSetupRecords(JSON.parse(text));
+  } catch {
+    return [];
+  }
+}
+
+async function loadStableLinkSetupImage(cidRaw: string) {
+  const cid = normalizeIpfsCid(cidRaw);
+  if (!cid) return null;
+  const api: any = (window as any).lumen;
+  const got = await api?.ipfsGet?.(`/ipfs/${cid}`, { timeoutMs: 8000 }).catch(() => null);
+  if (!got?.ok) return { cid, name: "", type: "" };
+  const text = bytesToText(got.data);
+  if (!text) return { cid, name: "", type: "" };
+  try {
+    const payload = JSON.parse(text);
+    return {
+      cid,
+      name: String(payload?.name || ""),
+      type: String(payload?.type || ""),
+      imageDataUrl: String(payload?.imageDataUrl || ""),
+    };
+  } catch {
+    return { cid, name: "", type: "" };
+  }
+}
+
+async function loadStableLinkSetupImages(records: Array<{ key: string; value: string }>) {
+  const values = setupRecordsMap(records);
+  const [cover, offline] = await Promise.all([
+    loadStableLinkSetupImage(values.imageCid),
+    loadStableLinkSetupImage(values.offlineImageCid),
+  ]);
+  return {
+    imageCid: cover,
+    offlineImageCid: offline,
+  };
+}
+
+async function loadStableLinksForSetup() {
+  await loadStableLinksForModal();
+  stableLinkSetupSelectedName.value = stableLinks.value[0]?.name || "";
+}
+
 function resetStableLinkState() {
   stableLinkError.value = "";
   stableLinkSaving.value = false;
   stableLinkMode.value = "existing";
   stableLinkSelectedName.value = "";
   stableLinkNewLabel.value = defaultStableLiveLabel();
+  stableLinkRecordsExpanded.value = false;
   void loadStableLinksForModal();
+}
+
+function resetStableLinkSetupState() {
+  stableLinkSetupError.value = "";
+  stableLinkSetupLoading.value = false;
+  stableLinkSetupSelectedName.value = "";
+  void loadStableLinksForSetup();
 }
 
 async function publishStableLinkRecords(keyName: string) {
@@ -900,7 +1083,7 @@ async function publishStableLinkRecords(keyName: string) {
   const bodyBytes = Array.from(new TextEncoder().encode(body));
   const add = await api?.ipfsAdd?.(bodyBytes, `${stableLinkDisplayName(keyName) || "stable-link"}.lumen-records.json`);
   if (!add?.ok || !add.cid) return { ok: false, error: add?.error || "ipfs_add_failed" };
-  const published = await api?.ipfsPublishToIPNS?.(add.cid, keyName);
+  const published = await api?.ipfsPublishToIPNS?.(add.cid, keyName, { timeoutMs: 60000 });
   if (!published?.ok) return { ok: false, error: published?.error || "ipns_publish_failed" };
   return { ok: true };
 }
@@ -953,6 +1136,39 @@ function closeStableLink(confirm: boolean) {
   if (!confirm) respond({ ok: false, error: "user_cancelled" });
 }
 
+async function submitStableLinkSetup() {
+  const keyName = String(stableLinkSetupSelectedName.value || "").trim();
+  if (!keyName) return;
+  stableLinkSetupLoading.value = true;
+  stableLinkSetupError.value = "";
+  try {
+    const selected = stableLinks.value.find((item) => item.name === keyName);
+    if (!selected?.id) {
+      stableLinkSetupError.value = "Select a live link first.";
+      return;
+    }
+    const records = await loadStableLinkSetupRecords(selected.id);
+    const imagePreviews = await loadStableLinkSetupImages(records);
+    respond({
+      ok: true,
+      keyName,
+      ipnsName: selected.id,
+      url: `lumen://ipns/${selected.id}/`,
+      records,
+      imagePreviews,
+    });
+  } catch (e: any) {
+    stableLinkSetupError.value = String(e?.message || e || "stable_link_setup_failed");
+  } finally {
+    stableLinkSetupLoading.value = false;
+  }
+}
+
+function closeStableLinkSetup(confirm: boolean) {
+  if (stableLinkSetupLoading.value) return;
+  if (!confirm) respond({ ok: false, error: "user_cancelled" });
+}
+
 watch(
   () => current.value?.id,
   async (id) => {
@@ -968,6 +1184,10 @@ watch(
     }
     if (modalType.value === "stableLink") {
       resetStableLinkState();
+      return;
+    }
+    if (modalType.value === "stableLinkSetup") {
+      resetStableLinkSetupState();
       return;
     }
   },
@@ -1132,6 +1352,45 @@ onBeforeUnmount(() => {
   max-width: 360px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.records-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 0;
+}
+.records-toggle svg {
+  transition: transform 0.16s ease;
+}
+.records-toggle svg.open {
+  transform: rotate(180deg);
+}
+.records-detail-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+.record-detail-row {
+  display: grid;
+  grid-template-columns: minmax(70px, 0.28fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+.record-key {
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 12px;
+}
+.record-value {
+  color: #0f172a;
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
