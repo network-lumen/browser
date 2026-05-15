@@ -2969,10 +2969,21 @@ async function ipfsStats() {
 
 async function ipfsPublishToIPNS(cid, key = 'self', options = {}) {
   try {
-    console.log('[electron][ipfs] publishing to IPNS:', cid, 'key:', key);
+    const keyName = String(key ?? 'self').trim() || 'self';
+    if (options?.autoCreateKey && keyName !== 'self') {
+      const listed = await ipfsKeyList().catch((e) => ({ ok: false, error: String(e?.message || e) }));
+      const keys = Array.isArray(listed?.keys) ? listed.keys : [];
+      const exists = keys.some((item) => String(item?.Name || item?.name || '').trim() === keyName);
+      if (!exists && listed?.ok) {
+        const created = await ipfsKeyGen(keyName);
+        if (!created?.ok) return { ok: false, error: created?.error || 'ipns_key_create_failed' };
+      }
+    }
+
+    console.log('[electron][ipfs] publishing to IPNS:', cid, 'key:', keyName);
     const url = new URL(`${ipfsApiBase()}/api/v0/name/publish`);
     url.searchParams.set('arg', `/ipfs/${String(cid ?? '')}`);
-    url.searchParams.set('key', String(key ?? 'self'));
+    url.searchParams.set('key', keyName);
     url.searchParams.set('allow-offline', 'true');
     url.searchParams.set('resolve', 'false');
     const timeoutMs =
@@ -2988,7 +2999,7 @@ async function ipfsPublishToIPNS(cid, key = 'self', options = {}) {
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
       console.warn('[electron][ipfs] IPNS publish failed:', res.status, errText);
-      return { ok: false, error: 'http_' + res.status };
+      return { ok: false, error: errText ? `http_${res.status}: ${errText.slice(0, 512)}` : 'http_' + res.status };
     }
 
     const json = await res.json();

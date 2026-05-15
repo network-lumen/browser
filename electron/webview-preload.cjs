@@ -1675,7 +1675,7 @@ const lumen = {
       'ipfs:publishToIPNS',
       safeString(cid || '', 512),
       safeString(key || '', 256),
-      options || {}
+      Object.assign({}, options || {}, { autoCreateKey: true })
     );
   },
 
