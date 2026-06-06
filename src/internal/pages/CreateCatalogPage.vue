@@ -619,7 +619,7 @@ function exportCatalog() {
     entries: rows.value.map((row) => ({
       cid: row.cid,
       filename: row.filename,
-      path: row.path,
+      path: stripRootPath(String(row.path || ""), String(row.rootName || "")),
       size: row.size,
       type: row.type,
       ...(row.rootCid ? { rootCid: row.rootCid } : {}),
@@ -669,7 +669,8 @@ function normalizeCatalogEntry(entry: any, seenMetaKeys: Set<string>): CatalogEn
   for (const key of Object.keys(meta)) seenMetaKeys.add(key);
 
   const filename = String(content.filename || content.name || basename(content.path) || "file");
-  const path = normalizePath(String(content.path || filename));
+  const rawPath = normalizePath(String(content.path || filename));
+  const path = stripRootPath(rawPath, String(content.rootName || ""));
   return {
     id: makeEntryId(cid, path),
     cid,
