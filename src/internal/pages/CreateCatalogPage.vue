@@ -524,10 +524,12 @@ function deriveDirectoryRootPath(files: PickedFile[]) {
   const roots = new Set<string>();
 
   for (const entry of files) {
-    const filePath = normalizePath(getFileSystemPath(entry.file));
+    const filePathRaw = normalizePath(getFileSystemPath(entry.file));
     const relPath = normalizePath(entry.path);
-    if (!filePath || !relPath) continue;
-    if (!filePath.endsWith(relPath)) continue;
+    if (!filePathRaw || !relPath) continue;
+    const filePath = filePathRaw.toLowerCase();
+    const targetRelPath = relPath.toLowerCase();
+    if (!filePath.endsWith(targetRelPath)) continue;
     const root = filePath.slice(0, filePath.length - relPath.length).replace(/\\/g, "/").replace(/\/+$/, "");
     roots.add(root);
     if (roots.size > 1) return null;
@@ -943,6 +945,17 @@ function normalizeCellValue(value: string | boolean, type: ColumnType) {
 }
 
 async function pickedFilesFromDrop(event: DragEvent): Promise<PickedFile[]> {
+  const files = Array.from(event.dataTransfer?.files || []);
+  const hasFilePaths = files.some((file: any) => String((file as any)?.path || "").trim());
+  const hasRelativePaths = files.some((file: any) => String((file as any)?.webkitRelativePath || "").trim());
+
+  if (files.length && (hasFilePaths || hasRelativePaths)) {
+    return files.map((file) => ({
+      file,
+      path: normalizePath(String((file as any).webkitRelativePath || file.name)),
+    }));
+  }
+
   const items = Array.from(event.dataTransfer?.items || []);
   const entries = items
     .map((item: any) => (typeof item.webkitGetAsEntry === "function" ? item.webkitGetAsEntry() : null))
@@ -951,7 +964,8 @@ async function pickedFilesFromDrop(event: DragEvent): Promise<PickedFile[]> {
     const all = await Promise.all(entries.map((entry) => readDroppedEntry(entry, "")));
     return all.flat();
   }
-  return Array.from(event.dataTransfer?.files || []).map((file) => ({
+
+  return files.map((file) => ({
     file,
     path: normalizePath(String((file as any).webkitRelativePath || file.name)),
   }));
