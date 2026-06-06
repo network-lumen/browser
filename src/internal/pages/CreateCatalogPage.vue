@@ -516,6 +516,22 @@ function getFileSystemPath(file: File) {
   return String((file as any)?.path || "").trim();
 }
 
+function deriveDirectoryRootPath(files: PickedFile[]) {
+  const roots = new Set<string>();
+
+  for (const entry of files) {
+    const filePath = normalizePath(getFileSystemPath(entry.file));
+    const relPath = normalizePath(entry.path);
+    if (!filePath || !relPath) return null;
+    if (!filePath.endsWith(relPath)) return null;
+    const root = filePath.slice(0, filePath.length - relPath.length).replace(/\\/g, "/");
+    roots.add(root.replace(/\/+$/, ""));
+    if (roots.size > 1) return null;
+  }
+
+  return Array.from(roots)[0] || null;
+}
+
 async function addFileToIpfs(file: File, path: string) {
   const api: any = (window as any).lumen;
   const filePath = getFileSystemPath(file);
@@ -557,6 +573,14 @@ async function addFolderToIpfs(rootName: string, files: PickedFile[]) {
   const hasAllPaths = pathFiles.every((entry) => !!entry.filePath);
   const hasAnyPaths = pathFiles.some((entry) => !!entry.filePath);
 
+  const rootPath = deriveDirectoryRootPath(files);
+  const addDirFromPathFn =
+    rootPath && typeof api?.ipfsAddDirectoryFromPathWithProgress === "function"
+      ? api.ipfsAddDirectoryFromPathWithProgress
+      : rootPath && typeof api?.ipfsAddDirectoryFromPath === "function"
+        ? api.ipfsAddDirectoryFromPath
+        : null;
+
   const addDirPathsFn =
     hasAllPaths && typeof api?.ipfsAddDirectoryPathsWithProgress === "function"
       ? api.ipfsAddDirectoryPathsWithProgress
@@ -570,6 +594,10 @@ async function addFolderToIpfs(rootName: string, files: PickedFile[]) {
       : typeof api?.ipfsAddDirectory === "function"
         ? api.ipfsAddDirectory
         : null;
+
+  if (addDirFromPathFn) {
+    return addDirFromPathFn({ rootPath, rootName });
+  }
 
   if (addDirPathsFn) {
     return addDirPathsFn({ rootName, files: pathFiles });
