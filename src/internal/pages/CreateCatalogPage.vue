@@ -460,7 +460,8 @@ async function importPickedFiles(picked: PickedFile[]) {
   const maxInMemorySize = 500 * 1024 * 1024; // 500MB
   for (const files of groups.values()) {
     const rootPath = deriveDirectoryRootPath(files);
-    if (rootPath) continue;
+    const hasAllNativePaths = files.every((f) => Boolean(String(getFileSystemPath(f.file)).trim()));
+    if (rootPath || hasAllNativePaths) continue;
     const fallbackSize = files.reduce((sum, f) => {
       const filePath = String((f.file as any)?.path || "").trim();
       return filePath ? sum : sum + (f.file.size || 0);
@@ -530,7 +531,7 @@ function deriveDirectoryRootPath(files: PickedFile[]) {
     const filePath = filePathRaw.toLowerCase();
     const targetRelPath = relPath.toLowerCase();
     if (!filePath.endsWith(targetRelPath)) continue;
-    const root = filePath.slice(0, filePath.length - relPath.length).replace(/\\/g, "/").replace(/\/+$/, "");
+    const root = filePathRaw.slice(0, filePathRaw.length - relPath.length).replace(/\\/g, "/").replace(/\/+$/, "");
     roots.add(root);
     if (roots.size > 1) return null;
   }
