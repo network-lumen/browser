@@ -126,6 +126,11 @@
             <span>Cloud</span>
           </button>
 
+          <button class="plans-btn" type="button" @click="openCreateCatalog">
+            <TableProperties :size="16" />
+            <span>Catalog</span>
+          </button>
+
           <div class="upload-menu" @click.stop>
             <button class="upload-btn" type="button" @click="toggleUploadMenu">
               <Plus :size="18" />
@@ -2320,6 +2325,15 @@ const profiles = profilesState;
 const activeProfile = computed(
   () => profiles.value.find((p) => p.id === activeProfileId.value) || null,
 );
+
+function openCreateCatalog() {
+  const url = "lumen://create-catalog";
+  if (navigate) {
+    navigate(url, { push: true });
+    return;
+  }
+  openInNewTab?.(url);
+}
 const activeProfileDisplay = computed(
   () => activeProfile.value?.name || activeProfile.value?.id || "",
 );
