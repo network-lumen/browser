@@ -428,6 +428,21 @@ async function handleFolderInput(event: Event) {
   } catch {}
   if (!selected.length) return;
 
+  console.log(
+    "[CreateCatalog] handleFolderInput selected",
+    selected.length,
+    JSON.stringify(
+      selected.slice(0, 10).map((file) => ({
+        name: file.name,
+        webkitRelativePath: String((file as any).webkitRelativePath || ""),
+        path: String((file as any).path || ""),
+        size: file.size,
+      })),
+      null,
+      2,
+    ),
+  );
+
   const picked = selected.map((file) => ({
     file,
     path: normalizePath(String((file as any).webkitRelativePath || file.name)),
@@ -457,21 +472,6 @@ async function importPickedFiles(picked: PickedFile[]) {
   const groups = groupPickedFiles(picked);
   if (!groups.size) return;
 
-  const maxInMemorySize = 500 * 1024 * 1024; // 500MB
-  for (const files of groups.values()) {
-    const rootPath = deriveDirectoryRootPath(files);
-    const hasAllNativePaths = files.every((f) => Boolean(String(getFileSystemPath(f.file)).trim()));
-    if (rootPath || hasAllNativePaths) continue;
-    const fallbackSize = files.reduce((sum, f) => {
-      const filePath = String((f.file as any)?.path || "").trim();
-      return filePath ? sum : sum + (f.file.size || 0);
-    }, 0);
-    if (fallbackSize > maxInMemorySize) {
-      error(`Folder too large (${(fallbackSize / 1024 / 1024).toFixed(0)}MB). In-memory upload limited to 500MB. Try dragging directly from your file manager instead.`);
-      return;
-    }
-  }
-
   const ok = await ensureIpfsConnected();
   if (!ok) return;
 
@@ -481,19 +481,37 @@ async function importPickedFiles(picked: PickedFile[]) {
 
   try {
     for (const [rootName, files] of groups.entries()) {
-      const result = await addFolderToIpfs(rootName, files);
-      if (!result?.ok || !result?.cid) {
-        const detail = String(result?.error || "unknown error");
-        error(`Folder import failed: ${detail}`);
+      const fileList = files.map((f) => ({ file: f.file, path: f.path }));
+      const result = await uploadCatalogDirectory(rootName, fileList);
+      if (!result.ok || !result.cid) {
         continue;
       }
-      uploadStage.value = "merging";
-      const importedRows = buildRowsFromIpfsResult(
-        result?.cid ? String(result.cid) : undefined,
-        String(result.name || rootName),
-        files,
-        result.entries || [],
-      );
+      const rootCid = String(result.cid);
+
+      // Build catalog rows from the uploaded directory
+      const importedRows = files.map((item) => {
+        const uploadPath = normalizePath(item.path);
+        const catalogPath = stripRootPath(uploadPath, rootName);
+        const filename = basename(catalogPath) || basename(uploadPath) || item.file.name || "file";
+        const inferredType = item.file.type || inferMimeType(filename);
+        return {
+          id: makeEntryId(rootCid, catalogPath),
+          cid: rootCid,
+          filename,
+          path: catalogPath,
+          size: Number(item.file.size || 0),
+          type: inferredType,
+          rootCid: rootCid || undefined,
+          rootName: rootName || undefined,
+          meta: {
+            title: stripExtension(filename),
+            description: "",
+            tags: [],
+            createdAt: new Date().toISOString().slice(0, 10),
+          },
+        } satisfies CatalogEntry;
+      });
+
       const stats = mergeEntries(importedRows, []);
       success(`Imported ${stats.added} entries from ${rootName}.`);
     }
@@ -504,202 +522,126 @@ async function importPickedFiles(picked: PickedFile[]) {
   }
 }
 
-async function ensureIpfsConnected() {
-  uploadStage.value = "checking";
+function ensureIpfsConnected(): Promise<boolean> {
   const api: any = (window as any).lumen;
   if (typeof api?.ipfsStatus !== "function") {
     error("IPFS API unavailable.");
-    return false;
+    return Promise.resolve(false);
   }
-  const result = await api.ipfsStatus().catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
-  if (result?.ok === true) return true;
-  error("Local IPFS is offline.");
-  return false;
-}
-
-function getFileSystemPath(file: File) {
-  return String((file as any)?.path || "").trim();
-}
-
-function deriveDirectoryRootPath(files: PickedFile[]) {
-  const roots = new Set<string>();
-
-  for (const entry of files) {
-    const filePathRaw = normalizePath(getFileSystemPath(entry.file));
-    const relPath = normalizePath(entry.path);
-    if (!filePathRaw || !relPath) continue;
-    const filePath = filePathRaw.toLowerCase();
-    const targetRelPath = relPath.toLowerCase();
-    if (!filePath.endsWith(targetRelPath)) continue;
-    const root = filePathRaw.slice(0, filePathRaw.length - relPath.length).replace(/\\/g, "/").replace(/\/+$/, "");
-    roots.add(root);
-    if (roots.size > 1) return null;
-  }
-
-  return Array.from(roots)[0] || null;
-}
-
-async function addFileToIpfs(file: File, path: string) {
-  const api: any = (window as any).lumen;
-  const filePath = getFileSystemPath(file);
-
-  const addPathFn =
-    filePath && typeof api?.ipfsAddPathWithProgress === "function"
-      ? api.ipfsAddPathWithProgress
-      : filePath && typeof api?.ipfsAddPath === "function"
-        ? api.ipfsAddPath
-        : null;
-
-  const addBytesFn =
-    typeof api?.ipfsAddWithProgress === "function"
-      ? api.ipfsAddWithProgress
-      : typeof api?.ipfsAdd === "function"
-        ? api.ipfsAdd
-        : null;
-
-  if (!addPathFn && !addBytesFn) {
-    return { ok: false, error: "ipfs_add_unavailable" };
-  }
-
-  const result = addPathFn
-    ? await addPathFn(filePath, path)
-    : await (async () => {
-        const data = new Uint8Array(await file.arrayBuffer());
-        return addBytesFn?.(data, path);
-      })();
-
-  return result;
-}
-
-async function addFolderToIpfs(rootName: string, files: PickedFile[]) {
-  const api: any = (window as any).lumen;
-  const pathFiles = files.map((entry) => ({
-    path: normalizePath(entry.path),
-    filePath: getFileSystemPath(entry.file),
-  }));
-  const hasAllPaths = pathFiles.every((entry) => !!entry.filePath);
-  const hasAnyPaths = pathFiles.some((entry) => !!entry.filePath);
-
-  const rootPath = deriveDirectoryRootPath(files);
-  const addDirFromPathFn =
-    rootPath && typeof api?.ipfsAddDirectoryFromPathWithProgress === "function"
-      ? api.ipfsAddDirectoryFromPathWithProgress
-      : rootPath && typeof api?.ipfsAddDirectoryFromPath === "function"
-        ? api.ipfsAddDirectoryFromPath
-        : null;
-
-  const addDirPathsFn =
-    hasAllPaths && typeof api?.ipfsAddDirectoryPathsWithProgress === "function"
-      ? api.ipfsAddDirectoryPathsWithProgress
-      : hasAllPaths && typeof api?.ipfsAddDirectoryPaths === "function"
-        ? api.ipfsAddDirectoryPaths
-        : null;
-
-  const addDirBytesFn =
-    typeof api?.ipfsAddDirectoryWithProgress === "function"
-      ? api.ipfsAddDirectoryWithProgress
-      : typeof api?.ipfsAddDirectory === "function"
-        ? api.ipfsAddDirectory
-        : null;
-
-  if (addDirFromPathFn) {
-    return addDirFromPathFn({ rootPath, rootName });
-  }
-
-  if (addDirPathsFn) {
-    return addDirPathsFn({ rootName, files: pathFiles });
-  }
-
-  const addPathFnAvailable = hasAnyPaths && (typeof api?.ipfsAddPathWithProgress === "function" || typeof api?.ipfsAddPath === "function");
-  const addBytesFnAvailable = typeof api?.ipfsAddWithProgress === "function" || typeof api?.ipfsAdd === "function";
-
-  if (!addPathFnAvailable && !addBytesFnAvailable && !addDirBytesFn) {
-    return { ok: false, error: "ipfs_add_directory_unavailable" };
-  }
-
-  if (addPathFnAvailable || addBytesFnAvailable) {
-    const entries: any[] = [];
-    for (const entry of files) {
-      const uploadPath = normalizePath(entry.path);
-      const fileName = basename(uploadPath) || entry.file.name || "file";
-      const result = await addFileToIpfs(entry.file, uploadPath);
-      if (!result?.cid && !result?.Hash) {
-        return { ok: false, error: result?.error || `Failed to add file ${fileName}` };
-      }
-      entries.push({ name: uploadPath, cid: String(result.cid || result.Hash || "") });
-    }
-    return { ok: true, cid: "", entries };
-  }
-
-  if (addDirBytesFn) {
-    const payloadFiles = [];
-    for (const entry of files) {
-      try {
-        const data = new Uint8Array(await entry.file.arrayBuffer());
-        payloadFiles.push({ path: normalizePath(entry.path), data });
-      } catch (e: any) {
-        return { ok: false, error: `Failed to read file ${entry.file.name}: ${String(e?.message || e)}` };
-      }
-    }
-    return addDirBytesFn({ rootName, files: payloadFiles });
-  }
-
-  return { ok: false, error: "ipfs_add_unavailable" };
-}
-
-function buildRowsFromIpfsResult(
-  rootCid: string | undefined,
-  rootName: string,
-  files: PickedFile[],
-  entries: any[],
-): CatalogEntry[] {
-  const byName = new Map<string, any>();
-  for (const entry of entries) {
-    const name = normalizePath(String(entry?.name || ""));
-    if (name) byName.set(name, entry);
-  }
-
-  return files
-    .map((item) => {
-      const uploadPath = normalizePath(item.path);
-      const catalogPath = stripRootPath(uploadPath, rootName);
-      const matched = lookupIpfsEntry(uploadPath, byName);
-      const cid = String(matched?.cid || matched?.Hash || "");
-      if (!cid) return null;
-      const filename = basename(catalogPath) || basename(uploadPath) || item.file.name || "file";
-      const inferredType = item.file.type || inferMimeType(filename);
-      return {
-        id: makeEntryId(cid, catalogPath),
-        cid,
-        filename,
-        path: catalogPath,
-        size: Number(item.file.size || 0),
-        type: inferredType,
-        rootCid: rootCid || undefined,
-        rootName: rootName || undefined,
-        meta: {
-          title: stripExtension(filename),
-          description: "",
-          tags: [],
-          createdAt: new Date().toISOString().slice(0, 10),
-        },
-      } satisfies CatalogEntry;
+  return api.ipfsStatus()
+    .then((result: any) => {
+      if (result?.ok === true) return true;
+      error("Local IPFS is offline.");
+      return false;
     })
-    .filter(Boolean) as CatalogEntry[];
+    .catch((e: any) => {
+      error("IPFS status check failed.");
+      return false;
+    });
 }
 
-function lookupIpfsEntry(path: string, byName: Map<string, any>) {
-  const exact = byName.get(path);
-  if (exact) return exact;
-  const parts = path.split("/").filter(Boolean);
-  const withoutRoot = parts.slice(1).join("/");
-  if (withoutRoot && byName.has(withoutRoot)) return byName.get(withoutRoot);
-  if (withoutRoot) {
-    const matches = Array.from(byName.entries()).filter(([name]) => name.endsWith(`/${withoutRoot}`));
-    if (matches.length === 1) return matches[0][1];
+async function uploadCatalogDirectory(
+  rootName: string,
+  list: { path: string; file: File }[],
+): Promise<{ ok: true; cid: string } | { ok: false }> {
+  const name = String(rootName || "").trim() || "folder";
+  if (!list.length) return { ok: false };
+
+  const estimatedBytes = list.reduce(
+    (acc, it) => acc + (Number(it?.file?.size || 0) || 0),
+    0,
+  );
+  const maxSize = 5 * 1024 * 1024 * 1024; // 5GB limit for catalog
+  if (estimatedBytes > maxSize) {
+    error(`Folder too large (${(estimatedBytes / 1024 / 1024 / 1024).toFixed(1)}GB). Limit is 5GB.`);
+    return { ok: false };
   }
-  return null;
+
+  uploading.value = true;
+  uploadStage.value = "preparing";
+  uploadPercent.value = 0;
+
+  try {
+    const api: any = (window as any).lumen;
+
+    const pathFiles = list.map((it) => {
+      const rel = String(it.path || it.file?.name || "file")
+        .replace(/^\/+/, "")
+        .replace(/\\/g, "/");
+      const fp = String((it.file as any)?.path || "").trim();
+      return { path: rel, filePath: fp };
+    });
+    const hasAllPaths = pathFiles.every((f) => !!String(f.filePath || "").trim());
+    const addDirPathsFn =
+      hasAllPaths && typeof api?.ipfsAddDirectoryPathsWithProgress === "function"
+        ? api.ipfsAddDirectoryPathsWithProgress
+        : hasAllPaths && typeof api?.ipfsAddDirectoryPaths === "function"
+          ? api.ipfsAddDirectoryPaths
+          : null;
+
+    const addDirBytesFn =
+      typeof api?.ipfsAddDirectoryWithProgress === "function"
+        ? api.ipfsAddDirectoryWithProgress
+        : typeof api?.ipfsAddDirectory === "function"
+          ? api.ipfsAddDirectory
+          : null;
+
+    if (!addDirPathsFn && !addDirBytesFn) {
+      error("Upload unavailable");
+      return { ok: false };
+    }
+
+    uploadStage.value = "adding";
+    uploadPercent.value = 0;
+
+    let result: any = null;
+
+    if (addDirPathsFn) {
+      result = await addDirPathsFn({
+        rootName: name,
+        files: pathFiles,
+      });
+    } else {
+      const payloadFiles: { path: string; data: Uint8Array }[] = [];
+      for (const it of list) {
+        const rel = String(it.path || it.file?.name || "file")
+          .replace(/^\/+/, "")
+          .replace(/\\/g, "/");
+        const buf = await it.file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        payloadFiles.push({ path: rel, data: bytes });
+      }
+      result = await addDirBytesFn?.({
+        rootName: name,
+        files: payloadFiles,
+      });
+    }
+
+    if (!result?.ok || !result?.cid) {
+      const err = String(result?.error || "");
+      if (err.toLowerCase().includes("cancel")) {
+        warning("Upload cancelled.");
+        return { ok: false };
+      }
+      error(`Failed to upload folder: ${name}`);
+      return { ok: false };
+    }
+
+    const cid = String(result.cid);
+    success(`Imported folder: ${name}`);
+    return { ok: true, cid };
+  } catch (err) {
+    console.error("Folder upload error:", err);
+    error(`Error uploading folder: ${name}`);
+    return { ok: false };
+  } finally {
+    uploading.value = false;
+    uploadStage.value = "idle";
+    uploadPercent.value = null;
+  }
 }
+
+
 
 async function handleCatalogInput(event: Event) {
   const input = event.target as HTMLInputElement;
