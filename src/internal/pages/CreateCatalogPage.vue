@@ -457,6 +457,14 @@ async function importPickedFiles(picked: PickedFile[]) {
   const groups = groupPickedFiles(picked);
   if (!groups.size) return;
 
+  // Check total size to prevent out-of-memory on large imports
+  const totalSize = Array.from(groups.values()).flat().reduce((sum, f) => sum + (f.file.size || 0), 0);
+  const maxInMemorySize = 500 * 1024 * 1024; // 500MB
+  if (totalSize > maxInMemorySize) {
+    error(`Folder too large (${(totalSize / 1024 / 1024).toFixed(0)}MB). Maximum is 500MB without system file paths. Try importing smaller folders.`);
+    return;
+  }
+
   const ok = await ensureIpfsConnected();
   if (!ok) return;
 
@@ -517,10 +525,15 @@ async function addFolderToIpfs(rootName: string, files: PickedFile[]) {
     return { ok: false, error: "ipfs_add_directory_unavailable" };
   }
 
+  // In-memory fallback: load all files as Uint8Array
   const payloadFiles = [];
   for (const entry of files) {
-    const data = new Uint8Array(await entry.file.arrayBuffer());
-    payloadFiles.push({ path: normalizePath(entry.path), data });
+    try {
+      const data = new Uint8Array(await entry.file.arrayBuffer());
+      payloadFiles.push({ path: normalizePath(entry.path), data });
+    } catch (e: any) {
+      return { ok: false, error: `Failed to read file ${entry.file.name}: ${String(e?.message || e)}` };
+    }
   }
   return api.ipfsAddDirectoryWithProgress({ rootName, files: payloadFiles });
 }
