@@ -457,14 +457,18 @@ async function importPickedFiles(picked: PickedFile[]) {
   const groups = groupPickedFiles(picked);
   if (!groups.size) return;
 
-  const fallbackSize = Array.from(groups.values()).flat().reduce((sum, f) => {
-    const filePath = String((f.file as any)?.path || "").trim();
-    return filePath ? sum : sum + (f.file.size || 0);
-  }, 0);
   const maxInMemorySize = 500 * 1024 * 1024; // 500MB
-  if (fallbackSize > maxInMemorySize) {
-    error(`Folder too large (${(fallbackSize / 1024 / 1024).toFixed(0)}MB). In-memory upload limited to 500MB. Try dragging directly from your file manager instead.`);
-    return;
+  for (const files of groups.values()) {
+    const rootPath = deriveDirectoryRootPath(files);
+    if (rootPath) continue;
+    const fallbackSize = files.reduce((sum, f) => {
+      const filePath = String((f.file as any)?.path || "").trim();
+      return filePath ? sum : sum + (f.file.size || 0);
+    }, 0);
+    if (fallbackSize > maxInMemorySize) {
+      error(`Folder too large (${(fallbackSize / 1024 / 1024).toFixed(0)}MB). In-memory upload limited to 500MB. Try dragging directly from your file manager instead.`);
+      return;
+    }
   }
 
   const ok = await ensureIpfsConnected();
@@ -522,10 +526,10 @@ function deriveDirectoryRootPath(files: PickedFile[]) {
   for (const entry of files) {
     const filePath = normalizePath(getFileSystemPath(entry.file));
     const relPath = normalizePath(entry.path);
-    if (!filePath || !relPath) return null;
-    if (!filePath.endsWith(relPath)) return null;
-    const root = filePath.slice(0, filePath.length - relPath.length).replace(/\\/g, "/");
-    roots.add(root.replace(/\/+$/, ""));
+    if (!filePath || !relPath) continue;
+    if (!filePath.endsWith(relPath)) continue;
+    const root = filePath.slice(0, filePath.length - relPath.length).replace(/\\/g, "/").replace(/\/+$/, "");
+    roots.add(root);
     if (roots.size > 1) return null;
   }
 
@@ -1595,3 +1599,4 @@ function inferMimeType(filename: string) {
   }
 }
 </style>
+
