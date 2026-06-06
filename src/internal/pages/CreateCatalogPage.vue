@@ -318,7 +318,7 @@ const filteredRows = computed(() => {
 
 const uploadStatusText = computed(() => {
   if (uploadStage.value === "checking") return "Checking local IPFS...";
-  if (uploadStage.value === "adding") return "Adding folder to IPFS as one DAG...";
+  if (uploadStage.value === "adding") return "Adding folder to IPFS (streaming from disk)...";
   if (uploadStage.value === "merging") return "Merging entries by CID...";
   if (rows.value.length) return "Merge keeps existing metadata when possible.";
   return "Generic Lumen columns are ready and editable.";
@@ -457,12 +457,19 @@ async function importPickedFiles(picked: PickedFile[]) {
   const groups = groupPickedFiles(picked);
   if (!groups.size) return;
 
-  // Check total size to prevent out-of-memory on large imports
-  const totalSize = Array.from(groups.values()).flat().reduce((sum, f) => sum + (f.file.size || 0), 0);
-  const maxInMemorySize = 500 * 1024 * 1024; // 500MB
-  if (totalSize > maxInMemorySize) {
-    error(`Folder too large (${(totalSize / 1024 / 1024).toFixed(0)}MB). Maximum is 500MB without system file paths. Try importing smaller folders.`);
-    return;
+  // Check total size only for fallback scenario (in-memory load)
+  // File path streaming (preferred) has no practical size limit
+  const hasSystemPaths = Array.from(groups.values()).some((files) =>
+    files.some((f) => String((f.file as any)?.path || "").trim())
+  );
+  
+  if (!hasSystemPaths) {
+    const totalSize = Array.from(groups.values()).flat().reduce((sum, f) => sum + (f.file.size || 0), 0);
+    const maxInMemorySize = 500 * 1024 * 1024; // 500MB
+    if (totalSize > maxInMemorySize) {
+      error(`Folder too large (${(totalSize / 1024 / 1024).toFixed(0)}MB). In-memory upload limited to 500MB. Try dragging directly from your file manager instead.`);
+      return;
+    }
   }
 
   const ok = await ensureIpfsConnected();
@@ -512,20 +519,28 @@ async function ensureIpfsConnected() {
 
 async function addFolderToIpfs(rootName: string, files: PickedFile[]) {
   const api: any = (window as any).lumen;
+  
+  // Build path-based file list (prefers streaming from native paths)
   const pathFiles = files.map((entry) => ({
     path: normalizePath(entry.path),
     filePath: String((entry.file as any)?.path || "").trim(),
   }));
   const hasAllPaths = pathFiles.every((entry) => entry.filePath);
 
+  // Prefer streaming from file system paths (no in-memory load)
   if (hasAllPaths && typeof api?.ipfsAddDirectoryPathsWithProgress === "function") {
     return api.ipfsAddDirectoryPathsWithProgress({ rootName, files: pathFiles });
   }
-  if (typeof api?.ipfsAddDirectoryWithProgress !== "function") {
+  if (hasAllPaths && typeof api?.ipfsAddDirectoryPaths === "function") {
+    return api.ipfsAddDirectoryPaths({ rootName, files: pathFiles });
+  }
+
+  // Fallback: check if byte-based upload is available
+  if (typeof api?.ipfsAddDirectoryWithProgress !== "function" && typeof api?.ipfsAddDirectory !== "function") {
     return { ok: false, error: "ipfs_add_directory_unavailable" };
   }
 
-  // In-memory fallback: load all files as Uint8Array
+  // Last resort: load files into memory (for small folders only, already size-limited)
   const payloadFiles = [];
   for (const entry of files) {
     try {
@@ -535,7 +550,11 @@ async function addFolderToIpfs(rootName: string, files: PickedFile[]) {
       return { ok: false, error: `Failed to read file ${entry.file.name}: ${String(e?.message || e)}` };
     }
   }
-  return api.ipfsAddDirectoryWithProgress({ rootName, files: payloadFiles });
+  
+  const fn = typeof api?.ipfsAddDirectoryWithProgress === "function" 
+    ? api.ipfsAddDirectoryWithProgress 
+    : api?.ipfsAddDirectory;
+  return fn({ rootName, files: payloadFiles });
 }
 
 function buildRowsFromIpfsResult(
