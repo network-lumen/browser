@@ -979,7 +979,6 @@ ipcMain.handle('ipfs:addDirectoryWithProgress', async (evt, payload) => {
   const rootName = safeString(payload?.rootName ?? '', 256);
   const sendProgress = (payload2) => {
     try {
-      console.log('[progress raw]', payload2);
       evt?.sender?.send?.('ipfs:addProgress', {
         ...payload2,
         rootPath: payload?.rootPath || '',
@@ -1033,23 +1032,24 @@ ipcMain.handle('ipfs:addDirectoryFromPath', async (_evt, payload) => {
   return ipfsAddDirectoryFromPath(payload);
 });
 
+
+
 ipcMain.handle('ipfs:addDirectoryFromPathWithProgress', async (evt, payload) => {
   const wcId = String(evt?.sender?.id || '');
   if (wcId && ACTIVE_IPFS_ADDS.has(wcId)) return { ok: false, error: 'add_in_progress' };
 
   const controller = new AbortController();
   const abort = () => {
-    try { controller.abort(); } catch {}
+    try { controller.abort(); if (wcId) ACTIVE_IPFS_ADDS.delete(wcId); } catch {}
   };
   if (wcId) ACTIVE_IPFS_ADDS.set(wcId, { abort });
-
   const rootName = safeString(payload?.rootName ?? '', 256);
+  const key = path.resolve(payload?.rootPath || '');
   const sendProgress = (payload2) => {
     try {
       evt?.sender?.send?.('ipfs:addProgress', {
         ...payload2,
-        rootPath: payload?.rootPath || '',
-        rootName: rootName || '',
+        key
       });
     } catch {}
   };
