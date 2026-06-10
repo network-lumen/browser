@@ -75,9 +75,8 @@ async function uploadDirectoryFromPath(dirPath: string): Promise<{ ok: boolean }
     };
 
     try {
-      
-        const result = await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name }, { signal: controller.signal });
-        console.log(result)
+        const uploadId = crypto.randomUUID();
+        const result = await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name, uploadId }, { signal: controller.signal });
         if(!result.ok && result.error === "cancelled")
             throw new Error("Upload cancelled");
         if (!result?.cid)
