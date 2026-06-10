@@ -2329,6 +2329,9 @@ async function ipfsAddDirectoryFromPath(payload) {
 async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
   const signal = opts?.signal;
 
+  const BATCH_SIZE = 1000; // 🔥 limite mémoire
+  const maxFiles = 50_000;
+
   try {
     const rootPath = String(payload?.rootPath ?? payload?.path ?? '').trim();
     if (!rootPath) return { ok: false, error: 'missing_path' };
@@ -2342,16 +2345,32 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
 
     const files = [];
     const stack = [''];
-    const maxFiles = 50_000;
+    let processed = 0;
+
+    const pushFile = (f) => {
+      files.push(f);
+      processed++;
+
+      // 🔥 BACKPRESSURE SAFE POINT
+      if (files.length >= BATCH_SIZE) {
+        return true; // signal batch full
+      }
+      return false;
+    };
 
     while (stack.length) {
       if (signal?.aborted) throw new Error('cancelled');
+
       const relDir = stack.pop();
       const absDir = relDir ? path.join(rootPath, relDir) : rootPath;
-      const ents = await fs.promises.readdir(absDir, { withFileTypes: true }).catch(() => []);
+
+      const ents = await fs.promises
+        .readdir(absDir, { withFileTypes: true })
+        .catch(() => []);
 
       for (const ent of ents) {
         if (signal?.aborted) throw new Error('cancelled');
+
         const name = String(ent?.name || '').trim();
         if (!name) continue;
 
@@ -2365,31 +2384,57 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
 
         if (!ent.isFile()) continue;
 
-        const relNorm = String(rel).replace(/\\/g, '/').replace(/^\/+/, '');
+        const relNorm = String(rel)
+          .replace(/\\/g, '/')
+          .replace(/^\/+/, '');
+
         if (!relNorm) continue;
-        files.push({ path: `${rootName}/${relNorm}`, filePath: abs });
+
+        const shouldFlush = pushFile({
+          path: `${rootName}/${relNorm}`,
+          filePath: abs,
+        });
 
         if (files.length > maxFiles) {
           return { ok: false, error: 'too_many_files' };
         }
+
+        // 🔥 ANTI FREEZE POINT (important)
+        if (shouldFlush) {
+          const res = await ipfsAddDirectoryPathsWithProgress(
+            { rootName, files: [...files] },
+            opts,
+          );
+
+          if (!res?.ok) return res;
+
+          files.length = 0; // clear memory safely
+        }
       }
     }
 
+    // final flush
     if (!files.length) return { ok: false, error: 'no_files' };
 
     const res = await ipfsAddDirectoryPathsWithProgress(
-      {
-        rootName,
-        files,
-      },
+      { rootName, files },
       opts,
     );
+
     if (!res?.ok) return res;
-    return { ...res, rootPath, rootName, fileCount: Number(res?.fileCount || files.length) };
+
+    return {
+      ...res,
+      rootPath,
+      rootName,
+      fileCount: (res?.fileCount || 0) + processed,
+    };
+
   } catch (e) {
     if (signal?.aborted || toSafeAbortError(e)) {
       return { ok: false, error: 'cancelled' };
     }
+
     console.error('[electron][ipfs] add directory from path error:', e);
     return { ok: false, error: String(e?.message || e) };
   }
