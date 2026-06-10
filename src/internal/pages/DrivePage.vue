@@ -153,22 +153,6 @@
               </button>
             </div>
 
-            <input
-              ref="fileUploadInput"
-              class="file-picker-input"
-              type="file"
-              multiple
-              @change="handleFileUpload"
-            />
-            <input
-              ref="folderUploadInput"
-              class="file-picker-input"
-              type="file"
-              multiple
-              webkitdirectory
-              directory
-              @change="handleFolderUpload"
-            />
           </div>
         </div>
       </header>
@@ -293,39 +277,73 @@
         {{ browseError }}
       </div>
 
+
+
+
+<!--
+      upload.ts:101 Error: Failed to add folder to IPFS
+    at uploadDirectoryFromPath (upload.ts:74:19)
+    at async uploadFolderToLocal (upload.ts:117:13)
+uploadDirectoryFromPath @ upload.ts:101
+await in uploadDirectoryFromPath
+uploadFolderToLocal @ upload.ts:117
+await in uploadFolderToLocal
+openFolderPicker @ DrivePage.vue:3916
+callWithErrorHandling @ chunk-BQAY4ZCR.js?v=cc0c9032:2342
+callWithAsyncErrorHandling @ chunk-BQAY4ZCR.js?v=cc0c9032:2349
+invoker @ chunk-BQAY4ZCR.js?v=cc0c9032:11425
+upload.ts:102 Uncaught (in promise) Error: Failed to upload folder: The Internets Own Boy The Story of Aaron Swartz  full movie (2014)
+    at uploadDirectoryFromPath (upload.ts:102:15)
+    at async uploadFolderToLocal-->
+
+
       <!-- Upload Progress -->
-      <div v-if="uploading" class="upload-progress">
-        <div class="progress-content">
+      <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="upload-progress">
+        <div class="progress-content" >
           <UiSpinner size="sm" />
           <div class="progress-info">
-            <span class="txt-sm txt-weight-strong"
-              >Uploading {{ uploadingFile }}</span
-            >
+            <span class="txt-sm txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
             <span class="txt-xs color-gray-blue">
-              {{ uploadingStatusLabel
-              }}<template v-if="uploadingPercent != null">
-                ({{ uploadingPercent }}%)
+              <template v-if="upload?.uploadingPercent != null">
+                ({{ upload?.uploadingPercent }}%)
               </template>
             </span>
             <div class="progress-actions">
               <button
                 class="progress-cancel-btn"
                 type="button"
-                @click="cancelUpload"
-                :disabled="uploadingCanceling"
+                @click="cancelUpload(key)"
+                :disabled="upload?.uploadingCanceling"
               >
-                {{ uploadingCanceling ? "Cancelling..." : "Cancel" }}
+                {{ upload?.uploadingCanceling ? "Cancelling..." : "Cancel" }}
               </button>
             </div>
           </div>
         </div>
-        <div v-if="uploadingPercent != null" class="progress-bar">
+        <div v-if="upload?.uploadingPercent != null" class="progress-bar">
           <div
             class="progress-bar-fill"
-            :style="{ width: `${uploadingPercent}%` }"
+            :style="{ width: `${upload?.uploadingPercent}%` }"
           ></div>
         </div>
       </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       <Transition name="modal">
         <div v-if="publicGatewayPropagationVisible" class="modal-overlay">
@@ -1019,7 +1037,6 @@
             <button
               class="btn-modal-primary"
               type="button"
-              @click="submitUploadPathModal"
               :disabled="uploadPathBusy"
             >
               <UiSpinner v-if="uploadPathBusy" size="sm" />
@@ -1982,6 +1999,8 @@
 </template>
 
 <script setup lang="ts">
+
+import { uploadFolderToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
 import {
   ref,
   computed,
@@ -2187,7 +2206,6 @@ const archiveDownloadCanceling = ref(false);
 const isDragging = ref(false);
 const showUploadMenu = ref(false);
 const fileUploadInput = ref<HTMLInputElement | null>(null);
-const folderUploadInput = ref<HTMLInputElement | null>(null);
 const showUploadPathModal = ref(false);
 const uploadPathMode = ref<"files" | "folder">("files");
 const uploadPathText = ref("");
@@ -2196,18 +2214,7 @@ const uploadPathBusy = ref(false);
 const toast = ref("");
 const toastType = ref<"success" | "error">("success");
 
-const uploadingStatusLabel = computed(() => {
-  if (uploadingCanceling.value) return "Cancelling…";
-  if (uploadingStage.value === "adding") return "Adding to local IPFS…";
-  if (uploadingStage.value === "propagating") {
-    return "Sending content to the decentralized network…";
-  }
-  if (uploadingStage.value === "gateway-preflight") return "Preparing gateway upload…";
-  if (uploadingStage.value === "gateway-export") return "Exporting DAG…";
-  if (uploadingStage.value === "gateway-upload") return "Uploading to gateway…";
-  if (uploadingStage.value === "done") return "Finalizing…";
-  return "Preparing upload…";
-});
+
 
 const publicGatewayPropagationFailed = computed(() =>
   Math.max(
@@ -3919,51 +3926,15 @@ async function openFilePicker() {
 
 async function openFolderPicker() {
   showUploadMenu.value = false;
-
-  if (shouldUsePathPicker()) {
-    openUploadPathModal("folder");
-    return;
-  }
-
-  const api: any = (window as any).lumen;
-  if (typeof api?.dialogOpenFolder === "function") {
-    const res = await api
-      .dialogOpenFolder({ title: "Select folder to upload", multi: true })
-      .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
-    if (!res?.ok) {
-      const err = String(res?.error || "");
-      if (err === "unsupported_environment") {
-        openUploadPathModal("folder");
-        return;
-      }
-      if (err && err !== "canceled") {
-        showToast(`Folder picker error (${compactError(err)})`, "error");
-      }
-      return;
-    }
-    const paths = Array.isArray(res.paths) ? res.paths : [];
-    const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean);
-    if (!selected.length) return;
-
-    const ok = await ensureIpfsConnected();
-    if (!ok) return;
-
-    await withTemporaryLocalUploadLightMode(async () => {
-      for (const dirPath of selected) {
-        const out = await uploadDirectoryFromPath(dirPath);
-        if ((out as any)?.cancelled) break;
-      }
-    });
-    return;
-  }
-
-  const input = folderUploadInput.value;
-  if (!input) return;
-  try {
-    input.value = "";
-  } catch {}
-  input.click();
+  uploading.value = true;
+  uploadFolderToLocal();
 }
+
+const uploadActivitiesComputed = ref<any>();
+setInterval(() => {
+    uploadActivitiesComputed.value = {...uploadActivities};
+}, 500);
+
 
 function shouldUsePathPicker() {
   try {
@@ -4006,47 +3977,6 @@ function parseUploadPaths(raw: string) {
   return Array.from(new Set(cleaned));
 }
 
-async function submitUploadPathModal() {
-  if (uploadPathBusy.value) return;
-  if (uploading.value || converting.value) {
-    showToast("Another task is already running. Please wait…", "error");
-    return;
-  }
-  const paths = parseUploadPaths(uploadPathText.value);
-  if (!paths.length) {
-    showToast("Please paste at least one path.", "error");
-    return;
-  }
-
-  const ok = await ensureIpfsConnected();
-  if (!ok) return;
-
-  uploadPathBusy.value = true;
-  showUploadPathModal.value = false;
-
-  try {
-    if (uploadPathMode.value === "folder") {
-      await withTemporaryLocalUploadLightMode(async () => {
-        for (const dirPath of paths) {
-          const res = await uploadDirectoryFromPath(dirPath);
-          if ((res as any)?.cancelled) break;
-        }
-      });
-      return;
-    }
-
-    await withTemporaryLocalUploadLightMode(async () => {
-      for (const filePath of paths) {
-        const name = basenameFromPath(filePath) || "file";
-        const pseudo: any = { name, path: filePath };
-        const res = await uploadFile(pseudo as File);
-        if ((res as any)?.cancelled) break;
-      }
-    });
-  } finally {
-    uploadPathBusy.value = false;
-  }
-}
 
 async function handleDrop(e: DragEvent) {
   e.preventDefault();
@@ -4135,7 +4065,7 @@ async function handleDrop(e: DragEvent) {
         if ((res as any)?.cancelled) return;
       }
       for (const [rootName, files] of folderGroups.entries()) {
-        const res = await uploadDirectory(rootName, files);
+        // For each folder dropped, create a directory with the same name in the root of the drive,
         if ((res as any)?.cancelled) return;
       }
     });
@@ -5681,56 +5611,7 @@ function setSavedName(cid: string, name: string) {
   saveLocalNames();
 }
 
-async function handleFileUpload(e: Event) {
-  showUploadMenu.value = false;
-  const input = e.target as HTMLInputElement;
-  const selected = Array.from(input.files || []);
-  try {
-    input.value = "";
-  } catch {}
-  if (!selected.length) return;
 
-  const ok = await ensureIpfsConnected();
-  if (!ok) return;
-
-  await withTemporaryLocalUploadLightMode(async () => {
-    for (const file of selected) {
-      const res = await uploadFile(file);
-      if ((res as any)?.cancelled) break;
-    }
-  });
-}
-
-async function handleFolderUpload(e: Event) {
-  showUploadMenu.value = false;
-  const input = e.target as HTMLInputElement;
-  const filesList = Array.from(input.files || []);
-  try {
-    input.value = "";
-  } catch {}
-  if (!filesList.length) return;
-
-  const ok = await ensureIpfsConnected();
-  if (!ok) return;
-
-  const groups = new Map<string, { path: string; file: File }[]>();
-
-  for (const f of filesList) {
-    const rel = String((f as any).webkitRelativePath || "").replace(/\\/g, "/");
-    const parts = rel ? rel.split("/").filter(Boolean) : [f.name];
-    const rootName = parts[0] || "folder";
-    if (!groups.has(rootName)) groups.set(rootName, []);
-    groups.get(rootName)!.push({ path: rel || f.name, file: f });
-  }
-
-  await withTemporaryLocalUploadLightMode(async () => {
-    for (const [rootName, list] of groups.entries()) {
-      const res = await uploadDirectory(rootName, list);
-      if ((res as any)?.cancelled) break;
-    }
-  });
-
-}
 
 function resetPublicGatewayPropagationState() {
   publicGatewayPropagationVisible.value = false;
@@ -6123,292 +6004,7 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
   return { ok: true as const };
 }
 
-async function uploadDirectory(
-  rootName: string,
-  list: { path: string; file: File }[],
-): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
-  const name = String(rootName || "").trim() || "folder";
-  if (!list.length) return { ok: false };
 
-  const estimatedBytes = list.reduce(
-    (acc, it) => acc + (Number(it?.file?.size || 0) || 0),
-    0,
-  );
-  if (estimatedBytes > localDriveMaxUploadBytes.value) {
-    showFolderTooLargeToast(name);
-    return { ok: false };
-  }
-
-  uploading.value = true;
-  uploadingFile.value = name;
-  uploadingStage.value = "preparing";
-  uploadingPercent.value = 0;
-  uploadingCanceling.value = false;
-  resetPublicGatewayPropagationState();
-
-  try {
-    const api: any = (window as any).lumen;
-
-    const pathFiles = list.map((it) => {
-      const rel = String(it.path || it.file?.name || "file")
-        .replace(/^\/+/, "")
-        .replace(/\\/g, "/");
-      const fp = String((it.file as any)?.path || "").trim();
-      return { path: rel, filePath: fp };
-    });
-    const hasAllPaths = pathFiles.every((f) => !!String(f.filePath || "").trim());
-    const addDirPathsFn =
-      hasAllPaths && typeof api?.ipfsAddDirectoryPathsWithProgress === "function"
-        ? api.ipfsAddDirectoryPathsWithProgress
-        : hasAllPaths && typeof api?.ipfsAddDirectoryPaths === "function"
-          ? api.ipfsAddDirectoryPaths
-          : null;
-
-    const addDirBytesFn =
-      typeof api?.ipfsAddDirectoryWithProgress === "function"
-        ? api.ipfsAddDirectoryWithProgress
-        : typeof api?.ipfsAddDirectory === "function"
-          ? api.ipfsAddDirectory
-          : null;
-
-    if (!addDirPathsFn && !addDirBytesFn) {
-      showToast("Upload unavailable", "error");
-      return { ok: false };
-    }
-
-    uploadingStage.value = "adding";
-    uploadingPercent.value = 0;
-
-    let result: any = null;
-    let totalBytes = estimatedBytes;
-
-    if (addDirPathsFn) {
-      result = await addDirPathsFn({
-        rootName: name,
-        files: pathFiles,
-      });
-    } else {
-      const payloadFiles: { path: string; data: Uint8Array }[] = [];
-      totalBytes = 0;
-      for (const it of list) {
-        const rel = String(it.path || it.file?.name || "file")
-          .replace(/^\/+/, "")
-          .replace(/\\/g, "/");
-        const buf = await it.file.arrayBuffer();
-        const bytes = new Uint8Array(buf);
-        totalBytes += bytes.byteLength;
-        payloadFiles.push({ path: rel, data: bytes });
-      }
-      result = await addDirBytesFn?.({
-        rootName: name,
-        files: payloadFiles,
-      });
-    }
-
-    if (!result?.ok || !result?.cid) {
-      const err = String(result?.error || "");
-      const lower = err.toLowerCase();
-      if (lower.includes("cancel") || lower.includes("abort")) {
-        showToast("Upload cancelled.", "success");
-        return { ok: false, cancelled: true };
-      }
-      if (err === "directory_too_large") {
-        showFolderTooLargeToast(name);
-        return { ok: false };
-      }
-      if (err === "add_in_progress") {
-        showToast("Another upload is already running. Please wait…", "error");
-        return { ok: false };
-      }
-      const detail = compactError(err);
-      showToast(
-        detail
-          ? `Failed to upload folder: ${name} (${detail})`
-          : `Failed to upload folder: ${name}`,
-        "error",
-      );
-      return { ok: false };
-    }
-
-    const cid = String(result.cid);
-    entryTypeCache.value = { ...entryTypeCache.value, [cid]: "dir" };
-    setSavedName(cid, name);
-
-    upsertFileMetadata({
-      cid,
-      name,
-      size: totalBytes,
-      uploadedAt: Date.now(),
-      type: "dir",
-    });
-
-    if (hosting.value.kind === "gateway") {
-      uploadingStage.value = "gateway-preflight";
-      uploadingPercent.value = 0;
-      const pinned = await pinCidToActiveGateway(cid, name);
-      if (!pinned.ok) {
-        if ((pinned as any).cancelled) {
-          showToast("Upload cancelled.", "success");
-          return { ok: false, cancelled: true };
-        }
-        showToast(pinned.error, "error");
-        return { ok: false };
-      }
-      showToast(`Uploaded folder to gateway: ${name}`, "success");
-    } else {
-      await finalizeLocalUpload("folder", name, cid, totalBytes);
-    }
-
-    return { ok: true };
-  } catch (err) {
-    console.error("Folder upload error:", err);
-    const msg = String((err as any)?.message || err || "");
-    const lower = msg.toLowerCase();
-    if (lower.includes("cancel") || lower.includes("abort")) {
-      showToast("Upload cancelled.", "success");
-      return { ok: false, cancelled: true };
-    }
-    if (msg === "directory_too_large") {
-      showFolderTooLargeToast(name);
-      return { ok: false };
-    }
-    const detail = compactError(msg);
-    showToast(
-      detail ? `Error uploading folder: ${name} (${detail})` : `Error uploading folder: ${name}`,
-      "error",
-    );
-    return { ok: false };
-  } finally {
-    resetPublicGatewayPropagationState();
-    uploading.value = false;
-    uploadingFile.value = "";
-    uploadingStage.value = "preparing";
-    uploadingPercent.value = null;
-    uploadingCanceling.value = false;
-  }
-}
-
-async function uploadDirectoryFromPath(
-  dirPath: string,
-): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
-  const rootPath = String(dirPath || "").trim();
-  const name = basenameFromPath(rootPath) || "folder";
-  if (!rootPath) return { ok: false };
-
-  uploading.value = true;
-  uploadingFile.value = name;
-  uploadingStage.value = "preparing";
-  uploadingPercent.value = 0;
-  uploadingCanceling.value = false;
-  resetPublicGatewayPropagationState();
-
-  try {
-    const api: any = (window as any).lumen;
-    const addFn =
-      typeof api?.ipfsAddDirectoryFromPathWithProgress === "function"
-        ? api.ipfsAddDirectoryFromPathWithProgress
-        : api?.ipfsAddDirectoryFromPath;
-    if (typeof addFn !== "function") {
-      showToast("Upload unavailable", "error");
-      return { ok: false };
-    }
-
-    uploadingStage.value = "adding";
-    uploadingPercent.value = 0;
-
-    const result = await addFn({ rootPath, rootName: name });
-
-    if (!result?.ok || !result?.cid) {
-      const err = String(result?.error || "");
-      const lower = err.toLowerCase();
-      if (lower.includes("cancel") || lower.includes("abort")) {
-        showToast("Upload cancelled.", "success");
-        return { ok: false, cancelled: true };
-      }
-      if (err === "directory_too_large") {
-        showFolderTooLargeToast(name);
-        return { ok: false };
-      }
-      if (err === "too_many_files") {
-        showToast(`Too many files in folder: ${name}`, "error");
-        return { ok: false };
-      }
-      if (err === "not_directory") {
-        showToast(`Not a folder: ${name}`, "error");
-        return { ok: false };
-      }
-      if (err === "add_in_progress") {
-        showToast("Another upload is already running. Please wait…", "error");
-        return { ok: false };
-      }
-      const detail = compactError(err);
-      showToast(
-        detail
-          ? `Failed to upload folder: ${name} (${detail})`
-          : `Failed to upload folder: ${name}`,
-        "error",
-      );
-      return { ok: false };
-    }
-
-    const cid = String(result.cid);
-    const totalBytes = Number(result?.totalBytes || 0) || 0;
-    entryTypeCache.value = { ...entryTypeCache.value, [cid]: "dir" };
-    setSavedName(cid, name);
-
-    upsertFileMetadata({
-      cid,
-      name,
-      size: totalBytes,
-      uploadedAt: Date.now(),
-      type: "dir",
-    });
-
-    if (hosting.value.kind === "gateway") {
-      uploadingStage.value = "gateway-preflight";
-      uploadingPercent.value = 0;
-      const pinned = await pinCidToActiveGateway(cid, name);
-      if (!pinned.ok) {
-        if ((pinned as any).cancelled) {
-          showToast("Upload cancelled.", "success");
-          return { ok: false, cancelled: true };
-        }
-        showToast(pinned.error, "error");
-        return { ok: false };
-      }
-      showToast(`Uploaded folder to gateway: ${name}`, "success");
-    } else {
-      await finalizeLocalUpload("folder", name, cid, totalBytes);
-    }
-
-    return { ok: true };
-  } catch (err) {
-    console.error("Folder upload error:", err);
-    const msg = String((err as any)?.message || err || "");
-    const lower = msg.toLowerCase();
-    if (lower.includes("cancel") || lower.includes("abort")) {
-      showToast("Upload cancelled.", "success");
-      return { ok: false, cancelled: true };
-    }
-    if (msg === "directory_too_large") {
-      showFolderTooLargeToast(name);
-      return { ok: false };
-    }
-    const detail = compactError(msg);
-    showToast(
-      detail ? `Error uploading folder: ${name} (${detail})` : `Error uploading folder: ${name}`,
-      "error",
-    );
-    return { ok: false };
-  } finally {
-    resetPublicGatewayPropagationState();
-    uploading.value = false;
-    uploadingFile.value = "";
-    uploadingStage.value = "preparing";
-    uploadingPercent.value = null;
-    uploadingCanceling.value = false;
-  }
-}
 
 async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
   const fileSizeBytes = Number((file as any)?.size || 0) || 0;
@@ -6822,47 +6418,11 @@ function convertSelectedToHls() {
   void convertToHls(selectedFile.value);
 }
 
-async function cancelUpload() {
-  if (!uploading.value || uploadingCanceling.value) return;
-
-  const prevStage = uploadingStage.value;
-  uploadingCanceling.value = true;
-  uploadingStage.value = "cancelling";
-
+async function cancelUpload(key: any) {
   try {
-    const api: any = (window as any).lumen;
-    const cancelers: Promise<any>[] = [];
-
-    if (typeof api?.ipfsCancelAdd === "function") {
-      cancelers.push(api.ipfsCancelAdd().catch(() => null));
-    }
-    if (typeof api?.ipfsCancelPublicGatewayPropagation === "function") {
-      cancelers.push(api.ipfsCancelPublicGatewayPropagation().catch(() => null));
-    }
-    if (typeof api?.gateway?.cancelPinCid === "function") {
-      cancelers.push(api.gateway.cancelPinCid().catch(() => null));
-    }
-
-    if (!cancelers.length) {
-      showToast("Cancel is unavailable.", "error");
-      uploadingCanceling.value = false;
-      uploadingStage.value = prevStage;
-      return;
-    }
-
-    const results = await Promise.allSettled(cancelers);
-    const ok = results.some(
-      (r) => r.status === "fulfilled" && r.value && r.value.ok === true,
-    );
-    if (!ok) {
-      showToast("Cancel failed", "error");
-      uploadingCanceling.value = false;
-      uploadingStage.value = prevStage;
-    }
+    uploadCancelUpload(key);
   } catch (e: any) {
     showToast(String(e?.message || "Cancel failed"), "error");
-    uploadingCanceling.value = false;
-    uploadingStage.value = prevStage;
   }
 }
 

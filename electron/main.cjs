@@ -913,7 +913,11 @@ ipcMain.handle('ipfs:addWithProgress', async (evt, data, filename) => {
   const safeName = safeString(filename, 256);
   const sendProgress = (payload) => {
     try {
-      evt?.sender?.send?.('ipfs:addProgress', { ...payload, filename: safeName || '' });
+      evt?.sender?.send?.('ipfs:addProgress', {
+        ...payload,
+        rootPath: payload?.rootPath || '',
+        rootName: rootName || '',
+      });
     } catch {}
   };
 
@@ -942,7 +946,11 @@ ipcMain.handle('ipfs:addPathWithProgress', async (evt, filePath, filename) => {
   const safeName = safeString(filename, 256);
   const sendProgress = (payload) => {
     try {
-      evt?.sender?.send?.('ipfs:addProgress', { ...payload, filename: safeName || '' });
+      evt?.sender?.send?.('ipfs:addProgress', {
+        ...payload,
+        rootPath: payload?.rootPath || '',
+        rootName: rootName || '',
+      });
     } catch {}
   };
 
@@ -971,7 +979,12 @@ ipcMain.handle('ipfs:addDirectoryWithProgress', async (evt, payload) => {
   const rootName = safeString(payload?.rootName ?? '', 256);
   const sendProgress = (payload2) => {
     try {
-      evt?.sender?.send?.('ipfs:addProgress', { ...payload2, rootName: rootName || '' });
+      console.log('[progress raw]', payload2);
+      evt?.sender?.send?.('ipfs:addProgress', {
+        ...payload2,
+        rootPath: payload?.rootPath || '',
+        rootName: rootName || '',
+      });
     } catch {}
   };
 
@@ -1000,7 +1013,11 @@ ipcMain.handle('ipfs:addDirectoryPathsWithProgress', async (evt, payload) => {
   const rootName = safeString(payload?.rootName ?? '', 256);
   const sendProgress = (payload2) => {
     try {
-      evt?.sender?.send?.('ipfs:addProgress', { ...payload2, rootName: rootName || '' });
+      evt?.sender?.send?.('ipfs:addProgress', {
+        ...payload2,
+        rootPath: payload?.rootPath || '',
+        rootName: rootName || '',
+      });
     } catch {}
   };
 
@@ -1029,7 +1046,11 @@ ipcMain.handle('ipfs:addDirectoryFromPathWithProgress', async (evt, payload) => 
   const rootName = safeString(payload?.rootName ?? '', 256);
   const sendProgress = (payload2) => {
     try {
-      evt?.sender?.send?.('ipfs:addProgress', { ...payload2, rootName: rootName || '' });
+      evt?.sender?.send?.('ipfs:addProgress', {
+        ...payload2,
+        rootPath: payload?.rootPath || '',
+        rootName: rootName || '',
+      });
     } catch {}
   };
 
