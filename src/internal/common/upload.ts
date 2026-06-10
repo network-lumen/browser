@@ -18,14 +18,21 @@ type UploadActivity = {
 let files = [] as DriveFile[];
 
 api.ipfsOnAddProgress((p: any) => {
-  const key = p.rootPath || p.rootName;
+  /* Example progress payload:
+        {
+        phase: 'upload',
+        uploadedBytes: 670228807.68,
+        totalBytes: 4788888535.04,
+        percent: 13.98,
+        fileCount: 4205,
+        elapsedMs: 4943
+        }
+   */
+  const key = p.key;
   if (!key) return;
-
   const activity = uploadActivities[key];
   if (!activity) return;
-
-  activity.uploadingPercent = p.percent ?? 0;
-  activity.uploadingFile = p.filename || activity.uploadingFile;
+  activity.uploadingPercent = p.percent || 0;
 });
 
 function loadLocalNames() {
@@ -70,6 +77,9 @@ async function uploadDirectoryFromPath(dirPath: string): Promise<{ ok: boolean }
     try {
       
         const result = await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name }, { signal: controller.signal });
+        console.log(result)
+        if(!result.ok && result.error === "cancelled")
+            throw new Error("Upload cancelled");
         if (!result?.cid)
             throw new Error("Failed to add folder to IPFS");
 
@@ -101,7 +111,7 @@ async function uploadDirectoryFromPath(dirPath: string): Promise<{ ok: boolean }
         console.error(err);
         throw new Error(`Failed to upload folder: ${name}`);
     } finally {
-        uploadActivities[dirPath] = undefined;
+        delete uploadActivities[dirPath];
     }
 }
 
@@ -120,9 +130,7 @@ async function uploadFolderToLocal(): Promise<string> { // Upload a local folder
         return Promise.reject(error);
     }
 }
-setInterval(() => {
-    console.log("Updated upload activities:", uploadActivities);
-}, 5000);
+
 async function uploadCancelUpload(key: string) {
   try {
     const activity = uploadActivities[key];
@@ -135,7 +143,8 @@ async function uploadCancelUpload(key: string) {
       delete uploadControllers[key];
     }
     activity.uploadingCanceling = 2;
-    uploadActivities[key] = undefined;
+    delete uploadActivities[key];
+    await api.ipfsCancelAdd();
     return "ok";
   } catch (error) {
     return Promise.reject(error);
