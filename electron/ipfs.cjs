@@ -2033,64 +2033,290 @@ async function ipfsAddPath(filePath, filename) {
   return ipfsAddPathWithProgress(filePath, filename, {});
 }
 
+
 async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
   const signal = opts?.signal;
-  const onProgress = opts?.onProgress;
 
   try {
     const p = String(filePath || '').trim();
-    if (!p) return { ok: false, error: 'missing_path' };
+    if (!p) {
+      return { ok: false, error: 'missing_path'};
+    }
 
     const st = await fs.promises.stat(p).catch(() => null);
-    if (!st || !st.isFile()) return { ok: false, error: 'not_file' };
-    if (st.size > localDriveMaxUploadBytes()) return { ok: false, error: 'file_too_large' };
 
-    const safeName = sanitizeFormFilename(filename || path.basename(p) || 'file') || 'file';
-    console.log('[electron][ipfs] adding file path (progress):', safeName, 'path:', p, 'size:', st.size);
+    console.log(st)
+    if (!st || !st.isFile()) {
+      return { ok: false, error: 'not_file' };
+    }
 
-    const boundary = '----LumenIPFS' + Date.now();
-    const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${safeName}"\r\nContent-Type: application/octet-stream\r\n\r\n`;
-    const footer = `\r\n--${boundary}--\r\n`;
+    if (st.size > localDriveMaxUploadBytes()) {
+      return { ok: false, error: 'file_too_large' };
+    }
 
-    const headerBuf = Buffer.from(header, 'utf8');
-    const footerBuf = Buffer.from(footer, 'utf8');
-    const totalBytes = headerBuf.length + st.size + footerBuf.length;
+    const safeName =
+      sanitizeFormFilename(
+        filename || path.basename(p) || 'file',
+      ) || 'file';
 
-    const { stream } = makeMultipartStream(
-      [
-        { type: 'bytes', data: headerBuf },
-        { type: 'file', path: p, size: st.size },
-        { type: 'bytes', data: footerBuf },
-      ],
-      { signal, totalBytes, onProgress },
+    const totalBytes = Number(st.size || 0);
+
+    console.log(
+      '[electron][ipfs] add file:',
+      safeName,
+      'path:',
+      p,
+      'size:',
+      totalBytes,
     );
 
-    const res = await fetch(`${ipfsApiBase()}/api/v0/add?pin=true`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${boundary}`,
-      },
-      body: stream,
-      // Required by Node fetch for streaming request bodies
-      duplex: 'half',
-      ...(signal ? { signal } : {}),
+    // ---------------------------------------------------
+    // spawn kubo
+    // ---------------------------------------------------
+
+    const ipfsBin = resolveKuboBin();
+
+    const args = [
+      'add',
+      '--progress',
+      '--cid-version=1',
+      '--quieter',
+      p,
+    ];
+
+    console.log(
+      '[electron][ipfs] spawn:',
+      ipfsBin,
+      args.join(' '),
+    );
+
+    const proc = spawn(ipfsBin, args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      console.warn('[electron][ipfs] add path failed:', res.status, errText);
-      return { ok: false, error: 'http_' + res.status };
+    let stdoutBuffer = '';
+    let stderrBuffer = '';
+
+    let uploadedBytes = 0;
+    let percent = 0;
+
+    let cid = null;
+
+    const startedAt = Date.now();
+
+    // ---------------------------------------------------
+    // cancellation
+    // ---------------------------------------------------
+
+    const onAbort = async () => {
+      try {
+        console.log(
+          '[electron][ipfs] abort requested',
+        );
+
+        if (process.platform === 'win32') {
+          spawn('taskkill', [
+            '/pid',
+            String(proc.pid),
+            '/f',
+            '/t',
+          ]);
+        } else {
+          proc.kill('SIGTERM');
+
+          setTimeout(() => {
+            try {
+              proc.kill('SIGKILL');
+            } catch {}
+          }, 2000);
+        }
+      } catch (e) {
+        console.error(
+          '[electron][ipfs] abort error:',
+          e,
+        );
+      }
+    };
+
+    signal?.addEventListener?.('abort', onAbort);
+
+    // ---------------------------------------------------
+    // stdout = final cid
+    // ---------------------------------------------------
+
+    proc.stdout.on('data', chunk => {
+      stdoutBuffer += String(chunk || '');
+    });
+
+    // ---------------------------------------------------
+    // stderr = progress
+    // ---------------------------------------------------
+
+    proc.stderr.on('data', chunk => {
+      stderrBuffer += String(chunk || '');
+
+      const parts = stderrBuffer.split('\r');
+
+      stderrBuffer = parts.pop() || '';
+
+      for (const raw of parts) {
+        const line = raw.trim();
+
+        if (!line) continue;
+
+        // example:
+        // 553.00 MiB / 4.46 GiB   12.10% 00m25s
+
+        const match = line.match(
+          /([\d.]+)\s*(B|KiB|MiB|GiB)\s*\/\s*([\d.]+)\s*(B|KiB|MiB|GiB)\s+([\d.]+)%/i,
+        );
+
+        if (!match) continue;
+
+        uploadedBytes = parseSizeToBytes(
+          Number(match[1]),
+          match[2],
+        );
+
+        const totalFromKubo = parseSizeToBytes(
+          Number(match[3]),
+          match[4],
+        );
+
+        percent = Number(match[5] || 0);
+
+        opts?.onProgress?.({
+          phase: 'upload',
+          uploadedBytes,
+          totalBytes:
+            totalFromKubo || totalBytes,
+          percent,
+          fileCount: 1,
+          elapsedMs:
+            Date.now() - startedAt,
+          filename: safeName,
+          path: p,
+        });
+      }
+    });
+
+    // ---------------------------------------------------
+    // wait process end
+    // ---------------------------------------------------
+
+    const exitCode = await new Promise(
+      (resolve, reject) => {
+        proc.once('error', reject);
+
+        proc.once('close', code => {
+          resolve(code);
+        });
+      },
+    );
+
+    signal?.removeEventListener?.(
+      'abort',
+      onAbort,
+    );
+
+    // ---------------------------------------------------
+    // cancelled
+    // ---------------------------------------------------
+
+    if (signal?.aborted) {
+      return {
+        ok: false,
+        error: 'cancelled',
+      };
     }
 
-    const json = await res.json();
-    console.log('[electron][ipfs] add path success:', json.Hash);
-    return { ok: true, cid: json.Hash, name: json.Name, size: json.Size, fileBytes: st.size };
-  } catch (e) {
-    if (signal?.aborted || toSafeAbortError(e)) {
-      return { ok: false, error: 'cancelled' };
+    // ---------------------------------------------------
+    // non-zero exit
+    // ---------------------------------------------------
+
+    if (Number(exitCode) !== 0) {
+      return {
+        ok: false,
+        error:
+          stderrBuffer?.trim() ||
+          `ipfs_add_exit_${exitCode}`,
+      };
     }
-    console.error('[electron][ipfs] add path error:', e);
-    return { ok: false, error: String(e?.message || e) };
+
+    // ---------------------------------------------------
+    // parse cid
+    // ---------------------------------------------------
+
+    const stdoutLines = stdoutBuffer
+      .split(/\r?\n/)
+      .map(v =>
+        String(v || '').trim(),
+      )
+      .filter(Boolean);
+
+    cid = stdoutLines.at(-1) || null;
+
+    if (!cid) {
+      return {
+        ok: false,
+        error: 'missing_cid',
+      };
+    }
+
+    // ---------------------------------------------------
+    // final progress
+    // ---------------------------------------------------
+
+    opts?.onProgress?.({
+      phase: 'done',
+      uploadedBytes: totalBytes,
+      totalBytes,
+      percent: 100,
+      fileCount: 1,
+      elapsedMs: Date.now() - startedAt,
+      filename: safeName,
+      path: p,
+    });
+
+    console.log(
+      '[electron][ipfs] add success:',
+      cid,
+    );
+
+    return {
+      ok: true,
+      cid,
+      rootCid: cid,
+      name: safeName,
+      filename: safeName,
+      path: p,
+      totalBytes,
+      uploadedBytes: totalBytes,
+      fileBytes: totalBytes,
+      fileCount: 1,
+      percent: 100,
+      elapsedMs: Date.now() - startedAt,
+    };
+  } catch (e) {
+    if (
+      signal?.aborted ||
+      toSafeAbortError?.(e)
+    ) {
+      return {
+        ok: false,
+        error: 'cancelled',
+      };
+    }
+
+    console.error(
+      '[electron][ipfs] add path error:',
+      e,
+    );
+
+    return {
+      ok: false,
+      error: String(e?.message || e),
+    };
   }
 }
 
