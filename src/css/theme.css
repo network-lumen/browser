@@ -667,7 +667,7 @@ html, body {
     background: var(--card-bg);
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    padding: 1.5rem;
+    padding: .5rem;
     box-shadow: var(--shadow-md);
     transition: var(--transition-smooth);
 }

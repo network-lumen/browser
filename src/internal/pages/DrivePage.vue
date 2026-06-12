@@ -278,25 +278,6 @@
       </div>
 
 
-
-
-<!--
-      upload.ts:101 Error: Failed to add folder to IPFS
-    at uploadDirectoryFromPath (upload.ts:74:19)
-    at async uploadFolderToLocal (upload.ts:117:13)
-uploadDirectoryFromPath @ upload.ts:101
-await in uploadDirectoryFromPath
-uploadFolderToLocal @ upload.ts:117
-await in uploadFolderToLocal
-openFolderPicker @ DrivePage.vue:3916
-callWithErrorHandling @ chunk-BQAY4ZCR.js?v=cc0c9032:2342
-callWithAsyncErrorHandling @ chunk-BQAY4ZCR.js?v=cc0c9032:2349
-invoker @ chunk-BQAY4ZCR.js?v=cc0c9032:11425
-upload.ts:102 Uncaught (in promise) Error: Failed to upload folder: The Internets Own Boy The Story of Aaron Swartz  full movie (2014)
-    at uploadDirectoryFromPath (upload.ts:102:15)
-    at async uploadFolderToLocal-->
-
-
       <!-- Upload Progress -->
       <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="upload-progress">
         <div class="progress-content" >
@@ -2000,7 +1981,7 @@ upload.ts:102 Uncaught (in promise) Error: Failed to upload folder: The Internet
 
 <script setup lang="ts">
 
-import { uploadFolderToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
+import { uploadFolderToLocal, uploadFileToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
 import {
   ref,
   computed,
@@ -3876,52 +3857,8 @@ function toggleUploadMenu() {
 
 async function openFilePicker() {
   showUploadMenu.value = false;
-
-  if (shouldUsePathPicker()) {
-    openUploadPathModal("files");
-    return;
-  }
-
-  const api: any = (window as any).lumen;
-  if (typeof api?.dialogOpenFiles === "function") {
-    const res = await api
-      .dialogOpenFiles({ title: "Select files to upload", multi: true })
-      .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
-    if (!res?.ok) {
-      const err = String(res?.error || "");
-      if (err === "unsupported_environment") {
-        openUploadPathModal("files");
-        return;
-      }
-      if (err && err !== "canceled") {
-        showToast(`File picker error (${compactError(err)})`, "error");
-      }
-      return;
-    }
-    const paths = Array.isArray(res.paths) ? res.paths : [];
-    const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean);
-    if (!selected.length) return;
-
-    const ok = await ensureIpfsConnected();
-    if (!ok) return;
-
-    await withTemporaryLocalUploadLightMode(async () => {
-      for (const filePath of selected) {
-        const name = basenameFromPath(filePath) || "file";
-        const pseudo: any = { name, path: filePath };
-        const out = await uploadFile(pseudo as File);
-        if ((out as any)?.cancelled) break;
-      }
-    });
-    return;
-  }
-
-  const input = fileUploadInput.value;
-  if (!input) return;
-  try {
-    input.value = "";
-  } catch {}
-  input.click();
+  uploading.value = true;
+  uploadFileToLocal();
 }
 
 async function openFolderPicker() {

@@ -933,33 +933,34 @@ ipcMain.handle('ipfs:addPath', async (_evt, filePath, filename) => {
   return ipfsAddPath(filePath, filename);
 });
 
-ipcMain.handle('ipfs:addPathWithProgress', async (evt, filePath, filename) => {
-  const wcId = String(evt?.sender?.id || '');
-  if (wcId && ACTIVE_IPFS_ADDS.has(wcId)) return { ok: false, error: 'add_in_progress' };
+ipcMain.handle('ipfs:addPathWithProgress', async (evt, payload, filename) => {
+  const uploadId = String(payload?.uploadId || '');
+  if (uploadId && ACTIVE_IPFS_ADDS.has(uploadId)) return { ok: false, error: 'add_in_progress' };
 
   const controller = new AbortController();
   const abort = () => {
     try { controller.abort(); } catch {}
   };
-  if (wcId) ACTIVE_IPFS_ADDS.set(wcId, { abort });
+  if (uploadId) ACTIVE_IPFS_ADDS.set(uploadId, { abort });
 
   const safeName = safeString(filename, 256);
   const sendProgress = (payload) => {
     try {
       evt?.sender?.send?.('ipfs:addProgress', {
         ...payload,
-        rootPath: payload?.rootPath || '',
-        rootName: rootName || '',
+        rootPath: payload?.filePath || '',
+        rootName: filePath || '',
       });
     } catch {}
   };
-
   try {
-    return await ipfsAddPathWithProgress(filePath, filename, { signal: controller.signal, onProgress: sendProgress });
+    return await ipfsAddPathWithProgress(payload.filePath, payload.filename, { signal: controller.signal, onProgress: sendProgress });
   } finally {
-    if (wcId) ACTIVE_IPFS_ADDS.delete(wcId);
+    if (uploadId) ACTIVE_IPFS_ADDS.delete(uploadId);
   }
 });
+
+
 
 ipcMain.handle('ipfs:addDirectory', async (_evt, payload) => {
   console.log('[electron][ipc] ipfs:addDirectory requested');

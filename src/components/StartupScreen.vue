@@ -4,25 +4,20 @@
       <div class="mark" aria-hidden="true">L</div>
       <div class="brand">
         <div class="title">Lumen</div>
-        <div class="subtitle">Starting secure services</div>
       </div>
     </header>
 
-    <main class="body">
+    <main class="body" style="height:auto">
       <div v-if="phase === 'starting' || phase === 'retrying'" class="center">
         <div class="spinner" aria-label="Loading"></div>
       </div>
 
       <div v-else-if="phase === 'error'" class="center">
-        <div class="warn" aria-hidden="true">!</div>
         <div class="msg">
-          <div class="msg-title">Unable to start</div>
           <div class="msg-subtitle">
-            {{ errorText || 'IPFS daemon did not respond.' }}
+            Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-        </div>
-        <div class="row">
-          <button class="btn primary" type="button" :disabled="busy" @click="restartAll">
+          <button style="margin-bottom: 16px;" class="btn primary" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>
@@ -128,7 +123,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 18px 12px;
+  padding: 10px;
   border-bottom: var(--border-width) solid var(--border-color);
 }
 
@@ -172,7 +167,7 @@ onMounted(async () => {
 }
 
 .center {
-  margin: auto;
+  margin: auto auto 30px auto ;
   padding: 28px 22px;
   text-align: center;
   display: flex;
