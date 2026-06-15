@@ -89,6 +89,12 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const cid = String(result.cid);
         const totalBytes = Number(result?.totalBytes || 0) || 0;
 
+        try {
+            await api.ipfsPropagateCidToPublicGateways({ cid });
+        } catch (err) {
+            console.error("Failed to propagate CID to public gateways:", err);
+        }
+
         localNames[cid] = name;
 
         const pid = String(activeProfileId.value || "").trim();

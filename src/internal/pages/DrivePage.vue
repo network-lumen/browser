@@ -326,42 +326,6 @@
 
 
 
-      <Transition name="modal">
-        <div v-if="publicGatewayPropagationVisible" class="modal-overlay">
-          <div class="modal-content" @click.stop>
-            <div class="modal-header">
-              <h3>Sending content…</h3>
-            </div>
-            <div class="modal-body">
-              <p class="txt-xs color-gray-blue" style="margin: 1rem 0 0 0">
-                {{ publicGatewayPropagationStatusLabel }}
-              </p>
-
-              <div
-                v-if="publicGatewayPropagationTotal > 0"
-                class="progress-bar"
-                style="margin-top: 1rem"
-              >
-                <div
-                  class="progress-bar-fill"
-                  :style="{ width: `${publicGatewayPropagationPercent}%` }"
-                ></div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button
-                class="btn-modal-secondary"
-                type="button"
-                @click="cancelUpload"
-                :disabled="uploadingCanceling"
-              >
-                {{ uploadingCanceling ? "Cancelling..." : "Cancel" }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
       <!-- HLS Conversion Progress -->
       <div v-if="converting" class="upload-progress">
         <div class="progress-content">
@@ -1998,6 +1962,9 @@ import {
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
+const lumen_api: any = (window as any).lumen;
+const gateway_lumen_api = lumen_api?.gateway;
+const profiles_lumen_api = lumen_api?.profiles;
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>(
   "navigate",
   null,
@@ -2089,27 +2056,7 @@ interface IpfsStats {
 
 type HostingKind = "local" | "gateway";
 type HostingState = { kind: HostingKind; gatewayId: string };
-type PublicGatewayPropagationResult =
-  | {
-      ok: true;
-      skipped?: boolean;
-      total: number;
-      succeeded: number;
-      failed: number;
-      timedOut: number;
-      skippedOffline: number;
-    }
-  | {
-      ok: false;
-      skipped?: boolean;
-      cancelled?: boolean;
-      error: string;
-      total: number;
-      succeeded: number;
-      failed: number;
-      timedOut: number;
-      skippedOffline: number;
-    };
+
 
 const viewMode = ref<"grid" | "list">("list");
 const files = ref<DriveFile[]>([]);
@@ -2127,29 +2074,8 @@ const currentPage = ref(1);
 const itemsPerPage = ref(20);
 
 const uploading = ref(false);
-const uploadingFile = ref("");
-const uploadingStage = ref<
-  | "preparing"
-  | "adding"
-  | "propagating"
-  | "gateway-preflight"
-  | "gateway-export"
-  | "gateway-upload"
-  | "done"
-  | "cancelling"
->("preparing");
-const uploadingPercent = ref<number | null>(null);
-const uploadingCanceling = ref(false);
-const publicGatewayPropagationVisible = ref(false);
-const publicGatewayPropagationStage = ref<
-  "idle" | "fetching-list" | "probing" | "propagating" | "done" | "cancelled"
->("idle");
-const publicGatewayPropagationTotal = ref(0);
-const publicGatewayPropagationCompleted = ref(0);
-const publicGatewayPropagationSucceeded = ref(0);
-const publicGatewayPropagationTimedOut = ref(0);
-const publicGatewayPropagationSkippedOffline = ref(0);
-const publicGatewayPropagationLastGateway = ref("");
+
+
 const converting = ref(false);
 const convertingFile = ref("");
 const convertingStage = ref<
@@ -2186,7 +2112,6 @@ const archiveDownloadTotalBytes = ref<number | null>(null);
 const archiveDownloadCanceling = ref(false);
 const isDragging = ref(false);
 const showUploadMenu = ref(false);
-const fileUploadInput = ref<HTMLInputElement | null>(null);
 const showUploadPathModal = ref(false);
 const uploadPathMode = ref<"files" | "folder">("files");
 const uploadPathText = ref("");
@@ -2200,46 +2125,11 @@ const toastType = ref<"success" | "error">("success");
 const publicGatewayPropagationFailed = computed(() =>
   Math.max(
     0,
-    publicGatewayPropagationCompleted.value - publicGatewayPropagationSucceeded.value,
   ),
 );
 
-const publicGatewayPropagationPercent = computed(() => {
-  const total = Math.max(1, publicGatewayPropagationTotal.value);
-  const done = Math.max(0, publicGatewayPropagationCompleted.value);
-  const ratio = Math.max(0, Math.min(1, done / total));
 
-  if (publicGatewayPropagationStage.value === "fetching-list") {
-    return 5;
-  }
-  if (publicGatewayPropagationStage.value === "probing") {
-    return Math.max(5, Math.min(25, Math.round(5 + ratio * 20)));
-  }
-  if (publicGatewayPropagationStage.value === "done") {
-    return 100;
-  }
-  if (publicGatewayPropagationStage.value === "propagating") {
-    return Math.max(25, Math.min(100, Math.round(25 + ratio * 75)));
-  }
 
-  return Math.max(0, Math.min(100, Math.round(ratio * 100)));
-});
-
-const publicGatewayPropagationStatusLabel = computed(() => {
-  if (uploadingCanceling.value || publicGatewayPropagationStage.value === "cancelled") {
-    return "Cancelling…";
-  }
-  if (publicGatewayPropagationStage.value === "fetching-list") {
-    return "Sending to the decentralized network…";
-  }
-  if (publicGatewayPropagationStage.value === "probing") {
-    return "Sending to the decentralized network…";
-  }
-  if (publicGatewayPropagationStage.value === "done") {
-    return "Finishing…";
-  }
-  return "Sending to the decentralized network…";
-});
 
 const convertingStatusLabel = computed(() => {
   if (convertingPauseRequested.value) return "Pausing…";
@@ -2333,17 +2223,10 @@ const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
 const HLS_QUEUE_KEY_PREFIX = "lumen:drive:hlsQueue:v1";
-const localDriveMaxUploadSizeGb = computed(() =>
-  normalizeLocalDriveMaxUploadSizeGb(appSettingsState.value.localDriveMaxUploadSizeGb),
-);
-const localDriveMaxUploadBytes = computed(() => localDriveMaxUploadSizeGb.value * BYTES_PER_GIB);
-const PUBLIC_GATEWAY_PROPAGATION_MAX_BYTES = 10 * BYTES_PER_GIB;
-const PUBLIC_GATEWAY_PROPAGATION_MAX_LABEL = "10 GiB";
+
 const TEMP_LIGHT_MODE_IPFS_READY_TIMEOUT_MS = 20_000;
 const TEMP_LIGHT_MODE_IPFS_READY_POLL_MS = 400;
-const localDriveMaxUploadLimitLabel = computed(() =>
-  formatUploadLimitLabel(localDriveMaxUploadBytes.value),
-);
+
 
 function filesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim();
@@ -2455,7 +2338,7 @@ const pendingDriveBackupRestore = ref<{ source: string; snapshot: any } | null>(
 const showGatewayDetails = ref(false);
 async function requestUnlock() {
   try {
-    await (window as any).lumen?.security?.lockSession?.();
+    await lumen_api?.security?.lockSession?.();
   } catch {
     // ignore
   }
@@ -2667,7 +2550,7 @@ function openTargetFor(file: DriveFile): string {
 
 function isWindowsAppPlatform(): boolean {
   try {
-    const platform = String((window as any).lumen?.appPlatform || "")
+    const platform = String(lumen_api?.appPlatform || "")
       .trim()
       .toLowerCase();
     if (platform) return platform === "win32";
@@ -2706,7 +2589,7 @@ async function collectIpfsFilesRecursively(
   relPath = "",
 ): Promise<Array<{ archivePath: string; target: string }>> {
   const target = relPath ? `${rootCid}/${relPath}` : rootCid;
-  const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
+  const res = await lumen_api?.ipfsLs?.(target).catch(() => null);
   if (!res?.ok || !Array.isArray(res.entries)) {
     throw new Error(String(res?.error || "Failed to list HLS directory"));
   }
@@ -2758,7 +2641,7 @@ async function downloadHlsAsZip(file: DriveFile): Promise<void> {
       ? `${localBase}/ipfs/${root}/${encodeGatewayPath(item.archivePath)}`
       : "";
     const fast = httpUrl
-      ? await (window as any).lumen?.httpGetBytes?.(httpUrl, { timeout: 120000 }).catch(() => null)
+      ? await lumen_api?.httpGetBytes?.(httpUrl, { timeout: 120000 }).catch(() => null)
       : null;
 
     if (fast?.ok && typeof fast?.dataB64 === "string") {
@@ -2766,7 +2649,7 @@ async function downloadHlsAsZip(file: DriveFile): Promise<void> {
       return;
     }
 
-    const got = await (window as any).lumen?.ipfsGet?.(item.target, { gateways: [] }).catch(() => null);
+    const got = await lumen_api?.ipfsGet?.(item.target, { gateways: [] }).catch(() => null);
     if (!got?.ok || !Array.isArray(got.data)) {
       throw new Error(`Failed to fetch ${item.archivePath}`);
     }
@@ -2989,10 +2872,6 @@ const pageNumbers = computed(() => {
   return pages;
 });
 
-const sidebarFilesCount = computed(() => {
-  return activeSavedCids.value.length;
-});
-
 const activeGateway = computed(() => {
   const id = String(hosting.value.gatewayId || "").trim();
   if (!id) return null;
@@ -3162,9 +3041,7 @@ function isSubscribedGatewayOnlineCached(gatewayId: string): boolean | null {
 }
 
 async function refreshSubscribedGatewayHealth(): Promise<void> {
-  const api: any = (window as any).lumen;
-  const gwApi = api?.gateway;
-  if (!gwApi || typeof gwApi.checkAlive !== "function") return;
+  if (!lumen_api || typeof lumen_api.checkAlive !== "function") return;
 
   const seq = ++subscribedGatewayHealthSeq;
   const now = Date.now();
@@ -3189,7 +3066,7 @@ async function refreshSubscribedGatewayHealth(): Promise<void> {
 
   const results = await Promise.all(
     targets.map(async (t) => {
-      const res = await gwApi
+      const res = await gateway_lumen_api
         .checkAlive({ endpoint: t.endpoint, timeoutMs: 2500 })
         .catch(() => null);
       return { id: t.id, ok: !!res?.ok };
@@ -3296,32 +3173,9 @@ watch(
   { immediate: true },
 );
 
-const activeSubscriptionRow = computed(() => {
-  if (hosting.value.kind !== "gateway") return null;
-  return (
-    subscriptionRows.value.find(
-      (r) => r.gatewayId === hosting.value.gatewayId,
-    ) || null
-  );
-});
 
-const activeSubscriptionStatusLabel = computed(() => {
-  const row = activeSubscriptionRow.value;
-  if (!row) return "—";
-  if (row.status === "active") return "Active";
-  if (row.status === "pending") return "Pending";
-  return "Off";
-});
 
-const activeSubscriptionStatusClass = computed(() => {
-  const row = activeSubscriptionRow.value;
-  if (!row) return "off";
-  return row.status === "active"
-    ? "ok"
-    : row.status === "pending"
-      ? "pending"
-      : "off";
-});
+
 
 const gatewayDetailsSubscriptionRow = computed(() => {
   const gid = String(gatewayDetailsGatewayId.value || "").trim();
@@ -3347,20 +3201,6 @@ const gatewayDetailsStatusClass = computed(() => {
       : "off";
 });
 
-const gatewayBandwidthUsed = computed(() => {
-  const u = gatewayUsage.value?.usage || {};
-  const raw =
-    u?.netMonth?.bytes ??
-    u?.net_month?.bytes ??
-    u?.net_month_bytes ??
-    u?.netMonthBytes ??
-    u?.bandwidthMonth?.bytes ??
-    u?.bandwidth_month?.bytes ??
-    u?.bandwidth_month_bytes ??
-    null;
-  const n = Number(raw);
-  return Number.isFinite(n) && n >= 0 ? formatSize(n) : "-";
-});
 
 const gatewayDetailsBandwidthUsed = computed(() => {
   const u = gatewayDetailsUsage.value?.usage || {};
@@ -3518,9 +3358,8 @@ onMounted(async () => {
   startSubscribedGatewayHealthPolling();
 
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.driveOnHlsProgress === "function") {
-      hlsProgressUnsub = api.driveOnHlsProgress((payload: any) => {
+    if (typeof lumen_api?.driveOnHlsProgress === "function") {
+      hlsProgressUnsub = lumen_api.driveOnHlsProgress((payload: any) => {
         const stage = String(payload?.stage || "");
         if (stage === "downloading") convertingStage.value = "downloading";
         else if (stage === "probing") convertingStage.value = "probing";
@@ -3561,27 +3400,10 @@ onMounted(async () => {
     }
   } catch {}
 
-  try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.ipfsOnAddProgress === "function") {
-      ipfsAddProgressUnsub = api.ipfsOnAddProgress((payload: any) => {
-        if (!uploading.value) return;
-        if (String(uploadingStage.value).startsWith("gateway-")) return;
-        if (!uploadingCanceling.value) uploadingStage.value = "adding";
-        const pct = payload?.percent;
-        if (typeof pct === "number" && Number.isFinite(pct)) {
-          uploadingPercent.value = Math.max(0, Math.min(100, Math.round(pct)));
-        } else {
-          uploadingPercent.value = null;
-        }
-      });
-    }
-  } catch {}
 
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.driveOnHlsArchiveProgress === "function") {
-      hlsArchiveProgressUnsub = api.driveOnHlsArchiveProgress((payload: any) => {
+    if (typeof lumen_api?.driveOnHlsArchiveProgress === "function") {
+      hlsArchiveProgressUnsub = lumen_api.driveOnHlsArchiveProgress((payload: any) => {
         const stage = String(payload?.stage || "");
         if (stage === "selecting-path") archiveDownloadStage.value = "selecting-path";
         else if (stage === "preparing") archiveDownloadStage.value = "preparing";
@@ -3611,9 +3433,8 @@ onMounted(async () => {
   } catch {}
 
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.ipfsOnPublicGatewayPropagationProgress === "function") {
-      publicGatewayPropagationUnsub = api.ipfsOnPublicGatewayPropagationProgress(
+    if (typeof lumen_api?.ipfsOnPublicGatewayPropagationProgress === "function") {
+      publicGatewayPropagationUnsub = lumen_api.ipfsOnPublicGatewayPropagationProgress(
         (payload: any) => {
           if (!uploading.value) return;
 
@@ -3625,85 +3446,18 @@ onMounted(async () => {
             stage === "done" ||
             stage === "cancelled"
           ) {
-            publicGatewayPropagationStage.value = stage;
           }
 
-          const total = Number(payload?.total);
-          if (Number.isFinite(total) && total >= 0) {
-            publicGatewayPropagationTotal.value = Math.max(0, Math.floor(total));
-          }
-
-          const completed = Number(payload?.completed);
-          if (Number.isFinite(completed) && completed >= 0) {
-            publicGatewayPropagationCompleted.value = Math.max(
-              0,
-              Math.floor(completed),
-            );
-          }
-
-          const succeeded = Number(payload?.succeeded);
-          if (Number.isFinite(succeeded) && succeeded >= 0) {
-            publicGatewayPropagationSucceeded.value = Math.max(
-              0,
-              Math.floor(succeeded),
-            );
-          }
-
-          const timedOut = Number(payload?.timedOut);
-          if (Number.isFinite(timedOut) && timedOut >= 0) {
-            publicGatewayPropagationTimedOut.value = Math.max(
-              0,
-              Math.floor(timedOut),
-            );
-          }
-
-          const skippedOffline = Number(payload?.skippedOffline);
-          if (Number.isFinite(skippedOffline) && skippedOffline >= 0) {
-            publicGatewayPropagationSkippedOffline.value = Math.max(
-              0,
-              Math.floor(skippedOffline),
-            );
-          }
-
-          publicGatewayPropagationLastGateway.value = String(
-            payload?.gateway || "",
-          );
-
-          if (!uploadingCanceling.value && stage !== "cancelled") {
-            uploadingStage.value = "propagating";
-          }
-
-          if (publicGatewayPropagationTotal.value > 0) {
-            uploadingPercent.value = publicGatewayPropagationPercent.value;
-          } else if (stage === "done") {
-            uploadingPercent.value = 100;
-          } else {
-            uploadingPercent.value = 0;
-          }
         },
       );
     }
   } catch {}
 
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.gateway?.onIngestProgress === "function") {
-      gatewayIngestProgressUnsub = api.gateway.onIngestProgress((payload: any) => {
+    if (typeof gateway_lumen_api?.onIngestProgress === "function") {
+      gatewayIngestProgressUnsub = lumen_api.gateway.onIngestProgress((payload: any) => {
         if (!uploading.value) return;
-        const stage = String(payload?.stage || "");
-        if (!uploadingCanceling.value) {
-          if (stage === "preflight") uploadingStage.value = "gateway-preflight";
-          else if (stage === "exporting") uploadingStage.value = "gateway-export";
-          else if (stage === "uploading") uploadingStage.value = "gateway-upload";
-          else if (stage === "done") uploadingStage.value = "done";
-        }
 
-        const pct = payload?.percent;
-        if (typeof pct === "number" && Number.isFinite(pct)) {
-          uploadingPercent.value = Math.max(0, Math.min(100, Math.round(pct)));
-        } else {
-          uploadingPercent.value = null;
-        }
       });
     }
   } catch {}
@@ -3969,14 +3723,8 @@ async function handleDrop(e: DragEvent) {
     }
 
     await withTemporaryLocalUploadLightMode(async () => {
-      for (const f of rootFiles) {
-        const res = await uploadFile(f);
-        if ((res as any)?.cancelled) return;
-      }
-      for (const [rootName, files] of folderGroups.entries()) {
-        // For each folder dropped, create a directory with the same name in the root of the drive,
-        if ((res as any)?.cancelled) return;
-      }
+
+
     });
     return;
   }
@@ -3984,17 +3732,14 @@ async function handleDrop(e: DragEvent) {
   const droppedFiles = dt.files;
   if (droppedFiles?.length) {
     await withTemporaryLocalUploadLightMode(async () => {
-      for (const file of Array.from(droppedFiles)) {
-        const res = await uploadFile(file);
-        if ((res as any)?.cancelled) break;
-      }
+
     });
   }
 }
 
 async function checkIpfsStatus() {
   try {
-    const result = await (window as any).lumen?.ipfsStatus?.();
+    const result = await lumen_api?.ipfsStatus?.();
     ipfsConnected.value = result?.ok === true;
   } catch {
     ipfsConnected.value = false;
@@ -4064,15 +3809,12 @@ async function refreshGatewayDetailsData(gatewayId: string) {
   gatewayDetailsPinnedError.value = "";
 
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi) {
+    if (!profiles_lumen_api || !gateway_lumen_api) {
       gatewayDetailsUsageError.value = "Gateway API unavailable";
       return;
     }
 
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const profileId = active?.id;
     if (!profileId) {
       gatewayDetailsUsageError.value = "No active profile";
@@ -4081,11 +3823,11 @@ async function refreshGatewayDetailsData(gatewayId: string) {
 
     const hint = gatewayHintForId(gid);
     const [usageRes, pinnedRes] = await Promise.all([
-      gwApi.getWalletUsage(profileId, hint).catch((e: any) => ({
+      gateway_lumen_api.getWalletUsage(profileId, hint).catch((e: any) => ({
         ok: false,
         error: String(e?.message || e),
       })),
-      gwApi.getWalletPinnedCids(profileId, hint, 1).catch((e: any) => ({
+      gateway_lumen_api.getWalletPinnedCids(profileId, hint, 1).catch((e: any) => ({
         ok: false,
         error: String(e?.message || e),
       })),
@@ -4102,7 +3844,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
       const code = String(usageRes?.error || "").trim();
       if (code === "password_required" || code === "invalid_password") {
         try {
-          await api?.security?.lockSession?.();
+          await lumen_api?.security?.lockSession?.();
         } catch {}
       }
       if (code !== "kyber_pubkey_http_unavailable") {
@@ -4116,7 +3858,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
       const code = String(pinnedRes?.error || "").trim();
       if (code === "password_required" || code === "invalid_password") {
         try {
-          await api?.security?.lockSession?.();
+          await lumen_api?.security?.lockSession?.();
         } catch {}
       }
       if (code !== "kyber_pubkey_http_unavailable") {
@@ -4152,16 +3894,13 @@ async function refreshActiveGatewayPinned() {
 
 async function refreshGatewayOverview() {
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi || !gwApi.getPlansOverview) return;
+    if (!profiles_lumen_api || !gateway_lumen_api || !gateway_lumen_api.getPlansOverview) return;
 
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const profileId = active?.id;
     if (!profileId) return;
 
-    const res = await gwApi
+    const res = await gateway_lumen_api
       .getPlansOverview(profileId, { includePricing: false, timeoutMs: 2500 })
       .catch(() => null);
     if (!res || res.ok === false) return;
@@ -4235,23 +3974,20 @@ async function refreshGatewayOverview() {
 
 async function refreshGatewayBase(baseUrlHint?: string) {
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi || !gwApi.getBaseUrl) return;
+    if (!profiles_lumen_api || !gateway_lumen_api || !gateway_lumen_api.getBaseUrl) return;
 
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const profileId = active?.id;
     if (!profileId) return;
 
-    const res = await gwApi
+    const res = await gateway_lumen_api
       .getBaseUrl(profileId, baseUrlHint)
       .catch(() => null);
     if (!res || res.ok === false) {
       const code = String(res?.error || "").trim();
       if (code === "password_required" || code === "invalid_password") {
         try {
-          await api?.security?.lockSession?.();
+          await lumen_api?.security?.lockSession?.();
         } catch {}
       }
       gatewayBase.value = null;
@@ -4266,10 +4002,7 @@ async function refreshGatewayBase(baseUrlHint?: string) {
 
 async function openPlansModal() {
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi || !gwApi.getPlansOverview) return;
+    if (!profiles_lumen_api || !gateway_lumen_api || !gateway_lumen_api.getPlansOverview) return;
 
     showPlansModal.value = true;
     planPage.value = 1;
@@ -4277,7 +4010,7 @@ async function openPlansModal() {
     plansLoading.value = true;
     plansError.value = "";
 
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const profileId = active?.id;
     if (!profileId) {
       plansError.value = "No active profile";
@@ -4285,7 +4018,7 @@ async function openPlansModal() {
       return;
     }
 
-    const res = await gwApi
+    const res = await gateway_lumen_api
       .getPlansOverview(profileId, { includePricing: true, timeoutMs: 2500 })
       .catch(() => null);
     if (!res || res.ok === false) {
@@ -4474,11 +4207,9 @@ function closeSubscribeModal() {
 async function loadSubscribeBalance() {
   subscribeBalanceLoading.value = true;
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const walletApi = api?.wallet;
-    if (!profilesApi || !walletApi) return;
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const walletApi = lumen_api?.wallet;
+    if (!profiles_lumen_api || !walletApi) return;
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const address = active?.walletAddress || active?.address;
     if (!address) return;
     const res = await walletApi.getBalance(address).catch(() => null);
@@ -4524,22 +4255,19 @@ async function confirmSubscribe() {
     subscribeBusy.value = true;
     subscribeError.value = "";
 
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi || !gwApi.subscribePlan) {
+    if (!profiles_lumen_api || !gateway_lumen_api || !gateway_lumen_api.subscribePlan) {
       subscribeError.value = "Subscription API unavailable";
       return;
     }
 
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const profileId = active?.id;
     if (!profileId) {
       subscribeError.value = "No active profile";
       return;
     }
 
-    const res = await gwApi
+    const res = await gateway_lumen_api
       .subscribePlan({
         profileId,
         planId: plan.planId,
@@ -4570,7 +4298,7 @@ async function confirmSubscribe() {
 
 async function loadStats() {
   try {
-    const result = await (window as any).lumen?.ipfsStats?.();
+    const result = await lumen_api?.ipfsStats?.();
     if (result?.ok) {
       stats.value = result;
     }
@@ -4600,63 +4328,6 @@ async function loadPinnedFiles() {
   }
 }
 
-async function refreshGatewayUsage(baseUrlHint?: string) {
-  const gid = String(hosting.value.gatewayId || "").trim();
-  if (hosting.value.kind !== "gateway" || !gid) return;
-  const seq = ++gatewayUsageSeq;
-
-  gatewayUsageLoading.value = true;
-  gatewayUsageError.value = "";
-  try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi) return;
-
-    const active = await profilesApi.getActive?.().catch(() => null);
-    const profileId = active?.id;
-    if (!profileId) return;
-
-    const res = await gwApi
-      .getWalletUsage(profileId, baseUrlHint)
-      .catch(() => null);
-    if (
-      seq !== gatewayUsageSeq ||
-      hosting.value.kind !== "gateway" ||
-      String(hosting.value.gatewayId || "").trim() !== gid
-    ) {
-      return;
-    }
-    if (!res || res.ok === false) {
-      const code = String(res?.error || "").trim();
-      if (code === "password_required" || code === "invalid_password") {
-        try {
-          await api?.security?.lockSession?.();
-        } catch {}
-      }
-      // If the gateway doesn't expose a Kyber pubkey, just treat it as "no plan"
-      if (code === "kyber_pubkey_http_unavailable") {
-        gatewayUsage.value = null;
-        gatewayUsageError.value = "";
-        return;
-      }
-      gatewayUsage.value = null;
-      gatewayUsageError.value = code || "Usage fetch failed";
-      return;
-    }
-
-    gatewayUsage.value = res.data ?? null;
-  } catch (e: any) {
-    if (seq !== gatewayUsageSeq) return;
-    gatewayUsage.value = null;
-    const msg = String(e?.message || "Usage fetch failed");
-    gatewayUsageError.value =
-      msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
-  } finally {
-    if (seq === gatewayUsageSeq) gatewayUsageLoading.value = false;
-  }
-}
-
 async function refreshGatewayPinned(baseUrlHint?: string) {
   const gid = String(hosting.value.gatewayId || "").trim();
   if (hosting.value.kind !== "gateway" || !gid) return;
@@ -4665,16 +4336,13 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
   gatewayPinnedLoading.value = true;
   gatewayPinnedError.value = "";
   try {
-    const api: any = (window as any).lumen;
-    const profilesApi = api?.profiles;
-    const gwApi = api?.gateway;
-    if (!profilesApi || !gwApi) return;
+    if (!profiles_lumen_api || !gateway_lumen_api) return;
 
-    const active = await profilesApi.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive?.().catch(() => null);
     const profileId = active?.id;
     if (!profileId) return;
 
-    const res = await gwApi
+    const res = await gateway_lumen_api
       .getWalletPinnedCids(profileId, baseUrlHint, 1)
       .catch(() => null);
     if (
@@ -4688,7 +4356,7 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       const code = String(res?.error || "").trim();
       if (code === "password_required" || code === "invalid_password") {
         try {
-          await api?.security?.lockSession?.();
+          await lumen_api?.security?.lockSession?.();
         } catch {}
       }
       if (code === "kyber_pubkey_http_unavailable") {
@@ -5303,8 +4971,7 @@ async function confirmDriveBackupExport() {
     return;
   }
 
-  const api: any = (window as any).lumen?.driveBackup;
-  if (!api || typeof api.encryptSnapshot !== "function") {
+  if (!lumen_api || typeof lumen_api.encryptSnapshot !== "function") {
     driveBackupError.value = "Backup API unavailable";
     return;
   }
@@ -5313,7 +4980,7 @@ async function confirmDriveBackupExport() {
   driveBackupBusy.value = true;
   let shouldClose = false;
   try {
-    const res = await api.encryptSnapshot(pid, snapshot, password).catch(() => null);
+    const res = await lumen_api.encryptSnapshot(pid, snapshot, password).catch(() => null);
     if (!res || res.ok === false || !res.encrypted) {
       const code = String(res?.error || "encrypt_failed");
       driveBackupError.value = driveBackupFriendlyError(code);
@@ -5414,8 +5081,7 @@ async function decryptDriveBackupImport() {
     return;
   }
 
-  const api: any = (window as any).lumen?.driveBackup;
-  if (!api || typeof api.decryptSnapshot !== "function") {
+  if (!lumen_api || typeof lumen_api.decryptSnapshot !== "function") {
     driveBackupError.value = "Backup API unavailable";
     return;
   }
@@ -5515,79 +5181,16 @@ function setSavedName(cid: string, name: string) {
 
 
 
-function resetPublicGatewayPropagationState() {
-  publicGatewayPropagationVisible.value = false;
-  publicGatewayPropagationStage.value = "idle";
-  publicGatewayPropagationTotal.value = 0;
-  publicGatewayPropagationCompleted.value = 0;
-  publicGatewayPropagationSucceeded.value = 0;
-  publicGatewayPropagationTimedOut.value = 0;
-  publicGatewayPropagationSkippedOffline.value = 0;
-  publicGatewayPropagationLastGateway.value = "";
-}
-
 async function propagateLocalCidToPublicGateways(
   cid: string,
-): Promise<PublicGatewayPropagationResult> {
-  const api: any = (window as any).lumen;
-  if (typeof api?.ipfsPropagateCidToPublicGateways !== "function") {
-    return {
-      ok: true,
-      skipped: true,
-      total: 0,
-      succeeded: 0,
-      failed: 0,
-      timedOut: 0,
-      skippedOffline: 0,
-    };
-  }
+): Promise<any> {
 
-  publicGatewayPropagationVisible.value = true;
-  publicGatewayPropagationStage.value = "fetching-list";
-  publicGatewayPropagationTotal.value = 0;
-  publicGatewayPropagationCompleted.value = 0;
-  publicGatewayPropagationSucceeded.value = 0;
-  publicGatewayPropagationTimedOut.value = 0;
-  publicGatewayPropagationSkippedOffline.value = 0;
-  publicGatewayPropagationLastGateway.value = "";
 
-  if (!uploadingCanceling.value) {
-    uploadingStage.value = "propagating";
-    uploadingPercent.value = 0;
-  }
 
   try {
-    const res = await api.ipfsPropagateCidToPublicGateways({
-      cid,
-      timeoutMs: 15_000,
-      probeTimeoutMs: 3_000,
-      sourceTimeoutMs: 10_000,
-    });
 
-    if (res?.ok) {
-      return {
-        ok: true,
-        total: Number(res?.total || 0) || 0,
-        succeeded: Number(res?.succeeded || 0) || 0,
-        failed: Number(res?.failed || 0) || 0,
-        timedOut: Number(res?.timedOut || 0) || 0,
-        skippedOffline: Number(res?.skippedOffline || 0) || 0,
-      };
-    }
 
-    const err = String(res?.error || "public_propagation_failed");
-    const lower = err.toLowerCase();
-    return {
-      ok: false,
-      cancelled:
-        !!res?.cancelled || lower.includes("cancel") || lower.includes("abort"),
-      error: err,
-      total: Number(res?.total || 0) || 0,
-      succeeded: Number(res?.succeeded || 0) || 0,
-      failed: Number(res?.failed || 0) || 0,
-      timedOut: Number(res?.timedOut || 0) || 0,
-      skippedOffline: Number(res?.skippedOffline || 0) || 0,
-    };
+
   } catch (err: any) {
     const msg = String(err?.message || err || "public_propagation_failed");
     const lower = msg.toLowerCase();
@@ -5595,21 +5198,10 @@ async function propagateLocalCidToPublicGateways(
       ok: false,
       cancelled: lower.includes("cancel") || lower.includes("abort"),
       error: msg,
-      total: publicGatewayPropagationTotal.value,
-      succeeded: publicGatewayPropagationSucceeded.value,
       failed: publicGatewayPropagationFailed.value,
-      timedOut: publicGatewayPropagationTimedOut.value,
       skippedOffline: publicGatewayPropagationSkippedOffline.value,
     };
-  } finally {
-    resetPublicGatewayPropagationState();
   }
-}
-
-function shouldSkipPublicGatewayPropagation(totalBytes: number | null | undefined): boolean {
-  const size = Number(totalBytes || 0);
-  if (!Number.isFinite(size) || size <= 0) return false;
-  return size >= PUBLIC_GATEWAY_PROPAGATION_MAX_BYTES;
 }
 
 function delay(ms: number) {
@@ -5797,41 +5389,6 @@ function hlsQueueIsPaused(): boolean {
   );
 }
 
-async function finalizeLocalUpload(
-  kind: "file" | "folder",
-  name: string,
-  cid: string,
-  totalBytes: number,
-): Promise<void> {
-  void loadStats();
-  void loadPinnedFiles();
-
-  const label = kind === "folder" ? `Uploaded folder: ${name}` : `Uploaded: ${name}`;
-  if (shouldSkipPublicGatewayPropagation(totalBytes)) {
-    showToast(
-      `${label} Public gateway warm-up skipped for uploads over ${PUBLIC_GATEWAY_PROPAGATION_MAX_LABEL}.`,
-      "success",
-    );
-    return;
-  }
-  await propagateLocalCidToPublicGateways(cid).catch(() => null);
-  showToast(label, "success");
-}
-
-function showFolderTooLargeToast(name: string) {
-  showToast(
-    `Folder too large (max ${localDriveMaxUploadLimitLabel.value}): ${name}`,
-    "error",
-  );
-}
-
-function showFileTooLargeToast(name: string) {
-  showToast(
-    `File too large (max ${localDriveMaxUploadLimitLabel.value}): ${name}`,
-    "error",
-  );
-}
-
 function upsertFileMetadata(next: DriveFile) {
   const cid = String(next?.cid || "").trim();
   if (!cid) return;
@@ -5848,14 +5405,11 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
 > {
   if (hosting.value.kind !== "gateway") return { ok: true as const };
 
-  const api: any = (window as any).lumen;
-  const profilesApi = api?.profiles;
-  const gwApi = api?.gateway;
-  if (!profilesApi || !gwApi || !gwApi.pinCid) {
+  if (!profiles_lumen_api || !gateway_lumen_api || !gateway_lumen_api.pinCid) {
     return { ok: false as const, error: "Gateway upload unavailable" };
   }
 
-  const active = await profilesApi.getActive?.().catch(() => null);
+  const active = await profiles_lumen_api.getActive?.().catch(() => null);
   const profileId = active?.id;
   if (!profileId) {
     return { ok: false as const, error: "No active profile" };
@@ -5871,7 +5425,7 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
     planSubscriptionsRaw.value.find((s) => String(s.gatewayId) === String(gid));
   const planId = sub?.metadata?.planId ?? sub?.metadata?.plan_id ?? null;
 
-  const res = await gwApi
+  const res = await gateway_lumen_api
     .pinCid({
       profileId,
       cid,
@@ -5906,136 +5460,6 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
   return { ok: true as const };
 }
 
-
-
-async function uploadFile(file: File): Promise<{ ok: true } | { ok: false; cancelled?: boolean }> {
-  const fileSizeBytes = Number((file as any)?.size || 0) || 0;
-  if (fileSizeBytes > localDriveMaxUploadBytes.value) {
-    showFileTooLargeToast(file.name);
-    return { ok: false };
-  }
-
-  uploading.value = true;
-  uploadingFile.value = file.name;
-  uploadingStage.value = "preparing";
-  uploadingPercent.value = 0;
-  uploadingCanceling.value = false;
-  resetPublicGatewayPropagationState();
-
-  try {
-    const api: any = (window as any).lumen;
-    const filePath = String((file as any)?.path || "").trim();
-    const addPathFn =
-      filePath && typeof api?.ipfsAddPathWithProgress === "function"
-        ? api.ipfsAddPathWithProgress
-        : filePath && typeof api?.ipfsAddPath === "function"
-          ? api.ipfsAddPath
-          : null;
-
-    const addBytesFn =
-      typeof api?.ipfsAddWithProgress === "function"
-        ? api.ipfsAddWithProgress
-        : typeof api?.ipfsAdd === "function"
-          ? api.ipfsAdd
-          : null;
-
-    if (!addPathFn && !addBytesFn) {
-      showToast("Upload unavailable", "error");
-      return { ok: false };
-    }
-
-    uploadingStage.value = "adding";
-    uploadingPercent.value = 0;
-
-    const result = addPathFn
-      ? await addPathFn(filePath, file.name)
-      : await (async () => {
-          const buffer = await file.arrayBuffer();
-          const bytes = new Uint8Array(buffer);
-          return addBytesFn?.(bytes, file.name);
-        })();
-
-    if (result?.cid) {
-      const cid = String(result.cid);
-      const sizeBytes =
-        Number((file as any)?.size || 0) || Number((result as any)?.fileBytes || 0) || 0;
-      setSavedName(cid, file.name);
-      entryTypeCache.value = { ...entryTypeCache.value, [cid]: "file" };
-      upsertFileMetadata({
-        cid,
-        name: file.name,
-        size: sizeBytes,
-        uploadedAt: Date.now(),
-        type: "file",
-      });
-
-      if (hosting.value.kind === "gateway") {
-        uploadingStage.value = "gateway-preflight";
-        uploadingPercent.value = 0;
-        const pinned = await pinCidToActiveGateway(cid, file.name);
-        if (!pinned.ok) {
-          if ((pinned as any).cancelled) {
-            showToast("Upload cancelled.", "success");
-            return { ok: false, cancelled: true };
-          }
-          showToast(pinned.error, "error");
-          return { ok: false };
-        }
-        showToast(`Uploaded to gateway: ${file.name}`, "success");
-      } else {
-        await finalizeLocalUpload("file", file.name, cid, sizeBytes);
-      }
-
-      return { ok: true };
-    } else {
-      const err = String(result?.error || "");
-      const lower = err.toLowerCase();
-      if (lower.includes("cancel") || lower.includes("abort")) {
-        showToast("Upload cancelled.", "success");
-        return { ok: false, cancelled: true };
-      }
-      if (err === "file_too_large") {
-        showFileTooLargeToast(file.name);
-        return { ok: false };
-      }
-      if (err === "add_in_progress") {
-        showToast("Another upload is already running. Please wait…", "error");
-        return { ok: false };
-      }
-      const detail = compactError(err);
-      showToast(
-        detail ? `Failed to upload: ${file.name} (${detail})` : `Failed to upload: ${file.name}`,
-        "error",
-      );
-      return { ok: false };
-    }
-  } catch (err) {
-    console.error("Upload error:", err);
-    const msg = String((err as any)?.message || err || "");
-    const lower = msg.toLowerCase();
-    if (lower.includes("cancel") || lower.includes("abort")) {
-      showToast("Upload cancelled.", "success");
-      return { ok: false, cancelled: true };
-    }
-    if (msg === "file_too_large") {
-      showFileTooLargeToast(file.name);
-      return { ok: false };
-    }
-    const detail = compactError(msg);
-    showToast(
-      detail ? `Error uploading: ${file.name} (${detail})` : `Error uploading: ${file.name}`,
-      "error",
-    );
-    return { ok: false };
-  } finally {
-    resetPublicGatewayPropagationState();
-    uploading.value = false;
-    uploadingFile.value = "";
-    uploadingStage.value = "preparing";
-    uploadingPercent.value = null;
-    uploadingCanceling.value = false;
-  }
-}
 
 function startConvertingState(fileName: string) {
   converting.value = true;
@@ -6072,7 +5496,7 @@ async function performHlsConversion(
 > {
   try {
     const target = contentTargetFor(file);
-    const res = await (window as any).lumen?.driveConvertToHls?.({
+    const res = await lumen_api?.driveConvertToHls?.({
       cidOrPath: target,
       name: file.name,
       audioBitrate: "128k",
@@ -6333,14 +5757,13 @@ async function cancelHlsConversion() {
   convertingCanceling.value = true;
   convertingStage.value = "cancelling";
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.driveCancelHlsConvert !== "function") {
+    if (typeof lumen_api?.driveCancelHlsConvert !== "function") {
       showToast("Cancel is unavailable.", "error");
       convertingCanceling.value = false;
       convertingStage.value = "transcoding";
       return;
     }
-    const res = await api.driveCancelHlsConvert().catch(() => null);
+    const res = await lumen_api.driveCancelHlsConvert().catch(() => null);
     if (!res?.ok) {
       showToast(String(res?.error || "Cancel failed"), "error");
       convertingCanceling.value = false;
@@ -6390,11 +5813,10 @@ async function pauseHlsQueue(options: { silent?: boolean } = {}) {
   convertingStage.value = "cancelling";
 
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.driveCancelHlsConvert !== "function") {
+    if (typeof lumen_api?.driveCancelHlsConvert !== "function") {
       throw new Error("Pause is unavailable.");
     }
-    const res = await api.driveCancelHlsConvert().catch(() => null);
+    const res = await lumen_api.driveCancelHlsConvert().catch(() => null);
     if (!res?.ok) {
       throw new Error(String(res?.error || "Pause failed"));
     }
@@ -6440,14 +5862,13 @@ async function cancelHlsArchiveDownload() {
   archiveDownloadCanceling.value = true;
   archiveDownloadStage.value = "cancelling";
   try {
-    const api: any = (window as any).lumen;
-    if (typeof api?.driveCancelHlsArchiveDownload !== "function") {
+    if (typeof lumen_api?.driveCancelHlsArchiveDownload !== "function") {
       showToast("Cancel is unavailable.", "error");
       archiveDownloadCanceling.value = false;
       archiveDownloadStage.value = prevStage;
       return;
     }
-    const res = await api.driveCancelHlsArchiveDownload().catch(() => null);
+    const res = await lumen_api.driveCancelHlsArchiveDownload().catch(() => null);
     if (!res?.ok) {
       showToast(String(res?.error || "Cancel failed"), "error");
       archiveDownloadCanceling.value = false;
@@ -6464,8 +5885,7 @@ async function downloadFile(file: DriveFile) {
   try {
     if (isHlsEntry(file)) {
       if (isWindowsAppPlatform()) {
-        const api: any = (window as any).lumen;
-        if (typeof api?.driveDownloadHlsArchive === "function") {
+        if (typeof lumen_api?.driveDownloadHlsArchive === "function") {
           if (archiveDownloading.value) {
             showToast("Another HLS archive download is already running.", "error");
             return;
@@ -6477,7 +5897,7 @@ async function downloadFile(file: DriveFile) {
           archiveDownloadBytesProcessed.value = null;
           archiveDownloadTotalBytes.value = null;
           archiveDownloadCanceling.value = false;
-          const res = await api.driveDownloadHlsArchive({
+          const res = await lumen_api.driveDownloadHlsArchive({
             rootCid: String(file?.rootCid || file?.cid || "").trim(),
             name: String(file?.name || "").trim(),
             expectedSizeBytes: Number(file?.size || 0) || 0,
@@ -6523,7 +5943,7 @@ async function downloadFile(file: DriveFile) {
 
     const target = contentTargetFor(file);
     const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-    const result = await (window as any).lumen?.ipfsGet?.(target, { gateways });
+    const result = await lumen_api?.ipfsGet?.(target, { gateways });
 
     if (result?.ok && result.data) {
       const blob = new Blob([new Uint8Array(result.data)]);
@@ -6684,7 +6104,7 @@ async function loadBrowseEntries() {
   browseError.value = "";
   try {
     const target = relPath ? `${cid}/${relPath}` : cid;
-    const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
+    const res = await lumen_api?.ipfsLs?.(target).catch(() => null);
     if (seq !== browseLoadSeq) return;
     if (!res || res.ok === false) {
       browseEntries.value = [];
@@ -6779,7 +6199,7 @@ async function handleEntryClick(file: DriveFile) {
   // Unknown (root saved entry): best-effort detect if it's a directory.
   const cid = String(file?.cid || "").trim();
   if (!cid) return;
-  const res = await (window as any).lumen?.ipfsLs?.(cid).catch(() => null);
+  const res = await lumen_api?.ipfsLs?.(cid).catch(() => null);
   const linksRaw = Array.isArray(res?.entries) ? res.entries : [];
   const links = linksRaw.filter(
     (it: any) =>
@@ -7067,22 +6487,19 @@ async function saveSelectedName() {
 
   if (hosting.value.kind === "gateway") {
     try {
-      const api: any = (window as any).lumen;
-      const profilesApi = api?.profiles;
-      const gwApi = api?.gateway;
-      if (!profilesApi || !gwApi || typeof gwApi.renameCid !== "function") {
+      if (!profiles_lumen_api || !gateway_lumen_api || typeof gateway_lumen_api.renameCid !== "function") {
         showToast("Gateway rename unavailable", "error");
         return;
       }
 
-      const active = await profilesApi.getActive?.().catch(() => null);
+      const active = await profiles_lumen_api.getActive?.().catch(() => null);
       const profileId = active?.id;
       if (!profileId) {
         showToast("No active profile", "error");
         return;
       }
 
-      const res = await gwApi
+      const res = await gateway_lumen_api
         .renameCid({
           profileId,
           cid,
@@ -7095,7 +6512,7 @@ async function saveSelectedName() {
         const code = String(res?.error || "rename_failed");
         if (code === "password_required" || code === "invalid_password") {
           try {
-            await api?.security?.lockSession?.();
+            await lumen_api?.security?.lockSession?.();
           } catch {}
         }
         showToast(code, "error");
@@ -7161,7 +6578,7 @@ async function removeLocalRootEntries(entries: DriveFile[]) {
   let unpinFailed = 0;
   for (const cid of cidSet) {
     try {
-      const res = await (window as any).lumen?.ipfsUnpin?.(cid);
+      const res = await lumen_api?.ipfsUnpin?.(cid);
       if (res && res.ok === false) unpinFailed += 1;
     } catch {
       unpinFailed += 1;
@@ -7220,22 +6637,19 @@ async function removeFile(file: DriveFile) {
 
   if (hosting.value.kind === "gateway") {
     try {
-      const api: any = (window as any).lumen;
-      const profilesApi = api?.profiles;
-      const gwApi = api?.gateway;
-      if (!profilesApi || !gwApi || !gwApi.unpinCid) {
+      if (!profiles_lumen_api || !gateway_lumen_api || !gateway_lumen_api.unpinCid) {
         showToast("Gateway removal unavailable", "error");
         return;
       }
 
-      const active = await profilesApi.getActive?.().catch(() => null);
+      const active = await profiles_lumen_api.getActive?.().catch(() => null);
       const profileId = active?.id;
       if (!profileId) {
         showToast("No active profile", "error");
         return;
       }
 
-      const res = await gwApi
+      const res = await gateway_lumen_api
         .unpinCid({ profileId, cid, baseUrl: activeGatewayHint.value })
         .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
       if (!res || res.ok === false) {
@@ -7417,8 +6831,7 @@ async function onImageError(file: DriveFile) {
   try {
     // Avoid fetching huge images into memory: keep blob previews for small images only.
     const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-    const got = await (window as any).lumen
-      ?.ipfsGet?.(key, { gateways })
+    const got = await lumen_api?.ipfsGet?.(key, { gateways })
       .catch(() => null);
     if (!got?.ok || !Array.isArray(got.data)) return;
     const bytes = new Uint8Array(got.data);
