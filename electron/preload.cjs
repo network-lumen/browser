@@ -148,7 +148,7 @@ contextBridge.exposeInMainWorld('lumen', {
     ipcRenderer.invoke('ipfs:addDirectoryFromPath', payload || {}),
   ipfsAddDirectoryFromPathWithProgress: (payload) =>
     ipcRenderer.invoke('ipfs:addDirectoryFromPathWithProgress', payload || {}),
-  ipfsCancelAdd: () => ipcRenderer.invoke('ipfs:cancelAdd'),
+  ipfsCancelAdd: (payload) => ipcRenderer.invoke('ipfs:cancelAdd', payload || {}),
   ipfsCancelPublicGatewayPropagation: () =>
     ipcRenderer.invoke('ipfs:cancelPublicGatewayPropagation'),
   ipfsOnAddProgress: (callback) => {
