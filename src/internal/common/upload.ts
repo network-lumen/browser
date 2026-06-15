@@ -12,6 +12,7 @@ type UploadActivity = {
         uploadingFile: string;
         uploadingPercent: number | null;
         uploadingCanceling: number; // 0 = not canceling, 1 = canceling, 2 = cancelled
+        uploadId?: string;
     } | undefined;
 }
 
@@ -76,10 +77,10 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
 
     try {
         const uploadId = crypto.randomUUID();
+        uploadActivities[dirPath].uploadId = uploadId;
         const result = fileType == "dir" 
             ? await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name, uploadId }, { signal: controller.signal })
             : await api.ipfsAddPathWithProgress({ filePath: dirPath, filename: name, uploadId }, { signal: controller.signal });
-        console.log("Upload result:", result);
         if(!result.ok && result.error === "cancelled")
             throw new Error("Upload cancelled");
         if (!result?.cid)
@@ -126,7 +127,7 @@ async function uploadFolderToLocal(): Promise<string> { // Upload a local folder
         if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
         loadLocalNames();
         for (const dirPath of selected) 
-            await uploadFromPath(dirPath, "dir");
+            uploadFromPath(dirPath, "dir");
         return "ok";
     } catch (error) {
         return Promise.reject(error);
@@ -142,7 +143,7 @@ async function uploadFileToLocal(): Promise<string> { // Upload a local file to 
         if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
         loadLocalNames();
         for (const filePath of selected) 
-            await uploadFromPath(filePath, "file");
+            uploadFromPath(filePath, "file");
         return "ok";
     } catch (error) {
         return Promise.reject(error);
@@ -162,9 +163,11 @@ async function uploadCancelUpload(key: string) {
     }
     activity.uploadingCanceling = 2;
     delete uploadActivities[key];
-    await api.ipfsCancelAdd();
+    let cancel = await api.ipfsCancelAdd({ uploadId: activity.uploadId });
+    if(!cancel.ok) throw new Error("Failed to cancel upload: " + cancel.error);
     return "ok";
   } catch (error) {
+    console.error(error);
     return Promise.reject(error);
   }
 }

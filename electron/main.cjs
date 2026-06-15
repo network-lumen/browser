@@ -841,9 +841,11 @@ ipcMain.handle('dialog:openFolder', async (evt, options) => {
 const ACTIVE_IPFS_ADDS = new Map(); // wcId -> { abort: () => void }
 const ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS = new Map(); // wcId -> { abort: () => void }
 
-ipcMain.handle('ipfs:cancelAdd', async (evt) => {
-  const wcId = String(evt?.sender?.id || '');
-  const job = wcId ? ACTIVE_IPFS_ADDS.get(wcId) : null;
+ipcMain.handle('ipfs:cancelAdd', async (evt, payload) => {
+  console.log('[electron][ipc] ipfs:cancelAdd');
+  const wcId = String(payload?.uploadId || '');
+  console.log('Cancel request for wcId:', wcId);
+  const job = ACTIVE_IPFS_ADDS.get(wcId);
   if (!job) return { ok: false, error: 'no_active_job' };
   try {
     job.abort?.();
@@ -854,7 +856,7 @@ ipcMain.handle('ipfs:cancelAdd', async (evt) => {
 });
 
 ipcMain.handle('ipfs:cancelPublicGatewayPropagation', async (evt) => {
-  const wcId = String(evt?.sender?.id || '');
+  const wcId = String(evt?.sender?.id || evt.uploadId || '');
   const job = wcId ? ACTIVE_PUBLIC_GATEWAY_PROPAGATIONS.get(wcId) : null;
   if (!job) return { ok: false, error: 'no_active_job' };
   try {
@@ -944,14 +946,17 @@ ipcMain.handle('ipfs:addPathWithProgress', async (evt, payload, filename) => {
   if (uploadId) ACTIVE_IPFS_ADDS.set(uploadId, { abort });
 
   const safeName = safeString(filename, 256);
-  const sendProgress = (payload) => {
+  const sendProgress = (payload2) => {
     try {
       evt?.sender?.send?.('ipfs:addProgress', {
-        ...payload,
-        rootPath: payload?.filePath || '',
-        rootName: filePath || '',
+        ...payload2,
+        rootPath: payload2?.path || '',
+        rootName: payload2?.filename || '',
+        key: payload?.filePath || '',
       });
-    } catch {}
+    } catch (e) {
+      console.error('SEND PROGRESS ERROR', e);
+    }
   };
   try {
     return await ipfsAddPathWithProgress(payload.filePath, payload.filename, { signal: controller.signal, onProgress: sendProgress });

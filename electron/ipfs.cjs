@@ -2093,6 +2093,7 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
     const proc = spawn(ipfsBin, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+    
 
     let stdoutBuffer = '';
     let stderrBuffer = '';
@@ -2196,6 +2197,7 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
             Date.now() - startedAt,
           filename: safeName,
           path: p,
+          key: p
         });
       }
     });

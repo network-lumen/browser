@@ -3870,32 +3870,14 @@ async function openFolderPicker() {
 const uploadActivitiesComputed = ref<any>();
 setInterval(() => {
     uploadActivitiesComputed.value = {...uploadActivities};
+    if(Object.keys(uploadActivitiesComputed.value).length <= 0) {
+      loadFiles();
+      uploading.value = false;
+    }
 }, 500);
 
 
-function shouldUsePathPicker() {
-  try {
-    const api: any = (window as any).lumen;
-    const platform = String(api?.appPlatform || "").toLowerCase();
-    if (platform !== "linux") return false;
-    if (api?.appDialogLikelyBroken === true) return true;
-    const isRoot = typeof api?.appIsRoot === "function" ? api.appIsRoot() : false;
-    return isRoot === true;
-  } catch {
-    return false;
-  }
-}
 
-function openUploadPathModal(mode: "files" | "folder") {
-  if (uploadPathBusy.value) return;
-  if (uploading.value || converting.value) {
-    showToast("Another task is already running. Please wait…", "error");
-    return;
-  }
-  uploadPathMode.value = mode;
-  uploadPathText.value = "";
-  showUploadPathModal.value = true;
-}
 
 function closeUploadPathModal() {
   if (uploadPathBusy.value) return;
@@ -3903,16 +3885,6 @@ function closeUploadPathModal() {
   uploadPathText.value = "";
 }
 
-function parseUploadPaths(raw: string) {
-  const lines = String(raw || "")
-    .split(/\r?\n/)
-    .map((l) => String(l || "").trim())
-    .filter(Boolean);
-  const cleaned = lines
-    .map((s) => s.replace(/^['"](.+)['"]$/, "$1").trim())
-    .filter(Boolean);
-  return Array.from(new Set(cleaned));
-}
 
 
 async function handleDrop(e: DragEvent) {
@@ -4029,13 +4001,6 @@ async function checkIpfsStatus() {
   }
 }
 
-async function ensureIpfsConnected() {
-  if (ipfsConnected.value) return true;
-  await checkIpfsStatus();
-  if (ipfsConnected.value) return true;
-  showToast("IPFS not connected", "error");
-  return false;
-}
 
 function selectHosting(kind: HostingKind) {
   if (kind === hosting.value.kind) return;
