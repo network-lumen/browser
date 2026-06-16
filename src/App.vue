@@ -5,23 +5,36 @@
       @ready="handleStartupReady"
     />
     <SecurityGate v-else>
-      <MainScreen />
+      <div v-if="fatalError">
+        <p>Fatal error:</p>
+        <pre>{{ fatalError.message }}</pre>
+      </div>
+      <MainScreen v-else />
     </SecurityGate>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, onErrorCaptured } from 'vue';
 import StartupScreen from './components/StartupScreen.vue';
 import MainScreen from './components/MainScreen.vue';
 import SecurityGate from './components/SecurityGate.vue';
 import { useTheme } from './composables/useTheme';
+import { FATAL_ERROR_MAP, checkLumenAPIReferences } from './internal/common/fatal_errors';
 
 type Stage = 'startup' | 'main';
 
 // Initialize theme
 const { initTheme } = useTheme();
 initTheme();
+
+
+const fatalError = ref<Error | null>(null);
+
+
+
+
+
 
 // Initialize font size
 const savedFontSize = localStorage.getItem('lumen-font-size') || 'medium';
@@ -64,7 +77,18 @@ function onGlobalKeydown(event: KeyboardEvent) {
   void api.openActive();
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try { await checkLumenAPIReferences() }
+  catch (err: any) {
+      const code = err.message;
+    if(code) {
+      fatalError.value = new Error(
+        FATAL_ERROR_MAP[code] ?
+        FATAL_ERROR_MAP[code] + `\n\nGet help on the Lumen community website (https://lumen-network.org/community/) or contact us at contact@lumen-network.org`
+        : code+ `\n\nGet help on the Lumen community website (https://lumen-network.org/community/) or contact us at contact@lumen-network.org`
+      );
+    }
+  }
   syncWindowMode(stage.value);
   window.addEventListener('keydown', onGlobalKeydown, true);
 });

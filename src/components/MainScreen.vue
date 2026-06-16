@@ -123,6 +123,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
     resolveIpnsToCid,
   } from '../internal/services/contentResolver';
 
+
 type TabHistoryEntry = { url: string; title?: string };
   type Tab = {
     id: string;

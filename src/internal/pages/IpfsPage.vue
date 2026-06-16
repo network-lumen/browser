@@ -1162,7 +1162,6 @@ async function sniffViewKindFromHead(
     let ct = "";
 
     // Prefer the Electron http bridge to avoid CORS issues with local gateways.
-    if (typeof httpHead === "function") {
       const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
       const headers =
         res && res.headers && typeof res.headers === "object" ? res.headers : {};
@@ -1170,16 +1169,6 @@ async function sniffViewKindFromHead(
         (k) => String(k || "").toLowerCase() === "content-type",
       );
       ct = headerKey ? String(headers[headerKey] || "") : "";
-    } else {
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 8000);
-      const res = await fetch(target, {
-        method: "HEAD",
-        signal: controller.signal,
-      });
-      clearTimeout(t);
-      ct = String(res.headers.get("content-type") || "");
-    }
 
     ct = String(ct || "").toLowerCase();
     console.log("[ipfs-page] sniffed content-type:", ct, "for", url);
@@ -1876,7 +1865,6 @@ async function precheckHtmlDocument(url: string): Promise<boolean> {
     let status = 0;
     let ct = "";
 
-    if (typeof httpHead === "function") {
       const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
       status = Number(res?.status || 0);
       const headers =
@@ -1885,14 +1873,6 @@ async function precheckHtmlDocument(url: string): Promise<boolean> {
         (k) => String(k || "").toLowerCase() === "content-type",
       );
       ct = headerKey ? String(headers[headerKey] || "") : "";
-    } else {
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 8000);
-      const res = await fetch(target, { method: "HEAD", signal: controller.signal });
-      clearTimeout(t);
-      status = Number(res.status || 0);
-      ct = String(res.headers.get("content-type") || "");
-    }
 
     if (status !== 200 && status !== 206) return false;
     const lower = String(ct || "").toLowerCase();
