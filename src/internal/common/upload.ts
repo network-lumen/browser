@@ -16,6 +16,21 @@ type UploadActivity = {
     } | undefined;
 }
 
+type UploadPathResult =
+  | {
+      ok: true;
+      cid: string;
+      rootName: string;
+      rootPath: string;
+      totalBytes: number;
+    }
+  | {
+      ok: false;
+      error: string;
+      rootName: string;
+      rootPath: string;
+    };
+
 let files = [] as DriveFile[];
 
 api.ipfsOnAddProgress((p: any) => {
@@ -57,7 +72,7 @@ interface DriveFile {
   sourceTarget?: string;
 }
 
-async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir"): Promise<{ ok: boolean }> {
+async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir"): Promise<UploadPathResult> {
     const rootPath = String(dirPath || "").trim();
     if (!rootPath) throw new Error("Invalid folder path");
 
@@ -115,42 +130,64 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         };
         files = [dirFile, ...filtered];
         localStorage.setItem(`${STORAGE_KEY_PREFIX}:${pid}`, JSON.stringify(files));
-        return { ok: true };
-    } catch (err) {
+        return { ok: true, cid, rootName: name, rootPath, totalBytes };
+    } catch (err: any) {
         console.error(err);
-        throw new Error(`Failed to upload ${fileType}: ${name}`);
+        return { ok: false, error: String(err?.message || err || "Failed to upload"), rootName: name, rootPath };
     } finally {
         delete uploadActivities[dirPath];
     }
 }
 
-async function uploadFolderToLocal(): Promise<string> { // Upload a local folder to an IPFS local CID
+async function uploadFolderToLocal(): Promise<UploadPathResult[]> { // Upload a local folder to an IPFS local CID
     try {
-        const res = await api.dialogOpenFolder({ title: "Select folder to upload", multi: true })
+        const res = await api.dialogOpenFolder({ title: "Select folder to upload", multi: true });
         const paths = Array.isArray(res.paths) ? res.paths : [];
-        const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean);
+        const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean) as string[];
         if (!selected.length) throw new Error("No folder selected");
         if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
         loadLocalNames();
-        for (const dirPath of selected) 
-            uploadFromPath(dirPath, "dir");
-        return "ok";
+        const settled = await Promise.allSettled(selected.map((dirPath) => uploadFromPath(dirPath, "dir")));
+        return settled.map((item, idx) => {
+            if (item.status === "fulfilled") return item.value;
+            const rootPath = selected[idx];
+            const s = String(rootPath || "").replace(/\\/g, "/").trim();
+            const parts = s.split("/").filter(Boolean);
+            const name = parts[parts.length - 1] || s;
+            return {
+                ok: false,
+                error: String(item.reason?.message || item.reason || "Upload failed"),
+                rootName: name,
+                rootPath,
+            };
+        });
     } catch (error) {
         return Promise.reject(error);
     }
 }
 
-async function uploadFileToLocal(): Promise<string> { // Upload a local file to an IPFS local CID
+async function uploadFileToLocal(): Promise<UploadPathResult[]> { // Upload a local file to an IPFS local CID
     try { 
-        const res = await api.dialogOpenFiles({ title: "Select file to upload", multi: true })
+        const res = await api.dialogOpenFiles({ title: "Select file to upload", multi: true });
         const paths = Array.isArray(res.paths) ? res.paths : [];
-        const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean);
+        const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean) as string[];
         if (!selected.length) throw new Error("No file selected");
         if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
         loadLocalNames();
-        for (const filePath of selected) 
-            uploadFromPath(filePath, "file");
-        return "ok";
+        const settled = await Promise.allSettled(selected.map((filePath) => uploadFromPath(filePath, "file")));
+        return settled.map((item, idx) => {
+            const rootPath = selected[idx];
+            const s = String(rootPath || "").replace(/\\/g, "/").trim();
+            const parts = s.split("/").filter(Boolean);
+            const name = parts[parts.length - 1] || s;
+            if (item.status === "fulfilled") return item.value;
+            return {
+                ok: false,
+                error: String(item.reason?.message || item.reason || "Upload failed"),
+                rootName: name,
+                rootPath,
+            };
+        });
     } catch (error) {
         return Promise.reject(error);
     }    
