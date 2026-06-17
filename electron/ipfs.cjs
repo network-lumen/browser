@@ -2075,7 +2075,7 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
     // ---------------------------------------------------
 
     const ipfsBin = resolveKuboBin();
-
+    const repoPath = getIpfsRepoPath();
     const args = [
       'add',
       '--progress',
@@ -2092,6 +2092,12 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
 
     const proc = spawn(ipfsBin, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+      env: {
+        ...process.env,
+        IPFS_PATH: repoPath,
+        IPFS_ALLOW_BIG_BLOCK: '1'
+      }
     });
     
 
@@ -2634,6 +2640,7 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
     // ---------------------------------------------------
 
     const ipfsBin = resolveKuboBin();
+    const repoPath = getIpfsRepoPath();
 
     const args = [
       'add',
@@ -2652,6 +2659,12 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
 
     const proc = spawn(ipfsBin, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+      env: {
+        ...process.env,
+        IPFS_PATH: repoPath,
+        IPFS_ALLOW_BIG_BLOCK: '1'
+      }
     });
 
     let stdoutBuffer = '';
