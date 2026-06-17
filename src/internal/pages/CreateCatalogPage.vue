@@ -123,6 +123,35 @@
         </button>
       </section>
 
+      <section v-if="Object.keys(uploadActivitiesComputed).length" class="progress-card">
+        <div
+          v-for="(upload, key) in uploadActivitiesComputed"
+          :key="key"
+          class="progress-row upload-activity-row"
+        >
+          <UiSpinner size="sm" />
+          <div class="progress-info">
+            <span>
+              Uploading {{ upload?.uploadingFile }}
+              <template v-if="upload?.uploadingPercent != null">({{ upload.uploadingPercent }}%)</template>
+            </span>
+            <button
+              class="progress-cancel-btn"
+              type="button"
+              :disabled="upload?.uploadingCanceling"
+              @click="cancelUpload(key)"
+            >
+              {{ upload?.uploadingCanceling ? "Cancelling..." : "Cancel" }}
+            </button>
+          </div>
+        </div>
+        <template v-for="(upload, key) in uploadActivitiesComputed" :key="`bar-${key}`">
+          <div v-if="upload?.uploadingPercent != null" class="progress-bar">
+            <div class="progress-fill" :style="{ width: `${upload.uploadingPercent}%` }"></div>
+          </div>
+        </template>
+      </section>
+
       <div v-if="uploading" class="progress-card">
         <div class="progress-row">
           <UiSpinner size="sm" />
@@ -237,6 +266,7 @@ import {
 } from "lucide-vue-next";
 import InternalSidebar from "../../components/InternalSidebar.vue";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import { uploadFolderToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
 import { useToast } from "../../composables/useToast";
 
 type ColumnType = "text" | "number" | "boolean" | "tags" | "date" | "json";
@@ -291,8 +321,10 @@ const newColumnType = ref<ColumnType>("text");
 const searchQuery = ref("");
 const dragActive = ref(false);
 const uploading = ref(false);
-const uploadStage = ref<"idle" | "checking" | "adding" | "merging">("idle");
+const uploadStage = ref<"idle" | "checking" | "preparing" | "adding" | "merging">("idle");
 const uploadPercent = ref<number | null>(null);
+const uploadActivitiesComputed = ref<Record<string, any>>({});
+let uploadActivitiesTimer: number | null = null;
 
 let progressUnsub: (() => void) | null = null;
 
@@ -318,6 +350,7 @@ const filteredRows = computed(() => {
 
 const uploadStatusText = computed(() => {
   if (uploadStage.value === "checking") return "Checking local IPFS...";
+  if (uploadStage.value === "preparing") return "Preparing upload...";
   if (uploadStage.value === "adding") return "Adding folder to IPFS (streaming from disk)...";
   if (uploadStage.value === "merging") return "Merging entries by CID...";
   if (rows.value.length) return "Merge keeps existing metadata when possible.";
@@ -336,11 +369,19 @@ onMounted(() => {
         : null;
     });
   }
+
+  uploadActivitiesTimer = window.setInterval(() => {
+    uploadActivitiesComputed.value = { ...uploadActivities };
+  }, 500);
 });
 
 onBeforeUnmount(() => {
   progressUnsub?.();
   progressUnsub = null;
+  if (uploadActivitiesTimer != null) {
+    window.clearInterval(uploadActivitiesTimer);
+    uploadActivitiesTimer = null;
+  }
 });
 
 function isCoreColumn(key: string) {
@@ -405,8 +446,14 @@ function newCatalog() {
   searchQuery.value = "";
 }
 
-function openFolderPicker() {
+async function openFolderPicker() {
   if (uploading.value) return;
+  const api: any = (window as any).lumen;
+  if (typeof api?.dialogOpenFolder === "function") {
+    await openNativeFolderPicker();
+    return;
+  }
+
   try {
     if (folderInput.value) folderInput.value.value = "";
   } catch {}
@@ -418,6 +465,98 @@ function openCatalogImport() {
     if (catalogInput.value) catalogInput.value.value = "";
   } catch {}
   catalogInput.value?.click();
+}
+
+async function openNativeFolderPicker() {
+  if (uploading.value) return;
+  try {
+    uploading.value = true;
+    uploadStage.value = "preparing";
+    uploadPercent.value = 0;
+
+    const results = await uploadFolderToLocal();
+    for (const result of results) {
+      if (!result.ok) {
+        warning(`Upload failed: ${result.error}`);
+        continue;
+      }
+      const stats = await importCatalogFromIpfsDirectory(result.cid, result.rootName);
+      success(`Imported ${stats.added} entries from ${result.rootName || "folder"}.`);
+    }
+  } catch (e: any) {
+    error(String(e?.message || e || "Folder selection failed"));
+  } finally {
+    uploading.value = false;
+    uploadStage.value = "idle";
+    uploadPercent.value = null;
+  }
+}
+
+async function importCatalogFromIpfsDirectory(rootCid: string, rootName: string) {
+  const files = await listIpfsFilesRecursively(rootCid);
+  if (!files.length) {
+    warning("Uploaded folder contains no catalogable files.");
+    return { added: 0, updated: 0 };
+  }
+
+  const importedRows = files.map((file) => {
+    const filename = basename(file.relPath) || file.name || "file";
+    return {
+      id: makeEntryId(rootCid, file.relPath),
+      cid: rootCid,
+      filename,
+      path: file.relPath,
+      size: Number(file.size || 0),
+      type: inferMimeType(filename),
+      rootCid: rootCid || undefined,
+      rootName: rootName || undefined,
+      meta: {
+        title: stripExtension(filename),
+        description: "",
+        tags: [],
+        createdAt: new Date().toISOString().slice(0, 10),
+      },
+    } satisfies CatalogEntry;
+  });
+
+  return mergeEntries(importedRows, []);
+}
+
+async function listIpfsFilesRecursively(rootCid: string, prefix = "") {
+  const api: any = (window as any).lumen;
+  if (!api?.ipfsLs) return [];
+
+  const target = prefix ? `${rootCid}/${prefix}` : rootCid;
+  const res = await api.ipfsLs(target).catch(() => null);
+  const entries = Array.isArray(res?.entries) ? res.entries : [];
+  const files: Array<{ relPath: string; name: string; size: number; type: string }> = [];
+
+  for (const item of entries) {
+    if (!item || !item.name) continue;
+    const name = String(item.name || "").trim();
+    if (!name) continue;
+    const relPath = prefix ? `${prefix}/${name}` : name;
+    if (String(item.type) === "dir") {
+      files.push(...(await listIpfsFilesRecursively(rootCid, relPath)));
+      continue;
+    }
+    files.push({
+      relPath,
+      name,
+      size: typeof item.size === "number" ? item.size : 0,
+      type: "file",
+    });
+  }
+
+  return files;
+}
+
+async function cancelUpload(key: string) {
+  try {
+    await uploadCancelUpload(key);
+  } catch (e: any) {
+    error(String(e?.message || e || "Cancel failed"));
+  }
 }
 
 async function handleFolderInput(event: Event) {
@@ -1306,6 +1445,35 @@ function inferMimeType(filename: string) {
   gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.82rem;
+}
+
+.upload-activity-row {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.progress-cancel-btn {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.progress-cancel-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .progress-row strong {
