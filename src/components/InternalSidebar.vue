@@ -1,6 +1,6 @@
 <template>
   <aside class="lumen-sidebar">
-    <div class="lumen-sidebar-header">
+    <div class="lumen-sidebar-header flex">
       <div class="lumen-sidebar-icon">
         <component :is="icon" :size="20" />
       </div>
@@ -143,7 +143,6 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
 
 /* ===== HEADER ===== */
 .lumen-sidebar-header {
-  display: flex;
   align-items: center;
   gap: 0.625rem;
   padding: 0.375rem 0.5rem;

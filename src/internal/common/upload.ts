@@ -98,6 +98,8 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
             : await api.ipfsAddPathWithProgress({ filePath: dirPath, filename: name, uploadId }, { signal: controller.signal });
         if(!result.ok && result.error === "cancelled")
             throw new Error("Upload cancelled");
+        if(!result.ok && result.error)
+            throw new Error(result.error)
         if (!result?.cid)
             throw new Error("Failed to add " + fileType + " to IPFS");
 

@@ -1962,6 +1962,7 @@ import {
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
+  
 const lumen_api: any = (window as any).lumen;
 const gateway_lumen_api = lumen_api?.gateway;
 const profiles_lumen_api = lumen_api?.profiles;
