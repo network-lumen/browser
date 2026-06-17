@@ -2216,7 +2216,6 @@ const activeProfileDisplay = computed(
 
 const { favourites } = useFavourites();
 
-const LEGACY_STORAGE_KEY = "lumen_drive_files";
 const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
@@ -2495,7 +2494,6 @@ const browseError = ref("");
 let browseLoadSeq = 0;
 let gatewayDetailsLoadSeq = 0;
 let gatewayPinnedSeq = 0;
-let gatewayUsageSeq = 0;
 
 const isBrowsing = computed(() => !!browseRootCid.value);
 const canRenameSelected = computed(() => canRenameEntry(selectedFile.value));
@@ -2552,9 +2550,7 @@ function isWindowsAppPlatform(): boolean {
       .trim()
       .toLowerCase();
     if (platform) return platform === "win32";
-  } catch {
-    // ignore
-  }
+  } catch { }
 
   try {
     return /windows/i.test(String(navigator.userAgent || ""));
@@ -3446,12 +3442,10 @@ onMounted(async () => {
   } catch {}
 
   try {
-    if (typeof gateway_lumen_api?.onIngestProgress === "function") {
       gatewayIngestProgressUnsub = lumen_api.gateway.onIngestProgress((payload: any) => {
         if (!uploading.value) return;
 
       });
-    }
   } catch {}
 
   try {
@@ -3792,7 +3786,7 @@ function closeGatewayDetails() {
 
 async function getActiveProfileId(): Promise<string | null> {
   try {
-    const profileId = await profiles_lumen_api.getActive()?.id;
+    const profileId = await profiles_lumen_api.getActive().id;
     return profileId ? String(profileId || "").trim() : null;
   } catch {
     return null;
@@ -4203,7 +4197,7 @@ async function loadSubscribeBalance() {
   try {
     const walletApi = lumen_api?.wallet;
     if (!walletApi) return;
-    const active = await profiles_lumen_api.getActive?.().catch(() => null);
+    const active = await profiles_lumen_api.getActive().catch(() => null);
     const address = active?.walletAddress || active?.address;
     if (!address) return;
     const res = await walletApi.getBalance(address).catch(() => null);
@@ -4475,34 +4469,6 @@ function loadFiles() {
     const stored = localStorage.getItem(key);
     const storedParsed = stored ? JSON.parse(stored) : null;
     const storedFiles = Array.isArray(storedParsed) ? (storedParsed as DriveFile[]) : [];
-
-    // One-shot migrate legacy global key to per-profile storage, then delete legacy.
-    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (legacy) {
-      const legacyParsed = JSON.parse(legacy);
-      const legacyFiles = Array.isArray(legacyParsed) ? (legacyParsed as DriveFile[]) : [];
-      const byCid = new Map<string, DriveFile>();
-
-      // Prefer the current per-profile entries over legacy for conflicts.
-      for (const f of legacyFiles) {
-        const cid = String((f as any)?.cid || "").trim();
-        if (!cid) continue;
-        byCid.set(cid, f);
-      }
-      for (const f of storedFiles) {
-        const cid = String((f as any)?.cid || "").trim();
-        if (!cid) continue;
-        byCid.set(cid, f);
-      }
-
-      files.value = Array.from(byCid.values());
-      try {
-        localStorage.setItem(key, JSON.stringify(files.value));
-        localStorage.removeItem(LEGACY_STORAGE_KEY);
-      } catch {}
-      return;
-    }
-
     files.value = storedFiles;
   } catch {
     files.value = [];
@@ -6204,10 +6170,6 @@ async function handleEntryClick(file: DriveFile) {
   selectedFile.value = { ...file, type: "file" };
 }
 
-function selectFile(file: DriveFile) {
-  void handleEntryClick(file);
-}
-
 function isLocalFileSelected(file: DriveFile | null | undefined): boolean {
   const cid = normalizeCidKey(file?.cid || "");
   if (!cid) return false;
@@ -6449,11 +6411,6 @@ async function saveSelectedName() {
 
   if (hosting.value.kind === "gateway") {
     try {
-      if (typeof gateway_lumen_api.renameCid !== "function") {
-        showToast("Gateway rename unavailable", "error");
-        return;
-      }
-
       const profileId = await getActiveProfileId();
       if (!profileId) {
         showToast("No active profile", "error");

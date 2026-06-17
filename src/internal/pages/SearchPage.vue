@@ -2810,9 +2810,7 @@ type GatewaySearchResult = {
 };
 
 async function getActiveProfileId(): Promise<string | null> {
-  const profilesApi = (window as any).lumen?.profiles;
-  if (!profilesApi || typeof profilesApi.getActive !== "function") return null;
-  const active = await profilesApi.getActive().catch(() => null);
+  const active = await (window as any).lumen?.profiles.getActive().catch(() => null);
   const id = String(active?.id || "").trim();
   return id || null;
 }
