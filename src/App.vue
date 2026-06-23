@@ -84,8 +84,8 @@ onMounted(async () => {
     if(code) {
       fatalError.value = new Error(
         FATAL_ERROR_MAP[code] ?
-        FATAL_ERROR_MAP[code] + `\n\nGet help on the Lumen community website (https://lumen-network.org/community/) or contact us at contact@lumen-network.org`
-        : code+ `\n\nGet help on the Lumen community website (https://lumen-network.org/community/) or contact us at contact@lumen-network.org`
+        FATAL_ERROR_MAP[code] + `\n\nGet help on the Lumen community website (https://lumen-browser.com/community/) or contact us at contact@lumen-browser.com`
+        : code+ `\n\nGet help on the Lumen community website (https://lumen-browser.com/community/) or contact us at contact@lumen-browser.com`
       );
     }
   }

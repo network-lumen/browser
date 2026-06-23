@@ -1173,9 +1173,9 @@
           <p class="description">The Decentralized Internet Stack</p>
           <div class="about-links">
             <a
-              href="https://lumen-network.org/"
+              href="https://lumen-browser.com/"
               class="about-link"
-              @click.prevent="openInNewTabSafe('https://lumen-network.org/')"
+              @click.prevent="openInNewTabSafe('https://lumen-browser.com/')"
               >Website</a
             >
             <a

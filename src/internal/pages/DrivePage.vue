@@ -798,7 +798,7 @@
           {{
             isBrowsing
               ? "This folder has no entries."
-              : "Drag and drop files or click Upload to add files"
+              : "Click Upload to add files"
           }}
         </p>
         <button
@@ -922,7 +922,7 @@
       </div>
     </Transition>
 
-    <!-- Drop Overlay -->
+    <!-- Drop Overlay
     <div v-if="isDragging" class="drop-overlay">
       <div class="drop-content">
         <Upload :size="48" />
@@ -930,7 +930,7 @@
           Drop files to upload
         </p>
       </div>
-    </div>
+    </div> -->
 
     <!-- Upload Path Modal (fallback for environments without a working file picker) -->
     <Transition name="modal">
@@ -2228,17 +2228,17 @@ const TEMP_LIGHT_MODE_IPFS_READY_POLL_MS = 400;
 
 function filesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${STORAGE_KEY_PREFIX}:${pid}` : "";
+  return pid ? `${STORAGE_KEY_PREFIX}:${pid}` : `${STORAGE_KEY_PREFIX}:guest`;
 }
 
 function localNamesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${LOCAL_NAMES_KEY_PREFIX}:${pid}` : "";
+  return pid ? `${LOCAL_NAMES_KEY_PREFIX}:${pid}` : `${LOCAL_NAMES_KEY_PREFIX}:guest`;
 }
 
 function hlsQueueStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${HLS_QUEUE_KEY_PREFIX}:${pid}` : "";
+  return pid ? `${HLS_QUEUE_KEY_PREFIX}:${pid}` : `${HLS_QUEUE_KEY_PREFIX}:guest`;
 }
 const localNames = ref<Record<string, string>>({});
 const renameDraft = ref("");
@@ -2250,7 +2250,6 @@ const videoThumbReady = ref<Record<string, true>>({});
 // Gateway / PQC usage (DrivePanel-style)
 const gatewayUsage = ref<any | null>(null);
 const gatewayUsageError = ref("");
-const gatewayUsageLoading = ref(false);
 const gatewayDetailsLoading = ref(false);
 const gatewayPinned = ref<string[]>([]);
 const gatewayPinnedNames = ref<Record<string, string>>({});
@@ -3629,99 +3628,7 @@ function closeUploadPathModal() {
 
 
 async function handleDrop(e: DragEvent) {
-  e.preventDefault();
-  isDragging.value = false;
 
-  if (!ipfsConnected.value) {
-    showToast("IPFS not connected", "error");
-    return;
-  }
-
-  const dt = e.dataTransfer;
-  if (!dt) return;
-
-  const items = Array.from(dt.items || []);
-  const supportsEntries = items.some(
-    (it: any) => typeof it?.webkitGetAsEntry === "function",
-  );
-
-  if (supportsEntries) {
-    const rootFiles: File[] = [];
-    const folderGroups = new Map<string, { path: string; file: File }[]>();
-
-    async function readAllDirEntries(dirEntry: any): Promise<any[]> {
-      const reader = dirEntry.createReader();
-      const out: any[] = [];
-      while (true) {
-        const batch: any[] = await new Promise((resolve) =>
-          reader.readEntries(resolve),
-        );
-        if (!batch || batch.length === 0) break;
-        out.push(...batch);
-      }
-      return out;
-    }
-
-    async function collectEntryFiles(
-      entry: any,
-      basePath: string,
-    ): Promise<{ path: string; file: File }[]> {
-      if (!entry) return [];
-      if (entry.isFile) {
-        const f: File = await new Promise((resolve, reject) =>
-          entry.file(resolve, reject),
-        );
-        const name = String(f?.name || entry.name || "file");
-        const path = basePath ? `${basePath}/${name}` : name;
-        return [{ path, file: f }];
-      }
-      if (entry.isDirectory) {
-        const dirName = String(entry.name || "").trim();
-        const nextBase = basePath ? `${basePath}/${dirName}` : dirName;
-        const children = await readAllDirEntries(entry);
-        const all: { path: string; file: File }[] = [];
-        for (const c of children) {
-          all.push(...(await collectEntryFiles(c, nextBase)));
-        }
-        return all;
-      }
-      return [];
-    }
-
-    for (const it of items) {
-      const entry = (it as any)?.webkitGetAsEntry?.();
-      if (!entry) continue;
-      if (entry.isFile) {
-        const f = it.getAsFile();
-        if (f) rootFiles.push(f);
-        continue;
-      }
-      if (entry.isDirectory) {
-        const rootName = String(entry.name || "folder");
-        const all = await collectEntryFiles(entry, "");
-        const normalized = all
-          .map(({ path, file }) => ({
-            path: String(path).replace(/\\/g, "/").replace(/^\/+/, ""),
-            file,
-          }))
-          .filter((x) => x.path && x.file);
-        folderGroups.set(rootName, normalized);
-      }
-    }
-
-    await withTemporaryLocalUploadLightMode(async () => {
-
-
-    });
-    return;
-  }
-
-  const droppedFiles = dt.files;
-  if (droppedFiles?.length) {
-    await withTemporaryLocalUploadLightMode(async () => {
-
-    });
-  }
 }
 
 async function checkIpfsStatus() {
@@ -4484,8 +4391,9 @@ function saveFiles() {
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(files.value));
     nextDriveBackupSeq(pid);
-  } catch {
+  } catch (err){
     // ignore
+    console.log("Ici:", err)
   }
 }
 
@@ -4582,17 +4490,17 @@ const DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastImportAt:v
 
 function driveBackupSeqKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : "";
+  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
 }
 
 function driveBackupLastExportAtKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}` : "";
+  return pid ? `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
 }
 
 function driveBackupLastImportAtKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}` : "";
+  return pid ? `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
 }
 
 function activeWalletAddress(): string {
