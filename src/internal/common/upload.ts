@@ -33,6 +33,13 @@ type UploadPathResult =
 
 let files = [] as DriveFile[];
 
+function loadFiles() {
+    const pid = String(activeProfileId.value || "").trim();
+    const key = `${STORAGE_KEY_PREFIX}:${pid}`;
+    const stored = localStorage.getItem(key);
+    files = stored ? JSON.parse(stored) : [];
+}
+
 api.ipfsOnAddProgress((p: any) => {
   /* Example progress payload:
         {
@@ -96,12 +103,15 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const result = fileType == "dir" 
             ? await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name, uploadId }, { signal: controller.signal })
             : await api.ipfsAddPathWithProgress({ filePath: dirPath, filename: name, uploadId }, { signal: controller.signal });
+        console.log(JSON.stringify(result))
         if(!result.ok && result.error === "cancelled")
             throw new Error("Upload cancelled");
-        if(!result.ok && result.error)
-            throw new Error(result.error)
         if (!result?.cid)
             throw new Error("Failed to add " + fileType + " to IPFS");
+        if (result?.cid && String(result.error || "").includes("closed network connection"))
+            console.warn("Kubo stream closed but CID exists → treating as success");
+        else if(!result.ok && result.error)
+            throw new Error(result.error)
 
         const cid = String(result.cid);
         const totalBytes = Number(result?.totalBytes || 0) || 0;
@@ -119,6 +129,8 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
           throw new Error("No active profile found");
         const key = `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
         localStorage.setItem(key, JSON.stringify(localNames));
+
+        loadFiles()
 
         const filtered = files.filter(
           (f) => String(f?.cid || "").trim() !== cid,
