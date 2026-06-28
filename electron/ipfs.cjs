@@ -24,7 +24,7 @@ const publicIpfsGatewayOfflineUntil = new Map();
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
 const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
 const DEFAULT_IPFS_CONNECTIVITY_MODE = 'normal';
-const DEFAULT_IPFS_PIN_ADD_TIMEOUT_MS = 30 * 60 * 1000;
+const DEFAULT_IPFS_PIN_ADD_TIMEOUT_MS = 3 * 60 * 60 * 1000;
 const DEFAULT_IPFS_PIN_RETRY_BASE_MS = 5_000;
 const DEFAULT_IPFS_PIN_MAX_RETRIES = 8;
 const IPFS_PIN_JOBS_FILE = 'ipfs_pin_jobs.json';
@@ -2562,270 +2562,157 @@ async function ipfsAddDirectoryFromPath(payload) {
 
 async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
   const signal = opts?.signal;
+  let rootCid = null;
+
+  const log = (...a) => console.log('[ipfs:debug]', ...a);
+  const logErr = (...a) => console.error('[ipfs:debug][stderr]', ...a);
 
   try {
-    const rootPath = String(payload?.rootPath ?? payload?.path ?? '').trim();
+    log('START upload (directory)');
 
-    if (!rootPath) {
-      return { ok: false, error: 'missing_path' };
-    }
+    const rootPath = String(payload?.rootPath ?? payload?.path ?? '').trim();
+    if (!rootPath) return { ok: false, error: 'missing_path' };
 
     const st = await fs.promises.stat(rootPath).catch(() => null);
+    if (!st || !st.isDirectory()) return { ok: false, error: 'not_directory' };
 
-    if (!st || !st.isDirectory()) {
-      return { ok: false, error: 'not_directory' };
-    }
+    const rootName = String(payload?.rootName ?? path.basename(rootPath) ?? '').trim() || 'folder';
 
-    const rootNameRaw = String(
-      payload?.rootName ?? path.basename(rootPath) ?? '',
-    ).trim();
-
-    const rootName =
-      rootNameRaw.replace(/\\/g, '/').split('/').filter(Boolean)[0] ||
-      'folder';
-
-    // ---------------------------------------------------
-    // calc total size
-    // ---------------------------------------------------
-
-    let totalBytes = 0;
-    let totalFiles = 0;
-
+    // Scan
+    log('START scan FS');
+    let totalBytes = 0, totalFiles = 0;
     const stack = [''];
 
     while (stack.length) {
-      if (signal?.aborted) {
-        throw new Error('cancelled');
-      }
-
+      if (signal?.aborted) throw new Error('cancelled');
       const relDir = stack.pop();
+      const absDir = relDir ? path.join(rootPath, relDir) : rootPath;
 
-      const absDir = relDir
-        ? path.join(rootPath, relDir)
-        : rootPath;
-
-      const ents = await fs.promises
-        .readdir(absDir, { withFileTypes: true })
-        .catch(() => []);
+      const ents = await fs.promises.readdir(absDir, { withFileTypes: true }).catch(() => []);
 
       for (const ent of ents) {
-        const rel = relDir
-          ? path.join(relDir, ent.name)
-          : ent.name;
-
-        const abs = path.join(rootPath, rel);
-
         if (ent.isDirectory()) {
-          stack.push(rel);
+          stack.push(relDir ? path.join(relDir, ent.name) : ent.name);
           continue;
         }
-
         if (!ent.isFile()) continue;
 
-        const fst = await fs.promises.stat(abs).catch(() => null);
-
-        if (!fst) continue;
-
-        totalBytes += Number(fst.size || 0);
-        totalFiles++;
+        const fst = await fs.promises.stat(path.join(rootPath, relDir || '', ent.name)).catch(() => null);
+        if (fst) {
+          totalBytes += Number(fst.size || 0);
+          totalFiles++;
+        }
       }
     }
 
-    if (!totalFiles) {
-      return { ok: false, error: 'no_files' };
-    }
+    log('SCAN DONE', { totalBytes: (totalBytes / 1073741824).toFixed(2) + ' GiB', totalFiles });
 
-    // ---------------------------------------------------
-    // spawn kubo
-    // ---------------------------------------------------
+    if (!totalFiles) return { ok: false, error: 'no_files' };
 
+    // Stop daemon
     const ipfsBin = resolveKuboBin();
     const repoPath = getIpfsRepoPath();
 
+    log('REPO PATH:', repoPath);
+    await fs.promises.unlink(path.join(repoPath, 'api')).catch(() => {});
+    await fs.promises.unlink(path.join(repoPath, 'repo.lock')).catch(() => {});
+
+    log('Arrêt du daemon...');
+    if (process.platform === 'win32') {
+      spawnSync('taskkill', ['/im', 'ipfs.exe', '/f']);
+      spawnSync('taskkill', ['/im', 'kubo.exe', '/f']);
+    } else {
+      spawnSync('pkill', ['-f', 'ipfs']);
+      spawnSync('pkill', ['-f', 'kubo']);
+    }
+    await new Promise(r => setTimeout(r, 2200));
+
     const args = [
-      'add',
-      '-r',
+      'add', '-r',
       '--progress',
       '--cid-version=1',
+      '--offline',
       '--quieter',
-      rootPath,
+      '--raw-leaves',
+      rootPath
     ];
-
-    console.log(
-      '[electron][ipfs] spawn:',
-      ipfsBin,
-      args.join(' '),
-    );
 
     const proc = spawn(ipfsBin, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
-      env: {
-        ...process.env,
-        IPFS_PATH: repoPath,
-        IPFS_ALLOW_BIG_BLOCK: '1'
-      }
+      env: { ...process.env, IPFS_PATH: repoPath, IPFS_ALLOW_BIG_BLOCK: '1' }
     });
 
     let stdoutBuffer = '';
     let stderrBuffer = '';
-
-    let uploadedBytes = 0;
-    let percent = 0;
-
-    let rootCid = null;
-
     const startedAt = Date.now();
 
-    // ---------------------------------------------------
-    // cancellation
-    // ---------------------------------------------------
-
-    const onAbort = async () => {
-      try {
-        console.log('[electron][ipfs] abort requested');
-
-        // Windows
-        if (process.platform === 'win32') {
-          spawn('taskkill', [
-            '/pid',
-            String(proc.pid),
-            '/f',
-            '/t',
-          ]);
-        } else {
-          // Linux/macOS
-          proc.kill('SIGTERM');
-
-          // fallback hard kill
-          setTimeout(() => {
-            try {
-              proc.kill('SIGKILL');
-            } catch {}
-          }, 2000);
-        }
-      } catch (e) {
-        console.error('[electron][ipfs] abort error:', e);
-      }
+    const onAbort = () => {
+      log('ABORT REQUESTED');
+      if (process.platform === 'win32') spawn('taskkill', ['/pid', String(proc.pid), '/f', '/t']);
+      else { proc.kill('SIGTERM'); setTimeout(() => proc.kill('SIGKILL'), 2000); }
     };
-
     signal?.addEventListener?.('abort', onAbort);
 
-    // ---------------------------------------------------
-    // stdout = final cid(s)
-    // ---------------------------------------------------
-
     proc.stdout.on('data', chunk => {
-      stdoutBuffer += String(chunk || '');
+      const str = String(chunk);
+      stdoutBuffer += str;
+      const match = str.match(/(bafy[a-z2-7]{50,})/);
+      if (match) rootCid = match[1];
     });
-
-    // ---------------------------------------------------
-    // stderr = live progress
-    // kubo updates with \r not \n
-    // ---------------------------------------------------
 
     proc.stderr.on('data', chunk => {
-      stderrBuffer += String(chunk || '');
+      const str = String(chunk);
+      stderrBuffer += str;
+      if (stderrBuffer.length > 400000) stderrBuffer = stderrBuffer.slice(-150000);
 
-      const parts = stderrBuffer.split('\r');
-
-      stderrBuffer = parts.pop() || '';
-
-      for (const raw of parts) {
+      const lines = str.split(/\r?\n|\r/);
+      for (const raw of lines) {
         const line = raw.trim();
-
         if (!line) continue;
 
-        // example:
-        // 553.00 MiB / 4.46 GiB   12.10% 00m25s
+        if (line.includes('being used by another process') || line.includes('cannot access the file')) {
+          log('Fichier verrouillé ignoré:', line);
+          continue;
+        }
 
-        const match = line.match(
-          /([\d.]+)\s*(B|KiB|MiB|GiB)\s*\/\s*([\d.]+)\s*(B|KiB|MiB|GiB)\s+([\d.]+)%/i,
-        );
-
-        if (!match) continue;
-
-        uploadedBytes = parseSizeToBytes(
-          Number(match[1]),
-          match[2],
-        );
-
-        const totalFromKubo = parseSizeToBytes(
-          Number(match[3]),
-          match[4],
-        );
-
-        percent = Number(match[5] || 0);
-
-        opts?.onProgress?.({
-          phase: 'upload',
-          uploadedBytes,
-          totalBytes: totalFromKubo || totalBytes,
-          percent,
-          fileCount: totalFiles,
-          elapsedMs: Date.now() - startedAt,
-        });
+        const match = line.match(/([\d.]+)\s*(B|KiB|MiB|GiB)\s*\/\s*([\d.]+)\s*(B|KiB|MiB|GiB)\s+([\d.]+)%/i);
+        if (match) {
+          const uploaded = parseSizeToBytes(Number(match[1]), match[2]);
+          const percent = Number(match[5] || 0);
+          opts?.onProgress?.({
+            phase: 'upload',
+            uploadedBytes: uploaded,
+            totalBytes,
+            percent,
+            fileCount: totalFiles,
+            elapsedMs: Date.now() - startedAt
+          });
+        }
       }
     });
-
-    // ---------------------------------------------------
-    // wait process end
-    // ---------------------------------------------------
 
     const exitCode = await new Promise((resolve, reject) => {
       proc.once('error', reject);
-
-      proc.once('close', code => {
-        resolve(code);
-      });
+      proc.once('close', code => resolve(code));
     });
 
     signal?.removeEventListener?.('abort', onAbort);
 
-    // ---------------------------------------------------
-    // cancelled
-    // ---------------------------------------------------
+    if (signal?.aborted) return { ok: false, error: 'cancelled' };
 
-    if (signal?.aborted) {
-      return { ok: false, error: 'cancelled' };
+    // On tolère une sortie non-zero si on a déjà un CID (fichiers verrouillés à la fin)
+    if (exitCode !== 0 && !rootCid) {
+      log('NON ZERO EXIT - last stderr:', stderrBuffer.slice(-3000));
+      return { ok: false, error: 'ipfs_add_failed' };
     }
 
-    // ---------------------------------------------------
-    // non-zero exit
-    // ---------------------------------------------------
+    // CID final
+    await new Promise(r => setTimeout(r, 800));
+    const cidMatch = stdoutBuffer.match(/(bafy[a-z2-7]{50,})/g);
+    rootCid = cidMatch?.at(-1) || rootCid;
 
-    if (Number(exitCode) !== 0) {
-      return {
-        ok: false,
-        error:
-          stderrBuffer?.trim() ||
-          `ipfs_add_exit_${exitCode}`,
-      };
-    }
-
-    // ---------------------------------------------------
-    // parse root cid from stdout
-    // with --quieter:
-    // last line = root cid
-    // ---------------------------------------------------
-
-    const stdoutLines = stdoutBuffer
-      .split(/\r?\n/)
-      .map(v => String(v || '').trim())
-      .filter(Boolean);
-
-    rootCid = stdoutLines.at(-1) || null;
-
-    if (!rootCid) {
-      return {
-        ok: false,
-        error: 'missing_root_cid',
-      };
-    }
-
-    // ---------------------------------------------------
-    // final progress event
-    // ---------------------------------------------------
+    if (!rootCid) return { ok: false, error: 'missing_root_cid' };
 
     opts?.onProgress?.({
       phase: 'done',
@@ -2836,6 +2723,10 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
       elapsedMs: Date.now() - startedAt,
     });
 
+    log('SUCCESS → CID:', rootCid);
+
+    startIpfsDaemon();
+
     return {
       ok: true,
       cid: rootCid,
@@ -2843,28 +2734,13 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
       rootPath,
       rootName,
       totalBytes,
-      uploadedBytes: totalBytes,
-      fileCount: totalFiles,
-      percent: 100,
-      elapsedMs: Date.now() - startedAt,
+      fileCount: totalFiles
     };
+
   } catch (e) {
-    if (signal?.aborted || toSafeAbortError?.(e)) {
-      return {
-        ok: false,
-        error: 'cancelled',
-      };
-    }
-
-    console.error(
-      '[electron][ipfs] add directory error:',
-      e,
-    );
-
-    return {
-      ok: false,
-      error: String(e?.message || e),
-    };
+    logErr('FATAL ERROR:', e);
+    startIpfsDaemon();
+    return { ok: false, error: String(e?.message || e) };
   }
 }
 

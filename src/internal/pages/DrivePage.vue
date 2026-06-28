@@ -4393,7 +4393,6 @@ function saveFiles() {
     nextDriveBackupSeq(pid);
   } catch (err){
     // ignore
-    console.log("Ici:", err)
   }
 }
 
@@ -5034,30 +5033,6 @@ function setSavedName(cid: string, name: string) {
   saveLocalNames();
 }
 
-
-
-async function propagateLocalCidToPublicGateways(
-  cid: string,
-): Promise<any> {
-
-
-
-  try {
-
-
-
-  } catch (err: any) {
-    const msg = String(err?.message || err || "public_propagation_failed");
-    const lower = msg.toLowerCase();
-    return {
-      ok: false,
-      cancelled: lower.includes("cancel") || lower.includes("abort"),
-      error: msg,
-      failed: publicGatewayPropagationFailed.value,
-      skippedOffline: publicGatewayPropagationSkippedOffline.value,
-    };
-  }
-}
 
 function delay(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
