@@ -116,8 +116,9 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const cid = String(result.cid);
         const totalBytes = Number(result?.totalBytes || 0) || 0;
 
+
         try {
-            await api.ipfsPropagateCidToPublicGateways({ cid });
+            api.ipfsPropagateCidToPublicGateways({ cid });
         } catch (err) {
             console.error("Failed to propagate CID to public gateways:", err);
         }
@@ -130,7 +131,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const key = `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
         localStorage.setItem(key, JSON.stringify(localNames));
 
-        loadFiles()
+
 
         const filtered = files.filter(
           (f) => String(f?.cid || "").trim() !== cid,
@@ -144,6 +145,9 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         };
         files = [dirFile, ...filtered];
         localStorage.setItem(`${STORAGE_KEY_PREFIX}:${pid}`, JSON.stringify(files));
+                setTimeout(() => {
+            loadFiles()
+        }, 0);
         return { ok: true, cid, rootName: name, rootPath, totalBytes };
     } catch (err: any) {
         console.error(err);
