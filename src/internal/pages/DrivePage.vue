@@ -3608,12 +3608,19 @@ async function openFolderPicker() {
 }
 
 const uploadActivitiesComputed = ref<any>();
+let counter = 0;
 setInterval(() => {
     uploadActivitiesComputed.value = {...uploadActivities};
-    if(Object.keys(uploadActivitiesComputed.value).length <= 0) {
+
+    if(counter != Object.keys(uploadActivitiesComputed.value).length)
       loadFiles();
+
+
+    if(Object.keys(uploadActivitiesComputed.value).length <= 0) {
       uploading.value = false;
     }
+    counter = Object.keys(uploadActivitiesComputed.value).length
+
 }, 500);
 
 
@@ -6668,12 +6675,6 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }
 
-function formatUploadLimitLabel(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "—";
-  const gb = bytes / (1024 * 1024 * 1024);
-  return Number.isInteger(gb) ? `${gb} GB` : `${gb.toFixed(1)} GB`;
-}
-
 function formatDate(ts: number): string {
   return new Date(ts).toLocaleDateString("en-US", {
     month: "short",
@@ -6699,12 +6700,6 @@ function compactError(err: string, maxLen = 120) {
   if (!clean) return "";
   if (clean.length <= maxLen) return clean;
   return clean.slice(0, Math.max(0, maxLen - 1)) + "…";
-}
-
-function basenameFromPath(p: string) {
-  const s = String(p || "").replace(/\\/g, "/").trim();
-  const parts = s.split("/").filter(Boolean);
-  return parts[parts.length - 1] || s;
 }
 
 async function reloadForActiveProfileChange() {
