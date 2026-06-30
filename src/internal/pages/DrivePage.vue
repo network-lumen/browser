@@ -5784,11 +5784,12 @@ function lumenLinkFor(file: DriveFile): string {
   return `lumen://ipfs/${encoded}${isDir ? "/" : ""}`;
 }
 
+
 async function copyText(text: string) {
   try {
-    await navigator.clipboard.writeText(text);
-  } catch {
-    // ignore
+    lumen_api.clipboardWriteText(text);
+  } catch(err) {
+    console.error(err)
   }
 }
 
