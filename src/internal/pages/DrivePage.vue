@@ -3611,16 +3611,11 @@ const uploadActivitiesComputed = ref<any>();
 let counter = 0;
 setInterval(() => {
     uploadActivitiesComputed.value = {...uploadActivities};
-
     if(counter != Object.keys(uploadActivitiesComputed.value).length)
       loadFiles();
-
-
-    if(Object.keys(uploadActivitiesComputed.value).length <= 0) {
+    if(Object.keys(uploadActivitiesComputed.value).length <= 0)
       uploading.value = false;
-    }
     counter = Object.keys(uploadActivitiesComputed.value).length
-
 }, 500);
 
 
