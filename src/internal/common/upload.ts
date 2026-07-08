@@ -116,13 +116,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const cid = String(result.cid);
         const totalBytes = Number(result?.totalBytes || 0) || 0;
 
-
-        try {
-            api.ipfsPropagateCidToPublicGateways({ cid });
-        } catch (err) {
-            console.error("Failed to propagate CID to public gateways:", err);
-        }
-
+        api.ipfsPropagateCidToPublicGateways({ cid });
         localNames[cid] = name;
 
         const pid = String(activeProfileId.value || "").trim();
@@ -130,8 +124,6 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
           throw new Error("No active profile found");
         const key = `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
         localStorage.setItem(key, JSON.stringify(localNames));
-
-
 
         const filtered = files.filter(
           (f) => String(f?.cid || "").trim() !== cid,
@@ -153,7 +145,10 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         console.error(err);
         return { ok: false, error: String(err?.message || err || "Failed to upload"), rootName: name, rootPath };
     } finally {
-        delete uploadActivities[dirPath];
+        setTimeout(() => {
+            delete uploadActivities[dirPath];
+        }, 1000)
+        
     }
 }
 

@@ -995,7 +995,7 @@ function ensureIpfsRepo(bin) {
   return repoPath;
 }
 
-function startIpfsDaemon() {
+function startIpfsDaemon(cb) {
   if (ipfsProcess) return;
   const bin = resolveKuboBin();
   console.log('[electron][ipfs] using binary:', bin);
@@ -1028,6 +1028,7 @@ function startIpfsDaemon() {
         .split(/\r?\n/)
         .filter(Boolean)
         .forEach((line) => console.log('[electron][ipfs][stdout]', line));
+      if(cb && typeof cb == "function") cb()
     });
     ipfsProcess.stderr?.on('data', (d) => {
       String(d)
@@ -1455,10 +1456,15 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
     10_000,
     30_000,
   );
+
   const sourceUrl =
     String(input?.sourceUrl || publicIpfsGatewaysCache.sourceUrl || PUBLIC_IPFS_GATEWAYS_SOURCE_URL).trim() ||
     PUBLIC_IPFS_GATEWAYS_SOURCE_URL;
+
   const gatewayPath = normalizePublicGatewayPath(cidOrPath);
+
+  console.log(`[IPFS] Start propagation for CID=${cidOrPath}`);
+  console.log(`[IPFS] Gateway path=${gatewayPath}`);
 
   emitPublicGatewayProgress(onProgress, {
     stage: 'fetching-list',
@@ -1477,7 +1483,10 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
     timeoutMs: sourceTimeoutMs,
     signal,
   });
+
   if (!gatewaysRes?.ok) {
+    console.error(`[IPFS] Failed to load gateways list: ${gatewaysRes?.error}`);
+
     return {
       ok: false,
       error: String(gatewaysRes?.error || 'public_gateway_list_failed'),
@@ -1493,7 +1502,11 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
   }
 
   const gateways = Array.isArray(gatewaysRes.gateways) ? gatewaysRes.gateways : [];
+  console.log(`[IPFS] Loaded ${gateways.length} gateways`);
+
   if (!gateways.length) {
+    console.warn(`[IPFS] No public gateways available`);
+
     return {
       ok: false,
       error: 'no_public_gateways',
@@ -1530,8 +1543,16 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
       });
 
       probeCompleted += 1;
-      if (res.ok) alive += 1;
-      else if (res.skipped || res.cachedOffline) skippedOffline += 1;
+
+      if (res.ok) {
+        alive += 1;
+        console.log(`[IPFS] ✓ gateway alive: ${gateway}`);
+      } else if (res.skipped || res.cachedOffline) {
+        skippedOffline += 1;
+        console.warn(`[IPFS] - gateway skipped/offline: ${gateway}`);
+      } else {
+        console.warn(`[IPFS] ✗ gateway failed: ${gateway} status=${res.status}`);
+      }
 
       emitPublicGatewayProgress(onProgress, {
         stage: signal?.aborted ? 'cancelled' : 'probing',
@@ -1551,7 +1572,11 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
     }),
   );
 
+  console.log(`[IPFS] Probe done: ${alive}/${gateways.length} alive`);
+
   if (signal?.aborted) {
+    console.warn(`[IPFS] Cancelled during probing`);
+
     emitPublicGatewayProgress(onProgress, {
       stage: 'cancelled',
       cid: cidOrPath,
@@ -1563,6 +1588,7 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
       timedOut: 0,
       skippedOffline,
     });
+
     return {
       ok: false,
       error: 'cancelled',
@@ -1579,9 +1605,16 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
     };
   }
 
-  const aliveGateways = probeResults.filter((r) => r && r.ok).map((r) => String(r.gateway || '').trim()).filter(Boolean);
+  const aliveGateways = probeResults
+    .filter((r) => r && r.ok)
+    .map((r) => String(r.gateway || '').trim())
+    .filter(Boolean);
+
+  console.log(`[IPFS] Alive gateways: ${aliveGateways.length}`);
 
   if (!aliveGateways.length) {
+    console.warn(`[IPFS] No alive gateways after probing`);
+
     emitPublicGatewayProgress(onProgress, {
       stage: 'done',
       cid: cidOrPath,
@@ -1593,6 +1626,7 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
       timedOut: 0,
       skippedOffline,
     });
+
     return {
       ok: true,
       cid: cidOrPath,
@@ -1615,6 +1649,8 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
   let failed = 0;
   let timedOut = 0;
 
+  console.log(`[IPFS] Starting propagation to ${aliveGateways.length} gateways`);
+
   emitPublicGatewayProgress(onProgress, {
     stage: 'propagating',
     cid: cidOrPath,
@@ -1635,10 +1671,18 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
       });
 
       completed += 1;
-      if (res.ok) succeeded += 1;
-      else {
+
+      if (res.ok) {
+        succeeded += 1;
+        console.log(`[IPFS] ✓ propagated to ${gateway}`);
+      } else {
         failed += 1;
-        if (res.timeout) timedOut += 1;
+        if (res.timeout) {
+          timedOut += 1;
+          console.warn(`[IPFS] ⏱ timeout ${gateway}`);
+        } else {
+          console.warn(`[IPFS] ✗ failed ${gateway} status=${res.status}`);
+        }
       }
 
       emitPublicGatewayProgress(onProgress, {
@@ -1659,7 +1703,13 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
     }),
   );
 
+  console.log(
+    `[IPFS] Propagation done: ${succeeded}/${aliveGateways.length} succeeded, ${failed} failed`
+  );
+
   if (signal?.aborted) {
+    console.warn(`[IPFS] Cancelled during propagation`);
+
     emitPublicGatewayProgress(onProgress, {
       stage: 'cancelled',
       cid: cidOrPath,
@@ -1671,6 +1721,7 @@ async function ipfsPropagateCidToPublicGateways(input = {}, opts = {}) {
       timedOut,
       skippedOffline,
     });
+
     return {
       ok: false,
       error: 'cancelled',
@@ -2291,6 +2342,20 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
       cid,
     );
 
+      spawn(ipfsBin, [
+        'routing',
+        'provide',
+        rootCid,
+      ], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+        env: {
+          ...process.env,
+          IPFS_PATH: repoPath,
+          IPFS_ALLOW_BIG_BLOCK: '1',
+        },
+      });
+
     return {
       ok: true,
       cid,
@@ -2725,7 +2790,25 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
 
     log('SUCCESS → CID:', rootCid);
 
-    startIpfsDaemon();
+
+    startIpfsDaemon(() => {
+      spawn(ipfsBin, [
+        'routing',
+        'provide',
+        rootCid,
+      ], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+        env: {
+          ...process.env,
+          IPFS_PATH: repoPath,
+          IPFS_ALLOW_BIG_BLOCK: '1',
+        },
+      });
+    });
+
+
+    
 
     return {
       ok: true,
