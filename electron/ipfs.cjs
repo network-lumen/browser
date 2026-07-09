@@ -2345,7 +2345,7 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
       spawn(ipfsBin, [
         'routing',
         'provide',
-        rootCid,
+        cid,
       ], {
         stdio: ['ignore', 'pipe', 'pipe'],
         windowsHide: true,

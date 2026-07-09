@@ -101,25 +101,7 @@
         </div>
 
         <div class="header-actions">
-          <!-- View Switcher -->
-          <div class="view-switcher">
-            <button
-              class="view-btn"
-              :class="{ active: viewMode === 'grid' }"
-              @click="viewMode = 'grid'"
-              title="Grid View"
-            >
-              <LayoutGrid :size="18" />
-            </button>
-            <button
-              class="view-btn"
-              :class="{ active: viewMode === 'list' }"
-              @click="viewMode = 'list'"
-              title="List View"
-            >
-              <List :size="18" />
-            </button>
-          </div>
+
 
           <button class="plans-btn" type="button" @click="openPlansModal">
             <Database :size="16" />
@@ -466,136 +448,10 @@
         <div class="drive-spinner" aria-busy="true"></div>
       </div>
 
-      <!-- Files Grid View -->
-      <div
-        v-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 && viewMode === 'grid'"
-        class="files-grid"
-      >
-        <div
-          v-for="file in displayFiles"
-          :key="file.cid"
-          class="file-card"
-          @click="handleEntryClick(file)"
-          :class="{
-            selected: selectedFile?.cid === file.cid,
-            checked: isLocalFileSelected(file),
-          }"
-        >
-          <label v-if="canUseLocalMultiSelect" class="bulk-checkbox file-select-toggle" @click.stop>
-            <input
-              type="checkbox"
-              :checked="isLocalFileSelected(file)"
-              @change.stop="handleLocalFileSelectionChange(file, $event)"
-            />
-            <span></span>
-          </label>
-          <div class="file-preview" :class="getFileTypeClass(file)">
-            <!-- Show actual image preview -->
-            <img
-              v-if="isImageFile(file.name)"
-              :src="getImageSrc(file)"
-              :alt="file.name"
-              class="preview-image"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-              @error="() => onImageError(file)"
-            />
-            <!-- Show video preview -->
-            <video
-              v-else-if="isVideoFile(file.name)"
-              :src="getGatewayUrl(contentTargetFor(file))"
-              class="preview-video"
-              :poster="videoPosterFor(file)"
-              preload="metadata"
-              muted
-              playsinline
-              @loadeddata="markVideoThumbReady(file)"
-              @mouseenter="
-                (e) =>
-                  void (e.target as HTMLVideoElement).play().catch(() => {})
-              "
-              @mouseleave="
-                (e) => {
-                  (e.target as HTMLVideoElement).pause();
-                  (e.target as HTMLVideoElement).currentTime = 0;
-                }
-              "
-            ></video>
-            <img
-              v-else-if="isHlsEntry(file)"
-              :src="videoPosterFor(file) || ''"
-              :alt="file.name"
-              class="preview-image"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-            />
-            <!-- Show icon for other files -->
-            <component
-              v-else
-              :is="getFileIcon(file)"
-              :size="32"
-              stroke-width="1.5"
-            />
-          </div>
-          <div class="file-info">
-            <p class="file-name">{{ file.name }}</p>
-            <p class="file-meta">{{ formatSize(file.size) }}</p>
-          </div>
-          <div class="file-actions">
-            <button
-              v-if="!isBrowsing && isDirEntry(file)"
-              class="action-btn"
-              title="Details"
-              @click.stop="openEntryDetails(file)"
-            >
-              <TableProperties :size="16" />
-            </button>
-            <button
-              class="action-btn"
-              title="Download"
-              @click.stop="downloadFile(file)"
-            >
-              <Download :size="16" />
-            </button>
-            <button
-              v-if="!isDirEntry(file) && isVideoFile(file.name)"
-              class="action-btn"
-              title="Convert to HLS"
-              :disabled="converting || uploading"
-              @click.stop="convertToHls(file)"
-            >
-              <Clapperboard :size="16" />
-            </button>
-            <button
-              class="action-btn"
-              title="Share"
-              @click.stop="copyLumenLinkFor(file)"
-            >
-              <Share2 :size="16" />
-            </button>
-            <button
-              class="action-btn"
-              title="Open"
-              @click.stop="openInIpfs(file)"
-            >
-              <ExternalLink :size="16" />
-            </button>
-            <button
-              class="action-btn danger"
-              title="Remove"
-              @click.stop="removeFile(file)"
-            >
-              <Trash2 :size="16" />
-            </button>
-          </div>
-        </div>
-      </div>
 
       <!-- Files List View -->
       <div
-        v-else-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 && viewMode === 'list'"
+        v-else-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 "
         class="files-list"
       >
         <!-- List Header -->
@@ -2057,7 +1913,6 @@ type HostingKind = "local" | "gateway";
 type HostingState = { kind: HostingKind; gatewayId: string };
 
 
-const viewMode = ref<"grid" | "list">("list");
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
 const localPinnedLoading = ref(false);

@@ -125,6 +125,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const key = `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
         localStorage.setItem(key, JSON.stringify(localNames));
 
+        loadFiles();
         const filtered = files.filter(
           (f) => String(f?.cid || "").trim() !== cid,
         );
@@ -137,9 +138,6 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         };
         files = [dirFile, ...filtered];
         localStorage.setItem(`${STORAGE_KEY_PREFIX}:${pid}`, JSON.stringify(files));
-                setTimeout(() => {
-            loadFiles()
-        }, 0);
         return { ok: true, cid, rootName: name, rootPath, totalBytes };
     } catch (err: any) {
         console.error(err);
@@ -160,20 +158,12 @@ async function uploadFolderToLocal(): Promise<UploadPathResult[]> { // Upload a 
         if (!selected.length) throw new Error("No folder selected");
         if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
         loadLocalNames();
-        const settled = await Promise.allSettled(selected.map((dirPath) => uploadFromPath(dirPath, "dir")));
-        return settled.map((item, idx) => {
-            if (item.status === "fulfilled") return item.value;
-            const rootPath = selected[idx];
-            const s = String(rootPath || "").replace(/\\/g, "/").trim();
-            const parts = s.split("/").filter(Boolean);
-            const name = parts[parts.length - 1] || s;
-            return {
-                ok: false,
-                error: String(item.reason?.message || item.reason || "Upload failed"),
-                rootName: name,
-                rootPath,
-            };
-        });
+        loadFiles();
+        const results: UploadPathResult[] = [];
+        for (const dirPath of selected) {
+            results.push(await uploadFromPath(dirPath, "dir"));
+        }
+        return results;
     } catch (error) {
         return Promise.reject(error);
     }
@@ -187,20 +177,12 @@ async function uploadFileToLocal(): Promise<UploadPathResult[]> { // Upload a lo
         if (!selected.length) throw new Error("No file selected");
         if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
         loadLocalNames();
-        const settled = await Promise.allSettled(selected.map((filePath) => uploadFromPath(filePath, "file")));
-        return settled.map((item, idx) => {
-            const rootPath = selected[idx];
-            const s = String(rootPath || "").replace(/\\/g, "/").trim();
-            const parts = s.split("/").filter(Boolean);
-            const name = parts[parts.length - 1] || s;
-            if (item.status === "fulfilled") return item.value;
-            return {
-                ok: false,
-                error: String(item.reason?.message || item.reason || "Upload failed"),
-                rootName: name,
-                rootPath,
-            };
-        });
+        loadFiles();
+        const results: UploadPathResult[] = [];
+        for (const filePath of selected) {
+            results.push(await uploadFromPath(filePath, "file"));
+        }
+        return results;
     } catch (error) {
         return Promise.reject(error);
     }    
