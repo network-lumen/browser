@@ -565,18 +565,18 @@ const DRIVE_LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
 const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
 
 function driveFilesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${DRIVE_FILES_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${DRIVE_FILES_KEY_PREFIX}:${pid}` : `${DRIVE_FILES_KEY_PREFIX}:guest`;
 }
 
 function driveLocalNamesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:${pid}` : `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:guest`;
 }
 
 function driveBackupSeqKey(profileId: string): string {
-  const pid = String(profileId || "").trim() || "default";
-  return `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}`;
+  const pid = String(profileId || "").trim();
+  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
 }
 
 function nextDriveBackupSeq(profileId: string): number {
@@ -770,6 +770,15 @@ async function waitForPinCompletion(jobId: string) {
       try {
         nextDriveBackupSeq(pid);
       } catch {}
+      try {
+        window.dispatchEvent(
+          new CustomEvent("lumen:drive:updated", {
+            detail: { profileId: pid, cid: key, name },
+          }),
+        );
+      } catch {
+        // ignore
+      }
       respond({ ...(res || {}), ok: true, cid: key, name, target: pinTarget.value });
       return;
     }
@@ -1180,6 +1189,7 @@ watch(
     }
     if (modalType.value === "pin") {
       resetPinState();
+      await loadActiveWalletContext();
       return;
     }
     if (modalType.value === "stableLink") {
