@@ -3120,6 +3120,7 @@ let urlBarLastValue = "";
 let urlBarLastUserInputAt = 0;
 let tabUrlChangedHandler: ((ev: any) => void) | null = null;
 let tabHistoryStepHandler: ((ev: any) => void) | null = null;
+let driveUpdateHandler: ((ev: any) => void) | null = null;
 let hlsProgressUnsub: (() => void) | null = null;
 let hlsArchiveProgressUnsub: (() => void) | null = null;
 let ipfsAddProgressUnsub: (() => void) | null = null;
@@ -3346,6 +3347,23 @@ onMounted(async () => {
     );
   } catch {}
 
+  try {
+    driveUpdateHandler = (ev: any) => {
+      try {
+        const detail = ev?.detail || {};
+        const profileId = String(detail?.profileId || "").trim();
+        if (!profileId) return;
+        const activePid = String(activeProfileId.value || "").trim();
+        if (profileId !== activePid) return;
+        void loadFiles();
+        loadLocalNames();
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("lumen:drive:updated", driveUpdateHandler as any);
+  } catch {}
+
   startUrlBarSync();
   document.addEventListener("dragover", handleDragOver);
   document.addEventListener("dragleave", handleDragLeave);
@@ -3413,6 +3431,14 @@ onUnmounted(() => {
       );
   } catch {}
   tabHistoryStepHandler = null;
+  try {
+    if (driveUpdateHandler)
+      window.removeEventListener(
+        "lumen:drive:updated",
+        driveUpdateHandler as any,
+      );
+  } catch {}
+  driveUpdateHandler = null;
   document.removeEventListener("dragover", handleDragOver);
   document.removeEventListener("dragleave", handleDragLeave);
   document.removeEventListener("drop", handleDrop);
@@ -4227,7 +4253,6 @@ function removeOptimisticGatewayPinnedCid(cid: string) {
 function loadFiles() {
   files.value = [];
   const pid = String(activeProfileId.value || "").trim();
-  if (!pid) return;
   const key = filesStorageKey(pid);
   if (!key) return;
   try {
@@ -4243,7 +4268,6 @@ function loadFiles() {
 function saveFiles() {
   try {
     const pid = String(activeProfileId.value || "").trim();
-    if (!pid) return;
     const key = filesStorageKey(pid);
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(files.value));
@@ -4256,7 +4280,6 @@ function saveFiles() {
 function loadLocalNames() {
   localNames.value = {};
   const pid = String(activeProfileId.value || "").trim();
-  if (!pid) return;
   const key = localNamesStorageKey(pid);
   if (!key) return;
   try {
@@ -4294,7 +4317,6 @@ function loadLocalNames() {
 function saveLocalNames() {
   try {
     const pid = String(activeProfileId.value || "").trim();
-    if (!pid) return;
     const key = localNamesStorageKey(pid);
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(localNames.value));
@@ -4351,12 +4373,12 @@ function driveBackupSeqKey(profileId: string): string {
 
 function driveBackupLastExportAtKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
+  return pid ? `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:guest`;
 }
 
 function driveBackupLastImportAtKey(profileId: string): string {
   const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
+  return pid ? `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:guest`;
 }
 
 function activeWalletAddress(): string {

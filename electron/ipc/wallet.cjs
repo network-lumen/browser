@@ -2382,14 +2382,15 @@ function registerWalletIpc() {
         }
 
         const authority = moduleAddressBech32('gov', prefix);
+        const actionReleaseId = Math.trunc(releaseId);
         const actionMsg =
           kind === 'reject'
             ? (typeof relMod.msgRejectRelease === 'function'
-                ? relMod.msgRejectRelease(authority, { id: Math.trunc(releaseId) })
-                : { typeUrl: '/lumen.release.v1.MsgRejectRelease', value: { authority, id: Math.trunc(releaseId) } })
+                ? relMod.msgRejectRelease(authority, actionReleaseId)
+                : { typeUrl: '/lumen.release.v1.MsgRejectRelease', value: { authority, id: actionReleaseId } })
             : (typeof relMod.msgValidateRelease === 'function'
-                ? relMod.msgValidateRelease(authority, { id: Math.trunc(releaseId) })
-                : { typeUrl: '/lumen.release.v1.MsgValidateRelease', value: { authority, id: Math.trunc(releaseId) } });
+                ? relMod.msgValidateRelease(authority, actionReleaseId)
+                : { typeUrl: '/lumen.release.v1.MsgValidateRelease', value: { authority, id: actionReleaseId } });
 
         const { Any } = require('cosmjs-types/google/protobuf/any.js');
         const actionBytes = registry.encode(actionMsg);
