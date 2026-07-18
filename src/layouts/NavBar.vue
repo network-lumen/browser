@@ -292,7 +292,7 @@
               />
             </div>
             
-            <label class="export-option" style="margin-top: 12px;">
+            <label class="export-option margin-top-75">
               <input type="checkbox" v-model="exportEncrypted" />
               <span class="export-option-label">Also encrypt the backup file with this password</span>
             </label>

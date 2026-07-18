@@ -179,7 +179,7 @@
           <p>{{ assetsError }}</p>
         </div>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="info-banner warning" style="margin-bottom: 1rem;">
+          <div v-if="assetsError && assetRows.length" class="info-banner warning margin-bottom-100">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="assets-list rich-assets-list">
@@ -266,7 +266,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="content-section">
-        <div v-if="dexError" class="info-banner warning" style="margin-bottom: 1rem;">
+        <div v-if="dexError" class="info-banner warning margin-bottom-100">
           <span>{{ dexError }}</span>
         </div>
 
@@ -426,7 +426,7 @@
           </div>
           <h3>Unable to load transactions</h3>
           <p>{{ activitiesError }}</p>
-          <div class="info-banner warning" style="margin-top: 1rem; max-width: 500px;">
+          <div class="info-banner warning margin-top-100" style="max-width: 500px;">
             <span>
               💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
               Your balance is still accurate and transactions are recorded on-chain.
@@ -440,25 +440,26 @@
           </div>
           <h3>No recent transactions</h3>
           <p>Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-          <div class="info-banner warning" style="margin-top: 1rem; max-width: 600px;">
-            <div style="margin-bottom: 0.75rem;">
+          <div class="info-banner warning margin-top-100" style="max-width: 600px;">
+            <div class="margin-bottom-75">
               <strong>💡 Why can't I see my transactions?</strong>
             </div>
-            <div style="margin-bottom: 0.5rem;">
+            <div class="margin-bottom-50">
               All Lumen Network RPC nodes currently have transaction indexing disabled. This means:
             </div>
-            <ul style="margin: 0.5rem 0 0.75rem 1.5rem; text-align: left;">
+            <ul class="text-left" style="margin: 0.5rem 0 0.75rem 1.5rem;">
               <li>Your balance is still accurate and updated</li>
               <li>All transactions are recorded on-chain</li>
               <li>Transaction history cannot be queried via API</li>
             </ul>
-            <div style="margin-top: 0.75rem;">
+            <div class="margin-top-75">
               <strong>Alternative:</strong> Use a block explorer to view your transaction history:
               <br>
-              <a 
-                :href="`https://explorer.lumen.network/account/${address}`" 
-                target="_blank" 
-                style="color: var(--accent-primary); text-decoration: underline; margin-top: 0.25rem; display: inline-block;"
+              <a
+                :href="`https://explorer.lumen.network/account/${address}`"
+                target="_blank"
+                class="margin-top-25 inline-block"
+                style="color: var(--accent-primary); text-decoration: underline;"
               >
                 View on Lumen Explorer →
               </a>
@@ -4300,192 +4301,6 @@ function exportTransactions() {
 .text-muted {
   color: var(--text-tertiary);
   font-style: italic;
-}
-
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  height: 100%;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  position: relative;
-  overflow: hidden;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.profile-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--fill-tertiary);
-  border-radius: var(--border-radius-lg);
-  margin-bottom: 1rem;
-  border: var(--border-width) solid var(--border-light);
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 2px 8px var(--primary-a20);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.profile-label {
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.profile-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  border: none;
-  background: transparent;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--fs-base);
-  font-weight: 400;
-  color: var(--text-primary);
-  transition: all var(--transition-fast);
-  letter-spacing: -0.022em;
-}
-
-.nav-item:hover {
-  background: var(--hover-bg);
-}
-
-.nav-item.active {
-  background: var(--ios-blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: var(--shadow-primary);
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
-.wallet-status {
-  padding: 0.875rem 1rem;
-  border-radius: 10px;
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  font-size: 0.8125rem;
-  color: var(--ios-red);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-}
-
-.wallet-status:hover {
-  background: rgba(248, 113, 113, 0.15);
-  border-color: rgba(248, 113, 113, 0.3);
-}
-
-.wallet-status.connected {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.2);
-  color: var(--ios-green);
-}
-
-.wallet-status.connected:hover {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.3);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ios-red);
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
-}
-
-.wallet-status.connected .status-dot {
-  background: var(--ios-green);
-  box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
 }
 
 .main-content {

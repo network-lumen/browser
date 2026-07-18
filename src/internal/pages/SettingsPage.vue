@@ -337,7 +337,7 @@
             Current idle connection target:
             <span class="mono-path">{{ networkModeSummary }}</span>
           </p>
-          <p v-if="networkSettingsError" class="setting-hint" style="color: var(--ios-red);">
+          <p v-if="networkSettingsError" class="setting-hint color-red-base">
             {{ networkSettingsError }}
           </p>
         </div>
@@ -518,7 +518,7 @@
           </div>
 
           <!-- Remove Password -->
-          <div v-if="securityStatus.enabled" class="setting-item" style="margin-top: 1.5rem;">
+          <div v-if="securityStatus.enabled" class="setting-item margin-top-150">
             <div class="setting-info">
               <span class="setting-label">Remove Password</span>
               <span class="setting-desc">
@@ -568,7 +568,7 @@
             </div>
           </div>
 
-          <p class="setting-hint" style="margin-top: 1rem;">
+          <p class="setting-hint margin-top-100">
             <strong>How it works:</strong> When enabled, every wallet signing operation 
             (send tokens, delegate, create domain, etc.) will require your password. 
             {{ securitySessionHintText }}
@@ -674,7 +674,7 @@
               </button>
             </div>
           </div>
-          <p v-if="profileRenameError" class="setting-hint" style="color: var(--ios-red);">
+          <p v-if="profileRenameError" class="setting-hint color-red-base">
             {{ profileRenameError }}
           </p>
 
@@ -721,7 +721,7 @@
               </button>
             </div>
           </div>
-          <p v-if="profileAvatarError" class="setting-hint" style="color: var(--ios-red);">
+          <p v-if="profileAvatarError" class="setting-hint color-red-base">
             {{ profileAvatarError }}
           </p>
           <p v-if="profiles.length" class="setting-hint">
@@ -824,11 +824,11 @@
             </div>
           </div>
 
-          <div v-if="devSettingsError" class="setting-hint" style="color: var(--ios-red);">
+          <div v-if="devSettingsError" class="setting-hint color-red-base">
             {{ devSettingsError }}
           </div>
 
-          <div class="profile-backup-actions" style="margin-top: 0.75rem;">
+          <div class="profile-backup-actions margin-top-75">
             <button
               class="btn-secondary"
               type="button"
@@ -905,13 +905,12 @@
           </div>
           <div
             v-if="lumenDataFolderError"
-            class="setting-hint"
-            style="color: var(--ios-red);"
+            class="setting-hint color-red-base"
           >
             {{ lumenDataFolderError }}
           </div>
 
-          <div class="profile-backup-actions" style="margin-top: 0.75rem;">
+          <div class="profile-backup-actions margin-top-75">
             <button
               class="btn-secondary"
               type="button"
@@ -1012,7 +1011,7 @@
           <div class="setting-item featured" :class="{ active: privateCloudEnabled }">
             <div class="setting-info">
               <span class="setting-label">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
                   <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
                 </svg>
                 Enable Private Cloud
@@ -1078,7 +1077,7 @@
                   </div>
                 </div>
                 <div v-else class="empty-gateway-ids">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.3; margin-bottom: 8px;">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-30 margin-bottom-50">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                     <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
                     <line x1="6" y1="6" x2="6.01" y2="6"></line>
@@ -2317,30 +2316,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 </script>
 
 <style scoped>
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 2rem;
-}
-
 .logo-icon {
   width: 40px;
   height: 40px;
@@ -2357,109 +2332,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   width: 64px;
   height: 64px;
   border-radius: var(--border-radius-xl);
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.profile-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--fill-tertiary);
-  border-radius: var(--border-radius-lg);
-  margin-bottom: 1.25rem;
-  border: var(--border-width) solid var(--border-light);
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 2px 8px var(--primary-a20);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.profile-label {
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.profile-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 1.5rem;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border: none;
-  background: transparent;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-
-.nav-item:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
-.nav-item.active {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.version-info {
-  padding: 0.75rem 1rem;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  text-align: center;
 }
 
 /* Main Content */
@@ -2992,54 +2864,11 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
-  }
-}
-
 @media (max-width: 700px) {
   .settings-page {
     flex-direction: column;
   }
-  
-  .sidebar {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    flex-direction: row;
-    padding: 1rem;
-    overflow-x: auto;
-  }
-  
-  .sidebar-header {
-    margin-bottom: 0;
-    margin-right: 1rem;
-  }
-  
-  .sidebar-nav {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-  
-  .nav-section {
-    flex-direction: row;
-  }
-  
-  .nav-label {
-    display: none;
-  }
-  
-  .nav-item span {
-    display: none;
-  }
-  
-  .version-info {
-    display: none;
-  }
-  
+
   .main-content {
     margin: 0 0.5rem 0.5rem 0.5rem;
     padding: 1.5rem;
