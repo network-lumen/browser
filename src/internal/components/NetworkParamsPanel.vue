@@ -29,7 +29,7 @@
       <p class="fatal-desc">{{ fatalError }}</p>
     </div>
 
-    <div v-else class="sections">
+    <div v-else class="sections flex flex-column gap-75">
       <div v-if="loadingAll && !hasAnyData" class="loading-state">
         <UiSpinner size="sm" />
         <span>Loading params…</span>
@@ -433,12 +433,6 @@ onMounted(() => {
   margin: 0.35rem 0 0;
   color: var(--text-secondary);
   font-size: 0.9rem;
-}
-
-.sections {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 }
 
 .loading-state {

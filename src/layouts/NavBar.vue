@@ -281,7 +281,7 @@
           
           <!-- Password required for decryption notice -->
           <div v-if="exportRequiresPassword" class="export-password-fields">
-            <div class="export-field">
+            <div class="export-field flex flex-column gap-25">
               <label>Wallet Password</label>
               <input 
                 type="password" 
@@ -306,7 +306,7 @@
             </label>
             
             <div v-if="exportEncrypted" class="export-password-fields">
-              <div class="export-field">
+              <div class="export-field flex flex-column gap-25">
                 <label>Password</label>
                 <input 
                   type="password" 
@@ -315,7 +315,7 @@
                   class="export-input"
                 />
               </div>
-              <div class="export-field">
+              <div class="export-field flex flex-column gap-25">
                 <label>Confirm Password</label>
                 <input 
                   type="password" 
@@ -378,13 +378,13 @@
             </button>
           </div>
 
-          <div v-if="importMode === 'file'" class="import-mode-panel">
+          <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-75">
             <p class="import-mode-copy">
               Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
 
-          <div v-else class="import-mode-panel">
+          <div v-else class="import-mode-panel flex flex-column gap-75">
             <div class="import-manual-actions">
               <UiButton
                 variant="none"
@@ -417,7 +417,7 @@
             </div>
 
             <div class="export-password-fields">
-              <div class="export-field">
+              <div class="export-field flex flex-column gap-25">
                 <label>Profile Name</label>
                 <input
                   v-model="manualImportName"
@@ -427,7 +427,7 @@
                 />
               </div>
 
-              <div class="export-field">
+              <div class="export-field flex flex-column gap-25">
                 <label>Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
@@ -437,7 +437,7 @@
                 ></textarea>
               </div>
 
-              <div class="export-field">
+              <div class="export-field flex flex-column gap-25">
                 <label>PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
@@ -447,7 +447,7 @@
                 ></textarea>
               </div>
 
-              <div class="export-field">
+              <div class="export-field flex flex-column gap-25">
                 <label>PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
@@ -505,7 +505,7 @@
           </p>
           
           <div class="export-password-fields">
-            <div class="export-field">
+            <div class="export-field flex flex-column gap-25">
               <label>Backup Password</label>
               <input 
                 type="password" 
@@ -2204,12 +2204,6 @@ onBeforeUnmount(() => {
   border: 0.5px solid var(--border-light);
 }
 
-.export-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
 .export-field label {
   font-size: 11px;
   font-weight: 600;
@@ -2317,12 +2311,6 @@ onBeforeUnmount(() => {
   border-color: var(--accent-primary);
   color: var(--text-primary);
   box-shadow: 0 0 0 1px var(--primary-a20) inset;
-}
-
-.import-mode-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 }
 
 .import-manual-actions {

@@ -61,7 +61,7 @@
           </div>
 
           <div class="shortcut-form">
-            <label class="shortcut-field">
+            <label class="shortcut-field flex flex-column gap-35">
               <span>Name</span>
               <input
                 v-model="shortcutDraft.title"
@@ -72,7 +72,7 @@
               />
             </label>
 
-            <label class="shortcut-field">
+            <label class="shortcut-field flex flex-column gap-35">
               <span>URL or Lumen page</span>
               <input
                 v-model="shortcutDraft.url"
@@ -1125,12 +1125,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-}
-
-.shortcut-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
 }
 
 .shortcut-field span,

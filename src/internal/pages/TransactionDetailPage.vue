@@ -19,7 +19,7 @@
       <p>{{ error }}</p>
     </div>
 
-    <div v-else-if="transaction" class="tx-content">
+    <div v-else-if="transaction" class="tx-content flex flex-column gap-150">
       <!-- Transaction Overview Card -->
       <div class="detail-card">
         <div class="card-header">
@@ -28,7 +28,7 @@
         <div class="card-body">
           <div class="detail-row">
             <span class="label">Transaction Hash:</span>
-            <div class="hash-value">
+            <div class="hash-value flex-align-center gap-50">
               <code>{{ transaction.hash }}</code>
               <button class="copy-btn" @click="copyToClipboard(transaction.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -77,7 +77,7 @@
           <h2>Messages ({{ transaction.messages.length }})</h2>
         </div>
         <div class="card-body">
-          <div class="messages-list">
+          <div class="messages-list flex flex-column gap-100">
             <div class="message-item" v-for="(msg, index) in transaction.messages" :key="index">
               <div class="message-header">
                 <span class="message-type">{{ msg.type }}</span>
@@ -97,7 +97,7 @@
           <h2>Events ({{ transaction.events.length }})</h2>
         </div>
         <div class="card-body">
-          <div class="events-list">
+          <div class="events-list flex flex-column gap-100">
             <div class="event-item" v-for="(event, index) in transaction.events" :key="index">
               <div class="event-type">{{ event.type }}</div>
               <div class="event-attributes">
@@ -354,12 +354,6 @@ watch(
   font-size: 1rem;
 }
 
-.tx-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .detail-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
@@ -428,12 +422,6 @@ watch(
   color: var(--accent-secondary);
 }
 
-.hash-value {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .hash-value code {
   flex: 1;
   padding: 0.5rem 0.75rem;
@@ -485,13 +473,6 @@ watch(
 .status-badge.failed {
   background: var(--fill-error);
   color: var(--ios-red);
-}
-
-.messages-list,
-.events-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .message-item,

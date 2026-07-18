@@ -116,9 +116,9 @@
 
       <!-- Appearance View -->
       <div v-if="currentView === 'appearance'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Theme Preference</span>
               <span class="setting-desc">Choose your preferred color scheme</span>
             </div>
@@ -152,7 +152,7 @@
             </div>
           </div>
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Font Size</span>
               <span class="setting-desc">Adjust the default font size</span>
             </div>
@@ -165,7 +165,7 @@
             </div>
           </div>
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Brightness</span>
               <span class="setting-desc">Adjust screen brightness ({{ brightness }}%)</span>
             </div>
@@ -186,9 +186,9 @@
 
       <!-- Content View -->
       <div v-else-if="currentView === 'content'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Show sexual content</span>
             </div>
             <div class="setting-control">
@@ -200,7 +200,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Show violent / gore content</span>
             </div>
             <div class="setting-control">
@@ -212,7 +212,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Show disturbing imagery</span>
             </div>
             <div class="setting-control">
@@ -231,9 +231,9 @@
 
       <!-- Privacy View -->
       <div v-else-if="currentView === 'privacy'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Save browsing history</span>
               <span class="setting-desc">
                 Keep recent web, domain, IPFS, and IPNS pages for
@@ -250,7 +250,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Saved items</span>
               <span class="setting-desc">
                 {{ historyEntries.length }} history item{{ historyEntries.length === 1 ? '' : 's' }}
@@ -265,7 +265,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Clear saved history</span>
               <span class="setting-desc">
                 Permanently remove the saved browsing history for this profile.
@@ -286,9 +286,9 @@
 
       <!-- Network View -->
       <div v-else-if="currentView === 'network'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Kubo connectivity</span>
               <span class="setting-desc">
                 Controls how many peer connections the embedded IPFS node tries to keep.
@@ -345,10 +345,10 @@
 
       <!-- Security View -->
       <div v-else-if="currentView === 'security'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <!-- Status Display -->
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Password Protection</span>
               <span class="setting-desc">
                 {{ securityStatus.enabled 
@@ -368,7 +368,7 @@
 
           <!-- Session Status (only shown when password is enabled) -->
           <div v-if="securityStatus.enabled" class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Session Status</span>
               <span class="setting-desc">{{ securitySessionStatusText }}</span>
             </div>
@@ -389,7 +389,7 @@
           </div>
 
           <div v-if="securityStatus.enabled" class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Password Cache Duration</span>
               <span class="setting-desc">
                 Choose how long the password stays cached before the session locks.
@@ -415,7 +415,7 @@
 
           <!-- Set Password (when no password is set) -->
           <div v-if="!securityStatus.enabled" class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Set Password</span>
               <span class="setting-desc">
                 Create a password to protect wallet signing operations. 
@@ -425,7 +425,7 @@
           </div>
 
           <div v-if="!securityStatus.enabled" class="security-form">
-            <div class="form-row">
+            <div class="form-row flex flex-column gap-35">
               <label class="form-label">New Password</label>
               <input 
                 type="password" 
@@ -435,7 +435,7 @@
                 :disabled="securityLoading"
               />
             </div>
-            <div class="form-row">
+            <div class="form-row flex flex-column gap-35">
               <label class="form-label">Confirm Password</label>
               <input 
                 type="password" 
@@ -460,7 +460,7 @@
 
           <!-- Change/Remove Password (when password is set) -->
           <div v-if="securityStatus.enabled" class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Change Password</span>
               <span class="setting-desc">
                 Update your security password. You'll need to enter your current password.
@@ -469,7 +469,7 @@
           </div>
 
           <div v-if="securityStatus.enabled" class="security-form">
-            <div class="form-row">
+            <div class="form-row flex flex-column gap-35">
               <label class="form-label">Current Password</label>
               <input 
                 type="password" 
@@ -479,7 +479,7 @@
                 :disabled="securityLoading"
               />
             </div>
-            <div class="form-row">
+            <div class="form-row flex flex-column gap-35">
               <label class="form-label">New Password</label>
               <input 
                 type="password" 
@@ -489,7 +489,7 @@
                 :disabled="securityLoading"
               />
             </div>
-            <div class="form-row">
+            <div class="form-row flex flex-column gap-35">
               <label class="form-label">Confirm New Password</label>
               <input 
                 type="password" 
@@ -519,7 +519,7 @@
 
           <!-- Remove Password -->
           <div v-if="securityStatus.enabled" class="setting-item margin-top-150">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Remove Password</span>
               <span class="setting-desc">
                 Disable password protection. Your keys will be re-encrypted with app-level encryption only.
@@ -578,9 +578,9 @@
 
       <!-- Profiles View -->
       <div v-else-if="currentView === 'profiles'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <div class="setting-item profiles-header">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Profiles</span>
               <span class="setting-desc">Select one or more profiles to export.</span>
             </div>
@@ -630,7 +630,7 @@
           <p v-else class="setting-hint">No profiles found.</p>
 
           <div v-if="profiles.length" class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Display name</span>
               <span class="setting-desc">Rename a profile without changing its internal profile ID.</span>
             </div>
@@ -679,7 +679,7 @@
           </p>
 
           <div v-if="profiles.length" class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Profile photo</span>
               <span class="setting-desc">Override the generated profile thumbnail with a local image.</span>
             </div>
@@ -729,7 +729,7 @@
           </p>
 
            <div class="setting-item">
-             <div class="setting-info">
+             <div class="setting-info flex flex-column gap-20">
                <span class="setting-label">Backups</span>
                <span class="setting-desc">Export full backup folders (profiles + PQC keys).</span>
              </div>
@@ -758,7 +758,7 @@
 
       <!-- Developer settings View -->
       <div v-else-if="currentView === 'advanced'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <p class="setting-hint">
             These settings are intended for developers. Most users should not need to change them.
           </p>
@@ -769,7 +769,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Local IPFS Gateway</span>
               <span class="setting-desc">Used for loading IPFS content in the UI</span>
             </div>
@@ -789,7 +789,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">IPFS API Endpoint</span>
               <span class="setting-desc">Used by the Electron backend (Kubo API)</span>
             </div>
@@ -804,7 +804,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Max upload size (local drive)</span>
               <span class="setting-desc">
                 Maximum size per local upload before it is rejected. Default 10 GB.
@@ -860,7 +860,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Custom data folder target</span>
               <span class="setting-desc">
                 Override the default folder used by the Lumen binary for IPFS, profiles, logs and app metadata.
@@ -951,13 +951,13 @@
 
       <!-- Troubleshooting View -->
       <div v-else-if="currentView === 'troubleshooting'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <p class="setting-hint">
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Copy Debug Report</span>
               <span class="setting-desc">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
             </div>
@@ -975,7 +975,7 @@
           </div>
 
           <div class="setting-item">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">Open Logs Folder</span>
               <span class="setting-desc">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
             </div>
@@ -1006,10 +1006,10 @@
 
       <!-- Private Cloud View -->
       <div v-else-if="currentView === 'privatecloud'" class="settings-section">
-        <div class="setting-group">
+        <div class="setting-group flex flex-column gap-50">
           <!-- Main Enable Toggle -->
           <div class="setting-item featured" :class="{ active: privateCloudEnabled }">
-            <div class="setting-info">
+            <div class="setting-info flex flex-column gap-20">
               <span class="setting-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
                   <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
@@ -1033,7 +1033,7 @@
               <h3 class="subsection-title">Gateway Preferences</h3>
               
               <div class="setting-item">
-                <div class="setting-info">
+                <div class="setting-info flex flex-column gap-20">
                   <span class="setting-label">Prefer Private Gateways</span>
                   <span class="setting-desc">Try private gateways first before DAO gateways</span>
                 </div>
@@ -1046,7 +1046,7 @@
               </div>
 
               <div class="setting-item">
-                <div class="setting-info">
+                <div class="setting-info flex flex-column gap-20">
                   <span class="setting-label">Fallback to DAO Gateways</span>
                   <span class="setting-desc">Use DAO gateways if private gateways fail</span>
                 </div>
@@ -1108,7 +1108,7 @@
               <h3 class="subsection-title">Advanced Settings</h3>
 
               <div class="setting-item">
-                <div class="setting-info">
+                <div class="setting-info flex flex-column gap-20">
                   <span class="setting-label">Request Timeout</span>
                   <span class="setting-desc">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
                 </div>
@@ -1126,7 +1126,7 @@
               </div>
 
               <div class="setting-item">
-                <div class="setting-info">
+                <div class="setting-info flex flex-column gap-20">
                   <span class="setting-label">Max Retries</span>
                   <span class="setting-desc">Maximum retry attempts per gateway</span>
                 </div>
@@ -2370,12 +2370,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   overflow-y: auto;
 }
 
-.setting-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .setting-item {
   display: flex;
   justify-content: space-between;
@@ -2392,12 +2386,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   border-color: var(--ios-blue);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
-}
-
-.setting-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
 }
 
 .setting-label {
@@ -2929,12 +2917,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
   border-radius: 12px;
   margin-top: 0.5rem;
-}
-
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
 }
 
 .form-label {

@@ -74,7 +74,7 @@
         </div>
         <ul v-else class="domains-list">
           <li v-for="d in domains" :key="d.name" class="domain-row">
-            <div class="domain-main">
+            <div class="domain-main flex flex-column gap-15 min-w-0">
               <span class="domain-name">{{ d.name }}</span>
             </div>
             <div class="domain-right">
@@ -143,7 +143,7 @@
         </div>
         <ul v-else class="domains-list">
           <li v-for="d in rawDomains" :key="d.name" class="domain-row">
-            <div class="domain-main">
+            <div class="domain-main flex flex-column gap-15 min-w-0">
               <div class="stable-link-label-row">
                 <input
                   class="stable-link-label-input"
@@ -240,7 +240,7 @@
                   autofocus
                 />
               </div>
-              <div class="modal-actions">
+              <div class="modal-actions flex flex-column gap-50">
                 <button class="btn secondary full" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
                   Cancel
                 </button>
@@ -321,7 +321,7 @@
                 </button>
               </div>
 
-              <div class="modal-actions">
+              <div class="modal-actions flex flex-column gap-50">
                 <button class="btn secondary full" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
                   Cancel
                 </button>
@@ -482,7 +482,7 @@
                 </p>
               </div>
 
-              <div class="modal-actions">
+              <div class="modal-actions flex flex-column gap-50">
                 <button class="btn secondary full" type="button" @click="closeSettingsModal">
                   Cancel
                 </button>
@@ -542,7 +542,7 @@
                 </div>
               </div>
 
-              <div class="modal-actions">
+              <div class="modal-actions flex flex-column gap-50">
                 <button class="btn secondary full" type="button" @click="closeTransferModal">
                   Cancel
                 </button>
@@ -1857,12 +1857,6 @@ void loadRawDomains();
   background: var(--bg-secondary);
 }
 
-.domain-main {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
 
 .domain-name {
   font-size: 0.9rem;
@@ -2160,12 +2154,6 @@ void loadRawDomains();
   border-color: #fecaca;
   background: var(--fill-error);
   color: var(--ios-red);
-}
-
-.modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .fade-enter-active,

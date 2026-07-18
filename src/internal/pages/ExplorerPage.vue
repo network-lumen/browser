@@ -135,7 +135,7 @@
             <div class="chart-card">
               <div class="chart-header">
                 <h3>{{ txHistoryTitle }}</h3>
-                <div class="time-filters">
+                <div class="time-filters flex-align-center gap-50">
                   <span class="filter-label">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
                     class="time-filter-btn" 
@@ -262,7 +262,7 @@
                 <h3>Latest Blocks</h3>
                 <button class="view-all-btn" @click="currentView = 'blocks'">View All →</button>
               </div>
-              <div class="activity-list">
+              <div class="activity-list flex flex-column gap-75">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="activity-item cursor-pointer" @click="navigateToBlock(block.height)">
                   <div class="activity-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -292,7 +292,7 @@
                 <h3>Latest Transactions</h3>
                 <button class="view-all-btn" @click="currentView = 'transactions'">View All →</button>
               </div>
-              <div class="activity-list">
+              <div class="activity-list flex flex-column gap-75">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="activity-item cursor-pointer" @click="navigateToTransaction(tx.hash)">
                   <div class="activity-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -522,12 +522,12 @@
                   <span class="rank-number">{{ index + 1 }}</span>
                 </div>
                 <div class="td td-validator">
-                  <div class="validator-info">
+                  <div class="validator-info flex-align-center gap-75">
                     <div class="validator-avatar">
                       <img v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
                       <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
                     </div>
-                    <div class="validator-name-wrapper">
+                    <div class="validator-name-wrapper flex flex-column gap-25">
                       <span class="validator-name">{{ validator.moniker }}</span>
                       <span class="validator-address" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
@@ -629,7 +629,7 @@
             </button>
           </div>
 
-          <div class="stake-form">
+          <div class="stake-form flex flex-column gap-125">
             <!-- Withdraw Rewards - No amount needed -->
             <div v-if="currentStakeAction === 'Withdraw'" class="withdraw-info">
               <div class="withdraw-notice">
@@ -638,7 +638,7 @@
                   <path d="M12 16v-4"/>
                   <path d="M12 8h.01"/>
                 </svg>
-                <div class="withdraw-text">
+                <div class="withdraw-text flex flex-column gap-25">
                   <strong>Withdraw Staking Rewards</strong>
                   <p>This will claim all pending rewards from this validator to your wallet.</p>
                 </div>
@@ -646,7 +646,7 @@
             </div>
 
             <!-- Amount Input - Not for Withdraw -->
-            <div v-else class="form-group">
+            <div v-else class="form-group flex flex-column gap-50">
               <label>Amount to {{ currentStakeAction.toLowerCase() }}</label>
               <div class="input-wrapper">
                 <input 
@@ -681,7 +681,7 @@
               </div>
             </div>
 
-            <div v-if="currentStakeAction === 'Redelegate'" class="form-group">
+            <div v-if="currentStakeAction === 'Redelegate'" class="form-group flex flex-column gap-50">
               <label>Select New Validator</label>
               <select v-model="targetValidator" class="validator-select">
                 <option value="">Choose validator...</option>
@@ -707,7 +707,7 @@
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="tx-processing">
                   <div class="tx-spinner"></div>
-                  <div class="tx-status-text">
+                  <div class="tx-status-text flex flex-column gap-50">
                     <strong>Processing Transaction</strong>
                     <p>{{ txMessage }}</p>
                   </div>
@@ -719,7 +719,7 @@
                     <circle cx="12" cy="12" r="10" stroke="rgba(48, 209, 88, 0.7)" stroke-width="2"/>
                     <path d="M8 12l3 3 5-5" stroke="rgba(48, 209, 88, 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <div class="tx-status-text">
+                  <div class="tx-status-text flex flex-column gap-50">
                     <strong>Transaction Successful!</strong>
                     <p>{{ txMessage }}</p>
                     <div v-if="txHash" class="tx-hash-display">
@@ -743,7 +743,7 @@
                     <circle cx="12" cy="12" r="10" stroke="#ef4444" stroke-width="2"/>
                     <path d="M12 8v4m0 4h.01" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
                   </svg>
-                  <div class="tx-status-text">
+                  <div class="tx-status-text flex flex-column gap-50">
                     <strong>Transaction Failed</strong>
                     <p>{{ txMessage }}</p>
                   </div>
@@ -2917,39 +2917,9 @@ watch(
   object-fit: cover;
 }
 
-.validator-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
 .validator-name {
   margin: 0;
   font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.validator-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.validator-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.validator-stat .stat-label {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-
-.validator-stat .stat-value {
-  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -3066,12 +3036,6 @@ watch(
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--text-primary);
-}
-
-.time-filters {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .filter-label {
@@ -3323,12 +3287,6 @@ watch(
   opacity: 0.7;
 }
 
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
 .activity-item {
   display: flex;
   align-items: center;
@@ -3515,12 +3473,6 @@ watch(
   font-size: 0.9375rem;
 }
 
-.validator-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
 .validator-avatar {
   width: 36px;
   height: 36px;
@@ -3541,12 +3493,6 @@ watch(
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.validator-name-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .validator-name {
@@ -3919,12 +3865,6 @@ watch(
   color: var(--text-primary);
 }
 
-.stake-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 .withdraw-info {
   padding: 0.5rem 0;
 }
@@ -3945,12 +3885,6 @@ watch(
   margin-top: 2px;
 }
 
-.withdraw-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
 .withdraw-text strong {
   font-size: 0.9375rem;
   font-weight: 600;
@@ -3962,12 +3896,6 @@ watch(
   font-size: 0.8125rem;
   color: var(--text-secondary);
   line-height: 1.4;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .form-group label {
@@ -4219,12 +4147,6 @@ watch(
   50% {
     transform: scale(1.1);
   }
-}
-
-.tx-status-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .tx-status-text strong {

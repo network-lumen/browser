@@ -19,7 +19,7 @@
       <p>{{ error }}</p>
     </div>
 
-    <div v-else-if="address" class="address-content">
+    <div v-else-if="address" class="address-content flex flex-column gap-150">
       <!-- Address Overview Card -->
       <div class="detail-card">
         <div class="card-header">
@@ -28,7 +28,7 @@
         <div class="card-body">
           <div class="detail-row">
             <span class="label">Address:</span>
-            <div class="hash-value">
+            <div class="hash-value flex-align-center gap-50">
               <code>{{ address.address }}</code>
               <button class="copy-btn" @click="copyToClipboard(address.address)" title="Copy address">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -55,7 +55,7 @@
           <h2>Balances</h2>
         </div>
         <div class="card-body">
-          <div v-if="address.balances && address.balances.length > 0" class="balances-list">
+          <div v-if="address.balances && address.balances.length > 0" class="balances-list flex flex-column gap-100">
             <div class="balance-item" v-for="(balance, index) in address.balances" :key="index">
               <div class="balance-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -81,13 +81,13 @@
           <h2>Delegations ({{ address.delegations.length }})</h2>
         </div>
         <div class="card-body">
-          <div class="delegations-list">
+          <div class="delegations-list flex flex-column gap-100">
             <div class="delegation-item" v-for="(delegation, index) in address.delegations" :key="index">
               <div class="delegation-validator">
                 <div class="validator-avatar" :style="{ background: getValidatorColor(delegation.validator) }">
                   <span>{{ delegation.validatorMoniker?.charAt(0).toUpperCase() || 'V' }}</span>
                 </div>
-                <div class="validator-info">
+                <div class="validator-info flex flex-column gap-25">
                   <div class="validator-name">{{ delegation.validatorMoniker || delegation.validator }}</div>
                   <div class="validator-address">{{ shortenAddress(delegation.validator) }}</div>
                 </div>
@@ -106,7 +106,7 @@
           <h2>Recent Transactions</h2>
         </div>
         <div class="card-body">
-          <div v-if="address.transactions && address.transactions.length > 0" class="transactions-list">
+          <div v-if="address.transactions && address.transactions.length > 0" class="transactions-list flex flex-column gap-100">
             <div class="tx-item" v-for="(tx, index) in address.transactions" :key="index">
               <div class="tx-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -378,12 +378,6 @@ watch(
   font-size: 1rem;
 }
 
-.address-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .detail-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
@@ -442,12 +436,6 @@ watch(
   word-break: break-all;
 }
 
-.hash-value {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .hash-value code {
   flex: 1;
   padding: 0.5rem 0.75rem;
@@ -479,14 +467,6 @@ watch(
 
 .copy-btn:hover svg {
   stroke: white;
-}
-
-.balances-list,
-.delegations-list,
-.transactions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .balance-item {
@@ -552,12 +532,6 @@ watch(
   color: white;
   font-weight: 600;
   font-size: 0.875rem;
-}
-
-.validator-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .validator-name {

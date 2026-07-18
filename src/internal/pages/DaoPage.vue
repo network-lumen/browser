@@ -107,7 +107,7 @@
             <FileText :size="48" />
             <p>No proposals found</p>
           </div>
-          <div v-else class="proposals-list">
+          <div v-else class="proposals-list flex flex-column gap-100">
             <div class="proposal-card" v-for="proposal in proposals" :key="proposal.id">
               <div class="proposal-header">
                 <span class="proposal-id">#{{ proposal.id }}</span>
@@ -136,7 +136,7 @@
             <h3>Active Voting Proposals</h3>
             <p class="voting-desc">Select a proposal from the Proposals tab to vote</p>
           </div>
-          <div class="proposals-list margin-top-100">
+          <div class="proposals-list flex flex-column gap-100 margin-top-100">
             <div 
               class="proposal-card" 
               v-for="proposal in proposals.filter(p => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD')" 
@@ -169,9 +169,9 @@
             <Wallet :size="48" />
             <p>No treasury assets found</p>
           </div>
-          <div v-else class="treasury-list">
+          <div v-else class="treasury-list flex flex-column gap-75">
             <div class="treasury-item" v-for="asset in treasuryAssets" :key="asset.denom">
-              <div class="asset-info">
+              <div class="asset-info flex flex-column gap-25">
                 <span class="asset-name">{{ asset.displayName }}</span>
                 <span class="asset-value">{{ formatAmount(asset.amount) }} {{ asset.denom === 'ulumen' ? 'LUM' : asset.denom }}</span>
               </div>
@@ -185,7 +185,7 @@
             <Users :size="48" />
             <p>No validators found</p>
           </div>
-          <div v-else class="members-list">
+          <div v-else class="members-list flex flex-column gap-50">
             <div class="member-item" v-for="(member, index) in members" :key="member.address">
               <div class="member-rank">{{ index + 1 }}</div>
               <div class="member-avatar" :class="{ 'has-image': member.avatar }">
@@ -871,13 +871,6 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 
-/* Proposals */
-.proposals-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .proposal-card {
   padding: 1.5rem;
   background: var(--bg-primary, white);
@@ -991,12 +984,6 @@ onUnmounted(() => {
 }
 
 /* Treasury */
-.treasury-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
 .treasury-item {
   display: flex;
   justify-content: space-between;
@@ -1005,12 +992,6 @@ onUnmounted(() => {
   background: var(--bg-primary, white);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-}
-
-.asset-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .asset-name {
@@ -1022,13 +1003,6 @@ onUnmounted(() => {
 .asset-value {
   font-size: 0.8rem;
   color: var(--text-secondary);
-}
-
-/* Members */
-.members-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .member-item {
