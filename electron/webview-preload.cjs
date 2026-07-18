@@ -954,10 +954,7 @@ const lumen = {
   /**
    * Send LMN (or a memo-only transfer) from the active wallet, using the
    * embedded wallet UI to prompt/confirm on the user's behalf.
-   * @param {object} rawTx - Transaction payload.
-   * @param {string} [rawTx.to] - Recipient bech32 address (also accepts `recipient`).
-   * @param {string} [rawTx.memo] - Optional memo/note attached to the transfer (also accepts `note`).
-   * @param {number} [rawTx.amount_lmn] - Amount in LMN (also accepts `amountLmn`/`amount`).
+   * @param {object} rawTx - `{to, memo?, amount_lmn?}` (also accepts `recipient`/`note`/`amountLmn`/`amount` aliases).
    * @returns {Promise<{ok:boolean,data?:any,error?:string}>} Resolves with the broadcast result on success.
    * @error {send_failed} Wallet/profile missing, user declined, or broadcast failed.
    */
