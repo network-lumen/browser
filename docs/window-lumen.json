@@ -1,9 +1,9 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-18T13:09:40.724Z",
+  "generatedAt": "2026-07-18T13:18:52.642Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
-  "responseContract": "Every window.lumen method resolves to {ok:true, data?} on success, or {ok:false, error} on failure. It never throws or rejects across the contextBridge — callers can always destructure the same shape.",
+  "appVersion": "0.9.3",
   "groups": [
     {
       "id": "general",
@@ -11,7 +11,6 @@
       "paths": [
         "Pin",
         "resolveUrl",
-        "chooseStableLinkForLive",
         "setWindowFullscreen",
         "ipfsAdd",
         "ipfsGet",
@@ -117,32 +116,6 @@
       ]
     },
     {
-      "path": "chooseStableLinkForLive",
-      "namespace": null,
-      "member": "chooseStableLinkForLive",
-      "implementation": "chooseStableLinkForLive",
-      "fallbackError": "stable_link_failed",
-      "description": "Open the stable-link picker so the site can choose (or create) an IPNS key to publish live/streamed content under.",
-      "params": [
-        {
-          "name": "input",
-          "type": "object",
-          "optional": false,
-          "description": "`{title?, suggestedName?, records?: {key,value}[]}`."
-        }
-      ],
-      "returns": {
-        "type": "Promise<{ok:boolean,data?:any,error?:string}>",
-        "description": ""
-      },
-      "errors": [
-        {
-          "code": "stable_link_failed",
-          "description": "The user cancelled, or no stable link is available."
-        }
-      ]
-    },
-    {
       "path": "setWindowFullscreen",
       "namespace": null,
       "member": "setWindowFullscreen",
@@ -174,7 +147,7 @@
       "member": "chooseForLive",
       "implementation": "chooseStableLinkForLive",
       "fallbackError": "stable_link_failed",
-      "description": "Alias of top-level `chooseStableLinkForLive`.",
+      "description": "Open the stable-link picker so the site can choose (or create) an IPNS key to publish live/streamed content under.",
       "params": [
         {
           "name": "input",
