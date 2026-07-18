@@ -30,6 +30,15 @@
           <button
             type="button"
             class="lsb-item"
+            :class="{ active: currentView === 'publish' }"
+            @click="setView('publish')"
+          >
+            <Rocket :size="18" />
+            <span>Publish my site</span>
+          </button>
+          <button
+            type="button"
+            class="lsb-item"
             :class="{ active: currentView === 'contact' }"
             @click="setView('contact')"
           >
@@ -269,6 +278,68 @@
                 <span>Open New Tab</span>
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Publish My Site View -->
+      <div v-else-if="currentView === 'publish'" class="content-area">
+        <div class="discover">
+          <!-- Hero -->
+          <section class="hero-section small">
+            <div class="hero-content">
+              <h2 class="hero-title">Create Your <span class="gradient-text">First Website</span></h2>
+              <p class="hero-subtitle">Publish a site on the decentralized web in four simple steps — no server required.</p>
+            </div>
+          </section>
+
+          <!-- Steps -->
+          <div class="tutorial-steps">
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h4>Build Your Website</h4>
+              </div>
+              <p>Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.</p>
+            </div>
+
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h4>Upload It to Drive</h4>
+              </div>
+              <p>Open Drive, upload that folder, then copy its Lumen link — that's your content's address.</p>
+              <button class="step-action" type="button" @click="goto('lumen://drive')">
+                <FolderOpen :size="18" />
+                <span>Open Drive</span>
+              </button>
+            </div>
+
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h4>Get a Domain</h4>
+              </div>
+              <p>Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.</p>
+              <button class="step-action" type="button" @click="goto('lumen://domain')">
+                <Link2 :size="18" />
+                <span>Open Domains</span>
+              </button>
+            </div>
+
+            <div class="tutorial-step">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h4>Link Your Domain to Your Content</h4>
+              </div>
+              <p>Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.</p>
+            </div>
+          </div>
+
+          <div class="discover-note">
+            <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
+            If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
+            uploaded folder, and give it a minute to propagate.
           </div>
         </div>
       </div>
@@ -531,11 +602,12 @@ import {
   Search,
   FolderOpen,
   Link2,
-  BookOpen
+  BookOpen,
+  Rocket
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
-type HelpView = 'discover' | 'domains' | 'contact' | 'docs';
+type HelpView = 'discover' | 'domains' | 'publish' | 'contact' | 'docs';
 
 // Single source of truth for the window.lumen reference: this embeds the
 // actual generated docs/window-lumen.html (mirrored into public/docs/ by
@@ -586,6 +658,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
   const firstPath = String(segs[1] || '').toLowerCase();
   if (firstPath === 'discover') return 'discover';
   if (firstPath === 'domains' || firstPath === 'domain') return 'domains';
+  if (firstPath === 'publish' || firstPath === 'create_my_first_website' || firstPath === 'create-my-first-website') return 'publish';
   if (firstPath === 'contact') return 'contact';
   // Backward-compat: old tabs now redirect to Discover.
   if (firstPath === 'docs') return 'docs';
@@ -598,6 +671,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
     const viewParam = String(params.get('view') || '').trim().toLowerCase();
     if (viewParam === 'discover') return 'discover';
     if (viewParam === 'domains' || viewParam === 'domain') return 'domains';
+    if (viewParam === 'publish') return 'publish';
     if (viewParam === 'contact') return 'contact';
     if (viewParam === 'docs') return 'docs';
     if (viewParam === 'getting-started' || viewParam === 'faq') return 'discover';
@@ -609,6 +683,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
 function urlForView(view: HelpView): string {
   if (view === 'discover') return 'lumen://help/discover';
   if (view === 'domains') return 'lumen://help/domains';
+  if (view === 'publish') return 'lumen://help/publish';
   if (view === 'contact') return 'lumen://help/contact';
   if (view === 'docs') return 'lumen://help/docs';
   return 'lumen://help';
@@ -649,6 +724,7 @@ function getViewTitle(): string {
   const titles: Record<string, string> = {
     discover: 'What is Lumen?',
     domains: 'Domains & Drive',
+    publish: 'Publish My Site',
     contact: 'Contact Support',
     docs: 'Documentation',
   };
@@ -659,6 +735,7 @@ function getViewDescription(): string {
   const descs: Record<string, string> = {
     discover: 'A quick overview of the Lumen stack',
     domains: 'Create a domain and link it to Drive content',
+    publish: 'Go from local files to a live .lmn site',
     contact: 'Reach out to our team',
     docs: 'Website developer docs for window.lumen'
   };

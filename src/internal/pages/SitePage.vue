@@ -1,25 +1,8 @@
 <template>
   <div class="site-page" :class="{ 'html-fullscreen': webviewHtmlFullscreen }">
     <main class="main-content">
-      <header v-if="error && !domainNotFound" class="content-header">
-        <div class="header-actions">
-          <button
-            class="plans-btn"
-            type="button"
-            @click="retry"
-            :disabled="loading"
-          >
-            <RefreshCw :size="16" />
-            <span>Retry</span>
-          </button>
-        </div>
-      </header>
-
       <div v-if="loading" class="loading-wrap">
-        <UiSpinner size="md" />
-        <div v-if="statusLine" class="loading-lines">
-          <div>{{ statusLine }}</div>
-        </div>
+        <UiSpinner size="lg" />
       </div>
 
       <div v-else-if="domainNotFound" class="domain-empty-wrap">
@@ -35,21 +18,17 @@
         </div>
       </div>
 
-      <div v-else-if="error" class="error-wrap">
-        <div class="error-content">
-          <h3>{{ error }}</h3>
-          <div class="error-details">
-            <p>This content may not be available because:</p>
-            <ul>
-              <li>The content hasn't been pinned to any gateway yet</li>
-              <li>The gateway servers are slow or unavailable</li>
-              <li>Your local IPFS node doesn't have this content</li>
-              <li>The domain record doesn't point to valid content</li>
-            </ul>
-            <p class="error-hint">
-              Try again later or check if the content exists on IPFS.
-            </p>
+      <div v-else-if="error" class="domain-empty-wrap">
+        <div class="domain-empty-card">
+          <div class="domain-empty-icon">
+            <FileQuestion :size="26" />
           </div>
+          <h2>This content isn't available right now</h2>
+          <p>The content couldn't be found. Please try again later.</p>
+          <p>
+            If this is your site,
+            <button type="button" class="inline-link" @click="goToCreateWebsiteDocs">read the setup guide</button>.
+          </p>
         </div>
       </div>
 
@@ -95,7 +74,7 @@
 
 <script setup lang="ts">
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
-import { RefreshCw, Tag } from "lucide-vue-next";
+import { FileQuestion, Tag } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -123,10 +102,9 @@ const registerFindTarget = inject<((tabId: string, targetWebContentsId: number |
 );
 
 const loading = ref(false);
-const error = ref("");
+const error = ref(false);
 const domainNotFound = ref(false);
 const requestedHost = ref("");
-const statusLine = ref("");
 const resolvedHttpUrl = ref("");
 const siteWebview = ref<any>(null);
 const videoEl = ref<HTMLVideoElement | null>(null);
@@ -345,7 +323,7 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     resolvedHttpUrl.value = "";
     active.value = null;
     domainNotFound.value = false;
-    error.value = "Invalid domain URL.";
+    error.value = true;
     return;
   }
 
@@ -359,10 +337,9 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
   const prev = active.value;
 
   loading.value = true;
-  error.value = "";
+  error.value = false;
   domainNotFound.value = false;
   requestedHost.value = host;
-  statusLine.value = "";
 
   try {
     const { target } = await resolveDomainTarget(host);
@@ -371,11 +348,7 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     let resolvedUrl = "";
     for (const candidatePath of candidates) {
       try {
-        const pickedBase = await pickFastestSource(target, candidatePath, suffix, {
-          onStatus: (s) => {
-            statusLine.value = s;
-          },
-        });
+        const pickedBase = await pickFastestSource(target, candidatePath, suffix);
         resolvedUrl = buildCandidateUrl(pickedBase.base, target, candidatePath, suffix);
         break;
       } catch {
@@ -389,28 +362,22 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
   } catch (e: any) {
     if (e?.code === "domain_not_registered") {
       domainNotFound.value = true;
-      error.value = "";
     } else {
-      const isAgg =
-        typeof AggregateError !== "undefined" && e instanceof AggregateError;
-      error.value = isAgg
-        ? "No source could serve this content."
-        : String(e?.message || e || "Unable to load this domain.");
+      error.value = true;
     }
     resolvedHttpUrl.value = "";
     active.value = null;
   } finally {
     loading.value = false;
-    statusLine.value = "";
   }
-}
-
-function retry() {
-  void resolveAndLoad({ force: true });
 }
 
 function goToBuyDomain() {
   navigate?.("lumen://domain/", { push: true });
+}
+
+function goToCreateWebsiteDocs() {
+  navigate?.("lumen://help/publish", { push: true });
 }
 
 function toLumenFromWebHref(raw: string): string | null {
@@ -755,59 +722,11 @@ onBeforeUnmount(() => {
   min-height: 0;
 }
 
-.content-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem 1rem 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.plans-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.9rem;
-  border-radius: var(--border-radius-sm);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-}
-
-.plans-btn:hover:not(:disabled) {
-  background: var(--bg-primary);
-  border-color: var(--accent-primary);
-}
-
-.plans-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .loading-wrap {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-}
-
-.loading-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  justify-content: center;
 }
 
 .domain-empty-wrap {
@@ -890,47 +809,21 @@ onBeforeUnmount(() => {
   transform: translateY(0);
 }
 
-.error-wrap {
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #fecaca;
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.error-content h3 {
-  font-size: 1.125rem;
+.inline-link {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent-primary);
+  font: inherit;
   font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--ios-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
-.error-details {
-  color: var(--ios-red);
-}
-
-.error-details p {
-  margin-bottom: 0.75rem;
-  font-size: 0.9375rem;
-}
-
-.error-details ul {
-  list-style: disc;
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.error-details li {
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--ios-red);
-}
-
-.error-hint {
-  font-size: 0.875rem;
-  font-style: italic;
-  color: var(--ios-red);
-  margin-top: 1rem;
+.inline-link:hover {
+  opacity: 0.8;
 }
 
 .viewer {
