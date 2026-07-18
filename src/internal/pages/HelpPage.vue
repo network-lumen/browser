@@ -348,7 +348,7 @@
               </p>
               <p>
                 Some methods open a user confirmation modal (ex:
-                <span class="mono-inline">sendToken</span>, <span class="mono-inline">pin</span>).
+                <span class="mono-inline">wallet.requestSend</span>, <span class="mono-inline">pin</span>).
               </p>
             </div>
           </div>
@@ -705,13 +705,12 @@ const lumenApiGroups: ApiDocGroup[] = [
     description: 'These methods can open a modal and require explicit user consent.',
     items: [
       {
-        key: 'sendToken',
-        name: 'lumen.sendToken({ to, amountLmn, memo })',
+        key: 'wallet_requestSend',
+        name: 'lumen.wallet.requestSend({ to, amountLmn, memo })',
         badge: 'modal',
         short: 'Request sending LMN tokens from the user wallet.',
         signature:
-          `const res = await window.lumen.sendToken({\n  to: 'lmn1...',\n  amountLmn: 1.23,\n  memo: 'hello'\n});`,
-        aliases: ['lumen.SendToken', 'lumen.wallet.requestSend'],
+          `const res = await window.lumen.wallet.requestSend({\n  to: 'lmn1...',\n  amountLmn: 1.23,\n  memo: 'hello'\n});`,
         params: [
           { name: 'to', type: 'string', description: 'Recipient address.' },
           { name: 'amountLmn', type: 'number | null', description: 'Amount in LMN (UI may prompt if null).' },

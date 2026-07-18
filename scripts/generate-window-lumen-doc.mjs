@@ -293,7 +293,7 @@ function escapeHtml(value) {
 
 const CSS = `
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --bg: #f7f7f9;
   --bg-elevated: #ffffff;
   --border: #e3e4e8;
@@ -310,24 +310,6 @@ const CSS = `
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.05);
   --radius: 12px;
   --namespace-colors: #4f46e5, #0d9488, #b45309, #be185d, #4338ca, #15803d, #a21caf;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #101114;
-    --bg-elevated: #16181d;
-    --border: #262832;
-    --text: #eceef2;
-    --text-muted: #9aa0ac;
-    --text-faint: #6b7280;
-    --accent: #8385ff;
-    --accent-soft: #1c1d3a;
-    --accent-contrast: #10111a;
-    --code-bg: #1c1e26;
-    --error: #f47272;
-    --error-soft: #2c1717;
-    --optional: #6b7280;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
-  }
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -410,19 +392,12 @@ code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liber
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
 }
-.topbar .spacer { flex: 1; }
 .contract-pill {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 12.5px; color: var(--text-muted);
   border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px;
 }
 .contract-pill .mono { color: var(--accent); font-weight: 600; }
-.theme-toggle {
-  border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-muted);
-  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.theme-toggle:hover { color: var(--text); }
 
 .content { max-width: 880px; margin: 0 auto; padding: 40px 32px 120px; }
 .page-title { font-size: 26px; font-weight: 800; margin: 0 0 6px; }
@@ -651,10 +626,6 @@ const CLIENT_JS = `
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>' +
             'Always resolves <span class="mono">{ok, data?, error?}</span>' +
           '</span>' +
-          '<span class="spacer"></span>' +
-          '<button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">' +
-            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' +
-          '</button>' +
         '</div>' +
         '<div class="content">' +
           '<h1 class="page-title">' + esc(model.title) + '</h1>' +
@@ -740,20 +711,6 @@ const CLIENT_JS = `
       navigator.clipboard.writeText(url).catch(function () {});
     }
     history.replaceState(null, '', hash);
-  });
-
-  // ---- theme toggle (defaults to system preference) ----
-  var themeToggle = document.getElementById('theme-toggle');
-  var storedTheme = null;
-  try { storedTheme = localStorage.getItem('lumen-doc-theme'); } catch (err) {}
-  if (storedTheme) document.documentElement.style.colorScheme = storedTheme;
-  themeToggle.addEventListener('click', function () {
-    var current = getComputedStyle(document.documentElement).colorScheme.indexOf('dark') !== -1 &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var mql = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var next = (document.documentElement.style.colorScheme === 'dark' || (!document.documentElement.style.colorScheme && mql)) ? 'light' : 'dark';
-    document.documentElement.style.colorScheme = next;
-    try { localStorage.setItem('lumen-doc-theme', next); } catch (err) {}
   });
 })();
 `;

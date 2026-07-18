@@ -54,12 +54,10 @@ describe('window.lumen preload API', () => {
     expect(globalThis.window.lumen).toBeDefined();
 
     const expectedEntries = [
-      'SendToken',
       'Pin',
       'resolveUrl',
       'chooseStableLinkForLive',
       'setWindowFullscreen',
-      'window.setFullscreen',
       'stableLinks.chooseForLive',
       'stableLinks.selectForLiveSetup',
       'stableLinks.publishForLive',
@@ -86,5 +84,10 @@ describe('window.lumen preload API', () => {
       expect(value).toBeDefined();
       expect(typeof value).toBe('function');
     }
+
+    // SendToken/window.setFullscreen were removed as redundant aliases of
+    // wallet.requestSend/setWindowFullscreen — guard against them coming back.
+    expect((globalThis.window.lumen as any).SendToken).toBeUndefined();
+    expect((globalThis.window.lumen as any).window).toBeUndefined();
   });
 });
