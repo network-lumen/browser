@@ -254,29 +254,26 @@ function formatTime(timestamp: number) {
 .history-page {
   display: flex;
   min-height: 100%;
-  background:
-    radial-gradient(circle at top left, rgba(10, 132, 255, 0.08), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent 24%);
 }
 
 .history-main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
 }
 
 .history-header,
 .history-toolbar,
 .history-group,
 .history-empty-card {
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: color-mix(in srgb, var(--card-bg) 95%, transparent);
-  box-shadow:
-    0 18px 42px rgba(15, 23, 42, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .history-header,
@@ -337,18 +334,18 @@ function formatTime(timestamp: number) {
 }
 
 .history-mode-btn {
-  background: rgba(15, 23, 42, 0.06);
+  background: var(--fill-secondary);
   color: var(--text-secondary);
 }
 
 .history-mode-btn.active {
-  background: rgba(52, 199, 89, 0.14);
-  color: #12703b;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .history-clear-btn {
-  background: rgba(255, 59, 48, 0.1);
-  color: #b42318;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .history-clear-btn:disabled {
@@ -384,7 +381,7 @@ function formatTime(timestamp: number) {
   gap: 0.65rem;
   padding: 0.8rem 0.95rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.04);
+  background: var(--fill-tertiary);
   color: var(--text-tertiary);
 }
 
@@ -405,8 +402,8 @@ function formatTime(timestamp: number) {
 .history-banner {
   padding: 0.9rem 1rem;
   border-radius: 18px;
-  border: 1px solid rgba(255, 149, 0, 0.16);
-  background: rgba(255, 149, 0, 0.08);
+  border: 1px solid rgba(var(--ios-orange-rgb), 0.16);
+  background: rgba(var(--ios-orange-rgb), 0.08);
   color: var(--text-secondary);
 }
 
@@ -440,7 +437,7 @@ function formatTime(timestamp: number) {
   height: 1.7rem;
   padding: 0 0.45rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.06);
+  background: var(--fill-secondary);
   color: var(--text-secondary);
   font-size: 0.76rem;
   font-weight: 800;
@@ -460,7 +457,7 @@ function formatTime(timestamp: number) {
   gap: 0.8rem;
   justify-content: space-between;
   padding: 0.8rem 0.15rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  border-top: 1px solid var(--separator);
 }
 
 .history-list .history-item:first-child {
@@ -491,33 +488,33 @@ function formatTime(timestamp: number) {
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(15, 23, 42, 0.06);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--fill-secondary);
   color: var(--text-primary);
 }
 
 .history-item-avatar.tone-search {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
-  border-color: rgba(59, 130, 246, 0.18);
+  border-color: rgba(var(--ios-blue-rgb), 0.18);
 }
 
 .history-item-avatar.tone-internal {
-  background: rgba(94, 92, 230, 0.12);
+  background: rgba(var(--ios-indigo-rgb), 0.12);
   color: var(--ios-indigo);
-  border-color: rgba(94, 92, 230, 0.18);
+  border-color: rgba(var(--ios-indigo-rgb), 0.18);
 }
 
 .history-item-avatar.tone-web {
-  background: rgba(52, 199, 89, 0.12);
+  background: rgba(var(--ios-green-rgb), 0.12);
   color: var(--ios-green);
-  border-color: rgba(52, 199, 89, 0.18);
+  border-color: rgba(var(--ios-green-rgb), 0.18);
 }
 
 .history-item-avatar.tone-file {
-  background: rgba(255, 149, 0, 0.12);
+  background: rgba(var(--ios-orange-rgb), 0.12);
   color: var(--ios-orange);
-  border-color: rgba(255, 149, 0, 0.18);
+  border-color: rgba(var(--ios-orange-rgb), 0.18);
 }
 
 .history-item-copy {
@@ -571,8 +568,8 @@ function formatTime(timestamp: number) {
 }
 
 .history-item-remove:hover {
-  background: rgba(255, 59, 48, 0.1);
-  color: #b42318;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .history-empty {
@@ -596,7 +593,7 @@ function formatTime(timestamp: number) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.06);
+  background: var(--fill-secondary);
   color: var(--text-primary);
 }
 
