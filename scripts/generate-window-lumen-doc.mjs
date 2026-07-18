@@ -18,6 +18,28 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// Builds a regex fragment matching brace-balanced content up to `depth`
+// levels of nesting (JS RegExp has no recursion, so this unrolls it by hand).
+// depth=3 comfortably covers JSDoc types like `{Promise<{ok:boolean,data?:{a,b}}>}`.
+function buildBalancedBraceContentPattern(depth) {
+  let content = '[^{}]*';
+  for (let i = 0; i < depth; i += 1) {
+    const group = `\\{${content}\\}`;
+    content = `(?:[^{}]|${group})*`;
+  }
+  return content;
+}
+
+const BALANCED_BRACE_TYPE = `\\{(${buildBalancedBraceContentPattern(3)})\\}`;
+// Descriptions are captured non-greedily up to the next `@tag` (or end of
+// string) — comments get flattened to one line before this runs, so an
+// unbounded `(.*)` would otherwise swallow every subsequent tag's text too.
+// `\s*` (not `\s`): the optional `\s*-?\s*` separator right before a
+// description group may already have consumed the whitespace this boundary
+// would otherwise require (e.g. a tag with no description text at all, going
+// straight into the next `@tag`), so the boundary must not depend on it.
+const NEXT_TAG_BOUNDARY = '(?=\\s*@(?:param|returns?|throws|error)\\b|$)';
+
 function normalizeComment(comment) {
   if (!comment) return '';
   return comment
@@ -221,9 +243,14 @@ function generateMarkdown(entries) {
       const name = escapeHtml(entry.path.join('.'));
       const raw = entry.description || '';
 
-      const paramRe = /@param\s+(?:\{([^}]+)\}\s+)?([A-Za-z0-9_.$]+)\s*-?\s*(.*)/g;
-      const returnsRe = /@returns?\s+(?:\{([^}]+)\})?\s*-?\s*(.*)/g;
-      const throwsRe = /@(throws|error)\s+(?:\{([^}]+)\})?\s*-?\s*(.*)/g;
+      // Param names may use JSDoc's optional-parameter bracket syntax
+      // (`[opts]`, `[opts=default]`) — captured without the brackets.
+      const paramRe = new RegExp(
+        `@param\\s+(?:${BALANCED_BRACE_TYPE}\\s+)?\\[?([A-Za-z0-9_.$]+)(?:=[^\\]]*)?\\]?\\s*-?\\s*(.*?)${NEXT_TAG_BOUNDARY}`,
+        'g'
+      );
+      const returnsRe = new RegExp(`@returns?\\s+(?:${BALANCED_BRACE_TYPE})?\\s*-?\\s*(.*?)${NEXT_TAG_BOUNDARY}`, 'g');
+      const throwsRe = new RegExp(`@(throws|error)\\s+(?:${BALANCED_BRACE_TYPE})?\\s*-?\\s*(.*?)${NEXT_TAG_BOUNDARY}`, 'g');
 
       const params = [];
       const returns = [];
@@ -233,7 +260,10 @@ function generateMarkdown(entries) {
       while ((m = returnsRe.exec(raw))) returns.push({ type: m[1] || '', desc: (m[2] || '').trim() });
       while ((m = throwsRe.exec(raw))) throwsArr.push({ type: m[2] || '', desc: (m[3] || '').trim() });
 
-      const descriptionHtml = escapeHtml(raw.replace(/@param[\s\S]*$/m, '').trim()).replace(/\n/g, '<br>') || '';
+      // Strip from the first JSDoc tag onward, whichever comes first — a
+      // description-only entry (no @param) that goes straight to @returns/@error
+      // must not leak that tag text into the rendered description.
+      const descriptionHtml = escapeHtml(raw.replace(/@(?:param|returns?|throws|error)\b[\s\S]*$/, '').trim()).replace(/\n/g, '<br>') || '';
 
       const paramsHtml = params.length
         ? `<table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>${params
