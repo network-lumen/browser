@@ -136,8 +136,8 @@ function onUpdate() {
 
 <style scoped>
 .release-update {
-  background: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 18px;
   box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18);
   padding: 18px;
@@ -146,20 +146,20 @@ function onUpdate() {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  color: var(--text-primary, #000);
+  color: var(--text-primary);
 }
 .eyebrow {
-  color: var(--accent-primary, #007aff);
+  color: var(--accent-primary);
 }
 .muted {
-  color: var(--text-secondary, #3c3c43);
+  color: var(--text-secondary);
 }
 .notes-link {
   background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
-  color: var(--text-link, var(--accent-primary, #007aff));
+  color: var(--text-link);
   font-size: 0.85rem;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -171,7 +171,7 @@ function onUpdate() {
   list-style: none;
   padding: 0;
   margin: 0;
-  color: var(--text-secondary, #3c3c43);
+  color: var(--text-secondary);
 }
 .release-update .meta li + li {
   margin-top: 6px;
@@ -188,8 +188,8 @@ function onUpdate() {
 }
 .sha-short {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
-  border: 1px solid var(--border-light, rgba(60, 60, 67, 0.08));
+  background: var(--fill-tertiary);
+  border: var(--border-width) solid var(--border-light);
   padding: 2px 6px;
   border-radius: 8px;
   color: var(--text-primary);
@@ -232,8 +232,8 @@ function onUpdate() {
 .notes-modal {
   width: min(720px, 92vw);
   max-height: min(70vh, 600px);
-  background: var(--card-bg, #fff);
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -247,7 +247,7 @@ function onUpdate() {
   justify-content: space-between;
   gap: 1rem;
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border-light, rgba(60, 60, 67, 0.08));
+  border-bottom: var(--border-width) solid var(--border-light);
 }
 
 .notes-title {
