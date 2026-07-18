@@ -20,5 +20,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    include: ['tests/unit/**/*.test.{ts,tsx,js,jsx}'],
+    setupFiles: ['tests/unit/vitest.setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text']
+    }
   }
 });

@@ -1477,6 +1477,36 @@ function ensureLumenSite() {
   }
 }
 
+function normalizeLumenApiResult(result) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    !Array.isArray(result) &&
+    Object.prototype.hasOwnProperty.call(result, 'ok')
+  ) {
+    return result;
+  }
+  return { ok: true, data: result };
+}
+
+function normalizeLumenApiError(error, fallbackMessage) {
+  return {
+    ok: false,
+    error: safeString(error?.message || error || fallbackMessage || 'failed', 512)
+  };
+}
+
+function wrapLumenApiCall(fn, fallbackMessage) {
+  return async (...args) => {
+    try {
+      const result = await fn(...args);
+      return normalizeLumenApiResult(result);
+    } catch (error) {
+      return normalizeLumenApiError(error, fallbackMessage);
+    }
+  };
+}
+
 function parseLumenIpfsOrIpns(input) {
   const raw = safeString(input, 4096);
   if (!raw) return { kind: '', id: '', rest: '' };
@@ -1624,52 +1654,52 @@ async function setWindowFullscreen(active) {
 
 const lumen = {
   // Minimal "action" API (requested)
-  SendToken: sendToken,
-  Pin: pinCid,
-  Save: pinCid,
-  resolveUrl,
+  SendToken: wrapLumenApiCall(sendToken, 'send_failed'),
+  Pin: wrapLumenApiCall(pinCid, 'pin_failed'),
+  Save: wrapLumenApiCall(pinCid, 'pin_failed'),
+  resolveUrl: wrapLumenApiCall(resolveUrl, 'resolve_url_failed'),
 
   // Preferred camelCase aliases
-  sendToken,
-  pin: pinCid,
-  save: pinCid,
-  resolveUrl,
-  chooseStableLinkForLive,
-  setWindowFullscreen,
+  sendToken: wrapLumenApiCall(sendToken, 'send_failed'),
+  pin: wrapLumenApiCall(pinCid, 'pin_failed'),
+  save: wrapLumenApiCall(pinCid, 'pin_failed'),
+  resolveUrl: wrapLumenApiCall(resolveUrl, 'resolve_url_failed'),
+  chooseStableLinkForLive: wrapLumenApiCall(chooseStableLinkForLive, 'stable_link_failed'),
+  setWindowFullscreen: wrapLumenApiCall(setWindowFullscreen, 'window_fullscreen_failed'),
 
   window: {
-    setFullscreen: setWindowFullscreen,
+    setFullscreen: wrapLumenApiCall(setWindowFullscreen, 'window_fullscreen_failed'),
   },
 
   stableLinks: {
-    chooseForLive: chooseStableLinkForLive,
-    selectForLiveSetup: selectStableLinkForLiveSetup,
-    publishForLive: publishStableLinkForLive,
+    chooseForLive: wrapLumenApiCall(chooseStableLinkForLive, 'stable_link_failed'),
+    selectForLiveSetup: wrapLumenApiCall(selectStableLinkForLiveSetup, 'stable_link_setup_failed'),
+    publishForLive: wrapLumenApiCall(publishStableLinkForLive, 'stable_link_publish_failed'),
   },
 
   profiles: {
-    getActive: async () => {
+    getActive: wrapLumenApiCall(async () => {
       ensureLumenSite();
       return await ipcRenderer.invoke('profiles:getActive');
-    }
+    }, 'get_active_failed')
   },
 
-  ipfsAdd: async (data, filename) => {
+  ipfsAdd: wrapLumenApiCall(async (data, filename) => {
     ensureLumenSite();
     return await ipcRenderer.invoke('ipfs:add', data, safeString(filename || 'site-data.json', 256));
-  },
+  }, 'ipfs_add_failed'),
 
-  ipfsGet: async (cid, options) => {
+  ipfsGet: wrapLumenApiCall(async (cid, options) => {
     ensureLumenSite();
     return await ipcRenderer.invoke('ipfs:get', safeString(cid || '', 4096), options || {});
-  },
+  }, 'ipfs_get_failed'),
 
-  ipfsResolveIPNS: async (name) => {
+  ipfsResolveIPNS: wrapLumenApiCall(async (name) => {
     ensureLumenSite();
     return await ipcRenderer.invoke('ipfs:resolveIPNS', safeString(name || '', 512));
-  },
+  }, 'ipfs_resolve_ipns_failed'),
 
-  ipfsPublishToIPNS: async (cid, key, options) => {
+  ipfsPublishToIPNS: wrapLumenApiCall(async (cid, key, options) => {
     ensureLumenSite();
     return await ipcRenderer.invoke(
       'ipfs:publishToIPNS',
@@ -1677,10 +1707,10 @@ const lumen = {
       safeString(key || '', 256),
       Object.assign({}, options || {}, { autoCreateKey: true })
     );
-  },
+  }, 'ipfs_publish_ipns_failed'),
 
   pubsub: {
-    publish: async (topic, data, opts) => {
+    publish: wrapLumenApiCall(async (topic, data, opts) => {
       ensureLumenSite();
       const encoding =
         (opts && opts.encoding) ||
@@ -1696,9 +1726,9 @@ const lumen = {
         payload.data = String(data ?? '');
       }
       return await ipcRenderer.invoke('ipfs:pubsub:publish', payload);
-    },
+    }, 'pubsub_publish_failed'),
 
-    subscribe: async (topic, opts = {}, onMessage) => {
+    subscribe: wrapLumenApiCall(async (topic, opts = {}, onMessage) => {
       ensureLumenSite();
       const encoding = (opts && opts.encoding) ? String(opts.encoding) : 'text';
       const autoConnect = !!(opts && opts.autoConnect);
@@ -1845,7 +1875,6 @@ const lumen = {
       const hMsg = (_e, payload) => {
         try {
           if (!payload || payload.subId !== currentSubId) return;
-          // If binary came as array of numbers, restore Uint8Array.
           if (payload.binary && Array.isArray(payload.binary)) payload.binary = new Uint8Array(payload.binary);
           onMessage && onMessage(payload);
         } catch {}
@@ -1898,12 +1927,12 @@ const lumen = {
         try { ipcRenderer.removeListener('ipfs:pubsub:end', hEnd); } catch {}
         throw e;
       }
-    },
+    }, 'pubsub_subscribe_failed')
   },
 
   wallet: {
-    requestSend: sendToken,
-    signArbitrary: async (args) => {
+    requestSend: wrapLumenApiCall(sendToken, 'send_failed'),
+    signArbitrary: wrapLumenApiCall(async (args) => {
       ensureLumenSite();
       const a = args && typeof args === 'object' ? args : {};
       return await ipcRenderer.invoke('wallet:signArbitrary', {
@@ -1912,8 +1941,8 @@ const lumen = {
         algo: safeString(a.algo || 'ADR-036', 64),
         payload: safeString(a.payload, 1024 * 1024),
       });
-    },
-    verifyArbitrary: async (args) => {
+    }, 'sign_arbitrary_failed'),
+    verifyArbitrary: wrapLumenApiCall(async (args) => {
       ensureLumenSite();
       const a = args && typeof args === 'object' ? args : {};
       return await ipcRenderer.invoke('wallet:verifyArbitrary', {
@@ -1923,7 +1952,7 @@ const lumen = {
         pubkeyB64: safeString(a.pubkeyB64, 4096),
         address: safeString(a.address, 256),
       });
-    }
+    }, 'verify_arbitrary_failed')
   }
 };
 
