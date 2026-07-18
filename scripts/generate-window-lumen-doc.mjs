@@ -41,6 +41,10 @@ const packageJsonPath = path.join(repoRoot, 'package.json');
 const docsDir = path.join(repoRoot, 'docs');
 const jsonOutputPath = path.join(docsDir, 'window-lumen.json');
 const htmlOutputPath = path.join(docsDir, 'window-lumen.html');
+// Mirrored into public/ so Vite bundles it — HelpPage.vue's lumen://help
+// "Documentation" tab embeds this exact file in an <iframe>, rather than
+// re-deriving its own render of the same data (one renderer, not two).
+const publicHtmlOutputPath = path.join(repoRoot, 'public', 'docs', 'window-lumen.html');
 
 const WRAPPER_CALL_NAME = 'wrapLumenApiCall';
 
@@ -730,13 +734,20 @@ function main() {
   if (!fs.existsSync(docsDir)) {
     fs.mkdirSync(docsDir, { recursive: true });
   }
+  const publicDocsDir = path.dirname(publicHtmlOutputPath);
+  if (!fs.existsSync(publicDocsDir)) {
+    fs.mkdirSync(publicDocsDir, { recursive: true });
+  }
 
+  const html = renderHtml(model);
   fs.writeFileSync(jsonOutputPath, JSON.stringify(model, null, 2) + '\n', 'utf8');
-  fs.writeFileSync(htmlOutputPath, renderHtml(model), 'utf8');
+  fs.writeFileSync(htmlOutputPath, html, 'utf8');
+  fs.writeFileSync(publicHtmlOutputPath, html, 'utf8');
 
   console.log(
-    `Generated ${path.relative(repoRoot, jsonOutputPath)} and ` +
-    `${path.relative(repoRoot, htmlOutputPath)} with ${model.entries.length} entries ` +
+    `Generated ${path.relative(repoRoot, jsonOutputPath)}, ` +
+    `${path.relative(repoRoot, htmlOutputPath)} and ` +
+    `${path.relative(repoRoot, publicHtmlOutputPath)} with ${model.entries.length} entries ` +
     `across ${model.groups.length} groups.`
   );
 }
