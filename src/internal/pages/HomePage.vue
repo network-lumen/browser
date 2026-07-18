@@ -632,148 +632,6 @@ function getRouteIcon(key: string) {
 </script>
 
 <style scoped>
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  flex-shrink: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 0.25rem;
-}
-
-.version-info {
-  flex-shrink: 0;
-  margin-top: 0.75rem;
-  border-top: var(--border-width) solid var(--border-light);
-  background: var(--sidebar-bg);
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.dropdown-selector {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: var(--fill-tertiary);
-  border: var(--border-width) solid var(--border-light);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  margin-bottom: 0.5rem;
-}
-
-.dropdown-selector:hover {
-  background: var(--fill-secondary);
-  border-color: var(--ios-blue);
-}
-
-.dropdown-selector:active {
-  transform: scale(0.98);
-}
-
-.dropdown-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.dropdown-icon {
-  color: var(--text-secondary);
-  transition: transform 0.2s ease;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  border: none;
-  background: transparent;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--fs-base);
-  font-weight: 400;
-  color: var(--text-primary);
-  transition: all var(--transition-fast);
-  letter-spacing: -0.022em;
-}
-
-.nav-item:hover {
-  background: var(--hover-bg);
-}
-
-.nav-item.active {
-  background: var(--ios-blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: var(--shadow-primary);
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
 .all-pages-list {
   display: flex;
   flex-direction: column;
@@ -856,55 +714,6 @@ function getRouteIcon(key: string) {
   color: var(--text-primary);
 }
 
-.profile-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--fill-tertiary);
-  border-radius: var(--border-radius-lg);
-  margin-bottom: 0.75rem;
-  border: var(--border-width) solid var(--border-light);
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 2px 8px var(--primary-a20);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.profile-label {
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.profile-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.version-info {
-  padding: 0.75rem 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
 /* Main Content */
 .main-content {
   flex: 1;
@@ -957,14 +766,6 @@ function getRouteIcon(key: string) {
   align-items: center;
 }
 
-.pages-count {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  background: var(--hover-bg);
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--border-radius-xs);
-}
 
 /* Quick Actions */
 .quick-actions {
@@ -1191,42 +992,6 @@ function getRouteIcon(key: string) {
   transform: translateX(2px);
 }
 
-/* Routes Section */
-.routes-section {
-  margin-bottom: 1.25rem;
-}
-
-.routes-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.route-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--card-bg);
-  backdrop-filter: blur(8px);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  box-shadow: var(--shadow-xs);
-}
-
-.route-chip:hover {
-  background: var(--gradient-primary);
-  border-color: transparent;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-primary);
-}
-
 /* Responsive */
 @media (max-width: 1100px) {
   .actions-grid {
@@ -1235,67 +1000,24 @@ function getRouteIcon(key: string) {
 }
 
 @media (max-width: 900px) {
-  .sidebar {
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
-    padding: 1rem;
-  }
-  
-  .logo-text {
-    font-size: 1.1rem;
-  }
-  
   .main-content {
     padding: 1.5rem;
   }
-  
+
   .actions-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 700px) {
-  .sidebar {
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
-    padding: 0.75rem;
-  }
-  
-  .logo-text,
-  .nav-label,
-  .nav-item span,
-  .profile-card,
-  .version-info {
-    display: none;
-  }
-  
-  .sidebar-header {
-    justify-content: center;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-  }
-  
-  .nav-item {
-    justify-content: center;
-    padding: 0.75rem;
-  }
-  
   .main-content {
     padding: 1rem;
   }
-  
+
   .action-card {
     padding: 1rem;
   }
-  
+
   .action-icon {
     width: 40px;
     height: 40px;

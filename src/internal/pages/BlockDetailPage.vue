@@ -99,7 +99,7 @@
         </div>
         <div class="card-body">
           <div class="transactions-list">
-            <div class="tx-item" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" style="cursor: pointer;">
+            <div class="tx-item cursor-pointer" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
               <div class="tx-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>

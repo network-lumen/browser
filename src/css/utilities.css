@@ -16,16 +16,21 @@
 .margin-0 { margin: 0; }
 .margin-top-25 { margin-top: .25rem }
 .margin-top-50 { margin-top: .5rem }
+.margin-top-75 { margin-top: .75rem }
 .margin-top-100 { margin-top: 1rem }
+.margin-top-150 { margin-top: 1.5rem }
 .margin-bottom-25 { margin-bottom: .25rem }     /* bottom */
 .margin-bottom-50 { margin-bottom: .5rem }
+.margin-bottom-75 { margin-bottom: .75rem }
 .margin-bottom-100 { margin-bottom: 1rem }
 .margin-left-auto { margin-left: auto; }        /* left */
 .margin-left-25 { margin-left: .25rem; }
 .margin-left-50 { margin-left: .5rem; }
+.margin-right-50 { margin-right: .5rem; }       /* right */
 /* ------------------------ DIMENSIONS ------------------------ */
 .w-full { width: 100%; }
 .h-full { height: 100%; }
+.h-auto { height: auto; }
 /* ------------------------ TEXTS ------------------------ */
 .text-left { text-align: left; }
 .text-center { text-align: center; }
@@ -115,11 +120,16 @@
 /* ---------------------------- BUTTONS ---------------------------- */
 .button:disabled { cursor: not-allowed; opacity: .7; }
 /* ---------------------------- GAPS ---------------------------- */
+.gap-15  { gap: 0.15rem; }
 .gap-25  { gap: 0.25rem; }
+.gap-35  { gap: 0.35rem; }
 .gap-50  { gap: 0.5rem; }
 .gap-75  { gap: 0.75rem; }
 .gap-100  { gap: 1rem; }
+.gap-125  { gap: 1.25rem; }
+.gap-150  { gap: 1.5rem; }
 /* ---------------------------- OTHERS ---------------------------- */
+.opacity-30 { opacity: .3; }
 .opacity-70 { opacity: .7; }
 .nowrap { white-space: nowrap; }
 .flex-1-1-auto { flex: 1 1 auto; }
@@ -173,6 +183,8 @@
 /* display  */
 .hidden { display: none; }
 .block { display: block; }
+.inline-block { display: inline-block; }
+.align-middle { vertical-align: middle; }
 /* Removed generic grid display; prefer flex utilities */
 /* position absolute placement */
 .top-25 { top: .25rem; }

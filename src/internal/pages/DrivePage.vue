@@ -891,7 +891,7 @@
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
               </div>
 
-              <p class="txt-xs color-gray-blue" style="margin: 0 0 0.75rem 0">
+              <p class="txt-xs color-gray-blue margin-0 margin-bottom-75">
                 Export/import your drive metadata (CIDs, names, favourites). The snapshot is
                 encrypted with a password you choose. It doesn't include the data behind CIDs
                 (only references). Keep the file + password safe.
@@ -917,7 +917,7 @@
                 </div>
               </div>
 
-              <div class="details-actions" style="margin-top: 0.75rem; flex-wrap: wrap">
+              <div class="details-actions margin-top-75 flex-wrap-wrap">
                 <button
                   class="btn-ghost"
                   type="button"
@@ -938,7 +938,7 @@
                   ref="driveBackupImportInput"
                   type="file"
                   accept="application/json,.json"
-                  style="display: none"
+                  class="hidden"
                   @change="handleImportDriveBackupFile"
                 />
               </div>
@@ -1001,11 +1001,11 @@
                 <span>Show password</span>
               </label>
 
-              <p class="txt-xs color-gray-blue" style="margin: 0.75rem 0 0 0">
+              <p class="txt-xs color-gray-blue margin-0 margin-top-75">
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="plans-error" style="margin-top: 0.75rem">
+              <div v-if="driveBackupError" class="plans-error margin-top-75">
                 <div class="plans-error-title">Backup failed</div>
                 <div class="plans-error-text">{{ driveBackupError }}</div>
               </div>
@@ -1068,8 +1068,7 @@
 
             <div
               v-if="!driveBackupRestoreDetails"
-              class="drive-backup-form"
-              style="margin-top: 1rem"
+              class="drive-backup-form margin-top-100"
             >
               <div class="drive-backup-field">
                 <label class="drive-backup-label">Password</label>
@@ -1092,14 +1091,14 @@
                 <span>Show password</span>
               </label>
 
-              <div v-if="driveBackupError" class="plans-error" style="margin-top: 0.75rem">
+              <div v-if="driveBackupError" class="plans-error margin-top-75">
                 <div class="plans-error-title">Import failed</div>
                 <div class="plans-error-text">{{ driveBackupError }}</div>
               </div>
             </div>
 
             <template v-else>
-              <div class="details-grid" style="margin-top: 1rem">
+              <div class="details-grid margin-top-100">
                 <div class="details-row">
                   <span class="details-label">Wallet</span>
                   <span class="details-value mono">{{
@@ -1126,8 +1125,7 @@
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="plans-error"
-                style="margin-top: 1rem"
+                class="plans-error margin-top-100"
               >
                 <div class="plans-error-title">Different wallet</div>
                 <div class="plans-error-text">
@@ -1136,7 +1134,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="plans-error" style="margin-top: 1rem">
+              <div v-if="driveBackupRestoreDetails.rollback" class="plans-error margin-top-100">
                 <div class="plans-error-title">Older snapshot</div>
                 <div class="plans-error-text">
                   This snapshot looks older than your current local version (seq
@@ -1144,7 +1142,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="plans-error" style="margin-top: 0.75rem">
+              <div v-if="driveBackupError" class="plans-error margin-top-75">
                 <div class="plans-error-title">Import failed</div>
                 <div class="plans-error-text">{{ driveBackupError }}</div>
               </div>
@@ -1750,8 +1748,7 @@
               </div>
               <p
                 v-if="hasInsufficientFunds"
-                class="txt-xs color-red-base"
-                style="margin-top: 0.5rem"
+                class="txt-xs color-red-base margin-top-50"
               >
                 You can't subscribe because your wallet balance is too low.
               </p>
@@ -6640,168 +6637,6 @@ async function reloadForActiveProfileChange() {
 </script>
 
 <style scoped>
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.profile-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid var(--border-color);
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-primary);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.profile-label {
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.profile-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  border: none;
-  background: transparent;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: var(--fs-base);
-  font-weight: 400;
-  color: var(--text-primary);
-  transition: all var(--transition-fast);
-  letter-spacing: -0.022em;
-}
-
-.nav-item:hover {
-  background: var(--primary-a08);
-}
-
-.nav-item.active {
-  background: var(--ios-blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: var(--shadow-primary);
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
-.nav-item .badge {
-  margin-left: auto;
-  font-size: 0.7rem;
-  background: var(--bg-tertiary);
-  padding: 0.15rem 0.5rem;
-  border-radius: 10px;
-  color: inherit;
-}
-
-.nav-item:not(.active) .badge {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.storage-stats,
-.storage-sources {
-  padding: 1rem;
-  background: var(--card-bg);
-  border-radius: 12px;
-  margin-top: 1rem;
-  margin-bottom: 0.75rem;
-  border: 1px solid var(--border-color);
-}
-
 .hosting-panel {
   margin-top: 0.75rem;
   display: flex;
@@ -7125,37 +6960,6 @@ async function reloadForActiveProfileChange() {
   );
   border-radius: 999px;
   transition: width 0.3s ease;
-}
-
-.ipfs-status {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border-radius: 10px;
-  background: var(--card-bg);
-  border: 1px solid #fecaca;
-  color: var(--ios-red);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.ipfs-status.connected {
-  background: var(--card-bg);
-  border-color: var(--border-light);
-  color: var(--ios-green);
-}
-
-.ipfs-status.connected .status-dot {
-  background: var(--ios-green);
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ios-red);
 }
 
 /* Details modals */
@@ -9540,13 +9344,6 @@ async function reloadForActiveProfileChange() {
 }
 
 @media (max-width: 900px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
-    padding: 1rem;
-  }
-
   .detail-panel {
     position: fixed;
     right: 0;
@@ -9580,39 +9377,6 @@ async function reloadForActiveProfileChange() {
 }
 
 @media (max-width: 700px) {
-  .sidebar {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
-    padding: 0.75rem;
-  }
-
-  .sidebar-header span,
-  .nav-item span,
-  .storage-stats,
-  .ipfs-status span {
-    display: none;
-  }
-
-  .sidebar-header {
-    justify-content: center;
-    padding: 0.5rem;
-  }
-
-  .nav-item {
-    justify-content: center;
-    padding: 0.75rem;
-  }
-
-  .nav-item .badge {
-    display: none;
-  }
-
-  .ipfs-status {
-    justify-content: center;
-    padding: 0.5rem;
-  }
-
   .content-header h1 {
     font-size: 1.25rem;
   }

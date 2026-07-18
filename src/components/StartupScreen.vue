@@ -7,7 +7,7 @@
       </div>
     </header>
 
-    <main class="body" style="height:auto">
+    <main class="body h-auto">
       <div v-if="phase === 'starting' || phase === 'retrying'" class="center">
         <div class="spinner" aria-label="Loading"></div>
       </div>
@@ -17,7 +17,7 @@
           <div class="msg-subtitle">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button style="margin-bottom: 16px;" class="btn primary" type="button" :disabled="busy" @click="restartAll">
+          <button class="btn primary margin-bottom-100" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>

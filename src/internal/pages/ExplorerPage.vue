@@ -263,7 +263,7 @@
                 <button class="view-all-btn" @click="currentView = 'blocks'">View All →</button>
               </div>
               <div class="activity-list">
-                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="activity-item" @click="navigateToBlock(block.height)" style="cursor: pointer;">
+                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="activity-item cursor-pointer" @click="navigateToBlock(block.height)">
                   <div class="activity-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -293,7 +293,7 @@
                 <button class="view-all-btn" @click="currentView = 'transactions'">View All →</button>
               </div>
               <div class="activity-list">
-                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="activity-item" @click="navigateToTransaction(tx.hash)" style="cursor: pointer;">
+                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="activity-item cursor-pointer" @click="navigateToTransaction(tx.hash)">
                   <div class="activity-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
@@ -357,7 +357,7 @@
             </div>
             
             <div class="table-body">
-              <div v-for="block in filteredBlocks" :key="block.height" class="table-row" @click="navigateToBlock(block.height)" style="cursor: pointer;">
+              <div v-for="block in filteredBlocks" :key="block.height" class="table-row cursor-pointer" @click="navigateToBlock(block.height)">
                 <div class="td td-height">
                   <div class="height-link" @click="navigateToBlock(block.height)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2111,106 +2111,6 @@ watch(
 </script>
 
 <style scoped>
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 0.75rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  background: transparent;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: var(--text-primary);
-  font-size: var(--fs-base);
-  font-weight: 400;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  width: 100%;
-  text-align: left;
-  letter-spacing: -0.022em;
-}
-
-.nav-item:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.nav-item.active {
-  background: var(--ios-blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
-.nav-item svg {
-  flex-shrink: 0;
-}
-
 /* Main Content */
 .main-content {
   flex: 1;
@@ -3081,13 +2981,6 @@ watch(
   color: var(--ios-red);
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-  }
-}
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -3532,14 +3425,6 @@ watch(
 .activity-status.failed {
   background: rgba(239, 68, 68, 0.1);
   color: var(--ios-red);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .sidebar {
-    width: 200px;
-    min-width: 200px;
-  }
 }
 
 /* Validators Table Styles */
@@ -4466,21 +4351,7 @@ watch(
   .explorer-page {
     flex-direction: column;
   }
-  
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    padding: 1rem;
-    border-right: none;
-    border-bottom: 2px solid var(--border-color);
-  }
-  
-  .sidebar-nav {
-    flex-direction: row;
-    flex: 1;
-    overflow-x: auto;
-  }
-  
+
   .main-content {
     padding: 1rem;
   }

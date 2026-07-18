@@ -1631,64 +1631,6 @@ void loadRawDomains();
 </script>
 
 <style scoped>
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  color: var(--text-primary);
-  border-right: var(--border-width) solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.logo-text {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.sidebar-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  flex: 1;
-}
-
-.sidebar-note {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 0.8rem;
-  border-radius: 10px;
-  background: var(--fill-error);
-  color: var(--ios-red);
-  font-size: 0.8rem;
-}
-
 .status-dot {
   width: 8px;
   height: 8px;
@@ -1698,79 +1640,6 @@ void loadRawDomains();
 
 .status-dot.ok {
   background: var(--ios-green);
-}
-
-.profile-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  margin-top: 0.75rem;
-  border: 1px solid var(--border-color);
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-primary);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.profile-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.profile-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sidebar-nav {
-  margin-top: 0.5rem;
-}
-
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  margin-bottom: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: 10px;
-  border: none;
-  background: var(--gradient-primary);
-  color: var(--text-primary);
-  font-size: 0.85rem;
 }
 
 .names-nav {
@@ -1799,17 +1668,6 @@ void loadRawDomains();
 .names-nav-item.active {
   background: var(--hover-bg);
   color: var(--text-primary);
-}
-
-.owner-block {
-  margin-top: 1rem;
-}
-
-.owner-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #4b5563;
-  margin-bottom: 0.25rem;
 }
 
 .owner-hint {
@@ -2323,13 +2181,6 @@ void loadRawDomains();
 @media (max-width: 960px) {
   .domain-page {
     flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    max-width: none;
-    border-right: none;
-    border-bottom: 2px solid var(--border-color);
   }
 
   .main-content {

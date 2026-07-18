@@ -13,7 +13,7 @@
           <!-- Camera View -->
           <div v-if="!scannedData && !error" class="camera-container">
             <video ref="videoElement" class="camera-video" autoplay playsinline></video>
-            <canvas ref="canvasElement" class="camera-canvas" style="display: none;"></canvas>
+            <canvas ref="canvasElement" class="camera-canvas hidden"></canvas>
             <div class="scan-frame">
               <div class="corner top-left"></div>
               <div class="corner top-right"></div>
