@@ -95,7 +95,7 @@
             @click="selectedRelease = r"
           >
             <div class="row-main">
-              <div class="row-top">
+              <div class="row-top flex-align-center gap-50">
                 <span class="row-id">#{{ r.id }}</span>
                 <span class="row-version">{{ r.version }}</span>
                 <span class="chip" :class="statusClass(r)">{{ r.status }}</span>
@@ -199,30 +199,30 @@
 
         <div class="modal-body">
           <div class="form-grid">
-            <label class="field">
+            <label class="field flex flex-column gap-35">
               <span class="label">Action</span>
               <select v-model="daoForm.kind" class="input">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
             </label>
-            <label class="field">
+            <label class="field flex flex-column gap-35">
               <span class="label">Deposit (LMN)</span>
               <input v-model.trim="daoForm.depositLmn" class="input" placeholder="0" />
             </label>
           </div>
 
-          <label class="field">
+          <label class="field flex flex-column gap-35">
             <span class="label">Title</span>
             <input v-model.trim="daoForm.title" class="input" />
           </label>
 
-          <label class="field">
+          <label class="field flex flex-column gap-35">
             <span class="label">Summary</span>
             <textarea v-model="daoForm.summary" class="input" rows="3" />
           </label>
 
-          <label v-if="daoForm.kind === 'reject'" class="field">
+          <label v-if="daoForm.kind === 'reject'" class="field flex flex-column gap-35">
             <span class="label">Reason (optional)</span>
             <textarea v-model="daoForm.reason" class="input" rows="3" placeholder="Why should this release be rejected?" />
           </label>
@@ -260,7 +260,7 @@
               </button>
             </div>
 
-            <label class="field">
+            <label class="field flex flex-column gap-35">
               <span class="label">GitHub release URL</span>
               <input
                 v-model.trim="githubReleaseUrl"
@@ -272,21 +272,21 @@
           </div>
 
           <div class="form-grid">
-            <label class="field">
+            <label class="field flex flex-column gap-35">
               <span class="label">Version</span>
               <input v-model.trim="draft.version" class="input" placeholder="0.1.9" />
             </label>
-            <label class="field">
+            <label class="field flex flex-column gap-35">
               <span class="label">Channel</span>
               <select v-model="draft.channel" class="input">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </label>
-            <label class="field">
+            <label class="field flex flex-column gap-35">
               <span class="label">Supersedes (IDs)</span>
               <input v-model.trim="draft.supersedes" class="input" placeholder="12, 13" />
             </label>
-            <label class="field checkbox-field">
+            <label class="field flex flex-column gap-35 checkbox-field">
               <span class="label">Emergency flag</span>
               <label class="checkbox-row">
                 <input type="checkbox" v-model="draft.emergencyOk" />
@@ -295,7 +295,7 @@
             </label>
           </div>
 
-          <label class="field">
+          <label class="field flex flex-column gap-35">
             <span class="label">Release notes</span>
             <textarea v-model="draft.notes" class="input" rows="4" placeholder="Changelog, highlights, etc." />
             <span class="muted small">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
@@ -321,32 +321,32 @@
               </div>
 
               <div class="form-grid">
-                <label class="field">
+                <label class="field flex flex-column gap-35">
                   <span class="label">Platform</span>
                   <input v-model.trim="a.platform" class="input" placeholder="windows-amd64" />
                 </label>
-                <label class="field">
+                <label class="field flex flex-column gap-35">
                   <span class="label">Kind</span>
                   <input v-model.trim="a.kind" class="input" placeholder="browser" />
                 </label>
               </div>
 
               <div class="form-grid">
-                <label class="field">
+                <label class="field flex flex-column gap-35">
                   <span class="label">CID</span>
                   <input v-model.trim="a.cid" class="input" placeholder="Optional" />
                 </label>
-                <label class="field">
+                <label class="field flex flex-column gap-35">
                   <span class="label">SHA-256</span>
                   <input v-model.trim="a.sha256Hex" class="input" placeholder="64 hex chars" />
                 </label>
-                <label class="field">
+                <label class="field flex flex-column gap-35">
                   <span class="label">Size (bytes)</span>
                   <input v-model.trim="a.size" class="input" placeholder="123456" />
                 </label>
               </div>
 
-              <label class="field">
+              <label class="field flex flex-column gap-35">
                 <span class="label">URLs (one per line)</span>
                 <textarea v-model="a.urlsText" class="input mono" rows="3" placeholder="https://example.com/file.exe" />
               </label>
@@ -1381,11 +1381,6 @@ onMounted(async () => {
   background: var(--primary-a08);
   border-color: var(--primary-a15);
 }
-.row-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 .row-id {
   color: var(--text-tertiary);
   font-size: 0.85rem;
@@ -1552,11 +1547,6 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
-}
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
 }
 .field .label {
   font-size: 0.75rem;

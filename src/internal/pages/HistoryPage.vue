@@ -62,7 +62,7 @@
                   {{ entry.monogram }}
                 </span>
 
-                <span class="history-item-copy">
+                <span class="history-item-copy flex flex-column gap-15 min-w-0">
                   <span class="history-item-title">{{ entry.title }}</span>
                   <span class="history-item-subtitle">{{ entry.subtitle }}</span>
                 </span>
@@ -517,12 +517,6 @@ function formatTime(timestamp: number) {
   border-color: rgba(var(--ios-orange-rgb), 0.18);
 }
 
-.history-item-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
 
 .history-item-title,
 .history-item-subtitle {

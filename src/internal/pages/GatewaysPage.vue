@@ -66,7 +66,7 @@
               </div>
               <h3 class="private-gateway-name">{{ gw.name }}</h3>
               <p class="private-gateway-url mono">{{ gw.url }}</p>
-              <div class="private-gateway-status">
+              <div class="private-gateway-status flex-align-center gap-50">
                 <span :class="`status-${gw.status}`">{{ gw.status }}</span>
               </div>
             </div>
@@ -87,7 +87,7 @@
           </p>
         </div>
 
-        <div v-else class="manage-wrap">
+        <div v-else class="manage-wrap flex flex-column gap-100">
           <div v-if="gatewaysLoading" class="empty-state-card">
             <div class="spinner"></div>
             <p class="empty-sub">Loading gateways…</p>
@@ -106,7 +106,7 @@
             </p>
           </div>
 
-          <div v-else class="manage-list">
+          <div v-else class="manage-list flex flex-column gap-100">
             <section v-for="gw in myGateways" :key="gw.id" class="manage-card">
               <header class="manage-card-head">
                 <div class="manage-card-title">
@@ -866,23 +866,12 @@ watch(
   color: var(--text-primary);
 }
 
-.manage-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .manage-head-actions {
   display: inline-flex;
   gap: 0.75rem;
   flex: 0 0 auto;
 }
 
-.manage-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
 
 .manage-card {
   background: var(--bg-primary);
@@ -1321,11 +1310,6 @@ watch(
   word-break: break-all;
 }
 
-.private-gateway-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
 .private-gateway-status span {
   padding: 0.25rem 0.625rem;

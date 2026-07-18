@@ -27,7 +27,7 @@
           <div class="sidebar-section-title">Shortcuts</div>
           <div class="sidebar-section-count">{{ renderedFavouriteEntries.length }}</div>
         </div>
-        <div class="sidebar-favs">
+        <div class="sidebar-favs flex flex-column gap-35">
           <div
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
@@ -237,12 +237,6 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
   color: var(--text-secondary);
   font-size: 11px;
   font-weight: 700;
-}
-
-.sidebar-favs {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
 }
 
 .sidebar-fav-item {

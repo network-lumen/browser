@@ -121,6 +121,7 @@
 .button:disabled { cursor: not-allowed; opacity: .7; }
 /* ---------------------------- GAPS ---------------------------- */
 .gap-15  { gap: 0.15rem; }
+.gap-20  { gap: 0.2rem; }
 .gap-25  { gap: 0.25rem; }
 .gap-35  { gap: 0.35rem; }
 .gap-50  { gap: 0.5rem; }

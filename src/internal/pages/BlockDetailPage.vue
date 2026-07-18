@@ -44,7 +44,7 @@
           </div>
           <div class="detail-row">
             <span class="label">Proposer:</span>
-            <div class="proposer-info">
+            <div class="proposer-info flex-align-center gap-75">
               <div class="proposer-avatar" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img 
                   v-if="block.proposerAvatar" 
@@ -98,7 +98,7 @@
           <h2>Transactions ({{ block.txs }})</h2>
         </div>
         <div class="card-body">
-          <div class="transactions-list">
+          <div class="transactions-list flex flex-column gap-100">
             <div class="tx-item cursor-pointer" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
               <div class="tx-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -588,12 +588,6 @@ watch(
   color: var(--accent-primary);
 }
 
-.proposer-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
 .proposer-avatar {
   width: 32px;
   height: 32px;
@@ -618,12 +612,6 @@ watch(
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--text-primary);
-}
-
-.transactions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .tx-item {

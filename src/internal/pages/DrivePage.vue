@@ -167,7 +167,7 @@
             <X :size="14" />
           </button>
         </div>
-        <div class="filter-info">
+        <div class="filter-info flex-align-center gap-75">
           <span class="file-count">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
           <select v-model="itemsPerPage" class="per-page-select" @change="currentPage = 1">
             <option :value="10">10 per page</option>
@@ -259,7 +259,7 @@
       <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="upload-progress">
         <div class="progress-content" >
           <UiSpinner size="sm" />
-          <div class="progress-info">
+          <div class="progress-info flex flex-column gap-20">
             <span class="txt-sm txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
             <span class="txt-xs color-gray-blue">
               <template v-if="upload?.uploadingPercent != null">
@@ -307,7 +307,7 @@
       <div v-if="converting" class="upload-progress">
         <div class="progress-content">
           <UiSpinner size="sm" />
-          <div class="progress-info">
+          <div class="progress-info flex flex-column gap-20">
             <span class="txt-sm txt-weight-strong"
               >Converting {{ convertingFile }}</span
             >
@@ -349,7 +349,7 @@
 
       <div v-if="hlsQueueVisible" class="hls-queue-panel">
         <div class="hls-queue-header">
-          <div class="hls-queue-copy">
+          <div class="hls-queue-copy flex flex-column gap-15 min-w-0">
             <strong>HLS queue</strong>
             <span>{{ hlsQueueSummaryText() }}</span>
           </div>
@@ -412,7 +412,7 @@
       <div v-if="archiveDownloading" class="upload-progress">
         <div class="progress-content">
           <UiSpinner size="sm" />
-          <div class="progress-info">
+          <div class="progress-info flex flex-column gap-20">
             <span class="txt-sm txt-weight-strong">
               Downloading {{ archiveDownloadFile }}
             </span>
@@ -710,7 +710,7 @@
       </div>
 
       <div class="detail-info">
-        <div class="info-row">
+        <div class="info-row flex flex-column gap-20">
           <span class="info-label">Name</span>
           <input
             v-if="canRenameSelected"
@@ -723,11 +723,11 @@
           />
           <span v-else class="info-value">{{ selectedFile.name }}</span>
         </div>
-        <div class="info-row">
+        <div class="info-row flex flex-column gap-20">
           <span class="info-label">Size</span>
           <span class="info-value">{{ formatSize(selectedFile.size) }}</span>
         </div>
-        <div class="info-row" v-if="selectedFile.uploadedAt">
+        <div class="info-row flex flex-column gap-20" v-if="selectedFile.uploadedAt">
           <span class="info-label">Added</span>
           <span class="info-value">{{
             formatDate(selectedFile.uploadedAt)
@@ -735,7 +735,7 @@
         </div>
       </div>
 
-      <div class="detail-actions">
+      <div class="detail-actions flex flex-column gap-50">
         <button
           v-if="!isDirEntry(selectedFile)"
           class="detail-btn primary"
@@ -968,8 +968,8 @@
               <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
             </p>
 
-            <div class="drive-backup-form">
-              <div class="drive-backup-field">
+            <div class="drive-backup-form flex flex-column gap-75">
+              <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drive-backup-label">Password</label>
                 <input
                   class="drive-backup-input"
@@ -980,7 +980,7 @@
                 />
               </div>
 
-              <div class="drive-backup-field">
+              <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drive-backup-label">Confirm password</label>
                 <input
                   class="drive-backup-input"
@@ -1068,9 +1068,9 @@
 
             <div
               v-if="!driveBackupRestoreDetails"
-              class="drive-backup-form margin-top-100"
+              class="drive-backup-form flex flex-column gap-75 margin-top-100"
             >
-              <div class="drive-backup-field">
+              <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drive-backup-label">Password</label>
                 <input
                   class="drive-backup-input"
@@ -1594,7 +1594,7 @@
              </div>
 
              <div v-if="planGroups.length" class="plans-pager">
-               <div class="plans-pager-side">
+               <div class="plans-pager-side flex-align-center gap-50">
                  <span class="plans-pager-text">
                    Showing {{ planPageStart + 1 }}-{{
                      Math.min(planPageEnd, planGroups.length)
@@ -1639,7 +1639,7 @@
                    ⟫
                  </button>
                </div>
-               <div class="plans-pager-side">
+               <div class="plans-pager-side flex-align-center gap-50">
                  <select
                    v-model.number="planPageSize"
                    aria-label="Rows per page"
@@ -7215,12 +7215,6 @@ async function reloadForActiveProfileChange() {
   color: var(--text-primary);
 }
 
-.filter-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
 .file-count {
   font-size: 0.8rem;
   color: var(--text-secondary);
@@ -7424,13 +7418,6 @@ async function reloadForActiveProfileChange() {
   justify-content: flex-end;
   gap: 0.5rem;
   flex-wrap: wrap;
-}
-
-.hls-queue-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
 }
 
 .hls-queue-copy strong {
@@ -7980,12 +7967,6 @@ async function reloadForActiveProfileChange() {
   flex-wrap: wrap;
 }
 
-.plans-pager-side {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .plans-pager-controls {
   display: flex;
   align-items: center;
@@ -8338,12 +8319,6 @@ async function reloadForActiveProfileChange() {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.progress-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
 }
 
 .progress-actions {
@@ -8785,12 +8760,6 @@ async function reloadForActiveProfileChange() {
   margin-bottom: 1.25rem;
 }
 
-.info-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
 .info-label {
   font-size: 0.65rem;
   color: var(--text-tertiary);
@@ -8830,12 +8799,6 @@ async function reloadForActiveProfileChange() {
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
   color: var(--accent-primary);
-}
-
-.detail-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .detail-btn {
@@ -9457,18 +9420,6 @@ async function reloadForActiveProfileChange() {
   color: var(--text-secondary);
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
-}
-
-.drive-backup-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.drive-backup-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
 }
 
 .drive-backup-label {

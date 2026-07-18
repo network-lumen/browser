@@ -127,7 +127,7 @@
         </div>
 
       <!-- Middle Column: Health & Activity -->
-      <div class="middle-column">
+      <div class="middle-column flex flex-column gap-125">
         <!-- Network Health -->
         <section class="health-section">
           <h2 class="section-title">Network Health</h2>
@@ -225,14 +225,14 @@
                     <span class="height-label">Block</span>
                     <span class="height-value">#{{ formatNumber(block.height) }}</span>
                   </div>
-                  <div class="block-validator">
+                  <div class="block-validator flex-align-center gap-50">
                     <span class="validator-name-compact">{{ block.validator }}</span>
                   </div>
                 </div>
               </div>
               <div class="block-right">
                 <div class="block-meta">
-                  <div class="meta-item">
+                  <div class="meta-item flex-align-center gap-50">
                     <span class="meta-label">TXS</span>
                     <span class="meta-value" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
@@ -733,12 +733,6 @@ onMounted(() => {
 }
 
 /* Middle Column */
-.middle-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 /* Right Column */
 .right-column {
   display: flex;
@@ -1032,11 +1026,6 @@ onMounted(() => {
   font-family: 'Courier New', monospace;
 }
 
-.block-validator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
 .validator-name-compact {
   font-size: 0.75rem;
@@ -1062,11 +1051,6 @@ onMounted(() => {
   justify-content: center;
 }
 
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
 .meta-label {
   font-size: 0.65rem;

@@ -70,7 +70,7 @@
 
       <!-- Discover View -->
       <div v-if="currentView === 'discover'" class="content-area">
-        <div class="discover">
+        <div class="discover flex flex-column gap-125">
           <!-- Hero Section -->
           <section class="hero-section">
             <div class="hero-content">
@@ -103,7 +103,7 @@
           </section>
 
           <!-- Quick Actions -->
-          <section class="quick-actions">
+          <section class="quick-actions flex flex-column gap-100">
             <h3 class="section-title">Get Started</h3>
             <div class="actions-grid">
               <button class="action-card" type="button" @click="goto('lumen://drive')">
@@ -150,7 +150,7 @@
           </section>
 
           <!-- How it Works -->
-          <section class="how-it-works">
+          <section class="how-it-works flex flex-column gap-100">
             <h3 class="section-title">How Lumen Works</h3>
             <div class="steps-grid">
               <div class="step-card">
@@ -178,7 +178,7 @@
           </section>
 
           <!-- Features Grid -->
-          <section class="features-section">
+          <section class="features-section flex flex-column gap-100">
             <h3 class="section-title">Key Features</h3>
             <div class="features-grid">
               <div class="feature-card">
@@ -224,7 +224,7 @@
 
       <!-- Domains & Drive View -->
       <div v-else-if="currentView === 'domains'" class="content-area">
-        <div class="discover">
+        <div class="discover flex flex-column gap-125">
           <!-- Hero -->
           <section class="hero-section small">
             <div class="hero-content">
@@ -234,7 +234,7 @@
           </section>
 
           <!-- Steps -->
-          <div class="tutorial-steps">
+          <div class="tutorial-steps flex flex-column gap-100">
             <div class="tutorial-step">
               <div class="step-header">
                 <div class="step-number">1</div>
@@ -284,7 +284,7 @@
 
       <!-- Publish My Site View -->
       <div v-else-if="currentView === 'publish'" class="content-area">
-        <div class="discover">
+        <div class="discover flex flex-column gap-125">
           <!-- Hero -->
           <section class="hero-section small">
             <div class="hero-content">
@@ -294,7 +294,7 @@
           </section>
 
           <!-- Steps -->
-          <div class="tutorial-steps">
+          <div class="tutorial-steps flex flex-column gap-100">
             <div class="tutorial-step">
               <div class="step-header">
                 <div class="step-number">1</div>
@@ -346,7 +346,7 @@
 
       <!-- Contact View -->
       <div v-else-if="currentView === 'contact'" class="content-area">
-        <div class="discover">
+        <div class="discover flex flex-column gap-125">
           <!-- Hero -->
           <section class="hero-section small">
             <div class="hero-content">
@@ -395,7 +395,7 @@
       
       <!-- Docs View -->
       <div v-else-if="currentView === 'docs'" class="content-area docs-content-area">
-        <div class="discover docs-discover">
+        <div class="discover docs-discover flex flex-column gap-125">
           <iframe
             class="lumen-doc-frame"
             :src="lumenDocFrameSrc"
@@ -744,12 +744,6 @@ function getViewDescription(): string {
 </script>
 
 <style scoped>
-.discover {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 .discover-hero {
   padding: 1.25rem 1.25rem;
   border-radius: var(--border-radius-lg);
@@ -1080,12 +1074,6 @@ function getViewDescription(): string {
   margin: 0 0 1.5rem 0;
 }
 
-.steps {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .step {
   display: flex;
   gap: 1rem;
@@ -1128,12 +1116,6 @@ function getViewDescription(): string {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin: 0 0 1.5rem 0;
-}
-
-.contact-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
 }
 
 .contact-item {
@@ -1307,14 +1289,6 @@ function getViewDescription(): string {
 }
 
 /* Quick Actions */
-.quick-actions,
-.how-it-works,
-.features-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .section-title {
   font-size: 1rem;
   font-weight: 700;
@@ -1484,13 +1458,6 @@ function getViewDescription(): string {
   font-size: 0.8rem;
   color: var(--text-secondary);
   line-height: 1.4;
-}
-
-/* Tutorial Steps */
-.tutorial-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .tutorial-step {

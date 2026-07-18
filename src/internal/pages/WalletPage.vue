@@ -85,7 +85,7 @@
       </header>
 
       <!-- Overview View -->
-      <div v-if="currentView === 'overview'" class="overview-section">
+      <div v-if="currentView === 'overview'" class="overview-section flex flex-column gap-150">
         <!-- Balance Card -->
         <div class="balance-card">
           <div class="balance-header">
@@ -270,7 +270,7 @@
           <span>{{ dexError }}</span>
         </div>
 
-        <div class="dex-list">
+        <div class="dex-list flex flex-column gap-100">
           <div
             v-for="dex in dexRows"
             :key="dex.key"
@@ -379,7 +379,7 @@
         <div class="section-header" v-if="activities.length > 0">
           <h3>Recent Transactions</h3>
           <div class="header-actions-group">
-            <div class="filter-group">
+            <div class="filter-group flex-align-center gap-50">
               <select v-model="txFilterType" class="filter-select">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
@@ -471,9 +471,9 @@
           <div class="table-header">
             <div class="col-type">Type</div>
             <div class="col-amount">Amount</div>
-            <div class="col-from">From</div>
-            <div class="col-to">To</div>
-            <div class="col-hash">Hash</div>
+            <div class="col-from flex-align-center gap-50">From</div>
+            <div class="col-to flex-align-center gap-50">To</div>
+            <div class="col-hash flex-align-center gap-50">Hash</div>
             <div class="col-status">Status</div>
             <div class="col-time">Time</div>
           </div>
@@ -515,7 +515,7 @@
               </span>
             </div>
 
-            <div class="col-from">
+            <div class="col-from flex-align-center gap-50">
               <span class="address-value" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
@@ -538,7 +538,7 @@
               </button>
             </div>
 
-            <div class="col-to">
+            <div class="col-to flex-align-center gap-50">
               <span class="address-value" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
@@ -561,7 +561,7 @@
               </button>
             </div>
 
-            <div class="col-hash">
+            <div class="col-hash flex-align-center gap-50">
               <span class="hash-value" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
@@ -675,7 +675,7 @@
       <div v-if="showAssetTransferModal" class="modal-overlay" @click="closeAssetTransferModal">
         <div class="modal-content send-modal asset-transfer-modal" @click.stop>
           <div class="modal-header">
-            <div class="modal-title-wrapper">
+            <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="modal-icon">
                 <ArrowLeftRight :size="20" />
               </div>
@@ -804,7 +804,7 @@
       <div v-if="showSendModal" class="modal-overlay" @click="closeSendModal">
         <div class="modal-content send-modal" @click.stop>
           <div class="modal-header">
-            <div class="modal-title-wrapper">
+            <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="modal-icon">
                 <Send :size="20" />
               </div>
@@ -999,7 +999,7 @@
       <div v-if="showReceiveModal" class="modal-overlay" @click="closeReceiveModal">
         <div class="modal-content receive-modal" @click.stop>
           <div class="modal-header">
-            <div class="modal-title-wrapper">
+            <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="modal-icon receive">
                 <ArrowDownLeft :size="20" />
               </div>
@@ -1046,7 +1046,7 @@
       <div v-if="showContactModal" class="modal-overlay" @click="closeContactModal">
         <div class="modal-content contact-modal" @click.stop>
           <div class="modal-header">
-            <div class="modal-title-wrapper">
+            <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="modal-icon">
                 <Users :size="20" />
               </div>
@@ -1121,7 +1121,7 @@
       <div v-if="showDeleteConfirmModal" class="modal-overlay" @click="cancelDeleteContact">
         <div class="modal-content delete-confirm-modal" @click.stop>
           <div class="modal-header">
-            <div class="modal-title-wrapper">
+            <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="modal-icon delete">
                 <Trash2 :size="20" />
               </div>
@@ -4376,12 +4376,6 @@ function exportTransactions() {
   transform: translateY(-2px);
 }
 
-.overview-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .balance-card {
   background: var(--gradient-primary);
   border-radius: 20px;
@@ -4639,12 +4633,6 @@ function exportTransactions() {
   flex-wrap: wrap;
 }
 
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .filter-select {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border-color);
@@ -4899,12 +4887,6 @@ function exportTransactions() {
 
 .spin-icon {
   animation: spin 0.9s linear infinite;
-}
-
-.dex-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .dex-item {
@@ -5295,13 +5277,6 @@ function exportTransactions() {
   color: var(--text-secondary);
 }
 
-.col-from,
-.col-to {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .col-from .address-value,
 .col-to .address-value {
   flex: 0 1 auto;
@@ -5317,12 +5292,6 @@ function exportTransactions() {
   font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8125rem;
   color: var(--text-secondary);
-}
-
-.col-hash {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .time-value {
@@ -5433,36 +5402,6 @@ function exportTransactions() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.modal-title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.modal-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--gradient-primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.modal-title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
 }
 
 .modal-icon {

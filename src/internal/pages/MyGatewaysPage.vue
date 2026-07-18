@@ -169,7 +169,7 @@
         <div v-else class="gateways-grid">
           <div v-for="gateway in gateways" :key="gateway.id" class="gateway-card">
             <div class="gateway-header">
-              <div class="gateway-title">
+              <div class="gateway-title flex-align-center gap-50">
                 <div class="status-dot" :class="{ active: gateway.status === 'active' }"></div>
                 <h3>{{ gateway.name }}</h3>
               </div>
@@ -1228,12 +1228,6 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1rem;
-}
-
-.gateway-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .status-dot {
