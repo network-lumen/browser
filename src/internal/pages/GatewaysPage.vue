@@ -203,7 +203,7 @@
                     <h2 class="modal-title">Create gateway</h2>
                     <p class="modal-sub">Register a new gateway for the active profile.</p>
                   </div>
-                  <button type="button" class="icon-btn" @click="closeCreateModal" :disabled="registerState.busy">
+                  <button type="button" class="icon-btn disabled-fade-60" @click="closeCreateModal" :disabled="registerState.busy">
                     ×
                   </button>
                 </div>
@@ -1093,10 +1093,6 @@ watch(
   color: var(--text-primary);
 }
 
-.icon-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .toast {
   position: fixed;

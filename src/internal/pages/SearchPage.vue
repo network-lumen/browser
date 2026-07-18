@@ -29,7 +29,7 @@
             @keydown.enter.prevent="submit"
           />
           <button
-            class="search-btn"
+            class="search-btn disabled-fade-50"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -79,7 +79,7 @@
 
       <div v-if="showLoadPrevious || loadingPrevious" class="load-more-bar load-more-bar--top">
         <button
-          class="load-more-btn"
+          class="load-more-btn disabled-fade-60"
           type="button"
           :disabled="loadingPrevious"
           @click="loadPrevious"
@@ -352,7 +352,7 @@
 
       <div v-if="showLoadMore" class="load-more-bar">
         <button
-          class="load-more-btn"
+          class="load-more-btn disabled-fade-60"
           type="button"
           :disabled="loadingMore || loadingPrevious"
           @click="loadMore"
@@ -4886,11 +4886,6 @@ watch(
   opacity: 1;
 }
 
-.search-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .search-btn:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -5292,10 +5287,6 @@ watch(
   border-color: var(--accent-primary);
 }
 
-.load-more-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .error {
   color: var(--ios-red);

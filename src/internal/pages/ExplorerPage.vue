@@ -89,7 +89,7 @@
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
           />
-          <button class="search-btn" @click="performSearch" :disabled="!searchQuery">
+          <button class="search-btn disabled-fade-50" @click="performSearch" :disabled="!searchQuery">
             Search
           </button>
         </div>
@@ -753,7 +753,7 @@
             </div>
 
             <button 
-              class="confirm-btn" 
+              class="confirm-btn disabled-fade-40"
               @click="() => confirmStakeAction()" 
               :disabled="!canConfirm || isProcessingTx"
             >
@@ -2172,11 +2172,6 @@ watch(
 .search-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.search-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 /* Stats Bar */
@@ -4070,10 +4065,6 @@ watch(
   transform: scale(0.98);
 }
 
-.confirm-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
 
 /* Transaction Status Popup */
 .tx-status-popup {

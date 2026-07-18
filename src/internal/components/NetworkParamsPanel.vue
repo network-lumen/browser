@@ -12,12 +12,12 @@
           <span class="pill-value mono">{{ restBase }}</span>
         </div>
 
-        <button class="btn" type="button" @click="copyAll" :disabled="!hasAnyData">
+        <button class="btn disabled-fade-60" type="button" @click="copyAll" :disabled="!hasAnyData">
           <Copy :size="16" />
           Copy all
         </button>
 
-        <button class="btn" type="button" @click="refreshAll" :disabled="loadingAll">
+        <button class="btn disabled-fade-60" type="button" @click="refreshAll" :disabled="loadingAll">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </button>
@@ -50,7 +50,7 @@
           <div class="section-actions">
             <button
               type="button"
-              class="icon-btn"
+              class="icon-btn disabled-fade-50"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"
@@ -411,11 +411,6 @@ onMounted(() => {
   color: var(--accent-primary);
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .fatal-error {
   border: 1px solid rgba(var(--ios-red-rgb), 0.25);
   background: rgba(var(--ios-red-rgb), 0.08);
@@ -552,11 +547,6 @@ onMounted(() => {
   background: var(--primary-a08);
   border-color: var(--primary-a15);
   color: var(--accent-primary);
-}
-
-.icon-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .section-body {

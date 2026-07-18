@@ -5,7 +5,7 @@
         <div class="header-actions">
           <button
             v-if="isDir && indexHtmlEntry"
-            class="plans-btn"
+            class="plans-btn disabled-fade-50"
             type="button"
             @click="openIndexHtml"
             :disabled="!navigate"
@@ -14,7 +14,7 @@
           </button>
           <button
             v-if="isDir && masterM3u8Entry"
-            class="plans-btn"
+            class="plans-btn disabled-fade-50"
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
@@ -24,7 +24,7 @@
             <span>Play video</span>
           </button>
           <button
-            class="plans-btn"
+            class="plans-btn disabled-fade-50"
             type="button"
             @click="openSaveModal"
             :class="{ 'save-active': saved }"
@@ -38,7 +38,7 @@
             <span>{{ saved ? "Saved" : saving ? "Saving..." : "Save" }}</span>
           </button>
           <button
-            class="plans-btn"
+            class="plans-btn disabled-fade-50"
             type="button"
             @click="copyLink"
             :disabled="!rootCid"
@@ -47,7 +47,7 @@
             <span>Copy link</span>
           </button>
           <button
-            class="plans-btn"
+            class="plans-btn disabled-fade-50"
             type="button"
             @click="download"
             v-if="!isPreviewUnavailable"
@@ -87,7 +87,7 @@
         <div v-else-if="isDir" class="dir-wrap">
           <div class="breadcrumb">
             <button
-              class="crumb"
+              class="crumb disabled-fade-60"
               type="button"
               @click="openDirRoot"
               :disabled="!navigate"
@@ -97,7 +97,7 @@
             <template v-for="(c, idx) in crumbs" :key="c.path">
               <span v-if="idx > 0" class="sep">/</span>
               <button
-                class="crumb"
+                class="crumb disabled-fade-60"
                 type="button"
                 @click="openDirCrumb(idx)"
                 :disabled="!navigate"
@@ -293,20 +293,20 @@
           </div>
 
           <footer class="modal-actions">
-            <button class="btn-secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
+            <button class="btn-secondary disabled-fade-60" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
               Cancel
             </button>
-            <button v-if="savePinCanPause" class="btn-secondary" type="button" @click="pauseSavePinJob">
+            <button v-if="savePinCanPause" class="btn-secondary disabled-fade-60" type="button" @click="pauseSavePinJob">
               Pause
             </button>
-            <button v-if="savePinCanResume" class="btn-secondary" type="button" @click="resumeSavePinJob">
+            <button v-if="savePinCanResume" class="btn-secondary disabled-fade-60" type="button" @click="resumeSavePinJob">
               Resume
             </button>
-            <button v-if="savePinCanStop" class="btn-danger" type="button" @click="cancelSavePinJob">
+            <button v-if="savePinCanStop" class="btn-danger disabled-fade-60" type="button" @click="cancelSavePinJob">
               Stop
             </button>
             <button
-              class="btn-primary"
+              class="btn-primary disabled-fade-60"
               type="button"
               :disabled="savePreparing || savePinIsRunning"
               @click="confirmSaveToDrive"
@@ -2752,12 +2752,6 @@ watch(
   color: var(--ios-red);
 }
 
-.btn-primary:disabled,
-.btn-secondary:disabled,
-.btn-danger:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .pin-progress-card {
   margin-top: 0.9rem;
@@ -2876,11 +2870,6 @@ watch(
   border-color: rgba(34, 197, 94, 0.5);
 }
 
-.plans-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .loading-wrap {
   display: flex;
   align-items: center;
@@ -2916,10 +2905,6 @@ watch(
   font-size: 0.85rem;
 }
 
-.crumb:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .sep {
   color: var(--text-secondary);

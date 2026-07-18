@@ -662,6 +662,18 @@ html, body {
     transform: translateY(-2px);
 }
 
+/* Shared interactive-state helpers (disabled fade, hover fill, status badges) */
+.disabled-fade-40:disabled { cursor: not-allowed; opacity: 0.4; }
+.disabled-fade-45:disabled { cursor: not-allowed; opacity: 0.45; }
+.disabled-fade-50:disabled { cursor: not-allowed; opacity: 0.5; }
+.disabled-fade-60:disabled { cursor: not-allowed; opacity: 0.6; }
+
+.hover-fill-primary:hover { background: var(--hover-bg); color: var(--text-primary); }
+.hover-fill-primary-enabled:hover:not(:disabled) { background: var(--hover-bg); color: var(--text-primary); }
+
+.badge-success { background: var(--fill-success); color: var(--ios-green); }
+.badge-error { background: var(--fill-error); color: var(--ios-red); }
+
 /* Card Styles */
 .card {
     background: var(--card-bg);
