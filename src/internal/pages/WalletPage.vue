@@ -5102,12 +5102,6 @@ function exportTransactions() {
   font-size: 0.82rem;
 }
 
-.dex-detail-sub {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  line-height: 1.35;
-}
-
 .dex-links {
   margin-top: 0.9rem;
   display: flex;
@@ -5458,12 +5452,6 @@ function exportTransactions() {
   margin: 0.25rem 0;
 }
 
-.modal-desc {
-  font-size: 0.9rem;
-  color: var(--text-tertiary);
-  margin-bottom: 1rem;
-}
-
 .form-group {
   margin-bottom: 1.25rem;
 }
@@ -5770,66 +5758,6 @@ function exportTransactions() {
 
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
-}
-
-/* Toast Notification */
-.toast-notification {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  font-size: 0.9rem;
-  font-weight: 500;
-  min-width: 280px;
-}
-
-.toast-notification.success {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.toast-notification.error {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.toast-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.toast-message {
-  flex: 1;
-  line-height: 1.4;
-}
-
-.toast-enter-active {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.toast-leave-active {
-  transition: all 0.2s ease;
-}
-
-.toast-enter-from {
-  transform: translateY(100px) scale(0.8);
-  opacity: 0;
-}
-
-.toast-leave-to {
-  transform: translateX(50px);
   opacity: 0;
 }
 
