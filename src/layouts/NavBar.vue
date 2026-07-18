@@ -3,7 +3,7 @@
     <!-- Navigation Controls -->
     <div class="nav-controls">
       <button
-        class="nav-btn"
+        class="nav-btn hover-fill-primary-enabled"
         :disabled="!canGoBack"
         title="Back"
         @click="previous"
@@ -11,7 +11,7 @@
         <ArrowLeft :size="16" />
       </button>
       <button
-        class="nav-btn"
+        class="nav-btn hover-fill-primary-enabled"
         :disabled="!canGoForward"
         title="Forward"
         @click="next"
@@ -20,7 +20,7 @@
       </button>
       <button
         v-if="!isExtensionTab"
-        class="nav-btn"
+        class="nav-btn hover-fill-primary-enabled"
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
         :title="loading ? 'Loading…' : 'Refresh'"
@@ -44,7 +44,7 @@
       />
       <button
         type="button"
-        class="url-bar-action"
+        class="url-bar-action hover-fill-primary"
         :class="{ 'is-active': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
@@ -59,14 +59,14 @@
     <!-- Quick Actions -->
     <div class="quick-actions">
       <button
-        class="nav-btn"
+        class="nav-btn hover-fill-primary-enabled"
         title="Home"
         @click="$emit('goto', 'lumen://home')"
       >
         <House :size="16" />
       </button>
       <button
-        class="nav-btn"
+        class="nav-btn hover-fill-primary-enabled"
         title="Drive"
         @click="$emit('goto', 'lumen://drive')"
       >
@@ -77,7 +77,7 @@
     <div class="extensions-section appregion-no-drag">
       <button
         type="button"
-        class="nav-btn extensions-trigger"
+        class="nav-btn hover-fill-primary-enabled extensions-trigger"
         :class="{ 'is-active': showExtensionsMenu }"
         title="Extensions"
         @click.stop="toggleExtensionsMenu"
@@ -108,7 +108,7 @@
             <div class="extension-actions">
               <button
                 type="button"
-                class="extension-action-btn disabled-fade-40"
+                class="extension-action-btn disabled-fade-40 hover-fill-primary-enabled"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
                 @click.stop="openExtension(ext)"
@@ -128,7 +128,7 @@
 
               <button
                 type="button"
-                class="extension-action-btn disabled-fade-40"
+                class="extension-action-btn disabled-fade-40 hover-fill-primary-enabled"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
                 @click.stop="reloadExtension(ext.id)"
@@ -333,7 +333,7 @@
           </div>
           
           <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel" @click="cancelExportModal">
+            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelExportModal">
               Cancel
             </UiButton>
             <UiButton variant="none" class="export-btn confirm" @click="confirmExportProfile">
@@ -362,7 +362,7 @@
           <div class="import-mode-switch">
             <button
               type="button"
-              class="import-mode-btn"
+              class="import-mode-btn hover-fill-primary"
               :class="{ active: importMode === 'file' }"
               @click="setImportMode('file')"
             >
@@ -370,7 +370,7 @@
             </button>
             <button
               type="button"
-              class="import-mode-btn"
+              class="import-mode-btn hover-fill-primary"
               :class="{ active: importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
@@ -472,7 +472,7 @@
           </div>
 
           <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel" @click="cancelImportModal">
+            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelImportModal">
               Cancel
             </UiButton>
             <UiButton
@@ -522,7 +522,7 @@
           </div>
           
           <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel" @click="cancelImportPasswordModal">
+            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelImportPasswordModal">
               Cancel
             </UiButton>
             <UiButton variant="none" class="export-btn confirm" @click="confirmImportEncrypted">
@@ -554,7 +554,7 @@
           </p>
 
           <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel" @click="cancelDeleteProfileModal">
+            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelDeleteProfileModal">
               Cancel
             </UiButton>
             <UiButton variant="none" class="export-btn confirm danger" @click="confirmDeleteProfile">
@@ -586,7 +586,7 @@
           </p>
 
           <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel" @click="dismissPqcLinkedModal">
+            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="dismissPqcLinkedModal">
               Ignore
             </UiButton>
             <UiButton variant="none" class="export-btn confirm" @click="exportAfterPqcLinked">
@@ -1551,11 +1551,6 @@ onBeforeUnmount(() => {
   transition: all 0.15s ease;
 }
 
-.nav-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
 .nav-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
@@ -1623,11 +1618,6 @@ onBeforeUnmount(() => {
   color: var(--text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
-}
-
-.url-bar-action:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
 }
 
 .url-bar-action.is-active {
@@ -1751,11 +1741,6 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
-}
-
-.extension-action-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-  color: var(--text-primary);
 }
 
 .extension-action-btn.danger:hover:not(:disabled) {
@@ -2245,10 +2230,6 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
 }
 
-.export-btn.cancel:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 .export-btn.confirm {
   background: var(--accent-primary);
@@ -2287,10 +2268,6 @@ onBeforeUnmount(() => {
   transition: all 0.15s ease;
 }
 
-.import-mode-btn:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 .import-mode-btn.active {
   background: var(--primary-a08);

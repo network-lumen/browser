@@ -602,7 +602,7 @@
       <div class="stake-modal" @click.stop>
         <div class="modal-header">
           <h3>Manage Stake with {{ selectedValidator?.moniker }}</h3>
-          <button class="close-btn" @click="closeStakeModal">×</button>
+          <button class="close-btn hover-fill-primary" @click="closeStakeModal">×</button>
         </div>
 
         <div class="modal-body">
@@ -3762,10 +3762,6 @@ watch(
   transition: all 0.2s ease;
 }
 
-.close-btn:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 .modal-body {
   padding: 1.5rem;

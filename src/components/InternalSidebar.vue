@@ -33,7 +33,7 @@
             :key="entry.id"
             class="sidebar-fav-item"
           >
-            <button class="sidebar-fav-hit" @click="openFavourite(entry.url, $event)">
+            <button class="sidebar-fav-hit hover-fill-primary" @click="openFavourite(entry.url, $event)">
               <span class="sidebar-fav-avatar" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
@@ -43,7 +43,7 @@
               </span>
             </button>
             <button
-              class="sidebar-fav-remove"
+              class="sidebar-fav-remove hover-fill-primary"
               type="button"
               title="Remove shortcut"
               @click.stop="removeFavouriteById(entry.id)"
@@ -262,11 +262,6 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
   transition: all 0.15s ease;
 }
 
-.sidebar-fav-hit:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
 .sidebar-fav-avatar {
   width: 30px;
   height: 30px;
@@ -343,10 +338,6 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
   transition: all 0.15s ease;
 }
 
-.sidebar-fav-remove:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 /* ===== FOOTER ===== */
 .lumen-sidebar-footer {
