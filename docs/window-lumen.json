@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-18T12:59:03.680Z",
+  "generatedAt": "2026-07-18T13:09:40.724Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "responseContract": "Every window.lumen method resolves to {ok:true, data?} on success, or {ok:false, error} on failure. It never throws or rejects across the contextBridge — callers can always destructure the same shape.",
   "groups": [
@@ -9,7 +9,6 @@
       "id": "general",
       "label": "General",
       "paths": [
-        "SendToken",
         "Pin",
         "resolveUrl",
         "chooseStableLinkForLive",
@@ -18,13 +17,6 @@
         "ipfsGet",
         "ipfsResolveIPNS",
         "ipfsPublishToIPNS"
-      ]
-    },
-    {
-      "id": "window",
-      "label": "window",
-      "paths": [
-        "window.setFullscreen"
       ]
     },
     {
@@ -62,32 +54,6 @@
     }
   ],
   "entries": [
-    {
-      "path": "SendToken",
-      "namespace": null,
-      "member": "SendToken",
-      "implementation": "sendToken",
-      "fallbackError": "send_failed",
-      "description": "Send LMN (or a memo-only transfer) from the active wallet, using the embedded wallet UI to prompt/confirm on the user's behalf.",
-      "params": [
-        {
-          "name": "rawTx",
-          "type": "object",
-          "optional": false,
-          "description": "`{to, memo?, amount_lmn?}` (also accepts `recipient`/`note`/`amountLmn`/`amount` aliases)."
-        }
-      ],
-      "returns": {
-        "type": "Promise<{ok:boolean,data?:any,error?:string}>",
-        "description": "Resolves with the broadcast result on success."
-      },
-      "errors": [
-        {
-          "code": "send_failed",
-          "description": "Wallet/profile missing, user declined, or broadcast failed."
-        }
-      ]
-    },
     {
       "path": "Pin",
       "namespace": null,
@@ -183,32 +149,6 @@
       "implementation": "setWindowFullscreen",
       "fallbackError": "window_fullscreen_failed",
       "description": "Toggle fullscreen for the browser window hosting this site.",
-      "params": [
-        {
-          "name": "active",
-          "type": "boolean",
-          "optional": false,
-          "description": "`true` to enter fullscreen, `false` to exit."
-        }
-      ],
-      "returns": {
-        "type": "Promise<{ok:boolean,data?:any,error?:string}>",
-        "description": ""
-      },
-      "errors": [
-        {
-          "code": "window_fullscreen_failed",
-          "description": "The host window was not available."
-        }
-      ]
-    },
-    {
-      "path": "window.setFullscreen",
-      "namespace": "window",
-      "member": "setFullscreen",
-      "implementation": "setWindowFullscreen",
-      "fallbackError": "window_fullscreen_failed",
-      "description": "Alias of top-level `setWindowFullscreen`.",
       "params": [
         {
           "name": "active",
@@ -535,18 +475,18 @@
       "member": "requestSend",
       "implementation": "sendToken",
       "fallbackError": "send_failed",
-      "description": "Alias of top-level `SendToken` — send a payment through the wallet interface.",
+      "description": "Send LMN (or a memo-only transfer) from the active wallet, using the embedded wallet UI to prompt/confirm on the user's behalf.",
       "params": [
         {
           "name": "payment",
           "type": "object",
           "optional": false,
-          "description": "`{profileId?, from?, to, amount, denom, memo?, waitCommit?}`."
+          "description": "`{to, memo?, amount_lmn?}` (also accepts `recipient`/`note`/`amountLmn`/`amount` aliases)."
         }
       ],
       "returns": {
         "type": "Promise<{ok:boolean,data?:any,error?:string}>",
-        "description": ""
+        "description": "Resolves with the broadcast result on success."
       },
       "errors": [
         {

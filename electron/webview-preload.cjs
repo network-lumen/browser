@@ -952,15 +952,6 @@ async function walletVerifyArbitrary(args) {
  */
 const lumen = {
   /**
-   * Send LMN (or a memo-only transfer) from the active wallet, using the
-   * embedded wallet UI to prompt/confirm on the user's behalf.
-   * @param {object} rawTx - `{to, memo?, amount_lmn?}` (also accepts `recipient`/`note`/`amountLmn`/`amount` aliases).
-   * @returns {Promise<{ok:boolean,data?:any,error?:string}>} Resolves with the broadcast result on success.
-   * @error {send_failed} Wallet/profile missing, user declined, or broadcast failed.
-   */
-  SendToken: wrapLumenApiCall(sendToken, 'send_failed'),
-
-  /**
    * Pin a CID (or a `/ipfs/...`, `/ipns/...`, `lumen://...` URL) to the
    * user's Drive, via a confirmation modal.
    * @param {string|object} cidOrUrl - CID/URL string, or `{cidOrUrl|cid|url, name?}`.
@@ -996,16 +987,6 @@ const lumen = {
    * @error {window_fullscreen_failed} The host window was not available.
    */
   setWindowFullscreen: wrapLumenApiCall(setWindowFullscreen, 'window_fullscreen_failed'),
-
-  window: {
-    /**
-     * Alias of top-level `setWindowFullscreen`.
-     * @param {boolean} active - `true` to enter fullscreen, `false` to exit.
-     * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
-     * @error {window_fullscreen_failed} The host window was not available.
-     */
-    setFullscreen: wrapLumenApiCall(setWindowFullscreen, 'window_fullscreen_failed'),
-  },
 
   stableLinks: {
     /**
@@ -1105,9 +1086,10 @@ const lumen = {
 
   wallet: {
     /**
-     * Alias of top-level `SendToken` — send a payment through the wallet interface.
-     * @param {object} payment - `{profileId?, from?, to, amount, denom, memo?, waitCommit?}`.
-     * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+     * Send LMN (or a memo-only transfer) from the active wallet, using the
+     * embedded wallet UI to prompt/confirm on the user's behalf.
+     * @param {object} payment - `{to, memo?, amount_lmn?}` (also accepts `recipient`/`note`/`amountLmn`/`amount` aliases).
+     * @returns {Promise<{ok:boolean,data?:any,error?:string}>} Resolves with the broadcast result on success.
      * @error {send_failed} Wallet/profile missing, user declined, or broadcast failed.
      */
     requestSend: wrapLumenApiCall(sendToken, 'send_failed'),
