@@ -12,7 +12,7 @@
           <button
             type="button"
             class="history-mode-btn"
-            :class="{ active: historyEnabled }"
+            :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
             <component :is="historyEnabled ? Power : ShieldOff" :size="15" />
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45"
+            class="history-clear-btn disabled-fade-45 badge-error"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -98,7 +98,7 @@
             <button
               v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active"
+              class="history-mode-btn active badge-success"
               @click="setHistoryEnabled(true)"
             >
               <Power :size="15" />
@@ -336,16 +336,6 @@ function formatTime(timestamp: number) {
 .history-mode-btn {
   background: var(--fill-secondary);
   color: var(--text-secondary);
-}
-
-.history-mode-btn.active {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.history-clear-btn {
-  background: var(--fill-error);
-  color: var(--ios-red);
 }
 
 

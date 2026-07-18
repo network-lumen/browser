@@ -1150,11 +1150,6 @@ watch(
   font-weight: 600;
 }
 
-.badge-success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
 .badge-warn {
   background: rgba(255, 204, 0, 0.15);
   color: var(--ios-orange);

@@ -41,7 +41,7 @@
           <div class="detail-row">
             <span class="label">Status:</span>
             <span class="value">
-              <span :class="['status-badge', transaction.success ? 'success' : 'failed']">
+              <span :class="['status-badge', transaction.success ? 'success badge-success' : 'failed badge-error']">
                 {{ transaction.success ? '✓ Success' : '✗ Failed' }}
               </span>
             </span>
@@ -465,15 +465,6 @@ watch(
   font-weight: 500;
 }
 
-.status-badge.success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.status-badge.failed {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
 
 .message-item,
 .event-item {
