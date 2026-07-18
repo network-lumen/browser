@@ -1,7 +1,7 @@
 <template>
   <div class="site-page" :class="{ 'html-fullscreen': webviewHtmlFullscreen }">
     <main class="main-content">
-      <header v-if="error" class="content-header">
+      <header v-if="error && !domainNotFound" class="content-header">
         <div class="header-actions">
           <button
             class="plans-btn"
@@ -19,6 +19,19 @@
         <UiSpinner size="md" />
         <div v-if="statusLine" class="loading-lines">
           <div>{{ statusLine }}</div>
+        </div>
+      </div>
+
+      <div v-else-if="domainNotFound" class="domain-empty-wrap">
+        <div class="domain-empty-card">
+          <div class="domain-empty-icon">
+            <Tag :size="26" />
+          </div>
+          <h2>This domain belongs to no one</h2>
+          <p><strong>{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+          <button class="domain-buy-btn" type="button" @click="goToBuyDomain">
+            <span>Buy this domain</span>
+          </button>
         </div>
       </div>
 
@@ -82,7 +95,7 @@
 
 <script setup lang="ts">
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
-import { RefreshCw } from "lucide-vue-next";
+import { RefreshCw, Tag } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -111,6 +124,8 @@ const registerFindTarget = inject<((tabId: string, targetWebContentsId: number |
 
 const loading = ref(false);
 const error = ref("");
+const domainNotFound = ref(false);
+const requestedHost = ref("");
 const statusLine = ref("");
 const resolvedHttpUrl = ref("");
 const siteWebview = ref<any>(null);
@@ -329,6 +344,7 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
   if (!host) {
     resolvedHttpUrl.value = "";
     active.value = null;
+    domainNotFound.value = false;
     error.value = "Invalid domain URL.";
     return;
   }
@@ -344,6 +360,8 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
   loading.value = true;
   error.value = "";
+  domainNotFound.value = false;
+  requestedHost.value = host;
   statusLine.value = "";
 
   try {
@@ -369,11 +387,16 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     resolvedHttpUrl.value = resolvedUrl;
     active.value = { host, target };
   } catch (e: any) {
-    const isAgg =
-      typeof AggregateError !== "undefined" && e instanceof AggregateError;
-    error.value = isAgg
-      ? "No source could serve this content."
-      : String(e?.message || e || "Unable to load this domain.");
+    if (e?.code === "domain_not_registered") {
+      domainNotFound.value = true;
+      error.value = "";
+    } else {
+      const isAgg =
+        typeof AggregateError !== "undefined" && e instanceof AggregateError;
+      error.value = isAgg
+        ? "No source could serve this content."
+        : String(e?.message || e || "Unable to load this domain.");
+    }
     resolvedHttpUrl.value = "";
     active.value = null;
   } finally {
@@ -384,6 +407,10 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
 function retry() {
   void resolveAndLoad({ force: true });
+}
+
+function goToBuyDomain() {
+  navigate?.("lumen://domain/", { push: true });
 }
 
 function toLumenFromWebHref(raw: string): string | null {
@@ -781,6 +808,86 @@ onBeforeUnmount(() => {
   gap: 0.25rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+.domain-empty-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--bg-tertiary);
+}
+
+.domain-empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.375rem;
+  max-width: 24rem;
+  padding: 2.5rem 2.25rem;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-md);
+}
+
+.domain-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: var(--gradient-primary-soft);
+  color: var(--accent-primary);
+  margin-bottom: 0.75rem;
+}
+
+.domain-empty-card h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.domain-empty-card p {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.domain-empty-card p strong {
+  color: var(--text-primary);
+}
+
+.domain-buy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius-full);
+  background: var(--gradient-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  transition: var(--transition-smooth);
+}
+
+.domain-buy-btn:hover {
+  background: var(--gradient-primary-hover);
+  box-shadow: var(--shadow-primary-lg);
+  transform: translateY(-2px);
+}
+
+.domain-buy-btn:active {
+  transform: translateY(0);
 }
 
 .error-wrap {
