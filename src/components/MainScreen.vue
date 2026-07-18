@@ -4,7 +4,6 @@
     <div class="app overflow-hidden">
       <div
         class="tabs-header  h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center"
-        :style="{ background: 'var(--bg-primary, white)', borderBottom: '1px solid var(--border-color, #e5e7eb)' }"
         ref="hdr"
       >
         <div
@@ -1044,19 +1043,21 @@ function handleOnboardingSkip() {
   .tabs-header {
     position: relative;
     z-index: 1000;
+    background: var(--bg-primary);
+    border-bottom: var(--border-width) solid var(--border-color);
   }
 
   .tabs-header .tab.active {
-    background: var(--tab-active-bg, rgba(0, 0, 0, 0.25));
+    background: var(--tab-active-bg);
     z-index: 2;
   }
 
   .tabs-header .tab.active .label {
-    color: var(--text-primary, #0f172a);
+    color: var(--text-primary);
   }
 
   .tabs-header .tab.active :deep(.button-icon) {
-    color: var(--text-primary, #0f172a);
+    color: var(--text-primary);
   }
 
   .add-tab-btn {

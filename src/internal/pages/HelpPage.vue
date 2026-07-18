@@ -1051,17 +1051,17 @@ function getViewDescription(): string {
 }
 
 .action-icon.domain {
-  background: var(--fill-purple);
+  background: rgba(var(--ios-purple-rgb), 0.15);
   color: var(--ios-purple);
 }
 
 .action-icon.wallet {
-  background: var(--fill-green);
+  background: var(--fill-success);
   color: var(--ios-green);
 }
 
 .action-icon.search {
-  background: var(--fill-orange);
+  background: rgba(var(--ios-orange-rgb), 0.15);
   color: var(--ios-orange);
 }
 
@@ -1273,7 +1273,7 @@ function getViewDescription(): string {
 }
 
 .contact-icon.discord {
-  background: var(--fill-purple);
+  background: rgba(var(--ios-purple-rgb), 0.15);
   color: var(--ios-purple);
 }
 
