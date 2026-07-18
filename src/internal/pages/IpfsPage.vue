@@ -1194,12 +1194,17 @@ async function sniffViewKindFromHead(
   }
 }
 
+// Only the first few KB are ever inspected (see detectMagicKindFromBytes), so fetch a
+// bounded prefix via Range instead of downloading arbitrarily large/huge files whole just
+// to sniff their type — this used to be able to pull a multi-GB file fully into memory.
+const MAGIC_BYTES_SNIFF_LIMIT = 32_768;
+
 async function detectViaMagicBytes(
   target: string,
 ): Promise<typeof viewKind.value> {
   try {
     const got = await useInternalLumen()
-      ?.ipfsGet?.(target)
+      ?.ipfsGet?.(target, { maxBytes: MAGIC_BYTES_SNIFF_LIMIT })
       .catch(() => null);
     if (!got?.ok || !Array.isArray(got.data)) return "unknown";
 
