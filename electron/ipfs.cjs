@@ -3037,7 +3037,12 @@ function buildGatewayUrl(base, cidOrPath) {
 
 async function fetchBytesFromUrl(url, opts) {
   const signal = opts?.signal;
-  const res = await fetch(url, { method: 'GET', signal });
+  const maxBytes = Number(opts?.maxBytes);
+  const headers = {};
+  if (Number.isFinite(maxBytes) && maxBytes > 0) {
+    headers.Range = `bytes=0-${maxBytes - 1}`;
+  }
+  const res = await fetch(url, { method: 'GET', signal, headers });
   if (!res.ok && res.status !== 206) {
     const text = await res.text().catch(() => '');
     throw new Error(`http_${res.status}${text ? ':' + text.slice(0, 160) : ''}`);
@@ -3047,8 +3052,12 @@ async function fetchBytesFromUrl(url, opts) {
 
 async function fetchBytesFromKuboCat(arg, opts) {
   const signal = opts?.signal;
+  const maxBytes = Number(opts?.maxBytes);
   const url = new URL(`${ipfsApiBase()}/api/v0/cat`);
   url.searchParams.set('arg', String(arg ?? ''));
+  if (Number.isFinite(maxBytes) && maxBytes > 0) {
+    url.searchParams.set('length', String(maxBytes));
+  }
   const res = await fetch(url.toString(), { method: 'POST', signal });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -3070,6 +3079,10 @@ async function ipfsGet(cidOrPath, options = {}) {
       typeof options?.timeoutMs === 'number' && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
         ? options.timeoutMs
         : 12000;
+    const maxBytes =
+      typeof options?.maxBytes === 'number' && Number.isFinite(options.maxBytes) && options.maxBytes > 0
+        ? options.maxBytes
+        : null;
 
     // ============================================================================
     // Private Gateway Support
@@ -3193,11 +3206,11 @@ async function ipfsGet(cidOrPath, options = {}) {
     }
 
     const stage1 = [];
-    stage1.push(makeTask('kubo_cat', (signal) => fetchBytesFromKuboCat(arg, { signal })));
-    stage1.push(makeTask('local_gateway', (signal) => fetchBytesFromUrl(localGatewayUrl, { signal })));
+    stage1.push(makeTask('kubo_cat', (signal) => fetchBytesFromKuboCat(arg, { signal, maxBytes })));
+    stage1.push(makeTask('local_gateway', (signal) => fetchBytesFromUrl(localGatewayUrl, { signal, maxBytes })));
     for (const base of extraBases) {
       const url = buildGatewayUrl(base, arg);
-      stage1.push(makeTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal })));
+      stage1.push(makeTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal, maxBytes })));
     }
 
     console.log('[electron][ipfs] getting file:', arg, 'sources:', stage1.length + publicBases.length);
@@ -3211,7 +3224,7 @@ async function ipfsGet(cidOrPath, options = {}) {
         const stage2 = [];
         for (const base of publicBases) {
           const url = buildGatewayUrl(base, arg);
-          stage2.push(makeTask(`public_gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal })));
+          stage2.push(makeTask(`public_gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal, maxBytes })));
         }
         winner = await raceTasks(stage2);
       }
