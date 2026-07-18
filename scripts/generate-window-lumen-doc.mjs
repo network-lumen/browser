@@ -20,11 +20,16 @@
 // object literals (`wallet: {...}`, `stableLinks: {...}`, ...) are treated
 // as namespaces and traversed recursively. See electron/webview-preload.cjs's
 // header comment for the full contract.
+//
+// `buildDocModel()` is also exported for tests: tests/unit/window-lumen-docs.test.ts
+// re-parses the current source and diffs the result against the committed
+// docs/window-lumen.json to catch "edited the API but forgot to regenerate
+// the docs" before it ships.
 // ============================================================================
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import ts from 'typescript';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -736,9 +741,21 @@ function main() {
   );
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(`[generate-window-lumen-doc] ${error.message}`);
-  process.exit(1);
+const isMainModule = (() => {
+  try {
+    return import.meta.url === pathToFileURL(process.argv[1] || '').href;
+  } catch {
+    return false;
+  }
+})();
+
+if (isMainModule) {
+  try {
+    main();
+  } catch (error) {
+    console.error(`[generate-window-lumen-doc] ${error.message}`);
+    process.exit(1);
+  }
 }
+
+export { buildDocModel, renderHtml, sourceRelPath, jsonOutputPath };

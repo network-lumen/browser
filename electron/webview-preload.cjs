@@ -550,11 +550,10 @@ async function resolveUrl(urlOrPath) {
 async function sendToken(rawTx) {
   ensureLumenSite();
   const tx = rawTx && typeof rawTx === 'object' ? rawTx : {};
-  const to = webview_utils.safeString(tx.to || tx.recipient || '', 256);
-  const memo = webview_utils.safeString(tx.memo || tx.note || '', 1024);
-  const amountLmnRaw = tx.amount_lmn ?? tx.amountLmn ?? tx.amount;
+  const to = webview_utils.safeString(tx.to || '', 256);
+  const memo = webview_utils.safeString(tx.memo || '', 1024);
   const amountLmn =
-    typeof amountLmnRaw === 'number' && Number.isFinite(amountLmnRaw) ? amountLmnRaw : null;
+    typeof tx.amount_lmn === 'number' && Number.isFinite(tx.amount_lmn) ? tx.amount_lmn : null;
 
   try {
     return await ipcRenderer.invoke('lumenSite:sendToken', { to, memo, amountLmn, title: webview_utils.safeString(document?.title || '', 256) });
@@ -1080,7 +1079,7 @@ const lumen = {
     /**
      * Send LMN (or a memo-only transfer) from the active wallet, using the
      * embedded wallet UI to prompt/confirm on the user's behalf.
-     * @param {object} payment - `{to, memo?, amount_lmn?}` (also accepts `recipient`/`note`/`amountLmn`/`amount` aliases).
+     * @param {object} payment - `{to, memo?, amount_lmn?}`.
      * @returns {Promise<{ok:boolean,data?:any,error?:string}>} Resolves with the broadcast result on success.
      * @error {send_failed} Wallet/profile missing, user declined, or broadcast failed.
      */
