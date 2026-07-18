@@ -744,34 +744,6 @@ function getViewDescription(): string {
 </script>
 
 <style scoped>
-.discover-hero {
-  padding: 1.25rem 1.25rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 60%);
-  box-shadow: var(--shadow-sm);
-}
-
-.discover-hero h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.discover-hero p {
-  margin: 0.55rem 0 0;
-  color: var(--text-secondary);
-  line-height: 1.35;
-}
-
-.discover-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem;
-}
-
 .docs-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -849,46 +821,6 @@ function getViewDescription(): string {
   color: var(--text-primary);
 }
 
-.mono-inline {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  font-size: 0.85em;
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.4rem;
-  background: var(--fill-tertiary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.discover-flow {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.discover-section {
-  padding: 1.1rem 1.1rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-sm);
-}
-
-.discover-section-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 850;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.discover-section-text {
-  margin: 0.45rem 0 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  font-size: 0.92rem;
-}
-
 .discover-note {
   margin-top: 0.85rem;
   padding: 0.75rem 0.85rem;
@@ -898,130 +830,6 @@ function getViewDescription(): string {
   color: var(--text-primary);
   font-size: 0.9rem;
   line-height: 1.35;
-}
-
-.diagram {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: stretch;
-  gap: 0.6rem;
-}
-
-.diagram-node {
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background: var(--fill-tertiary);
-  padding: 0.85rem 0.9rem;
-  min-width: 0;
-}
-
-.diagram-node.diagram-accent {
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.14), var(--fill-tertiary));
-  border-color: rgba(var(--ios-blue-rgb), 0.22);
-}
-
-.diagram-node.diagram-wide {
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.12), var(--fill-tertiary));
-  border-color: rgba(var(--ios-green-rgb), 0.20);
-}
-
-.diagram-badge {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 850;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  padding: 0.18rem 0.5rem;
-  border-radius: 999px;
-  margin-bottom: 0.5rem;
-}
-
-.diagram-title {
-  font-weight: 850;
-  color: var(--text-primary);
-  margin-bottom: 0.2rem;
-}
-
-.diagram-desc {
-  color: var(--text-secondary);
-  font-size: 0.88rem;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-.diagram-arrow {
-  color: var(--text-tertiary);
-  align-self: center;
-}
-
-.flow-node {
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  min-width: 0;
-}
-
-.flow-top {
-  font-weight: 800;
-  font-size: 0.8rem;
-  padding: 0.45rem 0.65rem;
-  background: var(--fill-blue);
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.flow-body {
-  padding: 0.7rem 0.75rem 0.8rem;
-}
-
-.flow-title {
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 0.15rem;
-}
-
-.flow-desc {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.25;
-}
-
-.flow-arrow {
-  color: var(--text-tertiary);
-  flex: 0 0 auto;
-}
-
-.discover-cta {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-  padding: 0.7rem 0.9rem;
-  font-weight: 750;
-  cursor: pointer;
-  transition: background var(--transition-fast), transform var(--transition-fast);
-}
-
-.cta-btn:hover {
-  background: var(--hover-bg);
-}
-
-.cta-btn:active {
-  transform: scale(0.99);
 }
 
 /* Main Content */
@@ -1061,24 +869,6 @@ function getViewDescription(): string {
   padding-right: 0.25rem;
 }
 
-.help-section h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.75rem 0;
-}
-
-.help-section p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.5rem 0;
-}
-
-.step {
-  display: flex;
-  gap: 1rem;
-}
-
 .step-number {
   width: 40px;
   height: 40px;
@@ -1105,57 +895,6 @@ function getViewDescription(): string {
   margin: 0;
 }
 
-.contact-section h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.contact-section > p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.5rem 0;
-}
-
-.contact-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: var(--card-bg);
-  border-radius: var(--border-radius-lg);
-}
-
-.contact-link {
-  width: 100%;
-  text-align: left;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.contact-link:hover {
-  background: var(--hover-bg);
-}
-
-.contact-link:active {
-  transform: translateY(1px);
-}
-
-.contact-item strong {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.contact-item p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
 @media (max-width: 700px) {
   .help-page {
     flex-direction: column;
@@ -1164,30 +903,6 @@ function getViewDescription(): string {
   .main-content {
     margin: 0 0.5rem 0.5rem 0.5rem;
     padding: 1.5rem;
-  }
-
-  .discover-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .discover-flow {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .diagram {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .flow-arrow {
-    transform: rotate(90deg);
-    justify-self: center;
-  }
-
-  .diagram-arrow {
-    transform: rotate(90deg);
-    justify-self: center;
   }
 
   .actions-grid {
