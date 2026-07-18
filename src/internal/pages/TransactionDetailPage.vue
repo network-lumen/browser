@@ -434,8 +434,7 @@ watch(
   color: var(--text-primary);
 }
 
-.copy-btn,
-.copy-btn-small {
+.copy-btn {
   padding: 0.375rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -447,14 +446,12 @@ watch(
   justify-content: center;
 }
 
-.copy-btn:hover,
-.copy-btn-small:hover {
+.copy-btn:hover {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
 }
 
-.copy-btn:hover svg,
-.copy-btn-small:hover svg {
+.copy-btn:hover svg {
   stroke: white;
 }
 
