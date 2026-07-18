@@ -1652,53 +1652,120 @@ async function setWindowFullscreen(active) {
   }
 }
 
+/**
+ * Client API injected into renderer pages that are loaded from IPFS/IPNS.
+ * @namespace lumen
+ */
 const lumen = {
   // Minimal "action" API (requested)
+  /**
+   * Send a token using the embedded wallet UI.
+   * @param {object} rawTx - Transaction payload.
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   SendToken: wrapLumenApiCall(sendToken, 'send_failed'),
+  /**
+   * Pin content to the current site by CID or URL.
+   * @param {string|object} cidOrUrl
+   * @param {object} [optsMaybe]
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   Pin: wrapLumenApiCall(pinCid, 'pin_failed'),
-  Save: wrapLumenApiCall(pinCid, 'pin_failed'),
+  /**
+   * Resolve a lumen://, /ipfs/, /ipns/ or http(s) path to a gateway URL.
+   * @param {string} urlOrPath
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   resolveUrl: wrapLumenApiCall(resolveUrl, 'resolve_url_failed'),
 
-  // Preferred camelCase aliases
-  sendToken: wrapLumenApiCall(sendToken, 'send_failed'),
-  pin: wrapLumenApiCall(pinCid, 'pin_failed'),
-  save: wrapLumenApiCall(pinCid, 'pin_failed'),
-  resolveUrl: wrapLumenApiCall(resolveUrl, 'resolve_url_failed'),
+  /**
+   * Choose a stable link to publish for live view.
+   * @param {object} input
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   chooseStableLinkForLive: wrapLumenApiCall(chooseStableLinkForLive, 'stable_link_failed'),
+  /**
+   * Enable or disable fullscreen for the current window.
+   * @param {boolean} active
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   setWindowFullscreen: wrapLumenApiCall(setWindowFullscreen, 'window_fullscreen_failed'),
 
   window: {
+    /**
+     * Set the browser window fullscreen state.
+     * @param {boolean} active
+     */
     setFullscreen: wrapLumenApiCall(setWindowFullscreen, 'window_fullscreen_failed'),
   },
 
   stableLinks: {
+    /**
+     * Choose a stable link record for live use.
+     * @param {object} input
+     */
     chooseForLive: wrapLumenApiCall(chooseStableLinkForLive, 'stable_link_failed'),
+    /**
+     * Prepare a stable link setup flow.
+     */
     selectForLiveSetup: wrapLumenApiCall(selectStableLinkForLiveSetup, 'stable_link_setup_failed'),
+    /**
+     * Publish a stable link for live content.
+     * @param {object} input
+     * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+     */
     publishForLive: wrapLumenApiCall(publishStableLinkForLive, 'stable_link_publish_failed'),
   },
 
   profiles: {
+    /**
+     * Get the currently active user profile.
+     */
     getActive: wrapLumenApiCall(async () => {
       ensureLumenSite();
       return await ipcRenderer.invoke('profiles:getActive');
     }, 'get_active_failed')
   },
 
+  /**
+   * Add data to IPFS via the host and optionally give it a filename.
+   * @param {Uint8Array|Buffer|object|string} data
+   * @param {string} [filename]
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   ipfsAdd: wrapLumenApiCall(async (data, filename) => {
     ensureLumenSite();
     return await ipcRenderer.invoke('ipfs:add', data, safeString(filename || 'site-data.json', 256));
   }, 'ipfs_add_failed'),
 
+  /**
+   * Retrieve content from IPFS by CID or path.
+   * @param {string} cid
+   * @param {object} [options]
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   ipfsGet: wrapLumenApiCall(async (cid, options) => {
     ensureLumenSite();
     return await ipcRenderer.invoke('ipfs:get', safeString(cid || '', 4096), options || {});
   }, 'ipfs_get_failed'),
 
+  /**
+   * Resolve an IPNS name to the current IPFS address.
+   * @param {string} name
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   ipfsResolveIPNS: wrapLumenApiCall(async (name) => {
     ensureLumenSite();
     return await ipcRenderer.invoke('ipfs:resolveIPNS', safeString(name || '', 512));
   }, 'ipfs_resolve_ipns_failed'),
 
+  /**
+   * Publish a CID to IPNS using a key on the host.
+   * @param {string} cid
+   * @param {string} key
+   * @param {object} [options]
+   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+   */
   ipfsPublishToIPNS: wrapLumenApiCall(async (cid, key, options) => {
     ensureLumenSite();
     return await ipcRenderer.invoke(
@@ -1728,6 +1795,12 @@ const lumen = {
       return await ipcRenderer.invoke('ipfs:pubsub:publish', payload);
     }, 'pubsub_publish_failed'),
 
+    /**
+     * Subscribe to an IPFS pubsub topic.
+     * @param {string} topic
+     * @param {object} [opts]
+     * @param {function} [onMessage]
+     */
     subscribe: wrapLumenApiCall(async (topic, opts = {}, onMessage) => {
       ensureLumenSite();
       const encoding = (opts && opts.encoding) ? String(opts.encoding) : 'text';
@@ -1851,9 +1924,25 @@ const lumen = {
         subId: '',
         topics: undefined,
         state,
+        /**
+         * Return the current subscription id for this handle.
+         * @returns {string}
+         */
         getSubId: () => currentSubId,
+        /**
+         * Return a shallow copy of the subscribed topics array.
+         * @returns {string[]|undefined}
+         */
         getTopics: () => (Array.isArray(currentTopics) ? currentTopics.slice() : undefined),
+        /**
+         * Get the current connection state for this subscription.
+         * @returns {string}
+         */
         getState: () => state,
+        /**
+         * Unsubscribe and clean up resources for this subscription handle.
+         * @returns {Promise<void>}
+         */
         unsubscribe: async () => {
           if (disposed) return;
           disposed = true;
@@ -1931,7 +2020,16 @@ const lumen = {
   },
 
   wallet: {
+    /**
+     * Send a payment through the wallet interface.
+     * @param {object} payment - Payment details: {profileId?, from?, to, amount, denom, memo?, waitCommit?}
+     * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
+     */
     requestSend: wrapLumenApiCall(sendToken, 'send_failed'),
+    /**
+     * Sign arbitrary data with the wallet key.
+     * @param {object} args
+     */
     signArbitrary: wrapLumenApiCall(async (args) => {
       ensureLumenSite();
       const a = args && typeof args === 'object' ? args : {};
@@ -1942,6 +2040,10 @@ const lumen = {
         payload: safeString(a.payload, 1024 * 1024),
       });
     }, 'sign_arbitrary_failed'),
+    /**
+     * Verify signed arbitrary data.
+     * @param {object} args
+     */
     verifyArbitrary: wrapLumenApiCall(async (args) => {
       ensureLumenSite();
       const a = args && typeof args === 'object' ? args : {};

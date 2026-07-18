@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>window.lumen API Reference</title>
+  <style>
+    :root{--bg:#ffffff;--muted:#666;--accent:#0366d6}
+    body{font-family: Inter, Roboto, Arial, sans-serif; margin:0; background: #f6f8fa; color:#111}
+    .wrap{display:flex; max-width:1100px; margin:24px auto; gap:24px}
+    nav{width:260px; background:#fff; border:1px solid #e1e4e8; padding:16px; border-radius:8px}
+    nav h3{margin:0 0 8px 0}
+    nav ul{list-style:none; padding:0; margin:0}
+    nav li{margin:6px 0}
+    nav a{color:var(--accent); text-decoration:none}
+    main{flex:1; background:#fff; border:1px solid #e1e4e8; padding:20px; border-radius:8px}
+    h1{margin-top:0}
+    .method{border-bottom:1px dashed #e6eef8; padding:18px 0}
+    .method-name{margin:0 0 8px 0}
+    .method-desc{color:var(--muted); margin-bottom:12px}
+    table.params{width:100%; border-collapse:collapse; margin-bottom:12px}
+    table.params th, table.params td{border:1px solid #eee; padding:8px; text-align:left}
+    code{background:#f1f8ff; padding:2px 6px; border-radius:4px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <h3>window.lumen</h3>
+      <p style="color:var(--muted); margin:0 0 12px 0">Auto-generated API reference</p>
+      <ul>
+        <li><a href="#m0">SendToken</a></li>
+<li><a href="#m1">Pin</a></li>
+<li><a href="#m2">resolveUrl</a></li>
+<li><a href="#m3">chooseStableLinkForLive</a></li>
+<li><a href="#m4">setWindowFullscreen</a></li>
+<li><a href="#m5">window.setFullscreen</a></li>
+<li><a href="#m6">stableLinks.chooseForLive</a></li>
+<li><a href="#m7">stableLinks.selectForLiveSetup</a></li>
+<li><a href="#m8">stableLinks.publishForLive</a></li>
+<li><a href="#m9">getSubId</a></li>
+<li><a href="#m10">getTopics</a></li>
+<li><a href="#m11">getState</a></li>
+<li><a href="#m12">wallet.requestSend</a></li>
+      </ul>
+    </nav>
+    <main>
+      <h1>window.lumen API Reference</h1>
+      <p style="color:var(--muted); margin-top:0">Generated from JSDoc-style comments in <code>electron/webview-preload.cjs</code>.</p>
+      
+        <section id="m0" class="method">
+          <h2 class="method-name"><code>SendToken</code></h2>
+          <div class="method-desc">Send a token using the embedded wallet UI.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>rawTx</code></td><td>object</td><td>Transaction payload. @returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+
+        <section id="m1" class="method">
+          <h2 class="method-name"><code>Pin</code></h2>
+          <div class="method-desc">Pin content to the current site by CID or URL.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>cidOrUrl</code></td><td>string|object</td><td>@param {object} [optsMaybe] @returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+
+        <section id="m2" class="method">
+          <h2 class="method-name"><code>resolveUrl</code></h2>
+          <div class="method-desc">Resolve a lumen://, /ipfs/, /ipns/ or http(s) path to a gateway URL.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>urlOrPath</code></td><td>string</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+
+        <section id="m3" class="method">
+          <h2 class="method-name"><code>chooseStableLinkForLive</code></h2>
+          <div class="method-desc">Choose a stable link to publish for live view.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+
+        <section id="m4" class="method">
+          <h2 class="method-name"><code>setWindowFullscreen</code></h2>
+          <div class="method-desc">Enable or disable fullscreen for the current window.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>active</code></td><td>boolean</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+
+        <section id="m5" class="method">
+          <h2 class="method-name"><code>window.setFullscreen</code></h2>
+          <div class="method-desc">Set the browser window fullscreen state.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>active</code></td><td>boolean</td><td></td></tr></tbody></table>
+          
+          
+        </section>
+
+        <section id="m6" class="method">
+          <h2 class="method-name"><code>stableLinks.chooseForLive</code></h2>
+          <div class="method-desc">Choose a stable link record for live use.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td></td></tr></tbody></table>
+          
+          
+        </section>
+
+        <section id="m7" class="method">
+          <h2 class="method-name"><code>stableLinks.selectForLiveSetup</code></h2>
+          <div class="method-desc">Prepare a stable link setup flow.</div>
+          
+          
+          
+        </section>
+
+        <section id="m8" class="method">
+          <h2 class="method-name"><code>stableLinks.publishForLive</code></h2>
+          <div class="method-desc">Publish a stable link for live content.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+
+        <section id="m9" class="method">
+          <h2 class="method-name"><code>getSubId</code></h2>
+          <div class="method-desc">Return the current subscription id for this handle. @returns {string}</div>
+          
+          <p><strong>Returns</strong>: <em>string</em> — </p>
+          
+        </section>
+
+        <section id="m10" class="method">
+          <h2 class="method-name"><code>getTopics</code></h2>
+          <div class="method-desc">Return a shallow copy of the subscribed topics array. @returns {string[]|undefined}</div>
+          
+          <p><strong>Returns</strong>: <em>string[]|undefined</em> — </p>
+          
+        </section>
+
+        <section id="m11" class="method">
+          <h2 class="method-name"><code>getState</code></h2>
+          <div class="method-desc">Get the current connection state for this subscription. @returns {string}</div>
+          
+          <p><strong>Returns</strong>: <em>string</em> — </p>
+          
+        </section>
+
+        <section id="m12" class="method">
+          <h2 class="method-name"><code>wallet.requestSend</code></h2>
+          <div class="method-desc">Send a payment through the wallet interface.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>payment</code></td><td>object</td><td>Payment details: {profileId?, from?, to, amount, denom, memo?, waitCommit?} @returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
+          
+        </section>
+    </main>
+  </div>
+</body>
+</html>

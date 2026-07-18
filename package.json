@@ -19,7 +19,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:e2e": "npx playwright test",
-    "test:all": "npm run test:unit && npm run test:e2e"
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "doc:window.lumen": "node --experimental-specifier-resolution=node scripts/generate-window-lumen-doc.mjs"
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",
