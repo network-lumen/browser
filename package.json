@@ -8,6 +8,7 @@
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
     "dev:renderer": "vite",
     "dev:electron": "electron .",
+    "prebuild": "npm run test:unit",
     "build": "vite build",
     "preview": "vite preview",
     "postinstall": "electron-builder install-app-deps",

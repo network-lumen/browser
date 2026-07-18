@@ -9,7 +9,28 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    name: Unit tests (window.lumen + docs)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
   build-mac:
+    needs: [test]
     runs-on: macos-latest
     strategy:
       matrix:
@@ -44,6 +65,7 @@ jobs:
           path: release/*.dmg
 
   build-windows:
+    needs: [test]
     runs-on: windows-latest
     steps:
       - name: Checkout repo
@@ -72,6 +94,7 @@ jobs:
             !release/*.blockmap
 
   build-linux:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
