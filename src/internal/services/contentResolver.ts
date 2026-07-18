@@ -1,4 +1,5 @@
 import { getLocalGatewayBase } from './appSettings';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 export type DomainTarget = {
   proto: 'ipfs' | 'ipns';
@@ -142,7 +143,7 @@ function bytesToText(data: any): string {
 export async function loadStableLinkRecords(name: string): Promise<ResolverRecord[]> {
   const cid = await resolveIpnsToCid(name);
   if (!cid) return [];
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!api || typeof api.ipfsGet !== 'function') return [];
   const res = await api.ipfsGet(`/ipfs/${cid}`, { timeoutMs: 8000 }).catch(() => null);
   if (!res?.ok) return [];
@@ -173,7 +174,7 @@ function splitSubdomain(host: string): { baseDomain: string; recordKey: string |
 export async function resolveIpnsToCid(name: string): Promise<string | null> {
   const n = String(name || '').trim();
   if (!n) return null;
-  const res = await (window as any).lumen?.ipfsResolveIPNS?.(n).catch(() => null);
+  const res = await useInternalLumen()?.ipfsResolveIPNS?.(n).catch(() => null);
   const path = String(res?.path || '');
   const m = path.match(/\/ipfs\/([^/]+)/i);
   return m && m[1] ? m[1] : null;
@@ -188,7 +189,7 @@ export async function resolveDomainTarget(
     // CIDv0 -> CIDv1 base32 (required for localhost subdomain gateways).
     if (!/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(id)) return t;
 
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     if (!api || typeof api.ipfsCidToBase32 !== 'function') return t;
     const res = await api.ipfsCidToBase32(id).catch(() => null);
     const next = String(res?.cid || '').trim();
@@ -197,7 +198,7 @@ export async function resolveDomainTarget(
   };
 
   const { baseDomain, recordKey } = splitSubdomain(host);
-  const dnsApi = (window as any).lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   const infoRes =
     dnsApi && typeof dnsApi.getDomainInfo === 'function'
       ? await dnsApi.getDomainInfo(baseDomain).catch(() => null)
@@ -278,8 +279,8 @@ export function buildCandidateUrl(base: string, target: DomainTarget, path: stri
 }
 
 export async function probeUrl(url: string, timeoutMs = 2500): Promise<boolean> {
-  const httpHead = (window as any).lumen?.httpHead;
-  const httpGet = (window as any).lumen?.httpGet;
+  const httpHead = useInternalLumen()?.httpHead;
+  const httpGet = useInternalLumen()?.httpGet;
     const r = await httpHead(url, { timeout: timeoutMs }).catch(() => null);
     if (r && (r.ok === true || [200, 206, 301, 302, 304, 403, 405].includes(Number(r.status)))) return true;
   if (typeof httpGet === 'function') {
@@ -293,7 +294,7 @@ export async function loadWhitelistedGatewayBases(): Promise<string[]> {
   const now = Date.now();
   if (gatewayCache && now - gatewayCache.ts < 60_000) return gatewayCache.bases;
 
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const profilesApi = api?.profiles;
   const gwApi = api?.gateway;
   if (!profilesApi || !gwApi || typeof gwApi.getPlansOverview !== 'function') {

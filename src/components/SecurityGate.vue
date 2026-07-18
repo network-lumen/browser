@@ -15,6 +15,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { appSettingsState } from "../internal/services/appSettings";
 import { getSecuritySessionTimeoutIdleText } from "../internal/services/securitySessionTimeout";
 import PasswordPromptModal from "./PasswordPromptModal.vue";
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 type LockReason = "startup" | "idle";
 
@@ -45,7 +46,7 @@ const unlockMessage = computed(() => {
 });
 
 async function refreshSecurityStatus() {
-  const api: any = (window as any).lumen?.security;
+  const api: any = useInternalLumen()?.security;
   if (!api || typeof api.getStatus !== "function") return;
 
   const status = await api.getStatus().catch(() => null);
@@ -91,7 +92,7 @@ function touchSessionFromUserAction() {
   if (now - lastTouchAt < TOUCH_THROTTLE_MS) return;
   lastTouchAt = now;
 
-  const api: any = (window as any).lumen?.security;
+  const api: any = useInternalLumen()?.security;
   if (api && typeof api.touchSession === "function") {
     void api.touchSession().catch(() => null);
   } else if (api && typeof api.extendSession === "function") {
@@ -111,7 +112,7 @@ onMounted(async () => {
   await refreshSecurityStatus();
   everUnlocked = sessionActive.value;
 
-  const api: any = (window as any).lumen?.security;
+  const api: any = useInternalLumen()?.security;
   if (api && typeof api.onSessionChanged === "function") {
     unsubscribeSessionChanged = api.onSessionChanged((payload: any) => {
       const active = !!payload?.active;

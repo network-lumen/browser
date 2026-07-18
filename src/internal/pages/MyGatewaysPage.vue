@@ -388,6 +388,7 @@ import { Server, List, Plus, Edit2, Trash2, AlertCircle } from 'lucide-vue-next'
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 interface Gateway {
   id: string;
@@ -453,7 +454,7 @@ async function loadGateways() {
   loading.value = true;
   error.value = '';
   try {
-    const result = await (window as any).lumen.settingsLoadGateways();
+    const result = await useInternalLumen().settingsLoadGateways();
     gateways.value = result || [];
   } catch (e: any) {
     error.value = e.message || 'Failed to load gateways';
@@ -500,7 +501,7 @@ async function saveGateway() {
   try {
     if (editingGateway.value) {
       // Update existing gateway
-      const result = await (window as any).lumen.settingsUpdateGateway(
+      const result = await useInternalLumen().settingsUpdateGateway(
         editingGateway.value.id,
         {
           name: form.value.name.trim(),
@@ -528,7 +529,7 @@ async function saveGateway() {
         owner: ''
       };
 
-      const result = await (window as any).lumen.settingsAddGateway(newGateway);
+      const result = await useInternalLumen().settingsAddGateway(newGateway);
 
       if (!result.ok) {
         modalError.value = result.error || 'Failed to create gateway';
@@ -564,7 +565,7 @@ async function deleteGateway() {
   deleting.value = true;
 
   try {
-    const result = await (window as any).lumen.settingsDeleteGateway(deletingGateway.value.id);
+    const result = await useInternalLumen().settingsDeleteGateway(deletingGateway.value.id);
 
     if (!result.ok) {
       toast.error(result.error || 'Failed to delete gateway');
@@ -591,7 +592,7 @@ function formatDate(timestamp: number): string {
 
 async function checkEmbeddedServerStatus() {
   try {
-    const status = await (window as any).lumen.gatewayServerStatus();
+    const status = await useInternalLumen().gatewayServerStatus();
     embeddedServerRunning.value = status.running;
     embeddedServerPort.value = status.port;
     embeddedServerUrl.value = status.url;
@@ -602,7 +603,7 @@ async function checkEmbeddedServerStatus() {
 
 async function viewApiKey() {
   try {
-    const result = await (window as any).lumen.gatewayServerGetApiKey();
+    const result = await useInternalLumen().gatewayServerGetApiKey();
     
     if (result.ok && result.apiKey) {
       // Copy to clipboard
@@ -628,7 +629,7 @@ async function toggleEmbeddedServer() {
   try {
     if (embeddedServerRunning.value) {
       // Stop server
-      const result = await (window as any).lumen.gatewayServerStop();
+      const result = await useInternalLumen().gatewayServerStop();
       if (result.ok) {
         embeddedServerRunning.value = false;
         embeddedServerPort.value = null;
@@ -639,7 +640,7 @@ async function toggleEmbeddedServer() {
       }
     } else {
       // Start server
-      const result = await (window as any).lumen.gatewayServerStart({ port: 3100 });
+      const result = await useInternalLumen().gatewayServerStart({ port: 3100 });
       if (result.ok) {
         embeddedServerRunning.value = true;
         embeddedServerPort.value = result.port;
@@ -704,7 +705,7 @@ async function loadWhitelist() {
   
   whitelistLoading.value = true;
   try {
-    const apiKey = await (window as any).lumen.gatewayServerGetApiKey();
+    const apiKey = await useInternalLumen().gatewayServerGetApiKey();
     if (!apiKey.ok || !apiKey.apiKey) {
       console.error('No API key available');
       return;
@@ -735,7 +736,7 @@ async function loadWhitelist() {
 
 async function loadAllUserMetadata() {
   try {
-    const result = await (window as any).lumen.gatewayServerGetAllMetadata();
+    const result = await useInternalLumen().gatewayServerGetAllMetadata();
     if (result.ok && result.metadata) {
       userMetadata.value = result.metadata;
     }
@@ -795,7 +796,7 @@ async function saveWhitelistEntry() {
   whitelistSaving.value = true;
 
   try {
-    const apiKey = await (window as any).lumen.gatewayServerGetApiKey();
+    const apiKey = await useInternalLumen().gatewayServerGetApiKey();
     if (!apiKey.ok || !apiKey.apiKey) {
       whitelistModalError.value = 'No API key available';
       return;
@@ -804,7 +805,7 @@ async function saveWhitelistEntry() {
     if (editingWhitelistEntry.value) {
       // Update metadata only (whitelist entry already exists)
       if (whitelistForm.value.displayName.trim()) {
-        const metadataResult = await (window as any).lumen.gatewayServerSaveMetadata(
+        const metadataResult = await useInternalLumen().gatewayServerSaveMetadata(
           whitelistForm.value.address,
           {
             display_name: whitelistForm.value.displayName.trim()
@@ -840,7 +841,7 @@ async function saveWhitelistEntry() {
 
       // Save display name if provided
       if (whitelistForm.value.displayName.trim()) {
-        await (window as any).lumen.gatewayServerSaveMetadata(
+        await useInternalLumen().gatewayServerSaveMetadata(
           whitelistForm.value.address.trim(),
           {
             display_name: whitelistForm.value.displayName.trim()
@@ -877,7 +878,7 @@ async function removeFromWhitelist() {
   whitelistDeleting.value = true;
 
   try {
-    const apiKey = await (window as any).lumen.gatewayServerGetApiKey();
+    const apiKey = await useInternalLumen().gatewayServerGetApiKey();
     if (!apiKey.ok || !apiKey.apiKey) {
       toast.error('No API key available');
       return;

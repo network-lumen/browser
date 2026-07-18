@@ -260,13 +260,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
 import { Network, SlidersHorizontal } from 'lucide-vue-next';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 
 // Window interface
-const lumen = (window as any).lumen;
+const lumen = useInternalLumen();
 const activeView = ref<'status' | 'params'>('status');
 
 // RPC endpoints

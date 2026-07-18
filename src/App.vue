@@ -21,6 +21,7 @@ import MainScreen from './components/MainScreen.vue';
 import SecurityGate from './components/SecurityGate.vue';
 import { useTheme } from './composables/useTheme';
 import { FATAL_ERROR_MAP, checkLumenAPIReferences } from './internal/common/fatal_errors';
+import { useInternalLumen } from './composables/useInternalLumen';
 
 type Stage = 'startup' | 'main';
 
@@ -46,16 +47,16 @@ const isSplashWindow = params.get('splash') === '1';
 const stage = ref<Stage>(isSplashWindow ? 'startup' : 'main');
 
 function syncWindowMode(s: Stage) {
-  const anyWindow: any = window;
-  if (anyWindow.lumen && typeof anyWindow.lumen.setWindowMode === 'function') {
-    anyWindow.lumen.setWindowMode(s);
+  const lumen = useInternalLumen();
+  if (lumen && typeof lumen.setWindowMode === 'function') {
+    lumen.setWindowMode(s);
   }
 }
 
 function handleStartupReady() {
-  const anyWindow: any = window;
-  if (isSplashWindow && anyWindow.lumen && typeof anyWindow.lumen.openMainWindow === 'function') {
-    anyWindow.lumen.openMainWindow();
+  const lumen = useInternalLumen();
+  if (isSplashWindow && lumen && typeof lumen.openMainWindow === 'function') {
+    lumen.openMainWindow();
   } else {
     stage.value = 'main';
   }
@@ -71,7 +72,7 @@ function isDevtoolsShortcut(event: KeyboardEvent) {
 
 function onGlobalKeydown(event: KeyboardEvent) {
   if (!isDevtoolsShortcut(event)) return;
-  const api = (window as any).lumen?.devtools;
+  const api = useInternalLumen()?.devtools;
   if (!api || typeof api.openActive !== 'function') return;
   event.preventDefault();
   void api.openActive();

@@ -55,6 +55,7 @@
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { isBrowserUrl } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const DEFAULT_STORE_URL = "https://chromewebstore.google.com/category/extensions";
 const STORE_SEARCH_BASE_URL = "https://chromewebstore.google.com/search/";
@@ -416,7 +417,7 @@ function onPageTitleUpdated(ev: any) {
 
 async function refreshInstalledExtensions() {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.listExtensions !== "function") return;
     const result = await api.listExtensions();
     if (!result || result.ok === false) return;
@@ -442,7 +443,7 @@ async function installChromeWebStoreExtension(input: string) {
   }
 
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.installFromChromeWebStore !== "function") return;
     installInFlight.value = true;
     statusError.value = false;
@@ -468,7 +469,7 @@ async function removeCurrentExtension() {
   const id = storeInstallId.value;
   if (!id) return;
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.removeExtension !== "function") return;
     installInFlight.value = true;
     statusError.value = false;
@@ -693,7 +694,7 @@ onActivated(activatePage);
 onDeactivated(deactivatePage);
 onMounted(() => {
   void refreshInstalledExtensions();
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (api && typeof api.onChanged === "function") {
     removeExtensionsChangedListener = api.onChanged(() => {
       void refreshInstalledExtensions();

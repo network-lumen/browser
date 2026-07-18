@@ -374,6 +374,7 @@ import UiSpinner from '../../ui/UiSpinner.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 type ReleaseParams = {
   allowedPublishers: string[];
@@ -534,7 +535,7 @@ function mapRelease(raw: any): ReleaseRecord {
 }
 
 async function restGet(path: string) {
-  const api = (window as any).lumen?.net?.restGet;
+  const api = useInternalLumen()?.net?.restGet;
   if (typeof api !== 'function') throw new Error('Network API unavailable');
   const res = await api(path);
   if (!res?.ok) throw new Error(String(res?.error || `Request failed (${path})`));
@@ -542,7 +543,7 @@ async function restGet(path: string) {
 }
 
 async function httpGet(url: string, options: any = {}) {
-  const api = (window as any).lumen?.httpGet || (window as any).lumen?.http?.get;
+  const api = useInternalLumen()?.httpGet || useInternalLumen()?.http?.get;
   if (typeof api !== 'function') throw new Error('HTTP API unavailable');
   const res = await api(String(url || ''), options || {});
   if (!res) throw new Error('HTTP request failed');
@@ -694,7 +695,7 @@ async function submitDaoProposal() {
     return;
   }
 
-  const api = (window as any).lumen?.release?.submitToDao;
+  const api = useInternalLumen()?.release?.submitToDao;
   if (typeof api !== 'function') {
     addToast('error', 'DAO submission API unavailable.');
     return;
@@ -1001,7 +1002,7 @@ async function submitRelease() {
     return;
   }
 
-  const api = (window as any).lumen?.release?.publishRelease;
+  const api = useInternalLumen()?.release?.publishRelease;
   if (typeof api !== 'function') {
     addToast('error', 'Release publishing API unavailable.');
     return;
@@ -1023,7 +1024,7 @@ async function submitRelease() {
 
 async function loadTestMode() {
   try {
-    const api = (window as any).lumen?.release?.getTestOptions;
+    const api = useInternalLumen()?.release?.getTestOptions;
     if (typeof api !== 'function') return;
     const res = await api();
     if (!res || !res.enabled) return;
@@ -1037,7 +1038,7 @@ async function loadTestMode() {
 
 async function applyTestMode() {
   try {
-    const api = (window as any).lumen?.release?.setTestOptions;
+    const api = useInternalLumen()?.release?.setTestOptions;
     if (typeof api !== 'function') return;
     const res = await api({
       forcePrompt: !!testMode.forcePrompt,
@@ -1051,7 +1052,7 @@ async function applyTestMode() {
 
 async function pollNow() {
   try {
-    const api = (window as any).lumen?.release?.pollNow;
+    const api = useInternalLumen()?.release?.pollNow;
     if (typeof api !== 'function') return;
     await api();
     addToast('success', 'Release watcher refreshed');

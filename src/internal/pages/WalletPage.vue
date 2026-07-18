@@ -1156,6 +1156,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onBeforeUnmount, inject } from 'vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
@@ -1641,7 +1642,7 @@ async function loadIbcChannels(force = false) {
     return;
   }
 
-  const net = (window as any)?.lumen?.net;
+  const net = useInternalLumen()?.net;
   if (!net || typeof net.restGet !== 'function') {
     ibcChannelsError.value = 'Network API not available.';
     ibcChannels.value = [];
@@ -1827,7 +1828,7 @@ function findEventAttr(events: any, type: string, key: string): string {
 
 async function hydrateTxMeta(list: Activity[]) {
   try {
-    const net = (window as any)?.lumen?.net;
+    const net = useInternalLumen()?.net;
     if (!net || typeof net.restGet !== 'function') return;
 
     const candidates = (Array.isArray(list) ? list : []).filter((tx) => {
@@ -2244,8 +2245,7 @@ async function refreshWallet() {
   balanceLoading.value = true;
   balanceError.value = '';
   try {
-    const anyWindow = window as any;
-    const walletApi = anyWindow?.lumen?.wallet;
+    const walletApi = useInternalLumen()?.wallet;
     if (!walletApi || typeof walletApi.getBalance !== 'function') {
       balanceError.value = 'Wallet bridge not available';
       balanceLmn.value = null;
@@ -2456,8 +2456,7 @@ async function executeRecurringPayment(paymentId: string) {
     return;
   }
 
-  const anyWindow = window as any;
-  const walletApi = anyWindow?.lumen?.wallet;
+  const walletApi = useInternalLumen()?.wallet;
   if (!walletApi || typeof walletApi.sendTokens !== 'function') {
     showToast('Wallet bridge not available', 'error');
     return;
@@ -2489,7 +2488,7 @@ async function executeRecurringPayment(paymentId: string) {
     if (!res || res.ok === false) {
       const err = String(res?.error || 'Transaction failed');
       if (err === 'password_required' || err === 'invalid_password') {
-        try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+        try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
         showToast('Wallet locked. Unlock to continue.', 'warning');
         return;
       }
@@ -2668,8 +2667,7 @@ function buildAbsoluteHref(baseUrl: string, href: string): string {
 }
 
 async function fetchAbsoluteTextViaBridge(url: string, timeout = 15000): Promise<string> {
-  const anyWindow = window as any;
-  const httpGet = anyWindow?.lumen?.http?.get || anyWindow?.lumen?.httpGet;
+  const httpGet = useInternalLumen()?.http?.get || useInternalLumen()?.httpGet;
   if (typeof httpGet !== 'function') {
     throw new Error('HTTP bridge not available.');
   }
@@ -3049,8 +3047,7 @@ function isTransientFetchError(error: unknown): boolean {
 }
 
 async function fetchAbsoluteJsonOnce(url: string, timeout = 15000): Promise<any> {
-  const anyWindow = window as any;
-  const httpGet = anyWindow?.lumen?.http?.get || anyWindow?.lumen?.httpGet;
+  const httpGet = useInternalLumen()?.http?.get || useInternalLumen()?.httpGet;
   if (typeof httpGet === 'function') {
     const res = await httpGet(String(url || ''), {
       timeout,
@@ -3281,7 +3278,7 @@ async function resolveChainRegistryIconUrl(
 }
 
 async function fetchLocalBalances(ownerAddress: string): Promise<Array<{ denom: string; amount: string }>> {
-  const net = (window as any)?.lumen?.net;
+  const net = useInternalLumen()?.net;
   if (!net || typeof net.restGet !== 'function') {
     throw new Error('Network API not available.');
   }
@@ -3327,7 +3324,7 @@ async function resolveDenomTrace(
   try {
     let trace: any = null;
     if (isLocal) {
-      const net = (window as any)?.lumen?.net;
+      const net = useInternalLumen()?.net;
       if (!net || typeof net.restGet !== 'function') {
         throw new Error('Network API not available.');
       }
@@ -3386,7 +3383,7 @@ function decimalToMicroUnits(value: string): bigint | null {
 }
 
 async function loadCurrentNetworkChainId(): Promise<string> {
-  const net = (window as any)?.lumen?.net;
+  const net = useInternalLumen()?.net;
   if (!net || typeof net.getState !== 'function') {
     currentNetworkChainId.value = currentNetworkChainId.value || '';
     return currentNetworkChainId.value;
@@ -3557,8 +3554,7 @@ async function confirmSendPreview() {
     return;
   }
 
-  const anyWindow = window as any;
-  const walletApi = anyWindow?.lumen?.wallet;
+  const walletApi = useInternalLumen()?.wallet;
   const activeId = activeProfileId.value;
   if (!activeId) {
     showToast('No active profile selected', 'error');
@@ -3651,7 +3647,7 @@ async function confirmSendPreview() {
     if (!res || res.ok === false) {
       const err = String(res?.error || 'unknown error');
       if (err === 'password_required' || err === 'invalid_password') {
-        try { await (anyWindow as any)?.lumen?.security?.lockSession?.(); } catch {}
+        try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
         showToast('Wallet locked. Unlock to continue.', 'warning');
         return;
       }
@@ -4000,8 +3996,7 @@ async function confirmAssetTransfer() {
     return;
   }
 
-  const anyWindow = window as any;
-  const walletApi = anyWindow?.lumen?.wallet;
+  const walletApi = useInternalLumen()?.wallet;
   if (!walletApi || typeof walletApi.ibcTransfer !== 'function') {
     showToast('Wallet IBC bridge not available.', 'error');
     return;
@@ -4041,7 +4036,7 @@ async function confirmAssetTransfer() {
     if (!res || res.ok === false) {
       const err = String(res?.error || 'unknown error');
       if (err === 'password_required' || err === 'invalid_password') {
-        try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+        try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
         showToast('Wallet locked. Unlock to continue.', 'warning');
         return;
       }
@@ -4130,7 +4125,7 @@ async function copyAddressWithToast() {
 async function loadContacts() {
   contactsLoading.value = true;
   try {
-    const result = await (window as any).lumen.addressBook.list();
+    const result = await useInternalLumen().addressBook.list();
     if (result.ok) {
       contacts.value = result.contacts || [];
     }
@@ -4181,7 +4176,7 @@ async function saveContact() {
     };
 
     if (editingContact.value) {
-      const result = await (window as any).lumen.addressBook.update(
+      const result = await useInternalLumen().addressBook.update(
         editingContact.value.id,
         plainContact
       );
@@ -4194,7 +4189,7 @@ async function saveContact() {
       }
     } else {
       // Add new contact
-      const result = await (window as any).lumen.addressBook.add(plainContact);
+      const result = await useInternalLumen().addressBook.add(plainContact);
       if (result.ok) {
         showToast('Contact added!', 'success');
         await loadContacts();
@@ -4219,7 +4214,7 @@ async function confirmDeleteContact() {
   if (!contactToDelete.value) return;
   
   try {
-    const result = await (window as any).lumen.addressBook.delete(contactToDelete.value.id);
+    const result = await useInternalLumen().addressBook.delete(contactToDelete.value.id);
     if (result.ok) {
       showToast('Contact deleted', 'success');
       await loadContacts();

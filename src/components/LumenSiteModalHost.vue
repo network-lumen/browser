@@ -359,6 +359,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 type UiReq = { id: string; type: string; data: any };
 
@@ -380,7 +381,7 @@ const siteLabel = computed(() => {
 const actionKind = computed(() => String(current.value?.data?.actionKind || ""));
 
 function respond(payload: any) {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const id = String(current.value?.id || "");
   if (!api?.lumenSite?.respondUiRequest || !id) {
     queue.value.shift();
@@ -468,7 +469,7 @@ const canSend = computed(() => {
 });
 
 async function loadActiveWalletContext() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   activeProfileId.value = "";
   activeAddress.value = "";
   balanceUlmn.value = null;
@@ -505,7 +506,7 @@ function resetSendState() {
 async function submitSend() {
   if (!current.value) return;
   if (!canSend.value) return;
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!api?.wallet?.sendTokens) {
     sendError.value = "Wallet API not available.";
     return;
@@ -726,7 +727,7 @@ function resetPinState() {
 }
 
 async function waitForPinCompletion(jobId: string) {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const id = String(jobId || "").trim();
   if (!id || pinWaitJobId.value === id) return;
   pinWaitJobId.value = id;
@@ -799,7 +800,7 @@ async function waitForPinCompletion(jobId: string) {
 }
 
 async function submitPin() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!pinTarget.value || pinIsRunning.value) return;
 
   const name = String(saveNameDraft.value || "").trim();
@@ -830,14 +831,14 @@ async function submitPin() {
 }
 
 async function pausePinJob() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!pinJobId.value || !api?.ipfsPinPause) return;
   const res = await api.ipfsPinPause(pinJobId.value).catch(() => null);
   if (res?.job) applyPinJobSnapshot(res.job);
 }
 
 async function resumePinJob() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!pinJobId.value || !api?.ipfsPinResume) return;
   pinError.value = "";
   const res = await api.ipfsPinResume(pinJobId.value).catch(() => null);
@@ -850,7 +851,7 @@ async function resumePinJob() {
 }
 
 async function cancelPinJob() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!pinJobId.value || !api?.ipfsPinCancel) return;
   const res = await api.ipfsPinCancel(pinJobId.value).catch(() => null);
   if (res?.job) applyPinJobSnapshot(res.job);
@@ -929,7 +930,7 @@ function defaultStableLiveLabel(): string {
 }
 
 async function loadStableLinksForModal() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   stableLinkLoading.value = true;
   stableLinks.value = [];
   try {
@@ -1009,7 +1010,7 @@ function normalizeIpfsCid(value: any): string {
 }
 
 async function loadStableLinkSetupRecords(ipnsName: string) {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const resolved = await api?.ipfsResolveIPNS?.(ipnsName).catch(() => null);
   const path = String(resolved?.path || "");
   const m = path.match(/\/ipfs\/([^/]+)/i);
@@ -1029,7 +1030,7 @@ async function loadStableLinkSetupRecords(ipnsName: string) {
 async function loadStableLinkSetupImage(cidRaw: string) {
   const cid = normalizeIpfsCid(cidRaw);
   if (!cid) return null;
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const got = await api?.ipfsGet?.(`/ipfs/${cid}`, { timeoutMs: 8000 }).catch(() => null);
   if (!got?.ok) return { cid, name: "", type: "" };
   const text = bytesToText(got.data);
@@ -1082,7 +1083,7 @@ function resetStableLinkSetupState() {
 }
 
 async function publishStableLinkRecords(keyName: string) {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const body = JSON.stringify({
     lumenRecordsVersion: 1,
     type: "lumen.stable-link.records",
@@ -1099,7 +1100,7 @@ async function publishStableLinkRecords(keyName: string) {
 
 async function submitStableLink() {
   if (!canSubmitStableLink.value) return;
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   stableLinkSaving.value = true;
   stableLinkError.value = "";
   try {
@@ -1205,7 +1206,7 @@ watch(
 );
 
 onMounted(() => {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!api?.lumenSite?.onUiRequest) return;
   try {
     unsub = api.lumenSite.onUiRequest((payload: any) => {

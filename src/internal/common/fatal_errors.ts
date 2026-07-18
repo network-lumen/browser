@@ -1,6 +1,6 @@
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
-
-const lumen_api: any = (window as any).lumen;
+const lumen_api: any = useInternalLumen();
 const gateway_lumen_api = lumen_api?.gateway;
 const profiles_lumen_api = lumen_api?.profiles;
 

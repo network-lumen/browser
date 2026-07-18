@@ -606,6 +606,7 @@ import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
+import { useInternalLumen } from '../composables/useInternalLumen';
 import {
   profilesState,
   activeProfileId,
@@ -879,7 +880,7 @@ function normalizeExtensionPayload(payload: any): InstalledExtension[] {
 
 async function refreshExtensions() {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.listExtensions !== 'function') return;
     const result = await api.listExtensions();
     if (result?.ok === false) {
@@ -932,7 +933,7 @@ async function runExtensionAction(action: () => Promise<any>, successMessage = '
 }
 
 async function loadUnpackedExtension() {
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (!api || typeof api.loadUnpacked !== 'function') return;
   await runExtensionAction(async () => {
     const result = await api.loadUnpacked();
@@ -944,7 +945,7 @@ async function loadUnpackedExtension() {
 }
 
 async function toggleExtensionEnabled(ext: InstalledExtension) {
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (!api) return;
   if (ext.enabled) {
     await runExtensionAction(() => api.disableExtension(ext.id), 'Extension disabled.');
@@ -954,13 +955,13 @@ async function toggleExtensionEnabled(ext: InstalledExtension) {
 }
 
 async function reloadExtension(id: string) {
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (!api || typeof api.reloadExtension !== 'function') return;
   await runExtensionAction(() => api.reloadExtension(id), 'Extension reloaded.');
 }
 
 async function removeExtension(id: string) {
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (!api || typeof api.removeExtension !== 'function') return;
   await runExtensionAction(async () => {
     const result = await api.removeExtension(id);
@@ -1022,7 +1023,7 @@ async function onExportProfile() {
   // Check if profile requires password to decrypt data
   exportRequiresPassword.value = false;
   try {
-    const api = (window as any).lumen?.profiles;
+    const api = useInternalLumen()?.profiles;
     console.log('[NavBar] checkExportRequiresPassword API available:', !!api?.checkExportRequiresPassword);
     if (api?.checkExportRequiresPassword) {
       const check = await api.checkExportRequiresPassword(id);
@@ -1098,7 +1099,7 @@ async function confirmExportProfile() {
     console.log('[NavBar] Export debug:', debugInfo);
     
     // Call IPC directly to bypass any module caching issues
-    const api = (window as any).lumen?.profiles;
+    const api = useInternalLumen()?.profiles;
     console.log('[NavBar] Direct IPC call - password:', password ? `${password.length} chars` : 'none', 'encryptOutput:', encryptOutput);
     if (!api || typeof api.exportBackup !== 'function') {
       exportError.value = 'Export API not available';
@@ -1343,7 +1344,7 @@ async function confirmImportEncrypted() {
   importError.value = '';
 
   try {
-    const api = (window as any).lumen?.profiles;
+    const api = useInternalLumen()?.profiles;
     if (!api || typeof api.importEncryptedBackup !== 'function') {
       importError.value = 'Import API not available.';
       return;
@@ -1467,7 +1468,7 @@ onMounted(() => {
   window.addEventListener('click', onGlobalClick);
 
   try {
-    const api = (window as any).lumen?.profiles;
+    const api = useInternalLumen()?.profiles;
     if (api && typeof api.onPqcLinked === 'function') {
       detachPqcLinkedListener = api.onPqcLinked((payload: any) => {
         try {
@@ -1489,7 +1490,7 @@ onMounted(() => {
   }
 
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (api && typeof api.onChanged === 'function') {
       detachExtensionsListener = api.onChanged((payload: any) => {
         extensions.value = normalizeExtensionPayload(payload);

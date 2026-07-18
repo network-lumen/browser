@@ -358,6 +358,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import { 
@@ -370,7 +371,7 @@ import {
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
-const lumen = (window as any).lumen;
+const lumen = useInternalLumen();
 
 const currentView = ref<'proposals' | 'voting' | 'treasury' | 'members'>('proposals');
 

@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 export type Profile = {
   id: string;
@@ -117,7 +118,7 @@ declare global {
 }
 
 function getApi() {
-  return window.lumen?.profiles;
+  return useInternalLumen()?.profiles;
 }
 
 export const profilesState = ref<Profile[]>([]);

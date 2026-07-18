@@ -251,6 +251,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   Download,
   FileInput,
@@ -358,7 +359,7 @@ const uploadStatusText = computed(() => {
 });
 
 onMounted(() => {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (typeof api?.ipfsOnAddProgress === "function") {
     progressUnsub = api.ipfsOnAddProgress((payload: any) => {
       if (!uploading.value) return;
@@ -448,7 +449,7 @@ function newCatalog() {
 
 async function openFolderPicker() {
   if (uploading.value) return;
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (typeof api?.dialogOpenFolder === "function") {
     await openNativeFolderPicker();
     return;
@@ -523,7 +524,7 @@ async function importCatalogFromIpfsDirectory(rootCid: string, rootName: string)
 }
 
 async function listIpfsFilesRecursively(rootCid: string, prefix = "") {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!api?.ipfsLs) return [];
 
   const target = prefix ? `${rootCid}/${prefix}` : rootCid;
@@ -662,7 +663,7 @@ async function importPickedFiles(picked: PickedFile[]) {
 }
 
 function ensureIpfsConnected(): Promise<boolean> {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (typeof api?.ipfsStatus !== "function") {
     error("IPFS API unavailable.");
     return Promise.resolve(false);
@@ -701,7 +702,7 @@ async function uploadCatalogDirectory(
   uploadPercent.value = 0;
 
   try {
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
 
     const pathFiles = list.map((it) => {
       const rel = String(it.path || it.file?.name || "file")

@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 type Phase = 'starting' | 'retrying' | 'error' | 'ready';
 
@@ -52,12 +53,11 @@ function sleep(ms: number) {
 
 async function pollOnce(): Promise<boolean> {
   try {
-    const anyWindow: any = window;
-    if (!anyWindow.lumen || typeof anyWindow.lumen.ipfsStatus !== 'function') {
+    if (!useInternalLumen() || typeof useInternalLumen().ipfsStatus !== 'function') {
       console.warn('[startup] window.lumen.ipfsStatus not available yet');
       return false;
     }
-    const res = await anyWindow.lumen.ipfsStatus();
+    const res = await useInternalLumen().ipfsStatus();
     console.log('[startup] ipfsStatus result', res);
     return !!res?.ok;
   } catch (e) {

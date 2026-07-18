@@ -1,6 +1,7 @@
+import { useInternalLumen } from '../composables/useInternalLumen';
+
 export async function getLatestBlockHeight(): Promise<number | null> {
-  const anyWindow = window as any;
-  const fn = anyWindow?.lumen?.rpc?.getHeight;
+  const fn = useInternalLumen()?.rpc?.getHeight;
 
   if (typeof fn !== 'function') {
     return null;

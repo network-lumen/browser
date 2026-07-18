@@ -85,6 +85,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   Check,
   ChevronDown,
@@ -111,7 +112,7 @@ const props = defineProps<{
 
 const restBase = computed(() => String(props.restBase || '').trim());
 
-const lumen = (window as any).lumen;
+const lumen = useInternalLumen();
 
 function extractGovParams(json: any, kind: 'deposit' | 'voting' | 'tallying') {
   if (!json) return null;

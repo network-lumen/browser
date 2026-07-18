@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { getLatestBlockHeight } from './chainRpc';
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 export const blockHeight = ref<number | null>(null);
 export const blockHeightLoading = ref(false);
@@ -9,8 +10,7 @@ let subscribed = false;
 function ensureSubscribed() {
   if (subscribed) return;
 
-  const anyWindow: any = window as any;
-  const rpc = anyWindow?.lumen?.rpc;
+  const rpc = useInternalLumen()?.rpc;
   if (!rpc || typeof rpc.onHeightChanged !== 'function') {
     return;
   }

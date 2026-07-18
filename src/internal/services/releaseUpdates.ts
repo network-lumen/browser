@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue';
 import pkg from '../../../package.json';
 import { addToast } from '../../stores/toastStore';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 type LatestPayload = {
   version: string;
@@ -156,7 +157,7 @@ function updateLatest(payload: LatestPayload | null) {
 
 async function fetchSnapshot() {
   try {
-    const api = (window as any).lumen?.release;
+    const api = useInternalLumen()?.release;
     if (!api) return;
 
     // `getLatestInfo()` is backed by the main-process watcher cache. On cold start (or if the first
@@ -195,12 +196,12 @@ async function initReleaseUpdates() {
   initialized.value = true;
   await fetchSnapshot();
   try {
-    unsub = (window as any).lumen?.release?.onUpdateAvailable?.(handleReleaseEvent) || null;
+    unsub = useInternalLumen()?.release?.onUpdateAvailable?.(handleReleaseEvent) || null;
   } catch {
     unsub = null;
   }
   try {
-    unsubProgress = (window as any).lumen?.release?.onUpdateProgress?.(handleProgressEvent) || null;
+    unsubProgress = useInternalLumen()?.release?.onUpdateProgress?.(handleProgressEvent) || null;
   } catch {
     unsubProgress = null;
   }
@@ -210,7 +211,7 @@ async function openExternalAndSnooze(url: string) {
   let opened = false;
 
   try {
-    const res = await (window as any).lumen?.release?.openExternal?.(url);
+    const res = await useInternalLumen()?.release?.openExternal?.(url);
     if (res && res.ok) opened = true;
   } catch {
     opened = false;
@@ -251,7 +252,7 @@ async function updateNow() {
   try {
     const sha256Hex = latest.value.artifact?.sha256Hex || null;
     const sizeBytes = latest.value.artifact?.size ?? null;
-    const api = (window as any).lumen?.release?.downloadAndInstall;
+    const api = useInternalLumen()?.release?.downloadAndInstall;
     if (typeof api === 'function') {
       updateProgress.value = { stage: 'starting' };
       const res = await api({ url, sha256Hex, sizeBytes, silent: false, label: latest.value.version });

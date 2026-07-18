@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   DEFAULT_SECURITY_SESSION_TIMEOUT_MS,
   type SecuritySessionTimeoutMs,
@@ -107,7 +108,7 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
 }
 
 export async function initAppSettings(): Promise<void> {
-  const lum: any = (window as any)?.lumen;
+  const lum: any = useInternalLumen();
   if (!lum || typeof lum.settingsGetAll !== "function") return;
   try {
     const res = await lum.settingsGetAll();
@@ -125,7 +126,7 @@ export async function initAppSettings(): Promise<void> {
 }
 
 export async function setAppSettings(partial: Partial<AppSettings>): Promise<{ ok: boolean; settings?: AppSettings; error?: string }> {
-  const lum: any = (window as any)?.lumen;
+  const lum: any = useInternalLumen();
   if (!lum || typeof lum.settingsSet !== "function") {
     appSettingsState.value = mergeSettings(partial);
     return { ok: false, error: "settings_unavailable" };
