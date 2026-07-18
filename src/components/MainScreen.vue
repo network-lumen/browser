@@ -114,6 +114,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import { normalizeHistoryUrlForComparison, useHistory } from '../internal/historyStore';
   import { activeProfileId, initProfiles, profilesState } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
+import { useInternalLumen } from '../composables/useInternalLumen';
   import {
     buildCandidateUrl,
     localIpfsGatewayBase,
@@ -207,7 +208,7 @@ onMounted(async () => {
   createResizeObserver();
 
   try {
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     if (api && typeof api.tabsOnOpenInNewTab === 'function') {
       tabsOpenUnsub = api.tabsOnOpenInNewTab((url: string) => {
         const next = String(url || '').trim();
@@ -266,7 +267,7 @@ watch(
 
 function reportTabsState() {
   try {
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     api?.tabsReportState?.(tabs.value.map((t) => t.id));
   } catch {
     // ignore
@@ -394,7 +395,7 @@ async function listInstalledExtensions(force = false): Promise<any[]> {
     return installedExtensionsCache;
   }
   try {
-    const api: any = (window as any).lumen?.extensions;
+    const api: any = useInternalLumen()?.extensions;
     if (!api || typeof api.listExtensions !== 'function') return installedExtensionsCache;
     const result = await api.listExtensions();
     if (!result || result.ok === false) return installedExtensionsCache;
@@ -954,8 +955,7 @@ async function checkOnboardingStatus() {
     }
 
     // Check if password is already set
-    const anyWindow = window as any;
-    const securityApi = anyWindow?.lumen?.security;
+    const securityApi = useInternalLumen()?.security;
     if (!securityApi || typeof securityApi.getStatus !== 'function') {
       // Security API not available, skip onboarding
       return;
@@ -964,7 +964,7 @@ async function checkOnboardingStatus() {
     const status = await securityApi.getStatus();
     const hasPassword = !!(status?.passwordEnabled && status?.hasPassword);
 
-    const profilesApi = anyWindow?.lumen?.profiles;
+    const profilesApi = useInternalLumen()?.profiles;
     if (!profilesApi || typeof profilesApi.getActive !== 'function') {
       return;
     }

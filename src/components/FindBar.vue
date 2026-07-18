@@ -49,6 +49,7 @@
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, ChevronUp, X } from "lucide-vue-next";
 import UiButton from "../ui/UiButton.vue";
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 type FindActionPayload = {
   action?: string;
@@ -94,7 +95,7 @@ const effectiveTargetWebContentsId = computed<number | null>(() => {
 });
 
 function findApi(): any | null {
-  return (window as any).lumen?.find || null;
+  return useInternalLumen()?.find || null;
 }
 
 function setOpenState(next: boolean) {

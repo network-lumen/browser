@@ -1,6 +1,7 @@
 import { activeProfileId } from "../profilesStore";
 import { checkIpfsStatus } from "./ipfs";
-const api: any = (window as any).lumen;
+import { useInternalLumen } from '../../composables/useInternalLumen';
+const api: any = useInternalLumen();
 const uploadActivities: UploadActivity = {};
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";

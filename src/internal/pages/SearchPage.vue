@@ -478,6 +478,7 @@
 <script setup lang="ts">
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useTabLoadingSync } from "../useTabLoading";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   ArrowUpRight,
   Bookmark,
@@ -676,7 +677,7 @@ async function filterAliveGatewaysForPqSearch(
   seq: number,
 ): Promise<GatewayView[]> {
   try {
-    const gwApi = (window as any).lumen?.gateway;
+    const gwApi = useInternalLumen()?.gateway;
     if (!gwApi || typeof gwApi.checkAlive !== "function") return list;
 
     const now = Date.now();
@@ -1244,7 +1245,7 @@ function pickBestHtmlAtLevel(entries: any[]): string | null {
 async function resolveHtmlEntryForCidRoot(
   cid: string,
 ): Promise<{ isDir: boolean; entryPath: string | null }> {
-  const api: any = (window as any).lumen || null;
+  const api: any = useInternalLumen() || null;
   if (!api || typeof api.ipfsLs !== "function") return { isDir: false, entryPath: null };
 
   const root = String(cid || "").trim();
@@ -1344,7 +1345,7 @@ async function fetchHtmlHeadMetaForCidPath(
     ? `${localIpfsGatewayBase()}/ipfs/${c}/${encoded}`
     : `${localIpfsGatewayBase()}/ipfs/${c}`;
 
-  const httpGet = (window as any).lumen?.httpGet;
+  const httpGet = useInternalLumen()?.httpGet;
   const range = `bytes=0-${Math.max(0, Math.floor(maxBytes) - 1)}`;
 
   try {
@@ -1463,7 +1464,7 @@ function isPinnedImage(result: ResultItem): boolean {
 
 async function refreshPinnedCids() {
   try {
-    const res = await (window as any).lumen?.ipfsPinList?.().catch(() => null);
+    const res = await useInternalLumen()?.ipfsPinList?.().catch(() => null);
     const pins =
       res?.ok && Array.isArray(res.pins)
         ? res.pins.map((x: any) => String(x))
@@ -1481,7 +1482,7 @@ async function togglePinImage(result: ResultItem) {
   const isPinned = pinnedCids.value.includes(cid);
 
   try {
-    const api: any = (window as any).lumen || null;
+    const api: any = useInternalLumen() || null;
     if (isPinned) {
       // Unpin
       const unpinFn =
@@ -2433,7 +2434,7 @@ function cidForViewPing(r: ResultItem): string | null {
 
 function pingGatewayViewFromSearch(r: ResultItem) {
   try {
-    const gwApi = (window as any).lumen?.gateway;
+    const gwApi = useInternalLumen()?.gateway;
     if (!gwApi || typeof gwApi.pingViewPq !== "function") return;
 
     const cid = cidForViewPing(r);
@@ -2742,7 +2743,7 @@ async function resolveDomainForQuery(
   candidates: string[];
   infoRes: any;
 } | null> {
-  const dnsApi = (window as any).lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.getDomainInfo !== "function") return null;
 
   const cands = buildDomainCandidates(query);
@@ -2810,7 +2811,7 @@ type GatewaySearchResult = {
 };
 
 async function getActiveProfileId(): Promise<string | null> {
-  const active = await (window as any).lumen?.profiles.getActive().catch(() => null);
+  const active = await useInternalLumen()?.profiles.getActive().catch(() => null);
   const id = String(active?.id || "").trim();
   return id || null;
 }
@@ -2822,7 +2823,7 @@ async function loadGatewaysForSearch(
   const cached = gatewaysCache.value;
   if (cached.items.length && now - cached.at < 60_000) return cached.items;
 
-  const gwApi = (window as any).lumen?.gateway;
+  const gwApi = useInternalLumen()?.gateway;
   if (!gwApi || typeof gwApi.listGateways !== "function") return [];
 
   const res = await gwApi
@@ -3615,7 +3616,7 @@ async function searchGateways(
     rankAt?: number | null;
   },
 ): Promise<GatewaySearchResult> {
-  const gwApi = (window as any).lumen?.gateway;
+  const gwApi = useInternalLumen()?.gateway;
   if (!gwApi || typeof gwApi.searchPq !== "function") {
     return {
       items: [],
@@ -4068,7 +4069,7 @@ async function fetchTagsForCid(
   cid: string,
   seq: number,
 ): Promise<string[]> {
-  const gwApi = (window as any).lumen?.gateway;
+  const gwApi = useInternalLumen()?.gateway;
   if (!gwApi || typeof gwApi.searchPq !== "function") return [];
   const gateways = await loadGatewaysForSearch(profileId);
   if (seq !== searchSeq) return [];

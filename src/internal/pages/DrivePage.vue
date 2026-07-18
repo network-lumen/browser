@@ -1802,6 +1802,7 @@
 <script setup lang="ts">
 
 import { uploadFolderToLocal, uploadFileToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   ref,
   computed,
@@ -1819,7 +1820,7 @@ const currentTabRefresh = inject<any>("currentTabRefresh", null);
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
   
-const lumen_api: any = (window as any).lumen;
+const lumen_api: any = useInternalLumen();
 const gateway_lumen_api = lumen_api?.gateway;
 const profiles_lumen_api = lumen_api?.profiles;
 
@@ -4084,7 +4085,6 @@ async function loadStats() {
 }
 
 async function loadPinnedFiles() {
-  const anyWin: any = window;
   if (hosting.value.kind === "gateway") {
     await refreshGatewayPinned(activeGatewayHint.value);
     return;
@@ -4092,7 +4092,7 @@ async function loadPinnedFiles() {
 
   localPinnedLoading.value = true;
   try {
-    const result = await anyWin.lumen?.ipfsPinList?.();
+    const result = await useInternalLumen()?.ipfsPinList?.();
     if (result?.ok) {
       const pins = Array.isArray(result.pins) ? result.pins : [];
       pinnedFiles.value = pins

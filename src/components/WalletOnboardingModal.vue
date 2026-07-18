@@ -270,6 +270,7 @@ import { computed, ref, watch } from 'vue';
 import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 type OnboardingStep = 'intro' | 'password' | 'profile-name' | 'creating-wallet' | 'backup' | 'complete';
 
@@ -328,8 +329,7 @@ async function handlePasswordSubmit() {
   settingPassword.value = true;
 
   try {
-    const anyWindow = window as any;
-    const result = await anyWindow.lumen.security.setPassword({ 
+    const result = await useInternalLumen().security.setPassword({ 
       password: password.value 
     });
 
@@ -350,8 +350,7 @@ async function handlePasswordSubmit() {
 }
 
 async function moveToPostPasswordStep() {
-  const anyWindow = window as any;
-  const profilesApi = anyWindow?.lumen?.profiles;
+  const profilesApi = useInternalLumen()?.profiles;
   if (!profilesApi || typeof profilesApi.getActive !== 'function') {
     walletError.value = 'Profiles API not available.';
     step.value = 'creating-wallet';
@@ -387,8 +386,7 @@ async function createWallet() {
   walletCreated.value = false;
 
   try {
-    const anyWindow = window as any;
-    const profilesApi = anyWindow?.lumen?.profiles;
+    const profilesApi = useInternalLumen()?.profiles;
     if (!profilesApi) {
       walletError.value = 'Profiles API not available.';
       return;
@@ -472,7 +470,6 @@ async function handleExportBackup() {
   exportingBackup.value = true;
 
   try {
-    const anyWindow = window as any;
     const profileId = activeProfileId.value;
 
     if (!profileId) {
@@ -481,7 +478,7 @@ async function handleExportBackup() {
     }
 
     // CRITICAL: Validate wallet is fully created before allowing backup
-    const walletCheck = await anyWindow.lumen.profiles.isWalletFullyCreated(profileId);
+    const walletCheck = await useInternalLumen().profiles.isWalletFullyCreated(profileId);
     
     if (!walletCheck?.ok) {
       const errorMessages: Record<string, string> = {
@@ -496,7 +493,7 @@ async function handleExportBackup() {
       return;
     }
 
-    const api = anyWindow?.lumen?.profiles;
+    const api = useInternalLumen()?.profiles;
     if (!api || typeof api.exportBackup !== 'function') {
       backupError.value = 'Backup API not available.';
       return;
@@ -544,9 +541,8 @@ watch(
     if (!visible) return;
 
     try {
-      const anyWindow = window as any;
-      const securityApi = anyWindow?.lumen?.security;
-      const profilesApi = anyWindow?.lumen?.profiles;
+      const securityApi = useInternalLumen()?.security;
+      const profilesApi = useInternalLumen()?.profiles;
       if (!securityApi || !profilesApi) return;
 
       const status = await securityApi.getStatus?.();

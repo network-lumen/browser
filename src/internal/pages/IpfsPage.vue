@@ -321,6 +321,7 @@
 </template>
 
 <script setup lang="ts">
+import { useInternalLumen } from '../../composables/useInternalLumen';
  import {
   computed,
   inject,
@@ -1157,8 +1158,7 @@ async function sniffViewKindFromHead(
   if (!target) return "unknown";
 
   try {
-    const anyWin: any = window as any;
-    const httpHead = anyWin?.lumen?.httpHead;
+    const httpHead = useInternalLumen()?.httpHead;
     let ct = "";
 
     // Prefer the Electron http bridge to avoid CORS issues with local gateways.
@@ -1198,7 +1198,7 @@ async function detectViaMagicBytes(
   target: string,
 ): Promise<typeof viewKind.value> {
   try {
-    const got = await (window as any).lumen
+    const got = await useInternalLumen()
       ?.ipfsGet?.(target)
       .catch(() => null);
     if (!got?.ok || !Array.isArray(got.data)) return "unknown";
@@ -1840,7 +1840,7 @@ function onWebviewIpcMessage(ev: any) {
 
 async function installChromeWebStoreExtension(input: string) {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.installFromChromeWebStore !== "function") return;
     const result = await api.installFromChromeWebStore(input);
     if (!result || result.ok === false) {
@@ -1860,8 +1860,7 @@ async function precheckHtmlDocument(url: string): Promise<boolean> {
   const target = String(url || "").trim();
   if (!target) return false;
   try {
-    const anyWin: any = window as any;
-    const httpHead = anyWin?.lumen?.httpHead;
+    const httpHead = useInternalLumen()?.httpHead;
     let status = 0;
     let ct = "";
 
@@ -1903,7 +1902,7 @@ async function load() {
 
   // Auto-convert CIDv0 (Qm...) to CIDv1 base32 (bafy...) so localhost subdomain gateways work.
   if (parsed.proto === "ipfs" && /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(parsed.cid)) {
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     if (api && typeof api.ipfsCidToBase32 === "function") {
       const res = await api.ipfsCidToBase32(parsed.cid).catch(() => null);
       const next = String(res?.cid || "").trim();
@@ -1968,7 +1967,7 @@ async function load() {
     const target = relPath.value
       ? `/${rootProto.value}/${rootCid.value}/${relPath.value}`
       : `/${rootProto.value}/${rootCid.value}`;
-    const res = await (window as any).lumen?.ipfsLs?.(target).catch(() => null);
+    const res = await useInternalLumen()?.ipfsLs?.(target).catch(() => null);
     const list = Array.isArray(res?.entries) ? res.entries : [];
     const mapped: Entry[] = list
       .filter((it: any) => it && it.name && it.cid)
@@ -2034,7 +2033,7 @@ async function load() {
       }
       if (viewKind.value === "text" || viewKind.value === "markdown") {
         const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-        const got = await (window as any).lumen
+        const got = await useInternalLumen()
           ?.ipfsGet?.(target, { gateways })
           .catch(() => null);
         if (got?.ok && Array.isArray(got.data)) {
@@ -2065,7 +2064,7 @@ async function load() {
 
       if (viewKind.value === "docx") {
         const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-        const got = await (window as any).lumen
+        const got = await useInternalLumen()
           ?.ipfsGet?.(target, { gateways, timeoutMs: 20000 })
           .catch(() => null);
         if (got?.ok && Array.isArray(got.data)) {
@@ -2099,7 +2098,7 @@ async function load() {
         }
 
         const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-        const got = await (window as any).lumen
+        const got = await useInternalLumen()
           ?.ipfsGet?.(target, { gateways })
           .catch(() => null);
         if (got?.ok && Array.isArray(got.data)) {
@@ -2253,7 +2252,7 @@ async function resolveCurrentItemCid(): Promise<string> {
   const parent = parts.slice(0, -1).join("/");
   const parentTarget = parent ? `${rootCid.value}/${parent}` : rootCid.value;
 
-  const res = await (window as any).lumen
+  const res = await useInternalLumen()
     ?.ipfsLs?.(parentTarget)
     .catch(() => null);
   const list = Array.isArray(res?.entries) ? res.entries : [];
@@ -2297,7 +2296,7 @@ function closeSaveModal() {
 }
 
 async function waitForSavePinCompletion(jobId: string, cid: string, name: string) {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   const id = String(jobId || "").trim();
   if (!id || savePinWaitJobId.value === id) return;
   savePinWaitJobId.value = id;
@@ -2344,7 +2343,7 @@ async function confirmSaveToDrive() {
   saving.value = true;
   try {
     const cid = saveTargetCid.value || (await resolveSaveTargetCid());
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     const started = await api?.ipfsPinStart?.({ cidOrPath: cid, name }).catch(() => null);
     if (!started?.ok || !started?.job?.id) {
       throw new Error(String(started?.error || "save_failed"));
@@ -2359,14 +2358,14 @@ async function confirmSaveToDrive() {
 }
 
 async function pauseSavePinJob() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!savePinJobId.value || !api?.ipfsPinPause) return;
   const res = await api.ipfsPinPause(savePinJobId.value).catch(() => null);
   if (res?.job) applySavePinJobSnapshot(res.job);
 }
 
 async function resumeSavePinJob() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!savePinJobId.value || !api?.ipfsPinResume) return;
   saveModalError.value = "";
   const res = await api.ipfsPinResume(savePinJobId.value).catch(() => null);
@@ -2381,7 +2380,7 @@ async function resumeSavePinJob() {
 }
 
 async function cancelSavePinJob() {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   if (!savePinJobId.value || !api?.ipfsPinCancel) return;
   const res = await api.ipfsPinCancel(savePinJobId.value).catch(() => null);
   if (res?.job) applySavePinJobSnapshot(res.job);
@@ -2395,7 +2394,7 @@ async function refreshSavedState() {
     if (!rootCid.value) return;
     const cid = await resolveSaveTargetCid();
     savedCid.value = cid;
-    const res = await (window as any).lumen?.ipfsPinList?.().catch(() => null);
+    const res = await useInternalLumen()?.ipfsPinList?.().catch(() => null);
     const pins =
       res?.ok && Array.isArray(res.pins)
         ? res.pins.map((x: any) => String(x))
@@ -2442,7 +2441,7 @@ async function download() {
 
   const target = rel ? `/${rootProto.value}/${rootCid.value}/${rel}` : `/${rootProto.value}/${rootCid.value}`;
   const gateways = await loadWhitelistedGatewayBases().catch(() => []);
-  const got = await (window as any).lumen?.ipfsGet?.(target, { gateways }).catch(() => null);
+  const got = await useInternalLumen()?.ipfsGet?.(target, { gateways }).catch(() => null);
   if (!got?.ok || !Array.isArray(got.data)) return;
   const bytes = new Uint8Array(got.data);
   const blob = new Blob([bytes]);
@@ -2491,7 +2490,7 @@ onMounted(() => {
   startUrlWatch();
   void nextTick(() => registerFindTargetWithRetry());
   try {
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     if (api?.ipfsOnPinProgress) {
       stopPinProgressListener = api.ipfsOnPinProgress((payload: any) => {
         const job = payload?.job || null;

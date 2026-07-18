@@ -46,6 +46,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { X } from "lucide-vue-next";
 import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 type InstalledExtension = {
   id: string;
@@ -123,7 +124,7 @@ function upsertInstalledExtension(entry: InstalledExtension | null) {
 
 async function refreshInstalledExtensions() {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.listExtensions !== "function") return;
     const result = await api.listExtensions();
     if (!result || result.ok === false) return;
@@ -138,7 +139,7 @@ async function refreshInstalledExtensions() {
 async function ensureGuestPreloadUrl() {
   if (extensionGuestPreloadUrl.value) return extensionGuestPreloadUrl.value;
 
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (!api || typeof api.getGuestPreloadUrl !== "function") {
     guestPreloadLoading.value = false;
     return "";
@@ -450,7 +451,7 @@ async function resolvePopupTarget() {
   error.value = "";
 
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.prepareTab !== "function") {
       throw new Error("extensions_api_unavailable");
     }

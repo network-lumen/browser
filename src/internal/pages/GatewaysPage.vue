@@ -280,6 +280,7 @@
 import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -416,7 +417,7 @@ const canRegister = computed(() => {
 });
 
 function getGwApi(): any {
-  const api: any = (window as any).lumen;
+  const api: any = useInternalLumen();
   return api?.gateway;
 }
 
@@ -512,7 +513,7 @@ function refreshManage() {
 
 async function loadPrivateGateways() {
   try {
-    const result = await (window as any).lumen.settingsLoadGateways();
+    const result = await useInternalLumen().settingsLoadGateways();
     privateGateways.value = result || [];
   } catch (e) {
     console.error('Failed to load private gateways:', e);

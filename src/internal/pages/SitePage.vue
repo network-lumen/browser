@@ -85,6 +85,7 @@ import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated
 import { RefreshCw } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import { useTabLoadingSync } from "../useTabLoading";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   buildCandidateUrl,
   DomainTarget,
@@ -167,7 +168,7 @@ function onWebviewEnterHtmlFullscreen() {
   webviewHtmlFullscreen.value = true;
   document.body.classList.add("lumen-webview-html-fullscreen");
   try {
-    (window as any).lumen?.setWindowMode?.("fullscreen");
+    useInternalLumen()?.setWindowMode?.("fullscreen");
   } catch {}
 }
 
@@ -175,7 +176,7 @@ function onWebviewLeaveHtmlFullscreen() {
   webviewHtmlFullscreen.value = false;
   document.body.classList.remove("lumen-webview-html-fullscreen");
   try {
-    (window as any).lumen?.setWindowMode?.("exit-fullscreen");
+    useInternalLumen()?.setWindowMode?.("exit-fullscreen");
   } catch {}
 }
 
@@ -585,7 +586,7 @@ function onIpcMessage(ev: any) {
 
 async function installChromeWebStoreExtension(input: string) {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.installFromChromeWebStore !== "function") return;
     const result = await api.installFromChromeWebStore(input);
     if (!result || result.ok === false) {

@@ -1,3 +1,5 @@
+import { useInternalLumen } from '../../composables/useInternalLumen';
+
 export type ActivityType =
   | 'send'
   | 'receive'
@@ -162,8 +164,7 @@ export async function fetchActivities(params: ListActivitiesParams): Promise<Act
     return cached.data;
   }
 
-  const anyWindow = window as any;
-  const walletApi = anyWindow?.lumen?.wallet;
+  const walletApi = useInternalLumen()?.wallet;
   if (!walletApi || typeof walletApi.listSendTxs !== 'function') {
     activitiesCache.set(cacheKey, { data: [], expiresAt: now + ACTIVITIES_TTL_MS });
     return [];

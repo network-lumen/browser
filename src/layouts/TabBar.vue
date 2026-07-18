@@ -36,6 +36,7 @@ import { computed, provide, reactive, watch } from "vue";
 import NavBar from "./NavBar.vue";
 import TabPane from "./TabPane.vue";
 import FindBar from "../components/FindBar.vue";
+import { useInternalLumen } from '../composables/useInternalLumen';
 import {
   getInternalTitle,
 } from "../internal/routes";
@@ -96,7 +97,7 @@ watch(
   () => activeFindTarget.value,
   (targetId) => {
     try {
-      const api: any = (window as any).lumen?.find;
+      const api: any = useInternalLumen()?.find;
       api?.setActiveTarget?.(targetId ?? null);
     } catch {
       // ignore

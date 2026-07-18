@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   computed,
   inject,
@@ -128,7 +129,7 @@ function upsertInstalledExtension(entry: InstalledExtension | null) {
 
 async function refreshInstalledExtensions() {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.listExtensions !== "function") return;
     const result = await api.listExtensions();
     if (!result || result.ok === false) return;
@@ -143,7 +144,7 @@ async function refreshInstalledExtensions() {
 async function ensureGuestPreloadUrl() {
   if (extensionGuestPreloadUrl.value) return extensionGuestPreloadUrl.value;
 
-  const api = (window as any).lumen?.extensions;
+  const api = useInternalLumen()?.extensions;
   if (!api || typeof api.getGuestPreloadUrl !== "function") {
     guestPreloadLoading.value = false;
     return "";
@@ -513,7 +514,7 @@ async function resolveCurrentExtensionTab() {
   error.value = "";
 
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.prepareTab !== "function") {
       throw new Error("extensions_api_unavailable");
     }
@@ -588,7 +589,7 @@ onMounted(async () => {
   await ensureGuestPreloadUrl();
   await refreshInstalledExtensions();
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (api && typeof api.onChanged === "function") {
       removeExtensionsChangedListener = api.onChanged(() => {
         void refreshInstalledExtensions();

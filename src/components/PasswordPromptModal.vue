@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue';
 import { LockKeyhole } from 'lucide-vue-next';
+import { useInternalLumen } from '../composables/useInternalLumen';
 
 const props = defineProps<{
   visible: boolean;
@@ -101,7 +102,7 @@ async function handleSubmit() {
   
   try {
     // Verify password with backend
-    const result = await (window as any).lumen.security.verifyPassword({ password: password.value });
+    const result = await useInternalLumen().security.verifyPassword({ password: password.value });
     
     if (result?.ok) {
       emit('confirm', password.value);

@@ -1199,6 +1199,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, inject, onMounted } from 'vue';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import {
@@ -1490,9 +1491,9 @@ watch(
 // Security functions
 async function loadSecurityStatus() {
   try {
-    const status = await (window as any).lumen.security.getStatus();
+    const status = await useInternalLumen().security.getStatus();
     securityStatus.value = { enabled: !!(status?.passwordEnabled && status?.hasPassword) };
-    const session = await (window as any).lumen.security.checkSession();
+    const session = await useInternalLumen().security.checkSession();
     securitySessionActive.value = !!session?.active;
   } catch (e) {
     console.error('Failed to load security status:', e);
@@ -1536,7 +1537,7 @@ async function setSecurityPassword() {
   
   securityLoading.value = true;
   try {
-    const result = await (window as any).lumen.security.setPassword({ password: newPassword.value });
+    const result = await useInternalLumen().security.setPassword({ password: newPassword.value });
     if (result?.ok) {
       securityStatus.value = { enabled: true };
       securitySessionActive.value = true;
@@ -1573,7 +1574,7 @@ async function changeSecurityPassword() {
   securityLoading.value = true;
   try {
     // Verify current password first
-    const verify = await (window as any).lumen.security.verifyPassword({ password: currentPassword.value });
+    const verify = await useInternalLumen().security.verifyPassword({ password: currentPassword.value });
     if (!verify?.ok) {
       securityError.value = 'Current password is incorrect.';
       securityLoading.value = false;
@@ -1581,14 +1582,14 @@ async function changeSecurityPassword() {
     }
     
     // Remove old and set new
-    const removeResult = await (window as any).lumen.security.removePassword({ password: currentPassword.value });
+    const removeResult = await useInternalLumen().security.removePassword({ password: currentPassword.value });
     if (!removeResult?.ok) {
       securityError.value = removeResult?.error || 'Failed to change password.';
       securityLoading.value = false;
       return;
     }
     
-    const setResult = await (window as any).lumen.security.setPassword({ password: newPassword.value });
+    const setResult = await useInternalLumen().security.setPassword({ password: newPassword.value });
     if (setResult?.ok) {
       currentPassword.value = '';
       newPassword.value = '';
@@ -1613,7 +1614,7 @@ async function removeSecurityPassword() {
   securityLoading.value = true;
   
   try {
-    const result = await (window as any).lumen.security.removePassword({ password: removePasswordInput.value });
+    const result = await useInternalLumen().security.removePassword({ password: removePasswordInput.value });
     if (result?.ok) {
       securityStatus.value = { enabled: false };
       securitySessionActive.value = false;
@@ -1641,7 +1642,7 @@ function cancelRemovePassword() {
 
 async function lockSecuritySession() {
   try {
-    await (window as any).lumen.security.lockSession();
+    await useInternalLumen().security.lockSession();
     securitySessionActive.value = false;
   } catch (e) {
     console.error('Failed to lock session:', e);
@@ -1749,7 +1750,7 @@ function normalizeFolderDraft(raw: string): string {
     return `${value.slice(0, 2)}\\`;
   }
   const trimmed = value.replace(/[\\/]+$/, '');
-  const platform = String((window as any).lumen?.appPlatform || '').toLowerCase();
+  const platform = String(useInternalLumen()?.appPlatform || '').toLowerCase();
   return platform === 'win32' ? trimmed.toLowerCase() : trimmed;
 }
 
@@ -1766,7 +1767,7 @@ function applyBootstrapPathState(state: Partial<BootstrapPathState> | null | und
 }
 
 async function loadBootstrapPathState() {
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (!api || typeof api.bootstrapPathGetState !== 'function') {
     lumenDataFolderError.value = 'Lumen data folder controls are unavailable.';
     return;
@@ -1847,7 +1848,7 @@ function useDefaultLumenDataFolderDraft() {
 }
 
 async function browseLumenDataFolder() {
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (!api || typeof api.dialogOpenFolder !== 'function') {
     lumenDataFolderError.value = 'Folder picker is unavailable.';
     return;
@@ -1869,7 +1870,7 @@ async function browseLumenDataFolder() {
 
 async function saveLumenDataFolder() {
   if (lumenDataFolderBusy.value) return;
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (
     !api ||
     typeof api.bootstrapPathSetCustomUserDataPath !== 'function' ||
@@ -1920,7 +1921,7 @@ function applyTroubleshootingPaths(result: any) {
 
 async function copyDebugReport() {
   if (troubleshootingBusy.value) return;
-  const api = (window as any).lumen?.troubleshooting;
+  const api = useInternalLumen()?.troubleshooting;
   if (!api || typeof api.copyDebugReport !== 'function') {
     toast.error('Troubleshooting tools are unavailable');
     return;
@@ -1944,7 +1945,7 @@ async function copyDebugReport() {
 
 async function openLogsFolderAction() {
   if (troubleshootingBusy.value) return;
-  const api = (window as any).lumen?.troubleshooting;
+  const api = useInternalLumen()?.troubleshooting;
   if (!api || typeof api.openLogsFolder !== 'function') {
     toast.error('Troubleshooting tools are unavailable');
     return;
@@ -1970,7 +1971,7 @@ async function openLogsFolderAction() {
 async function loadPrivateCloudConfig() {
   privateCloudLoading.value = true;
   try {
-    const config = await (window as any).lumen.settingsLoadPrivateCloudConfig();
+    const config = await useInternalLumen().settingsLoadPrivateCloudConfig();
     console.log('[SettingsPage] Loaded config:', config);
     
     privateCloudEnabled.value = !!config.enabled;
@@ -2004,7 +2005,7 @@ async function savePrivateCloudConfig() {
     };
     
     console.log('[SettingsPage] Saving private cloud config:', config);
-    const result = await (window as any).lumen.settingsSavePrivateCloudConfig(config);
+    const result = await useInternalLumen().settingsSavePrivateCloudConfig(config);
     console.log('[SettingsPage] Save result:', result);
     
     if (!result.ok) {
@@ -2163,7 +2164,7 @@ async function chooseProfileAvatar() {
     return;
   }
 
-  const dialogApi = (window as any).lumen?.dialogOpenFiles;
+  const dialogApi = useInternalLumen()?.dialogOpenFiles;
   if (typeof dialogApi !== 'function') {
     profileAvatarError.value = 'File picker unavailable.';
     return;

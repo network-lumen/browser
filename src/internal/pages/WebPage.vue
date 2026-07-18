@@ -41,6 +41,7 @@
  import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
  import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../navigationUrl";
  import { useTabLoadingSync } from "../useTabLoading";
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
@@ -84,7 +85,7 @@ const isChromeWebStorePage = computed(() => isChromeWebStoreUrl(currentBrowserUr
 
 async function refreshInstalledExtensions() {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.listExtensions !== "function") return;
     const result = await api.listExtensions();
     if (!result || result.ok === false) return;
@@ -208,7 +209,7 @@ function onIpcMessage(ev: any) {
 
 async function installChromeWebStoreExtension(input: string) {
   try {
-    const api = (window as any).lumen?.extensions;
+    const api = useInternalLumen()?.extensions;
     if (!api || typeof api.installFromChromeWebStore !== "function") return;
     const result = await api.installFromChromeWebStore(input);
     if (!result || result.ok === false) {
@@ -397,7 +398,7 @@ function syncNavFromWebview(rawUrl: string) {
    webviewHtmlFullscreen.value = true;
    document.body.classList.add("lumen-webview-html-fullscreen");
    try {
-     (window as any).lumen?.setWindowMode?.("fullscreen");
+     useInternalLumen()?.setWindowMode?.("fullscreen");
    } catch {}
  }
 
@@ -405,7 +406,7 @@ function syncNavFromWebview(rawUrl: string) {
    webviewHtmlFullscreen.value = false;
    document.body.classList.remove("lumen-webview-html-fullscreen");
    try {
-     (window as any).lumen?.setWindowMode?.("exit-fullscreen");
+     useInternalLumen()?.setWindowMode?.("exit-fullscreen");
    } catch {}
  }
 

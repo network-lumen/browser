@@ -1,4 +1,6 @@
-const api: any = (window as any).lumen;
+import { useInternalLumen } from '../../composables/useInternalLumen';
+
+const api: any = useInternalLumen();
 async function checkIpfsStatus(): Promise<boolean> {
     try {
         const result = api.ipfsStatus?.();

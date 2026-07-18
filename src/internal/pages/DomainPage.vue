@@ -570,6 +570,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watch, watchEffect } from 'vue';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   Globe,
   KeyRound,
@@ -765,7 +766,7 @@ async function loadRawDomains() {
   rawDomainsLoading.value = true;
   rawDomainsError.value = '';
   try {
-    const api = (window as any).lumen;
+    const api = useInternalLumen();
     if (!api?.ipfsKeyList) {
       rawDomainsError.value = 'Stable link bridge not available.';
       rawDomains.value = [];
@@ -848,7 +849,7 @@ async function confirmStableLinkModal() {
   const label = sanitizeStableLinkLabel(stableLinkNameDraft.value);
   const keyName = stableLinkKeyNameFromLabel(label);
   if (!keyName) return;
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (mode === 'generate' && !api?.ipfsKeyGen) {
     showToast('Stable link bridge not available.', 'error');
     return;
@@ -887,7 +888,7 @@ async function renameStableLink(d: RawDomainRow, nextLabelRaw: string) {
   const currentName = String(d?.name || '').trim();
   const nextName = stableLinkKeyNameFromLabel(nextLabelRaw);
   if (!currentName || !nextName || currentName === nextName) return;
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (!api?.ipfsKeyRename) {
     showToast('Stable link rename is not available.', 'error');
     return;
@@ -933,7 +934,7 @@ async function copyTextToClipboard(text: string): Promise<boolean> {
   }
 
   try {
-    const api = (window as any).lumen;
+    const api = useInternalLumen();
     if (typeof api?.clipboardWriteText === 'function') {
       const result = await api.clipboardWriteText(value);
       return result === true || result?.ok === true;
@@ -956,7 +957,7 @@ async function copyRawDomainUrl(d: RawDomainRow) {
 }
 
 async function exportStableLink(d: RawDomainRow) {
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (!api?.ipfsKeyExport) {
     showToast('Stable link export is not available.', 'error');
     return;
@@ -971,7 +972,7 @@ async function exportStableLink(d: RawDomainRow) {
 }
 
 async function deleteStableLink(d: RawDomainRow) {
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (!api?.ipfsKeyRm) {
     showToast('Stable link delete is not available.', 'error');
     return;
@@ -1055,7 +1056,7 @@ async function saveStableSettings() {
     return;
   }
 
-  const api = (window as any).lumen;
+  const api = useInternalLumen();
   if (!api?.ipfsAdd || !api?.ipfsPublishToIPNS) {
     showToast('Stable link publish bridge not available.', 'error');
     return;
@@ -1130,8 +1131,7 @@ watch(
 );
 
 async function loadSettingsPqcParams() {
-  const anyWindow = window as any;
-  const pqcApi = anyWindow?.lumen?.pqc;
+  const pqcApi = useInternalLumen()?.pqc;
   settingsPqcParams.value = null;
   if (!pqcApi || typeof pqcApi.getParams !== 'function') return;
   try {
@@ -1153,8 +1153,7 @@ async function loadSettingsWalletBalance() {
   const owner = (profileAddress.value || '').trim();
   settingsWalletBalanceLMN.value = null;
   if (!owner) return;
-  const anyWindow = window as any;
-  const walletApi = anyWindow?.lumen?.wallet;
+  const walletApi = useInternalLumen()?.wallet;
   if (!walletApi || typeof walletApi.getBalance !== 'function') {
     return;
   }
@@ -1226,8 +1225,7 @@ async function loadDomains() {
         'No owner address available. Create or select a profile with a wallet first.';
       return;
     }
-    const anyWindow = window as any;
-    const dnsApi = anyWindow?.lumen?.dns;
+    const dnsApi = useInternalLumen()?.dns;
     if (!dnsApi || typeof dnsApi.listByOwnerDetailed !== 'function') {
       error.value = 'DNS bridge not available.';
       return;
@@ -1300,8 +1298,7 @@ async function refreshAvailability() {
   }
   const fqdn = `${name}.${ext}`;
   try {
-    const anyWindow = window as any;
-    const dnsApi = anyWindow?.lumen?.dns;
+    const dnsApi = useInternalLumen()?.dns;
     if (!dnsApi || typeof dnsApi.getDomainInfo !== 'function') {
       domainAvailable.value = true;
       return;
@@ -1332,8 +1329,7 @@ async function refreshPrice() {
   }
   const fqdn = `${name}.${ext}`;
   const days = 365;
-  const anyWindow = window as any;
-  const dnsApi = anyWindow?.lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.estimateRegisterPrice !== 'function') {
     registerPriceUlmn.value = null;
     return;
@@ -1397,8 +1393,7 @@ async function confirmRegister() {
   const fqdn = `${namePart}.${extPart}`;
   const days = 365;
 
-  const anyWindow = window as any;
-  const dnsApi = anyWindow?.lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.createDomain !== 'function') {
     showToast('Domain registration bridge not available', 'error');
     return;
@@ -1421,7 +1416,7 @@ async function confirmRegister() {
     });
     
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
-      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+      try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
       return;
     }
     
@@ -1447,8 +1442,7 @@ async function openSettingsModal(d?: DomainRow) {
   showSettingsModal.value = true;
 
   const name = selectedDomain.value?.name;
-  const anyWindow = window as any;
-  const dnsApi = anyWindow?.lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   if (name && dnsApi && typeof dnsApi.getDomainInfo === 'function') {
     try {
       const res = await dnsApi.getDomainInfo(name);
@@ -1529,8 +1523,7 @@ async function saveSettings() {
     return;
   }
 
-  const anyWindow = window as any;
-  const dnsApi = anyWindow?.lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.updateDomain !== 'function') {
     showToast('Domain update bridge not available.', 'error');
     return;
@@ -1546,7 +1539,7 @@ async function saveSettings() {
     });
     
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
-      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+      try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
       showToast('Wallet locked. Unlock to continue.', 'warning');
       return;
     }
@@ -1595,8 +1588,7 @@ async function confirmTransfer() {
     return;
   }
 
-  const anyWindow = window as any;
-  const dnsApi = anyWindow?.lumen?.dns;
+  const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.transferDomain !== 'function') {
     showToast('Domain transfer bridge not available', 'error');
     return;
@@ -1612,7 +1604,7 @@ async function confirmTransfer() {
     });
     
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
-      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+      try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
       showToast('Wallet locked. Unlock to continue.', 'warning');
       return;
     }

@@ -1,5 +1,6 @@
 import { computed, ref, watch } from "vue";
 import { activeProfileId, profilesState } from "./profilesStore";
+import { useInternalLumen } from '../composables/useInternalLumen';
 import {
   canonicalizeLumenUrl,
   isExtensionUrl,
@@ -63,7 +64,7 @@ async function cidV0ToV1(cid: string): Promise<string> {
   const value = String(cid || "").trim();
   if (!isCidV0(value)) return value;
   try {
-    const api: any = (window as any).lumen;
+    const api: any = useInternalLumen();
     if (!api || typeof api.ipfsCidToBase32 !== "function") return value;
     const result = await api.ipfsCidToBase32(value).catch(() => null);
     const next = String(result?.cid || "").trim();

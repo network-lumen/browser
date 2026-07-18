@@ -131,6 +131,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const loading = ref(true);
 const error = ref('');
@@ -138,7 +139,7 @@ const block = ref<any>(null);
 
 useTabLoadingSync(loading);
 
-const lumen = (window as any).lumen;
+const lumen = useInternalLumen();
 
 const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
 const avatarCache = ref<Record<string, string>>({});

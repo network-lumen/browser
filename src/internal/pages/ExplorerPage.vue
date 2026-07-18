@@ -780,9 +780,10 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { LayoutGrid } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
+import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const toast = useToast();
-const lumen = (window as any).lumen;
+const lumen = useInternalLumen();
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 const currentTabUrl = inject<any>('currentTabUrl', null);
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
@@ -1664,8 +1665,7 @@ async function fetchStakeBalances(validatorAddress: string) {
   console.log('Profile address:', profileAddress);
 
   try {
-    const anyWindow = window as any;
-    const walletApi = anyWindow?.lumen?.wallet;
+    const walletApi = useInternalLumen()?.wallet;
     
     if (!walletApi) {
       console.error('Wallet API not available');
@@ -1792,8 +1792,7 @@ async function confirmStakeAction() {
   txHash.value = '';
   
   try {
-    const anyWindow = window as any;
-    const walletApi = anyWindow?.lumen?.wallet;
+    const walletApi = useInternalLumen()?.wallet;
     
     if (!walletApi) {
       throw new Error('Wallet API not available');
@@ -1862,7 +1861,7 @@ async function confirmStakeAction() {
     
     // Handle password_required error
     if (result?.ok === false && (result?.error === 'password_required' || result?.error === 'invalid_password')) {
-      try { await anyWindow?.lumen?.security?.lockSession?.(); } catch {}
+      try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
       txStatus.value = 'idle';
       txMessage.value = '';
       return;
