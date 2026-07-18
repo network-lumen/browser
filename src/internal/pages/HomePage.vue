@@ -154,7 +154,7 @@ import {
   Home, HardDrive, Wallet, Globe, Settings, 
   ArrowUpRight, Network, FileText, Hexagon,
   Database, Vote, Package, AtSign, Search, History,
-  HelpCircle, Layers, ChevronDown, ChevronUp, X, TableProperties
+  HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
 // My Space section cards yang bisa di-customize
@@ -166,7 +166,7 @@ const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCa
 // Lumen section cards yang bisa di-customize
 const LUMEN_CARDS_KEY = 'lumen_cards_order';
 const savedLumenCards = localStorage.getItem(LUMEN_CARDS_KEY);
-const DEFAULT_LUMEN_CARDS = ['create-catalog', 'explorer', 'network', 'search', 'help'];
+const DEFAULT_LUMEN_CARDS = ['explorer', 'network', 'search', 'help'];
 const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : DEFAULT_LUMEN_CARDS.slice());
 
 // Custom order untuk All Pages dengan localStorage
@@ -552,7 +552,6 @@ function getRouteDescription(key: string): string {
     search: 'Find content quickly',
     history: 'Review recent browsing',
     help: 'Documentation & support',
-    'create-catalog': 'Build metadata catalogs',
     drive: 'Store & share files',
     wallet: 'Manage crypto assets',
     domain: 'Manage your domains',
@@ -573,7 +572,6 @@ function getCardTitle(key: string): string {
     search: 'Search',
     history: 'History',
     help: 'Help',
-    'create-catalog': 'Catalog',
     drive: 'Drive',
     wallet: 'Wallet',
     domain: 'Domains',
@@ -607,8 +605,7 @@ function getCardIcon(key: string) {
     history: History,
     gateways: Globe,
     help: HelpCircle,
-    ipfs: Database,
-    'create-catalog': TableProperties
+    ipfs: Database
   };
   return icons[key] || HelpCircle;
 }
@@ -628,8 +625,7 @@ function getRouteIcon(key: string) {
     search: Search,
     history: History,
     gateways: Globe,
-    help: HelpCircle,
-    'create-catalog': TableProperties
+    help: HelpCircle
   };
   return icons[key] || FileText;
 }
