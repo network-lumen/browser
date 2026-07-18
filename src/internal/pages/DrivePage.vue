@@ -5101,6 +5101,12 @@ function hlsQueueIsPaused(): boolean {
 function upsertFileMetadata(next: DriveFile) {
   const cid = String(next?.cid || "").trim();
   if (!cid) return;
+  // Refresh from localStorage first: this runs after an await (HLS conversion / dir
+  // probe), and `files.value` can be stale by then if an upload finished in the
+  // meantime and wrote straight to localStorage without going through this reactive
+  // list. Without this, saveFiles() below would persist the stale snapshot and wipe
+  // out that upload.
+  loadFiles();
   const filtered = files.value.filter(
     (f) => String(f?.cid || "").trim() !== cid,
   );
@@ -6240,6 +6246,9 @@ async function removeLocalRootEntries(entries: DriveFile[]) {
   if (!unique.length) return;
 
   const cidSet = new Set(unique.map((entry) => normalizeCidKey(entry.cid)).filter(Boolean));
+  // Same staleness risk as upsertFileMetadata: refresh from localStorage right before
+  // filtering so a concurrently-finished upload isn't wiped out by this write.
+  loadFiles();
   files.value = files.value.filter((entry) => !cidSet.has(normalizeCidKey(entry?.cid || "")));
   saveFiles();
 
