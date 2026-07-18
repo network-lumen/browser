@@ -38,10 +38,16 @@
 <li><a href="#m6">stableLinks.chooseForLive</a></li>
 <li><a href="#m7">stableLinks.selectForLiveSetup</a></li>
 <li><a href="#m8">stableLinks.publishForLive</a></li>
-<li><a href="#m9">getSubId</a></li>
-<li><a href="#m10">getTopics</a></li>
-<li><a href="#m11">getState</a></li>
-<li><a href="#m12">wallet.requestSend</a></li>
+<li><a href="#m9">profiles.getActive</a></li>
+<li><a href="#m10">ipfsAdd</a></li>
+<li><a href="#m11">ipfsGet</a></li>
+<li><a href="#m12">ipfsResolveIPNS</a></li>
+<li><a href="#m13">ipfsPublishToIPNS</a></li>
+<li><a href="#m14">pubsub.publish</a></li>
+<li><a href="#m15">pubsub.subscribe</a></li>
+<li><a href="#m16">wallet.requestSend</a></li>
+<li><a href="#m17">wallet.signArbitrary</a></li>
+<li><a href="#m18">wallet.verifyArbitrary</a></li>
       </ul>
     </nav>
     <main>
@@ -50,106 +56,154 @@
       
         <section id="m0" class="method">
           <h2 class="method-name"><code>SendToken</code></h2>
-          <div class="method-desc">Send a token using the embedded wallet UI.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>rawTx</code></td><td>object</td><td>Transaction payload. @returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Send LMN (or a memo-only transfer) from the active wallet, using the embedded wallet UI to prompt/confirm on the user&#39;s behalf.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>rawTx</code></td><td>object</td><td>Transaction payload.</td></tr><tr><td><code>rawTx.to</code></td><td>string</td><td>Recipient bech32 address (also accepts `recipient`).</td></tr><tr><td><code>rawTx.memo</code></td><td>string</td><td>Optional memo/note attached to the transfer (also accepts `note`).</td></tr><tr><td><code>rawTx.amount_lmn</code></td><td>number</td><td>Amount in LMN (also accepts `amountLmn`/`amount`).</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — Resolves with the broadcast result on success.</p>
+          <p><strong>Errors</strong>:<ul><li><em>send_failed</em> — Wallet/profile missing, user declined, or broadcast failed.</li></ul></p>
         </section>
 
         <section id="m1" class="method">
           <h2 class="method-name"><code>Pin</code></h2>
-          <div class="method-desc">Pin content to the current site by CID or URL.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>cidOrUrl</code></td><td>string|object</td><td>@param {object} [optsMaybe] @returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Pin a CID (or a `/ipfs/...`, `/ipns/...`, `lumen://...` URL) to the user&#39;s Drive, via a confirmation modal.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>cidOrUrl</code></td><td>string|object</td><td>CID/URL string, or `{cidOrUrl|cid|url, name?}`.</td></tr><tr><td><code>optsMaybe</code></td><td>object</td><td>`{name}`, used when `cidOrUrl` is a plain string.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>missing_cid</em> — No CID/URL could be extracted from the input.</li><li><em>pin_failed</em> — The user declined, or pinning failed on the host.</li></ul></p>
         </section>
 
         <section id="m2" class="method">
           <h2 class="method-name"><code>resolveUrl</code></h2>
-          <div class="method-desc">Resolve a lumen://, /ipfs/, /ipns/ or http(s) path to a gateway URL.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>urlOrPath</code></td><td>string</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Resolve a `lumen://ipfs/&lt;cid&gt;`, `lumen://ipns/&lt;name&gt;`, `/ipfs/...`, `/ipns/...` or already-absolute http(s) URL into a fetchable gateway URL.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>urlOrPath</code></td><td>string</td><td>The URL/path to resolve.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:string,error?:string}&gt;</em> — `data` is the resolved URL, or &#39;&#39; if unrecognized.</p>
+          <p><strong>Errors</strong>:<ul><li><em>resolve_url_failed</em> — The local gateway could not be reached.</li></ul></p>
         </section>
 
         <section id="m3" class="method">
           <h2 class="method-name"><code>chooseStableLinkForLive</code></h2>
-          <div class="method-desc">Choose a stable link to publish for live view.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Open the stable-link picker so the site can choose (or create) an IPNS key to publish live/streamed content under.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>`{title?, suggestedName?, records?: {key,value}[]}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>stable_link_failed</em> — The user cancelled, or no stable link is available.</li></ul></p>
         </section>
 
         <section id="m4" class="method">
           <h2 class="method-name"><code>setWindowFullscreen</code></h2>
-          <div class="method-desc">Enable or disable fullscreen for the current window.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>active</code></td><td>boolean</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Toggle fullscreen for the browser window hosting this site.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>active</code></td><td>boolean</td><td>`true` to enter fullscreen, `false` to exit.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>window_fullscreen_failed</em> — The host window was not available.</li></ul></p>
         </section>
 
         <section id="m5" class="method">
           <h2 class="method-name"><code>window.setFullscreen</code></h2>
-          <div class="method-desc">Set the browser window fullscreen state.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>active</code></td><td>boolean</td><td></td></tr></tbody></table>
-          
-          
+          <div class="method-desc">Alias of top-level `setWindowFullscreen`.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>active</code></td><td>boolean</td><td>`true` to enter fullscreen, `false` to exit.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>window_fullscreen_failed</em> — The host window was not available.</li></ul></p>
         </section>
 
         <section id="m6" class="method">
           <h2 class="method-name"><code>stableLinks.chooseForLive</code></h2>
-          <div class="method-desc">Choose a stable link record for live use.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td></td></tr></tbody></table>
-          
-          
+          <div class="method-desc">Alias of top-level `chooseStableLinkForLive`.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>`{title?, suggestedName?, records?: {key,value}[]}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>stable_link_failed</em> — The user cancelled, or no stable link is available.</li></ul></p>
         </section>
 
         <section id="m7" class="method">
           <h2 class="method-name"><code>stableLinks.selectForLiveSetup</code></h2>
-          <div class="method-desc">Prepare a stable link setup flow.</div>
-          
-          
-          
+          <div class="method-desc">Start a fresh stable-link setup flow (create a new IPNS key for live use).</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>`{title?}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>stable_link_setup_failed</em> — Key creation was cancelled or failed.</li></ul></p>
         </section>
 
         <section id="m8" class="method">
           <h2 class="method-name"><code>stableLinks.publishForLive</code></h2>
-          <div class="method-desc">Publish a stable link for live content.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>@returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Publish `records` under an existing stable-link IPNS key.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>input</code></td><td>object</td><td>`{title?, keyName, records?: {key,value}[]}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>stable_link_publish_failed</em> — The IPNS publish failed.</li></ul></p>
         </section>
 
         <section id="m9" class="method">
-          <h2 class="method-name"><code>getSubId</code></h2>
-          <div class="method-desc">Return the current subscription id for this handle. @returns {string}</div>
+          <h2 class="method-name"><code>profiles.getActive</code></h2>
+          <div class="method-desc">Get the currently active Lumen profile.</div>
           
-          <p><strong>Returns</strong>: <em>string</em> — </p>
-          
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:object,error?:string}&gt;</em> — `data` is the profile record.</p>
+          <p><strong>Errors</strong>:<ul><li><em>get_active_failed</em> — No active profile / wallet is set up.</li></ul></p>
         </section>
 
         <section id="m10" class="method">
-          <h2 class="method-name"><code>getTopics</code></h2>
-          <div class="method-desc">Return a shallow copy of the subscribed topics array. @returns {string[]|undefined}</div>
-          
-          <p><strong>Returns</strong>: <em>string[]|undefined</em> — </p>
-          
+          <h2 class="method-name"><code>ipfsAdd</code></h2>
+          <div class="method-desc">Add data to IPFS via the host node.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>data</code></td><td>Uint8Array|Buffer|object|string</td><td>The content to add.</td></tr><tr><td><code>filename</code></td><td>string</td><td>Filename hint (default `site-data.json`).</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — `data` includes the resulting CID.</p>
+          <p><strong>Errors</strong>:<ul><li><em>ipfs_add_failed</em> — The host node was unreachable or the add failed.</li></ul></p>
         </section>
 
         <section id="m11" class="method">
-          <h2 class="method-name"><code>getState</code></h2>
-          <div class="method-desc">Get the current connection state for this subscription. @returns {string}</div>
-          
-          <p><strong>Returns</strong>: <em>string</em> — </p>
-          
+          <h2 class="method-name"><code>ipfsGet</code></h2>
+          <div class="method-desc">Retrieve content from IPFS by CID or path.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>cid</code></td><td>string</td><td>CID or `/ipfs/...` path.</td></tr><tr><td><code>options</code></td><td>object</td><td>Host-defined retrieval options.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>ipfs_get_failed</em> — The content could not be fetched.</li></ul></p>
         </section>
 
         <section id="m12" class="method">
+          <h2 class="method-name"><code>ipfsResolveIPNS</code></h2>
+          <div class="method-desc">Resolve an IPNS name to the CID/path it currently points at.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>name</code></td><td>string</td><td>IPNS name/key to resolve.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>ipfs_resolve_ipns_failed</em> — Resolution failed or timed out.</li></ul></p>
+        </section>
+
+        <section id="m13" class="method">
+          <h2 class="method-name"><code>ipfsPublishToIPNS</code></h2>
+          <div class="method-desc">Publish a CID under an IPNS key on the host (auto-creates the key if it doesn&#39;t exist yet).</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>cid</code></td><td>string</td><td>CID to publish.</td></tr><tr><td><code>key</code></td><td>string</td><td>IPNS key name.</td></tr><tr><td><code>options</code></td><td>object</td><td>Additional publish options.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>ipfs_publish_ipns_failed</em> — The publish failed.</li></ul></p>
+        </section>
+
+        <section id="m14" class="method">
+          <h2 class="method-name"><code>pubsub.publish</code></h2>
+          <div class="method-desc">Publish a message on an IPFS pubsub topic.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>topic</code></td><td>string</td><td>Topic name.</td></tr><tr><td><code>data</code></td><td>string|object|Uint8Array</td><td>Payload; encoding is inferred from its type unless `opts.encoding` is set.</td></tr><tr><td><code>opts</code></td><td>object</td><td>`{encoding?: &#39;text&#39;|&#39;json&#39;|&#39;binary&#39;}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>pubsub_publish_failed</em> — The message could not be published.</li></ul></p>
+        </section>
+
+        <section id="m15" class="method">
+          <h2 class="method-name"><code>pubsub.subscribe</code></h2>
+          <div class="method-desc">Subscribe to an IPFS pubsub topic. Auto-reconnects on stream failure unless `opts.autoReconnect` is `false`.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>topic</code></td><td>string</td><td>Topic name.</td></tr><tr><td><code>opts</code></td><td>object</td><td>`{encoding?, autoConnect?, autoReconnect?, reconnectDelaysMs?, maxReconnectAttempts?, onStatus?, onError?, onEnd?}`.</td></tr><tr><td><code>onMessage</code></td><td>function</td><td>Called with each incoming message payload.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:{getSubId:function,getTopics:function,getState:function,unsubscribe:function},error?:string}&gt;</em> — `data` is a subscription handle; call `data.unsubscribe()` to stop.</p>
+          <p><strong>Errors</strong>:<ul><li><em>pubsub_subscribe_failed</em> — The initial subscribe call failed.</li></ul></p>
+        </section>
+
+        <section id="m16" class="method">
           <h2 class="method-name"><code>wallet.requestSend</code></h2>
-          <div class="method-desc">Send a payment through the wallet interface.</div>
-          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>payment</code></td><td>object</td><td>Payment details: {profileId?, from?, to, amount, denom, memo?, waitCommit?} @returns {Promise&lt;{ok:boolean,data?:any,error?:string}&gt;}</td></tr></tbody></table>
-          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string</em> — &gt;}</p>
-          
+          <div class="method-desc">Alias of top-level `SendToken` — send a payment through the wallet interface.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>payment</code></td><td>object</td><td>`{profileId?, from?, to, amount, denom, memo?, waitCommit?}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>send_failed</em> — Wallet/profile missing, user declined, or broadcast failed.</li></ul></p>
+        </section>
+
+        <section id="m17" class="method">
+          <h2 class="method-name"><code>wallet.signArbitrary</code></h2>
+          <div class="method-desc">Sign arbitrary data with the active wallet key (ADR-036 style by default).</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>args</code></td><td>object</td><td>`{profileId?, address, algo?, payload}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:any,error?:string}&gt;</em> — </p>
+          <p><strong>Errors</strong>:<ul><li><em>sign_arbitrary_failed</em> — Signing failed or was declined.</li></ul></p>
+        </section>
+
+        <section id="m18" class="method">
+          <h2 class="method-name"><code>wallet.verifyArbitrary</code></h2>
+          <div class="method-desc">Verify a signature produced by `signArbitrary`.</div>
+          <table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>args</code></td><td>object</td><td>`{algo?, payload, signatureB64, pubkeyB64, address}`.</td></tr></tbody></table>
+          <p><strong>Returns</strong>: <em>Promise&lt;{ok:boolean,data?:boolean,error?:string}&gt;</em> — `data` is `true` when the signature is valid.</p>
+          <p><strong>Errors</strong>:<ul><li><em>verify_arbitrary_failed</em> — Verification failed (bad signature/pubkey/payload).</li></ul></p>
         </section>
     </main>
   </div>

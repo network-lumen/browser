@@ -56,11 +56,7 @@ describe('window.lumen preload API', () => {
     const expectedEntries = [
       'SendToken',
       'Pin',
-      'Save',
       'resolveUrl',
-      'sendToken',
-      'pin',
-      'save',
       'chooseStableLinkForLive',
       'setWindowFullscreen',
       'window.setFullscreen',
