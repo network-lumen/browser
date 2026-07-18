@@ -325,36 +325,6 @@
       <!-- Docs View -->
       <div v-else-if="currentView === 'docs'" class="content-area">
         <div class="discover">
-          <!-- Hero Section -->
-          <section class="hero-section">
-            <div class="hero-content">
-              <h2 class="hero-title">Developer Documentation: <span class="gradient-text">window.lumen</span></h2>
-              <p class="hero-subtitle">
-                APIs injected into IPFS/IPNS websites loaded inside Lumen (collapsible reference per call).
-              </p>
-            </div>
-          </section>
-
-          <div class="discover-card docs-note">
-            <div class="discover-ico">
-              <BookOpen :size="20" />
-            </div>
-            <div>
-              <h4>Availability & security model</h4>
-              <p>
-                <span class="mono-inline">window.lumen</span> is only available on websites served from
-                <span class="mono-inline">/ipfs/*</span> or <span class="mono-inline">/ipns/*</span>.
-                Always feature-detect before calling it.
-              </p>
-              <p>
-                Every method resolves to <span class="mono-inline">{ ok: true, data? }</span> on success or
-                <span class="mono-inline">{ ok: false, error }</span> on failure — it never throws across
-                the bridge. Some methods open a user confirmation modal (ex:
-                <span class="mono-inline">wallet.requestSend</span>, <span class="mono-inline">pin</span>).
-              </p>
-            </div>
-          </div>
-
           <iframe
             class="lumen-doc-frame"
             :src="lumenDocFrameSrc"
