@@ -1,16 +1,289 @@
+// ============================================================================
+// scripts/generate-window-lumen-doc.mjs
+//
+// Generates the window.lumen API reference from the JSDoc comments in
+// electron/webview-preload.cjs:
+//   1. docs/window-lumen.json — the canonical, machine-readable data.
+//   2. docs/window-lumen.html — a self-contained page that renders it.
+//
+// Unlike a naive text/regex scan, this uses the TypeScript compiler API
+// (already a project devDependency — nothing new to install) to parse the
+// file into a real AST and pull JSDoc off it the same way an editor's
+// "hover" tooltip would. That means nested braces in a return type
+// (`Promise<{ok:boolean,data?:{...}}>`), multi-line comments, and bracketed
+// optional params (`[opts]`) all just work — there is no line-by-line
+// brace-counting to trip over.
+//
+// Contract this relies on: inside the `lumen` object literal, every leaf API
+// method must be a `wrapLumenApiCall(implementationFn, 'fallback_error_code')`
+// call, with a `/** ... */` JSDoc block directly above it. Nested plain
+// object literals (`wallet: {...}`, `window: {...}`, ...) are treated as
+// namespaces and traversed recursively. See electron/webview-preload.cjs's
+// header comment for the full contract.
+// ============================================================================
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import ts from 'typescript';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
-const sourcePath = path.join(repoRoot, 'electron', 'webview-preload.cjs');
+const sourceRelPath = path.join('electron', 'webview-preload.cjs');
+const sourcePath = path.join(repoRoot, sourceRelPath);
 const docsDir = path.join(repoRoot, 'docs');
-const outputPath = path.join(docsDir, 'window-lumen.html');
+const jsonOutputPath = path.join(docsDir, 'window-lumen.json');
+const htmlOutputPath = path.join(docsDir, 'window-lumen.html');
+
+const RESPONSE_CONTRACT =
+  'Every window.lumen method resolves to {ok:true, data?} on success, or ' +
+  '{ok:false, error} on failure. It never throws or rejects across the ' +
+  'contextBridge — callers can always destructure the same shape.';
+
+const WRAPPER_CALL_NAME = 'wrapLumenApiCall';
+
+// ---------------------------------------------------------------------------
+// AST helpers
+// ---------------------------------------------------------------------------
+
+/** Collapse a (possibly multi-line, CRLF-containing) comment span into a single normalized line. */
+function collapseWhitespace(text) {
+  return String(text ?? '').replace(/\s+/g, ' ').trim();
+}
+
+/** Strip a JSDoc tag's leading `- `/whitespace separator, keeping the rest of the description. */
+function cleanTagText(text) {
+  return collapseWhitespace(String(text ?? '').replace(/^\s*-?\s*/, ''));
+}
+
+/** `@returns {Promise<{ok:boolean}>}` etc — read the type text without the wrapping `{}` (handles nested braces). */
+function typeTextOf(tag, sourceFile) {
+  if (!tag.typeExpression || !tag.typeExpression.type) return '';
+  return collapseWhitespace(tag.typeExpression.type.getText(sourceFile));
+}
+
+/**
+ * Custom `@error`/`@throws` tags aren't native JSDoc tag kinds, so TS gives
+ * us the whole `{code} description` string as one blob in `tag.comment`.
+ * Split it back into `{code, description}` ourselves.
+ */
+function parseErrorTag(tag, sourceFile) {
+  const raw = collapseWhitespace(ts.getTextOfJSDocComment(tag.comment) || '');
+  const match = /^\{([^}]*)\}\s*-?\s*([\s\S]*)$/.exec(raw);
+  if (match) {
+    return { code: match[1].trim(), description: match[2].trim() };
+  }
+  return { code: '', description: raw };
+}
+
+/** Extract `{description, params[], returns, errors[]}` from a node's leading JSDoc, or null if it has none. */
+function extractJsDoc(node, sourceFile) {
+  const docs = ts.getJSDocCommentsAndTags(node).filter(ts.isJSDoc);
+  if (!docs.length) return null;
+
+  // If a property somehow has more than one /** */ block, the closest one
+  // (last in source order) wins — matches how editors resolve it too.
+  const doc = docs[docs.length - 1];
+  const description = collapseWhitespace(ts.getTextOfJSDocComment(doc.comment) || '');
+
+  const params = [];
+  const errors = [];
+  let returns = null;
+
+  for (const tag of doc.tags || []) {
+    if (ts.isJSDocParameterTag(tag)) {
+      params.push({
+        name: tag.name ? tag.name.getText(sourceFile) : '',
+        type: typeTextOf(tag, sourceFile),
+        optional: !!tag.isBracketed,
+        description: cleanTagText(ts.getTextOfJSDocComment(tag.comment))
+      });
+      continue;
+    }
+    if (ts.isJSDocReturnTag(tag)) {
+      returns = {
+        type: typeTextOf(tag, sourceFile),
+        description: cleanTagText(ts.getTextOfJSDocComment(tag.comment))
+      };
+      continue;
+    }
+    const tagName = tag.tagName.text;
+    if (tagName === 'error' || tagName === 'throws') {
+      errors.push(parseErrorTag(tag, sourceFile));
+    }
+  }
+
+  return { description, params, returns, errors };
+}
+
+/** Find `const lumen = {...}` among the file's top-level statements. */
+function findLumenObjectLiteral(sourceFile) {
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const decl of statement.declarationList.declarations) {
+      if (
+        ts.isIdentifier(decl.name) &&
+        decl.name.text === 'lumen' &&
+        decl.initializer &&
+        ts.isObjectLiteralExpression(decl.initializer)
+      ) {
+        return decl.initializer;
+      }
+    }
+  }
+  return null;
+}
+
+/** True for a `wrapLumenApiCall(fn, 'code')`-shaped call expression. */
+function isWrapperCall(node) {
+  return (
+    ts.isCallExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.text === WRAPPER_CALL_NAME
+  );
+}
+
+/**
+ * Walk the `lumen` object literal (and any nested plain-object namespaces
+ * inside it) collecting one entry per `wrapLumenApiCall(...)` leaf.
+ * `groups` is populated as a side effect: {id -> {label, paths: []}}, in the
+ * order namespaces are first encountered, with a synthetic "general" group
+ * (top-level, unnamespaced entries) always seeded first.
+ */
+function collectEntries(objectLiteral, sourceFile, { pathParts = [], entries = [], groups } = {}) {
+  for (const property of objectLiteral.properties) {
+    if (!ts.isPropertyAssignment(property)) continue;
+
+    const key = property.name.getText(sourceFile).replace(/^['"]|['"]$/g, '');
+    const nextPathParts = [...pathParts, key];
+    const value = property.initializer;
+
+    if (ts.isObjectLiteralExpression(value)) {
+      const groupId = nextPathParts.join('.');
+      if (!groups.has(groupId)) {
+        groups.set(groupId, { id: groupId, label: key, paths: [] });
+      }
+      collectEntries(value, sourceFile, { pathParts: nextPathParts, entries, groups });
+      continue;
+    }
+
+    if (isWrapperCall(value)) {
+      const [implArg, fallbackArg] = value.arguments;
+      const implementation = implArg ? implArg.getText(sourceFile) : '';
+      const fallbackError =
+        fallbackArg && ts.isStringLiteralLike(fallbackArg)
+          ? fallbackArg.text
+          : (fallbackArg ? fallbackArg.getText(sourceFile) : '');
+
+      const doc = extractJsDoc(property, sourceFile);
+      const entryPath = nextPathParts.join('.');
+      const namespace = pathParts.length ? pathParts.join('.') : null;
+
+      entries.push({
+        path: entryPath,
+        namespace,
+        member: key,
+        implementation,
+        fallbackError,
+        description: doc?.description || '',
+        params: doc?.params || [],
+        returns: doc?.returns || null,
+        errors: doc?.errors || []
+      });
+
+      const groupId = namespace || 'general';
+      if (!groups.has(groupId)) {
+        groups.set(groupId, { id: groupId, label: namespace || 'General', paths: [] });
+      }
+      groups.get(groupId).paths.push(entryPath);
+      continue;
+    }
+
+    console.warn(
+      `[generate-window-lumen-doc] Skipping "${nextPathParts.join('.')}": ` +
+      `not a nested namespace object or a ${WRAPPER_CALL_NAME}(...) call — ` +
+      'wrap real logic in a named function and reference it here instead of inlining it.'
+    );
+  }
+
+  return entries;
+}
+
+// ---------------------------------------------------------------------------
+// Build the doc model
+// ---------------------------------------------------------------------------
+
+function buildDocModel() {
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Source file not found: ${sourcePath}`);
+  }
+  const sourceText = fs.readFileSync(sourcePath, 'utf8');
+  const sourceFile = ts.createSourceFile(
+    sourceRelPath,
+    sourceText,
+    ts.ScriptTarget.Latest,
+    /* setParentNodes */ true,
+    ts.ScriptKind.JS
+  );
+
+  const lumenObject = findLumenObjectLiteral(sourceFile);
+  if (!lumenObject) {
+    throw new Error(`Could not find "const lumen = {...}" in ${sourceRelPath}`);
+  }
+
+  const groups = new Map();
+  groups.set('general', { id: 'general', label: 'General', paths: [] });
+
+  const entries = collectEntries(lumenObject, sourceFile, { groups });
+  if (!entries.length) {
+    throw new Error(`Found the lumen object in ${sourceRelPath} but it has no documented entries.`);
+  }
+
+  // Drop the seeded "general" group if nothing ended up unnamespaced, and
+  // drop any namespace group that (defensively) ended up empty.
+  const orderedGroups = Array.from(groups.values()).filter((g) => g.paths.length > 0);
+
+  return {
+    title: 'window.lumen API Reference',
+    source: sourceRelPath.replace(/\\/g, '/'),
+    generatedAt: new Date().toISOString(),
+    generator: path.relative(repoRoot, __filename).replace(/\\/g, '/'),
+    responseContract: RESPONSE_CONTRACT,
+    groups: orderedGroups,
+    entries
+  };
+}
+
+// ---------------------------------------------------------------------------
+// HTML rendering
+// ---------------------------------------------------------------------------
+
+function renderHtml(model) {
+  const embeddedJson = JSON.stringify(model)
+    // Guard against `</script>` (or a stray `<!--`) inside any doc string
+    // breaking out of the embedding <script> tag.
+    .replace(/</g, '\\u003c');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(model.title)}</title>
+<style>${CSS}</style>
+</head>
+<body>
+<div id="app" class="app" aria-busy="true"></div>
+
+<script id="lumen-doc-data" type="application/json">${embeddedJson}</script>
+<script>${CLIENT_JS}</script>
+</body>
+</html>`;
+}
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -18,352 +291,497 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-// Builds a regex fragment matching brace-balanced content up to `depth`
-// levels of nesting (JS RegExp has no recursion, so this unrolls it by hand).
-// depth=3 comfortably covers JSDoc types like `{Promise<{ok:boolean,data?:{a,b}}>}`.
-function buildBalancedBraceContentPattern(depth) {
-  let content = '[^{}]*';
-  for (let i = 0; i < depth; i += 1) {
-    const group = `\\{${content}\\}`;
-    content = `(?:[^{}]|${group})*`;
+const CSS = `
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f9;
+  --bg-elevated: #ffffff;
+  --border: #e3e4e8;
+  --text: #1b1d23;
+  --text-muted: #666a75;
+  --text-faint: #9198a3;
+  --accent: #4f46e5;
+  --accent-soft: #eef0ff;
+  --accent-contrast: #ffffff;
+  --code-bg: #f1f2f6;
+  --error: #b91c1c;
+  --error-soft: #fdeeee;
+  --optional: #9198a3;
+  --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.05);
+  --radius: 12px;
+  --namespace-colors: #4f46e5, #0d9488, #b45309, #be185d, #4338ca, #15803d, #a21caf;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101114;
+    --bg-elevated: #16181d;
+    --border: #262832;
+    --text: #eceef2;
+    --text-muted: #9aa0ac;
+    --text-faint: #6b7280;
+    --accent: #8385ff;
+    --accent-soft: #1c1d3a;
+    --accent-contrast: #10111a;
+    --code-bg: #1c1e26;
+    --error: #f47272;
+    --error-soft: #2c1717;
+    --optional: #6b7280;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
   }
-  return content;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+
+.app { display: flex; min-height: 100%; }
+
+/* ---- sidebar ---- */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 20px 16px 32px;
+}
+.sidebar-header { padding: 4px 8px 16px; }
+.sidebar-title { font-size: 16px; font-weight: 700; margin: 0 0 2px; }
+.sidebar-title .mono { color: var(--accent); }
+.sidebar-subtitle { font-size: 12.5px; color: var(--text-muted); margin: 0; }
+
+.search {
+  display: flex; align-items: center; gap: 8px;
+  margin: 12px 4px 18px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+}
+.search svg { flex-shrink: 0; color: var(--text-faint); }
+.search input {
+  border: 0; outline: 0; background: transparent; color: var(--text);
+  font: inherit; width: 100%;
+}
+.search input::placeholder { color: var(--text-faint); }
+.search kbd {
+  font: 11px/1 ui-monospace, monospace; color: var(--text-faint);
+  border: 1px solid var(--border); border-radius: 4px; padding: 2px 5px;
 }
 
-const BALANCED_BRACE_TYPE = `\\{(${buildBalancedBraceContentPattern(3)})\\}`;
-// Descriptions are captured non-greedily up to the next `@tag` (or end of
-// string) — comments get flattened to one line before this runs, so an
-// unbounded `(.*)` would otherwise swallow every subsequent tag's text too.
-// `\s*` (not `\s`): the optional `\s*-?\s*` separator right before a
-// description group may already have consumed the whitespace this boundary
-// would otherwise require (e.g. a tag with no description text at all, going
-// straight into the next `@tag`), so the boundary must not depend on it.
-const NEXT_TAG_BOUNDARY = '(?=\\s*@(?:param|returns?|throws|error)\\b|$)';
+.nav-group { margin-bottom: 6px; }
+.nav-group-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px; margin-top: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.nav-count {
+  margin-left: auto; font-size: 10.5px; font-weight: 600; color: var(--text-faint);
+  background: var(--code-bg); border-radius: 999px; padding: 1px 7px;
+}
+.nav-list { list-style: none; margin: 0; padding: 0; }
+.nav-link {
+  display: block; padding: 6px 10px 6px 22px; margin: 1px 0;
+  border-radius: 7px; color: var(--text-muted); text-decoration: none;
+  font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  border-left: 2px solid transparent;
+}
+.nav-link:hover { background: var(--accent-soft); color: var(--text); }
+.nav-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
+.nav-empty { padding: 24px 12px; color: var(--text-faint); font-size: 13px; }
 
-function normalizeComment(comment) {
-  if (!comment) return '';
-  return comment
-    .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*\*+\s?/, '').trim())
-    .filter(Boolean)
-    .join(' ');
+/* ---- main ---- */
+.main { flex: 1; min-width: 0; }
+.topbar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 32px; border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+.topbar .spacer { flex: 1; }
+.contract-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--text-muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px;
+}
+.contract-pill .mono { color: var(--accent); font-weight: 600; }
+.theme-toggle {
+  border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-muted);
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-toggle:hover { color: var(--text); }
+
+.content { max-width: 880px; margin: 0 auto; padding: 40px 32px 120px; }
+.page-title { font-size: 26px; font-weight: 800; margin: 0 0 6px; }
+.page-meta { color: var(--text-faint); font-size: 13px; margin: 0 0 36px; }
+.page-meta code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
+
+.group-heading {
+  display: flex; align-items: baseline; gap: 10px;
+  margin: 48px 0 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.group-heading:first-of-type { margin-top: 0; }
+.group-heading h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin: 0; }
+.group-heading .nav-dot { width: 8px; height: 8px; }
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px 24px;
+  margin-bottom: 18px;
+  scroll-margin-top: 76px;
+}
+.card-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.card-title {
+  font-size: 17px; font-weight: 700; margin: 0;
+}
+.copy-link {
+  border: 0; background: transparent; color: var(--text-faint); cursor: pointer;
+  padding: 4px; border-radius: 6px; display: flex;
+}
+.copy-link:hover { color: var(--accent); background: var(--accent-soft); }
+.badge {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted);
+}
+.card-desc { color: var(--text-muted); margin: 10px 0 0; }
+
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-faint); margin: 20px 0 8px;
+}
+table.data-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 13.5px; }
+table.data-table th {
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-faint); font-weight: 600; padding: 0 10px 6px; border-bottom: 1px solid var(--border);
+}
+table.data-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+table.data-table tr:last-child td { border-bottom: 0; }
+table.data-table td.desc { color: var(--text-muted); }
+.type-chip {
+  display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 6px;
+  background: var(--code-bg); color: var(--text-muted);
+  white-space: normal; overflow-wrap: anywhere; max-width: 100%;
+}
+.param-name { font-weight: 600; }
+.optional-tag { color: var(--optional); font-weight: 500; font-size: 11.5px; margin-left: 6px; }
+
+.returns-box {
+  display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap;
+  background: var(--code-bg); border-radius: 9px; padding: 12px 14px; font-size: 13.5px;
+}
+.returns-box .type-chip { background: var(--accent-soft); color: var(--accent); min-width: 0; }
+.returns-box .desc { color: var(--text-muted); min-width: 0; flex: 1 1 220px; }
+
+.error-code {
+  font-size: 12.5px; background: var(--error-soft); color: var(--error);
+  padding: 2px 8px; border-radius: 6px; white-space: nowrap;
 }
 
-function parseObjectKeys(source, objectName) {
-  const search = `const ${objectName} = `;
-  const start = source.indexOf(search);
-  if (start === -1) return null;
+.card-meta {
+  margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border);
+  display: flex; flex-wrap: wrap; gap: 16px;
+  font-size: 12px; color: var(--text-faint);
+}
+.card-meta span b { color: var(--text-muted); font-weight: 600; }
 
-  const openBrace = source.indexOf('{', start + search.length);
-  if (openBrace === -1) return null;
+.empty-note { color: var(--text-faint); font-size: 13px; margin: 6px 0 0; }
+.no-results { padding: 60px 0; text-align: center; color: var(--text-faint); }
 
-  let depth = 1;
-  let inSingle = false;
-  let inDouble = false;
-  let inTemplate = false;
-  let escaped = false;
-  let inLineComment = false;
-  let inBlockComment = false;
+@media (max-width: 860px) {
+  .app { flex-direction: column; }
+  .sidebar { position: relative; width: 100%; height: auto; max-height: 44vh; }
+  .content { padding: 28px 18px 100px; }
+  .topbar { padding: 12px 18px; }
+}
+`;
 
-  for (let i = openBrace + 1; i < source.length; i += 1) {
-    const char = source[i];
-    const nextChar = source[i + 1];
+const CLIENT_JS = `
+(function () {
+  var dataEl = document.getElementById('lumen-doc-data');
+  var model = JSON.parse(dataEl.textContent);
+  var app = document.getElementById('app');
 
-    if (inLineComment) {
-      if (char === '\n') inLineComment = false;
-      continue;
-    }
+  var NAMESPACE_COLORS = getComputedStyle(document.documentElement)
+    .getPropertyValue('--namespace-colors')
+    .split(',').map(function (c) { return c.trim(); }).filter(Boolean);
 
-    if (inBlockComment) {
-      if (char === '*' && nextChar === '/') {
-        inBlockComment = false;
-        i += 1;
-      }
-      continue;
-    }
-
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-
-    if (inSingle) {
-      if (char === '\\') {
-        escaped = true;
-        continue;
-      }
-      if (char === "'") {
-        inSingle = false;
-      }
-      continue;
-    }
-
-    if (inDouble) {
-      if (char === '\\') {
-        escaped = true;
-        continue;
-      }
-      if (char === '"') {
-        inDouble = false;
-      }
-      continue;
-    }
-
-    if (inTemplate) {
-      if (char === '\\') {
-        escaped = true;
-        continue;
-      }
-      if (char === '`') {
-        inTemplate = false;
-      }
-      continue;
-    }
-
-    if (char === '/' && nextChar === '/') {
-      inLineComment = true;
-      i += 1;
-      continue;
-    }
-
-    if (char === '/' && nextChar === '*') {
-      inBlockComment = true;
-      i += 1;
-      continue;
-    }
-
-    if (char === "'") {
-      inSingle = true;
-      continue;
-    }
-
-    if (char === '"') {
-      inDouble = true;
-      continue;
-    }
-
-    if (char === '`') {
-      inTemplate = true;
-      continue;
-    }
-
-    if (char === '{') {
-      depth += 1;
-      continue;
-    }
-
-    if (char === '}') {
-      depth -= 1;
-      if (depth === 0) {
-        return source.slice(openBrace + 1, i);
-      }
-    }
+  function colorForGroup(index) {
+    return NAMESPACE_COLORS[index % NAMESPACE_COLORS.length];
   }
 
-  return null;
-}
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
 
-function parseEntries(source) {
-  const lines = source.split(/\r?\n/);
-  const result = [];
-  const stack = [];
-  let currentComment = '';
-  let isInBlockComment = false;
+  function slugify(pathStr) {
+    return 'm-' + pathStr.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase();
+  }
 
-  for (let i = 0; i < lines.length; i += 1) {
-    const raw = lines[i];
-    const line = raw.trim();
-    if (!line) {
-      currentComment = '';
-      continue;
+  var entryByPath = {};
+  model.entries.forEach(function (e) { entryByPath[e.path] = e; });
+
+  function paramsTable(entry) {
+    if (!entry.params.length) return '';
+    var rows = entry.params.map(function (p) {
+      return '<tr>' +
+        '<td><span class="param-name mono">' + esc(p.name) + '</span>' +
+        (p.optional ? '<span class="optional-tag">optional</span>' : '') + '</td>' +
+        '<td>' + (p.type ? '<span class="type-chip mono">' + esc(p.type) + '</span>' : '') + '</td>' +
+        '<td class="desc">' + esc(p.description) + '</td>' +
+      '</tr>';
+    }).join('');
+    return '<div class="section-label">Parameters</div>' +
+      '<table class="data-table">' +
+      '<colgroup><col style="width:19%"><col style="width:27%"><col></colgroup>' +
+      '<thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table>';
+  }
+
+  function returnsBlock(entry) {
+    if (!entry.returns) return '';
+    return '<div class="section-label">Returns</div>' +
+      '<div class="returns-box">' +
+      (entry.returns.type ? '<span class="type-chip mono">' + esc(entry.returns.type) + '</span>' : '') +
+      '<span class="desc">' + esc(entry.returns.description) + '</span>' +
+      '</div>';
+  }
+
+  function errorsTable(entry) {
+    if (!entry.errors.length) return '';
+    var rows = entry.errors.map(function (er) {
+      return '<tr>' +
+        '<td><span class="error-code mono">' + esc(er.code) + '</span></td>' +
+        '<td class="desc">' + esc(er.description) + '</td>' +
+      '</tr>';
+    }).join('');
+    return '<div class="section-label">Possible errors</div>' +
+      '<table class="data-table">' +
+      '<colgroup><col style="width:27%"><col></colgroup>' +
+      '<thead><tr><th>Code</th><th>Description</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table>';
+  }
+
+  function renderCard(entry, groupIndex) {
+    var id = slugify(entry.path);
+    return '<article class="card" id="' + id + '" data-path="' + esc(entry.path.toLowerCase()) + '">' +
+      '<div class="card-head">' +
+        '<h3 class="card-title mono">' + esc(entry.path) + '</h3>' +
+        '<button class="copy-link" data-copy="#' + id + '" title="Copy link to this method" aria-label="Copy link">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L12.5 19.5"/></svg>' +
+        '</button>' +
+      '</div>' +
+      (entry.description ? '<p class="card-desc">' + esc(entry.description) + '</p>' : '') +
+      paramsTable(entry) +
+      returnsBlock(entry) +
+      errorsTable(entry) +
+      '<div class="card-meta">' +
+        '<span><b>Implementation</b> <code class="mono">' + esc(entry.implementation || '—') + '</code></span>' +
+        '<span><b>Default error code</b> <code class="mono">' + esc(entry.fallbackError || '—') + '</code></span>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderSidebar() {
+    var groupsHtml = model.groups.map(function (g, i) {
+      var links = g.paths.map(function (p) {
+        var entry = entryByPath[p];
+        return '<li><a class="nav-link" href="#' + slugify(p) + '" data-path="' + esc(p.toLowerCase()) + '">' + esc(entry.member) + '</a></li>';
+      }).join('');
+      return '<div class="nav-group" data-group="' + esc(g.id) + '">' +
+        '<div class="nav-group-header"><span class="nav-dot" style="background:' + colorForGroup(i) + '"></span>' + esc(g.label) + '<span class="nav-count">' + g.paths.length + '</span></div>' +
+        '<ul class="nav-list">' + links + '</ul>' +
+      '</div>';
+    }).join('');
+
+    return (
+      '<nav class="sidebar" id="sidebar">' +
+        '<div class="sidebar-header">' +
+          '<p class="sidebar-title"><span class="mono">window.lumen</span></p>' +
+          '<p class="sidebar-subtitle">' + model.entries.length + ' methods · auto-generated</p>' +
+        '</div>' +
+        '<label class="search">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
+          '<input id="search-input" type="text" placeholder="Filter methods…" autocomplete="off">' +
+          '<kbd>/</kbd>' +
+        '</label>' +
+        '<div id="nav-groups">' + groupsHtml + '</div>' +
+        '<p class="nav-empty" id="nav-empty" hidden>No methods match.</p>' +
+      '</nav>'
+    );
+  }
+
+  function renderMain() {
+    var groupsHtml = model.groups.map(function (g, i) {
+      var cards = g.paths.map(function (p) { return renderCard(entryByPath[p], i); }).join('');
+      return '<section data-group="' + esc(g.id) + '">' +
+        '<div class="group-heading"><span class="nav-dot" style="background:' + colorForGroup(i) + '"></span><h2>' + esc(g.label) + '</h2></div>' +
+        cards +
+      '</section>';
+    }).join('');
+
+    var generated = new Date(model.generatedAt);
+    var generatedLabel = isNaN(generated.getTime()) ? model.generatedAt : generated.toLocaleString();
+
+    return (
+      '<main class="main">' +
+        '<div class="topbar">' +
+          '<span class="contract-pill" title="' + esc(model.responseContract) + '">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>' +
+            'Always resolves <span class="mono">{ok, data?, error?}</span>' +
+          '</span>' +
+          '<span class="spacer"></span>' +
+          '<button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' +
+          '</button>' +
+        '</div>' +
+        '<div class="content">' +
+          '<h1 class="page-title">' + esc(model.title) + '</h1>' +
+          '<p class="page-meta">Generated from <code>' + esc(model.source) + '</code> · ' + esc(generatedLabel) + ' · run <code>npm run doc:window.lumen</code> to refresh</p>' +
+          '<div id="groups-container">' + groupsHtml + '</div>' +
+          '<p class="no-results" id="no-results" hidden>No methods match your search.</p>' +
+        '</div>' +
+      '</main>'
+    );
+  }
+
+  app.setAttribute('aria-busy', 'false');
+  app.innerHTML = renderSidebar() + renderMain();
+
+  // ---- search / filter ----
+  var searchInput = document.getElementById('search-input');
+  var navEmpty = document.getElementById('nav-empty');
+  var noResults = document.getElementById('no-results');
+
+  function applyFilter(query) {
+    var q = query.trim().toLowerCase();
+    var visibleCount = 0;
+
+    document.querySelectorAll('.nav-link').forEach(function (link) {
+      var match = !q || link.getAttribute('data-path').indexOf(q) !== -1;
+      link.style.display = match ? '' : 'none';
+      if (match) visibleCount += 1;
+    });
+    document.querySelectorAll('.nav-group').forEach(function (group) {
+      var anyVisible = Array.prototype.some.call(group.querySelectorAll('.nav-link'), function (l) { return l.style.display !== 'none'; });
+      group.style.display = anyVisible ? '' : 'none';
+    });
+    navEmpty.hidden = visibleCount !== 0;
+
+    var visibleCards = 0;
+    document.querySelectorAll('.card').forEach(function (card) {
+      var match = !q || card.getAttribute('data-path').indexOf(q) !== -1;
+      card.style.display = match ? '' : 'none';
+      if (match) visibleCards += 1;
+    });
+    document.querySelectorAll('#groups-container > section').forEach(function (section) {
+      var anyVisible = Array.prototype.some.call(section.querySelectorAll('.card'), function (c) { return c.style.display !== 'none'; });
+      section.style.display = anyVisible ? '' : 'none';
+    });
+    noResults.hidden = visibleCards !== 0;
+  }
+
+  searchInput.addEventListener('input', function (e) { applyFilter(e.target.value); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
     }
-
-    if (line.startsWith('/**')) {
-      isInBlockComment = true;
-      currentComment = line.replace(/^\/\*\*/, '').replace(/\*\/$/, '').trim();
-      if (line.includes('*/')) {
-        isInBlockComment = false;
-        currentComment = normalizeComment(currentComment);
-      }
-      continue;
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      applyFilter('');
+      searchInput.blur();
     }
+  });
 
-    if (isInBlockComment) {
-      if (line.includes('*/')) {
-        isInBlockComment = false;
-        currentComment += ' ' + line.replace(/\*\//, '').trim();
-        currentComment = normalizeComment(currentComment);
-      } else {
-        currentComment += ' ' + line.replace(/^\*/, '').trim();
-      }
-      continue;
-    }
-
-    if (line.startsWith('//')) {
-      currentComment = line.slice(2).trim();
-      continue;
-    }
-
-    if (line.endsWith('{') && line.includes(':')) {
-      const name = line.split(':')[0].trim();
-      stack.push(name);
-      currentComment = '';
-      continue;
-    }
-
-    if (line === '},' || line === '}' || line === '},' || line === '},') {
-      stack.pop();
-      currentComment = '';
-      continue;
-    }
-
-    const fnMatch = line.match(/^([A-Za-z0-9_$]+)\s*:\s*wrapLumenApiCall\(/);
-    const rawFnMatch = line.match(/^([A-Za-z0-9_$]+)\s*:\s*async\s*\(/);
-    const rawFnArrowMatch = line.match(/^([A-Za-z0-9_$]+)\s*:\s*\(/);
-    const match = fnMatch || rawFnMatch || (rawFnArrowMatch && line.includes('=>') ? rawFnArrowMatch : null);
-
-    if (match) {
-      const name = match[1];
-      result.push({
-        path: [...stack, name],
-        description: normalizeComment(currentComment)
+  // ---- active-section highlight on scroll ----
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
+  function setActive(id) {
+    links.forEach(function (l) { l.classList.toggle('active', l.getAttribute('href') === '#' + id); });
+  }
+  if ('IntersectionObserver' in window && sections.length) {
+    var observer = new IntersectionObserver(function (entriesList) {
+      entriesList.forEach(function (e) {
+        if (e.isIntersecting) setActive(e.target.id);
       });
-      currentComment = '';
-      continue;
-    }
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    sections.forEach(function (s) { observer.observe(s); });
   }
 
-  return result;
-}
+  // ---- copy-link buttons ----
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.copy-link') : null;
+    if (!btn) return;
+    var hash = btn.getAttribute('data-copy');
+    var url = location.origin + location.pathname + hash;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).catch(function () {});
+    }
+    history.replaceState(null, '', hash);
+  });
 
-function generateMarkdown(entries) {
-  // Build a JSDoc-like HTML page with sidebar and detailed method sections
-  const methodsHtml = entries
-    .map((entry, idx) => {
-      const name = escapeHtml(entry.path.join('.'));
-      const raw = entry.description || '';
+  // ---- theme toggle (defaults to system preference) ----
+  var themeToggle = document.getElementById('theme-toggle');
+  var storedTheme = null;
+  try { storedTheme = localStorage.getItem('lumen-doc-theme'); } catch (err) {}
+  if (storedTheme) document.documentElement.style.colorScheme = storedTheme;
+  themeToggle.addEventListener('click', function () {
+    var current = getComputedStyle(document.documentElement).colorScheme.indexOf('dark') !== -1 &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var mql = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = (document.documentElement.style.colorScheme === 'dark' || (!document.documentElement.style.colorScheme && mql)) ? 'light' : 'dark';
+    document.documentElement.style.colorScheme = next;
+    try { localStorage.setItem('lumen-doc-theme', next); } catch (err) {}
+  });
+})();
+`;
 
-      // Param names may use JSDoc's optional-parameter bracket syntax
-      // (`[opts]`, `[opts=default]`) — captured without the brackets.
-      const paramRe = new RegExp(
-        `@param\\s+(?:${BALANCED_BRACE_TYPE}\\s+)?\\[?([A-Za-z0-9_.$]+)(?:=[^\\]]*)?\\]?\\s*-?\\s*(.*?)${NEXT_TAG_BOUNDARY}`,
-        'g'
-      );
-      const returnsRe = new RegExp(`@returns?\\s+(?:${BALANCED_BRACE_TYPE})?\\s*-?\\s*(.*?)${NEXT_TAG_BOUNDARY}`, 'g');
-      const throwsRe = new RegExp(`@(throws|error)\\s+(?:${BALANCED_BRACE_TYPE})?\\s*-?\\s*(.*?)${NEXT_TAG_BOUNDARY}`, 'g');
-
-      const params = [];
-      const returns = [];
-      const throwsArr = [];
-      let m;
-      while ((m = paramRe.exec(raw))) params.push({ type: m[1] || '', name: m[2], desc: (m[3] || '').trim() });
-      while ((m = returnsRe.exec(raw))) returns.push({ type: m[1] || '', desc: (m[2] || '').trim() });
-      while ((m = throwsRe.exec(raw))) throwsArr.push({ type: m[2] || '', desc: (m[3] || '').trim() });
-
-      // Strip from the first JSDoc tag onward, whichever comes first — a
-      // description-only entry (no @param) that goes straight to @returns/@error
-      // must not leak that tag text into the rendered description.
-      const descriptionHtml = escapeHtml(raw.replace(/@(?:param|returns?|throws|error)\b[\s\S]*$/, '').trim()).replace(/\n/g, '<br>') || '';
-
-      const paramsHtml = params.length
-        ? `<table class="params"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>${params
-            .map(p => `<tr><td><code>${escapeHtml(p.name)}</code></td><td>${escapeHtml(p.type)}</td><td>${escapeHtml(p.desc)}</td></tr>`)
-            .join('')}</tbody></table>`
-        : '';
-
-      const returnsHtml = returns.length
-        ? `<p><strong>Returns</strong>: ${returns.map(r => `${r.type ? `<em>${escapeHtml(r.type)}</em> — ` : ''}${escapeHtml(r.desc)}`).join('<br>')}</p>`
-        : '';
-
-      const throwsHtml = throwsArr.length
-        ? `<p><strong>Errors</strong>:<ul>${throwsArr.map(t => `<li>${t.type ? `<em>${escapeHtml(t.type)}</em> — ` : ''}${escapeHtml(t.desc)}</li>`).join('')}</ul></p>`
-        : '';
-
-      return `
-        <section id="m${idx}" class="method">
-          <h2 class="method-name"><code>${name}</code></h2>
-          <div class="method-desc">${descriptionHtml || '<em>No description available.</em>'}</div>
-          ${paramsHtml}
-          ${returnsHtml}
-          ${throwsHtml}
-        </section>`;
-    })
-    .join('\n');
-
-  const toc = entries
-    .map((e, i) => `<li><a href="#m${i}">${escapeHtml(e.path.join('.'))}</a></li>`)
-    .join('\n');
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>window.lumen API Reference</title>
-  <style>
-    :root{--bg:#ffffff;--muted:#666;--accent:#0366d6}
-    body{font-family: Inter, Roboto, Arial, sans-serif; margin:0; background: #f6f8fa; color:#111}
-    .wrap{display:flex; max-width:1100px; margin:24px auto; gap:24px}
-    nav{width:260px; background:#fff; border:1px solid #e1e4e8; padding:16px; border-radius:8px}
-    nav h3{margin:0 0 8px 0}
-    nav ul{list-style:none; padding:0; margin:0}
-    nav li{margin:6px 0}
-    nav a{color:var(--accent); text-decoration:none}
-    main{flex:1; background:#fff; border:1px solid #e1e4e8; padding:20px; border-radius:8px}
-    h1{margin-top:0}
-    .method{border-bottom:1px dashed #e6eef8; padding:18px 0}
-    .method-name{margin:0 0 8px 0}
-    .method-desc{color:var(--muted); margin-bottom:12px}
-    table.params{width:100%; border-collapse:collapse; margin-bottom:12px}
-    table.params th, table.params td{border:1px solid #eee; padding:8px; text-align:left}
-    code{background:#f1f8ff; padding:2px 6px; border-radius:4px}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <nav>
-      <h3>window.lumen</h3>
-      <p style="color:var(--muted); margin:0 0 12px 0">Auto-generated API reference</p>
-      <ul>
-        ${toc}
-      </ul>
-    </nav>
-    <main>
-      <h1>window.lumen API Reference</h1>
-      <p style="color:var(--muted); margin-top:0">Generated from JSDoc-style comments in <code>electron/webview-preload.cjs</code>.</p>
-      ${methodsHtml}
-    </main>
-  </div>
-</body>
-</html>`;
-}
+// ---------------------------------------------------------------------------
+// main
+// ---------------------------------------------------------------------------
 
 function main() {
-  if (!fs.existsSync(sourcePath)) {
-    console.error(`Source file not found: ${sourcePath}`);
-    process.exit(1);
-  }
-
-  const source = fs.readFileSync(sourcePath, 'utf8');
-  const lumenBody = parseObjectKeys(source, 'lumen');
-  if (!lumenBody) {
-    console.error('Could not parse lumen object from source.');
-    process.exit(1);
-  }
-
-  const entries = parseEntries(lumenBody);
-  if (!entries.length) {
-    console.error('No lumen entries found.');
-    process.exit(1);
-  }
+  const model = buildDocModel();
 
   if (!fs.existsSync(docsDir)) {
     fs.mkdirSync(docsDir, { recursive: true });
   }
 
-  const markdown = generateMarkdown(entries);
-  fs.writeFileSync(outputPath, markdown, 'utf8');
-  console.log(`Generated ${outputPath} with ${entries.length} entries.`);
+  fs.writeFileSync(jsonOutputPath, JSON.stringify(model, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(htmlOutputPath, renderHtml(model), 'utf8');
+
+  console.log(
+    `Generated ${path.relative(repoRoot, jsonOutputPath)} and ` +
+    `${path.relative(repoRoot, htmlOutputPath)} with ${model.entries.length} entries ` +
+    `across ${model.groups.length} groups.`
+  );
 }
 
-main();
+try {
+  main();
+} catch (error) {
+  console.error(`[generate-window-lumen-doc] ${error.message}`);
+  process.exit(1);
+}
