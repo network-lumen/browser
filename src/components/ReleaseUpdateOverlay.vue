@@ -103,12 +103,12 @@ function clearError() {
 
 .panel {
   width: min(520px, 92vw);
-  background: var(--card-bg, #fff);
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 18px;
   padding: 1.25rem 1.25rem 1rem 1.25rem;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-  color: var(--text-primary, #000);
+  color: var(--text-primary);
 }
 
 .head {
@@ -123,7 +123,7 @@ function clearError() {
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent-primary, #007aff);
+  color: var(--accent-primary);
 }
 
 .version {
@@ -134,7 +134,7 @@ function clearError() {
 .bar {
   height: 12px;
   border-radius: 999px;
-  background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
+  background: var(--fill-tertiary);
   overflow: hidden;
 }
 
@@ -142,7 +142,7 @@ function clearError() {
   height: 100%;
   width: 0%;
   border-radius: 999px;
-  background: var(--gradient-primary, linear-gradient(90deg, var(--accent-primary, #007aff), var(--accent-secondary, #5ac8fa)));
+  background: var(--gradient-primary);
   transition: width 0.18s ease;
 }
 
@@ -151,15 +151,15 @@ function clearError() {
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
-  color: var(--text-secondary, #3c3c43);
+  color: var(--text-secondary);
 }
 
 .error {
   margin-top: 0.85rem;
   padding: 0.75rem;
   border-radius: 12px;
-  background: var(--fill-error, rgba(255, 59, 48, 0.12));
-  color: var(--text-primary, #000);
+  background: var(--fill-error);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -167,16 +167,16 @@ function clearError() {
 }
 
 .btn {
-  background: var(--fill-secondary, rgba(118, 118, 128, 0.10));
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  background: var(--fill-secondary);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 10px;
-  color: var(--text-primary, #000);
+  color: var(--text-primary);
   padding: 0.45rem 0.75rem;
   cursor: pointer;
 }
 
 .btn:hover {
-  background: var(--fill-primary, rgba(118, 118, 128, 0.16));
+  background: var(--fill-primary);
 }
 
 .modal-fade-enter-active,

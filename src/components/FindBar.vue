@@ -306,8 +306,8 @@ watch(activeTargetWebContentsId, (id) => {
   gap: 6px;
   padding: 8px;
   border-radius: 12px;
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
-  background: var(--bg-primary, #ffffff);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--bg-primary);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
@@ -316,23 +316,23 @@ watch(activeTargetWebContentsId, (id) => {
   height: 30px;
   padding: 0 10px;
   border-radius: 10px;
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  border: var(--border-width) solid var(--border-color);
   outline: none;
-  background: var(--bg-primary, #ffffff);
-  color: var(--text-primary, #000);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 13px;
 }
 
 .findbar-input:focus-visible {
-  border-color: var(--accent-primary, #007aff);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.25);
 }
 
 .findbar-count {
   min-width: 52px;
   text-align: right;
   font-size: 12px;
-  color: var(--text-secondary, #3c3c43);
+  color: var(--text-secondary);
   user-select: none;
 }
 

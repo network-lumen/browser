@@ -543,7 +543,7 @@ defineExpose({
 }
 
 .required {
-  color: #ef4444;
+  color: var(--ios-red);
 }
 
 .form-input {
@@ -664,7 +664,7 @@ select.form-input {
 }
 
 .payment-summary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-brand);
   padding: 20px;
   border-radius: 12px;
   color: white;
