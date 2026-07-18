@@ -195,7 +195,7 @@
         </div>
         <div class="bulk-toolbar-actions">
           <button
-            class="bulk-action-btn"
+            class="bulk-action-btn disabled-fade-45"
             type="button"
             :disabled="!selectedLocalCount"
             @click="clearLocalSelection"
@@ -204,7 +204,7 @@
           </button>
           <button
             v-if="canBulkConvertSelectedLocal"
-            class="bulk-action-btn"
+            class="bulk-action-btn disabled-fade-45"
             type="button"
             @click="convertSelectedLocalToHls"
           >
@@ -214,7 +214,7 @@
             </span>
           </button>
           <button
-            class="bulk-action-btn danger"
+            class="bulk-action-btn disabled-fade-45 danger"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -268,7 +268,7 @@
             </span>
             <div class="progress-actions">
               <button
-                class="progress-cancel-btn"
+                class="progress-cancel-btn disabled-fade-60"
                 type="button"
                 @click="cancelUpload(key)"
                 :disabled="upload?.uploadingCanceling"
@@ -319,7 +319,7 @@
             </span>
             <div class="progress-actions">
               <button
-                class="progress-cancel-btn"
+                class="progress-cancel-btn disabled-fade-60"
                 type="button"
                 @click="pauseHlsQueue"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -329,7 +329,7 @@
                 }}
               </button>
               <button
-                class="progress-cancel-btn"
+                class="progress-cancel-btn disabled-fade-60"
                 type="button"
                 @click="cancelHlsConversion"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -356,7 +356,7 @@
           <div class="hls-queue-actions">
             <button
               v-if="hlsQueueCanPause"
-              class="hls-queue-action-btn"
+              class="hls-queue-action-btn disabled-fade-45"
               type="button"
               @click="pauseHlsQueue"
               :disabled="convertingPauseRequested"
@@ -366,7 +366,7 @@
             </button>
             <button
               v-if="hlsQueueCanResume"
-              class="hls-queue-action-btn"
+              class="hls-queue-action-btn disabled-fade-45"
               type="button"
               @click="resumeHlsQueue"
             >
@@ -374,7 +374,7 @@
               <span>Resume</span>
             </button>
             <button
-              class="hls-queue-clear-btn"
+              class="hls-queue-clear-btn disabled-fade-45"
               type="button"
               @click="clearHlsQueue"
               :disabled="!hlsQueue.length"
@@ -421,7 +421,7 @@
             </span>
             <div class="progress-actions">
               <button
-                class="progress-cancel-btn"
+                class="progress-cancel-btn disabled-fade-60"
                 type="button"
                 @click="cancelHlsArchiveDownload"
                 :disabled="archiveDownloadCanceling"
@@ -577,7 +577,7 @@
       <!-- Pagination -->
       <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="pagination-bar">
         <button 
-          class="page-btn" 
+          class="page-btn disabled-fade-40"
           :disabled="currentPage === 1"
           @click="currentPage = 1"
           title="First page"
@@ -587,7 +587,7 @@
           </svg>
         </button>
         <button 
-          class="page-btn" 
+          class="page-btn disabled-fade-40"
           :disabled="currentPage === 1"
           @click="currentPage--"
           title="Previous page"
@@ -612,7 +612,7 @@
         </div>
         
         <button 
-          class="page-btn" 
+          class="page-btn disabled-fade-40"
           :disabled="currentPage === totalPages"
           @click="currentPage++"
           title="Next page"
@@ -622,7 +622,7 @@
           </svg>
         </button>
         <button 
-          class="page-btn" 
+          class="page-btn disabled-fade-40"
           :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
           title="Last page"
@@ -823,7 +823,7 @@
 
           <div class="modal-footer">
             <button
-              class="btn-modal-secondary"
+              class="btn-modal-secondary disabled-fade-60"
               type="button"
               @click="closeUploadPathModal"
               :disabled="uploadPathBusy"
@@ -1013,7 +1013,7 @@
           </div>
           <div class="modal-footer">
             <button
-              class="btn-modal-secondary"
+              class="btn-modal-secondary disabled-fade-60"
               type="button"
               :disabled="driveBackupBusy"
               @click="closeDriveBackupExportModal"
@@ -1150,7 +1150,7 @@
           </div>
           <div class="modal-footer">
             <button
-              class="btn-modal-secondary"
+              class="btn-modal-secondary disabled-fade-60"
               type="button"
               :disabled="driveBackupBusy"
               @click="closeDriveBackupImportModal"
@@ -1605,7 +1605,7 @@
                <div class="plans-pager-controls">
                  <button
                    type="button"
-                   class="plans-pager-btn"
+                   class="plans-pager-btn disabled-fade-40"
                    :disabled="planPage === 1"
                    @click="planPage = 1"
                  >
@@ -1613,7 +1613,7 @@
                  </button>
                  <button
                    type="button"
-                   class="plans-pager-btn"
+                   class="plans-pager-btn disabled-fade-40"
                    :disabled="planPage === 1"
                    @click="planPage--"
                  >
@@ -1624,7 +1624,7 @@
                  </span>
                  <button
                    type="button"
-                   class="plans-pager-btn"
+                   class="plans-pager-btn disabled-fade-40"
                    :disabled="planPage === planTotalPages"
                    @click="planPage++"
                  >
@@ -1632,7 +1632,7 @@
                  </button>
                  <button
                    type="button"
-                   class="plans-pager-btn"
+                   class="plans-pager-btn disabled-fade-40"
                    :disabled="planPage === planTotalPages"
                    @click="planPage = planTotalPages"
                  >
@@ -1765,7 +1765,7 @@
           </div>
           <div class="modal-footer">
             <button
-              class="btn-modal-secondary"
+              class="btn-modal-secondary disabled-fade-60"
               type="button"
               @click="closeSubscribeModal"
               :disabled="subscribeBusy"
@@ -7312,10 +7312,6 @@ async function reloadForActiveProfileChange() {
   box-shadow: 0 0 0 3px var(--primary-a08);
 }
 
-.bulk-action-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
 
 .bulk-action-btn.danger {
   color: var(--error-red);
@@ -7462,20 +7458,12 @@ async function reloadForActiveProfileChange() {
   color: var(--accent-primary);
 }
 
-.hls-queue-action-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
 
 .hls-queue-clear-btn:hover:not(:disabled) {
   border-color: var(--accent-primary);
   color: var(--accent-primary);
 }
 
-.hls-queue-clear-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
 
 .hls-queue-list {
   display: flex;
@@ -7602,10 +7590,6 @@ async function reloadForActiveProfileChange() {
   color: var(--accent-primary);
 }
 
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
 
 .page-numbers {
   display: flex;
@@ -7998,10 +7982,6 @@ async function reloadForActiveProfileChange() {
   color: var(--accent-primary);
 }
 
-.plans-pager-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
 
 .gateway-card {
   padding: 0.9rem 1rem;
@@ -8343,10 +8323,6 @@ async function reloadForActiveProfileChange() {
   color: var(--text-primary);
 }
 
-.progress-cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .progress-bar {
   margin-top: 0.65rem;
@@ -8439,10 +8415,6 @@ async function reloadForActiveProfileChange() {
   transform: translateY(-1px);
 }
 
-.fetch-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 .fetch-error {
   color: var(--ios-red);
@@ -9541,10 +9513,6 @@ async function reloadForActiveProfileChange() {
   color: var(--text-primary);
 }
 
-.btn-modal-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .upload-path-textarea {
   width: 100%;

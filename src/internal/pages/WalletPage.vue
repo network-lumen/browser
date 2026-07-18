@@ -111,25 +111,25 @@
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-          <button class="quick-btn" @click="sendTransaction">
+          <button class="quick-btn disabled-fade-50" @click="sendTransaction">
             <div class="quick-icon send">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </button>
-          <button class="quick-btn" @click="openReceiveModal">
+          <button class="quick-btn disabled-fade-50" @click="openReceiveModal">
             <div class="quick-icon receive">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </button>
-          <button class="quick-btn" disabled>
+          <button class="quick-btn disabled-fade-50" disabled>
             <div class="quick-icon swap disabled">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
-          <button class="quick-btn" disabled>
+          <button class="quick-btn disabled-fade-50" disabled>
             <div class="quick-icon buy disabled">
               <CreditCard :size="20" />
             </div>
@@ -786,7 +786,7 @@
             </div>
 
             <button
-              class="btn-modal-primary"
+              class="btn-modal-primary disabled-fade-50"
               @click="confirmAssetTransfer"
               :disabled="!canSubmitAssetTransfer || assetTransferSending"
             >
@@ -984,7 +984,7 @@
               </div>
             </div>
 
-            <button class="btn-modal-primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
+            <button class="btn-modal-primary disabled-fade-50" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
               <Send :size="18" v-if="!sendingTransaction" />
               <span class="spinner" v-else></span>
               <span>{{ sendPrimaryActionLabel }}</span>
@@ -1031,7 +1031,7 @@
             <div class="address-box">
               <div class="address-label">Your Wallet Address</div>
               <div class="address-value">{{ address || '-' }}</div>
-              <button class="btn-copy-address" type="button" @click="copyAddressWithToast" :disabled="!address">
+              <button class="btn-copy-address disabled-fade-50" type="button" @click="copyAddressWithToast" :disabled="!address">
                 <Copy :size="16" />
                 <span>Copy Address</span>
               </button>
@@ -1095,7 +1095,7 @@
             </div>
 
             <button 
-              class="btn-modal-primary" 
+              class="btn-modal-primary disabled-fade-50" 
               @click="saveContact" 
               :disabled="!contactForm.name || !contactForm.address || savingContact"
             >
@@ -4522,11 +4522,6 @@ function exportTransactions() {
   border-color: rgba(59, 130, 246, 0.5);
 }
 
-.quick-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .quick-icon {
   width: 56px;
   height: 56px;
@@ -5647,11 +5642,6 @@ function exportTransactions() {
   transform: translateY(-1px);
 }
 
-.btn-modal-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .spinner {
   width: 18px;
   height: 18px;
@@ -5781,10 +5771,6 @@ function exportTransactions() {
   color: var(--accent-secondary);
 }
 
-.btn-copy-address:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 .fade-enter-active,
 .fade-leave-active {

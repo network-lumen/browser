@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn"
+            class="history-clear-btn disabled-fade-45"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -348,10 +348,6 @@ function formatTime(timestamp: number) {
   color: var(--ios-red);
 }
 
-.history-clear-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
 
 .history-open-btn {
   background: var(--gradient-primary);

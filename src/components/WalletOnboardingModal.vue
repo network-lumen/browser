@@ -204,7 +204,7 @@
           </button>
           <button
             v-if="step === 'intro'"
-            class="btn-modal-primary"
+            class="btn-modal-primary disabled-fade-60"
             @click="step = 'password'"
           >
             Get Started
@@ -219,7 +219,7 @@
           </button>
           <button
             v-if="step === 'password'"
-            class="btn-modal-primary"
+            class="btn-modal-primary disabled-fade-60"
             :disabled="settingPassword"
             @click="handlePasswordSubmit"
           >
@@ -229,7 +229,7 @@
 
           <button
             v-if="step === 'profile-name'"
-            class="btn-modal-primary"
+            class="btn-modal-primary disabled-fade-60"
             @click="handleProfileNameSubmit"
           >
             Continue
@@ -244,7 +244,7 @@
           </button>
           <button
             v-if="step === 'backup'"
-            class="btn-modal-primary"
+            class="btn-modal-primary disabled-fade-60"
             :disabled="exportingBackup"
             @click="handleExportBackup"
           >
@@ -254,7 +254,7 @@
 
           <button
             v-if="step === 'complete'"
-            class="btn-modal-primary"
+            class="btn-modal-primary disabled-fade-60"
             @click="handleComplete"
           >
             Start Using Lumen
@@ -813,10 +813,6 @@ watch(
   background: var(--primary-dark, #2563eb);
 }
 
-.btn-modal-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .btn-modal-secondary {
   background: transparent;

@@ -36,14 +36,14 @@
           <div class="modal-actions">
             <button
               v-if="cancelable !== false"
-              class="btn-secondary"
+              class="btn-secondary disabled-fade-50"
               @click="handleCancel"
               :disabled="loading || busy"
             >
               Cancel
             </button>
             <button 
-              class="btn-primary"
+              class="btn-primary disabled-fade-50"
               @click="handleSubmit"
               :disabled="loading || busy || !password"
             >
@@ -246,11 +246,6 @@ defineExpose({
   opacity: 0.85;
 }
 
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .btn-primary {
   padding: 0.6rem 1.25rem;
   background: var(--accent-primary, #007aff);
@@ -265,11 +260,6 @@ defineExpose({
 
 .btn-primary:hover:not(:disabled) {
   opacity: 0.85;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .btn-primary-busy {

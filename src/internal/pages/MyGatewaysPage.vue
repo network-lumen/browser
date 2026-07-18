@@ -160,7 +160,7 @@
           <Server :size="48" class="empty-icon" />
           <h2>No Gateways Yet</h2>
           <p>Create your first private gateway to get started</p>
-          <button class="btn-primary" @click="openCreateModal">
+          <button class="btn-primary disabled-fade-50" @click="openCreateModal">
             <Plus :size="18" />
             Create Gateway
           </button>
@@ -261,7 +261,7 @@
               <button class="btn-secondary" @click="closeModal" :disabled="saving">
                 Cancel
               </button>
-              <button class="btn-primary" @click="saveGateway" :disabled="saving || !isFormValid">
+              <button class="btn-primary disabled-fade-50" @click="saveGateway" :disabled="saving || !isFormValid">
                 {{ saving ? 'Saving...' : (editingGateway ? 'Update' : 'Create') }}
               </button>
             </div>
@@ -345,7 +345,7 @@
               <button class="btn-secondary" @click="closeWhitelistModal" :disabled="whitelistSaving">
                 Cancel
               </button>
-              <button class="btn-primary" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
+              <button class="btn-primary disabled-fade-50" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
                 {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
               </button>
             </div>
@@ -1331,10 +1331,6 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 .btn-secondary {
   background: var(--hover-bg);

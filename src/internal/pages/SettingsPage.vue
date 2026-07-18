@@ -258,7 +258,7 @@
               </span>
             </div>
             <div class="setting-control">
-              <button class="btn-secondary" @click="openInNewTabSafe('lumen://history')">
+              <button class="btn-secondary disabled-fade-50" @click="openInNewTabSafe('lumen://history')">
                 Open history
               </button>
             </div>
@@ -272,7 +272,7 @@
               </span>
             </div>
             <div class="setting-control">
-              <button class="btn-secondary" :disabled="!historyEntries.length" @click="clearProfileHistory">
+              <button class="btn-secondary disabled-fade-50" :disabled="!historyEntries.length" @click="clearProfileHistory">
                 Clear history
               </button>
             </div>
@@ -375,7 +375,7 @@
             <div class="setting-control">
               <button 
                 v-if="securitySessionActive"
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 @click="lockSecuritySession"
               >
                 <LockKeyhole :size="16" />
@@ -450,7 +450,7 @@
               {{ securityError }}
             </div>
             <button 
-              class="btn-primary"
+              class="btn-primary disabled-fade-50"
               @click="setSecurityPassword"
               :disabled="securityLoading || !newPassword || !confirmPassword"
             >
@@ -508,7 +508,7 @@
             </div>
             <div class="security-actions">
               <button 
-                class="btn-primary"
+                class="btn-primary disabled-fade-50"
                 @click="changeSecurityPassword"
                 :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword"
               >
@@ -527,7 +527,7 @@
             </div>
             <div class="setting-control">
               <button 
-                class="btn-danger"
+                class="btn-danger disabled-fade-50"
                 @click="showRemovePasswordConfirm = true"
                 :disabled="securityLoading"
               >
@@ -552,14 +552,14 @@
             </div>
             <div class="security-actions">
               <button 
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 @click="cancelRemovePassword"
                 :disabled="securityLoading"
               >
                 Cancel
               </button>
               <button 
-                class="btn-danger"
+                class="btn-danger disabled-fade-50"
                 @click="removeSecurityPassword"
                 :disabled="securityLoading || !removePasswordInput"
               >
@@ -586,7 +586,7 @@
             </div>
             <div class="setting-control profile-select-actions">
               <button
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 type="button"
                 @click="selectAllProfiles"
                 :disabled="!profiles.length"
@@ -594,7 +594,7 @@
                 Select all
               </button>
               <button
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 type="button"
                 @click="clearSelectedProfiles"
                 :disabled="!selectedProfileIds.length"
@@ -657,7 +657,7 @@
                 @keyup.enter="saveProfileDisplayName"
               />
               <button
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="resetProfileDisplayNameDraft"
@@ -665,7 +665,7 @@
                 Reset
               </button>
               <button
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="saveProfileDisplayName"
@@ -704,7 +704,7 @@
                 :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
               />
               <button
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
                 @click="chooseProfileAvatar"
@@ -712,7 +712,7 @@
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
               </button>
               <button
-                class="btn-secondary"
+                class="btn-secondary disabled-fade-50"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
                 @click="resetProfileAvatar"
@@ -735,7 +735,7 @@
              </div>
              <div class="setting-control profile-backup-actions">
                <button
-                 class="btn-secondary"
+                 class="btn-secondary disabled-fade-50"
                  type="button"
                  @click="onExportSelectedBackups"
                  :disabled="!selectedProfileIds.length || exportingBackup"
@@ -830,7 +830,7 @@
 
           <div class="profile-backup-actions margin-top-75">
             <button
-              class="btn-secondary"
+              class="btn-secondary disabled-fade-50"
               type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings"
@@ -838,7 +838,7 @@
               Reset
             </button>
             <button
-              class="btn-secondary"
+              class="btn-secondary disabled-fade-50"
               type="button"
               :disabled="devSettingsSaving"
               @click="saveDevSettings"
@@ -876,7 +876,7 @@
                   :disabled="lumenDataFolderBusy"
                 />
                 <button
-                  class="btn-secondary troubleshooting-btn"
+                  class="btn-secondary disabled-fade-50 troubleshooting-btn"
                   type="button"
                   :disabled="lumenDataFolderBusy"
                   @click="browseLumenDataFolder"
@@ -912,7 +912,7 @@
 
           <div class="profile-backup-actions margin-top-75">
             <button
-              class="btn-secondary"
+              class="btn-secondary disabled-fade-50"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft"
@@ -920,7 +920,7 @@
               Revert
             </button>
             <button
-              class="btn-secondary"
+              class="btn-secondary disabled-fade-50"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="useDefaultLumenDataFolderDraft"
@@ -928,7 +928,7 @@
               Use default
             </button>
             <button
-              class="btn-secondary"
+              class="btn-secondary disabled-fade-50"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="saveLumenDataFolder"
@@ -963,7 +963,7 @@
             </div>
             <div class="setting-control">
               <button
-                class="btn-secondary troubleshooting-btn"
+                class="btn-secondary disabled-fade-50 troubleshooting-btn"
                 type="button"
                 @click="copyDebugReport"
                 :disabled="troubleshootingBusy"
@@ -981,7 +981,7 @@
             </div>
             <div class="setting-control">
               <button
-                class="btn-secondary troubleshooting-btn"
+                class="btn-secondary disabled-fade-50 troubleshooting-btn"
                 type="button"
                 @click="openLogsFolderAction"
                 :disabled="troubleshootingBusy"
@@ -1095,7 +1095,7 @@
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <button class="btn-secondary" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                  <button class="btn-secondary disabled-fade-50" @click="addGatewayId" :disabled="!newGatewayId.trim()">
                     <Plus :size="16" />
                     Add
                   </button>
@@ -2602,11 +2602,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   color: var(--text-primary);
 }
 
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .troubleshooting-btn {
   display: inline-flex;
   align-items: center;
@@ -2976,11 +2971,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   opacity: 0.85;
 }
 
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .btn-danger {
   padding: 0.5rem 1rem;
   background: var(--ios-red, #ff3b30);
@@ -2997,10 +2987,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   opacity: 0.85;
 }
 
-.btn-danger:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* Private Cloud - Simple Styles */
 .setting-item.featured {

@@ -108,7 +108,7 @@
             <div class="extension-actions">
               <button
                 type="button"
-                class="extension-action-btn"
+                class="extension-action-btn disabled-fade-40"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
                 @click.stop="openExtension(ext)"
@@ -128,7 +128,7 @@
 
               <button
                 type="button"
-                class="extension-action-btn"
+                class="extension-action-btn disabled-fade-40"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
                 @click.stop="reloadExtension(ext.id)"
@@ -138,7 +138,7 @@
 
               <button
                 type="button"
-                class="extension-action-btn danger"
+                class="extension-action-btn disabled-fade-40 danger"
                 title="Remove extension"
                 :disabled="extensionsBusy"
                 @click.stop="removeExtension(ext.id)"
@@ -156,7 +156,7 @@
         <div class="extensions-menu-actions">
           <UiButton
             variant="none"
-            class="profile-menu-action"
+            class="profile-menu-action disabled-fade-40"
             :disabled="extensionsBusy"
             @click.stop="loadUnpackedExtension"
           >
@@ -165,7 +165,7 @@
 
           <button
             type="button"
-            class="extensions-store-link"
+            class="extensions-store-link disabled-fade-45"
             :disabled="extensionsBusy"
             @click.stop="openChromeWebStore"
           >
@@ -229,23 +229,23 @@
         </div>
 
         <div class="profile-menu-actions">
-          <UiButton variant="none" class="profile-menu-action" @click.stop="onCreateProfileClick">
+          <UiButton variant="none" class="profile-menu-action disabled-fade-40" @click.stop="onCreateProfileClick">
             New profile…
           </UiButton>
-          <UiButton variant="none" class="profile-menu-action" :disabled="!activeProfileId" @click.stop="onExportProfile">
+          <UiButton variant="none" class="profile-menu-action disabled-fade-40" :disabled="!activeProfileId" @click.stop="onExportProfile">
             Export active profile…
           </UiButton>
-          <UiButton variant="none" class="profile-menu-action" @click.stop="onImportProfileClick">
+          <UiButton variant="none" class="profile-menu-action disabled-fade-40" @click.stop="onImportProfileClick">
             Import profile…
           </UiButton>
 
           <div v-if="creatingProfile" class="profile-create">
             <input v-model="newProfileName" type="text" class="profile-create-input" placeholder="Profile name" />
             <div class="profile-create-actions">
-              <UiButton variant="none" class="profile-menu-action primary" @click="confirmCreateProfile">
+              <UiButton variant="none" class="profile-menu-action disabled-fade-40 primary" @click="confirmCreateProfile">
                 Create
               </UiButton>
-              <UiButton variant="none" class="profile-menu-action" @click="cancelCreateProfile">
+              <UiButton variant="none" class="profile-menu-action disabled-fade-40" @click="cancelCreateProfile">
                 Cancel
               </UiButton>
             </div>
@@ -1758,11 +1758,6 @@ onBeforeUnmount(() => {
   color: var(--text-primary);
 }
 
-.extension-action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 .extension-action-btn.danger:hover:not(:disabled) {
   background: rgba(255, 59, 48, 0.1);
   color: var(--error-red);
@@ -1851,11 +1846,6 @@ onBeforeUnmount(() => {
 
 .extensions-store-link:hover:not(:disabled) {
   background: var(--hover-bg);
-}
-
-.extensions-store-link:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
 }
 
 .extensions-menu-message {
@@ -2036,10 +2026,6 @@ onBeforeUnmount(() => {
   background: var(--hover-bg);
 }
 
-.profile-menu-action:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
 
 .profile-menu-action.primary {
   background: var(--accent-primary);

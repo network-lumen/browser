@@ -9,7 +9,7 @@
       <div v-if="storeInstallId" class="extensions-store-header-actions">
         <button
           type="button"
-          class="extensions-store-btn install-hero-btn"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -780,11 +780,6 @@ onBeforeUnmount(() => {
   color: #ffffff;
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
   box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
-}
-
-.extensions-store-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
 }
 
 .extensions-store-status {
