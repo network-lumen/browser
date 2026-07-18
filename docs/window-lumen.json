@@ -1,9 +1,9 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-18T14:19:12.221Z",
+  "generatedAt": "2026-07-18T16:38:57.531Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
-  "appVersion": "0.9.3",
+  "appVersion": "0.9.4",
   "groups": [
     {
       "id": "general",
@@ -49,6 +49,14 @@
         "wallet.requestSend",
         "wallet.signArbitrary",
         "wallet.verifyArbitrary"
+      ]
+    },
+    {
+      "id": "dns",
+      "label": "dns",
+      "paths": [
+        "dns.getDomainPrice",
+        "dns.getDomainInfos"
       ]
     }
   ],
@@ -517,6 +525,66 @@
         {
           "code": "verify_arbitrary_failed",
           "description": "Verification failed (bad signature/pubkey/payload)."
+        }
+      ]
+    },
+    {
+      "path": "dns.getDomainPrice",
+      "namespace": "dns",
+      "member": "getDomainPrice",
+      "implementation": "dnsGetDomainPrice",
+      "fallbackError": "dns_price_failed",
+      "description": "Estimate the current on-chain registration price for a domain, using the DNS module's live parameters (length tiers, base fee, minimum price per month) for a standard 365-day registration.",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "optional": false,
+          "description": "Domain to price, e.g. `monsite.lmn`."
+        }
+      ],
+      "returns": {
+        "type": "Promise<{ok:boolean,data?:{denom:string,amount:string,amountNumber:number|null,amountLMN:number|null,detail:object},error?:string}>",
+        "description": "`data.amountLMN` is the price in whole LMN; `data.amount`/`amountNumber` are in `ulmn` (micro-LMN)."
+      },
+      "errors": [
+        {
+          "code": "missing_domain",
+          "description": "No domain string was given."
+        },
+        {
+          "code": "dns_params_unavailable",
+          "description": "The chain's DNS module parameters could not be read."
+        }
+      ]
+    },
+    {
+      "path": "dns.getDomainInfos",
+      "namespace": "dns",
+      "member": "getDomainInfos",
+      "implementation": "dnsGetDomainInfos",
+      "fallbackError": "dns_info_failed",
+      "description": "Fetch the raw on-chain record for a domain directly from the chain's REST/LCD endpoint (owner, records, expiry, and any other fields the chain returns) — no client-side reshaping.",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "optional": false,
+          "description": "Domain to look up, e.g. `monsite.lmn`."
+        }
+      ],
+      "returns": {
+        "type": "Promise<{ok:boolean,data?:object,error?:string}>",
+        "description": "`data` is the raw on-chain domain record."
+      },
+      "errors": [
+        {
+          "code": "missing_domain",
+          "description": "No domain string was given."
+        },
+        {
+          "code": "rest_base_missing",
+          "description": "No REST/LCD endpoint is currently configured."
         }
       ]
     }
