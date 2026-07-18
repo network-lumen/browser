@@ -1256,21 +1256,6 @@ onMounted(async () => {
   text-transform: capitalize;
 }
 
-.badge-active {
-  background: rgba(52, 199, 89, 0.15);
-  color: var(--ios-green);
-}
-
-.badge-inactive {
-  background: rgba(142, 142, 147, 0.15);
-  color: var(--text-secondary);
-}
-
-.badge-error {
-  background: rgba(255, 59, 48, 0.15);
-  color: var(--ios-red);
-}
-
 .gateway-info {
   display: flex;
   flex-direction: column;

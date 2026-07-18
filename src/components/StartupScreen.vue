@@ -153,13 +153,6 @@ onMounted(async () => {
   line-height: 1.2;
 }
 
-.subtitle {
-  margin-top: 2px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.2;
-}
-
 .body {
   flex: 1 1 auto;
   display: flex;
@@ -185,38 +178,9 @@ onMounted(async () => {
   animation: spin 0.9s linear infinite;
 }
 
-.warn {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 3px solid rgba(var(--ios-red-rgb), 0.28);
-  background: var(--fill-error);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--error-red);
-  font-weight: 850;
-  font-size: 20px;
-}
-
-.msg-title {
-  font-size: 18px;
-  font-weight: 780;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-}
-
 .msg-subtitle {
   font-size: 13px;
   color: var(--text-secondary);
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 4px;
 }
 
 .btn {
