@@ -478,6 +478,73 @@ describe('window.lumen preload API', () => {
     });
   });
 
+  // -- dns -------------------------------------------------------------------
+
+  describe('dns.getDomainPrice', () => {
+    it('estimates the registration price for a domain', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('dns:estimateRegisterPrice', {
+        value: { ok: true, denom: 'ulmn', amount: '5000000', amountNumber: 5_000_000, amountLMN: 5 }
+      });
+      const result = await lumen.dns.getDomainPrice('monsite.lmn');
+      expect(result).toEqual({
+        ok: true,
+        denom: 'ulmn',
+        amount: '5000000',
+        amountNumber: 5_000_000,
+        amountLMN: 5
+      });
+      expect(lastInvokeCall()).toEqual(['dns:estimateRegisterPrice', { name: 'monsite.lmn' }]);
+    });
+
+    it('rejects with missing_domain without calling the host when nothing is given', async () => {
+      const lumen = await loadLumen();
+      const result = await lumen.dns.getDomainPrice('');
+      expect(result).toEqual({ ok: false, error: 'missing_domain' });
+      expect(electronMock.ipcRenderer.invoke).not.toHaveBeenCalledWith(
+        'dns:estimateRegisterPrice',
+        expect.anything()
+      );
+    });
+
+    it('surfaces chain-side pricing failures as {ok:false}', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('dns:estimateRegisterPrice', {
+        value: { ok: false, error: 'dns_params_unavailable' }
+      });
+      const result = await lumen.dns.getDomainPrice('monsite.lmn');
+      expect(result).toEqual({ ok: false, error: 'dns_params_unavailable' });
+    });
+  });
+
+  describe('dns.getDomainInfos', () => {
+    it('fetches the raw on-chain record for a domain', async () => {
+      const lumen = await loadLumen();
+      const onchainRecord = { owner: 'lmn1abc', expiry: '2027-01-01T00:00:00Z', records: [] };
+      queueInvoke('dns:getDomainInfo', { value: { ok: true, data: onchainRecord } });
+      const result = await lumen.dns.getDomainInfos('monsite.lmn');
+      expect(result).toEqual({ ok: true, data: onchainRecord });
+      expect(lastInvokeCall()).toEqual(['dns:getDomainInfo', 'monsite.lmn']);
+    });
+
+    it('rejects with missing_domain without calling the host when nothing is given', async () => {
+      const lumen = await loadLumen();
+      const result = await lumen.dns.getDomainInfos('');
+      expect(result).toEqual({ ok: false, error: 'missing_domain' });
+      expect(electronMock.ipcRenderer.invoke).not.toHaveBeenCalledWith(
+        'dns:getDomainInfo',
+        expect.anything()
+      );
+    });
+
+    it('surfaces host/REST failures as {ok:false}', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('dns:getDomainInfo', { value: { ok: false, error: 'rest_base_missing' } });
+      const result = await lumen.dns.getDomainInfos('monsite.lmn');
+      expect(result).toEqual({ ok: false, error: 'rest_base_missing' });
+    });
+  });
+
   // -- security boundary ---------------------------------------------------
 
   describe('site gating (ensureLumenSite)', () => {
@@ -499,7 +566,9 @@ describe('window.lumen preload API', () => {
       ['pubsub.subscribe', (l) => l.pubsub.subscribe('t', {})],
       ['wallet.requestSend', (l) => l.wallet.requestSend({ to: 'x' })],
       ['wallet.signArbitrary', (l) => l.wallet.signArbitrary({ payload: 'x' })],
-      ['wallet.verifyArbitrary', (l) => l.wallet.verifyArbitrary({ payload: 'x' })]
+      ['wallet.verifyArbitrary', (l) => l.wallet.verifyArbitrary({ payload: 'x' })],
+      ['dns.getDomainPrice', (l) => l.dns.getDomainPrice('monsite.lmn')],
+      ['dns.getDomainInfos', (l) => l.dns.getDomainInfos('monsite.lmn')]
     ];
 
     it.each(cases)('%s rejects with the site-gating error off /ipfs//ipns pages', async (_name, call) => {

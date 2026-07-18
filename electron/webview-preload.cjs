@@ -935,6 +935,22 @@ async function walletVerifyArbitrary(args) {
   });
 }
 
+/** Estimate the current on-chain registration price for a domain (dynamic: DNS module tiers + base fee, 365-day default). */
+async function dnsGetDomainPrice(domain) {
+  ensureLumenSite();
+  const name = webview_utils.safeString(domain, 256);
+  if (!name) return { ok: false, error: 'missing_domain' };
+  return await ipcRenderer.invoke('dns:estimateRegisterPrice', { name });
+}
+
+/** Fetch the raw on-chain record for a domain (owner, records, expiry, ...) straight from the chain's REST/LCD endpoint. */
+async function dnsGetDomainInfos(domain) {
+  ensureLumenSite();
+  const name = webview_utils.safeString(domain, 256);
+  if (!name) return { ok: false, error: 'missing_domain' };
+  return await ipcRenderer.invoke('dns:getDomainInfo', name);
+}
+
 // ============================================================================
 // SECTION: window.lumen — the documented, site-facing API surface
 //
@@ -1100,6 +1116,31 @@ const lumen = {
      * @error {verify_arbitrary_failed} Verification failed (bad signature/pubkey/payload).
      */
     verifyArbitrary: wrapLumenApiCall(walletVerifyArbitrary, 'verify_arbitrary_failed')
+  },
+
+  dns: {
+    /**
+     * Estimate the current on-chain registration price for a domain, using
+     * the DNS module's live parameters (length tiers, base fee, minimum
+     * price per month) for a standard 365-day registration.
+     * @param {string} domain - Domain to price, e.g. `monsite.lmn`.
+     * @returns {Promise<{ok:boolean,data?:{denom:string,amount:string,amountNumber:number|null,amountLMN:number|null,detail:object},error?:string}>}
+     *   `data.amountLMN` is the price in whole LMN; `data.amount`/`amountNumber` are in `ulmn` (micro-LMN).
+     * @error {missing_domain} No domain string was given.
+     * @error {dns_params_unavailable} The chain's DNS module parameters could not be read.
+     */
+    getDomainPrice: wrapLumenApiCall(dnsGetDomainPrice, 'dns_price_failed'),
+
+    /**
+     * Fetch the raw on-chain record for a domain directly from the chain's
+     * REST/LCD endpoint (owner, records, expiry, and any other fields the
+     * chain returns) — no client-side reshaping.
+     * @param {string} domain - Domain to look up, e.g. `monsite.lmn`.
+     * @returns {Promise<{ok:boolean,data?:object,error?:string}>} `data` is the raw on-chain domain record.
+     * @error {missing_domain} No domain string was given.
+     * @error {rest_base_missing} No REST/LCD endpoint is currently configured.
+     */
+    getDomainInfos: wrapLumenApiCall(dnsGetDomainInfos, 'dns_info_failed')
   }
 };
 
