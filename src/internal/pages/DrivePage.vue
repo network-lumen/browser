@@ -268,7 +268,7 @@
             </span>
             <div class="progress-actions">
               <button
-                class="progress-cancel-btn disabled-fade-60"
+                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
                 type="button"
                 @click="cancelUpload(key)"
                 :disabled="upload?.uploadingCanceling"
@@ -319,7 +319,7 @@
             </span>
             <div class="progress-actions">
               <button
-                class="progress-cancel-btn disabled-fade-60"
+                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
                 type="button"
                 @click="pauseHlsQueue"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -329,7 +329,7 @@
                 }}
               </button>
               <button
-                class="progress-cancel-btn disabled-fade-60"
+                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
                 type="button"
                 @click="cancelHlsConversion"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -421,7 +421,7 @@
             </span>
             <div class="progress-actions">
               <button
-                class="progress-cancel-btn disabled-fade-60"
+                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
                 type="button"
                 @click="cancelHlsArchiveDownload"
                 :disabled="archiveDownloadCanceling"
@@ -746,7 +746,7 @@
         </button>
         <button
           v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
-          class="detail-btn"
+          class="detail-btn hover-fill-primary"
           :disabled="converting || uploading"
           @click="convertSelectedToHls"
           title="Convert to HLS (creates a new CID)"
@@ -754,11 +754,11 @@
           <Clapperboard :size="16" />
           Convert to HLS
         </button>
-        <button class="detail-btn" @click="copyLumenLinkFor(selectedFile)">
+        <button class="detail-btn hover-fill-primary" @click="copyLumenLinkFor(selectedFile)">
           <Share2 :size="16" />
           Share
         </button>
-        <button class="detail-btn" @click="openInIpfs(selectedFile)">
+        <button class="detail-btn hover-fill-primary" @click="openInIpfs(selectedFile)">
           <ExternalLink :size="16" />
           Open
         </button>
@@ -8318,10 +8318,6 @@ async function reloadForActiveProfileChange() {
   transition: all 0.15s ease;
 }
 
-.progress-cancel-btn:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 
 .progress-bar {
@@ -8787,11 +8783,6 @@ async function reloadForActiveProfileChange() {
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text-secondary);
-}
-
-.detail-btn:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
 }
 
 .detail-btn.primary {

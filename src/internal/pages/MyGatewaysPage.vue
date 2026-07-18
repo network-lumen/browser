@@ -213,7 +213,7 @@
           <div class="modal-content" @click.stop>
             <div class="modal-header">
               <h2>{{ editingGateway ? 'Edit External Gateway' : 'Add External Gateway' }}</h2>
-              <button class="icon-btn" @click="closeModal">×</button>
+              <button class="icon-btn hover-fill-primary" @click="closeModal">×</button>
             </div>
 
             <div class="modal-body">
@@ -275,7 +275,7 @@
           <div class="modal-content small" @click.stop>
             <div class="modal-header">
               <h2>Delete Gateway</h2>
-              <button class="icon-btn" @click="closeDeleteConfirm">×</button>
+              <button class="icon-btn hover-fill-primary" @click="closeDeleteConfirm">×</button>
             </div>
 
             <div class="modal-body">
@@ -301,7 +301,7 @@
           <div class="modal-content" @click.stop>
             <div class="modal-header">
               <h2>{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
-              <button class="icon-btn" @click="closeWhitelistModal">×</button>
+              <button class="icon-btn hover-fill-primary" @click="closeWhitelistModal">×</button>
             </div>
 
             <div class="modal-body">
@@ -359,7 +359,7 @@
           <div class="modal-content small" @click.stop>
             <div class="modal-header">
               <h2>Remove User</h2>
-              <button class="icon-btn" @click="closeWhitelistDeleteConfirm">×</button>
+              <button class="icon-btn hover-fill-primary" @click="closeWhitelistDeleteConfirm">×</button>
             </div>
 
             <div class="modal-body">
@@ -1412,10 +1412,6 @@ onMounted(async () => {
   transition: all 0.2s;
 }
 
-.icon-btn:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 .modal-body {
   flex: 1;

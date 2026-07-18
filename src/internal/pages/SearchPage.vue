@@ -387,7 +387,7 @@
             </div>
             <button
               type="button"
-              class="icon-btn help-close"
+              class="icon-btn hover-fill-primary-enabled help-close"
               aria-label="Close"
               @click="closeHowSearchWorks"
             >
@@ -5030,10 +5030,6 @@ watch(
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.icon-btn:hover:enabled {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 .help-close {
   flex: 0 0 auto;

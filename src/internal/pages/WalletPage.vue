@@ -914,7 +914,7 @@
                 <div v-if="showContactPicker" class="contact-picker">
                   <div class="picker-header">
                     <span>Select Contact</span>
-                    <button class="picker-close" @click="showContactPicker = false">
+                    <button class="picker-close hover-fill-primary" @click="showContactPicker = false">
                       <X :size="14" />
                     </button>
                   </div>
@@ -6097,10 +6097,6 @@ function exportTransactions() {
   transition: all 0.2s ease;
 }
 
-.picker-close:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
 
 .picker-list {
   max-height: 300px;
