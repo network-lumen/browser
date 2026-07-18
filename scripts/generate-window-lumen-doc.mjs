@@ -17,8 +17,8 @@
 // Contract this relies on: inside the `lumen` object literal, every leaf API
 // method must be a `wrapLumenApiCall(implementationFn, 'fallback_error_code')`
 // call, with a `/** ... */` JSDoc block directly above it. Nested plain
-// object literals (`wallet: {...}`, `window: {...}`, ...) are treated as
-// namespaces and traversed recursively. See electron/webview-preload.cjs's
+// object literals (`wallet: {...}`, `stableLinks: {...}`, ...) are treated
+// as namespaces and traversed recursively. See electron/webview-preload.cjs's
 // header comment for the full contract.
 // ============================================================================
 
@@ -32,14 +32,10 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const sourceRelPath = path.join('electron', 'webview-preload.cjs');
 const sourcePath = path.join(repoRoot, sourceRelPath);
+const packageJsonPath = path.join(repoRoot, 'package.json');
 const docsDir = path.join(repoRoot, 'docs');
 const jsonOutputPath = path.join(docsDir, 'window-lumen.json');
 const htmlOutputPath = path.join(docsDir, 'window-lumen.html');
-
-const RESPONSE_CONTRACT =
-  'Every window.lumen method resolves to {ok:true, data?} on success, or ' +
-  '{ok:false, error} on failure. It never throws or rejects across the ' +
-  'contextBridge — callers can always destructure the same shape.';
 
 const WRAPPER_CALL_NAME = 'wrapLumenApiCall';
 
@@ -244,12 +240,19 @@ function buildDocModel() {
   // drop any namespace group that (defensively) ended up empty.
   const orderedGroups = Array.from(groups.values()).filter((g) => g.paths.length > 0);
 
+  let appVersion = '0.0.0';
+  try {
+    appVersion = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version || appVersion;
+  } catch {
+    // ignore — fall back to '0.0.0' rather than fail the whole generation
+  }
+
   return {
     title: 'window.lumen API Reference',
     source: sourceRelPath.replace(/\\/g, '/'),
     generatedAt: new Date().toISOString(),
     generator: path.relative(repoRoot, __filename).replace(/\\/g, '/'),
-    responseContract: RESPONSE_CONTRACT,
+    appVersion,
     groups: orderedGroups,
     entries
   };
@@ -392,17 +395,15 @@ code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liber
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
 }
-.contract-pill {
+.meta-pill {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 12.5px; color: var(--text-muted);
   border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px;
 }
-.contract-pill .mono { color: var(--accent); font-weight: 600; }
+.meta-pill .mono { color: var(--accent); font-weight: 600; }
 
 .content { max-width: 880px; margin: 0 auto; padding: 40px 32px 120px; }
-.page-title { font-size: 26px; font-weight: 800; margin: 0 0 6px; }
-.page-meta { color: var(--text-faint); font-size: 13px; margin: 0 0 36px; }
-.page-meta code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
+.page-title { font-size: 26px; font-weight: 800; margin: 0 0 28px; }
 
 .group-heading {
   display: flex; align-items: baseline; gap: 10px;
@@ -622,14 +623,13 @@ const CLIENT_JS = `
     return (
       '<main class="main">' +
         '<div class="topbar">' +
-          '<span class="contract-pill" title="' + esc(model.responseContract) + '">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>' +
-            'Always resolves <span class="mono">{ok, data?, error?}</span>' +
+          '<span class="meta-pill">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
+            'Generated ' + esc(generatedLabel) + ' <span class="mono">· v' + esc(model.appVersion) + '</span>' +
           '</span>' +
         '</div>' +
         '<div class="content">' +
           '<h1 class="page-title">' + esc(model.title) + '</h1>' +
-          '<p class="page-meta">Generated from <code>' + esc(model.source) + '</code> · ' + esc(generatedLabel) + ' · run <code>npm run doc:window.lumen</code> to refresh</p>' +
           '<div id="groups-container">' + groupsHtml + '</div>' +
           '<p class="no-results" id="no-results" hidden>No methods match your search.</p>' +
         '</div>' +

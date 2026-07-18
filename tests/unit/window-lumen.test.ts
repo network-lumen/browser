@@ -56,7 +56,6 @@ describe('window.lumen preload API', () => {
     const expectedEntries = [
       'Pin',
       'resolveUrl',
-      'chooseStableLinkForLive',
       'setWindowFullscreen',
       'stableLinks.chooseForLive',
       'stableLinks.selectForLiveSetup',
@@ -85,9 +84,11 @@ describe('window.lumen preload API', () => {
       expect(typeof value).toBe('function');
     }
 
-    // SendToken/window.setFullscreen were removed as redundant aliases of
-    // wallet.requestSend/setWindowFullscreen — guard against them coming back.
+    // SendToken/window.setFullscreen/top-level chooseStableLinkForLive were
+    // removed as redundant aliases of wallet.requestSend/setWindowFullscreen/
+    // stableLinks.chooseForLive — guard against them coming back.
     expect((globalThis.window.lumen as any).SendToken).toBeUndefined();
     expect((globalThis.window.lumen as any).window).toBeUndefined();
+    expect((globalThis.window.lumen as any).chooseStableLinkForLive).toBeUndefined();
   });
 });

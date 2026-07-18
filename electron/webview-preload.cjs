@@ -972,15 +972,6 @@ const lumen = {
   resolveUrl: wrapLumenApiCall(resolveUrl, 'resolve_url_failed'),
 
   /**
-   * Open the stable-link picker so the site can choose (or create) an IPNS
-   * key to publish live/streamed content under.
-   * @param {object} input - `{title?, suggestedName?, records?: {key,value}[]}`.
-   * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
-   * @error {stable_link_failed} The user cancelled, or no stable link is available.
-   */
-  chooseStableLinkForLive: wrapLumenApiCall(chooseStableLinkForLive, 'stable_link_failed'),
-
-  /**
    * Toggle fullscreen for the browser window hosting this site.
    * @param {boolean} active - `true` to enter fullscreen, `false` to exit.
    * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
@@ -990,7 +981,8 @@ const lumen = {
 
   stableLinks: {
     /**
-     * Alias of top-level `chooseStableLinkForLive`.
+     * Open the stable-link picker so the site can choose (or create) an IPNS
+     * key to publish live/streamed content under.
      * @param {object} input - `{title?, suggestedName?, records?: {key,value}[]}`.
      * @returns {Promise<{ok:boolean,data?:any,error?:string}>}
      * @error {stable_link_failed} The user cancelled, or no stable link is available.
