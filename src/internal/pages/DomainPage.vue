@@ -1631,16 +1631,6 @@ void loadRawDomains();
 </script>
 
 <style scoped>
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #b91c1c;
-}
-
-.status-dot.ok {
-  background: var(--ios-green);
-}
 
 .names-nav {
   display: flex;
@@ -1773,38 +1763,6 @@ void loadRawDomains();
   border: 1px solid var(--border-color);
   padding: 1.25rem 1.5rem 1.5rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.card-head h2 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.card-head p {
-  margin: 0.35rem 0 0;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.count-pill {
-  align-self: center;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
 }
 
 .empty {
