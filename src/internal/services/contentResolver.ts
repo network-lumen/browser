@@ -209,6 +209,11 @@ export async function resolveDomainTarget(
     infoRes ||
     null;
   if (infoRes && infoRes.ok === false) {
+    if (Number(infoRes.status) === 404) {
+      const err: any = new Error('domain_not_registered');
+      err.code = 'domain_not_registered';
+      throw err;
+    }
     const msg = String(infoRes.error || 'dns_lookup_failed');
     throw new Error(msg);
   }
