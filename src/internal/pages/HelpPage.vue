@@ -323,8 +323,8 @@
       </div>
       
       <!-- Docs View -->
-      <div v-else-if="currentView === 'docs'" class="content-area">
-        <div class="discover">
+      <div v-else-if="currentView === 'docs'" class="content-area docs-content-area">
+        <div class="discover docs-discover">
           <iframe
             class="lumen-doc-frame"
             :src="lumenDocFrameSrc"
@@ -707,9 +707,23 @@ function getViewDescription(): string {
   gap: 0.9rem;
 }
 
+/* Docs view: the iframe scrolls internally (its own sidebar + content), so
+   the outer .content-area must not also scroll — one scrollbar, not two. */
+.docs-content-area {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.docs-discover {
+  flex: 1;
+  min-height: 0;
+}
+
 .lumen-doc-frame {
+  display: block;
   width: 100%;
-  height: 80vh;
+  height: 100%;
   min-height: 520px;
   border: var(--border-width) solid var(--border-color);
   border-radius: var(--border-radius-lg);
