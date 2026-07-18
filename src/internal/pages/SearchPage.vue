@@ -5712,11 +5712,6 @@ watch(
   gap: 0.5rem;
 }
 
-.image-metric {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
 .image-tags {
   display: flex;
   flex-wrap: wrap;
