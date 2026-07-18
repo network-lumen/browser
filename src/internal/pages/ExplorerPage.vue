@@ -392,7 +392,7 @@
                   </button>
                 </div>
                 <div class="td td-txs">
-                  <span class="tx-count" :class="{ 'has-txs': block.txCount > 0 }">
+                  <span class="tx-count" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
@@ -475,7 +475,7 @@
                   <span class="tx-type-badge">{{ tx.type }}</span>
                 </div>
                 <div class="td td-result">
-                  <span class="tx-status" :class="tx.success ? 'success' : 'failed'">
+                  <span class="tx-status" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
                     <svg v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -2461,11 +2461,6 @@ watch(
   font-size: 0.6875rem;
 }
 
-.tx-count.has-txs {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
 .time-text {
   font-size: 0.75rem;
   color: var(--text-secondary);
@@ -2599,16 +2594,6 @@ watch(
 .tx-status svg {
   width: 14px;
   height: 14px;
-}
-
-.tx-status.success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.tx-status.failed {
-  background: var(--fill-error);
-  color: var(--ios-red);
 }
 
 .block-link {
@@ -2929,21 +2914,6 @@ watch(
   font-family: 'Monaco', 'Menlo', monospace;
   font-size: 0.75rem;
   color: var(--text-secondary);
-}
-
-.validator-status {
-  padding: 0.375rem 0.75rem;
-  background: var(--fill-success);
-  color: var(--ios-green);
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.validator-status.jailed {
-  background: var(--fill-error);
-  color: var(--ios-red);
 }
 
 .stats-grid {

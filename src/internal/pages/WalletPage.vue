@@ -579,7 +579,7 @@
             </div>
 
             <div class="col-status">
-              <span class="status-badge" :class="(tx.code === undefined || tx.code === 0) ? 'success' : 'failed'">
+              <span class="status-badge" :class="(tx.code === undefined || tx.code === 0) ? 'success badge-success' : 'failed badge-error'">
                 {{ (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed' }}
               </span>
             </div>
@@ -5314,15 +5314,6 @@ function exportTransactions() {
   white-space: nowrap;
 }
 
-.status-badge.success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.status-badge.failed {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
 
 .action-icon {
   padding: 0.375rem;

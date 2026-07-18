@@ -376,7 +376,7 @@
                 <div
                   v-if="registerForm.domainName"
                   class="availability"
-                  :class="{ available: domainAvailable }"
+                  :class="{ available: domainAvailable, 'badge-success': domainAvailable }"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
                 </div>
@@ -2070,11 +2070,6 @@ void loadRawDomains();
   font-size: 0.8rem;
   background: var(--fill-error);
   color: var(--ios-red);
-}
-
-.availability.available {
-  background: var(--fill-success);
-  color: var(--ios-green);
 }
 
 .price-box {

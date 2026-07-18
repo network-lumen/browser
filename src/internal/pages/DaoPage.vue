@@ -295,7 +295,7 @@
               <label class="vote-option" :class="{ selected: voteChoice === 'for' }">
                 <input type="radio" name="vote" value="for" v-model="voteChoice" />
                 <div class="vote-option-content">
-                  <div class="vote-icon for">
+                  <div class="vote-icon for badge-success">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/>
                     </svg>
@@ -505,8 +505,8 @@ function formatNumber(num: number): string {
 function getProposalStatusClass(status: string): string {
   switch (status) {
     case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'active';
-    case 'PROPOSAL_STATUS_PASSED': return 'passed';
-    case 'PROPOSAL_STATUS_REJECTED': return 'rejected';
+    case 'PROPOSAL_STATUS_PASSED': return 'passed badge-success';
+    case 'PROPOSAL_STATUS_REJECTED': return 'rejected badge-error';
     case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'deposit';
     default: return 'unknown';
   }
@@ -900,16 +900,6 @@ onUnmounted(() => {
 .proposal-status.active {
   background: var(--fill-blue);
   color: var(--accent-secondary);
-}
-
-.proposal-status.passed {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.proposal-status.rejected {
-  background: var(--fill-error);
-  color: var(--ios-red);
 }
 
 .proposal-status.deposit {
@@ -1383,11 +1373,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.vote-icon.for {
-  background: var(--fill-success);
-  color: var(--ios-green);
 }
 
 .vote-icon.against {

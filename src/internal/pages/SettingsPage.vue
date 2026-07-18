@@ -2790,11 +2790,6 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   font-weight: 500;
 }
 
-.status-badge.connected {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
 /* About Card */
 .about-card {
   display: flex;

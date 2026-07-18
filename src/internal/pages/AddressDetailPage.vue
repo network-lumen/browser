@@ -123,7 +123,7 @@
                 </div>
               </div>
               <div class="tx-status">
-                <span :class="['status-badge', tx.success ? 'success' : 'failed']">
+                <span :class="['status-badge', tx.success ? 'success badge-success' : 'failed badge-error']">
                   {{ tx.success ? '✓' : '✗' }}
                 </span>
               </div>
@@ -628,16 +628,6 @@ watch(
   border-radius: 50%;
   font-size: 0.75rem;
   font-weight: 600;
-}
-
-.status-badge.success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.status-badge.failed {
-  background: var(--fill-error);
-  color: var(--ios-red);
 }
 
 .empty-state {
