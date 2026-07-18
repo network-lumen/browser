@@ -239,7 +239,7 @@ function cleanup() {
 }
 
 .qr-scanner-modal {
-  background: var(--bg-primary);
+  background: var(--card-bg);
   border-radius: 16px;
   max-width: 500px;
   width: 100%;
@@ -253,21 +253,21 @@ function cleanup() {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .qr-scanner-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--text-secondary);
   padding: 4px;
   border-radius: 6px;
   transition: all 0.2s;
@@ -277,8 +277,8 @@ function cleanup() {
 }
 
 .close-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
 }
 
 .qr-scanner-content {
@@ -377,12 +377,12 @@ function cleanup() {
 }
 
 .error-icon {
-  color: #ef4444;
+  color: var(--ios-red);
   margin-bottom: 16px;
 }
 
 .success-icon {
-  color: #10b981;
+  color: var(--ios-green);
   margin-bottom: 16px;
 }
 
@@ -391,11 +391,11 @@ function cleanup() {
   margin: 0 0 8px 0;
   font-size: 20px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .error-state p {
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0 0 24px 0;
   font-size: 14px;
 }
@@ -420,7 +420,7 @@ function cleanup() {
 }
 
 .scanned-data {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 8px;
   padding: 16px;
   margin: 24px 0;
@@ -440,7 +440,7 @@ function cleanup() {
   display: block;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-secondary);
   text-transform: uppercase;
   margin-bottom: 4px;
   letter-spacing: 0.5px;
@@ -449,7 +449,7 @@ function cleanup() {
 .scanned-data .value {
   font-size: 14px;
   font-weight: 500;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .value-box {
@@ -494,13 +494,13 @@ function cleanup() {
 }
 
 .btn.secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #e5e7eb;
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
+  border: var(--border-width) solid var(--border-color);
 }
 
 .btn.secondary:hover {
-  background: #e5e7eb;
+  background: var(--fill-secondary);
 }
 
 @media (max-width: 640px) {

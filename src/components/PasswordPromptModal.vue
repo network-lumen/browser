@@ -152,8 +152,8 @@ defineExpose({
 }
 
 .password-modal {
-  background: var(--card-bg, #1c1c1e);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  background: var(--card-bg);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 16px;
   padding: 1.75rem;
   width: 100%;
@@ -169,20 +169,20 @@ defineExpose({
 }
 
 .modal-icon {
-  color: var(--accent-primary, #007aff);
+  color: var(--accent-primary);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 600;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .modal-message {
   margin: 0 0 1.25rem 0;
   font-size: 0.9rem;
-  color: var(--text-secondary, #8e8e93);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -193,22 +193,22 @@ defineExpose({
 .password-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  background: var(--fill-tertiary);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 10px;
   font-size: 1rem;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.15s ease;
   box-sizing: border-box;
 }
 
 .password-input:focus {
-  border-color: var(--accent-primary, #007aff);
+  border-color: var(--accent-primary);
 }
 
 .password-input::placeholder {
-  color: var(--text-tertiary, #636366);
+  color: var(--text-tertiary);
 }
 
 .password-input:disabled {
@@ -218,9 +218,9 @@ defineExpose({
 .modal-error {
   margin-top: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(255, 59, 48, 0.1);
+  background: var(--fill-error);
   border-radius: 8px;
-  color: var(--ios-red, #ff3b30);
+  color: var(--ios-red);
   font-size: 0.85rem;
 }
 
@@ -232,8 +232,8 @@ defineExpose({
 
 .btn-secondary {
   padding: 0.6rem 1.25rem;
-  background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
-  color: var(--text-primary, #fff);
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
   border: none;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -248,7 +248,7 @@ defineExpose({
 
 .btn-primary {
   padding: 0.6rem 1.25rem;
-  background: var(--accent-primary, #007aff);
+  background: var(--accent-primary);
   color: #fff;
   border: none;
   border-radius: 10px;
