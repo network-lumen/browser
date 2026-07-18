@@ -9171,7 +9171,7 @@ async function reloadForActiveProfileChange() {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: var(--hover-bg);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.7rem;
   font-weight: 600;
