@@ -497,7 +497,7 @@ defineExpose({
 }
 
 .reminders-section {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: rgba(var(--ios-orange-rgb), 0.15);
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 24px;
@@ -526,7 +526,7 @@ defineExpose({
   background: var(--card-bg);
   padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .reminder-icon {
@@ -534,11 +534,11 @@ defineExpose({
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #fef3c7;
+  background: rgba(var(--ios-orange-rgb), 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #d97706;
+  color: var(--ios-orange);
 }
 
 .reminder-content {
@@ -601,17 +601,17 @@ defineExpose({
 }
 
 .stat-icon.active {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .stat-icon.paused {
-  background: #fef3c7;
-  color: #d97706;
+  background: rgba(var(--ios-orange-rgb), 0.15);
+  color: var(--ios-orange);
 }
 
 .stat-icon.total {
-  background: #dbeafe;
+  background: var(--fill-blue);
   color: var(--accent-secondary);
 }
 
@@ -695,7 +695,7 @@ defineExpose({
 }
 
 .payment-card {
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 20px;
   transition: all 0.2s;
@@ -703,12 +703,12 @@ defineExpose({
 
 .payment-card:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.15);
 }
 
 .payment-card.paused {
   opacity: 0.7;
-  background: #f9fafb;
+  background: var(--bg-secondary);
 }
 
 .payment-header {
@@ -745,18 +745,18 @@ defineExpose({
 }
 
 .payment-status.active {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .payment-status.paused {
-  background: #fef3c7;
-  color: #d97706;
+  background: rgba(var(--ios-orange-rgb), 0.15);
+  color: var(--ios-orange);
 }
 
 .payment-status.completed {
-  background: #e0e7ff;
-  color: #6366f1;
+  background: rgba(var(--ios-indigo-rgb), 0.15);
+  color: var(--ios-indigo);
 }
 
 .payment-amount {
@@ -803,41 +803,41 @@ defineExpose({
   display: flex;
   gap: 8px;
   padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-color);
 }
 
 .action-btn {
   flex: 1;
   padding: 8px;
-  background: #f3f4f6;
+  background: var(--fill-tertiary);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--text-secondary);
   transition: all 0.2s;
 }
 
 .action-btn:hover {
-  background: #e5e7eb;
-  color: #111827;
+  background: var(--fill-secondary);
+  color: var(--text-primary);
 }
 
 .action-btn.pause:hover {
-  background: #fef3c7;
-  color: #d97706;
+  background: rgba(var(--ios-orange-rgb), 0.15);
+  color: var(--ios-orange);
 }
 
 .action-btn.resume:hover {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .action-btn.delete:hover {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .btn {
@@ -874,7 +874,7 @@ defineExpose({
 }
 
 .modal-content {
-  background: var(--bg-primary);
+  background: var(--card-bg);
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
@@ -889,7 +889,7 @@ defineExpose({
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
@@ -905,15 +905,15 @@ defineExpose({
   background: none;
   border: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--text-secondary);
   padding: 4px;
   border-radius: 6px;
   transition: all 0.2s;
 }
 
 .close-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
 }
 
 .modal-body {
@@ -932,7 +932,7 @@ defineExpose({
   display: flex;
   gap: 12px;
   padding: 12px;
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 8px;
 }
 
@@ -947,18 +947,18 @@ defineExpose({
 }
 
 .history-icon.success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .history-icon.failed {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 
 .history-icon.pending {
-  background: #fef3c7;
-  color: #d97706;
+  background: rgba(var(--ios-orange-rgb), 0.15);
+  color: var(--ios-orange);
 }
 
 .history-content {
@@ -978,25 +978,25 @@ defineExpose({
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 4px;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--fill-tertiary);
+  color: var(--text-secondary);
 }
 
 .history-date {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
 .history-tx {
   font-size: 12px;
   font-family: 'Monaco', 'Courier New', monospace;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .history-error {
   font-size: 12px;
-  color: #dc2626;
+  color: var(--ios-red);
   margin-top: 4px;
 }
 

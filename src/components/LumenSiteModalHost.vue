@@ -1255,7 +1255,7 @@ onBeforeUnmount(() => {
   z-index: 9999;
 }
 .modal-content {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   width: min(520px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
@@ -1267,7 +1267,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 .modal-title-wrapper {
   display: flex;
@@ -1281,8 +1281,8 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.12);
-  color: rgb(37, 99, 235);
+  background: var(--fill-blue);
+  color: var(--ios-blue);
 }
 .modal-close {
   border: none;
@@ -1290,6 +1290,7 @@ onBeforeUnmount(() => {
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
+  color: var(--text-primary);
 }
 .modal-close:disabled {
   opacity: 0.5;
@@ -1314,16 +1315,16 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: var(--gradient-primary);
   color: white;
 }
 .btn-secondary {
-  background: rgba(15, 23, 42, 0.08);
-  color: #0f172a;
+  background: var(--fill-tertiary);
+  color: var(--text-primary);
 }
 .btn-danger {
-  background: rgba(239, 68, 68, 0.12);
-  color: #991b1b;
+  background: var(--fill-error);
+  color: var(--ios-red);
 }
 .btn-primary:disabled,
 .btn-secondary:disabled,
@@ -1332,16 +1333,16 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 .info-banner {
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  color: #0f172a;
+  background: var(--fill-blue);
+  border: var(--border-width) solid rgba(var(--ios-blue-rgb), 0.25);
+  color: var(--text-primary);
   padding: 10px 12px;
   border-radius: 10px;
   font-size: 13px;
   margin-bottom: 12px;
 }
 .perm-box {
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: var(--border-width) solid var(--border-color);
   border-radius: 10px;
   padding: 10px 12px;
 }
@@ -1354,11 +1355,11 @@ onBeforeUnmount(() => {
 }
 .perm-k {
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.7);
+  color: var(--text-secondary);
 }
 .perm-v {
   font-size: 13px;
-  color: #0f172a;
+  color: var(--text-primary);
   text-align: right;
   max-width: 360px;
   overflow: hidden;
@@ -1370,7 +1371,7 @@ onBeforeUnmount(() => {
   gap: 6px;
   border: 0;
   background: transparent;
-  color: #0f172a;
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 13px;
   padding: 2px 0;
@@ -1386,7 +1387,7 @@ onBeforeUnmount(() => {
   gap: 6px;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  border-top: var(--border-width) solid var(--border-color);
 }
 .record-detail-row {
   display: grid;
@@ -1395,11 +1396,11 @@ onBeforeUnmount(() => {
   align-items: start;
 }
 .record-key {
-  color: rgba(15, 23, 42, 0.72);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 .record-value {
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 12px;
   overflow-wrap: anywhere;
 }
@@ -1407,9 +1408,9 @@ onBeforeUnmount(() => {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 .modal-error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #991b1b;
+  background: var(--fill-error);
+  border: var(--border-width) solid rgba(var(--ios-red-rgb), 0.25);
+  color: var(--ios-red);
   padding: 10px 12px;
   border-radius: 10px;
   font-size: 13px;
@@ -1422,26 +1423,26 @@ onBeforeUnmount(() => {
   padding: 4px;
   margin-bottom: 12px;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.06);
+  background: var(--fill-tertiary);
 }
 .segmented-control button {
   border: 0;
   border-radius: 8px;
   padding: 8px 10px;
   background: transparent;
-  color: rgba(15, 23, 42, 0.72);
+  color: var(--text-secondary);
   cursor: pointer;
   font-weight: 700;
 }
 .segmented-control button.active {
-  background: #fff;
-  color: #0f172a;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 .pin-progress-card {
   margin-top: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.18);
-  background: rgba(59, 130, 246, 0.06);
+  border: var(--border-width) solid rgba(var(--ios-blue-rgb), 0.18);
+  background: rgba(var(--ios-blue-rgb), 0.06);
   border-radius: 10px;
   padding: 10px 12px;
 }
@@ -1455,13 +1456,13 @@ onBeforeUnmount(() => {
 .pin-progress-status {
   font-size: 12px;
   font-weight: 700;
-  color: #1d4ed8;
+  color: var(--ios-blue);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .pin-progress-counter {
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.75);
+  color: var(--text-secondary);
 }
 .pin-progress-track {
   position: relative;
@@ -1469,12 +1470,12 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 8px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: var(--fill-tertiary);
 }
 .pin-progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  background: var(--gradient-primary);
   transition: width 0.2s ease;
 }
 .pin-progress-fill.indeterminate {
@@ -1484,7 +1485,7 @@ onBeforeUnmount(() => {
 .pin-progress-text {
   margin-top: 8px;
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.78);
+  color: var(--text-secondary);
   word-break: break-word;
 }
 
@@ -1495,11 +1496,11 @@ onBeforeUnmount(() => {
 .send-modal label {
   display: block;
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.7);
+  color: var(--text-secondary);
   margin-bottom: 6px;
 }
 .required {
-  color: #ef4444;
+  color: var(--ios-red);
 }
 .input-wrapper {
   position: relative;
@@ -1508,11 +1509,13 @@ onBeforeUnmount(() => {
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
   font-size: 14px;
 }
 .input-wrapper.readonly .form-input {
-  background: rgba(15, 23, 42, 0.04);
+  background: var(--bg-secondary);
 }
 .input-suffix {
   position: absolute;
@@ -1520,15 +1523,15 @@ onBeforeUnmount(() => {
   top: 50%;
   transform: translateY(-50%);
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.6);
+  color: var(--text-secondary);
 }
 .balance-hint {
   margin-top: 6px;
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.7);
+  color: var(--text-secondary);
 }
 .balance-hint.error {
-  color: #991b1b;
+  color: var(--ios-red);
 }
 .spinner {
   width: 14px;
