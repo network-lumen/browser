@@ -2132,6 +2132,7 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
       '--progress',
       '--cid-version=1',
       '--quieter',
+      '--pin=false',
       p,
     ];
 
@@ -2319,6 +2320,29 @@ async function ipfsAddPathWithProgress(filePath, filename, opts = {}) {
       return {
         ok: false,
         error: 'missing_cid',
+      };
+    }
+
+    // ---------------------------------------------------
+    // pin explicitly. `add` ran with --pin=false so a cancel landing
+    // between "add finished" and "pin finished" never leaves content
+    // pinned behind the cancelled upload's back.
+    // ---------------------------------------------------
+
+    const pinRes = await ipfsPinAdd(cid);
+
+    if (signal?.aborted) {
+      await ipfsPinRm(cid).catch(() => {});
+      return {
+        ok: false,
+        error: 'cancelled',
+      };
+    }
+
+    if (!pinRes?.ok) {
+      return {
+        ok: false,
+        error: pinRes?.error || 'pin_failed',
       };
     }
 
@@ -2699,8 +2723,13 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
       '--offline',
       '--quieter',
       '--raw-leaves',
+      '--pin=false',
       rootPath
     ];
+
+    const restartDaemon = () => {
+      try { startIpfsDaemon(); } catch {}
+    };
 
     const proc = spawn(ipfsBin, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -2764,11 +2793,15 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
 
     signal?.removeEventListener?.('abort', onAbort);
 
-    if (signal?.aborted) return { ok: false, error: 'cancelled' };
+    if (signal?.aborted) {
+      restartDaemon();
+      return { ok: false, error: 'cancelled' };
+    }
 
     // On tolère une sortie non-zero si on a déjà un CID (fichiers verrouillés à la fin)
     if (exitCode !== 0 && !rootCid) {
       log('NON ZERO EXIT - last stderr:', stderrBuffer.slice(-3000));
+      restartDaemon();
       return { ok: false, error: 'ipfs_add_failed' };
     }
 
@@ -2777,7 +2810,41 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
     const cidMatch = stdoutBuffer.match(/(bafy[a-z2-7]{50,})/g);
     rootCid = cidMatch?.at(-1) || rootCid;
 
-    if (!rootCid) return { ok: false, error: 'missing_root_cid' };
+    if (!rootCid) {
+      restartDaemon();
+      return { ok: false, error: 'missing_root_cid' };
+    }
+
+    // ---------------------------------------------------
+    // pin explicitly, offline, while the daemon is still down. `add` ran
+    // with --pin=false so a cancel landing between "add finished" and
+    // "pin finished" never leaves content pinned behind the cancelled
+    // upload's back.
+    // ---------------------------------------------------
+
+    const pinExitCode = await new Promise((resolve) => {
+      const pinProc = spawn(ipfsBin, ['pin', 'add', rootCid], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true,
+        env: { ...process.env, IPFS_PATH: repoPath, IPFS_ALLOW_BIG_BLOCK: '1' }
+      });
+      pinProc.once('error', () => resolve(-1));
+      pinProc.once('close', code => resolve(code));
+    });
+
+    if (signal?.aborted) {
+      spawnSync(ipfsBin, ['pin', 'rm', rootCid], {
+        env: { ...process.env, IPFS_PATH: repoPath, IPFS_ALLOW_BIG_BLOCK: '1' }
+      });
+      restartDaemon();
+      return { ok: false, error: 'cancelled' };
+    }
+
+    if (pinExitCode !== 0) {
+      log('PIN FAILED - exit code:', pinExitCode);
+      restartDaemon();
+      return { ok: false, error: 'pin_failed' };
+    }
 
     opts?.onProgress?.({
       phase: 'done',
