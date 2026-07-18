@@ -1,72 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-function safeString(v, maxLen = 2048) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
-}
-
-function safeDelayMs(v, fallback) {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.max(250, Math.min(30_000, Math.trunc(n)));
-}
-
-function safeCount(v, fallback, max = 16) {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.max(0, Math.min(max, Math.trunc(n)));
-}
-
-function normalizeReconnectDelays(input) {
-  const fallback = [1000, 2000, 5000];
-  if (!Array.isArray(input) || !input.length) return fallback;
-  const out = input
-    .map((v) => safeDelayMs(v, 0))
-    .filter((n) => Number.isFinite(n) && n > 0)
-    .slice(0, 8);
-  return out.length ? out : fallback;
-}
-
-function callMaybe(fn, ...args) {
-  try {
-    if (typeof fn === 'function') fn(...args);
-  } catch {}
-}
-
-function currentHref() {
-  try {
-    return String(location.href || '');
-  } catch {
-    return '';
-  }
-}
-
-function isChromeExtensionUrl(input = currentHref()) {
-  return /^chrome-extension:\/\//i.test(safeString(input, 4096));
-}
-
-function isGuestRendererContext() {
-  return typeof ipcRenderer.sendToHost === 'function';
-}
-
-function shouldInjectWebviewExtensionApi() {
-  return isGuestRendererContext() && !isChromeExtensionUrl();
-}
-
-function getUrlOrigin(input, fallback = '') {
-  const raw = safeString(input, 4096);
-  if (!raw) return safeString(fallback, 4096);
-  try {
-    const url = new URL(raw);
-    const origin = safeString(url.origin, 4096);
-    if (origin && origin !== 'null') return origin;
-    const protocol = safeString(url.protocol, 64);
-    const host = safeString(url.host, 512);
-    if (protocol && host) return `${protocol}//${host}`;
-  } catch {}
-  return safeString(fallback, 4096);
-}
+const webview_utils = require('./utils/webview.cjs')
 
 const RUNTIME_SENDMESSAGE_TIMEOUT_MS = 10_000;
 const EXTENSION_DEBUG =
@@ -75,6 +9,145 @@ const EXTENSION_DEBUG =
   process.env &&
   process.env.LUMEN_EXTENSION_DEBUG === '1';
 
+const extensionGrantedPermissionsState = {
+  loaded: false,
+  permissions: new Set(),
+  origins: new Set()
+};
+
+let extensionManifestCache = null;
+
+const providerFallbackState = webview_utils.getProviderFallbackStateSync(ipcRenderer);
+const suggestedChains = new Map();
+
+if (webview_utils.shouldInjectWebviewExtensionApi(ipcRenderer)) {
+  try {
+    contextBridge.exposeInMainWorld(EXTENSION_API_SHIM_KEY, extensionApi);
+  } catch {}
+
+  try {
+    contextBridge.exposeInMainWorld('browser', browserApi);
+  } catch {
+    // ignore
+  }
+
+  try {
+    contextBridge.exposeInMainWorld('chrome', extensionApi);
+  } catch {
+    // ignore
+  }
+
+  installMainWorldExtensionApi(EXTENSION_API_SHIM_KEY, EXTENSION_API_SHIM_SOURCE);
+} else {
+  try {
+    debugLog('[lumen-webview-preload] skipping extension api injection for top-level extension window', {
+      href: webview_utils.currentHref(),
+      hasSendToHost: isGuestRendererContext(ipcRenderer),
+      isChromeExtensionUrl: webview_utils.isChromeExtensionUrl()
+    });
+  } catch {}
+}
+
+try {
+  if (isIpfsGatewayUrl(webview_utils.currentHref())) {
+    contextBridge.exposeInMainWorld('lumen', lumen);
+  }
+} catch {
+  // ignore
+}
+
+try {
+  try {
+    ipcRenderer.on('extensions:storeInstallResult', (_event, payload) => {
+      const ok = !!payload?.ok;
+      if (ok) {
+        setChromeWebStoreImportButtonText('Imported into Lumen', false);
+      } else {
+        setChromeWebStoreImportButtonText('Import failed', true);
+      }
+    });
+  } catch {
+    // ignore
+  }
+
+  function attachLumenLinkInterceptor() {
+    try {
+      const key = '__lumenLinkInterceptorAttached';
+      if (document && document[key]) return;
+      if (document) document[key] = true;
+      document.addEventListener('click', handleLumenLinkClick, true);
+      document.addEventListener('click', handleChromeWebStoreClick, true);
+    } catch {
+      // ignore
+    }
+  }
+
+  function attachChromeWebStoreImportWatcher() {
+    try {
+      const key = '__lumenChromeStoreWatcherAttached';
+      if (window && window[key]) return;
+      if (window) window[key] = true;
+
+      const refresh = () => {
+        try {
+          ensureChromeWebStoreImportButton();
+        } catch {
+          // ignore
+        }
+      };
+
+      const observer = new MutationObserver(() => refresh());
+      try {
+        observer.observe(document.documentElement || document.body || document, {
+          childList: true,
+          subtree: true
+        });
+      } catch {
+        // ignore
+      }
+
+      try {
+        window.addEventListener('hashchange', refresh, true);
+        window.addEventListener('popstate', refresh, true);
+      } catch {
+        // ignore
+      }
+
+      try {
+        const wrapHistory = (methodName) => {
+          const original = history && history[methodName];
+          if (typeof original !== 'function') return;
+          history[methodName] = function wrappedHistoryState(...args) {
+            const result = original.apply(this, args);
+            try { refresh(); } catch {}
+            return result;
+          };
+        };
+        wrapHistory('pushState');
+        wrapHistory('replaceState');
+      } catch {
+        // ignore
+      }
+
+      window.setTimeout(refresh, 300);
+      window.setTimeout(refresh, 1200);
+      window.setTimeout(refresh, 2500);
+    } catch {
+      // ignore
+    }
+  }
+
+  try {
+    window.addEventListener('DOMContentLoaded', attachLumenLinkInterceptor, true);
+    window.addEventListener('DOMContentLoaded', attachChromeWebStoreImportWatcher, true);
+  } catch {}
+
+  attachLumenLinkInterceptor();
+  attachChromeWebStoreImportWatcher();
+} catch {
+  // ignore
+}
+
 function debugLog(...args) {
   if (!EXTENSION_DEBUG) return;
   try {
@@ -82,102 +155,35 @@ function debugLog(...args) {
   } catch {}
 }
 
-function prefixFromAddress(address) {
-  const value = safeString(address, 256);
-  const index = value.indexOf('1');
-  return index > 0 ? value.slice(0, index).toLowerCase() : 'lmn';
-}
 
-function normalizeBytes(value) {
-  if (value instanceof Uint8Array) return new Uint8Array(value);
-  if (Buffer.isBuffer(value)) return new Uint8Array(value);
-  if (Array.isArray(value)) {
-    return Uint8Array.from(
-      value.map((item) => {
-        const n = Number(item);
-        return Number.isFinite(n) ? Math.max(0, Math.min(255, Math.trunc(n))) : 0;
-      })
-    );
-  }
-  if (value && typeof value === 'object' && value.type === 'Buffer' && Array.isArray(value.data)) {
-    return Uint8Array.from(value.data);
-  }
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (!trimmed) return new Uint8Array();
-    try {
-      return new Uint8Array(Buffer.from(trimmed, 'base64'));
-    } catch {
-      return new Uint8Array();
-    }
-  }
-  return new Uint8Array();
-}
-
-function toBase64(value) {
-  return Buffer.from(normalizeBytes(value)).toString('base64');
-}
-
-function buildBech32Config(input, fallbackPrefix) {
-  const prefix = safeString(
-    input?.bech32PrefixAccAddr ||
-      input?.accountAddress ||
-      fallbackPrefix ||
-      'lmn',
-    64
-  ).toLowerCase() || 'lmn';
-  const validatorPrefix = safeString(input?.bech32PrefixValAddr || `${prefix}valoper`, 64).toLowerCase();
-  const consensusPrefix = safeString(input?.bech32PrefixConsAddr || `${prefix}valcons`, 64).toLowerCase();
-  return {
-    bech32PrefixAccAddr: prefix,
-    bech32PrefixAccPub: safeString(input?.bech32PrefixAccPub || `${prefix}pub`, 64).toLowerCase(),
-    bech32PrefixValAddr: validatorPrefix,
-    bech32PrefixValPub: safeString(input?.bech32PrefixValPub || `${validatorPrefix}pub`, 64).toLowerCase(),
-    bech32PrefixConsAddr: consensusPrefix,
-    bech32PrefixConsPub: safeString(input?.bech32PrefixConsPub || `${consensusPrefix}pub`, 64).toLowerCase()
-  };
-}
-
-function getProviderFallbackStateSync() {
-  try {
-    const state = ipcRenderer.sendSync('extensions:getProviderFallbackStateSync');
-    if (state && typeof state === 'object') return state;
-  } catch {
-    // ignore
-  }
-  return { keplr: true, leap: true, ethereum: true };
-}
-
-const providerFallbackState = getProviderFallbackStateSync();
-const suggestedChains = new Map();
 
 async function getActiveWalletProfile() {
   const profile = await ipcRenderer.invoke('profiles:getActive');
   if (!profile || !profile.id) {
     throw new Error('active_profile_missing');
   }
-  const walletAddress = safeString(profile.walletAddress || profile.address || '', 256);
+  const walletAddress = webview_utils.safeString(profile.walletAddress || profile.address || '', 256);
   if (!walletAddress) {
     throw new Error('wallet_address_missing');
   }
   return {
-    profileId: safeString(profile.id, 128),
+    profileId: webview_utils.safeString(profile.id, 128),
     walletAddress,
     profile
   };
 }
 
 async function resolveChainContext(chainIdInput) {
-  const requestedChainId = safeString(chainIdInput, 128);
+  const requestedChainId = webview_utils.safeString(chainIdInput, 128);
   const activeProfile = await getActiveWalletProfile();
-  const fallbackPrefix = prefixFromAddress(activeProfile.walletAddress || 'lmn');
+  const fallbackPrefix = webview_utils.prefixFromAddress(activeProfile.walletAddress || 'lmn');
   const hinted = requestedChainId ? suggestedChains.get(requestedChainId) || null : null;
 
   if (hinted) {
     return {
       chainId: hinted.chainId,
       chainName: hinted.chainName,
-      bech32Config: buildBech32Config(hinted.bech32Config, fallbackPrefix),
+      bech32Config: webview_utils.buildBech32Config(hinted.bech32Config, fallbackPrefix),
       profile: activeProfile
     };
   }
@@ -185,7 +191,7 @@ async function resolveChainContext(chainIdInput) {
   let networkChainId = '';
   try {
     const state = await ipcRenderer.invoke('net:getState');
-    networkChainId = safeString(state?.state?.networkChainId, 128);
+    networkChainId = webview_utils.safeString(state?.state?.networkChainId, 128);
   } catch {
     // ignore
   }
@@ -193,7 +199,7 @@ async function resolveChainContext(chainIdInput) {
   return {
     chainId: requestedChainId || networkChainId || 'lumen',
     chainName: requestedChainId || networkChainId || 'Lumen',
-    bech32Config: buildBech32Config({}, fallbackPrefix),
+    bech32Config: webview_utils.buildBech32Config({}, fallbackPrefix),
     profile: activeProfile
   };
 }
@@ -205,7 +211,7 @@ async function getWalletAccountsForChain(chainId) {
     bech32Prefix: context.bech32Config.bech32PrefixAccAddr
   });
   if (!response || response.ok === false) {
-    throw new Error(safeString(response?.error || 'wallet_accounts_failed', 256));
+    throw new Error(webview_utils.safeString(response?.error || 'wallet_accounts_failed', 256));
   }
   const account = Array.isArray(response.accounts) ? response.accounts[0] : null;
   if (!account || !account.address) {
@@ -214,9 +220,9 @@ async function getWalletAccountsForChain(chainId) {
   return {
     ...context,
     account: {
-      address: safeString(account.address, 256),
-      algo: safeString(account.algo, 64) || 'secp256k1',
-      pubkey: normalizeBytes(account.pubkey)
+      address: webview_utils.safeString(account.address, 256),
+      algo: webview_utils.safeString(account.algo, 64) || 'secp256k1',
+      pubkey: webview_utils.normalizeBytes(account.pubkey)
     }
   };
 }
@@ -224,23 +230,23 @@ async function getWalletAccountsForChain(chainId) {
 function serializeStdSignature(result) {
   return {
     pub_key: {
-      type: safeString(result?.pub_key?.type || 'tendermint/PubKeySecp256k1', 128),
-      value: safeString(result?.pub_key?.value || '', 4096)
+      type: webview_utils.safeString(result?.pub_key?.type || 'tendermint/PubKeySecp256k1', 128),
+      value: webview_utils.safeString(result?.pub_key?.value || '', 4096)
     },
-    signature: safeString(result?.signature || '', 4096)
+    signature: webview_utils.safeString(result?.signature || '', 4096)
   };
 }
 
 function rememberSuggestedChain(chainInfo) {
   const info = chainInfo && typeof chainInfo === 'object' ? chainInfo : {};
-  const chainId = safeString(info.chainId, 128);
+  const chainId = webview_utils.safeString(info.chainId, 128);
   if (!chainId) {
     throw new Error('missing_chain_id');
   }
   suggestedChains.set(chainId, {
     chainId,
-    chainName: safeString(info.chainName, 256) || chainId,
-    bech32Config: buildBech32Config(info.bech32Config || {}, 'lmn')
+    chainName: webview_utils.safeString(info.chainName, 256) || chainId,
+    bech32Config: webview_utils.buildBech32Config(info.bech32Config || {}, 'lmn')
   });
   return chainId;
 }
@@ -262,7 +268,7 @@ function makeOfflineSigner(chainId) {
       const response = await ipcRenderer.invoke('wallet:signAmino', {
         profileId: context.profile.profileId,
         bech32Prefix: context.bech32Config.bech32PrefixAccAddr,
-        signerAddress: safeString(signerAddress, 256) || context.account.address,
+        signerAddress: webview_utils.safeString(signerAddress, 256) || context.account.address,
         signDoc: signDoc || {}
       });
       if (!response || response.ok === false) {
@@ -278,18 +284,18 @@ function makeOfflineSigner(chainId) {
       const response = await ipcRenderer.invoke('wallet:signDirect', {
         profileId: context.profile.profileId,
         bech32Prefix: context.bech32Config.bech32PrefixAccAddr,
-        signerAddress: safeString(signerAddress, 256) || context.account.address,
+        signerAddress: webview_utils.safeString(signerAddress, 256) || context.account.address,
         signDoc: signDoc || {}
       });
       if (!response || response.ok === false) {
-        throw new Error(safeString(response?.error || 'sign_direct_failed', 256));
+        throw new Error(webview_utils.safeString(response?.error || 'sign_direct_failed', 256));
       }
       return {
         signed: {
-          chainId: safeString(response.signed?.chainId, 128),
-          accountNumber: BigInt(safeString(response.signed?.accountNumber, 128) || '0'),
-          bodyBytes: normalizeBytes(response.signed?.bodyBytes),
-          authInfoBytes: normalizeBytes(response.signed?.authInfoBytes)
+          chainId: webview_utils.safeString(response.signed?.chainId, 128),
+          accountNumber: BigInt(webview_utils.safeString(response.signed?.accountNumber, 128) || '0'),
+          bodyBytes: webview_utils.normalizeBytes(response.signed?.bodyBytes),
+          authInfoBytes: webview_utils.normalizeBytes(response.signed?.authInfoBytes)
         },
         signature: serializeStdSignature(response.signature || {})
       };
@@ -536,7 +542,7 @@ function callNativeRuntimeSendMessage(nativeMethod, nativeThis, rawArgs, fallbac
 
   const isTransientFailure = (value, error) => {
     if (value != null) return false;
-    const message = safeString(error?.message || error || '', 1024).toLowerCase();
+    const message = webview_utils.safeString(error?.message || error || '', 1024).toLowerCase();
     if (!message) return true;
     return transientPatterns.some((pattern) => message.includes(pattern));
   };
@@ -721,7 +727,7 @@ function callMainWorldRuntimeSendMessage(rawArgs, fallbackValue) {
 
 function getExtensionRuntimeId() {
   try {
-    const href = currentHref();
+    const href = webview_utils.currentHref();
     if (/^chrome-extension:\/\//i.test(href)) {
       return new URL(href).hostname || 'hbfagpiekcachnbiafmlimmcknaoilnh';
     }
@@ -731,9 +737,9 @@ function getExtensionRuntimeId() {
 
 function getExtensionOrigin() {
   try {
-    const href = currentHref();
+    const href = webview_utils.currentHref();
     if (/^chrome-extension:\/\//i.test(href)) {
-      return getUrlOrigin(href, `chrome-extension://${getExtensionRuntimeId()}`);
+      return webview_utils.getUrlOrigin(href, `chrome-extension://${getExtensionRuntimeId()}`);
     }
   } catch {}
   return `chrome-extension://${getExtensionRuntimeId()}`;
@@ -743,24 +749,20 @@ function getExtensionRequestContext() {
   return {
     runtimeId: getExtensionRuntimeId(),
     origin: getExtensionOrigin(),
-    pageUrl: currentHref()
+    pageUrl: webview_utils.currentHref()
   };
 }
 
-const extensionGrantedPermissionsState = {
-  loaded: false,
-  permissions: new Set(),
-  origins: new Set()
-};
+
 
 function normalizeGrantedPermissionPayload(input) {
   const value = input && typeof input === 'object' ? input : {};
   return {
     permissions: Array.isArray(value.permissions)
-      ? value.permissions.map((entry) => safeString(entry, 256)).filter(Boolean)
+      ? value.permissions.map((entry) => webview_utils.safeString(entry, 256)).filter(Boolean)
       : [],
     origins: Array.isArray(value.origins)
-      ? value.origins.map((entry) => safeString(entry, 4096)).filter(Boolean)
+      ? value.origins.map((entry) => webview_utils.safeString(entry, 4096)).filter(Boolean)
       : []
   };
 }
@@ -800,7 +802,7 @@ function buildEffectivePermissionLists(manifest) {
     permissions: Array.from(
       new Set([
         ...(Array.isArray(manifest?.permissions)
-          ? manifest.permissions.map((entry) => safeString(entry, 256)).filter(Boolean)
+          ? manifest.permissions.map((entry) => webview_utils.safeString(entry, 256)).filter(Boolean)
           : []),
         ...granted.permissions
       ])
@@ -808,7 +810,7 @@ function buildEffectivePermissionLists(manifest) {
     origins: Array.from(
       new Set([
         ...(Array.isArray(manifest?.host_permissions)
-          ? manifest.host_permissions.map((entry) => safeString(entry, 4096)).filter(Boolean)
+          ? manifest.host_permissions.map((entry) => webview_utils.safeString(entry, 4096)).filter(Boolean)
           : []),
         ...granted.origins
       ])
@@ -857,20 +859,20 @@ function removeDynamicPermissions(details, callback) {
 }
 
 function normalizeTargetUrl(input) {
-  const value = safeString(input, 4096);
+  const value = webview_utils.safeString(input, 4096);
   if (!value) return '';
 
   try {
     if (value.startsWith('/')) {
       return `${getExtensionOrigin()}/${value.replace(/^\/+/, '')}`;
     }
-    return new URL(value, currentHref() || `${getExtensionOrigin()}/`).toString();
+    return new URL(value, webview_utils.currentHref() || `${getExtensionOrigin()}/`).toString();
   } catch {
     return value;
   }
 }
 
-let extensionManifestCache = null;
+
 
 function getExtensionManifest() {
   if (extensionManifestCache) {
@@ -953,8 +955,8 @@ function createMinimalBrowserApi() {
     id: currentTabId,
     windowId: 1,
     active: true,
-    url: currentHref(),
-    title: document?.title || 'Lumen'
+    url: webview_utils.currentHref(),
+    title: webview_utils.safeString(document?.title, 256) || 'Lumen'
   });
 
   const buildLocalTabsQueryResults = (queryInfo) => {
@@ -1002,7 +1004,7 @@ function createMinimalBrowserApi() {
           windowId: options?.windowId || 1,
           active: options?.active !== false,
           url: nextUrl || '',
-          title: options?.title || ''
+          title: webview_utils.safeString(options?.title, 256) || 'Lumen'
         };
         tabs.set(tabId, tab);
         if (nextUrl) {
@@ -1372,14 +1374,14 @@ function createCosmosProvider(providerKind) {
         bech32Prefix: context.bech32Config.bech32PrefixAccAddr
       });
       if (!response || response.ok === false) {
-        throw new Error(safeString(response?.error || 'get_key_failed', 256));
+        throw new Error(webview_utils.safeString(response?.error || 'get_key_failed', 256));
       }
       return {
-        name: safeString(response.name, 256) || providerName,
-        algo: safeString(response.algo, 64) || 'secp256k1',
-        bech32Address: safeString(response.bech32Address || response.address, 256),
-        address: safeString(response.address || response.bech32Address, 256),
-        pubKey: normalizeBytes(response.pubKey),
+        name: webview_utils.safeString(response.name, 256) || providerName,
+        algo: webview_utils.safeString(response.algo, 64) || 'secp256k1',
+        bech32Address: webview_utils.safeString(response.bech32Address || response.address, 256),
+        address: webview_utils.safeString(response.address || response.bech32Address, 256),
+        pubKey: webview_utils.normalizeBytes(response.pubKey),
         isNanoLedger: false,
         isKeystone: false
       };
@@ -1395,37 +1397,37 @@ function createCosmosProvider(providerKind) {
       const context = await getWalletAccountsForChain(chainId);
       const response = await ipcRenderer.invoke('wallet:signArbitrary', {
         profileId: context.profile.profileId,
-        address: safeString(signer, 256) || context.account.address,
+        address: webview_utils.safeString(signer, 256) || context.account.address,
         algo: 'ADR-036',
-        payload: typeof data === 'string' ? data : Buffer.from(normalizeBytes(data)).toString('utf8')
+        payload: typeof data === 'string' ? data : Buffer.from(webview_utils.normalizeBytes(data)).toString('utf8')
       });
       if (!response || response.ok === false) {
-        throw new Error(safeString(response?.error || 'sign_arbitrary_failed', 256));
+        throw new Error(webview_utils.safeString(response?.error || 'sign_arbitrary_failed', 256));
       }
       return {
         pub_key: {
           type: 'tendermint/PubKeySecp256k1',
-          value: safeString(response.pubkeyB64, 4096)
+          value: webview_utils.safeString(response.pubkeyB64, 4096)
         },
-        signature: safeString(response.signatureB64, 4096)
+        signature: webview_utils.safeString(response.signatureB64, 4096)
       };
     },
     sendTx: async (_chainId, txBytes, _mode) => {
-      const response = await ipcRenderer.invoke('net:broadcastTx', normalizeBytes(txBytes), {});
+      const response = await ipcRenderer.invoke('net:broadcastTx', webview_utils.normalizeBytes(txBytes), {});
       if (!response || response.ok === false) {
-        throw new Error(safeString(response?.rawLog || response?.error || 'broadcast_failed', 512));
+        throw new Error(webview_utils.safeString(response?.rawLog || response?.error || 'broadcast_failed', 512));
       }
-      const txHash = safeString(response.transactionHash, 256);
+      const txHash = webview_utils.safeString(response.transactionHash, 256);
       if (/^[0-9a-f]+$/i.test(txHash) && txHash.length % 2 === 0) {
         return new Uint8Array(Buffer.from(txHash, 'hex'));
       }
-      return normalizeBytes(txBytes);
+      return webview_utils.normalizeBytes(txBytes);
     },
     sendTransaction: async (payload) => {
       if (payload && typeof payload === 'object' && Object.prototype.hasOwnProperty.call(payload, 'txBytes')) {
-        const response = await ipcRenderer.invoke('net:broadcastTx', normalizeBytes(payload.txBytes), payload.options || {});
+        const response = await ipcRenderer.invoke('net:broadcastTx', webview_utils.normalizeBytes(payload.txBytes), payload.options || {});
         if (!response || response.ok === false) {
-          throw new Error(safeString(response?.rawLog || response?.error || 'broadcast_failed', 512));
+          throw new Error(webview_utils.safeString(response?.rawLog || response?.error || 'broadcast_failed', 512));
         }
         return response;
       }
@@ -1434,13 +1436,13 @@ function createCosmosProvider(providerKind) {
       const response = await ipcRenderer.invoke('wallet:sendTokens', {
         profileId: context.profile.profileId,
         from: context.account.address,
-        to: safeString(payload?.to || payload?.recipient, 256),
+        to: webview_utils.safeString(payload?.to || payload?.recipient, 256),
         amount: Number(payload?.amount || 0),
-        denom: safeString(payload?.denom || 'ulmn', 64) || 'ulmn',
-        memo: safeString(payload?.memo || '', 1024)
+        denom: webview_utils.safeString(payload?.denom || 'ulmn', 64) || 'ulmn',
+        memo: webview_utils.safeString(payload?.memo || '', 1024)
       });
       if (!response || response.ok === false) {
-        throw new Error(safeString(response?.error || 'send_transaction_failed', 512));
+        throw new Error(webview_utils.safeString(response?.error || 'send_transaction_failed', 512));
       }
       return response;
     }
@@ -1472,7 +1474,7 @@ function isIpfsGatewayUrl(href) {
 }
 
 function ensureLumenSite() {
-  if (!isIpfsGatewayUrl(currentHref())) {
+  if (!isIpfsGatewayUrl(webview_utils.currentHref())) {
     throw new Error('window.lumen is only available on /ipfs/* or /ipns/* pages.');
   }
 }
@@ -1492,7 +1494,7 @@ function normalizeLumenApiResult(result) {
 function normalizeLumenApiError(error, fallbackMessage) {
   return {
     ok: false,
-    error: safeString(error?.message || error || fallbackMessage || 'failed', 512)
+    error: webview_utils.safeString(error?.message || error || fallbackMessage || 'failed', 512)
   };
 }
 
@@ -1508,7 +1510,7 @@ function wrapLumenApiCall(fn, fallbackMessage) {
 }
 
 function parseLumenIpfsOrIpns(input) {
-  const raw = safeString(input, 4096);
+  const raw = webview_utils.safeString(input, 4096);
   if (!raw) return { kind: '', id: '', rest: '' };
   const s = raw.replace(/^lumen:\/\//i, '');
   let m = s.match(/^(ipfs)\/([^/?#]+)([^?#]*)/i);
@@ -1521,7 +1523,7 @@ function parseLumenIpfsOrIpns(input) {
 async function getLocalGatewayBase() {
   try {
     const base = await ipcRenderer.invoke('lumenSite:getLocalGatewayBase');
-    return safeString(base, 1024);
+    return webview_utils.safeString(base, 1024);
   } catch {
     return '';
   }
@@ -1529,21 +1531,21 @@ async function getLocalGatewayBase() {
 
 async function resolveUrl(urlOrPath) {
   ensureLumenSite();
-  const raw = safeString(urlOrPath, 4096);
+  const raw = webview_utils.safeString(urlOrPath, 4096);
   if (!raw) return '';
 
   // Accept lumen://ipfs/<cid>/... and lumen://ipns/<name>/...
   if (/^lumen:\/\//i.test(raw)) {
     const parsed = parseLumenIpfsOrIpns(raw);
     if (!parsed.kind || !parsed.id) return '';
-    const base = (await getLocalGatewayBase()) || safeString(location?.origin || '', 1024);
+    const base = (await getLocalGatewayBase()) || webview_utils.safeString(location?.origin || '', 1024);
     const b = String(base || '').replace(/\/+$/, '');
     return `${b}/${parsed.kind}/${parsed.id}${parsed.rest || ''}`;
   }
 
   // Accept /ipfs/... and /ipns/... paths.
   if (/^\/(ipfs|ipns)\//i.test(raw)) {
-    const base = (await getLocalGatewayBase()) || safeString(location?.origin || '', 1024);
+    const base = (await getLocalGatewayBase()) || webview_utils.safeString(location?.origin || '', 1024);
     const b = String(base || '').replace(/\/+$/, '');
     return `${b}${raw}`;
   }
@@ -1556,29 +1558,29 @@ async function resolveUrl(urlOrPath) {
 async function sendToken(rawTx) {
   ensureLumenSite();
   const tx = rawTx && typeof rawTx === 'object' ? rawTx : {};
-  const to = safeString(tx.to || tx.recipient || '', 256);
-  const memo = safeString(tx.memo || tx.note || '', 1024);
+  const to = webview_utils.safeString(tx.to || tx.recipient || '', 256);
+  const memo = webview_utils.safeString(tx.memo || tx.note || '', 1024);
   const amountLmnRaw = tx.amount_lmn ?? tx.amountLmn ?? tx.amount;
   const amountLmn =
     typeof amountLmnRaw === 'number' && Number.isFinite(amountLmnRaw) ? amountLmnRaw : null;
 
   try {
-    return await ipcRenderer.invoke('lumenSite:sendToken', { to, memo, amountLmn, title: safeString(document?.title || '', 256) });
+    return await ipcRenderer.invoke('lumenSite:sendToken', { to, memo, amountLmn, title: webview_utils.safeString(document?.title || '', 256) });
   } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'send_failed', 512) };
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'send_failed', 512) };
   }
 }
 
 async function pinCid(cidOrUrl, optsMaybe) {
   ensureLumenSite();
   const inputObj = cidOrUrl && typeof cidOrUrl === 'object' ? cidOrUrl : null;
-  const cidOrUrlStr = safeString(
+  const cidOrUrlStr = webview_utils.safeString(
     inputObj ? (inputObj.cidOrUrl || inputObj.cid || inputObj.url || '') : cidOrUrl,
     4096
   );
   if (!cidOrUrlStr) return { ok: false, error: 'missing_cid' };
 
-  const name = safeString(
+  const name = webview_utils.safeString(
     inputObj ? (inputObj.name || inputObj.title || inputObj.filename || '') : (optsMaybe && optsMaybe.name ? optsMaybe.name : ''),
     256
   );
@@ -1586,10 +1588,10 @@ async function pinCid(cidOrUrl, optsMaybe) {
     return await ipcRenderer.invoke('lumenSite:pin', {
       cidOrUrl: cidOrUrlStr,
       name,
-      title: safeString(document?.title || '', 256)
+      title: webview_utils.safeString(document?.title || '', 256)
     });
   } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'pin_failed', 512) };
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'pin_failed', 512) };
   }
 }
 
@@ -1598,17 +1600,17 @@ async function chooseStableLinkForLive(input) {
   const payload = input && typeof input === 'object' ? input : {};
   try {
     return await ipcRenderer.invoke('lumenSite:stableLinkForLive', {
-      title: safeString(payload.title || document?.title || '', 256),
-      suggestedName: safeString(payload.suggestedName || payload.name || '', 128),
+      title: webview_utils.safeString(payload.title || document?.title || '', 256),
+      suggestedName: webview_utils.safeString(payload.suggestedName || payload.name || '', 128),
       records: Array.isArray(payload.records)
         ? payload.records.map((record) => ({
-            key: safeString(record && record.key ? record.key : '', 128),
-            value: safeString(record && record.value ? record.value : '', 4096),
+            key: webview_utils.safeString(record && record.key ? record.key : '', 128),
+            value: webview_utils.safeString(record && record.value ? record.value : '', 4096),
           }))
         : [],
     });
   } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'stable_link_failed', 512) };
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'stable_link_failed', 512) };
   }
 }
 
@@ -1617,10 +1619,10 @@ async function selectStableLinkForLiveSetup(input) {
   const payload = input && typeof input === 'object' ? input : {};
   try {
     return await ipcRenderer.invoke('lumenSite:stableLinkSetup', {
-      title: safeString(payload.title || document?.title || '', 256),
+      title: webview_utils.safeString(payload.title || document?.title || '', 256),
     });
   } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'stable_link_setup_failed', 512) };
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'stable_link_setup_failed', 512) };
   }
 }
 
@@ -1629,17 +1631,17 @@ async function publishStableLinkForLive(input) {
   const payload = input && typeof input === 'object' ? input : {};
   try {
     return await ipcRenderer.invoke('lumenSite:publishStableLinkForLive', {
-      title: safeString(payload.title || document?.title || '', 256),
-      keyName: safeString(payload.keyName || '', 256),
+      title: webview_utils.safeString(payload.title || document?.title || '', 256),
+      keyName: webview_utils.safeString(payload.keyName || '', 256),
       records: Array.isArray(payload.records)
         ? payload.records.map((record) => ({
-            key: safeString(record && record.key ? record.key : '', 128),
-            value: safeString(record && record.value ? record.value : '', 4096),
+            key: webview_utils.safeString(record && record.key ? record.key : '', 128),
+            value: webview_utils.safeString(record && record.value ? record.value : '', 4096),
           }))
         : [],
     });
   } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'stable_link_publish_failed', 512) };
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'stable_link_publish_failed', 512) };
   }
 }
 
@@ -1648,7 +1650,7 @@ async function setWindowFullscreen(active) {
   try {
     return await ipcRenderer.invoke('lumenSite:setFullscreen', { active: !!active });
   } catch (e) {
-    return { ok: false, error: safeString(e?.message || e || 'window_fullscreen_failed', 512) };
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'window_fullscreen_failed', 512) };
   }
 }
 
@@ -1735,7 +1737,7 @@ const lumen = {
    */
   ipfsAdd: wrapLumenApiCall(async (data, filename) => {
     ensureLumenSite();
-    return await ipcRenderer.invoke('ipfs:add', data, safeString(filename || 'site-data.json', 256));
+    return await ipcRenderer.invoke('ipfs:add', data, webview_utils.safeString(filename || 'site-data.json', 256));
   }, 'ipfs_add_failed'),
 
   /**
@@ -1746,7 +1748,7 @@ const lumen = {
    */
   ipfsGet: wrapLumenApiCall(async (cid, options) => {
     ensureLumenSite();
-    return await ipcRenderer.invoke('ipfs:get', safeString(cid || '', 4096), options || {});
+    return await ipcRenderer.invoke('ipfs:get', webview_utils.safeString(cid || '', 4096), options || {});
   }, 'ipfs_get_failed'),
 
   /**
@@ -1756,7 +1758,7 @@ const lumen = {
    */
   ipfsResolveIPNS: wrapLumenApiCall(async (name) => {
     ensureLumenSite();
-    return await ipcRenderer.invoke('ipfs:resolveIPNS', safeString(name || '', 512));
+    return await ipcRenderer.invoke('ipfs:resolveIPNS', webview_utils.safeString(name || '', 512));
   }, 'ipfs_resolve_ipns_failed'),
 
   /**
@@ -1770,8 +1772,8 @@ const lumen = {
     ensureLumenSite();
     return await ipcRenderer.invoke(
       'ipfs:publishToIPNS',
-      safeString(cid || '', 512),
-      safeString(key || '', 256),
+      webview_utils.safeString(cid || '', 512),
+      webview_utils.safeString(key || '', 256),
       Object.assign({}, options || {}, { autoCreateKey: true })
     );
   }, 'ipfs_publish_ipns_failed'),
@@ -1783,10 +1785,10 @@ const lumen = {
         (opts && opts.encoding) ||
         (typeof data === 'string' ? 'text' : (typeof data === 'object' ? 'json' : 'text'));
 
-      const payload = { topic: safeString(topic, 1024), encoding };
+      const payload = { topic: webview_utils.safeString(topic, 1024), encoding };
       if (encoding === 'binary') {
         if (data instanceof Uint8Array) payload.dataB64 = Buffer.from(data).toString('base64');
-        else payload.dataB64 = safeString(data, 1024 * 1024);
+        else payload.dataB64 = webview_utils.safeString(data, 1024 * 1024);
       } else if (encoding === 'json') {
         payload.data = typeof data === 'string' ? data : JSON.stringify(data ?? null);
       } else {
@@ -1806,8 +1808,8 @@ const lumen = {
       const encoding = (opts && opts.encoding) ? String(opts.encoding) : 'text';
       const autoConnect = !!(opts && opts.autoConnect);
       const autoReconnect = !opts || opts.autoReconnect !== false;
-      const reconnectDelaysMs = normalizeReconnectDelays(opts && opts.reconnectDelaysMs);
-      const maxReconnectAttempts = safeCount(
+      const reconnectDelaysMs = webview_utils.normalizeReconnectDelays(opts && opts.reconnectDelaysMs);
+      const maxReconnectAttempts = webview_utils.safeCount(
         opts && opts.maxReconnectAttempts,
         reconnectDelaysMs.length,
         Math.max(reconnectDelaysMs.length, 16)
@@ -1815,7 +1817,7 @@ const lumen = {
       const onStatus = opts && typeof opts.onStatus === 'function' ? opts.onStatus : null;
       const onError = opts && typeof opts.onError === 'function' ? opts.onError : null;
       const onEnd = opts && typeof opts.onEnd === 'function' ? opts.onEnd : null;
-      const topicRaw = safeString(topic, 1024);
+      const topicRaw = webview_utils.safeString(topic, 1024);
 
       let disposed = false;
       let state = 'connecting';
@@ -1836,7 +1838,7 @@ const lumen = {
       const emitStatus = (next, detail = {}) => {
         state = String(next || '').trim() || state;
         syncHandle();
-        callMaybe(onStatus, state, detail);
+        webview_utils.callMaybe(onStatus, state, detail);
       };
 
       const clearReconnectTimer = () => {
@@ -1882,14 +1884,14 @@ const lumen = {
         }
 
         if (disposed) {
-          const subId = safeString(res && res.subId ? res.subId : '', 256);
+          const subId = webview_utils.safeString(res && res.subId ? res.subId : '', 256);
           if (subId) {
             try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
           }
           return;
         }
         if (myNonce !== subscribeNonce) {
-          const subId = safeString(res && res.subId ? res.subId : '', 256);
+          const subId = webview_utils.safeString(res && res.subId ? res.subId : '', 256);
           if (subId) {
             try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
           }
@@ -1897,7 +1899,7 @@ const lumen = {
         }
         if (!res || res.ok === false) {
           const error = (res && res.error) ? String(res.error) : 'subscribe_failed';
-          callMaybe(onError, { error, phase: isReconnect ? 'reconnect' : 'subscribe', attempt: reconnectAttempt });
+          webview_utils.callMaybe(onError, { error, phase: isReconnect ? 'reconnect' : 'subscribe', attempt: reconnectAttempt });
           if (!isReconnect) throw new Error(error);
           clearReconnectTimer();
           if (!scheduleReconnect('subscribe_failed', { error })) {
@@ -1954,7 +1956,7 @@ const lumen = {
           try { ipcRenderer.removeListener('ipfs:pubsub:error', hErr); } catch {}
           try { ipcRenderer.removeListener('ipfs:pubsub:end', hEnd); } catch {}
           emitStatus('ended', { subId, reason: 'unsubscribe', manual: true });
-          callMaybe(onEnd, { subId, reason: 'unsubscribe', manual: true });
+          webview_utils.callMaybe(onEnd, { subId, reason: 'unsubscribe', manual: true });
           if (subId) {
             try { await ipcRenderer.invoke('ipfs:pubsub:unsubscribe', subId); } catch {}
           }
@@ -1973,9 +1975,9 @@ const lumen = {
         const subId = String(payload.subId || '');
         if (!subId) return;
         if (subId !== currentSubId && subId !== terminalSubId) return;
-        callMaybe(onError, {
+        webview_utils.callMaybe(onError, {
           subId,
-          error: safeString(payload.error, 1024) || 'stream_error',
+          error: webview_utils.safeString(payload.error, 1024) || 'stream_error',
           phase: 'stream',
           state
         });
@@ -1987,7 +1989,7 @@ const lumen = {
         if (subId !== currentSubId && subId !== terminalSubId) return;
         if (subId !== terminalSubId) {
           terminalSubId = subId;
-          callMaybe(onEnd, { subId, reason: 'stream_ended', manual: false });
+          webview_utils.callMaybe(onEnd, { subId, reason: 'stream_ended', manual: false });
         }
         if (subId === currentSubId) {
           currentSubId = '';
@@ -2034,10 +2036,10 @@ const lumen = {
       ensureLumenSite();
       const a = args && typeof args === 'object' ? args : {};
       return await ipcRenderer.invoke('wallet:signArbitrary', {
-        profileId: safeString(a.profileId, 128),
-        address: safeString(a.address, 256),
-        algo: safeString(a.algo || 'ADR-036', 64),
-        payload: safeString(a.payload, 1024 * 1024),
+        profileId: webview_utils.safeString(a.profileId, 128),
+        address: webview_utils.safeString(a.address, 256),
+        algo: webview_utils.safeString(a.algo || 'ADR-036', 64),
+        payload: webview_utils.safeString(a.payload, 1024 * 1024),
       });
     }, 'sign_arbitrary_failed'),
     /**
@@ -2048,11 +2050,11 @@ const lumen = {
       ensureLumenSite();
       const a = args && typeof args === 'object' ? args : {};
       return await ipcRenderer.invoke('wallet:verifyArbitrary', {
-        algo: safeString(a.algo || 'ADR-036', 64),
-        payload: safeString(a.payload, 1024 * 1024),
-        signatureB64: safeString(a.signatureB64, 4096),
-        pubkeyB64: safeString(a.pubkeyB64, 4096),
-        address: safeString(a.address, 256),
+        algo: webview_utils.safeString(a.algo || 'ADR-036', 64),
+        payload: webview_utils.safeString(a.payload, 1024 * 1024),
+        signatureB64: webview_utils.safeString(a.signatureB64, 4096),
+        pubkeyB64: webview_utils.safeString(a.pubkeyB64, 4096),
+        address: webview_utils.safeString(a.address, 256),
       });
     }, 'verify_arbitrary_failed')
   }
@@ -2186,7 +2188,7 @@ function enhanceExtensionBrowserApi(api) {
     lastError: null,
     getManifest: api.runtime?.getManifest || (() => getExtensionManifest()),
     getURL: api.runtime?.getURL || ((path = '') => {
-      const normalized = safeString(path, 4096).replace(/^\/+/, '');
+      const normalized = webview_utils.safeString(path, 4096).replace(/^\/+/, '');
       return normalized ? `${extensionOrigin}/${normalized}` : `${extensionOrigin}/`;
     }),
     getBackgroundPage: api.runtime?.getBackgroundPage || ((callback) => asyncResult(null, callback)),
@@ -2210,8 +2212,8 @@ function enhanceExtensionBrowserApi(api) {
           windowId: 1,
           active: true,
           status: 'complete',
-          title: safeString(globalThis.document?.title || getExtensionManifest().name || 'Extension', 512) || 'Extension',
-          url: currentHref() || `${extensionOrigin}/`
+          title: webview_utils.safeString(globalThis.document?.title || getExtensionManifest().name || 'Extension', 512) || 'Extension',
+          url: webview_utils.currentHref() || `${extensionOrigin}/`
         }, callback);
       }
     };
@@ -2277,8 +2279,8 @@ function enhanceExtensionBrowserApi(api) {
         const requestedPermissions = Array.isArray(details?.permissions) ? details.permissions : [];
         const requestedOrigins = Array.isArray(details?.origins) ? details.origins : [];
         return asyncResult(
-          requestedPermissions.every((item) => permissions.has(safeString(item, 256))) &&
-            requestedOrigins.every((item) => origins.has(safeString(item, 4096))),
+          requestedPermissions.every((item) => permissions.has(webview_utils.safeString(item, 256))) &&
+            requestedOrigins.every((item) => origins.has(webview_utils.safeString(item, 4096))),
           callback,
         );
       },
@@ -2299,7 +2301,7 @@ function enhanceExtensionBrowserApi(api) {
     api.alarms = {
       create(nameOrInfo, alarmInfo) {
         const hasName = typeof nameOrInfo === 'string';
-        const name = hasName ? safeString(nameOrInfo, 256) : `alarm-${alarms.size + 1}`;
+        const name = hasName ? webview_utils.safeString(nameOrInfo, 256) : `alarm-${alarms.size + 1}`;
         alarms.set(name, {
           name,
           scheduledTime: Date.now(),
@@ -2307,13 +2309,13 @@ function enhanceExtensionBrowserApi(api) {
         });
       },
       get(name, callback) {
-        return asyncResult(cloneValue(alarms.get(safeString(name, 256)) || null), callback);
+        return asyncResult(cloneValue(alarms.get(webview_utils.safeString(name, 256)) || null), callback);
       },
       getAll(callback) {
         return asyncResult(Array.from(alarms.values()).map(cloneValue), callback);
       },
       clear(name, callback) {
-        return asyncResult(alarms.delete(safeString(name, 256)), callback);
+        return asyncResult(alarms.delete(webview_utils.safeString(name, 256)), callback);
       },
       clearAll(callback) {
         const hadAny = alarms.size > 0;
@@ -2328,7 +2330,7 @@ function enhanceExtensionBrowserApi(api) {
     api.notifications = {
       create(idOrOptions, optionsOrCallback, maybeCallback) {
         const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback;
-        const notificationId = typeof idOrOptions === 'string' ? safeString(idOrOptions, 256) : `notification-${nextNotificationId++}`;
+        const notificationId = typeof idOrOptions === 'string' ? webview_utils.safeString(idOrOptions, 256) : `notification-${nextNotificationId++}`;
         const details =
           idOrOptions && typeof idOrOptions === 'object' && !Array.isArray(idOrOptions)
             ? idOrOptions
@@ -2337,14 +2339,14 @@ function enhanceExtensionBrowserApi(api) {
         return asyncResult(notificationId, callback);
       },
       update(id, details, callback) {
-        const key = safeString(id, 256);
+        const key = webview_utils.safeString(id, 256);
         if (notifications.has(key)) {
           notifications.set(key, { ...(notifications.get(key) || {}), ...cloneValue(details || {}) });
         }
         return asyncResult(notifications.has(key), callback);
       },
       clear(id, callback) {
-        return asyncResult(notifications.delete(safeString(id, 256)), callback);
+        return asyncResult(notifications.delete(webview_utils.safeString(id, 256)), callback);
       },
       getAll(callback) {
         return asyncResult(Object.fromEntries(Array.from(notifications.entries()).map(([id, value]) => [id, cloneValue(value)])), callback);
@@ -2363,7 +2365,7 @@ function enhanceExtensionBrowserApi(api) {
   if (!api.identity) {
     api.identity = {
       getRedirectURL(path = '') {
-        const normalized = safeString(path, 4096).replace(/^\/+/, '');
+        const normalized = webview_utils.safeString(path, 4096).replace(/^\/+/, '');
         return normalized ? `${extensionOrigin}/${normalized}` : `${extensionOrigin}/`;
       },
       getProfileUserInfo: createAsyncStub({ email: '', id: '' }),
@@ -2372,7 +2374,7 @@ function enhanceExtensionBrowserApi(api) {
         return asyncResult('', callback);
       },
       launchWebAuthFlow(details, callback) {
-        return asyncResult(safeString(details?.url, 4096), callback);
+        return asyncResult(webview_utils.safeString(details?.url, 4096), callback);
       },
       removeCachedAuthToken(_details, callback) {
         return asyncResult(undefined, callback);
@@ -2418,7 +2420,7 @@ function enhanceExtensionBrowserApi(api) {
           frameId: 0,
           parentFrameId: -1,
           tabId: 1,
-          url: currentHref() || `${extensionOrigin}/`
+          url: webview_utils.currentHref() || `${extensionOrigin}/`
         }, callback);
       },
       getAllFrames(detailsOrCallback, maybeCallback) {
@@ -2429,7 +2431,7 @@ function enhanceExtensionBrowserApi(api) {
           parentFrameId: -1,
           processId: -1,
           tabId: 1,
-          url: currentHref() || `${extensionOrigin}/`
+          url: webview_utils.currentHref() || `${extensionOrigin}/`
         }], callback);
       },
       onBeforeNavigate: webNavigationEvents.onBeforeNavigate,
@@ -2667,45 +2669,9 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
   } catch {}
 }
 
-if (shouldInjectWebviewExtensionApi()) {
-  try {
-    contextBridge.exposeInMainWorld(EXTENSION_API_SHIM_KEY, extensionApi);
-  } catch {}
 
-  try {
-    contextBridge.exposeInMainWorld('browser', browserApi);
-  } catch {
-    // ignore
-  }
 
-  try {
-    contextBridge.exposeInMainWorld('chrome', extensionApi);
-  } catch {
-    // ignore
-  }
 
-  installMainWorldExtensionApi(EXTENSION_API_SHIM_KEY, EXTENSION_API_SHIM_SOURCE);
-} else {
-  try {
-    debugLog('[lumen-webview-preload] skipping extension api injection for top-level extension window', {
-      href: currentHref(),
-      hasSendToHost: isGuestRendererContext(),
-      isChromeExtensionUrl: isChromeExtensionUrl()
-    });
-  } catch {}
-}
-
-try {
-  if (isIpfsGatewayUrl(currentHref())) {
-    contextBridge.exposeInMainWorld('lumen', lumen);
-  }
-} catch {
-  // ignore
-}
-
-function isLumenUrl(input) {
-  return /^lumen:\/\//i.test(safeString(input, 4096));
-}
 
 function closestAnchorWithHref(target) {
   try {
@@ -2731,10 +2697,10 @@ function handleLumenLinkClick(ev) {
     const a = closestAnchorWithHref(ev.target);
     if (!a) return;
 
-    const href = safeString((typeof a.getAttribute === 'function' ? a.getAttribute('href') : '') || a.href || '', 4096);
-    if (!isLumenUrl(href)) return;
+    const href = webview_utils.safeString((typeof a.getAttribute === 'function' ? a.getAttribute('href') : '') || a.href || '', 4096);
+    if (!webview_utils.isLumenUrl(href)) return;
 
-    const target = safeString((typeof a.getAttribute === 'function' ? a.getAttribute('target') : '') || a.target || '', 64).toLowerCase();
+    const target = webview_utils.safeString((typeof a.getAttribute === 'function' ? a.getAttribute('target') : '') || a.target || '', 64).toLowerCase();
     const openInNewTab = target === '_blank';
 
     try { ev.preventDefault(); } catch {}
@@ -2759,18 +2725,10 @@ function sendHostEvent(channel, payload) {
   }
 }
 
-function isChromeWebStoreUrl(href = currentHref()) {
-  try {
-    const url = new URL(String(href || ''));
-    const host = String(url.hostname || '').trim().toLowerCase();
-    return host === 'chromewebstore.google.com' || host.endsWith('.chromewebstore.google.com');
-  } catch {
-    return false;
-  }
-}
 
-function extractChromeWebStoreIdFromHref(href = currentHref()) {
-  const raw = safeString(href, 4096);
+
+function extractChromeWebStoreIdFromHref(href = webview_utils.currentHref()) {
+  const raw = webview_utils.safeString(href, 4096);
   if (!raw) return '';
 
   const direct = raw.match(/\b([a-p]{32})\b/i);
@@ -2781,14 +2739,14 @@ function extractChromeWebStoreIdFromHref(href = currentHref()) {
     const pathname = String(url.pathname || '');
     const segments = pathname
       .split('/')
-      .map((segment) => safeString(segment, 128))
+      .map((segment) => webview_utils.safeString(segment, 128))
       .filter(Boolean);
     const fromPath = segments.find((segment) => /^[a-p]{32}$/i.test(segment));
     if (fromPath) return String(fromPath).toLowerCase();
 
     const fromQuery =
-      safeString(url.searchParams.get('id'), 64) ||
-      safeString(url.searchParams.get('extension_id'), 64);
+      webview_utils.safeString(url.searchParams.get('id'), 64) ||
+      webview_utils.safeString(url.searchParams.get('extension_id'), 64);
     if (/^[a-p]{32}$/i.test(fromQuery)) return fromQuery.toLowerCase();
   } catch {
     // ignore
@@ -2798,7 +2756,7 @@ function extractChromeWebStoreIdFromHref(href = currentHref()) {
 }
 
 function getChromeWebStoreInstallPayload() {
-  if (!isChromeWebStoreUrl()) return null;
+  if (!webview_utils.isChromeWebStoreUrl()) return null;
   const id = extractChromeWebStoreIdFromHref();
   if (!id) return null;
 
@@ -2808,14 +2766,14 @@ function getChromeWebStoreInstallPayload() {
       document.querySelector('h1') ||
       document.querySelector('[role="heading"]') ||
       document.querySelector('title');
-    title = safeString(heading?.textContent || document?.title || '', 256);
+    title = webview_utils.safeString(heading?.textContent || document?.title || '', 256);
   } catch {
-    title = safeString(document?.title || '', 256);
+    title = webview_utils.safeString(document?.title || '', 256);
   }
 
   return {
     id,
-    url: currentHref(),
+    url: webview_utils.currentHref(),
     title
   };
 }
@@ -2825,31 +2783,18 @@ function requestChromeWebStoreInstall(trigger = 'unknown') {
   if (!payload) return false;
   sendHostEvent('extensions:installFromStore', {
     ...payload,
-    trigger: safeString(trigger, 64) || 'unknown'
+    trigger: webview_utils.safeString(trigger, 64) || 'unknown'
   });
   return true;
 }
 
-function closestInstallTrigger(target) {
-  try {
-    const el =
-      target && target.nodeType === 1
-        ? target
-        : target && target.parentElement
-          ? target.parentElement
-          : null;
-    if (!el || typeof el.closest !== 'function') return null;
-    return el.closest('button, a, [role="button"]');
-  } catch {
-    return null;
-  }
-}
+
 
 function looksLikeChromeWebStoreInstallTrigger(target) {
-  const button = closestInstallTrigger(target);
+  const button = webview_utils.closestInstallTrigger(target);
   if (!button) return false;
 
-  const text = safeString(
+  const text = webview_utils.safeString(
     button.textContent ||
       (typeof button.getAttribute === 'function' ? button.getAttribute('aria-label') : '') ||
       '',
@@ -2874,7 +2819,7 @@ function removeChromeWebStoreImportButton() {
 }
 
 function ensureChromeWebStoreImportButton() {
-  if (!isChromeWebStoreUrl()) {
+  if (!webview_utils.isChromeWebStoreUrl()) {
     removeChromeWebStoreImportButton();
     return;
   }
@@ -2933,7 +2878,7 @@ function setChromeWebStoreImportButtonText(label, isError = false) {
   try {
     const button = document.getElementById('lumen-chrome-store-import');
     if (!button) return;
-    button.textContent = safeString(label, 128) || 'Import into Lumen';
+    button.textContent = webview_utils.safeString(label, 128) || 'Import into Lumen';
     button.style.background = isError ? '#b91c1c' : '#2563eb';
   } catch {
     // ignore
@@ -2942,10 +2887,10 @@ function setChromeWebStoreImportButtonText(label, isError = false) {
 
 function handleChromeWebStoreClick(ev) {
   try {
-    if (!isChromeWebStoreUrl()) return;
+    if (!webview_utils.isChromeWebStoreUrl()) return;
     if (!getChromeWebStoreInstallPayload()) return;
     if (!looksLikeChromeWebStoreInstallTrigger(ev?.target)) return;
-    const clickedButton = closestInstallTrigger(ev?.target);
+    const clickedButton = webview_utils.closestInstallTrigger(ev?.target);
 
     try { ev.preventDefault?.(); } catch {}
     try { ev.stopImmediatePropagation?.(); } catch {}
@@ -2961,94 +2906,4 @@ function handleChromeWebStoreClick(ev) {
   }
 }
 
-try {
-  try {
-    ipcRenderer.on('extensions:storeInstallResult', (_event, payload) => {
-      const ok = !!payload?.ok;
-      if (ok) {
-        setChromeWebStoreImportButtonText('Imported into Lumen', false);
-      } else {
-        setChromeWebStoreImportButtonText('Import failed', true);
-      }
-    });
-  } catch {
-    // ignore
-  }
 
-  function attachLumenLinkInterceptor() {
-    try {
-      const key = '__lumenLinkInterceptorAttached';
-      if (document && document[key]) return;
-      if (document) document[key] = true;
-      document.addEventListener('click', handleLumenLinkClick, true);
-      document.addEventListener('click', handleChromeWebStoreClick, true);
-    } catch {
-      // ignore
-    }
-  }
-
-  function attachChromeWebStoreImportWatcher() {
-    try {
-      const key = '__lumenChromeStoreWatcherAttached';
-      if (window && window[key]) return;
-      if (window) window[key] = true;
-
-      const refresh = () => {
-        try {
-          ensureChromeWebStoreImportButton();
-        } catch {
-          // ignore
-        }
-      };
-
-      const observer = new MutationObserver(() => refresh());
-      try {
-        observer.observe(document.documentElement || document.body || document, {
-          childList: true,
-          subtree: true
-        });
-      } catch {
-        // ignore
-      }
-
-      try {
-        window.addEventListener('hashchange', refresh, true);
-        window.addEventListener('popstate', refresh, true);
-      } catch {
-        // ignore
-      }
-
-      try {
-        const wrapHistory = (methodName) => {
-          const original = history && history[methodName];
-          if (typeof original !== 'function') return;
-          history[methodName] = function wrappedHistoryState(...args) {
-            const result = original.apply(this, args);
-            try { refresh(); } catch {}
-            return result;
-          };
-        };
-        wrapHistory('pushState');
-        wrapHistory('replaceState');
-      } catch {
-        // ignore
-      }
-
-      window.setTimeout(refresh, 300);
-      window.setTimeout(refresh, 1200);
-      window.setTimeout(refresh, 2500);
-    } catch {
-      // ignore
-    }
-  }
-
-  try {
-    window.addEventListener('DOMContentLoaded', attachLumenLinkInterceptor, true);
-    window.addEventListener('DOMContentLoaded', attachChromeWebStoreImportWatcher, true);
-  } catch {}
-
-  attachLumenLinkInterceptor();
-  attachChromeWebStoreImportWatcher();
-} catch {
-  // ignore
-}
