@@ -4435,7 +4435,7 @@ function exportTransactions() {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
