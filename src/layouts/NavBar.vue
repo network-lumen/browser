@@ -1,9 +1,9 @@
 <template>
-  <header class="navbar">
+  <header class="navbar flex-align-center gap-75">
     <!-- Navigation Controls -->
-    <div class="nav-controls">
+    <div class="navbar-nav-controls flex-align-center gap-25">
       <button
-        class="nav-btn hover-fill-primary-enabled"
+        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer"
         :disabled="!canGoBack"
         title="Back"
         @click="previous"
@@ -11,7 +11,7 @@
         <ArrowLeft :size="16" />
       </button>
       <button
-        class="nav-btn hover-fill-primary-enabled"
+        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer"
         :disabled="!canGoForward"
         title="Forward"
         @click="next"
@@ -20,7 +20,7 @@
       </button>
       <button
         v-if="!isExtensionTab"
-        class="nav-btn hover-fill-primary-enabled"
+        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer"
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
         :title="loading ? 'Loading…' : 'Refresh'"
@@ -32,19 +32,19 @@
     </div>
 
     <!-- URL Bar -->
-    <div class="url-bar-container appregion-no-drag">
-      <Search :size="15" stroke-width="2" class="url-bar-icon" />
+    <div class="navbar-url-bar-container appregion-no-drag flex-align-center flex-1">
+      <Search :size="15" stroke-width="2" class="navbar-url-bar-icon color-text-tertiary" />
       <input
         :value="urlField"
         @input="onInput"
         type="text"
-        class="url-bar-input"
+        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px"
         placeholder="Search or enter a URL"
         @keydown.enter="onEnter"
       />
       <button
         type="button"
-        class="url-bar-action hover-fill-primary"
+        class="navbar-url-bar-action hover-fill-primary flex-inline-align-justify-center size-28px color-text-tertiary cursor-pointer"
         :class="{ 'is-active': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
@@ -57,16 +57,16 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="quick-actions">
+    <div class="navbar-quick-actions flex-align-center gap-25">
       <button
-        class="nav-btn hover-fill-primary-enabled"
+        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer"
         title="Home"
         @click="$emit('goto', 'lumen://home')"
       >
         <House :size="16" />
       </button>
       <button
-        class="nav-btn hover-fill-primary-enabled"
+        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer"
         title="Drive"
         @click="$emit('goto', 'lumen://drive')"
       >
@@ -74,10 +74,10 @@
       </button>
     </div>
 
-    <div class="extensions-section appregion-no-drag">
+    <div class="navbar-extensions-section appregion-no-drag">
       <button
         type="button"
-        class="nav-btn hover-fill-primary-enabled extensions-trigger"
+        class="navbar-nav-btn hover-fill-primary-enabled extensions-trigger flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer"
         :class="{ 'is-active': showExtensionsMenu }"
         title="Extensions"
         @click.stop="toggleExtensionsMenu"
@@ -85,30 +85,30 @@
         <Puzzle :size="16" />
       </button>
 
-      <div v-if="showExtensionsMenu" class="extensions-menu" role="menu">
-        <div class="extensions-menu-title">Extensions</div>
+      <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg" role="menu">
+        <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase">Extensions</div>
 
-        <div v-if="extensions.length" class="extensions-list">
+        <div v-if="extensions.length" class="navbar-extensions-list flex flex-column">
           <div
             v-for="ext in extensions"
             :key="ext.id"
-            class="extension-row"
+            class="navbar-extension-row flex-align-start gap-62 padding-62 border-radius-md"
           >
-            <div class="extension-main">
-              <div class="extension-name">{{ ext.name }}</div>
-              <div class="extension-meta">
-                <span class="extension-state" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
+            <div class="navbar-extension-main flex-1">
+              <div class="navbar-extension-name fs-13px txt-weight-light color-text-primary">{{ ext.name }}</div>
+              <div class="navbar-extension-meta flex-align-center flex-wrap-wrap">
+                <span class="navbar-extension-state" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
                   {{ extensionStateLabel(ext) }}
                 </span>
-                <span v-if="ext.version" class="extension-version">v{{ ext.version }}</span>
+                <span v-if="ext.version" class="navbar-extension-version">v{{ ext.version }}</span>
               </div>
-              <div v-if="ext.lastError" class="extension-error">{{ ext.lastError }}</div>
+              <div v-if="ext.lastError" class="navbar-extension-error fs-11px">{{ ext.lastError }}</div>
             </div>
 
-            <div class="extension-actions">
+            <div class="navbar-extension-actions flex-align-center">
               <button
                 type="button"
-                class="extension-action-btn disabled-fade-40 hover-fill-primary-enabled"
+                class="navbar-extension-action-btn disabled-fade-40 hover-fill-primary-enabled flex-inline-align-justify-center size-28px border-radius-sm color-text-secondary cursor-pointer"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
                 @click.stop="openExtension(ext)"
@@ -116,19 +116,19 @@
                 <ExternalLink :size="14" />
               </button>
 
-              <label class="extension-toggle" :title="ext.enabled ? 'Disable extension' : 'Enable extension'">
+              <label class="navbar-extension-toggle flex-inline-align-center cursor-pointer" :title="ext.enabled ? 'Disable extension' : 'Enable extension'">
                 <input
                   type="checkbox"
                   :checked="ext.enabled"
                   :disabled="extensionsBusy"
                   @change="toggleExtensionEnabled(ext)"
                 />
-                <span class="extension-toggle-slider"></span>
+                <span class="navbar-extension-toggle-slider border-radius-full"></span>
               </label>
 
               <button
                 type="button"
-                class="extension-action-btn disabled-fade-40 hover-fill-primary-enabled"
+                class="navbar-extension-action-btn disabled-fade-40 hover-fill-primary-enabled flex-inline-align-justify-center size-28px border-radius-sm color-text-secondary cursor-pointer"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
                 @click.stop="reloadExtension(ext.id)"
@@ -138,7 +138,7 @@
 
               <button
                 type="button"
-                class="extension-action-btn disabled-fade-40 danger"
+                class="navbar-extension-action-btn disabled-fade-40 danger flex-inline-align-justify-center size-28px border-radius-sm color-text-secondary cursor-pointer"
                 title="Remove extension"
                 :disabled="extensionsBusy"
                 @click.stop="removeExtension(ext.id)"
@@ -149,14 +149,14 @@
           </div>
         </div>
 
-        <div v-else class="extensions-menu-hint">
+        <div v-else class="navbar-extensions-menu-hint text-center fs-12px color-text-tertiary">
           No extensions installed yet.
         </div>
 
-        <div class="extensions-menu-actions">
+        <div class="navbar-extensions-menu-actions flex flex-column gap-50">
           <UiButton
             variant="none"
-            class="profile-menu-action disabled-fade-40"
+            class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary"
             :disabled="extensionsBusy"
             @click.stop="loadUnpackedExtension"
           >
@@ -165,7 +165,7 @@
 
           <button
             type="button"
-            class="extensions-store-link disabled-fade-45"
+            class="navbar-extensions-store-link disabled-fade-45 flex-inline-align-center gap-50 w-full border-radius-sm color-text-primary cursor-pointer fs-13px fw-500"
             :disabled="extensionsBusy"
             @click.stop="openChromeWebStore"
           >
@@ -173,7 +173,7 @@
             <ExternalLink :size="13" />
           </button>
 
-          <div v-if="extensionsMessage" class="extensions-menu-message">
+          <div v-if="extensionsMessage" class="navbar-extensions-menu-message fs-12px color-text-tertiary">
             {{ extensionsMessage }}
           </div>
         </div>
@@ -181,16 +181,16 @@
     </div>
 
     <!-- Profile -->
-    <div class="profile-section appregion-no-drag">
-      <button type="button" class="profile-trigger" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
+    <div class="navbar-profile-section appregion-no-drag">
+      <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
-        <span class="profile-trigger-name">{{ activeProfileDisplay }}</span>
-        <ChevronDown :size="14" class="profile-chevron" />
+        <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary">{{ activeProfileDisplay }}</span>
+        <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary" />
       </button>
 
       <div
         v-if="showProfileMenu"
-        class="profile-menu"
+        class="navbar-profile-menu border-radius-lg"
         role="menu"
       >
         <ActiveProfileCard
@@ -200,58 +200,58 @@
           :label="isGuestOnly ? 'Guest mode' : 'Active profile'"
         />
 
-        <div v-if="hasProfiles && !isGuestOnly" class="profile-menu-section">
-          <div class="profile-menu-title">Profiles</div>
-          <ul class="profile-list">
+        <div v-if="hasProfiles && !isGuestOnly" class="navbar-profile-menu-section">
+          <div class="navbar-profile-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase">Profiles</div>
+          <ul class="navbar-profile-list flex flex-column padding-0 margin-0 gap-2px">
             <li
               v-for="p in profiles"
               :key="p.id"
-              class="profile-row"
+              class="navbar-profile-row flex-align-center border-radius-sm"
               :class="{ active: p.id === activeProfileId }"
               role="menuitem"
             >
-              <button type="button" class="profile-row-btn" @click.stop="selectProfile(p.id)">
+              <button type="button" class="navbar-profile-row-btn flex-align-center gap-50 flex-1 cursor-pointer text-left color-text-primary" @click.stop="selectProfile(p.id)">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
-                <span class="profile-row-name">{{ p.name || p.id }}</span>
+                <span class="navbar-profile-row-name fs-13px fw-500 color-text-primary">{{ p.name || p.id }}</span>
               </button>
 
-              <button type="button" class="profile-row-delete" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="navbar-profile-row-delete flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
           </ul>
         </div>
 
-        <div v-else class="profile-menu-hint">
+        <div v-else class="navbar-profile-menu-hint fs-12px color-text-tertiary text-center">
           {{ isGuestOnly
             ? 'Guest mode active. Create or import a profile to get started.'
             : 'No profiles yet.' }}
         </div>
 
-        <div class="profile-menu-actions">
-          <UiButton variant="none" class="profile-menu-action disabled-fade-40" @click.stop="onCreateProfileClick">
+        <div class="navbar-profile-menu-actions flex flex-column gap-2px">
+          <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary" @click.stop="onCreateProfileClick">
             New profile…
           </UiButton>
-          <UiButton variant="none" class="profile-menu-action disabled-fade-40" :disabled="!activeProfileId" @click.stop="onExportProfile">
+          <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary" :disabled="!activeProfileId" @click.stop="onExportProfile">
             Export active profile…
           </UiButton>
-          <UiButton variant="none" class="profile-menu-action disabled-fade-40" @click.stop="onImportProfileClick">
+          <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary" @click.stop="onImportProfileClick">
             Import profile…
           </UiButton>
 
-          <div v-if="creatingProfile" class="profile-create">
-            <input v-model="newProfileName" type="text" class="profile-create-input" placeholder="Profile name" />
-            <div class="profile-create-actions">
-              <UiButton variant="none" class="profile-menu-action disabled-fade-40 primary" @click="confirmCreateProfile">
+          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37">
+            <input v-model="newProfileName" type="text" class="navbar-profile-create-input w-full border-radius-sm color-text-primary fs-13px fw-500" placeholder="Profile name" />
+            <div class="navbar-profile-create-actions flex">
+              <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 primary w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary" @click="confirmCreateProfile">
                 Create
               </UiButton>
-              <UiButton variant="none" class="profile-menu-action disabled-fade-40" @click="cancelCreateProfile">
+              <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary" @click="cancelCreateProfile">
                 Cancel
               </UiButton>
             </div>
           </div>
 
-          <div v-if="profileMessage" class="profile-menu-message">
+          <div v-if="profileMessage" class="navbar-profile-menu-message margin-top-37 fs-12px color-text-tertiary">
             {{ profileMessage }}
           </div>
         </div>
@@ -261,15 +261,15 @@
 
   <!-- Export Options Modal -->
   <Teleport to="body">
-    <div v-if="showExportModal" class="export-modal-overlay" @click.self="cancelExportModal">
-      <div class="export-modal">
-        <div class="export-modal-header">
-          <h3>Export Profile</h3>
-          <button type="button" class="export-modal-close" @click="cancelExportModal">&times;</button>
+    <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center" @click.self="cancelExportModal">
+      <div class="navbar-export-modal border-radius-xl">
+        <div class="navbar-export-modal-header flex-align-center-justify-space-between">
+          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Export Profile</h3>
+          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer" @click="cancelExportModal">&times;</button>
         </div>
         
-        <div class="export-modal-body">
-          <p class="export-modal-desc">
+        <div class="navbar-export-modal-body padding-125">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary">
             Export your profile backup.
             <template v-if="exportRequiresPassword">
               <br/><strong>Note:</strong> Your wallet is password-protected. Enter your password to include wallet data in the backup.
@@ -280,63 +280,63 @@
           </p>
           
           <!-- Password required for decryption notice -->
-          <div v-if="exportRequiresPassword" class="export-password-fields">
-            <div class="export-field flex flex-column gap-25">
-              <label>Wallet Password</label>
+          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md">
+            <div class="navbar-export-field flex flex-column gap-25">
+              <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">Wallet Password</label>
               <input 
                 type="password" 
                 v-model="exportPassword" 
                 placeholder="Enter your wallet password"
-                class="export-input"
+                class="navbar-export-input border-radius-sm color-text-primary fs-13px"
                 @keyup.enter="confirmExportProfile"
               />
             </div>
             
-            <label class="export-option margin-top-75">
+            <label class="navbar-export-option margin-top-75 flex-align-center gap-50 cursor-pointer border-radius-sm">
               <input type="checkbox" v-model="exportEncrypted" />
-              <span class="export-option-label">Also encrypt the backup file with this password</span>
+              <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Also encrypt the backup file with this password</span>
             </label>
           </div>
           
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
-            <label class="export-option">
+            <label class="navbar-export-option flex-align-center gap-50 cursor-pointer border-radius-sm">
               <input type="checkbox" v-model="exportEncrypted" />
-              <span class="export-option-label">Encrypt backup with password</span>
+              <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Encrypt backup with password</span>
             </label>
             
-            <div v-if="exportEncrypted" class="export-password-fields">
-              <div class="export-field flex flex-column gap-25">
-                <label>Password</label>
+            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md">
+              <div class="navbar-export-field flex flex-column gap-25">
+                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">Password</label>
                 <input 
                   type="password" 
                   v-model="exportPassword" 
                   placeholder="Enter password (min 6 characters)"
-                  class="export-input"
+                  class="navbar-export-input border-radius-sm color-text-primary fs-13px"
                 />
               </div>
-              <div class="export-field flex flex-column gap-25">
-                <label>Confirm Password</label>
+              <div class="navbar-export-field flex flex-column gap-25">
+                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">Confirm Password</label>
                 <input 
                   type="password" 
                   v-model="exportPasswordConfirm" 
                   placeholder="Confirm password"
-                  class="export-input"
+                  class="navbar-export-input border-radius-sm color-text-primary fs-13px"
                   @keyup.enter="confirmExportProfile"
                 />
               </div>
             </div>
           </template>
           
-          <div v-if="exportError" class="export-error">
+          <div v-if="exportError" class="navbar-export-error border-radius-sm fs-12px">
             {{ exportError }}
           </div>
           
-          <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelExportModal">
+          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="cancelExportModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="export-btn confirm" @click="confirmExportProfile">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="confirmExportProfile">
               Export {{ exportEncrypted ? '(Encrypted)' : '' }}
             </UiButton>
           </div>
@@ -347,22 +347,22 @@
 
   <!-- Import Modal -->
   <Teleport to="body">
-    <div v-if="showImportModal" class="export-modal-overlay" @click.self="cancelImportModal">
-      <div class="export-modal import-modal">
-        <div class="export-modal-header">
-          <h3>Import profile</h3>
-          <button type="button" class="export-modal-close" @click="cancelImportModal">&times;</button>
+    <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center" @click.self="cancelImportModal">
+      <div class="navbar-export-modal navbar-import-modal border-radius-xl">
+        <div class="navbar-export-modal-header flex-align-center-justify-space-between">
+          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Import profile</h3>
+          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer" @click="cancelImportModal">&times;</button>
         </div>
 
-        <div class="export-modal-body">
-          <p class="export-modal-desc">
+        <div class="navbar-export-modal-body padding-125">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary">
             Choose how you want to import your profile.
           </p>
 
-          <div class="import-mode-switch">
+          <div class="navbar-import-mode-switch gap-50 margin-bottom-100">
             <button
               type="button"
-              class="import-mode-btn hover-fill-primary"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary fs-13px txt-weight-light cursor-pointer"
               :class="{ active: importMode === 'file' }"
               @click="setImportMode('file')"
             >
@@ -370,7 +370,7 @@
             </button>
             <button
               type="button"
-              class="import-mode-btn hover-fill-primary"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary fs-13px txt-weight-light cursor-pointer"
               :class="{ active: importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
@@ -379,16 +379,16 @@
           </div>
 
           <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-75">
-            <p class="import-mode-copy">
+            <p class="navbar-import-mode-copy margin-0 border-radius-md color-text-secondary fs-13px">
               Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
 
           <div v-else class="import-mode-panel flex flex-column gap-75">
-            <div class="import-manual-actions">
+            <div class="navbar-import-manual-actions flex flex-wrap-wrap gap-50">
               <UiButton
                 variant="none"
-                class="import-source-btn"
+                class="navbar-import-source-btn flex-1 border-radius-md color-text-primary fs-13px txt-weight-light"
                 :disabled="importBusy"
                 @click="loadManualProfileSourceIntoForm"
               >
@@ -396,7 +396,7 @@
               </UiButton>
               <UiButton
                 variant="none"
-                class="import-source-btn"
+                class="navbar-import-source-btn flex-1 border-radius-md color-text-primary fs-13px txt-weight-light"
                 :disabled="importBusy"
                 @click="loadManualPqcSourceIntoForm"
               >
@@ -406,83 +406,83 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="import-source-summary"
+              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary fs-12px gap-25"
             >
-              <div v-if="manualImportProfileSourceName" class="import-source-line">
+              <div v-if="manualImportProfileSourceName" class="navbar-import-source-line">
                 Profile source: {{ manualImportProfileSourceName }}
               </div>
-              <div v-if="manualImportPqcSourceName" class="import-source-line">
+              <div v-if="manualImportPqcSourceName" class="navbar-import-source-line">
                 Dilithium source: {{ manualImportPqcSourceName }}
               </div>
             </div>
 
-            <div class="export-password-fields">
-              <div class="export-field flex flex-column gap-25">
-                <label>Profile Name</label>
+            <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md">
+              <div class="navbar-export-field flex flex-column gap-25">
+                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">Profile Name</label>
                 <input
                   v-model="manualImportName"
                   type="text"
-                  class="export-input"
+                  class="navbar-export-input border-radius-sm color-text-primary fs-13px"
                   placeholder="Enter profile name"
                 />
               </div>
 
-              <div class="export-field flex flex-column gap-25">
-                <label>Mnemonic</label>
+              <div class="navbar-export-field flex flex-column gap-25">
+                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="export-input import-textarea"
+                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary fs-13px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
               </div>
 
-              <div class="export-field flex flex-column gap-25">
-                <label>PQC Public Key</label>
+              <div class="navbar-export-field flex flex-column gap-25">
+                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="export-input import-textarea import-mono"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
               </div>
 
-              <div class="export-field flex flex-column gap-25">
-                <label>PQC Private Key</label>
+              <div class="navbar-export-field flex flex-column gap-25">
+                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="export-input import-textarea import-mono"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
               </div>
             </div>
 
-            <p class="import-manual-hint">
+            <p class="navbar-import-manual-hint margin-0 fs-12px color-text-tertiary">
               You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.
             </p>
 
-            <p class="import-manual-hint">
+            <p class="navbar-import-manual-hint margin-0 fs-12px color-text-tertiary">
               If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
             </p>
           </div>
 
-          <div v-if="importModalError" class="export-error">
+          <div v-if="importModalError" class="navbar-export-error border-radius-sm fs-12px">
             {{ importModalError }}
           </div>
 
-          <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelImportModal">
+          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="cancelImportModal">
               Cancel
             </UiButton>
             <UiButton
               variant="none"
-              class="export-btn confirm"
+              class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer"
               :disabled="importBusy"
               @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
             >
               <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
-              <span v-else class="import-busy-label"><UiSpinner size="sm" /> Importing…</span>
+              <span v-else class="navbar-import-busy-label flex-inline-align-justify-center gap-50"><UiSpinner size="sm" /> Importing…</span>
             </UiButton>
           </div>
         </div>
@@ -492,40 +492,40 @@
 
   <!-- Import Password Modal (for encrypted backups) -->
   <Teleport to="body">
-    <div v-if="showImportPasswordModal" class="export-modal-overlay" @click.self="cancelImportPasswordModal">
-      <div class="export-modal">
-        <div class="export-modal-header">
-          <h3>Encrypted Backup</h3>
-          <button type="button" class="export-modal-close" @click="cancelImportPasswordModal">&times;</button>
+    <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center" @click.self="cancelImportPasswordModal">
+      <div class="navbar-export-modal border-radius-xl">
+        <div class="navbar-export-modal-header flex-align-center-justify-space-between">
+          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Encrypted Backup</h3>
+          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer" @click="cancelImportPasswordModal">&times;</button>
         </div>
         
-        <div class="export-modal-body">
-          <p class="export-modal-desc">
+        <div class="navbar-export-modal-body padding-125">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary">
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
           
-          <div class="export-password-fields">
-            <div class="export-field flex flex-column gap-25">
-              <label>Backup Password</label>
+          <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md">
+            <div class="navbar-export-field flex flex-column gap-25">
+              <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">Backup Password</label>
               <input 
                 type="password" 
                 v-model="importPassword" 
                 placeholder="Enter backup password"
-                class="export-input"
+                class="navbar-export-input border-radius-sm color-text-primary fs-13px"
                 @keyup.enter="confirmImportEncrypted"
               />
             </div>
           </div>
           
-          <div v-if="importError" class="export-error">
+          <div v-if="importError" class="navbar-export-error border-radius-sm fs-12px">
             {{ importError }}
           </div>
           
-          <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelImportPasswordModal">
+          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="cancelImportPasswordModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="export-btn confirm" @click="confirmImportEncrypted">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="confirmImportEncrypted">
               Import
             </UiButton>
           </div>
@@ -538,26 +538,26 @@
   <Teleport to="body">
     <div
       v-if="showDeleteProfileModal"
-      class="export-modal-overlay"
+      class="navbar-export-modal-overlay flex-align-justify-center"
       @click.self="cancelDeleteProfileModal"
     >
-      <div class="export-modal">
-        <div class="export-modal-header">
-          <h3>Delete profile?</h3>
-          <button type="button" class="export-modal-close" @click="cancelDeleteProfileModal">&times;</button>
+      <div class="navbar-export-modal border-radius-xl">
+        <div class="navbar-export-modal-header flex-align-center-justify-space-between">
+          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Delete profile?</h3>
+          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer" @click="cancelDeleteProfileModal">&times;</button>
         </div>
 
-        <div class="export-modal-body">
-          <p class="export-modal-desc">
+        <div class="navbar-export-modal-body padding-125">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary">
             You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
             This cannot be recovered.
           </p>
 
-          <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="cancelDeleteProfileModal">
+          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="cancelDeleteProfileModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="export-btn confirm danger" @click="confirmDeleteProfile">
+            <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="confirmDeleteProfile">
               Delete
             </UiButton>
           </div>
@@ -570,26 +570,26 @@
   <Teleport to="body">
     <div
       v-if="showPqcLinkedModal"
-      class="export-modal-overlay"
+      class="navbar-export-modal-overlay flex-align-justify-center"
       @click.self="dismissPqcLinkedModal"
     >
-      <div class="export-modal">
-        <div class="export-modal-header">
-          <h3>Post-quantum security enabled</h3>
-          <button type="button" class="export-modal-close" @click="dismissPqcLinkedModal">&times;</button>
+      <div class="navbar-export-modal border-radius-xl">
+        <div class="navbar-export-modal-header flex-align-center-justify-space-between">
+          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Post-quantum security enabled</h3>
+          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer" @click="dismissPqcLinkedModal">&times;</button>
         </div>
 
-        <div class="export-modal-body">
-          <p class="export-modal-desc">
+        <div class="navbar-export-modal-body padding-125">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary">
             Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
             Your wallet is now linked on-chain and uses post-quantum security.
           </p>
 
-          <div class="export-modal-actions">
-            <UiButton variant="none" class="export-btn cancel hover-fill-primary" @click="dismissPqcLinkedModal">
+          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="dismissPqcLinkedModal">
               Ignore
             </UiButton>
-            <UiButton variant="none" class="export-btn confirm" @click="exportAfterPqcLinked">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer" @click="exportAfterPqcLinked">
               Export
             </UiButton>
           </div>
@@ -1517,837 +1517,3 @@ onBeforeUnmount(() => {
   detachExtensionsListener = null;
 });
 </script>
-
-<style scoped>
-/* ===== NAVBAR LAYOUT ===== */
-.navbar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-primary);
-  border-bottom: 0.5px solid var(--border-color);
-  min-height: 52px;
-}
-
-/* ===== NAVIGATION CONTROLS ===== */
-.nav-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.nav-btn:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.nav-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.nav-btn.is-active {
-  color: var(--ios-yellow);
-}
-
-/* ===== URL BAR ===== */
-.url-bar-container {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.url-bar-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-tertiary);
-  pointer-events: none;
-}
-
-.url-bar-input {
-  width: 100%;
-  padding: 0.5rem 2.75rem 0.5rem 2.25rem;
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 13px;
-  transition: all 0.2s ease;
-}
-
-.url-bar-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.url-bar-input:focus {
-  outline: none;
-  background: var(--bg-primary);
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.url-bar-action {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.url-bar-action.is-active {
-  color: var(--ios-yellow);
-}
-
-/* ===== QUICK ACTIONS ===== */
-.quick-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* ===== EXTENSIONS ===== */
-.extensions-section {
-  position: relative;
-  margin-left: -0.5rem;
-}
-
-.extensions-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  width: 340px;
-  max-width: min(92vw, 340px);
-  background: var(--card-bg);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 0.5rem;
-  box-shadow: var(--shadow-xl);
-  z-index: 100;
-}
-
-.extensions-menu-title {
-  padding: 0 0.5rem 0.5rem;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.extensions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 0.125rem;
-}
-
-.extension-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  padding: 0.625rem;
-  border-radius: var(--border-radius-md);
-  background: var(--bg-secondary);
-  border: 0.5px solid var(--border-light);
-}
-
-.extension-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.extension-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.extension-meta {
-  margin-top: 0.125rem;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  flex-wrap: wrap;
-}
-
-.extension-state,
-.extension-version {
-  font-size: 11px;
-  color: var(--text-tertiary);
-}
-
-.extension-state.error {
-  color: var(--error-red);
-}
-
-.extension-state.disabled {
-  color: var(--text-tertiary);
-}
-
-.extension-error {
-  margin-top: 0.25rem;
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--error-red);
-  word-break: break-word;
-}
-
-.extension-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.extension-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.extension-action-btn.danger:hover:not(:disabled) {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--error-red);
-}
-
-.extension-toggle {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.extension-toggle input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.extension-toggle-slider {
-  position: relative;
-  width: 34px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--border-color);
-  transition: background 0.15s ease;
-}
-
-.extension-toggle-slider::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
-  transition: transform 0.15s ease;
-}
-
-.extension-toggle input:checked + .extension-toggle-slider {
-  background: var(--accent-primary);
-}
-
-.extension-toggle input:checked + .extension-toggle-slider::after {
-  transform: translateX(14px);
-}
-
-.extension-toggle input:disabled + .extension-toggle-slider {
-  opacity: 0.5;
-}
-
-.extensions-menu-hint {
-  padding: 0.875rem 0.5rem;
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
-
-.extensions-menu-actions {
-  margin-top: 0.625rem;
-  padding-top: 0.625rem;
-  border-top: 0.5px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.extensions-store-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: background 0.15s ease;
-}
-
-.extensions-store-link:hover:not(:disabled) {
-  background: var(--hover-bg);
-}
-
-.extensions-menu-message {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  padding: 0 0.125rem;
-}
-
-/* ===== PROFILE SECTION ===== */
-.profile-section {
-  position: relative;
-}
-
-.profile-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.625rem 0.35rem 0.35rem;
-  border-radius: var(--border-radius-full);
-  border: 0.5px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.profile-trigger:hover {
-  background: var(--hover-bg);
-  border-color: var(--border-color);
-}
-
-.profile-trigger-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.profile-chevron {
-  color: var(--text-tertiary);
-  margin-left: -0.125rem;
-}
-
-/* ===== PROFILE MENU ===== */
-.profile-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  min-width: 260px;
-  max-width: 300px;
-  background: var(--card-bg);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 0.5rem;
-  box-shadow: var(--shadow-xl);
-  z-index: 100;
-}
-
-.profile-menu-title {
-  margin-top: 0.5rem;
-  margin-bottom: 0.375rem;
-  padding: 0 0.5rem;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.profile-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.profile-row {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  border-radius: var(--border-radius-sm);
-  padding: 0.25rem;
-}
-
-.profile-row:hover {
-  background: var(--hover-bg);
-}
-
-.profile-row.active {
-  background: var(--primary-a08);
-}
-
-.profile-row-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  padding: 0.25rem;
-  cursor: pointer;
-  text-align: left;
-  color: var(--text-primary);
-}
-
-.profile-row-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.profile-row-delete {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--border-radius-sm);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  opacity: 0;
-  transition: all 0.15s ease;
-}
-
-.profile-row:hover .profile-row-delete {
-  opacity: 1;
-}
-
-.profile-row-delete:hover {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--error-red);
-}
-
-.profile-menu-hint {
-  padding: 0.75rem 0.5rem;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
-.profile-menu-actions {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 0.5px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.profile-menu-action {
-  width: 100%;
-  justify-content: flex-start;
-  padding: 0.5rem 0.625rem;
-  border-radius: var(--border-radius-sm);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  transition: all 0.15s ease;
-}
-
-.profile-menu-action:hover {
-  background: var(--hover-bg);
-}
-
-
-.profile-menu-action.primary {
-  background: var(--accent-primary);
-  color: #fff;
-  justify-content: center;
-}
-
-.profile-menu-action.primary:hover {
-  filter: brightness(1.1);
-}
-
-.profile-create {
-  margin-top: 0.375rem;
-  padding-top: 0.5rem;
-  border-top: 0.5px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.profile-create-input {
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  border-radius: var(--border-radius-sm);
-  border: 0.5px solid var(--border-color);
-  background: var(--fill-primary);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.profile-create-input::placeholder {
-  color: var(--text-tertiary);
-  opacity: 0.6;
-}
-
-.profile-create-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  background: var(--fill-primary);
-}
-
-.profile-create-actions {
-  display: flex;
-  gap: 0.375rem;
-}
-
-.profile-create-actions .profile-menu-action {
-  flex: 1;
-  justify-content: center;
-}
-
-.profile-menu-message {
-  margin-top: 0.375rem;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  padding: 0.25rem 0.5rem;
-}
-
-/* ===== EXPORT MODAL ===== */
-.export-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.export-modal {
-  background: var(--card-bg);
-  border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-2xl);
-  min-width: 360px;
-  max-width: 90vw;
-  overflow: hidden;
-  border: 0.5px solid var(--border-color);
-}
-
-.export-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 0.5px solid var(--border-color);
-}
-
-.export-modal-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.export-modal-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--hover-bg);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 18px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.export-modal-close:hover {
-  background: var(--fill-primary);
-  color: var(--text-primary);
-}
-
-.export-modal-body {
-  padding: 1.25rem;
-}
-
-.export-modal-desc {
-  margin: 0 0 1rem 0;
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.export-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.5rem 0.625rem;
-  border-radius: var(--border-radius-sm);
-  transition: background 0.15s ease;
-}
-
-.export-option:hover {
-  background: var(--hover-bg);
-}
-
-.export-option input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent-primary);
-}
-
-.export-option-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.export-password-fields {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  padding: 0.875rem;
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  border: 0.5px solid var(--border-light);
-}
-
-.export-field label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.export-input {
-  padding: 0.5rem 0.625rem;
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 13px;
-}
-
-.export-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.export-error {
-  margin-top: 0.625rem;
-  padding: 0.5rem 0.625rem;
-  background: rgba(var(--ios-red-rgb), 0.1);
-  border: 0.5px solid rgba(var(--ios-red-rgb), 0.25);
-  border-radius: var(--border-radius-sm);
-  color: var(--error-red);
-  font-size: 12px;
-}
-
-.export-modal-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.export-btn {
-  flex: 1;
-  padding: 0.625rem 1rem;
-  border-radius: var(--border-radius-sm);
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.export-btn.cancel {
-  background: var(--bg-secondary);
-  border: 0.5px solid var(--border-color);
-  color: var(--text-secondary);
-}
-
-
-.export-btn.confirm {
-  background: var(--accent-primary);
-  border: none;
-  color: #fff;
-}
-
-.export-btn.confirm:hover {
-  filter: brightness(1.1);
-}
-
-.export-btn.confirm.danger {
-  background: var(--ios-red);
-}
-
-.import-modal {
-  width: min(560px, 92vw);
-}
-
-.import-mode-switch {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.import-mode-btn {
-  padding: 0.625rem 0.875rem;
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-
-.import-mode-btn.active {
-  background: var(--primary-a08);
-  border-color: var(--accent-primary);
-  color: var(--text-primary);
-  box-shadow: 0 0 0 1px var(--primary-a20) inset;
-}
-
-.import-manual-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.import-source-btn {
-  flex: 1;
-  min-width: 180px;
-  justify-content: center;
-  padding: 0.625rem 0.875rem;
-  border-radius: var(--border-radius-md);
-  border: 0.5px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.import-source-btn:hover {
-  background: var(--hover-bg);
-}
-
-.import-mode-copy {
-  margin: 0;
-  padding: 0.875rem;
-  border-radius: var(--border-radius-md);
-  background: var(--bg-secondary);
-  border: 0.5px solid var(--border-light);
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.import-textarea {
-  resize: vertical;
-  min-height: 84px;
-  font-family: inherit;
-}
-
-.import-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-
-.import-source-summary {
-  padding: 0.75rem 0.875rem;
-  border-radius: var(--border-radius-md);
-  background: var(--bg-secondary);
-  border: 0.5px solid var(--border-light);
-  color: var(--text-secondary);
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.import-source-line {
-  line-height: 1.45;
-  word-break: break-word;
-}
-
-.import-manual-hint {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  line-height: 1.5;
-}
-
-.import-busy-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-</style>
