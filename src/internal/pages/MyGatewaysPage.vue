@@ -1,10 +1,10 @@
 <template>
   <div class="my-gateways-page internal-page">
     <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">Manage</span>
-          <button type="button" class="lsb-item active border-none bg-transparent cursor-pointer color-text-secondary">
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Manage</span>
+          <button type="button" class="lsb-item active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left">
             <List :size="18" />
             <span>Gateway List</span>
           </button>
@@ -53,7 +53,7 @@
             <button 
               v-if="embeddedServerRunning"
               type="button" 
-              class="btn-outline"
+              class="btn-outline color-primary"
               @click="viewApiKey"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -153,7 +153,7 @@
           <AlertCircle :size="48" class="error-icon" />
           <h2>Error Loading Gateways</h2>
           <p>{{ error }}</p>
-          <button class="btn-secondary" @click="loadGateways">Try Again</button>
+          <button class="btn-secondary color-text-primary" @click="loadGateways">Try Again</button>
         </div>
 
         <div v-else-if="gateways.length === 0" class="empty-state">
@@ -194,7 +194,7 @@
             </div>
 
             <div class="gateway-actions">
-              <button class="btn-secondary" @click="openEditModal(gateway)">
+              <button class="btn-secondary color-text-primary" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
                 Edit
               </button>
@@ -258,7 +258,7 @@
             </div>
 
             <div class="modal-actions">
-              <button class="btn-secondary" @click="closeModal" :disabled="saving">
+              <button class="btn-secondary color-text-primary" @click="closeModal" :disabled="saving">
                 Cancel
               </button>
               <button class="btn-primary disabled-fade-50" @click="saveGateway" :disabled="saving || !isFormValid">
@@ -284,7 +284,7 @@
             </div>
 
             <div class="modal-actions">
-              <button class="btn-secondary" @click="closeDeleteConfirm" :disabled="deleting">
+              <button class="btn-secondary color-text-primary" @click="closeDeleteConfirm" :disabled="deleting">
                 Cancel
               </button>
               <button class="btn-danger" @click="deleteGateway" :disabled="deleting">
@@ -342,7 +342,7 @@
             </div>
 
             <div class="modal-actions">
-              <button class="btn-secondary" @click="closeWhitelistModal" :disabled="whitelistSaving">
+              <button class="btn-secondary color-text-primary" @click="closeWhitelistModal" :disabled="whitelistSaving">
                 Cancel
               </button>
               <button class="btn-primary disabled-fade-50" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
@@ -368,7 +368,7 @@
             </div>
 
             <div class="modal-actions">
-              <button class="btn-secondary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
+              <button class="btn-secondary color-text-primary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
                 Cancel
               </button>
               <button class="btn-danger" @click="removeFromWhitelist" :disabled="whitelistDeleting">

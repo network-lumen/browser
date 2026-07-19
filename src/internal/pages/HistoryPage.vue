@@ -3,9 +3,9 @@
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
     <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
-      <header class="history-header flex-align-center-justify-space-between">
+      <header class="history-header flex-align-center-justify-space-between gap-100">
         <div class="history-copy">
-          <h1 class="color-text-primary">History</h1>
+          <h1 class="color-text-primary margin-0">History</h1>
         </div>
 
         <div class="history-header-actions flex-align-center">
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer"
+            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -32,7 +32,7 @@
       </header>
 
       <section class="history-toolbar flex-align-center-justify-space-between">
-        <label class="history-search flex-align-center flex-1 min-w-0">
+        <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary">
           <Search :size="17" />
           <input
             v-model="query"
@@ -45,38 +45,38 @@
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner color-text-secondary">
+      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 
       <div v-if="groupedEntries.length" class="flex flex-column gap-90">
-        <section v-for="group in groupedEntries" :key="group.label" class="history-group">
-          <div class="history-group-head flex-align-center-justify-space-between">
-            <h2 class="color-text-primary">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary">{{ group.entries.length }}</span>
+        <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100">
+          <div class="history-group-head flex-align-center-justify-space-between gap-75">
+            <h2 class="color-text-primary margin-0">{{ group.label }}</h2>
+            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between">
-              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary" :class="`tone-${entry.kind}`">
+              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left" type="button" @click="openEntry(entry.url)">
+                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}
                 </span>
 
                 <span class="history-item-copy flex flex-column gap-15 min-w-0">
-                  <span class="history-item-title color-text-primary">{{ entry.title }}</span>
+                  <span class="history-item-title color-text-primary txt-weight-medium">{{ entry.title }}</span>
                   <span class="history-item-subtitle color-text-tertiary">{{ entry.subtitle }}</span>
                 </span>
               </button>
 
-              <div class="history-item-meta flex-inline-align-center">
+              <div class="history-item-meta flex-inline-align-center flex-0-0-auto">
                 <span class="history-item-time color-text-tertiary">{{ formatTime(entry.lastVisitedAt) }}</span>
                 <span v-if="entry.visitCount > 1" class="history-item-visits color-text-tertiary">
                   {{ entry.visitCount }} visits
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer"
+                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
@@ -89,17 +89,17 @@
       </div>
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
-        <div class="history-empty-card">
-          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto">
+        <div class="history-empty-card padding-150 text-center">
+          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px">
             <HistoryIcon :size="22" />
           </div>
-          <h3 class="color-text-primary">{{ emptyTitle }}</h3>
+          <h3 class="color-text-primary margin-0">{{ emptyTitle }}</h3>
           <p class="color-text-secondary">{{ emptyCopy }}</p>
-          <div class="history-empty-actions flex-align-center">
+          <div class="history-empty-actions flex-align-center margin-top-100">
             <button
               v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer"
+              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success"
               @click="setHistoryEnabled(true)"
             >
               <Power :size="15" />

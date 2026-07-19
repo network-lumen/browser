@@ -365,20 +365,15 @@ html, body {
 
 /* Badge Styles */
 .badge {
-    display: inline-flex;
-    align-items: center;
     padding: 0.25rem 0.75rem;
     border-radius: 0.375rem;
     font-size: 0.75rem;
-    font-weight: 600;
     line-height: 1;
 }
 
 /* Circular Progress */
 .progress-circle {
     position: relative;
-    width: 48px;
-    height: 48px;
 }
 
 .progress-circle svg {
@@ -403,7 +398,6 @@ html, body {
 /* Card with hover effect */
 .card-hover {
     transition: all 0.2s ease;
-    cursor: pointer;
 }
 
 .card-hover:hover {
@@ -414,14 +408,10 @@ html, body {
 
 /* Score badges like in the image */
 .score-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     min-width: 2rem;
     padding: 0.25rem 0.5rem;
     border-radius: 0.375rem;
     font-size: 0.75rem;
-    font-weight: 700;
     background: linear-gradient(135deg, var(--lime-bright) 0%, var(--lime-soft) 100%);
     color: #0a1612;
 }
@@ -434,21 +424,16 @@ html, body {
 /* Stats display */
 .stat-value {
     font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
     line-height: 1.2;
 }
 
 .stat-label {
     font-size: 0.75rem;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .stat-change {
     font-size: 0.875rem;
-    font-weight: 600;
 }
 
 .stat-change.positive {
@@ -463,7 +448,6 @@ html, body {
 .search-input-dark {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    color: var(--text-primary);
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
@@ -486,8 +470,6 @@ html, body {
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    font-weight: 600;
-    cursor: pointer;
     transition: all 0.2s ease;
 }
 
@@ -503,39 +485,16 @@ html, body {
 }
 
 /* ========== INTERNAL SIDEBAR NAVIGATION (lsb-*) ========== */
-.lsb-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.lsb-section {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
 
 .lsb-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 0.375rem 0.625rem;
     margin-bottom: 0.25rem;
 }
 
 .lsb-item {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
     padding: 0.5rem 0.625rem;
-    border-radius: var(--border-radius-sm);
-    font-size: 13px;
-    font-weight: 500;
     transition: all 0.15s ease;
-    text-align: left;
-    width: 100%;
 }
 
 .lsb-item:hover {
@@ -560,7 +519,6 @@ html, body {
 
 .lsb-item--dropdown {
     justify-content: space-between;
-    gap: 0.5rem;
     border: 0.5px solid var(--border-color);
     background: var(--bg-secondary);
 }
@@ -573,7 +531,6 @@ html, body {
 
 .lsb-item--compact {
     padding: 0.4375rem 0.625rem;
-    font-size: 13px;
 }
 
 .table-row-hover:hover {
@@ -605,18 +562,10 @@ html, body {
 
 /* Button Styles */
 .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
     padding: 0.75rem 1.5rem;
     border-radius: var(--border-radius-full);
-    font-weight: 600;
-    font-size: var(--fs-sm);
-    cursor: pointer;
     transition: var(--transition-smooth);
     border: none;
-    outline: none;
 }
 
 .btn-primary {
@@ -637,7 +586,6 @@ html, body {
 
 .btn-secondary {
     background: var(--bg-secondary);
-    color: var(--text-primary);
     border: var(--border-width) solid var(--border-color);
 }
 
@@ -649,7 +597,6 @@ html, body {
 
 .btn-outline {
     background: transparent;
-    color: var(--accent-primary);
     border: var(--border-width) solid var(--accent-primary);
 }
 
@@ -661,8 +608,6 @@ html, body {
 /* UiButton.vue variants */
 .button-ghost {
     border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: .5rem;
 }
 .button-ghost:where(:hover, :focus-visible) {
     background: var(--hover-bg);
@@ -671,16 +616,9 @@ html, body {
 .button-primary {
     background-color: var(--accent-primary);
     border: 1px solid transparent;
-    border-radius: 10px;
-    padding: .5rem;
 }
 .button-primary:where(:hover, :focus-visible) {
     filter: brightness(0.95);
-}
-
-.button-icon {
-    border-radius: 50%;
-    padding: .25rem;
 }
 .button-icon:where(:hover, :focus-visible) {
     background: var(--hover-bg);
@@ -689,9 +627,6 @@ html, body {
 
 .button-cta {
     border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: .5rem;
-    font-weight: 700;
 }
 .button-cta:where(:hover, :focus-visible) {
     background: var(--fill-secondary);
@@ -699,18 +634,12 @@ html, body {
 
 /* StartupScreen.vue */
 .startup-card {
-    width: 100%;
-    height: 100%;
     border-radius: 0;
     box-shadow: none;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
 .startup-head {
-    display: flex;
-    align-items: center;
     gap: 12px;
     padding: 10px;
     border-bottom: var(--border-width) solid var(--border-color);
@@ -720,46 +649,27 @@ html, body {
     width: 42px;
     height: 42px;
     border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-weight: 900;
     letter-spacing: -0.03em;
-    font-size: 18px;
-    flex: 0 0 auto;
 }
 
 .startup-title {
-    font-size: 16px;
-    font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
 
 .startup-body {
-    flex: 1 1 auto;
-    display: flex;
     min-height: 0;
 }
 
 .startup-center {
     margin: auto auto 30px auto;
     padding: 28px 22px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 14px;
-}
-
-.startup-msg-subtitle {
-    font-size: 13px;
 }
 
 .startup-btn {
     padding: 10px 16px;
-    border-radius: var(--border-radius-md);
-    font-size: 13px;
     font-weight: 650;
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -781,12 +691,6 @@ html, body {
 .startup-foot {
     padding: 12px 18px;
     border-top: var(--border-width) solid var(--border-color);
-    display: flex;
-    justify-content: center;
-}
-
-.startup-hint {
-    font-size: 12px;
 }
 
 /* InternalSidebar.vue */
@@ -797,9 +701,6 @@ html, body {
     background: var(--sidebar-bg);
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
     border-right: 0.5px solid var(--border-color);
     flex-shrink: 0;
     min-height: 0;
@@ -807,49 +708,28 @@ html, body {
 
 .lumen-sidebar-header {
     align-items: center;
-    gap: 0.625rem;
     padding: 0.375rem 0.5rem;
-    margin-bottom: 1rem;
 }
 
 .lumen-sidebar-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--border-radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     box-shadow: var(--shadow-primary);
 }
 
 .lumen-sidebar-title {
     font-size: 17px;
-    font-weight: 700;
     letter-spacing: -0.02em;
 }
 
 .lumen-sidebar-no-profile {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
     padding: 0.875rem;
-    border-radius: var(--border-radius-md);
     border: 0.5px solid var(--border-light);
-    margin-bottom: 0.875rem;
-}
-
-.lumen-sidebar-no-profile-title {
-    font-size: 13px;
-    font-weight: 600;
 }
 
 .lumen-sidebar-no-profile-sub {
-    font-size: 12px;
     line-height: 1.4;
 }
 
 .lumen-sidebar-scroll {
-    flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
@@ -857,23 +737,15 @@ html, body {
 }
 
 .sidebar-section {
-    margin-top: 1rem;
     padding-top: 0.75rem;
     border-top: 0.5px solid var(--border-light);
 }
 
 .sidebar-section-title {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .sidebar-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
     padding: 0 0.5rem;
     margin-bottom: 0.5rem;
 }
@@ -881,44 +753,24 @@ html, body {
 .sidebar-section-count {
     min-width: 1.5rem;
     height: 1.5rem;
-    border-radius: 999px;
     padding: 0 0.4rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
 }
 
 .sidebar-fav-item {
-    display: flex;
     align-items: stretch;
     gap: 0.375rem;
 }
 
 .sidebar-fav-hit {
-    flex: 1;
     min-width: 0;
-    display: flex;
-    align-items: center;
     gap: 0.65rem;
-    width: 100%;
-    text-align: left;
     padding: 0.55rem 0.625rem;
-    border-radius: var(--border-radius-sm);
     transition: all 0.15s ease;
 }
 
 .sidebar-fav-avatar {
     width: 30px;
     height: 30px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    font-size: 11px;
-    font-weight: 800;
     letter-spacing: 0.08em;
     border: 1px solid var(--border-light);
 }
@@ -949,9 +801,6 @@ html, body {
 
 .sidebar-fav-copy {
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
 }
 
 .sidebar-fav-title,
@@ -962,33 +811,19 @@ html, body {
     text-overflow: ellipsis;
 }
 
-.sidebar-fav-title {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.sidebar-fav-subtitle {
-    font-size: 11px;
-}
-
 .sidebar-fav-remove {
     width: 30px;
-    border-radius: 10px;
     transition: all 0.15s ease;
 }
 
 .lumen-sidebar-footer {
     padding-top: 0.75rem;
     border-top: 0.5px solid var(--border-light);
-    display: flex;
-    flex-direction: column;
     gap: 0.375rem;
 }
 
 .lumen-sidebar-version {
     padding: 0.5rem;
-    text-align: center;
-    font-size: 11px;
 }
 
 /* FindBar.vue */
@@ -997,11 +832,8 @@ html, body {
     top: 10px;
     right: 12px;
     z-index: 50;
-    display: flex;
-    align-items: center;
     gap: 6px;
     padding: 8px;
-    border-radius: 12px;
     border: var(--border-width) solid var(--border-color);
     background: var(--bg-primary);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -1011,10 +843,8 @@ html, body {
     width: 220px;
     height: 30px;
     padding: 0 10px;
-    border-radius: 10px;
     border: var(--border-width) solid var(--border-color);
     background: var(--bg-primary);
-    font-size: 13px;
 }
 
 .findbar-input:focus-visible {
@@ -1024,8 +854,6 @@ html, body {
 
 .findbar-count {
     min-width: 52px;
-    text-align: right;
-    font-size: 12px;
     user-select: none;
 }
 
@@ -1047,9 +875,6 @@ html, body {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 20px;
     backdrop-filter: blur(4px);
 }
@@ -1057,24 +882,14 @@ html, body {
 .qr-scanner-modal {
     border-radius: 16px;
     max-width: 500px;
-    width: 100%;
     max-height: 90vh;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .qr-scanner-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 20px 24px;
     border-bottom: var(--border-width) solid var(--border-color);
-}
-
-.qr-scanner-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
 }
 
 .qr-close-btn {
@@ -1082,9 +897,6 @@ html, body {
     padding: 4px;
     border-radius: 6px;
     transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .qr-close-btn:hover {
@@ -1099,15 +911,12 @@ html, body {
 .qr-camera-container {
     position: relative;
     background: #000;
-    border-radius: 12px;
     overflow: hidden;
     aspect-ratio: 1;
     max-height: 400px;
 }
 
 .qr-camera-video {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
 }
 
@@ -1125,7 +934,6 @@ html, body {
     width: 250px;
     height: 250px;
     border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
 }
 
 .qr-corner {
@@ -1172,11 +980,8 @@ html, body {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 14px;
-    margin: 0;
     background: rgba(0, 0, 0, 0.6);
     padding: 8px 16px;
-    border-radius: 20px;
     backdrop-filter: blur(8px);
 }
 
@@ -1187,12 +992,10 @@ html, body {
 }
 
 .qr-error-icon {
-    color: var(--ios-red);
     margin-bottom: 16px;
 }
 
 .qr-success-icon {
-    color: var(--ios-green);
     margin-bottom: 16px;
 }
 
@@ -1205,18 +1008,13 @@ html, body {
 
 .qr-error-state p {
     margin: 0 0 24px 0;
-    font-size: 14px;
 }
 
 .qr-retry-btn {
-    display: inline-flex;
-    align-items: center;
     gap: 8px;
     padding: 10px 20px;
     background: var(--accent-primary);
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
     transition: background 0.2s;
 }
 
@@ -1229,7 +1027,6 @@ html, body {
     border-radius: 8px;
     padding: 16px;
     margin: 24px 0;
-    text-align: left;
 }
 
 .qr-data-type,
@@ -1259,7 +1056,6 @@ html, body {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 12px;
-    font-size: 13px;
     font-family: 'Monaco', 'Courier New', monospace;
     word-break: break-all;
     max-height: 120px;
@@ -1267,21 +1063,14 @@ html, body {
 }
 
 .qr-action-buttons {
-    display: flex;
     gap: 12px;
-    justify-content: center;
 }
 
 .qr-btn {
-    display: inline-flex;
-    align-items: center;
     gap: 8px;
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
     transition: all 0.2s;
 }
 
@@ -1313,22 +1102,16 @@ html, body {
 .pwd-modal {
     border-radius: 16px;
     padding: 1.75rem;
-    width: 100%;
     max-width: 360px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 .pwd-modal-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     margin-bottom: 0.75rem;
 }
 
 .pwd-modal-header h3 {
-    margin: 0;
     font-size: 1.15rem;
-    font-weight: 600;
 }
 
 .pwd-modal-message {
@@ -1338,9 +1121,7 @@ html, body {
 }
 
 .pwd-modal-input {
-    width: 100%;
     padding: 0.75rem 1rem;
-    border-radius: 10px;
     font-size: 1rem;
     transition: border-color 0.15s ease;
     box-sizing: border-box;
@@ -1363,14 +1144,11 @@ html, body {
     padding: 0.5rem 0.75rem;
     background: var(--fill-error);
     border-radius: 8px;
-    font-size: 0.85rem;
 }
 
 .pwd-modal-btn-secondary {
     padding: 0.6rem 1.25rem;
-    border-radius: 10px;
     font-size: 0.9rem;
-    font-weight: 500;
     transition: opacity 0.15s ease;
 }
 
@@ -1381,9 +1159,7 @@ html, body {
 .pwd-modal-btn-primary {
     padding: 0.6rem 1.25rem;
     background: var(--accent-primary);
-    border-radius: 10px;
     font-size: 0.9rem;
-    font-weight: 500;
     transition: opacity 0.15s ease;
 }
 
@@ -1394,7 +1170,6 @@ html, body {
 .pwd-modal-spinner {
     width: 14px;
     height: 14px;
-    border-radius: 999px;
     border: 2px solid rgba(255, 255, 255, 0.45);
     border-top-color: rgba(255, 255, 255, 0.95);
     animation: spin 0.85s linear infinite;
@@ -1402,7 +1177,6 @@ html, body {
 
 /* ReleaseUpdatePrompt.vue */
 .release-update {
-    border-radius: 18px;
     box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18);
     padding: 18px;
     width: min(380px, 92vw);
@@ -1412,9 +1186,7 @@ html, body {
     right: 24px;
 }
 .release-prompt-notes-link {
-    padding: 0;
     color: var(--text-link);
-    font-size: 0.85rem;
     text-underline-offset: 2px;
 }
 .release-prompt-notes-link:hover {
@@ -1430,7 +1202,6 @@ html, body {
 }
 .release-prompt-sha-copy {
     margin-left: 6px;
-    padding: 0;
 }
 .release-prompt-sha-copy:hover {
     opacity: 0.85;
@@ -1454,9 +1225,6 @@ html, body {
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     z-index: 10000;
 }
 
@@ -1466,21 +1234,14 @@ html, body {
     border-radius: 16px;
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
 .release-prompt-notes-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
     padding: 12px 14px;
     border-bottom: var(--border-width) solid var(--border-light);
 }
 
 .release-prompt-notes-title {
-    margin: 0;
     font-size: 1rem;
 }
 
@@ -1491,7 +1252,6 @@ html, body {
 }
 
 .release-prompt-notes-body {
-    margin: 0;
     padding: 14px;
     overflow: auto;
     font-size: 0.9rem;
@@ -1507,19 +1267,14 @@ html, body {
     bottom: 20px;
     right: 20px;
     z-index: 99999;
-    display: flex;
-    flex-direction: column;
     gap: 8px;
     pointer-events: none;
     max-width: 380px;
 }
 
 .toast {
-    display: flex;
-    align-items: flex-start;
     gap: 10px;
     padding: 12px 14px;
-    border-radius: var(--border-radius-md);
     border: 0.5px solid var(--border-color);
     box-shadow: var(--shadow-md);
     pointer-events: auto;
@@ -1534,12 +1289,6 @@ html, body {
 
 .toast-icon {
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
 }
 
 .toast-success .toast-icon {
@@ -1563,23 +1312,14 @@ html, body {
 }
 
 .toast-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     min-width: 0;
 }
 
 .toast-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
     line-height: 1.3;
 }
 
 .toast-message {
-    font-size: 12px;
-    color: var(--text-secondary);
     line-height: 1.4;
     word-break: break-word;
     user-select: text;
@@ -1587,23 +1327,15 @@ html, body {
 
 .toast-actions {
     flex-shrink: 0;
-    display: flex;
-    align-items: flex-start;
     gap: 4px;
 }
 
 .toast-action {
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 20px;
     height: 20px;
-    border-radius: 50%;
     background: transparent;
     border: none;
-    color: var(--text-tertiary);
-    cursor: pointer;
     transition: all 0.15s ease;
     margin: -2px -4px -2px 0;
 }
@@ -1611,10 +1343,6 @@ html, body {
 .toast-action:hover {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-}
-
-.toast-action-copied {
-    color: var(--ios-green);
 }
 
 .toast-enter-active {
@@ -1656,16 +1384,14 @@ html, body {
 .hover-fill-primary:hover { background: var(--hover-bg); color: var(--text-primary); }
 .hover-fill-primary-enabled:hover:not(:disabled) { background: var(--hover-bg); color: var(--text-primary); }
 
-.badge-success { background: var(--fill-success); color: var(--ios-green); }
-.badge-error { background: var(--fill-error); color: var(--ios-red); }
-.badge-warning { background: rgba(var(--ios-orange-rgb), 0.15); color: var(--ios-orange); }
+.badge-success { background: var(--fill-success); }
+.badge-error { background: var(--fill-error); }
+.badge-warning { background: rgba(var(--ios-orange-rgb), 0.15); }
 
 /* Card Styles */
 .card {
     background: var(--card-bg);
     border: var(--border-width) solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: .5rem;
     box-shadow: var(--shadow-md);
     transition: var(--transition-smooth);
 }
@@ -1677,7 +1403,6 @@ html, body {
 }
 
 .card-interactive {
-    cursor: pointer;
     position: relative;
     overflow: hidden;
 }
@@ -1700,13 +1425,9 @@ html, body {
 
 /* Input Styles */
 .input {
-    width: 100%;
     padding: 0.75rem 1rem;
     border: var(--border-width) solid var(--border-color);
-    border-radius: var(--border-radius-md);
     background: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: var(--fs-md);
     transition: var(--transition-base);
 }
 
@@ -1723,7 +1444,6 @@ html, body {
 /* Badge Variants */
 .badge-primary {
     background: var(--gradient-primary-soft);
-    color: var(--accent-primary);
     border: 1px solid var(--primary-a20);
 }
 
@@ -1735,14 +1455,7 @@ html, body {
 
 /* Icon Containers */
 .icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--border-radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: var(--gradient-primary-soft);
-    color: var(--accent-primary);
     border: 1px solid var(--primary-a15);
     transition: var(--transition-smooth);
 }
@@ -1754,17 +1467,10 @@ html, body {
 
 /* Pill/Tab Styles */
 .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
     padding: 0.625rem 1.125rem;
     border-radius: var(--border-radius-full);
     border: var(--border-width) solid var(--border-color);
     background: var(--card-bg);
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: var(--fs-sm);
-    cursor: pointer;
     transition: var(--transition-smooth);
     box-shadow: var(--shadow-sm);
 }
@@ -1780,8 +1486,6 @@ html, body {
 .pill-active {
     background: var(--gradient-primary-soft);
     border-color: var(--primary-a50);
-    color: var(--accent-primary);
-    font-weight: 600;
     box-shadow: var(--shadow-primary), inset 0 1px 2px var(--lime-a20);
 }
 
@@ -1840,9 +1544,7 @@ html, body {
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
 .chaindetail-back-btn {
-    border-radius: var(--border-radius-sm);
     font-size: 0.875rem;
-    font-weight: 500;
     transition: all var(--transition-smooth);
     box-shadow: var(--shadow-primary);
 }
@@ -1866,19 +1568,12 @@ html, body {
 
 .chaindetail-card-header h2 {
     font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
     letter-spacing: 0.025em;
-}
-
-.chaindetail-card-body {
-    padding: 1.5rem;
 }
 
 .chaindetail-row {
     display: grid;
     grid-template-columns: 180px 1fr;
-    gap: 1rem;
     padding: 0.875rem 0;
     border-bottom: 1px solid var(--border-light);
 }
@@ -1897,7 +1592,6 @@ html, body {
 
 .chaindetail-label {
     font-size: 0.875rem;
-    font-weight: 500;
 }
 
 .chaindetail-value {
@@ -1906,7 +1600,6 @@ html, body {
 }
 
 .chaindetail-value-clickable {
-    color: var(--accent-primary);
     text-decoration: underline;
 }
 
@@ -1915,7 +1608,6 @@ html, body {
 }
 
 .chaindetail-hash-value code {
-    flex: 1;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 0.375rem;
@@ -1944,7 +1636,6 @@ html, body {
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
-    font-weight: 500;
 }
 
 .chaindetail-loading,
@@ -1960,7 +1651,6 @@ html, body {
 .txdetail-item {
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    padding: 1rem;
 }
 
 .txdetail-item-header {
@@ -1969,7 +1659,6 @@ html, body {
 
 .txdetail-item-type {
     font-size: 0.875rem;
-    font-weight: 600;
 }
 
 .txdetail-item-index {
@@ -1979,11 +1668,9 @@ html, body {
 .txdetail-item-data pre {
     border: 1px solid var(--border-color);
     border-radius: 0.375rem;
-    padding: 1rem;
     font-family: 'Courier New', monospace;
     font-size: 0.75rem;
     overflow-x: auto;
-    margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
@@ -1993,7 +1680,6 @@ html, body {
 }
 
 .txdetail-attr-key {
-    font-weight: 600;
     min-width: 120px;
 }
 
@@ -2006,7 +1692,6 @@ html, body {
 .blockdetail-back-btn {
     border-radius: 8px;
     font-size: 0.875rem;
-    font-weight: 600;
     transition: all 0.2s;
     box-shadow: 0 2px 4px var(--primary-a20);
 }
@@ -2022,8 +1707,6 @@ html, body {
 
 .blockdetail-header h1 {
     font-size: 1.75rem;
-    font-weight: 700;
-    margin: 0;
     letter-spacing: -0.02em;
 }
 
@@ -2033,13 +1716,11 @@ html, body {
 }
 
 .blockdetail-content {
-    padding: 2rem;
     min-height: calc(100vh - 200px);
 }
 
 .blockdetail-card {
     border: 1px solid var(--border-color);
-    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     transition: box-shadow 0.2s;
@@ -2056,8 +1737,6 @@ html, body {
 
 .blockdetail-card-header h2 {
     font-size: 1.125rem;
-    font-weight: 700;
-    margin: 0;
     letter-spacing: -0.01em;
 }
 
@@ -2080,17 +1759,13 @@ html, body {
 .blockdetail-label {
     flex: 0 0 180px;
     font-size: 0.875rem;
-    font-weight: 600;
 }
 
 .blockdetail-value {
-    flex: 1;
     font-size: 0.9375rem;
-    font-weight: 500;
 }
 
 .blockdetail-hash-value code {
-    flex: 1;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -2114,11 +1789,7 @@ html, body {
 }
 
 .blockdetail-proposer-avatar {
-    width: 32px;
-    height: 32px;
     min-width: 32px;
-    border-radius: 50%;
-    font-weight: 700;
     font-size: 0.875rem;
     overflow: hidden;
 }
@@ -2134,7 +1805,6 @@ html, body {
     padding: 1rem 1.25rem;
     background: var(--card-bg);
     border: var(--border-width) solid var(--border-color);
-    border-radius: var(--border-radius-md);
     transition: all var(--transition-smooth);
     box-shadow: var(--shadow-xs);
 }
@@ -2146,28 +1816,21 @@ html, body {
 }
 
 .blockdetail-tx-icon {
-    width: 32px;
-    height: 32px;
     min-width: 32px;
-    border-radius: var(--border-radius-md);
     background: var(--gradient-secondary);
     color: var(--ios-blue);
 }
 
 .blockdetail-tx-hash code {
-    flex: 1;
     padding: 0.375rem 0.5rem;
     background: var(--card-bg);
     border: var(--border-width) solid var(--border-color);
-    border-radius: var(--border-radius-sm);
     font-size: 0.75rem;
     font-family: 'Monaco', 'Menlo', monospace;
     word-break: break-all;
 }
 
 .blockdetail-tx-status-success {
-    color: var(--ios-green);
-    font-weight: 600;
     background: var(--fill-success);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
@@ -2175,55 +1838,35 @@ html, body {
 
 /* AddressDetailPage.vue */
 .addrdetail-status-badge {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
     font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.addrdetail-empty-state {
-    text-align: center;
-    padding: 2rem;
 }
 
 .addrdetail-balance-item {
-    padding: 1rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
 }
 
 .addrdetail-balance-icon {
-    width: 40px;
-    height: 40px;
     background: var(--gradient-primary);
-    border-radius: 50%;
 }
 
 .addrdetail-balance-amount {
     font-size: 1.125rem;
-    font-weight: 600;
 }
 
 .addrdetail-delegation-item {
-    padding: 1rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
 }
 
 .addrdetail-validator-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-weight: 600;
     font-size: 0.875rem;
 }
 
 .addrdetail-validator-name {
     font-size: 0.875rem;
-    font-weight: 600;
 }
 
 .addrdetail-validator-address {
@@ -2233,11 +1876,9 @@ html, body {
 
 .addrdetail-delegation-amount {
     font-size: 0.875rem;
-    font-weight: 600;
 }
 
 .addrdetail-tx-item {
-    padding: 1rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
@@ -2250,22 +1891,16 @@ html, body {
 }
 
 .addrdetail-tx-icon {
-    width: 32px;
-    height: 32px;
     background: var(--bg-secondary);
-    border-radius: 50%;
-    color: var(--text-secondary);
 }
 
 .addrdetail-tx-hash {
-    cursor: pointer;
     margin-bottom: 0.25rem;
 }
 
 .addrdetail-tx-hash code {
     font-family: 'Courier New', monospace;
     font-size: 0.75rem;
-    color: var(--accent-primary);
 }
 
 .addrdetail-tx-hash:hover code {
@@ -2274,12 +1909,6 @@ html, body {
 
 .addrdetail-tx-meta {
     font-size: 0.75rem;
-    color: var(--text-tertiary);
-}
-
-.addrdetail-tx-height {
-    cursor: pointer;
-    color: var(--accent-primary);
 }
 
 .addrdetail-tx-height:hover {
@@ -2301,8 +1930,6 @@ html, body {
 
 .webpage-store-proxy-card {
     max-width: 520px;
-    padding: 1.5rem;
-    border-radius: 20px;
     border: 1px solid var(--border-color);
     background: var(--card-bg);
     box-shadow: var(--shadow-xl);
@@ -2310,10 +1937,8 @@ html, body {
 
 .webpage-store-proxy-btn {
     align-self: center;
-    border-radius: 999px;
     padding: 0.7rem 1.1rem;
     background: var(--accent-primary);
-    font-weight: 600;
 }
 
 /* ExtensionPopupHost.vue */
@@ -2335,8 +1960,6 @@ html, body {
 }
 
 .extension-popup-status {
-    display: grid;
-    place-items: center;
     padding: 24px;
     color: rgba(255, 255, 255, 0.82);
 }
@@ -2361,14 +1984,10 @@ html, body {
 .netparams-header {
     align-items: flex-start;
     justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
 }
 
 .netparams-header h1 {
     font-size: 1.5rem;
-    font-weight: 800;
-    margin: 0;
 }
 
 .netparams-header p {
@@ -2378,22 +1997,16 @@ html, body {
 
 .netparams-header-actions {
     align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
 }
 
 .netparams-endpoint-pill {
-    gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    border-radius: 999px;
     border: 1px solid var(--border-color);
     max-width: 420px;
 }
 
 .netparams-pill-label {
     font-size: 0.72rem;
-    font-weight: 800;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
@@ -2402,9 +2015,7 @@ html, body {
 }
 
 .netparams-btn {
-    gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    border-radius: 999px;
     border: 1px solid var(--border-color);
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
@@ -2419,12 +2030,6 @@ html, body {
     border: 1px solid rgba(var(--ios-red-rgb), 0.25);
     background: rgba(var(--ios-red-rgb), 0.08);
     border-radius: 16px;
-    padding: 1.25rem;
-}
-
-.netparams-fatal-title {
-    margin: 0;
-    font-weight: 800;
 }
 
 .netparams-fatal-desc {
@@ -2433,8 +2038,6 @@ html, body {
 }
 
 .netparams-loading-state {
-    gap: 0.75rem;
-    padding: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 16px;
 }
@@ -2447,14 +2050,10 @@ html, body {
 
 .netparams-section-head {
     justify-content: space-between;
-    gap: 1rem;
     padding: 1rem 1.25rem;
-    text-align: left;
 }
 
 .netparams-section-title {
-    flex-direction: column;
-    gap: 0.25rem;
     min-width: 0;
 }
 
@@ -2464,7 +2063,6 @@ html, body {
 }
 
 .netparams-section-name {
-    font-weight: 800;
     font-size: 0.95rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2480,11 +2078,8 @@ html, body {
 
 .netparams-status-badge {
     font-size: 0.72rem;
-    font-weight: 800;
     padding: 0.15rem 0.5rem;
-    border-radius: 999px;
     border: 1px solid var(--border-light);
-    flex: 0 0 auto;
 }
 
 .netparams-status-badge.ok {
@@ -2505,15 +2100,7 @@ html, body {
     color: var(--ios-orange);
 }
 
-.netparams-section-actions {
-    gap: 0.5rem;
-    flex: 0 0 auto;
-}
-
 .netparams-icon-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
     border: 1px solid var(--border-light);
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
@@ -2530,19 +2117,12 @@ html, body {
     padding: 0.85rem 1.25rem 1.25rem;
 }
 
-.netparams-section-loading {
-    gap: 0.75rem;
-}
-
 .netparams-section-error {
-    color: var(--ios-red);
     font-size: 0.9rem;
 }
 
 .netparams-json-block {
-    margin: 0;
     padding: 0.85rem;
-    border-radius: 12px;
     border: 1px solid var(--border-light);
     overflow: auto;
     max-height: 420px;
@@ -2559,11 +2139,7 @@ html, body {
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
     z-index: 100;
     box-shadow: var(--shadow-primary-lg);
 }
@@ -2598,11 +2174,9 @@ html, body {
 .history-header {
     padding: 1.2rem 1.25rem;
     justify-content: space-between;
-    gap: 1rem;
 }
 
 .history-copy h1 {
-    margin: 0;
     font-size: clamp(1.8rem, 4vw, 2.8rem);
     letter-spacing: -0.05em;
 }
@@ -2655,9 +2229,7 @@ html, body {
 .history-search {
     gap: 0.65rem;
     padding: 0.8rem 0.95rem;
-    border-radius: 999px;
     background: var(--fill-tertiary);
-    color: var(--text-tertiary);
 }
 
 .history-search input {
@@ -2670,24 +2242,20 @@ html, body {
 
 .history-banner {
     padding: 0.9rem 1rem;
-    border-radius: 18px;
     border: 1px solid rgba(var(--ios-orange-rgb), 0.16);
     background: rgba(var(--ios-orange-rgb), 0.08);
 }
 
 .history-group {
     border-radius: 24px;
-    padding: 1rem;
 }
 
 .history-group-head {
     justify-content: space-between;
-    gap: 0.75rem;
     padding: 0 0.1rem 0.7rem;
 }
 
 .history-group-head h2 {
-    margin: 0;
     font-size: 1rem;
 }
 
@@ -2695,10 +2263,8 @@ html, body {
     min-width: 1.7rem;
     height: 1.7rem;
     padding: 0 0.45rem;
-    border-radius: 999px;
     background: var(--fill-secondary);
     font-size: 0.76rem;
-    font-weight: 800;
 }
 
 .history-item {
@@ -2713,7 +2279,6 @@ html, body {
 
 .history-item-main {
     gap: 0.8rem;
-    text-align: left;
     color: inherit;
 }
 
@@ -2722,7 +2287,6 @@ html, body {
     height: 2.7rem;
     border-radius: 14px;
     font-size: 0.76rem;
-    font-weight: 800;
     letter-spacing: 0.08em;
     border: var(--border-width) solid var(--border-color);
     background: var(--fill-secondary);
@@ -2759,17 +2323,12 @@ html, body {
     text-overflow: ellipsis;
 }
 
-.history-item-title {
-    font-weight: 700;
-}
-
 .history-item-subtitle {
     font-size: 0.84rem;
 }
 
 .history-item-meta {
     gap: 0.55rem;
-    flex: 0 0 auto;
     margin-left: 0.5rem;
 }
 
@@ -2781,8 +2340,6 @@ html, body {
 
 .history-item-remove {
     width: 2rem;
-    height: 2rem;
-    border-radius: 10px;
     transition: all 0.15s ease;
 }
 
@@ -2793,20 +2350,16 @@ html, body {
 
 .history-empty-card {
     width: min(560px, 100%);
-    padding: 1.5rem;
-    text-align: center;
 }
 
 .history-empty-icon {
     width: 3.25rem;
     height: 3.25rem;
     margin: 0 auto 0.9rem;
-    border-radius: 18px;
     background: var(--fill-secondary);
 }
 
 .history-empty-card h3 {
-    margin: 0;
     font-size: 1.15rem;
 }
 
@@ -2818,7 +2371,6 @@ html, body {
 
 .history-empty-actions {
     justify-content: center;
-    margin-top: 1rem;
 }
 
 @media (max-width: 980px) {
@@ -2860,8 +2412,6 @@ html, body {
 }
 
 .extension-status {
-    display: grid;
-    place-items: center;
     padding: 24px;
     color: rgba(255, 255, 255, 0.82);
 }

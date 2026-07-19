@@ -1,56 +1,56 @@
 <template>
   <section class="padding-200">
-    <header class="netparams-header flex margin-bottom-125">
+    <header class="netparams-header flex margin-bottom-125 flex-wrap-wrap gap-100">
       <div>
-        <h1 class="color-text-primary">Params</h1>
+        <h1 class="color-text-primary txt-weight-strong margin-0">Params</h1>
         <p class="color-text-secondary">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
-      <div class="netparams-header-actions flex">
-        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary" :title="restBase">
-          <span class="netparams-pill-label color-text-tertiary">REST</span>
+      <div class="netparams-header-actions flex flex-wrap-wrap gap-75">
+        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary gap-50 border-radius-full" :title="restBase">
+          <span class="netparams-pill-label color-text-tertiary txt-weight-strong text-uppercase">REST</span>
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap">{{ restBase }}</span>
         </div>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer" type="button" @click="copyAll" :disabled="!hasAnyData">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full" type="button" @click="copyAll" :disabled="!hasAnyData">
           <Copy :size="16" />
           Copy all
         </button>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer" type="button" @click="refreshAll" :disabled="loadingAll">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full" type="button" @click="refreshAll" :disabled="loadingAll">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </button>
       </div>
     </header>
 
-    <div v-if="fatalError" class="netparams-fatal-error color-text-primary">
-      <p class="netparams-fatal-title">Unable to fetch params</p>
+    <div v-if="fatalError" class="netparams-fatal-error color-text-primary padding-125">
+      <p class="netparams-fatal-title margin-0 txt-weight-strong">Unable to fetch params</p>
       <p class="netparams-fatal-desc color-text-secondary">{{ fatalError }}</p>
     </div>
 
     <div v-else class="flex flex-column gap-75">
-      <div v-if="loadingAll && !hasAnyData" class="netparams-loading-state flex-align-center bg-primary color-text-secondary">
+      <div v-if="loadingAll && !hasAnyData" class="netparams-loading-state flex-align-center bg-primary color-text-secondary gap-75 padding-100">
         <UiSpinner size="sm" />
         <span>Loading params…</span>
       </div>
 
       <section v-for="s in sections" :key="s.id" class="netparams-section bg-primary">
-        <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer" @click="toggleSection(s.id)">
-          <div class="netparams-section-title flex">
+        <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer gap-100 text-left" @click="toggleSection(s.id)">
+          <div class="netparams-section-title flex flex-column gap-25">
             <div class="netparams-title-row flex-align-center">
-              <span class="netparams-section-name color-text-primary">{{ s.title }}</span>
-              <span class="netparams-status-badge bg-transparent color-text-tertiary" :class="statusClass(s)">
+              <span class="netparams-section-name color-text-primary txt-weight-strong">{{ s.title }}</span>
+              <span class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>
             <span class="netparams-section-path color-text-tertiary mono">{{ s.path }}</span>
           </div>
 
-          <div class="netparams-section-actions flex-inline-align-center color-text-tertiary">
+          <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-50 flex-0-0-auto">
             <button
               type="button"
-              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer"
+              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"
@@ -62,21 +62,21 @@
         </button>
 
         <div v-if="s.open" class="netparams-section-body">
-          <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary">
+          <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary gap-75">
             <UiSpinner size="sm" />
             <span>Loading…</span>
           </div>
-          <div v-else-if="s.error" class="netparams-section-error">
+          <div v-else-if="s.error" class="netparams-section-error color-error">
             {{ s.error }}
           </div>
-          <pre v-else class="netparams-json-block mono bg-primary color-text-primary">{{ pretty(s.data) }}</pre>
+          <pre v-else class="netparams-json-block mono bg-primary color-text-primary margin-0 border-radius-12px">{{ pretty(s.data) }}</pre>
         </div>
       </section>
     </div>
   </section>
 
   <Transition name="netparams-toast">
-    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white">
+    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light">
       <Check :size="16" />
       {{ toast }}
     </div>

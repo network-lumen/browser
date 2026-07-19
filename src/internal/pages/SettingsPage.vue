@@ -2,12 +2,12 @@
   <div class="settings-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">General</span>
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">General</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'content' }"
             @click="currentView = 'content'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'network' }"
             @click="currentView = 'network'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'security' }"
             @click="currentView = 'security'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'privatecloud' }"
             @click="currentView = 'privatecloud'"
           >
@@ -70,11 +70,11 @@
           </button>
         </div>
 
-        <div class="lsb-section">
-          <span class="lsb-label">Advanced</span>
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Advanced</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'troubleshooting' }"
             @click="currentView = 'troubleshooting'"
           >
@@ -83,7 +83,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
@@ -92,7 +92,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'about' }"
             @click="currentView = 'about'"
           >
@@ -258,7 +258,7 @@
               </span>
             </div>
             <div class="setting-control">
-              <button class="btn-secondary disabled-fade-50" @click="openInNewTabSafe('lumen://history')">
+              <button class="btn-secondary disabled-fade-50 color-text-primary" @click="openInNewTabSafe('lumen://history')">
                 Open history
               </button>
             </div>
@@ -272,7 +272,7 @@
               </span>
             </div>
             <div class="setting-control">
-              <button class="btn-secondary disabled-fade-50" :disabled="!historyEntries.length" @click="clearProfileHistory">
+              <button class="btn-secondary disabled-fade-50 color-text-primary" :disabled="!historyEntries.length" @click="clearProfileHistory">
                 Clear history
               </button>
             </div>
@@ -375,13 +375,13 @@
             <div class="setting-control">
               <button 
                 v-if="securitySessionActive"
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 @click="lockSecuritySession"
               >
                 <LockKeyhole :size="16" />
                 Lock Now
               </button>
-              <span v-else class="status-badge status-locked badge-warning">
+              <span v-else class="status-badge status-locked badge-warning color-warning">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
@@ -552,7 +552,7 @@
             </div>
             <div class="security-actions">
               <button 
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 @click="cancelRemovePassword"
                 :disabled="securityLoading"
               >
@@ -586,7 +586,7 @@
             </div>
             <div class="setting-control profile-select-actions">
               <button
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 type="button"
                 @click="selectAllProfiles"
                 :disabled="!profiles.length"
@@ -594,7 +594,7 @@
                 Select all
               </button>
               <button
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 type="button"
                 @click="clearSelectedProfiles"
                 :disabled="!selectedProfileIds.length"
@@ -657,7 +657,7 @@
                 @keyup.enter="saveProfileDisplayName"
               />
               <button
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="resetProfileDisplayNameDraft"
@@ -665,7 +665,7 @@
                 Reset
               </button>
               <button
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="saveProfileDisplayName"
@@ -704,7 +704,7 @@
                 :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
               />
               <button
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
                 @click="chooseProfileAvatar"
@@ -712,7 +712,7 @@
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
               </button>
               <button
-                class="btn-secondary disabled-fade-50"
+                class="btn-secondary disabled-fade-50 color-text-primary"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
                 @click="resetProfileAvatar"
@@ -735,7 +735,7 @@
              </div>
              <div class="setting-control profile-backup-actions">
                <button
-                 class="btn-secondary disabled-fade-50"
+                 class="btn-secondary disabled-fade-50 color-text-primary"
                  type="button"
                  @click="onExportSelectedBackups"
                  :disabled="!selectedProfileIds.length || exportingBackup"
@@ -829,7 +829,7 @@
 
           <div class="profile-backup-actions margin-top-75">
             <button
-              class="btn-secondary disabled-fade-50"
+              class="btn-secondary disabled-fade-50 color-text-primary"
               type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings"
@@ -837,7 +837,7 @@
               Reset
             </button>
             <button
-              class="btn-secondary disabled-fade-50"
+              class="btn-secondary disabled-fade-50 color-text-primary"
               type="button"
               :disabled="devSettingsSaving"
               @click="saveDevSettings"
@@ -875,7 +875,7 @@
                   :disabled="lumenDataFolderBusy"
                 />
                 <button
-                  class="btn-secondary disabled-fade-50 troubleshooting-btn"
+                  class="btn-secondary disabled-fade-50 troubleshooting-btn color-text-primary"
                   type="button"
                   :disabled="lumenDataFolderBusy"
                   @click="browseLumenDataFolder"
@@ -911,7 +911,7 @@
 
           <div class="profile-backup-actions margin-top-75">
             <button
-              class="btn-secondary disabled-fade-50"
+              class="btn-secondary disabled-fade-50 color-text-primary"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft"
@@ -919,7 +919,7 @@
               Revert
             </button>
             <button
-              class="btn-secondary disabled-fade-50"
+              class="btn-secondary disabled-fade-50 color-text-primary"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="useDefaultLumenDataFolderDraft"
@@ -927,7 +927,7 @@
               Use default
             </button>
             <button
-              class="btn-secondary disabled-fade-50"
+              class="btn-secondary disabled-fade-50 color-text-primary"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="saveLumenDataFolder"
@@ -962,7 +962,7 @@
             </div>
             <div class="setting-control">
               <button
-                class="btn-secondary disabled-fade-50 troubleshooting-btn"
+                class="btn-secondary disabled-fade-50 troubleshooting-btn color-text-primary"
                 type="button"
                 @click="copyDebugReport"
                 :disabled="troubleshootingBusy"
@@ -980,7 +980,7 @@
             </div>
             <div class="setting-control">
               <button
-                class="btn-secondary disabled-fade-50 troubleshooting-btn"
+                class="btn-secondary disabled-fade-50 troubleshooting-btn color-text-primary"
                 type="button"
                 @click="openLogsFolderAction"
                 :disabled="troubleshootingBusy"
@@ -1094,7 +1094,7 @@
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <button class="btn-secondary disabled-fade-50" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                  <button class="btn-secondary disabled-fade-50 color-text-primary" @click="addGatewayId" :disabled="!newGatewayId.trim()">
                     <Plus :size="16" />
                     Add
                   </button>

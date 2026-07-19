@@ -13,12 +13,12 @@
     <template v-else>
     <!-- Sidebar -->
     <InternalSidebar title="Explorer" :icon="LayoutGrid" activeKey="explorer">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">Browse</span>
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Browse</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
@@ -31,7 +31,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'blocks' }"
             @click="currentView = 'blocks'"
           >
@@ -45,7 +45,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -57,7 +57,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'validators' }"
             @click="currentView = 'validators'"
           >
@@ -98,20 +98,20 @@
       <!-- Stats Bar -->
       <div class="stats-bar">
         <div class="stat-item">
-          <span class="stat-label">Latest Block</span>
-          <span class="stat-value">{{ formatNumber(latestBlock) }}</span>
+          <span class="stat-label color-text-tertiary text-uppercase">Latest Block</span>
+          <span class="stat-value txt-weight-medium color-text-primary">{{ formatNumber(latestBlock) }}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="stat-value">{{ formatNumber(txHistoryTotal) }}</span>
+          <span class="stat-label color-text-tertiary text-uppercase">Txs (last {{ txHistoryWindow }} blocks)</span>
+          <span class="stat-value txt-weight-medium color-text-primary">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">Validators</span>
-          <span class="stat-value">{{ validatorCount }}</span>
+          <span class="stat-label color-text-tertiary text-uppercase">Validators</span>
+          <span class="stat-value txt-weight-medium color-text-primary">{{ validatorCount }}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">Avg Block Time</span>
-          <span class="stat-value">{{ avgBlockTimeLabel }}</span>
+          <span class="stat-label color-text-tertiary text-uppercase">Avg Block Time</span>
+          <span class="stat-value txt-weight-medium color-text-primary">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
@@ -241,12 +241,12 @@
                   <div class="proposer-stats">
                     <div class="proposer-stat-group">
                       <div class="proposer-stat">
-                        <span class="stat-label">Block</span>
-                        <span class="stat-value">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                        <span class="stat-label color-text-tertiary text-uppercase">Block</span>
+                        <span class="stat-value txt-weight-medium color-text-primary">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                       </div>
                       <div class="proposer-stat">
-                        <span class="stat-label">Block Time</span>
-                        <span class="stat-value">{{ avgBlockTimeLabelShort }}</span>
+                        <span class="stat-label color-text-tertiary text-uppercase">Block Time</span>
+                        <span class="stat-value txt-weight-medium color-text-primary">{{ avgBlockTimeLabelShort }}</span>
                       </div>
                     </div>
                   </div>

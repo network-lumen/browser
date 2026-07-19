@@ -1,21 +1,21 @@
 <template>
   <div class="extension-page absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
-    <div v-if="error" class="extension-status extension-status-error w-full fs-14px text-center">
+    <div v-if="error" class="extension-status extension-status-error w-full fs-14px text-center flex-align-justify-center">
       {{ error }}
     </div>
     <div
       v-else-if="guestPreloadLoading"
-      class="extension-status w-full fs-14px text-center"
+      class="extension-status w-full fs-14px text-center flex-align-justify-center"
     >
       Preparing extension host…
     </div>
     <div
       v-else-if="!extensionGuestPreloadUrl"
-      class="extension-status extension-status-error w-full fs-14px text-center"
+      class="extension-status extension-status-error w-full fs-14px text-center flex-align-justify-center"
     >
       Extension guest preload is unavailable.
     </div>
-    <div v-else-if="loading && !webviewMountUrl" class="extension-status w-full fs-14px text-center">
+    <div v-else-if="loading && !webviewMountUrl" class="extension-status w-full fs-14px text-center flex-align-justify-center">
       Loading extension…
     </div>
     <webview
@@ -36,7 +36,7 @@
       @did-stop-loading="onDidStopLoading"
       @dom-ready="onDomReady"
     ></webview>
-    <div v-else class="extension-status w-full fs-14px text-center">
+    <div v-else class="extension-status w-full fs-14px text-center flex-align-justify-center">
       Preparing extension…
     </div>
   </div>

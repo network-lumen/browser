@@ -6,10 +6,10 @@
         class="overlay-scrim backdrop-blur-4px z-10000"
         @click.self="handleCancel"
       >
-        <div class="modal-panel pwd-modal bg-card border-default">
-          <div class="pwd-modal-header">
+        <div class="modal-panel pwd-modal bg-card border-default w-full">
+          <div class="pwd-modal-header flex-align-center gap-75">
             <LockKeyhole :size="24" class="color-primary" />
-            <h3 class="color-text-primary">Password Required</h3>
+            <h3 class="color-text-primary margin-0 txt-weight-light">Password Required</h3>
           </div>
 
           <p class="pwd-modal-message color-text-secondary">
@@ -20,7 +20,7 @@
             <input
               ref="passwordInput"
               type="password"
-              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none"
+              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
@@ -28,7 +28,7 @@
               @keyup.escape="handleCancel"
             />
 
-            <div v-if="error" class="pwd-modal-error color-error">
+            <div v-if="error" class="pwd-modal-error color-error fs-085rem">
               {{ error }}
             </div>
           </div>
@@ -36,20 +36,20 @@
           <div class="flex-align-center gap-75 flex-justify-end">
             <button
               v-if="cancelable !== false"
-              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer"
+              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer border-radius-10px fw-500"
               @click="handleCancel"
               :disabled="loading || busy"
             >
               Cancel
             </button>
             <button
-              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer"
+              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer border-radius-10px fw-500"
               @click="handleSubmit"
               :disabled="loading || busy || !password"
             >
               <span v-if="loading">Verifying...</span>
               <span v-else-if="busy" class="flex-inline-align-center gap-50">
-                <span class="pwd-modal-spinner" aria-hidden="true"></span>
+                <span class="pwd-modal-spinner border-radius-full" aria-hidden="true"></span>
                 Working...
               </span>
               <span v-else>Confirm</span>

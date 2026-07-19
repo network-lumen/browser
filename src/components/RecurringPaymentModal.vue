@@ -189,9 +189,9 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn secondary disabled-fade-50" @click="$emit('close')">Cancel</button>
+        <button class="btn secondary disabled-fade-50 txt-weight-light txt-sm cursor-pointer outline-none" @click="$emit('close')">Cancel</button>
         <button 
-          class="btn primary disabled-fade-50"
+          class="btn primary disabled-fade-50 txt-weight-light txt-sm cursor-pointer outline-none"
           @click="handleSubmit"
           :disabled="!isFormValid"
         >
