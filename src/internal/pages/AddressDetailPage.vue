@@ -1,36 +1,36 @@
 <template>
-  <div class="address-detail-page">
-    <div class="address-detail-header">
-      <button class="back-btn" @click="goBack">
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
+    <div class="margin-bottom-200">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         Back to Explorer
       </button>
-      <h1>Address Details</h1>
+      <h1 class="fs-28px fw-600 color-text-primary margin-0">Address Details</h1>
     </div>
 
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
+    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100">
+      <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading address data...</p>
     </div>
 
-    <div v-else-if="error" class="error-container">
-      <p>{{ error }}</p>
+    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100">
+      <p class="color-error">{{ error }}</p>
     </div>
 
-    <div v-else-if="address" class="address-content flex flex-column gap-150">
+    <div v-else-if="address" class="flex flex-column gap-150">
       <!-- Address Overview Card -->
-      <div class="detail-card">
-        <div class="card-header">
-          <h2>Address Overview</h2>
+      <div class="chaindetail-card bg-primary">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Address Overview</h2>
         </div>
-        <div class="card-body">
-          <div class="detail-row">
-            <span class="label">Address:</span>
-            <div class="hash-value flex-align-center gap-50">
-              <code>{{ address.address }}</code>
-              <button class="copy-btn" @click="copyToClipboard(address.address)" title="Copy address">
+        <div class="chaindetail-card-body">
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Address:</span>
+            <div class="chaindetail-hash-value flex-align-center gap-50">
+              <code class="bg-secondary color-text-primary">{{ address.address }}</code>
+              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center" @click="copyToClipboard(address.address)" title="Copy address">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -38,61 +38,61 @@
               </button>
             </div>
           </div>
-          <div class="detail-row">
-            <span class="label">Account Number:</span>
-            <span class="value">{{ address.accountNumber }}</span>
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Account Number:</span>
+            <span class="chaindetail-value color-text-primary">{{ address.accountNumber }}</span>
           </div>
-          <div class="detail-row">
-            <span class="label">Sequence:</span>
-            <span class="value">{{ address.sequence }}</span>
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Sequence:</span>
+            <span class="chaindetail-value color-text-primary">{{ address.sequence }}</span>
           </div>
         </div>
       </div>
 
       <!-- Balances Card -->
-      <div class="detail-card">
-        <div class="card-header">
-          <h2>Balances</h2>
+      <div class="chaindetail-card bg-primary">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Balances</h2>
         </div>
-        <div class="card-body">
-          <div v-if="address.balances && address.balances.length > 0" class="balances-list flex flex-column gap-100">
-            <div class="balance-item" v-for="(balance, index) in address.balances" :key="index">
-              <div class="balance-icon">
+        <div class="chaindetail-card-body">
+          <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-100">
+            <div class="addrdetail-balance-item flex-align-center gap-100" v-for="(balance, index) in address.balances" :key="index">
+              <div class="addrdetail-balance-icon flex-align-justify-center color-white">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M12 6v6l4 2"></path>
                 </svg>
               </div>
-              <div class="balance-info">
-                <div class="balance-amount">{{ formatAmount(balance.amount) }}</div>
-                <div class="balance-denom">{{ balance.denom.toUpperCase() }}</div>
+              <div class="flex-1">
+                <div class="addrdetail-balance-amount color-text-primary">{{ formatAmount(balance.amount) }}</div>
+                <div class="fs-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
               </div>
             </div>
           </div>
-          <div v-else class="empty-state">
+          <div v-else class="addrdetail-empty-state color-text-tertiary">
             <p>No balances found</p>
           </div>
         </div>
       </div>
 
       <!-- Delegations Card -->
-      <div class="detail-card" v-if="address.delegations && address.delegations.length > 0">
-        <div class="card-header">
-          <h2>Delegations ({{ address.delegations.length }})</h2>
+      <div class="chaindetail-card bg-primary" v-if="address.delegations && address.delegations.length > 0">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Delegations ({{ address.delegations.length }})</h2>
         </div>
-        <div class="card-body">
-          <div class="delegations-list flex flex-column gap-100">
-            <div class="delegation-item" v-for="(delegation, index) in address.delegations" :key="index">
-              <div class="delegation-validator">
-                <div class="validator-avatar" :style="{ background: getValidatorColor(delegation.validator) }">
+        <div class="chaindetail-card-body">
+          <div class="flex flex-column gap-100">
+            <div class="addrdetail-delegation-item flex-align-center flex-justify-space-between" v-for="(delegation, index) in address.delegations" :key="index">
+              <div class="flex-align-center gap-75 flex-1">
+                <div class="addrdetail-validator-avatar flex-align-justify-center color-white" :style="{ background: getValidatorColor(delegation.validator) }">
                   <span>{{ delegation.validatorMoniker?.charAt(0).toUpperCase() || 'V' }}</span>
                 </div>
-                <div class="validator-info flex flex-column gap-25">
-                  <div class="validator-name">{{ delegation.validatorMoniker || delegation.validator }}</div>
-                  <div class="validator-address">{{ shortenAddress(delegation.validator) }}</div>
+                <div class="flex flex-column gap-25">
+                  <div class="addrdetail-validator-name color-text-primary">{{ delegation.validatorMoniker || delegation.validator }}</div>
+                  <div class="addrdetail-validator-address color-text-tertiary">{{ shortenAddress(delegation.validator) }}</div>
                 </div>
               </div>
-              <div class="delegation-amount">
+              <div class="addrdetail-delegation-amount color-text-primary">
                 {{ formatAmount(delegation.amount) }} LUMEN
               </div>
             </div>
@@ -101,35 +101,35 @@
       </div>
 
       <!-- Recent Transactions Card -->
-      <div class="detail-card">
-        <div class="card-header">
-          <h2>Recent Transactions</h2>
+      <div class="chaindetail-card bg-primary">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Recent Transactions</h2>
         </div>
-        <div class="card-body">
-          <div v-if="address.transactions && address.transactions.length > 0" class="transactions-list flex flex-column gap-100">
-            <div class="tx-item" v-for="(tx, index) in address.transactions" :key="index">
-              <div class="tx-icon">
+        <div class="chaindetail-card-body">
+          <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-100">
+            <div class="addrdetail-tx-item flex-align-center gap-100" v-for="(tx, index) in address.transactions" :key="index">
+              <div class="addrdetail-tx-icon flex-align-justify-center">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
               </div>
-              <div class="tx-info">
-                <div class="tx-hash" @click="navigateToTx(tx.hash)">
+              <div class="flex-1">
+                <div class="addrdetail-tx-hash" @click="navigateToTx(tx.hash)">
                   <code>{{ shortenHash(tx.hash) }}</code>
                 </div>
-                <div class="tx-meta">
-                  <span class="tx-height" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
-                  <span class="tx-time">{{ tx.time }}</span>
+                <div class="addrdetail-tx-meta flex gap-100">
+                  <span class="addrdetail-tx-height" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
+                  <span>{{ tx.time }}</span>
                 </div>
               </div>
-              <div class="tx-status">
-                <span :class="['status-badge', tx.success ? 'success badge-success' : 'failed badge-error']">
+              <div class="flex-align-center">
+                <span :class="['addrdetail-status-badge flex-inline-align-justify-center', tx.success ? 'badge-success' : 'badge-error']">
                   {{ tx.success ? '✓' : '✗' }}
                 </span>
               </div>
             </div>
           </div>
-          <div v-else class="empty-state">
+          <div v-else class="addrdetail-empty-state color-text-tertiary">
             <p>No recent transactions found</p>
           </div>
         </div>
@@ -306,333 +306,3 @@ watch(
 );
 </script>
 
-<style scoped>
-.address-detail-page {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  padding: 2rem;
-}
-
-.address-detail-header {
-  margin-bottom: 2rem;
-}
-
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-primary);
-}
-
-.back-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.address-detail-header h1 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.loading-container,
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border-color);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.error-container p {
-  color: var(--ios-red);
-  font-size: 1rem;
-}
-
-.detail-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-}
-
-.card-header h2 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  letter-spacing: 0.025em;
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-.detail-row {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 1rem;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-row:hover {
-  background: var(--bg-hover);
-  margin: 0 -0.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.value {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  word-break: break-all;
-}
-
-.hash-value code {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  word-break: break-all;
-  color: var(--text-primary);
-}
-
-.copy-btn {
-  padding: 0.375rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.copy-btn:hover {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-}
-
-.copy-btn:hover svg {
-  stroke: white;
-}
-
-.balance-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-}
-
-.balance-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: 50%;
-  color: white;
-}
-
-.balance-info {
-  flex: 1;
-}
-
-.balance-amount {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.balance-denom {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.delegation-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-}
-
-.delegation-validator {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-}
-
-.validator-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.validator-name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.validator-address {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-family: 'Courier New', monospace;
-}
-
-.delegation-amount {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.tx-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-}
-
-.tx-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.tx-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--bg-secondary);
-  border-radius: 50%;
-  color: var(--text-secondary);
-}
-
-.tx-info {
-  flex: 1;
-}
-
-.tx-hash {
-  cursor: pointer;
-  margin-bottom: 0.25rem;
-}
-
-.tx-hash code {
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  color: var(--accent-primary);
-}
-
-.tx-hash:hover code {
-  text-decoration: underline;
-}
-
-.tx-meta {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.tx-height {
-  cursor: pointer;
-  color: var(--accent-primary);
-}
-
-.tx-height:hover {
-  text-decoration: underline;
-}
-
-.tx-status {
-  display: flex;
-  align-items: center;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-tertiary);
-}
-</style>
