@@ -1,54 +1,54 @@
 <template>
-  <div class="site-page" :class="{ 'html-fullscreen': webviewHtmlFullscreen }">
-    <main class="main-content">
-      <div v-if="loading" class="loading-wrap">
+  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen': webviewHtmlFullscreen }">
+    <main class="sitepage-main flex-1 flex flex-column overflow-hidden min-h-0 padding-0">
+      <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />
       </div>
 
-      <div v-else-if="domainNotFound" class="domain-empty-wrap">
-        <div class="domain-empty-card">
-          <div class="domain-empty-icon">
+      <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
+        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg">
+          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary">
             <Tag :size="26" />
           </div>
-          <h2>This domain belongs to no one</h2>
-          <p><strong>{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
-          <button class="domain-buy-btn" type="button" @click="goToBuyDomain">
+          <h2 class="color-text-primary txt-weight-light margin-0">This domain belongs to no one</h2>
+          <p class="color-text-secondary"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+          <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light" type="button" @click="goToBuyDomain">
             <span>Buy this domain</span>
           </button>
         </div>
       </div>
 
-      <div v-else-if="error" class="domain-empty-wrap">
-        <div class="domain-empty-card">
-          <div class="domain-empty-icon">
+      <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
+        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg">
+          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary">
             <FileQuestion :size="26" />
           </div>
-          <h2>This content isn't available right now</h2>
-          <p>The content couldn't be found. Please try again later.</p>
-          <p>
+          <h2 class="color-text-primary txt-weight-light margin-0">This content isn't available right now</h2>
+          <p class="color-text-secondary">The content couldn't be found. Please try again later.</p>
+          <p class="color-text-secondary">
             If this is your site,
-            <button type="button" class="inline-link" @click="goToCreateWebsiteDocs">read the setup guide</button>.
+            <button type="button" class="sitepage-inline-link padding-0 border-none bg-transparent color-primary underline cursor-pointer" @click="goToCreateWebsiteDocs">read the setup guide</button>.
           </p>
         </div>
       </div>
 
-      <div v-else class="viewer">
+      <div v-else class="sitepage-viewer flex-1 min-h-0 overflow-hidden">
         <template v-if="resolvedHttpUrl && isHlsPath">
           <video
             ref="videoEl"
-            class="site-video"
+            class="sitepage-video w-full h-full border-none bg-primary"
             controls
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="hls-error">
+          <div v-if="hlsError" class="sitepage-hls-error">
             {{ hlsError }}
           </div>
         </template>
         <webview
           v-else-if="resolvedHttpUrl"
           ref="siteWebview"
-          class="site-webview"
+          class="sitepage-webview w-full h-full border-none bg-primary"
           :src="resolvedHttpUrl"
           partition="persist:lumen"
           allowpopups
@@ -66,7 +66,7 @@
            @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
            @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
          ></webview>
-         <div v-else class="site-empty"></div>
+         <div v-else class="sitepage-empty w-full h-full border-none bg-primary"></div>
        </div>
      </main>
   </div>
@@ -689,171 +689,3 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
-.site-page {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
-.site-page.html-fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  background: #000;
-}
-
-.site-page.html-fullscreen .main-content,
-.site-page.html-fullscreen .viewer,
-.site-page.html-fullscreen .site-webview {
-  width: 100vw;
-  height: 100vh;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.loading-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.domain-empty-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: var(--bg-tertiary);
-}
-
-.domain-empty-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.375rem;
-  max-width: 24rem;
-  padding: 2.5rem 2.25rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-md);
-}
-
-.domain-empty-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 50%;
-  background: var(--gradient-primary-soft);
-  color: var(--accent-primary);
-  margin-bottom: 0.75rem;
-}
-
-.domain-empty-card h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.domain-empty-card p {
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin: 0 0 0.75rem;
-}
-
-.domain-empty-card p strong {
-  color: var(--text-primary);
-}
-
-.domain-buy-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius-full);
-  background: var(--gradient-primary);
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  cursor: pointer;
-  box-shadow: var(--shadow-primary);
-  transition: var(--transition-smooth);
-}
-
-.domain-buy-btn:hover {
-  background: var(--gradient-primary-hover);
-  box-shadow: var(--shadow-primary-lg);
-  transform: translateY(-2px);
-}
-
-.domain-buy-btn:active {
-  transform: translateY(0);
-}
-
-.inline-link {
-  display: inline;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--accent-primary);
-  font: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-
-.inline-link:hover {
-  opacity: 0.8;
-}
-
-.viewer {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.site-webview,
-.site-video,
-.site-empty {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: var(--bg-primary);
-}
-
-.hls-error {
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ios-red-rgb), 0.35);
-  background: rgba(var(--ios-red-rgb), 0.12);
-  color: var(--ios-red);
-  font-size: 0.875rem;
-  backdrop-filter: blur(6px);
-  pointer-events: none;
-}
-</style>
