@@ -686,7 +686,7 @@ watch(
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--fill-success);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
