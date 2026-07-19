@@ -2357,6 +2357,228 @@ html, body {
     background: rgba(15, 23, 42, 0.92);
 }
 
+/* NetworkParamsPanel.vue */
+.netparams-header {
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.netparams-header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.netparams-header p {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+}
+
+.netparams-header-actions {
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.netparams-endpoint-pill {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    max-width: 420px;
+}
+
+.netparams-pill-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.netparams-pill-value {
+    font-size: 0.78rem;
+}
+
+.netparams-btn {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.netparams-btn:hover:enabled {
+    background: var(--primary-a08);
+    border-color: var(--primary-a15);
+    color: var(--accent-primary);
+}
+
+.netparams-fatal-error {
+    border: 1px solid rgba(var(--ios-red-rgb), 0.25);
+    background: rgba(var(--ios-red-rgb), 0.08);
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.netparams-fatal-title {
+    margin: 0;
+    font-weight: 800;
+}
+
+.netparams-fatal-desc {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+}
+
+.netparams-loading-state {
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+}
+
+.netparams-section {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.netparams-section-head {
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    text-align: left;
+}
+
+.netparams-section-title {
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.netparams-title-row {
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.netparams-section-name {
+    font-weight: 800;
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.netparams-section-path {
+    font-size: 0.78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.netparams-status-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-light);
+    flex: 0 0 auto;
+}
+
+.netparams-status-badge.ok {
+    background: rgba(var(--ios-green-rgb), 0.12);
+    border-color: rgba(var(--ios-green-rgb), 0.25);
+    color: var(--ios-green);
+}
+
+.netparams-status-badge.error {
+    background: rgba(var(--ios-red-rgb), 0.12);
+    border-color: rgba(var(--ios-red-rgb), 0.25);
+    color: var(--ios-red);
+}
+
+.netparams-status-badge.loading {
+    background: rgba(var(--ios-orange-rgb), 0.12);
+    border-color: rgba(var(--ios-orange-rgb), 0.25);
+    color: var(--ios-orange);
+}
+
+.netparams-section-actions {
+    gap: 0.5rem;
+    flex: 0 0 auto;
+}
+
+.netparams-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.netparams-icon-btn:hover:enabled {
+    background: var(--primary-a08);
+    border-color: var(--primary-a15);
+    color: var(--accent-primary);
+}
+
+.netparams-section-body {
+    border-top: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+    padding: 0.85rem 1.25rem 1.25rem;
+}
+
+.netparams-section-loading {
+    gap: 0.75rem;
+}
+
+.netparams-section-error {
+    color: var(--ios-red);
+    font-size: 0.9rem;
+}
+
+.netparams-json-block {
+    margin: 0;
+    padding: 0.85rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    overflow: auto;
+    max-height: 420px;
+    line-height: 1.35;
+    font-size: 0.78rem;
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+.netparams-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 100;
+    box-shadow: var(--shadow-primary-lg);
+}
+
+.netparams-toast-enter-active,
+.netparams-toast-leave-active {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.netparams-toast-enter-from,
+.netparams-toast-leave-to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+}
+
 .transition-bounce {
     transition: var(--transition-bounce);
 }

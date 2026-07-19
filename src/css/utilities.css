@@ -223,6 +223,7 @@
 .text-uppercase { text-transform: uppercase; }
 .text-capitalize { text-transform: capitalize; }
 .break-all { word-break: break-all; }
+.mono { font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
 .letter-spacing-005em { letter-spacing: 0.05em; }
 .letter-spacing-004em { letter-spacing: 0.04em; }
 .letter-spacing-008em { letter-spacing: 0.08em; }
