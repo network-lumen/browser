@@ -1,26 +1,26 @@
 <template>
-  <div class="extension-popup-layer" @click="requestClose()">
-    <div class="extension-popup-shell" :style="popupShellStyle" @click.stop>
-      <button type="button" class="extension-popup-close" aria-label="Close extension popup" @click="requestClose()">
+  <div class="absolute inset-0 z-1400 bg-transparent" @click="requestClose()">
+    <div class="extension-popup-shell absolute overflow-hidden" :style="popupShellStyle" @click.stop>
+      <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full" aria-label="Close extension popup" @click="requestClose()">
         <X :size="14" />
       </button>
 
-      <div v-if="error" class="extension-popup-status extension-popup-status-error">
+      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center">
         {{ error }}
       </div>
-      <div v-else-if="guestPreloadLoading" class="extension-popup-status">
+      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center">
         Preparing extension…
       </div>
-      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error">
+      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center">
         Extension guest preload is unavailable.
       </div>
-      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status">
+      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center">
         Loading extension…
       </div>
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
-        class="extension-popup-webview"
+        class="extension-popup-webview w-full h-full"
         :src="webviewMountUrl"
         :preload="extensionGuestPreloadUrl"
         partition="persist:lumen"
@@ -35,7 +35,7 @@
         @did-stop-loading="onDidStopLoading"
         @dom-ready="onDomReady"
       ></webview>
-      <div v-else class="extension-popup-status">
+      <div v-else class="extension-popup-status w-full h-full fs-14px text-center">
         Preparing extension…
       </div>
     </div>
@@ -527,67 +527,3 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
-.extension-popup-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 1400;
-  background: transparent;
-}
-
-.extension-popup-shell {
-  position: absolute;
-  right: 12px;
-  width: min(420px, calc(100vw - 24px));
-  height: min(760px, calc(100vh - 24px));
-  max-height: calc(100vh - 24px);
-  border-radius: 14px;
-  overflow: hidden;
-  background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-}
-
-.extension-popup-webview {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #111111;
-}
-
-.extension-popup-status {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 24px;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
-  text-align: center;
-}
-
-.extension-popup-status-error {
-  color: #ffb4b4;
-}
-
-.extension-popup-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.72);
-  color: rgba(255, 255, 255, 0.86);
-  cursor: pointer;
-}
-
-.extension-popup-close:hover {
-  background: rgba(15, 23, 42, 0.92);
-}
-</style>
