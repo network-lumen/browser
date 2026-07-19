@@ -30,7 +30,7 @@ const sizeClass = computed(() => {
 .ui-spinner {
   --spinner-size: 1rem;
   --spinner-stroke: 2px;
-  color: var(--spinner-color, var(--text-secondary, #64748b));
+  color: var(--spinner-color, var(--text-secondary));
   line-height: 0;
 }
 
@@ -56,7 +56,7 @@ const sizeClass = computed(() => {
 }
 
 .ui-spinner__tail {
-  stroke: color-mix(in srgb, var(--accent-primary, #0a84ff) 35%, currentColor 65%);
+  stroke: color-mix(in srgb, var(--accent-primary) 35%, currentColor 65%);
   opacity: 0.22;
   stroke-linecap: round;
   stroke-dasharray: 12 44;
@@ -64,7 +64,7 @@ const sizeClass = computed(() => {
 }
 
 .ui-spinner__arc {
-  stroke: color-mix(in srgb, var(--accent-primary, #0a84ff) 78%, currentColor 22%);
+  stroke: color-mix(in srgb, var(--accent-primary) 78%, currentColor 22%);
   stroke-linecap: round;
   stroke-dasharray: 12 44;
   stroke-dashoffset: 0;
