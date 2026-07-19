@@ -2447,7 +2447,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .profile-row.active {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(var(--ios-blue-rgb), 0.12);
 }
 
 .profile-checkbox {
@@ -2487,9 +2487,9 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   font-size: 0.7rem;
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.18);
+  background: rgba(var(--ios-blue-rgb), 0.18);
   color: var(--text-primary);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(var(--ios-blue-rgb), 0.25);
 }
 
 .profile-id {
@@ -2656,7 +2656,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .theme-option.active {
-  background: var(--card-bg, white);
+  background: var(--card-bg);
   color: var(--accent-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
@@ -2756,7 +2756,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .brightness-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.4);
 }
 
 .brightness-slider::-moz-range-thumb {
@@ -2772,7 +2772,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .brightness-slider::-moz-range-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.4);
 }
 
 .brightness-value {
@@ -2885,18 +2885,18 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .status-enabled {
-  background: rgba(52, 199, 89, 0.15);
-  color: var(--ios-green, #34c759);
+  background: var(--fill-success);
+  color: var(--ios-green);
 }
 
 .status-disabled {
-  background: rgba(142, 142, 147, 0.15);
-  color: var(--text-secondary, #8e8e93);
+  background: var(--fill-tertiary);
+  color: var(--text-secondary);
 }
 
 .status-locked {
-  background: rgba(255, 149, 0, 0.15);
-  color: var(--ios-orange, #ff9500);
+  background: rgba(var(--ios-orange-rgb), 0.15);
+  color: var(--ios-orange);
 }
 
 .security-form {
@@ -2904,7 +2904,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
+  background: var(--fill-tertiary);
   border-radius: 12px;
   margin-top: 0.5rem;
 }
@@ -2916,13 +2916,13 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .security-error {
-  color: var(--ios-red, #ff3b30);
+  color: var(--ios-red);
   font-size: 0.85rem;
   padding: 0.5rem 0;
 }
 
 .security-success {
-  color: var(--ios-green, #34c759);
+  color: var(--ios-green);
   font-size: 0.85rem;
   padding: 0.5rem 0;
 }
@@ -2938,8 +2938,8 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  background: rgba(255, 59, 48, 0.08);
-  border: 1px solid rgba(255, 59, 48, 0.2);
+  background: var(--fill-error);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.2);
   border-radius: 12px;
   margin-top: 0.75rem;
 }
@@ -2952,7 +2952,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .btn-primary {
   padding: 0.6rem 1.25rem;
-  background: var(--accent-primary, #007aff);
+  background: var(--accent-primary);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -2968,7 +2968,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .btn-danger {
   padding: 0.5rem 1rem;
-  background: var(--ios-red, #ff3b30);
+  background: var(--ios-red);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -2990,7 +2990,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 
 .setting-item.featured.active {
   border-color: var(--ios-green);
-  background: linear-gradient(135deg, rgba(52, 199, 89, 0.05) 0%, rgba(52, 199, 89, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
 }
 
 .settings-subsection {
@@ -3024,7 +3024,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   min-width: 22px;
   height: 22px;
   padding: 0 6px;
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(var(--ios-blue-rgb), 0.15);
   color: var(--ios-blue);
   border-radius: 11px;
   font-size: 0.75rem;
@@ -3100,7 +3100,7 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
 }
 
 .icon-btn-small:hover {
-  background: rgba(255, 59, 48, 0.15);
+  background: rgba(var(--ios-red-rgb), 0.15);
   color: var(--ios-red);
 }
 
@@ -3117,8 +3117,8 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   display: flex;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
-  border: 1.5px solid rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.08) 0%, rgba(var(--ios-blue-rgb), 0.02) 100%);
+  border: 1.5px solid rgba(var(--ios-blue-rgb), 0.2);
   border-radius: 12px;
   margin-top: 1rem;
 }
