@@ -1,9 +1,13 @@
 <template>
-  <div v-if="profile" class="active-profile-card" :class="{ dense }">
+  <div
+    v-if="profile"
+    class="flex-align-center w-full bg-fill-tertiary border-light border-radius-md"
+    :class="dense ? 'gap-50 padding-62 margin-0' : 'gap-62 padding-75 margin-bottom-87'"
+  >
     <ProfileAvatar :profile="profile" :size="dense ? 32 : 36" />
-    <div class="active-profile-meta">
-      <span v-if="showLabel" class="active-profile-label">{{ label }}</span>
-      <span class="active-profile-name">{{ displayName }}</span>
+    <div class="flex flex-column gap-2px min-w-0">
+      <span v-if="showLabel" class="fs-10px color-text-tertiary text-uppercase letter-spacing-005em fw-500">{{ label }}</span>
+      <span class="fs-13px fw-600 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ displayName }}</span>
     </div>
   </div>
 </template>
@@ -36,48 +40,3 @@ const displayName = computed(() => {
   return String(p.name || p.id || '').trim();
 });
 </script>
-
-<style scoped>
-.active-profile-card {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.75rem;
-  width: 100%;
-  background: var(--fill-tertiary);
-  border: 0.5px solid var(--border-light);
-  border-radius: var(--border-radius-md);
-  margin-bottom: 0.875rem;
-}
-
-.active-profile-card.dense {
-  padding: 0.625rem;
-  gap: 0.5rem;
-  margin-bottom: 0;
-}
-
-.active-profile-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 0;
-}
-
-.active-profile-label {
-  font-size: 10px;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 500;
-}
-
-.active-profile-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-</style>
-
