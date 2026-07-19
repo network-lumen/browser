@@ -1087,6 +1087,304 @@ html, body {
     opacity: 0.55;
 }
 
+/* QrScanner.vue */
+.qr-scanner-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+}
+
+.qr-scanner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.qr-scanner-modal {
+    background: var(--card-bg);
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.qr-scanner-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.qr-scanner-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.qr-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-close-btn:hover {
+    background: var(--fill-tertiary);
+    color: var(--text-primary);
+}
+
+.qr-scanner-content {
+    padding: 24px;
+}
+
+.qr-camera-container {
+    position: relative;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    max-height: 400px;
+}
+
+.qr-camera-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.qr-camera-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.qr-scan-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: 250px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+}
+
+.qr-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--accent-primary);
+}
+
+.qr-corner-top-left {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 12px;
+}
+
+.qr-corner-top-right {
+    top: -3px;
+    right: -3px;
+    border-left: none;
+    border-bottom: none;
+    border-top-right-radius: 12px;
+}
+
+.qr-corner-bottom-left {
+    bottom: -3px;
+    left: -3px;
+    border-right: none;
+    border-top: none;
+    border-bottom-left-radius: 12px;
+}
+
+.qr-corner-bottom-right {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 12px;
+}
+
+.qr-scan-instruction {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 14px;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+}
+
+.qr-error-state,
+.qr-success-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.qr-error-icon {
+    color: var(--ios-red);
+    margin-bottom: 16px;
+}
+
+.qr-success-icon {
+    color: var(--ios-green);
+    margin-bottom: 16px;
+}
+
+.qr-error-state h4,
+.qr-success-state h4 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.qr-error-state p {
+    color: var(--text-secondary);
+    margin: 0 0 24px 0;
+    font-size: 14px;
+}
+
+.qr-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.qr-retry-btn:hover {
+    background: var(--accent-secondary);
+}
+
+.qr-scanned-data {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px 0;
+    text-align: left;
+}
+
+.qr-data-type,
+.qr-data-content {
+    margin-bottom: 12px;
+}
+
+.qr-data-content:last-child {
+    margin-bottom: 0;
+}
+
+.qr-scanned-data .qr-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.qr-scanned-data .qr-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.qr-value-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 13px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    color: var(--text-primary);
+    word-break: break-all;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.qr-action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.qr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qr-btn-primary {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.qr-btn-primary:hover {
+    background: var(--accent-secondary);
+}
+
+.qr-btn-secondary {
+    background: var(--fill-tertiary);
+    color: var(--text-primary);
+    border: var(--border-width) solid var(--border-color);
+}
+
+.qr-btn-secondary:hover {
+    background: var(--fill-secondary);
+}
+
+@media (max-width: 640px) {
+    .qr-scanner-modal {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .qr-scan-frame {
+        width: 200px;
+        height: 200px;
+    }
+}
+
 /* PasswordPromptModal.vue */
 .pwd-modal {
     background: var(--card-bg);
