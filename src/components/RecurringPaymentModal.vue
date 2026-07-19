@@ -1,44 +1,44 @@
 <template>
-  <div class="recurring-payments-modal-overlay" @click="$emit('close')">
-    <div class="recurring-payments-modal" @click.stop>
-      <div class="modal-header">
-        <h2>
+  <div class="recurpay-overlay overlay-scrim z-9999 backdrop-blur-4px" @click="$emit('close')">
+    <div class="recurpay-modal bg-primary w-full flex flex-column overflow-hidden" @click.stop>
+      <div class="recurpay-header flex-align-center-justify-space-between">
+        <h2 class="flex-align-center margin-0 color-text-primary">
           <Calendar :size="24" />
           <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
         </h2>
-        <button class="close-btn" @click="$emit('close')">
+        <button class="recurpay-close-btn bg-transparent border-none cursor-pointer color-text-secondary flex-align-justify-center" @click="$emit('close')">
           <X :size="24" />
         </button>
       </div>
 
-      <div class="modal-body">
+      <div class="recurpay-body flex-1 overflow-y-auto">
         <!-- Basic Information -->
-        <div class="form-section">
-          <h3>Payment Details</h3>
-          
-          <div class="form-group">
-            <label>Payment Name <span class="required">*</span></label>
-            <input 
-              v-model="form.name" 
-              type="text" 
+        <div class="recurpay-section">
+          <h3 class="flex-align-center color-text-primary">Payment Details</h3>
+
+          <div class="recurpay-group">
+            <label class="block color-text-primary">Payment Name <span class="required color-error">*</span></label>
+            <input
+              v-model="form.name"
+              type="text"
               placeholder="e.g., Netflix Subscription"
-              class="form-input"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none"
             />
           </div>
 
-          <div class="form-group">
-            <label>Description</label>
-            <textarea 
-              v-model="form.description" 
+          <div class="recurpay-group">
+            <label class="block color-text-primary">Description</label>
+            <textarea
+              v-model="form.description"
               placeholder="Optional notes about this payment"
-              class="form-input"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none"
               rows="2"
             ></textarea>
           </div>
 
-          <div class="form-group">
-            <label>Category</label>
-            <select v-model="form.category" class="form-input">
+          <div class="recurpay-group">
+            <label class="block color-text-primary">Category</label>
+            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -51,20 +51,20 @@
         </div>
 
         <!-- Payment Configuration -->
-        <div class="form-section">
-          <h3>Payment Configuration</h3>
-          
-          <div class="form-group">
-            <label>Recipient Address <span class="required">*</span></label>
-            <div class="input-with-button">
-              <input 
-                v-model="form.recipient" 
-                type="text" 
+        <div class="recurpay-section">
+          <h3 class="flex-align-center color-text-primary">Payment Configuration</h3>
+
+          <div class="recurpay-group">
+            <label class="block color-text-primary">Recipient Address <span class="required color-error">*</span></label>
+            <div class="recurpay-input-with-button flex">
+              <input
+                v-model="form.recipient"
+                type="text"
                 placeholder="lumen1..."
-                class="form-input"
+                class="recurpay-input flex-1 bg-primary color-text-primary outline-none"
               />
-              <button 
-                class="input-btn" 
+              <button
+                class="recurpay-input-btn cursor-pointer flex-align-justify-center color-text-primary"
                 @click="$emit('scan-address')"
                 title="Scan QR Code"
               >
@@ -73,25 +73,25 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label>Amount <span class="required">*</span></label>
-              <div class="amount-input">
-                <input 
-                  v-model="form.amount" 
+          <div class="recurpay-row">
+            <div class="recurpay-group">
+              <label class="block color-text-primary">Amount <span class="required color-error">*</span></label>
+              <div class="recurpay-amount-input">
+                <input
+                  v-model="form.amount"
                   type="number"
                   step="0.000001"
                   min="0"
                   placeholder="0.000000"
-                  class="form-input"
+                  class="recurpay-input w-full bg-primary color-text-primary outline-none"
                 />
                 <span class="currency">LMN</span>
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Frequency <span class="required">*</span></label>
-              <select v-model="form.frequency" class="form-input">
+            <div class="recurpay-group">
+              <label class="block color-text-primary">Frequency <span class="required color-error">*</span></label>
+              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -102,61 +102,61 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label>Start Date <span class="required">*</span></label>
-              <input 
-                v-model="form.startDate" 
+          <div class="recurpay-row">
+            <div class="recurpay-group">
+              <label class="block color-text-primary">Start Date <span class="required color-error">*</span></label>
+              <input
+                v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="form-input"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none"
               />
             </div>
 
-            <div class="form-group">
-              <label>End Date (Optional)</label>
-              <input 
-                v-model="form.endDate" 
+            <div class="recurpay-group">
+              <label class="block color-text-primary">End Date (Optional)</label>
+              <input
+                v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="form-input"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none"
               />
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Maximum Payments (Optional)</label>
-            <input 
-              v-model="form.maxPayments" 
+          <div class="recurpay-group">
+            <label class="block color-text-primary">Maximum Payments (Optional)</label>
+            <input
+              v-model="form.maxPayments"
               type="number"
               min="1"
               placeholder="Leave empty for unlimited"
-              class="form-input"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none"
             />
-            <p class="form-hint">Payment will stop after this many successful transactions</p>
+            <p class="recurpay-hint color-text-secondary">Payment will stop after this many successful transactions</p>
           </div>
         </div>
 
         <!-- Reminder Settings -->
-        <div class="form-section">
-          <h3>
+        <div class="recurpay-section">
+          <h3 class="flex-align-center color-text-primary">
             <Bell :size="18" />
             <span>Payment Reminders</span>
           </h3>
-          
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input 
-                v-model="form.reminderEnabled" 
+
+          <div class="recurpay-group">
+            <label class="recurpay-checkbox-label flex-align-center cursor-pointer">
+              <input
+                v-model="form.reminderEnabled"
                 type="checkbox"
               />
-              <span>Enable payment reminders</span>
+              <span class="color-text-primary">Enable payment reminders</span>
             </label>
           </div>
 
-          <div v-if="form.reminderEnabled" class="form-group">
-            <label>Remind me (days before payment)</label>
-            <select v-model="form.reminderDaysBefore" class="form-input">
+          <div v-if="form.reminderEnabled" class="recurpay-group">
+            <label class="block color-text-primary">Remind me (days before payment)</label>
+            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>
@@ -167,31 +167,31 @@
         </div>
 
         <!-- Payment Summary -->
-        <div class="payment-summary">
-          <h4>Payment Summary</h4>
-          <div class="summary-row">
+        <div class="recurpay-summary">
+          <h4 class="margin-0">Payment Summary</h4>
+          <div class="recurpay-summary-row flex-align-center-justify-space-between">
             <span>Amount per payment:</span>
             <strong>{{ formatAmount(form.amount) }} LMN</strong>
           </div>
-          <div class="summary-row">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between">
             <span>Frequency:</span>
             <strong>{{ frequencyLabel }}</strong>
           </div>
-          <div class="summary-row" v-if="form.startDate">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between" v-if="form.startDate">
             <span>First payment:</span>
             <strong>{{ formatDate(form.startDate) }}</strong>
           </div>
-          <div class="summary-row" v-if="estimatedTotal">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between" v-if="estimatedTotal">
             <span>{{ estimatedTotalLabel }}:</span>
             <strong>{{ estimatedTotal }} LMN</strong>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn secondary disabled-fade-50 txt-weight-light txt-sm cursor-pointer outline-none" @click="$emit('close')">Cancel</button>
-        <button 
-          class="btn primary disabled-fade-50 txt-weight-light txt-sm cursor-pointer outline-none"
+      <div class="recurpay-footer flex">
+        <button class="recurpay-btn secondary disabled-fade-50 flex-inline-align-center cursor-pointer bg-tertiary color-text-primary border-none fw-500" @click="$emit('close')">Cancel</button>
+        <button
+          class="recurpay-btn primary disabled-fade-50 flex-inline-align-center cursor-pointer color-white border-none fw-500"
           @click="handleSubmit"
           :disabled="!isFormValid"
         >
@@ -449,298 +449,4 @@ defineExpose({
 });
 </script>
 
-<style scoped>
-.recurring-payments-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
 
-.recurring-payments-modal {
-  background: var(--bg-primary);
-  border-radius: 16px;
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  padding: 4px;
-  border-radius: 6px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.form-section {
-  margin-bottom: 32px;
-}
-
-.form-section h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 16px 0;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.required {
-  color: var(--ios-red);
-}
-
-.form-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: inherit;
-  transition: all 0.2s;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-textarea.form-input {
-  resize: vertical;
-  min-height: 60px;
-}
-
-/* Dark mode support for date and select inputs */
-.form-input[type="date"],
-.form-input[type="number"],
-select.form-input {
-  color-scheme: light dark;
-}
-
-.form-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: var(--icon-filter, none);
-  cursor: pointer;
-}
-
-/* Ensure select dropdown arrow is visible in dark mode */
-select.form-input {
-  background-image: none;
-}
-
-.input-with-button {
-  display: flex;
-  gap: 8px;
-}
-
-.input-with-button .form-input {
-  flex: 1;
-}
-
-.input-btn {
-  padding: 10px 16px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  color: var(--text-primary);
-}
-
-.input-btn:hover {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: white;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.amount-input {
-  position: relative;
-}
-
-.amount-input .currency {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  pointer-events: none;
-}
-
-.amount-input .form-input {
-  padding-right: 50px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.form-hint {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin: 6px 0 0 0;
-}
-
-.payment-summary {
-  background: var(--gradient-brand);
-  padding: 20px;
-  border-radius: 12px;
-  color: white;
-}
-
-.payment-summary h4 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.summary-row:last-child {
-  border-bottom: none;
-}
-
-.summary-row strong {
-  font-weight: 600;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid var(--border-color);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn.primary {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.btn.primary:hover:not(:disabled) {
-  background: var(--accent-secondary);
-}
-
-.btn.secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
-
-.btn.secondary:hover {
-  background: var(--card-bg);
-}
-
-@media (max-width: 640px) {
-  .recurring-payments-modal {
-    max-width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
