@@ -1,44 +1,44 @@
 <template>
-  <Transition name="fade">
-    <div v-if="current && modalType === 'permission'" class="modal-overlay" @click.stop>
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrapper">
-            <div class="modal-icon">
+  <Transition name="sitemodal-fade">
+    <div v-if="current && modalType === 'permission'" class="overlay-scrim sitemodal-overlay" @click.stop>
+      <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
+        <div class="sitemodal-header flex-align-center flex-justify-space-between">
+          <div class="sitemodal-title-wrapper flex-align-center">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px">
               <Shield :size="18" />
             </div>
             <h3>Permission required</h3>
           </div>
-          <button class="modal-close" type="button" @click="denyPermission">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary" type="button" @click="denyPermission">
             <X :size="18" />
           </button>
         </div>
-        <div class="modal-body">
-          <div class="info-banner">
+        <div class="sitemodal-body">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary">
             <span>
               Allow this website to open Lumen action modals?
             </span>
           </div>
 
-          <div class="perm-box">
-            <div class="perm-row">
-              <span class="perm-k">Site</span>
-              <span class="perm-v mono">{{ siteLabel }}</span>
+          <div class="sitemodal-perm-box border-radius-10px">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between">
+              <span class="sitemodal-perm-k fs-12px color-text-secondary">Site</span>
+              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right">{{ siteLabel }}</span>
             </div>
-            <div class="perm-row" v-if="actionKind">
-              <span class="perm-k">Action</span>
-              <span class="perm-v">{{ actionKind }}</span>
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between" v-if="actionKind">
+              <span class="sitemodal-perm-k fs-12px color-text-secondary">Action</span>
+              <span class="sitemodal-perm-v fs-13px color-text-primary text-right">{{ actionKind }}</span>
             </div>
           </div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" type="button" @click="denyPermission">
+        <div class="sitemodal-actions flex flex-justify-end">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary" type="button" @click="denyPermission">
             Deny
           </button>
-          <button class="btn-secondary" type="button" @click="allowOnce">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary" type="button" @click="allowOnce">
             Allow once
           </button>
-          <button class="btn-primary" type="button" @click="allowAlways">
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white" type="button" @click="allowAlways">
             Always allow
           </button>
         </div>
@@ -46,71 +46,71 @@
     </div>
   </Transition>
 
-  <Transition name="fade">
-    <div v-if="current && modalType === 'sendToken'" class="modal-overlay" @click="closeSend(false)">
-      <div class="modal-content send-modal" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrapper">
-            <div class="modal-icon">
+  <Transition name="sitemodal-fade">
+    <div v-if="current && modalType === 'sendToken'" class="overlay-scrim sitemodal-overlay" @click="closeSend(false)">
+      <div class="sitemodal-content sitemodal-send bg-card border-radius-12px overflow-auto" @click.stop>
+        <div class="sitemodal-header flex-align-center flex-justify-space-between">
+          <div class="sitemodal-title-wrapper flex-align-center">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px">
               <Send :size="18" />
             </div>
             <h3>Send LMN</h3>
           </div>
-          <button class="modal-close" type="button" @click="closeSend(false)" :disabled="sending">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary" type="button" @click="closeSend(false)" :disabled="sending">
             <X :size="18" />
           </button>
         </div>
-        <div class="modal-body">
-          <div class="info-banner" v-if="siteLabel">
+        <div class="sitemodal-body">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
 
-          <div v-if="sendError" class="modal-error">{{ sendError }}</div>
+          <div v-if="sendError" class="sitemodal-error border-radius-10px fs-13px color-error">{{ sendError }}</div>
 
-          <div class="form-group">
-            <label>From</label>
-            <div class="input-wrapper readonly">
-              <input class="form-input" type="text" :value="activeAddress || '-'" readonly />
+          <div class="sitemodal-form-group">
+            <label class="fs-12px color-text-secondary">From</label>
+            <div class="sitemodal-input-wrapper readonly relative">
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px" type="text" :value="activeAddress || '-'" readonly />
             </div>
           </div>
 
-          <div class="form-group">
-            <label>To <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input class="form-input" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
+          <div class="sitemodal-form-group">
+            <label class="fs-12px color-text-secondary">To <span class="color-error">*</span></label>
+            <div class="sitemodal-input-wrapper relative">
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Amount (LMN) <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input class="form-input" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
-              <span class="input-suffix">LMN</span>
+          <div class="sitemodal-form-group">
+            <label class="fs-12px color-text-secondary">Amount (LMN) <span class="color-error">*</span></label>
+            <div class="sitemodal-input-wrapper relative">
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
+              <span class="sitemodal-input-suffix fs-12px color-text-secondary">LMN</span>
             </div>
-            <div class="balance-hint" v-if="balanceUlmn !== null">
+            <div class="sitemodal-balance-hint fs-12px color-text-secondary" v-if="balanceUlmn !== null">
               Available: {{ balanceLmnDisplay }} LMN
             </div>
-            <div class="balance-hint error" v-else>
+            <div class="sitemodal-balance-hint error fs-12px" v-else>
               Balance unavailable
             </div>
-            <div class="balance-hint error" v-if="insufficientFunds">
+            <div class="sitemodal-balance-hint error fs-12px" v-if="insufficientFunds">
               not enough funds
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Memo (optional)</label>
-            <div class="input-wrapper">
-              <input class="form-input" type="text" v-model="sendMemo" :disabled="sending" />
+          <div class="sitemodal-form-group">
+            <label class="fs-12px color-text-secondary">Memo (optional)</label>
+            <div class="sitemodal-input-wrapper relative">
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px" type="text" v-model="sendMemo" :disabled="sending" />
             </div>
           </div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" type="button" @click="closeSend(false)" :disabled="sending">
+        <div class="sitemodal-actions flex flex-justify-end">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary" type="button" @click="closeSend(false)" :disabled="sending">
             Cancel
           </button>
-          <button class="btn-primary" type="button" @click="submitSend" :disabled="!canSend">
-            <span class="spinner" v-if="sending"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white" type="button" @click="submitSend" :disabled="!canSend">
+            <span class="sitemodal-spinner border-radius-full" v-if="sending"></span>
             <span>{{ sending ? 'Sending...' : 'Send' }}</span>
           </button>
         </div>
@@ -118,31 +118,31 @@
     </div>
   </Transition>
 
-  <Transition name="fade">
-    <div v-if="current && modalType === 'pin'" class="modal-overlay" @click="closePin(false)">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrapper">
-            <div class="modal-icon">
+  <Transition name="sitemodal-fade">
+    <div v-if="current && modalType === 'pin'" class="overlay-scrim sitemodal-overlay" @click="closePin(false)">
+      <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
+        <div class="sitemodal-header flex-align-center flex-justify-space-between">
+          <div class="sitemodal-title-wrapper flex-align-center">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px">
               <Save :size="18" />
             </div>
             <h3>Save to Drive</h3>
           </div>
-          <button class="modal-close" type="button" @click="closePin(false)" :disabled="pinning">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary" type="button" @click="closePin(false)" :disabled="pinning">
             <X :size="18" />
           </button>
         </div>
-        <div class="modal-body">
-          <div class="info-banner" v-if="siteLabel">
+        <div class="sitemodal-body">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="pinError" class="modal-error">{{ pinError }}</div>
+          <div v-if="pinError" class="sitemodal-error border-radius-10px fs-13px color-error">{{ pinError }}</div>
 
-          <div class="form-group">
-            <label>Name <span class="required">*</span></label>
-            <div class="input-wrapper">
+          <div class="sitemodal-form-group">
+            <label>Name <span class="color-error">*</span></label>
+            <div class="sitemodal-input-wrapper relative">
               <input
-                class="form-input"
+                class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px"
                 type="text"
                 v-model="saveNameDraft"
                 placeholder="Enter a name"
@@ -152,37 +152,37 @@
             </div>
           </div>
 
-          <div class="perm-box">
-            <div class="perm-row">
-              <span class="perm-k">Target</span>
-              <span class="perm-v mono">{{ pinTargetDisplay }}</span>
+          <div class="sitemodal-perm-box border-radius-10px">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between">
+              <span class="sitemodal-perm-k fs-12px color-text-secondary">Target</span>
+              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right">{{ pinTargetDisplay }}</span>
             </div>
           </div>
 
-          <div v-if="pinJobId" class="pin-progress-card">
-            <div class="pin-progress-head">
-              <span class="pin-progress-status">{{ pinStatusLabel }}</span>
-              <span v-if="pinProgressCounter" class="pin-progress-counter">{{ pinProgressCounter }}</span>
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px">
+            <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between">
+              <span class="sitemodal-pin-progress-status fs-12px text-uppercase txt-weight-medium">{{ pinStatusLabel }}</span>
+              <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter fs-12px color-text-secondary">{{ pinProgressCounter }}</span>
             </div>
-            <div class="pin-progress-track">
+            <div class="sitemodal-pin-progress-track relative overflow-hidden border-radius-full w-full">
               <div
-                class="pin-progress-fill"
+                class="sitemodal-pin-progress-fill h-full"
                 :class="{ indeterminate: pinProgressPercent == null && pinIsRunning }"
                 :style="{ width: pinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, pinProgressPercent))}%` }"
               ></div>
             </div>
-            <div class="pin-progress-text">
+            <div class="sitemodal-pin-progress-text fs-12px color-text-secondary">
                 {{ pinProgressText || (pinIsRunning ? 'Saving content from the network…' : 'Waiting for action.') }}
             </div>
           </div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" type="button" @click="closePin(false)" :disabled="pinIsRunning">
+        <div class="sitemodal-actions flex flex-justify-end">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary" type="button" @click="closePin(false)" :disabled="pinIsRunning">
             Cancel
           </button>
           <button
             v-if="pinCanPause"
-            class="btn-secondary"
+            class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary"
             type="button"
             @click="pausePinJob"
           >
@@ -190,7 +190,7 @@
           </button>
           <button
             v-if="pinCanResume"
-            class="btn-secondary"
+            class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary"
             type="button"
             @click="resumePinJob"
           >
@@ -198,14 +198,14 @@
           </button>
           <button
             v-if="pinCanStop"
-            class="btn-danger badge-error"
+            class="sitemodal-btn-danger badge-error border-none border-radius-10px cursor-pointer txt-weight-light"
             type="button"
             @click="cancelPinJob"
           >
             Stop
           </button>
-          <button class="btn-primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-            <span class="spinner" v-if="pinning"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
+            <span class="sitemodal-spinner border-radius-full" v-if="pinning"></span>
             <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
           </button>
         </div>
@@ -213,39 +213,39 @@
     </div>
   </Transition>
 
-  <Transition name="fade">
-    <div v-if="current && modalType === 'stableLink'" class="modal-overlay" @click="closeStableLink(false)">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrapper">
-            <div class="modal-icon">
+  <Transition name="sitemodal-fade">
+    <div v-if="current && modalType === 'stableLink'" class="overlay-scrim sitemodal-overlay" @click="closeStableLink(false)">
+      <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
+        <div class="sitemodal-header flex-align-center flex-justify-space-between">
+          <div class="sitemodal-title-wrapper flex-align-center">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px">
               <Link :size="18" />
             </div>
             <h3>Choose or create a stable link for your live</h3>
           </div>
-          <button class="modal-close" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
             <X :size="18" />
           </button>
         </div>
-        <div class="modal-body">
-          <div class="info-banner" v-if="siteLabel">
+        <div class="sitemodal-body">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkError" class="modal-error">{{ stableLinkError }}</div>
+          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px fs-13px color-error">{{ stableLinkError }}</div>
 
-          <div class="segmented-control">
-            <button type="button" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+          <div class="sitemodal-segmented-control border-radius-10px">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>
-            <button type="button" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
               Create new
             </button>
           </div>
 
-          <div class="form-group" v-if="stableLinkMode === 'existing'">
+          <div class="sitemodal-form-group" v-if="stableLinkMode === 'existing'">
             <label>Stable link</label>
-            <div class="input-wrapper">
-              <select class="form-input" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
+            <div class="sitemodal-input-wrapper relative">
+              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
                 <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
                 <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                   {{ item.label }} — {{ shortStableIpns(item.id) }}
@@ -254,11 +254,11 @@
             </div>
           </div>
 
-          <div class="form-group" v-else>
+          <div class="sitemodal-form-group" v-else>
             <label>New stable link label</label>
-            <div class="input-wrapper">
+            <div class="sitemodal-input-wrapper relative">
               <input
-                class="form-input"
+                class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px"
                 type="text"
                 v-model="stableLinkNewLabel"
                 placeholder="my-live"
@@ -268,36 +268,36 @@
             </div>
           </div>
 
-          <div class="perm-box">
-            <div class="perm-row">
-              <span class="perm-k">Live</span>
-              <span class="perm-v">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
+          <div class="sitemodal-perm-box border-radius-10px">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between">
+              <span class="sitemodal-perm-k fs-12px color-text-secondary">Live</span>
+              <span class="sitemodal-perm-v fs-13px color-text-primary text-right">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
             </div>
-            <div class="perm-row">
-              <span class="perm-k">Records</span>
-              <button class="records-toggle" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between">
+              <span class="sitemodal-perm-k fs-12px color-text-secondary">Records</span>
+              <button class="sitemodal-records-toggle flex-inline-align-center border-none bg-transparent color-text-primary cursor-pointer fs-13px" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" :class="{ open: stableLinkRecordsExpanded }" />
               </button>
             </div>
-            <div v-if="stableLinkRecordsExpanded" class="records-detail-list">
-              <div v-for="record in stableLinkRecords" :key="record.key" class="record-detail-row">
-                <span class="record-key mono">{{ record.key }}</span>
-                <span class="record-value mono" :title="record.value">{{ record.value }}</span>
+            <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list">
+              <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row">
+                <span class="sitemodal-record-key mono fs-12px color-text-secondary">{{ record.key }}</span>
+                <span class="sitemodal-record-value mono fs-12px color-text-primary" :title="record.value">{{ record.value }}</span>
               </div>
             </div>
           </div>
 
-          <p class="balance-hint">
+          <p class="sitemodal-balance-hint fs-12px color-text-secondary">
             The stable link URL will be copied after it is attached to this live.
           </p>
         </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
+        <div class="sitemodal-actions flex flex-justify-end">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
             Cancel
           </button>
-          <button class="btn-primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-            <span class="spinner" v-if="stableLinkSaving"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
+            <span class="sitemodal-spinner border-radius-full" v-if="stableLinkSaving"></span>
             <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
             <Save v-else :size="16" />
             <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
@@ -307,29 +307,29 @@
     </div>
   </Transition>
 
-  <Transition name="fade">
-    <div v-if="current && modalType === 'stableLinkSetup'" class="modal-overlay" @click="closeStableLinkSetup(false)">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrapper">
-            <div class="modal-icon">
+  <Transition name="sitemodal-fade">
+    <div v-if="current && modalType === 'stableLinkSetup'" class="overlay-scrim sitemodal-overlay" @click="closeStableLinkSetup(false)">
+      <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
+        <div class="sitemodal-header flex-align-center flex-justify-space-between">
+          <div class="sitemodal-title-wrapper flex-align-center">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px">
               <Link :size="18" />
             </div>
             <h3>Select a live link</h3>
           </div>
-          <button class="modal-close" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
             <X :size="18" />
           </button>
         </div>
-        <div class="modal-body">
-          <div class="info-banner" v-if="siteLabel">
+        <div class="sitemodal-body">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkSetupError" class="modal-error">{{ stableLinkSetupError }}</div>
-          <div class="form-group">
+          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px fs-13px color-error">{{ stableLinkSetupError }}</div>
+          <div class="sitemodal-form-group">
             <label>Live link</label>
-            <div class="input-wrapper">
-              <select class="form-input" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
+            <div class="sitemodal-input-wrapper relative">
+              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
                 <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
                 <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                   {{ item.label }} — {{ shortStableIpns(item.id) }}
@@ -337,16 +337,16 @@
               </select>
             </div>
           </div>
-          <p class="balance-hint">
+          <p class="sitemodal-balance-hint fs-12px color-text-secondary">
             Previous live settings will be loaded from this link if records are available.
           </p>
         </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
+        <div class="sitemodal-actions flex flex-justify-end">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
             Cancel
           </button>
-          <button class="btn-primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-            <span class="spinner" v-if="stableLinkSetupLoading"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
+            <span class="sitemodal-spinner border-radius-full" v-if="stableLinkSetupLoading"></span>
             <Link v-else :size="16" />
             <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
           </button>
@@ -1242,323 +1242,3 @@ onBeforeUnmount(() => {
   unsubPinProgress = null;
 });
 </script>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 9999;
-}
-.modal-content {
-  background: var(--card-bg);
-  border-radius: 12px;
-  width: min(520px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
-  overflow: auto;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-}
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: var(--border-width) solid var(--border-color);
-}
-.modal-title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.modal-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--fill-blue);
-  color: var(--ios-blue);
-}
-.modal-close {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  color: var(--text-primary);
-}
-.modal-close:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.modal-body {
-  padding: 14px 16px 6px;
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 12px 16px 16px;
-}
-.btn-primary,
-.btn-secondary,
-.btn-danger {
-  border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-}
-.btn-secondary {
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-}
-.btn-primary:disabled,
-.btn-secondary:disabled,
-.btn-danger:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.info-banner {
-  background: var(--fill-blue);
-  border: var(--border-width) solid rgba(var(--ios-blue-rgb), 0.25);
-  color: var(--text-primary);
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-.perm-box {
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 10px;
-  padding: 10px 12px;
-}
-.perm-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 0;
-}
-.perm-k {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.perm-v {
-  font-size: 13px;
-  color: var(--text-primary);
-  text-align: right;
-  max-width: 360px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.records-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 13px;
-  padding: 2px 0;
-}
-.records-toggle svg {
-  transition: transform 0.16s ease;
-}
-.records-toggle svg.open {
-  transform: rotate(180deg);
-}
-.records-detail-list {
-  display: grid;
-  gap: 6px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: var(--border-width) solid var(--border-color);
-}
-.record-detail-row {
-  display: grid;
-  grid-template-columns: minmax(70px, 0.28fr) minmax(0, 1fr);
-  gap: 10px;
-  align-items: start;
-}
-.record-key {
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-.record-value {
-  color: var(--text-primary);
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-.modal-error {
-  background: var(--fill-error);
-  border: var(--border-width) solid rgba(var(--ios-red-rgb), 0.25);
-  color: var(--ios-red);
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-.segmented-control {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  background: var(--fill-tertiary);
-}
-.segmented-control button {
-  border: 0;
-  border-radius: 8px;
-  padding: 8px 10px;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-weight: 700;
-}
-.segmented-control button.active {
-  background: var(--card-bg);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
-}
-.pin-progress-card {
-  margin-top: 12px;
-  border: var(--border-width) solid rgba(var(--ios-blue-rgb), 0.18);
-  background: rgba(var(--ios-blue-rgb), 0.06);
-  border-radius: 10px;
-  padding: 10px 12px;
-}
-.pin-progress-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-.pin-progress-status {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ios-blue);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.pin-progress-counter {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.pin-progress-track {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--fill-tertiary);
-}
-.pin-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--gradient-primary);
-  transition: width 0.2s ease;
-}
-.pin-progress-fill.indeterminate {
-  width: 42% !important;
-  animation: pin-progress-slide 1.2s ease-in-out infinite;
-}
-.pin-progress-text {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  word-break: break-word;
-}
-
-/* Send modal bits (simple reuse-ish) */
-.send-modal .form-group {
-  margin-bottom: 12px;
-}
-.send-modal label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-.required {
-  color: var(--ios-red);
-}
-.input-wrapper {
-  position: relative;
-}
-.form-input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 14px;
-}
-.input-wrapper.readonly .form-input {
-  background: var(--bg-secondary);
-}
-.input-suffix {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.balance-hint {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.balance-hint.error {
-  color: var(--ios-red);
-}
-.spinner {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-top-color: rgba(255, 255, 255, 1);
-  display: inline-block;
-  margin-right: 8px;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes pin-progress-slide {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(320%);
-  }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.12s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
