@@ -1,56 +1,56 @@
 <template>
-  <section class="network-params-panel">
-    <header class="content-header">
+  <section class="padding-200">
+    <header class="netparams-header flex margin-bottom-125">
       <div>
-        <h1>Params</h1>
-        <p>Live view of the blockchain parameters (fetched from the REST API).</p>
+        <h1 class="color-text-primary">Params</h1>
+        <p class="color-text-secondary">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
-      <div class="header-actions">
-        <div class="endpoint-pill" :title="restBase">
-          <span class="pill-label">REST</span>
-          <span class="pill-value mono">{{ restBase }}</span>
+      <div class="netparams-header-actions flex">
+        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary" :title="restBase">
+          <span class="netparams-pill-label color-text-tertiary">REST</span>
+          <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap">{{ restBase }}</span>
         </div>
 
-        <button class="btn disabled-fade-60" type="button" @click="copyAll" :disabled="!hasAnyData">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer" type="button" @click="copyAll" :disabled="!hasAnyData">
           <Copy :size="16" />
           Copy all
         </button>
 
-        <button class="btn disabled-fade-60" type="button" @click="refreshAll" :disabled="loadingAll">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer" type="button" @click="refreshAll" :disabled="loadingAll">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </button>
       </div>
     </header>
 
-    <div v-if="fatalError" class="fatal-error">
-      <p class="fatal-title">Unable to fetch params</p>
-      <p class="fatal-desc">{{ fatalError }}</p>
+    <div v-if="fatalError" class="netparams-fatal-error color-text-primary">
+      <p class="netparams-fatal-title">Unable to fetch params</p>
+      <p class="netparams-fatal-desc color-text-secondary">{{ fatalError }}</p>
     </div>
 
-    <div v-else class="sections flex flex-column gap-75">
-      <div v-if="loadingAll && !hasAnyData" class="loading-state">
+    <div v-else class="flex flex-column gap-75">
+      <div v-if="loadingAll && !hasAnyData" class="netparams-loading-state flex-align-center bg-primary color-text-secondary">
         <UiSpinner size="sm" />
         <span>Loading params…</span>
       </div>
 
-      <section v-for="s in sections" :key="s.id" class="param-section">
-        <button type="button" class="section-head" @click="toggleSection(s.id)">
-          <div class="section-title">
-            <div class="title-row">
-              <span class="section-name">{{ s.title }}</span>
-              <span class="status-badge" :class="statusClass(s)">
+      <section v-for="s in sections" :key="s.id" class="netparams-section bg-primary">
+        <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer" @click="toggleSection(s.id)">
+          <div class="netparams-section-title flex">
+            <div class="netparams-title-row flex-align-center">
+              <span class="netparams-section-name color-text-primary">{{ s.title }}</span>
+              <span class="netparams-status-badge bg-transparent color-text-tertiary" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>
-            <span class="section-path mono">{{ s.path }}</span>
+            <span class="netparams-section-path color-text-tertiary mono">{{ s.path }}</span>
           </div>
 
-          <div class="section-actions">
+          <div class="netparams-section-actions flex-inline-align-center color-text-tertiary">
             <button
               type="button"
-              class="icon-btn disabled-fade-50"
+              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"
@@ -61,22 +61,22 @@
           </div>
         </button>
 
-        <div v-if="s.open" class="section-body">
-          <div v-if="s.loading" class="section-loading">
+        <div v-if="s.open" class="netparams-section-body">
+          <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary">
             <UiSpinner size="sm" />
             <span>Loading…</span>
           </div>
-          <div v-else-if="s.error" class="section-error">
+          <div v-else-if="s.error" class="netparams-section-error">
             {{ s.error }}
           </div>
-          <pre v-else class="json-block mono">{{ pretty(s.data) }}</pre>
+          <pre v-else class="netparams-json-block mono bg-primary color-text-primary">{{ pretty(s.data) }}</pre>
         </div>
       </section>
     </div>
   </section>
 
-  <Transition name="toast">
-    <div v-if="toast" class="toast">
+  <Transition name="netparams-toast">
+    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white">
       <Check :size="16" />
       {{ toast }}
     </div>
@@ -331,297 +331,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.network-params-panel {
-  padding: 2rem;
-}
-
-.content-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.25rem;
-}
-
-.content-header h1 {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.content-header p {
-  margin: 0.35rem 0 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.endpoint-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  max-width: 420px;
-}
-
-.pill-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.pill-value {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.btn:hover:enabled {
-  background: var(--primary-a08);
-  border-color: var(--primary-a15);
-  color: var(--accent-primary);
-}
-
-.fatal-error {
-  border: 1px solid rgba(var(--ios-red-rgb), 0.25);
-  background: rgba(var(--ios-red-rgb), 0.08);
-  border-radius: 16px;
-  padding: 1.25rem;
-  color: var(--text-primary);
-}
-
-.fatal-title {
-  margin: 0;
-  font-weight: 800;
-}
-
-.fatal-desc {
-  margin: 0.35rem 0 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.loading-state {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 16px;
-}
-
-.param-section {
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.section-head {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-}
-
-.section-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
-}
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-width: 0;
-}
-
-.section-name {
-  font-weight: 800;
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.section-path {
-  font-size: 0.78rem;
-  color: var(--text-tertiary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.status-badge {
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-light);
-  color: var(--text-tertiary);
-  background: transparent;
-  flex: 0 0 auto;
-}
-
-.status-badge.ok {
-  background: rgba(var(--ios-green-rgb), 0.12);
-  border-color: rgba(var(--ios-green-rgb), 0.25);
-  color: var(--ios-green);
-}
-
-.status-badge.error {
-  background: rgba(var(--ios-red-rgb), 0.12);
-  border-color: rgba(var(--ios-red-rgb), 0.25);
-  color: var(--ios-red);
-}
-
-.status-badge.loading {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  border-color: rgba(var(--ios-orange-rgb), 0.25);
-  color: var(--ios-orange);
-}
-
-.section-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-tertiary);
-  flex: 0 0 auto;
-}
-
-.icon-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: transparent;
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.icon-btn:hover:enabled {
-  background: var(--primary-a08);
-  border-color: var(--primary-a15);
-  color: var(--accent-primary);
-}
-
-.section-body {
-  border-top: 1px solid var(--border-light);
-  background: var(--bg-secondary);
-  padding: 0.85rem 1.25rem 1.25rem;
-}
-
-.section-loading {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.section-error {
-  color: var(--ios-red);
-  font-size: 0.9rem;
-}
-
-.json-block {
-  margin: 0;
-  padding: 0.85rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-light);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  overflow: auto;
-  max-height: 420px;
-  line-height: 1.35;
-  font-size: 0.78rem;
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', monospace;
-}
-
-.spinning {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  z-index: 100;
-  box-shadow: var(--shadow-primary-lg);
-}
-
-.toast-enter-active,
-.toast-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(8px);
-}
-</style>
 
