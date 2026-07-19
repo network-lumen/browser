@@ -3627,7 +3627,7 @@ select.recurpay-input {
     color: var(--text-primary);
 }
 
-.tabs-header .mainscreen-tab.active :deep(.button-icon) {
+.tabs-header .mainscreen-tab.active .button-icon {
     color: var(--text-primary);
 }
 
@@ -8641,7 +8641,7 @@ textarea.mygw-form-input {
   --color-prettylights-syntax-variable: #953800;
 }
 
-:global(:root.dark) .ipfspage-markdown-view {
+:root.dark .ipfspage-markdown-view {
   color-scheme: dark;
   --bgColor-default: #0d1117;
   --bgColor-muted: #151b23;
@@ -8666,16 +8666,16 @@ textarea.mygw-form-input {
   --color-prettylights-syntax-variable: #ffa657;
 }
 
-.ipfspage-markdown-view :deep(img) {
+.ipfspage-markdown-view img {
   max-width: 100%;
   height: auto;
 }
 
-.ipfspage-markdown-view :deep(pre) {
+.ipfspage-markdown-view pre {
   overflow: auto;
 }
 
-.ipfspage-markdown-view :deep(code) {
+.ipfspage-markdown-view code {
   word-break: break-word;
 }
 
