@@ -27,7 +27,7 @@
           <p class="color-text-secondary">The content couldn't be found. Please try again later.</p>
           <p class="color-text-secondary">
             If this is your site,
-            <button type="button" class="sitepage-inline-link padding-0 border-none bg-transparent color-primary underline cursor-pointer" @click="goToCreateWebsiteDocs">read the setup guide</button>.
+            <button type="button" class="sitepage-inline-link padding-0 border-none bg-transparent color-primary underline cursor-pointer txt-weight-light" @click="goToCreateWebsiteDocs">read the setup guide</button>.
           </p>
         </div>
       </div>
