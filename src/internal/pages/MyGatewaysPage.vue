@@ -1,5 +1,5 @@
 <template>
-  <div class="my-gateways-page internal-page">
+  <div class="my-gateways-page internal-page flex">
     <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
@@ -12,19 +12,19 @@
       </nav>
     </InternalSidebar>
 
-    <main class="main-content">
-      <header class="content-header">
-        <div class="header-text">
-          <h1>My Private Gateways</h1>
-          <p>Manage your private IPFS gateways for secure content delivery</p>
+    <main class="mygw-main flex-1 flex flex-column overflow-hidden bg-secondary">
+      <header class="mygw-content-header margin-bottom-200">
+        <div class="mygw-header-text">
+          <h1 class="txt-weight-medium color-text-primary">My Private Gateways</h1>
+          <p class="color-text-secondary margin-0">Manage your private IPFS gateways for secure content delivery</p>
         </div>
       </header>
 
-      <div class="content-area">
+      <div class="mygw-content-area flex-1 overflow-y-auto">
         <!-- Embedded Server Card -->
-        <div class="embedded-server-card" :class="{ active: embeddedServerRunning }">
-          <div class="server-card-header">
-            <div class="server-icon">
+        <div class="mygw-server-card" :class="{ active: embeddedServerRunning }">
+          <div class="mygw-server-card-header flex-align-center gap-125 margin-bottom-150">
+            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary">
               <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -38,22 +38,22 @@
                 <line x1="6" y1="18" x2="6.01" y2="18"></line>
               </svg>
             </div>
-            <div class="server-info">
-              <h3>Embedded Gateway Server</h3>
-              <p v-if="embeddedServerRunning" class="server-url">{{ embeddedServerUrl }}</p>
-              <p v-else class="server-status-text">Start your personal gateway server</p>
+            <div class="mygw-server-info flex-1">
+              <h3 class="fs-11rem txt-weight-light color-text-primary">Embedded Gateway Server</h3>
+              <p v-if="embeddedServerRunning" class="mygw-server-url margin-0">{{ embeddedServerUrl }}</p>
+              <p v-else class="mygw-server-status-text color-text-secondary margin-0">Start your personal gateway server</p>
             </div>
-            <div class="server-status-badge" :class="{ running: embeddedServerRunning }">
-              <span class="status-dot"></span>
+            <div class="mygw-server-status-badge flex-align-center gap-50 fw-500 color-text-secondary border-radius-20px" :class="{ running: embeddedServerRunning }">
+              <span class="mygw-status-dot border-radius-circle"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
           </div>
 
-          <div class="server-card-actions">
+          <div class="mygw-server-card-actions flex gap-75">
             <button 
               v-if="embeddedServerRunning"
               type="button" 
-              class="btn-outline color-primary"
+              class="mygw-btn-outline flex-align-center gap-50 cursor-pointer fw-500 color-text-primary flex-1"
               @click="viewApiKey"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -63,7 +63,7 @@
             </button>
             <button 
               type="button" 
-              :class="embeddedServerRunning ? 'btn-stop' : 'btn-start'"
+              class="flex-align-center gap-50 border-none cursor-pointer color-white fw-500" :class="embeddedServerRunning ? 'mygw-btn-stop' : 'mygw-btn-start'"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
@@ -80,25 +80,25 @@
         </div>
 
         <!-- Whitelist Management Section (only show when embedded server is running) -->
-        <div v-if="embeddedServerRunning" class="whitelist-section">
-          <div class="section-header">
-            <h2>Whitelist Management</h2>
-            <button type="button" class="btn-add" @click="openWhitelistModal">
+        <div v-if="embeddedServerRunning" class="mygw-whitelist-section">
+          <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
+            <h2 class="txt-weight-light color-text-primary margin-0">Whitelist Management</h2>
+            <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="openWhitelistModal">
               <Plus :size="18" />
               Add User
             </button>
           </div>
 
-          <div v-if="whitelistLoading" class="empty-state small">
-            <div class="spinner"></div>
+          <div v-if="whitelistLoading" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center">
+            <div class="mygw-spinner border-radius-full size-40px"></div>
             <p>Loading whitelist...</p>
           </div>
 
-          <div v-else-if="whitelist.length === 0" class="empty-state small">
+          <div v-else-if="whitelist.length === 0" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center">
             <p>No users in whitelist yet. Add wallet addresses to grant access.</p>
           </div>
 
-          <div v-else class="whitelist-table">
+          <div v-else class="mygw-whitelist-table overflow-hidden">
             <table>
               <thead>
                 <tr>
@@ -111,20 +111,20 @@
               <tbody>
                 <tr v-for="entry in whitelist" :key="entry.wallet_address">
                   <td>
-                    <div class="user-display-name">
+                    <div class="mygw-user-display-name fw-500 color-text-primary">
                       {{ getUserDisplayName(entry.wallet_address) }}
                     </div>
                   </td>
                   <td>
-                    <span class="mono-text">{{ formatAddress(entry.wallet_address) }}</span>
+                    <span class="mygw-mono-text color-text-secondary">{{ formatAddress(entry.wallet_address) }}</span>
                   </td>
                   <td>{{ formatDate(entry.added_at) }}</td>
                   <td>
-                    <div class="table-actions">
-                      <button class="btn-icon" @click="editWhitelistEntry(entry)" title="Edit display name">
+                    <div class="mygw-table-actions flex gap-50">
+                      <button class="mygw-btn-icon flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px" @click="editWhitelistEntry(entry)" title="Edit display name">
                         <Edit2 :size="14" />
                       </button>
-                      <button class="btn-icon danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
+                      <button class="mygw-btn-icon danger flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
                         <Trash2 :size="14" />
                       </button>
                     </div>
@@ -136,69 +136,69 @@
         </div>
 
         <!-- External Gateways Section -->
-        <div class="section-header">
-          <h2>External Gateways</h2>
-          <button type="button" class="btn-add" @click="openCreateModal">
+        <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
+          <h2 class="txt-weight-light color-text-primary margin-0">External Gateways</h2>
+          <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="openCreateModal">
             <Plus :size="18" />
             Add Gateway
           </button>
         </div>
 
-        <div v-if="loading" class="empty-state">
-          <div class="spinner"></div>
+        <div v-if="loading" class="mygw-empty-state flex flex-column flex-align-justify-center text-center">
+          <div class="mygw-spinner border-radius-full size-40px"></div>
           <p>Loading gateways...</p>
         </div>
 
-        <div v-else-if="error" class="empty-state">
-          <AlertCircle :size="48" class="error-icon" />
-          <h2>Error Loading Gateways</h2>
+        <div v-else-if="error" class="mygw-empty-state flex flex-column flex-align-justify-center text-center">
+          <AlertCircle :size="48" class="color-error margin-bottom-100" />
+          <h2 class="txt-weight-light color-text-primary">Error Loading Gateways</h2>
           <p>{{ error }}</p>
-          <button class="btn-secondary color-text-primary" @click="loadGateways">Try Again</button>
+          <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="loadGateways">Try Again</button>
         </div>
 
-        <div v-else-if="gateways.length === 0" class="empty-state">
-          <Server :size="48" class="empty-icon" />
-          <h2>No Gateways Yet</h2>
+        <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center">
+          <Server :size="48" class="color-text-tertiary margin-bottom-100" />
+          <h2 class="txt-weight-light color-text-primary">No Gateways Yet</h2>
           <p>Create your first private gateway to get started</p>
-          <button class="btn-primary disabled-fade-50" @click="openCreateModal">
+          <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="openCreateModal">
             <Plus :size="18" />
             Create Gateway
           </button>
         </div>
 
-        <div v-else class="gateways-grid">
-          <div v-for="gateway in gateways" :key="gateway.id" class="gateway-card">
-            <div class="gateway-header">
-              <div class="gateway-title flex-align-center gap-50">
-                <div class="status-dot" :class="{ active: gateway.status === 'active' }"></div>
-                <h3>{{ gateway.name }}</h3>
+        <div v-else class="mygw-gateways-grid gap-125">
+          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150">
+            <div class="mygw-gateway-header flex-align-start flex-justify-space-between margin-bottom-100">
+              <div class="mygw-gateway-title flex-align-center gap-50">
+                <div class="mygw-status-dot border-radius-circle" :class="{ active: gateway.status === 'active' }"></div>
+                <h3 class="fs-11rem txt-weight-light color-text-primary margin-0">{{ gateway.name }}</h3>
               </div>
-              <span class="gateway-badge" :class="`badge-${gateway.status}`">
+              <span class="mygw-gateway-badge fw-500 border-radius-12px text-capitalize" :class="`badge-${gateway.status}`">
                 {{ gateway.status }}
               </span>
             </div>
 
-            <div class="gateway-info">
-              <div class="info-row">
-                <span class="info-label">URL:</span>
-                <span class="info-value mono">{{ gateway.url }}</span>
+            <div class="mygw-gateway-info flex flex-column gap-50 margin-bottom-100">
+              <div class="mygw-info-row flex gap-50">
+                <span class="mygw-info-label color-text-secondary fw-500">URL:</span>
+                <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.url }}</span>
               </div>
-              <div class="info-row">
-                <span class="info-label">ID:</span>
-                <span class="info-value mono">{{ gateway.id }}</span>
+              <div class="mygw-info-row flex gap-50">
+                <span class="mygw-info-label color-text-secondary fw-500">ID:</span>
+                <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.id }}</span>
               </div>
-              <div class="info-row">
-                <span class="info-label">Created:</span>
-                <span class="info-value">{{ formatDate(gateway.createdAt) }}</span>
+              <div class="mygw-info-row flex gap-50">
+                <span class="mygw-info-label color-text-secondary fw-500">Created:</span>
+                <span class="mygw-info-value break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>
 
-            <div class="gateway-actions">
-              <button class="btn-secondary color-text-primary" @click="openEditModal(gateway)">
+            <div class="mygw-gateway-actions flex gap-50 margin-top-100">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
                 Edit
               </button>
-              <button class="btn-danger" @click="confirmDelete(gateway)">
+              <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1" @click="confirmDelete(gateway)">
                 <Trash2 :size="16" />
                 Delete
               </button>
@@ -208,60 +208,60 @@
       </div>
 
       <!-- Create/Edit Modal -->
-      <Transition name="modal">
-        <div v-if="showModal" class="modal-overlay" @click="closeModal">
-          <div class="modal-content" @click.stop>
-            <div class="modal-header">
-              <h2>{{ editingGateway ? 'Edit External Gateway' : 'Add External Gateway' }}</h2>
-              <button class="icon-btn hover-fill-primary" @click="closeModal">×</button>
+      <Transition name="mygw-modal">
+        <div v-if="showModal" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeModal">
+          <div class="mygw-modal-content bg-card overflow-hidden flex flex-column" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+              <h2 class="txt-weight-light color-text-primary margin-0">{{ editingGateway ? 'Edit External Gateway' : 'Add External Gateway' }}</h2>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeModal">×</button>
             </div>
 
-            <div class="modal-body">
-              <p class="modal-description">
+            <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
+              <p class="mygw-modal-description color-text-secondary margin-bottom-150">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
               
-              <div class="form-group">
-                <label class="form-label">Gateway Name</label>
+              <div class="mygw-form-group margin-bottom-125">
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Gateway Name</label>
                 <input
                   v-model="form.name"
                   type="text"
-                  class="form-input"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px"
                   placeholder="My Private Gateway"
                 />
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Gateway URL</label>
+              <div class="mygw-form-group margin-bottom-125">
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Gateway URL</label>
                 <input
                   v-model="form.url"
                   type="text"
-                  class="form-input"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px"
                   placeholder="https://gateway.example.com"
                 />
               </div>
 
-              <div class="form-group">
-                <label class="form-label">API Key</label>
+              <div class="mygw-form-group margin-bottom-125">
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">API Key</label>
                 <input
                   v-model="form.apiKey"
                   type="password"
-                  class="form-input"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px"
                   placeholder="Your gateway API key"
                 />
               </div>
 
-              <div v-if="modalError" class="error-message">
+              <div v-if="modalError" class="mygw-error-message color-error margin-top-100 border-radius-10px">
                 {{ modalError }}
               </div>
             </div>
 
-            <div class="modal-actions">
-              <button class="btn-secondary color-text-primary" @click="closeModal" :disabled="saving">
+            <div class="mygw-modal-actions flex gap-75 padding-150">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeModal" :disabled="saving">
                 Cancel
               </button>
-              <button class="btn-primary disabled-fade-50" @click="saveGateway" :disabled="saving || !isFormValid">
+              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="saveGateway" :disabled="saving || !isFormValid">
                 {{ saving ? 'Saving...' : (editingGateway ? 'Update' : 'Create') }}
               </button>
             </div>
@@ -270,24 +270,24 @@
       </Transition>
 
       <!-- Delete Confirmation Modal -->
-      <Transition name="modal">
-        <div v-if="showDeleteConfirm" class="modal-overlay" @click="closeDeleteConfirm">
-          <div class="modal-content small" @click.stop>
-            <div class="modal-header">
-              <h2>Delete Gateway</h2>
-              <button class="icon-btn hover-fill-primary" @click="closeDeleteConfirm">×</button>
+      <Transition name="mygw-modal">
+        <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeDeleteConfirm">
+          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+              <h2 class="txt-weight-light color-text-primary margin-0">Delete Gateway</h2>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeDeleteConfirm">×</button>
             </div>
 
-            <div class="modal-body">
+            <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
               <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
-              <p class="warning-text">This action cannot be undone.</p>
+              <p class="mygw-warning-text color-warning margin-top-50">This action cannot be undone.</p>
             </div>
 
-            <div class="modal-actions">
-              <button class="btn-secondary color-text-primary" @click="closeDeleteConfirm" :disabled="deleting">
+            <div class="mygw-modal-actions flex gap-75 padding-150">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeDeleteConfirm" :disabled="deleting">
                 Cancel
               </button>
-              <button class="btn-danger" @click="deleteGateway" :disabled="deleting">
+              <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1" @click="deleteGateway" :disabled="deleting">
                 {{ deleting ? 'Deleting...' : 'Delete' }}
               </button>
             </div>
@@ -296,56 +296,56 @@
       </Transition>
 
       <!-- Whitelist Add/Edit Modal -->
-      <Transition name="modal">
-        <div v-if="showWhitelistModal" class="modal-overlay" @click="closeWhitelistModal">
-          <div class="modal-content" @click.stop>
-            <div class="modal-header">
-              <h2>{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
-              <button class="icon-btn hover-fill-primary" @click="closeWhitelistModal">×</button>
+      <Transition name="mygw-modal">
+        <div v-if="showWhitelistModal" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeWhitelistModal">
+          <div class="mygw-modal-content bg-card overflow-hidden flex flex-column" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+              <h2 class="txt-weight-light color-text-primary margin-0">{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeWhitelistModal">×</button>
             </div>
 
-            <div class="modal-body">
-              <div class="form-group">
-                <label class="form-label">Wallet Address</label>
+            <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
+              <div class="mygw-form-group margin-bottom-125">
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Wallet Address</label>
                 <input
                   v-model="whitelistForm.address"
                   type="text"
-                  class="form-input"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px"
                   placeholder="lumen1..."
                   :disabled="!!editingWhitelistEntry"
                 />
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Display Name (Optional)</label>
+              <div class="mygw-form-group margin-bottom-125">
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Display Name (Optional)</label>
                 <input
                   v-model="whitelistForm.displayName"
                   type="text"
-                  class="form-input"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px"
                   placeholder="John Doe"
                 />
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Notes (Optional)</label>
+              <div class="mygw-form-group margin-bottom-125">
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Notes (Optional)</label>
                 <textarea
                   v-model="whitelistForm.notes"
-                  class="form-input"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px"
                   rows="3"
                   placeholder="Additional notes about this user..."
                 ></textarea>
               </div>
 
-              <div v-if="whitelistModalError" class="error-message">
+              <div v-if="whitelistModalError" class="mygw-error-message color-error margin-top-100 border-radius-10px">
                 {{ whitelistModalError }}
               </div>
             </div>
 
-            <div class="modal-actions">
-              <button class="btn-secondary color-text-primary" @click="closeWhitelistModal" :disabled="whitelistSaving">
+            <div class="mygw-modal-actions flex gap-75 padding-150">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeWhitelistModal" :disabled="whitelistSaving">
                 Cancel
               </button>
-              <button class="btn-primary disabled-fade-50" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
+              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
                 {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
               </button>
             </div>
@@ -354,24 +354,24 @@
       </Transition>
 
       <!-- Whitelist Remove Confirmation Modal -->
-      <Transition name="modal">
-        <div v-if="showWhitelistDeleteConfirm" class="modal-overlay" @click="closeWhitelistDeleteConfirm">
-          <div class="modal-content small" @click.stop>
-            <div class="modal-header">
-              <h2>Remove User</h2>
-              <button class="icon-btn hover-fill-primary" @click="closeWhitelistDeleteConfirm">×</button>
+      <Transition name="mygw-modal">
+        <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeWhitelistDeleteConfirm">
+          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+              <h2 class="txt-weight-light color-text-primary margin-0">Remove User</h2>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeWhitelistDeleteConfirm">×</button>
             </div>
 
-            <div class="modal-body">
+            <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
               <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
-              <p class="warning-text">They will no longer be able to access your gateway.</p>
+              <p class="mygw-warning-text color-warning margin-top-50">They will no longer be able to access your gateway.</p>
             </div>
 
-            <div class="modal-actions">
-              <button class="btn-secondary color-text-primary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
+            <div class="mygw-modal-actions flex gap-75 padding-150">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
                 Cancel
               </button>
-              <button class="btn-danger" @click="removeFromWhitelist" :disabled="whitelistDeleting">
+              <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1" @click="removeFromWhitelist" :disabled="whitelistDeleting">
                 {{ whitelistDeleting ? 'Removing...' : 'Remove' }}
               </button>
             </div>
@@ -930,667 +930,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style scoped>
-.my-gateways-page {
-  display: flex;
-  height: 100vh;
-  background: var(--bg-primary);
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-}
-
-.content-header {
-  margin-bottom: 2rem;
-}
-
-.header-text h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem;
-}
-
-.header-text p {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.content-area {
-  flex: 1;
-  overflow-y: auto;
-}
-
-/* Embedded Server Card */
-.embedded-server-card {
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.75rem;
-  margin-bottom: 2.5rem;
-  transition: all 0.3s ease;
-}
-
-.embedded-server-card.active {
-  border-color: var(--ios-green);
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
-  box-shadow: 0 4px 20px rgba(var(--ios-green-rgb), 0.1);
-}
-
-.server-card-header {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.server-icon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--hover-bg);
-  border-radius: 12px;
-  color: var(--text-secondary);
-  transition: all 0.3s ease;
-}
-
-.embedded-server-card.active .server-icon {
-  background: rgba(var(--ios-green-rgb), 0.15);
-  color: var(--ios-green);
-}
-
-.server-info {
-  flex: 1;
-}
-
-.server-info h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem;
-}
-
-.server-url {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  font-size: 0.875rem;
-  color: var(--ios-blue);
-  margin: 0;
-}
-
-.server-status-text {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.server-status-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--fill-tertiary);
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.3s ease;
-}
-
-.server-status-badge.running {
-  background: rgba(var(--ios-green-rgb), 0.15);
-  color: var(--ios-green);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.server-card-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-/* Section Header */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.section-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-/* Buttons */
-.btn-outline,
-.btn-start,
-.btn-stop,
-.btn-add {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--border-color);
-  color: var(--text-primary);
-  flex: 1;
-}
-
-.btn-outline:hover {
-  background: var(--hover-bg);
-  border-color: var(--ios-blue);
-  color: var(--ios-blue);
-  transform: translateY(-1px);
-}
-
-.btn-start {
-  background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
-  color: white;
-  flex: 1;
-  box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
-}
-
-.btn-start:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
-}
-
-.btn-stop {
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
-  color: white;
-  flex: 1;
-  box-shadow: 0 2px 8px rgba(var(--ios-red-rgb), 0.3);
-}
-
-.btn-stop:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--ios-red-rgb), 0.4);
-}
-
-.btn-add {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.3);
-}
-
-.btn-add:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.4);
-}
-
-.btn-outline:disabled,
-.btn-start:disabled,
-.btn-stop:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-}
-
-.empty-icon,
-.error-icon {
-  color: var(--text-tertiary);
-  margin-bottom: 1rem;
-}
-
-.error-icon {
-  color: var(--ios-red);
-}
-
-.empty-state h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem;
-}
-
-.empty-state p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.5rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border-color);
-  border-top-color: var(--ios-blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.gateways-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1.25rem;
-}
-
-.gateway-card {
-  background: var(--card-bg);
-  border: 1.5px solid var(--border-color);
-  border-radius: 14px;
-  padding: 1.5rem;
-  transition: all 0.25s ease;
-}
-
-.gateway-card:hover {
-  border-color: var(--ios-blue);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-4px);
-}
-
-.gateway-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-tertiary);
-}
-
-.status-dot.active {
-  background: var(--ios-green);
-}
-
-.gateway-title h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.gateway-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: capitalize;
-}
-
-.gateway-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.info-row {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.info-label {
-  color: var(--text-secondary);
-  font-weight: 500;
-  min-width: 60px;
-}
-
-.info-value {
-  color: var(--text-primary);
-  word-break: break-all;
-}
-
-.info-value.mono {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  font-size: 0.8rem;
-}
-
-.gateway-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.btn-primary,
-.btn-secondary,
-.btn-danger {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.3);
-}
-
-
-.btn-secondary {
-  background: var(--hover-bg);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  flex: 1;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-danger {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--ios-red);
-  border: 1px solid rgba(var(--ios-red-rgb), 0.2);
-  flex: 1;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background: rgba(var(--ios-red-rgb), 0.15);
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: var(--card-bg);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-content.small {
-  max-width: 400px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.icon-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-}
-
-.modal-description {
-  background: rgba(var(--ios-blue-rgb), 0.1);
-  border: 1px solid rgba(var(--ios-blue-rgb), 0.2);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  transition: all 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--ios-blue);
-  box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1);
-}
-
-.error-message {
-  padding: 0.75rem 1rem;
-  background: rgba(var(--ios-red-rgb), 0.1);
-  border: 1px solid rgba(var(--ios-red-rgb), 0.2);
-  border-radius: 10px;
-  color: var(--ios-red);
-  font-size: 0.875rem;
-  margin-top: 1rem;
-}
-
-.warning-text {
-  color: var(--ios-orange);
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.modal-actions .btn-secondary,
-.modal-actions .btn-primary,
-.modal-actions .btn-danger {
-  flex: 1;
-}
-
-/* Modal Transitions */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-content,
-.modal-leave-active .modal-content {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from .modal-content,
-.modal-leave-to .modal-content {
-  transform: scale(0.95);
-}
-
-/* Whitelist Section */
-.whitelist-section {
-  margin-bottom: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.empty-state.small {
-  padding: 2rem 1rem;
-}
-
-.whitelist-table {
-  background: var(--card-bg);
-  border: 1.5px solid var(--border-color);
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-.whitelist-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.whitelist-table thead {
-  background: var(--hover-bg);
-}
-
-.whitelist-table th {
-  padding: 1rem 1.25rem;
-  text-align: left;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.whitelist-table td {
-  padding: 1rem 1.25rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.whitelist-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.whitelist-table tbody tr:hover {
-  background: var(--hover-bg);
-}
-
-.user-display-name {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.mono-text {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.table-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-icon:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-  border-color: var(--ios-blue);
-}
-
-.btn-icon.danger:hover {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--ios-red);
-  border-color: var(--ios-red);
-}
-
-.form-input[type="textarea"],
-textarea.form-input {
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
-}
-</style>
