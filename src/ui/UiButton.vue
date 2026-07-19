@@ -56,21 +56,21 @@ const computedClass = computed(() => [
 <style scoped>
 .button-ghost {
   background-color: transparent;
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  color: var(--text-primary, #000);
+  color: var(--text-primary);
   cursor: pointer;
   padding: .5rem;
 }
 .button-ghost:where(:hover, :focus-visible) {
-  background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+  background: var(--hover-bg);
 }
 
 .button-primary {
-  background-color: var(--accent-primary, #007aff);
+  background-color: var(--accent-primary);
   border: 1px solid transparent;
   border-radius: 10px;
-  color: var(--white, #fff);
+  color: #fff;
   cursor: pointer;
   padding: .5rem;
 }
@@ -84,23 +84,23 @@ const computedClass = computed(() => [
   border-radius: 50%;
   cursor: pointer;
   padding: .25rem;
-  color: var(--text-secondary, #3c3c43);
+  color: var(--text-secondary);
 }
 .button-icon:where(:hover, :focus-visible) {
-  background: var(--hover-bg, rgba(0, 0, 0, 0.04));
-  color: var(--text-primary, #000);
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .button-cta {
-  background-color: var(--fill-tertiary, rgba(118, 118, 128, 0.12));
-  border: 1px solid var(--border-color, rgba(60, 60, 67, 0.16));
+  background-color: var(--fill-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  color: var(--text-primary, #000);
+  color: var(--text-primary);
   cursor: pointer;
   padding: .5rem;
   font-weight: 700;
 }
 .button-cta:where(:hover, :focus-visible) {
-  background: var(--fill-secondary, rgba(118, 118, 128, 0.16));
+  background: var(--fill-secondary);
 }
 </style>
