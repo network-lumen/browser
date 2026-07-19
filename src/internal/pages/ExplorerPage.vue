@@ -74,179 +74,179 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="explorer-main-content flex-1 padding-150">
       <!-- Search Bar -->
-      <div class="search-section">
-        <div class="search-container">
-          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="explorer-search-section margin-bottom-200">
+        <div class="explorer-search-container flex-align-center gap-50 border-radius-12px">
+          <svg class="explorer-search-icon color-text-tertiary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
           </svg>
           <input 
             type="text" 
-            class="search-input" 
+            class="explorer-search-input flex-1 outline-none color-text-primary" 
             v-model="searchQuery"
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
           />
-          <button class="search-btn disabled-fade-50" @click="performSearch" :disabled="!searchQuery">
+          <button class="explorer-search-btn disabled-fade-50 txt-weight-light cursor-pointer" @click="performSearch" :disabled="!searchQuery">
             Search
           </button>
         </div>
       </div>
 
       <!-- Stats Bar -->
-      <div class="stats-bar">
-        <div class="stat-item">
-          <span class="stat-label color-text-tertiary text-uppercase">Latest Block</span>
-          <span class="stat-value txt-weight-medium color-text-primary">{{ formatNumber(latestBlock) }}</span>
+      <div class="explorer-stats-bar gap-100 margin-bottom-200">
+        <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px">
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500">Latest Block</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary">{{ formatNumber(latestBlock) }}</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label color-text-tertiary text-uppercase">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="stat-value txt-weight-medium color-text-primary">{{ formatNumber(txHistoryTotal) }}</span>
+        <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px">
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500">Txs (last {{ txHistoryWindow }} blocks)</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label color-text-tertiary text-uppercase">Validators</span>
-          <span class="stat-value txt-weight-medium color-text-primary">{{ validatorCount }}</span>
+        <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px">
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500">Validators</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary">{{ validatorCount }}</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label color-text-tertiary text-uppercase">Avg Block Time</span>
-          <span class="stat-value txt-weight-medium color-text-primary">{{ avgBlockTimeLabel }}</span>
+        <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px">
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500">Avg Block Time</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="loading-state">
-        <div class="spinner"></div>
+      <div v-if="isLoading" class="explorer-loading-state flex-align-justify-center flex-column color-text-secondary">
+        <div class="explorer-spinner size-40px border-radius-circle margin-bottom-100"></div>
         <p>Loading blockchain data...</p>
       </div>
 
       <template v-else>
         <!-- Overview View -->
-        <div v-if="currentView === 'overview'" class="content-area">
+        <div v-if="currentView === 'overview'" class="explorer-content-area border-radius-12px">
           <!-- Section Header -->
-          <div class="overview-header">
+          <div class="explorer-overview-header margin-bottom-150 text-center">
             <h1>Network Overview</h1>
             <p>Real-time blockchain statistics</p>
           </div>
 
           <!-- Charts Section -->
-          <div class="charts-section">
-            <div class="chart-card">
-              <div class="chart-header">
+          <div class="explorer-charts-section gap-75">
+            <div class="explorer-chart-card border-radius-lg padding-125">
+              <div class="explorer-chart-header flex-align-center-justify-space-between">
                 <h3>{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-50">
-                  <span class="filter-label">Total: {{ formatNumber(txHistoryTotal) }}</span>
+                  <span class="explorer-filter-label fs-075rem color-text-tertiary">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
-                    class="time-filter-btn" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer" 
                     :class="{ active: txHistoryWindow === 5 }"
                     @click="txHistoryWindow = 5"
                   >5B</button>
                   <button 
-                    class="time-filter-btn" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer" 
                     :class="{ active: txHistoryWindow === 10 }"
                     @click="txHistoryWindow = 10"
                   >10B</button>
                   <button 
-                    class="time-filter-btn" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer" 
                     :class="{ active: txHistoryWindow === 15 }"
                     @click="txHistoryWindow = 15"
                   >15B</button>
                   <button 
-                    class="time-filter-btn" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer" 
                     :class="{ active: txHistoryWindow === 20 }"
                     @click="txHistoryWindow = 20"
                   >20B</button>
                 </div>
               </div>
-              <div class="chart-container">
+              <div class="explorer-chart-container">
                 <canvas ref="txHistoryChart"></canvas>
               </div>
             </div>
 
-            <div class="chart-card">
-              <div class="chart-header">
+            <div class="explorer-chart-card border-radius-lg padding-125">
+              <div class="explorer-chart-header flex-align-center-justify-space-between">
                 <h3>Bonded / Supply</h3>
               </div>
-              <div class="chart-container">
-                <div class="chart-donut-wrapper">
+              <div class="explorer-chart-container">
+                <div class="explorer-chart-donut-wrapper">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
-                  <div class="chart-center-label">
-                    <div class="center-value">{{ bondedRatioLabel }}</div>
-                    <div class="center-label">Bonded</div>
+                  <div class="explorer-chart-center-label text-center">
+                    <div class="explorer-center-value txt-weight-medium color-text-primary">{{ bondedRatioLabel }}</div>
+                    <div class="explorer-center-label color-text-tertiary">Bonded</div>
                   </div>
                 </div>
-                <div class="chart-legend">
-                  <div class="legend-item">
-                    <span class="legend-dot" style="background: linear-gradient(135deg, #ec4899, #8b5cf6)"></span>
-                    <span class="legend-label">Bonded</span>
-                    <span class="legend-value">{{ formatNumber(bondedTokens) }} LMN</span>
+                <div class="explorer-chart-legend flex flex-column">
+                  <div class="explorer-legend-item flex-align-center">
+                    <span class="explorer-legend-dot border-radius-circle" style="background: linear-gradient(135deg, #ec4899, #8b5cf6)"></span>
+                    <span class="explorer-legend-label flex-1 color-text-secondary">Bonded</span>
+                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(bondedTokens) }} LMN</span>
                   </div>
-                  <div class="legend-item">
-                    <span class="legend-dot" style="background: rgba(139, 92, 246, 0.2)"></span>
-                    <span class="legend-label">Unbonded</span>
-                    <span class="legend-value">{{ formatNumber(unbondedTokens) }} LMN</span>
+                  <div class="explorer-legend-item flex-align-center">
+                    <span class="explorer-legend-dot border-radius-circle" style="background: rgba(139, 92, 246, 0.2)"></span>
+                    <span class="explorer-legend-label flex-1 color-text-secondary">Unbonded</span>
+                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(unbondedTokens) }} LMN</span>
                   </div>
-                  <div class="legend-item">
-                    <span class="legend-label">Total Supply</span>
-                    <span class="legend-value">{{ formatNumber(totalSupply) }} LMN</span>
+                  <div class="explorer-legend-item flex-align-center">
+                    <span class="explorer-legend-label flex-1 color-text-secondary">Total Supply</span>
+                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(totalSupply) }} LMN</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="chart-card">
-              <div class="chart-header">
+            <div class="explorer-chart-card border-radius-lg padding-125">
+              <div class="explorer-chart-header flex-align-center-justify-space-between">
                 <h3>Voting Power</h3>
               </div>
-              <div class="chart-container">
-                <div class="chart-donut-wrapper">
+              <div class="explorer-chart-container">
+                <div class="explorer-chart-donut-wrapper">
                   <canvas ref="votingPowerChart" width="120" height="120"></canvas>
-                  <div class="chart-center-label">
-                    <div class="center-value">{{ topValidatorsPower.length }}</div>
-                    <div class="center-label">Active</div>
+                  <div class="explorer-chart-center-label text-center">
+                    <div class="explorer-center-value txt-weight-medium color-text-primary">{{ topValidatorsPower.length }}</div>
+                    <div class="explorer-center-label color-text-tertiary">Active</div>
                   </div>
                 </div>
-                <div class="chart-legend">
-                  <div v-for="(vp, idx) in topValidatorsPower.slice(0, 5)" :key="idx" class="legend-item">
-                    <span class="legend-dot" :style="{ background: getVotingPowerColor(idx) }"></span>
-                    <span class="legend-label">{{ vp.moniker }}</span>
-                    <span class="legend-value">{{ vp.percentage }}%</span>
+                <div class="explorer-chart-legend flex flex-column">
+                  <div v-for="(vp, idx) in topValidatorsPower.slice(0, 5)" :key="idx" class="explorer-legend-item flex-align-center">
+                    <span class="explorer-legend-dot border-radius-circle" :style="{ background: getVotingPowerColor(idx) }"></span>
+                    <span class="explorer-legend-label flex-1 color-text-secondary">{{ vp.moniker }}</span>
+                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ vp.percentage }}%</span>
                   </div>
-                  <div class="legend-item">
-                    <span class="legend-dot" style="background: rgba(148, 163, 184, 0.3)"></span>
-                    <span class="legend-label">Others</span>
-                    <span class="legend-value">{{ othersPercentage }}%</span>
+                  <div class="explorer-legend-item flex-align-center">
+                    <span class="explorer-legend-dot border-radius-circle" style="background: rgba(148, 163, 184, 0.3)"></span>
+                    <span class="explorer-legend-label flex-1 color-text-secondary">Others</span>
+                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ othersPercentage }}%</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="chart-card block-production-card">
-              <div class="chart-header">
+            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125">
+              <div class="explorer-chart-header flex-align-center-justify-space-between">
                 <h3>Block Production</h3>
-                <div class="live-indicator">
-                  <span class="live-dot"></span>
+                <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light">
+                  <span class="explorer-live-dot border-radius-circle"></span>
                   <span>Live</span>
                 </div>
               </div>
-              <div class="chart-container">
-                <div class="block-proposer-info">
-                  <div class="proposer-avatar">
+              <div class="explorer-chart-container">
+                <div class="explorer-block-proposer-info flex-align-justify-center flex-column">
+                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium">
                     <img v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div class="proposer-name">{{ latestProposer.moniker }}</div>
-                  <div class="proposer-label">Latest Block Proposer</div>
-                  <div class="proposer-stats">
-                    <div class="proposer-stat-group">
-                      <div class="proposer-stat">
-                        <span class="stat-label color-text-tertiary text-uppercase">Block</span>
-                        <span class="stat-value txt-weight-medium color-text-primary">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                  <div class="explorer-proposer-name txt-weight-medium color-text-primary text-center">{{ latestProposer.moniker }}</div>
+                  <div class="explorer-proposer-label color-text-tertiary text-center">Latest Block Proposer</div>
+                  <div class="explorer-proposer-stats w-full margin-top-37">
+                    <div class="explorer-proposer-stat-group gap-50 w-full">
+                      <div class="explorer-proposer-stat flex flex-column text-center">
+                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500">Block</span>
+                        <span class="explorer-stat-value txt-weight-medium color-text-primary">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                       </div>
-                      <div class="proposer-stat">
-                        <span class="stat-label color-text-tertiary text-uppercase">Block Time</span>
-                        <span class="stat-value txt-weight-medium color-text-primary">{{ avgBlockTimeLabelShort }}</span>
+                      <div class="explorer-proposer-stat flex flex-column text-center">
+                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500">Block Time</span>
+                        <span class="explorer-stat-value txt-weight-medium color-text-primary">{{ avgBlockTimeLabelShort }}</span>
                       </div>
                     </div>
                   </div>
@@ -256,15 +256,15 @@
           </div>
 
           <!-- Recent Activity -->
-          <div class="recent-activity">
-            <div class="activity-column">
-              <div class="activity-header">
+          <div class="explorer-recent-activity gap-75">
+            <div class="explorer-activity-column border-radius-lg padding-125">
+              <div class="explorer-activity-header flex-align-center-justify-space-between">
                 <h3>Latest Blocks</h3>
-                <button class="view-all-btn" @click="currentView = 'blocks'">View All →</button>
+                <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer" @click="currentView = 'blocks'">View All →</button>
               </div>
               <div class="activity-list flex flex-column gap-75">
-                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="activity-item cursor-pointer" @click="navigateToBlock(block.height)">
-                  <div class="activity-icon">
+                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="explorer-activity-item cursor-pointer flex-align-center gap-75" @click="navigateToBlock(block.height)">
+                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="3" width="7" height="7" rx="1"/>
                       <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -272,45 +272,45 @@
                       <rect x="3" y="14" width="7" height="7" rx="1"/>
                     </svg>
                   </div>
-                  <div class="activity-content">
-                    <div class="activity-title">#{{ formatNumber(block.height) }}</div>
-                    <div class="activity-meta">
-                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="proposer-mini-avatar" :alt="block.proposer" />
+                  <div class="explorer-activity-content flex-1">
+                    <div class="explorer-activity-title txt-weight-light color-text-primary">#{{ formatNumber(block.height) }}</div>
+                    <div class="explorer-activity-meta flex-align-center fs-075rem color-text-tertiary gap-50">
+                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="explorer-proposer-mini-avatar border-radius-circle" :alt="block.proposer" />
                       <span>{{ block.proposer }}</span>
                     </div>
                   </div>
-                  <div class="activity-side">
-                    <div class="activity-value">{{ block.txCount }} txs</div>
-                    <div class="activity-time">{{ formatTimeAgo(block.time) }}</div>
+                  <div class="explorer-activity-side flex-align-end flex-column gap-25">
+                    <div class="explorer-activity-value txt-weight-light color-text-primary">{{ block.txCount }} txs</div>
+                    <div class="explorer-activity-time fs-075rem color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="activity-column">
-              <div class="activity-header">
+            <div class="explorer-activity-column border-radius-lg padding-125">
+              <div class="explorer-activity-header flex-align-center-justify-space-between">
                 <h3>Latest Transactions</h3>
-                <button class="view-all-btn" @click="currentView = 'transactions'">View All →</button>
+                <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer" @click="currentView = 'transactions'">View All →</button>
               </div>
               <div class="activity-list flex flex-column gap-75">
-                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="activity-item cursor-pointer" @click="navigateToTransaction(tx.hash)">
-                  <div class="activity-icon">
+                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="explorer-activity-item cursor-pointer flex-align-center gap-75" @click="navigateToTransaction(tx.hash)">
+                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
                       <path d="M21 3v5h-5"/>
                     </svg>
                   </div>
-                  <div class="activity-content">
-                    <div class="activity-title">{{ shortenHash(tx.hash) }}</div>
-                    <div class="activity-meta">
-                      <span class="tx-type-mini">{{ tx.type }}</span>
+                  <div class="explorer-activity-content flex-1">
+                    <div class="explorer-activity-title txt-weight-light color-text-primary">{{ shortenHash(tx.hash) }}</div>
+                    <div class="explorer-activity-meta flex-align-center fs-075rem color-text-tertiary gap-50">
+                      <span class="explorer-tx-type-mini color-primary txt-weight-light text-uppercase">{{ tx.type }}</span>
                     </div>
                   </div>
-                  <div class="activity-side">
-                    <div class="activity-status" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
+                  <div class="explorer-activity-side flex-align-end flex-column gap-25">
+                    <div class="explorer-activity-status fs-075rem txt-weight-light border-radius-12px" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
                       {{ tx.success ? 'Success' : 'Failed' }}
                     </div>
-                    <div class="activity-time">{{ formatTimeAgo(tx.time) }}</div>
+                    <div class="explorer-activity-time fs-075rem color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
                   </div>
                 </div>
               </div>
@@ -319,15 +319,15 @@
         </div>
 
         <!-- Blocks View -->
-        <div v-else-if="currentView === 'blocks'" class="content-area blocks-view">
-          <div class="blocks-header">
-            <div class="header-content">
+        <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px">
+          <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100">
+            <div class="explorer-header-content">
               <h2>Blocks</h2>
-              <p class="blocks-subtitle">View all blocks on the lumen-mainnet</p>
+              <p class="explorer-blocks-subtitle fs-075rem color-text-tertiary margin-0">View all blocks on the lumen-mainnet</p>
             </div>
-            <div class="header-actions">
-              <div class="filter-controls">
-                <select v-model="blockFilter" class="filter-select">
+            <div class="explorer-header-actions">
+              <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
+                <select v-model="blockFilter" class="explorer-filter-select cursor-pointer">
                   <option value="all">All Blocks</option>
                   <option value="recent">Recent (Last 100)</option>
                   <option value="with-txs">With Transactions</option>
@@ -337,18 +337,18 @@
                   v-model="blockHeightFilter"
                   type="number"
                   placeholder="Filter by height..."
-                  class="height-filter-input"
+                  class="explorer-height-filter-input"
                 />
               </div>
-              <span class="refresh-indicator" :class="{ active: autoRefresh }">
-                <span class="pulse-dot"></span>
+              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500" :class="{ active: autoRefresh }">
+                <span class="explorer-pulse-dot border-radius-circle"></span>
                 Live
               </span>
             </div>
           </div>
 
-          <div class="blocks-table">
-            <div class="table-header">
+          <div class="explorer-blocks-table">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
               <div class="th th-hash">HASH</div>
@@ -356,48 +356,48 @@
               <div class="th th-time">TIME</div>
             </div>
             
-            <div class="table-body">
-              <div v-for="block in filteredBlocks" :key="block.height" class="table-row cursor-pointer" @click="navigateToBlock(block.height)">
-                <div class="td td-height">
-                  <div class="height-link" @click="navigateToBlock(block.height)">
+            <div class="explorer-table-body flex flex-column">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100" @click="navigateToBlock(block.height)">
+                <div class="explorer-td td-height flex-align-center">
+                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer" @click="navigateToBlock(block.height)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
-                    <span class="height-number">{{ formatNumber(block.height) }}</span>
+                    <span class="explorer-height-number txt-weight-light">{{ formatNumber(block.height) }}</span>
                   </div>
                 </div>
-                <div class="td td-proposer">
-                  <div class="proposer-info">
-                    <div class="proposer-avatar">
+                <div class="explorer-td td-proposer flex-align-center">
+                  <div class="explorer-proposer-info flex-align-center">
+                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium">
                       <img v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
-                    <span class="proposer-name">{{ block.proposer }}</span>
+                    <span class="explorer-proposer-name txt-weight-medium color-text-primary text-center">{{ block.proposer }}</span>
                   </div>
                 </div>
-                <div class="td td-hash">
-                  <div class="hash-container clickable" @click.stop="navigateToBlock(block.height)" title="View block details">
-                    <code class="hash-code">{{ block.hash }}</code>
-                    <svg class="link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="explorer-td explorer-td-hash flex-align-center gap-50">
+                  <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer" @click.stop="navigateToBlock(block.height)" title="View block details">
+                    <code class="explorer-hash-code color-text-secondary">{{ block.hash }}</code>
+                    <svg class="explorer-link-icon color-text-tertiary" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="copy-icon-btn" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
+                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </button>
                 </div>
-                <div class="td td-txs">
-                  <span class="tx-count" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
+                <div class="explorer-td td-txs flex-align-center">
+                  <span class="explorer-tx-count txt-weight-light color-text-tertiary" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
-                <div class="td td-time">
-                  <span class="time-text">{{ formatTimeAgo(block.time) }}</span>
+                <div class="explorer-td td-time flex-align-center">
+                  <span class="explorer-time-text fs-075rem color-text-secondary">{{ formatTimeAgo(block.time) }}</span>
                 </div>
               </div>
             </div>
@@ -405,21 +405,21 @@
         </div>
 
         <!-- Transactions View -->
-        <div v-else-if="currentView === 'transactions'" class="content-area transactions-view">
-          <div class="transactions-header">
-            <div class="header-content">
+        <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px">
+          <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100">
+            <div class="explorer-header-content">
               <h2>Transactions</h2>
-              <p class="transactions-subtitle">Latest transactions on the lumen-mainnet</p>
+              <p class="explorer-transactions-subtitle color-text-tertiary margin-0">Latest transactions on the lumen-mainnet</p>
             </div>
-            <div class="filter-controls">
-              <select v-model="txTypeFilter" class="filter-select">
+            <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
+              <select v-model="txTypeFilter" class="explorer-filter-select cursor-pointer">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
                 <option value="delegate">Delegate</option>
                 <option value="vote">Vote</option>
                 <option value="other">Other</option>
               </select>
-              <select v-model="txStatusFilter" class="filter-select">
+              <select v-model="txStatusFilter" class="explorer-filter-select cursor-pointer">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
@@ -428,12 +428,12 @@
                 v-model="txHashFilter"
                 type="text"
                 placeholder="Filter by hash..."
-                class="hash-filter-input"
+                class="explorer-hash-filter-input"
               />
             </div>
           </div>
 
-          <div v-if="transactions.length === 0" class="empty-state">
+          <div v-if="transactions.length === 0" class="explorer-empty-state flex-align-justify-center flex-column color-text-tertiary border-radius-12px">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
@@ -441,8 +441,8 @@
             <p>No recent transactions</p>
           </div>
 
-          <div v-else class="transactions-table">
-            <div class="table-header">
+          <div v-else class="explorer-transactions-table">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
               <div class="th th-result">Result</div>
@@ -451,31 +451,31 @@
               <div class="th th-time">Time</div>
             </div>
             
-            <div class="table-body">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="table-row">
-                <div class="td td-hash">
-                  <div class="hash-container clickable" @click="navigateToTransaction(tx.hash)" title="View transaction details">
-                    <svg class="tx-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="explorer-table-body flex flex-column">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100">
+                <div class="explorer-td explorer-td-hash flex-align-center gap-50">
+                  <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer" @click="navigateToTransaction(tx.hash)" title="View transaction details">
+                    <svg class="explorer-tx-icon color-text-tertiary" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <code class="hash-code">{{ shortenHash(tx.hash) }}</code>
-                    <svg class="link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <code class="explorer-hash-code color-text-secondary">{{ shortenHash(tx.hash) }}</code>
+                    <svg class="explorer-link-icon color-text-tertiary" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="copy-icon-btn" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
+                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </button>
                 </div>
-                <div class="td td-type">
-                  <span class="tx-type-badge">{{ tx.type }}</span>
+                <div class="explorer-td td-type flex-align-center">
+                  <span class="explorer-tx-type-badge fs-075rem txt-weight-light">{{ tx.type }}</span>
                 </div>
-                <div class="td td-result">
-                  <span class="tx-status" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
+                <div class="explorer-td td-result flex-align-center">
+                  <span class="explorer-tx-status flex-inline-align-center fs-075rem txt-weight-light" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
                     <svg v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -483,14 +483,14 @@
                     {{ tx.success ? 'Success' : 'Failed' }}
                   </span>
                 </div>
-                <div class="td td-height">
-                  <span class="block-link clickable" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                <div class="explorer-td td-height flex-align-center">
+                  <span class="explorer-block-link explorer-clickable color-primary txt-weight-light cursor-pointer" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
-                <div class="td td-fee">
-                  <span class="fee-amount">{{ tx.fee || '—' }}</span>
+                <div class="explorer-td td-fee flex-align-center">
+                  <span class="explorer-fee-amount fs-075rem color-text-primary fw-500">{{ tx.fee || '—' }}</span>
                 </div>
-                <div class="td td-time">
-                  <span class="time-text">{{ formatTimeAgo(tx.time) }}</span>
+                <div class="explorer-td td-time flex-align-center">
+                  <span class="explorer-time-text fs-075rem color-text-secondary">{{ formatTimeAgo(tx.time) }}</span>
                 </div>
               </div>
             </div>
@@ -498,14 +498,14 @@
         </div>
 
         <!-- Validators View -->
-        <div v-else-if="currentView === 'validators'" class="content-area validators-view">
-          <div class="validators-header">
+        <div v-else-if="currentView === 'validators'" class="explorer-content-area explorer-validators-view border-radius-12px padding-200">
+          <div class="explorer-validators-header margin-bottom-200">
             <h2>Active Validators</h2>
-            <p class="validators-subtitle">{{ validators.length }} validators securing the network</p>
+            <p class="explorer-validators-subtitle color-text-tertiary">{{ validators.length }} validators securing the network</p>
           </div>
 
-          <div class="validators-table">
-            <div class="table-header">
+          <div class="explorer-validators-table border-radius-lg">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
               <div class="th th-voting-power">VOTING POWER %</div>
@@ -516,38 +516,38 @@
               <div class="th th-actions">ACTIONS</div>
             </div>
             
-            <div class="table-body">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="table-row validator-row">
-                <div class="td td-rank">
-                  <span class="rank-number">{{ index + 1 }}</span>
+            <div class="explorer-table-body flex flex-column">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100">
+                <div class="explorer-td td-rank flex-align-center">
+                  <span class="explorer-rank-number txt-weight-light color-text-secondary">{{ index + 1 }}</span>
                 </div>
-                <div class="td td-validator">
+                <div class="explorer-td td-validator flex-align-center">
                   <div class="validator-info flex-align-center gap-75">
-                    <div class="validator-avatar">
+                    <div class="explorer-validator-avatar flex-align-justify-center size-36px border-radius-circle txt-weight-medium">
                       <img v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
                       <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
                     </div>
                     <div class="validator-name-wrapper flex flex-column gap-25">
-                      <span class="validator-name">{{ validator.moniker }}</span>
-                      <span class="validator-address" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
+                      <span class="explorer-validator-name txt-weight-light color-text-primary">{{ validator.moniker }}</span>
+                      <span class="explorer-validator-address color-text-tertiary cursor-pointer" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
                   </div>
                 </div>
-                <div class="td td-voting-power">
-                  <div class="voting-power-container">
-                    <div class="voting-power-text">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
-                    <div class="voting-power-bar">
-                      <div class="voting-power-fill" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
+                <div class="explorer-td td-voting-power flex-align-center">
+                  <div class="explorer-voting-power-container flex flex-column gap-25 w-full">
+                    <div class="explorer-voting-power-text txt-weight-medium color-text-primary">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
+                    <div class="explorer-voting-power-bar w-full">
+                      <div class="explorer-voting-power-fill h-full" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
                     </div>
-                    <div class="voting-power-amount">{{ formatVotingPower(validator.tokens) }} LMN</div>
+                    <div class="explorer-voting-power-amount color-text-tertiary fw-500">{{ formatVotingPower(validator.tokens) }} LMN</div>
                   </div>
                 </div>
-                <div class="td td-changes">
-                  <span class="changes-value">—</span>
+                <div class="explorer-td td-changes flex-align-center">
+                  <span class="explorer-changes-value txt-weight-light">—</span>
                 </div>
-                <div class="td td-cumulative">
-                  <div class="cumulative-container">
-                    <svg class="circular-progress" width="50" height="50" viewBox="0 0 50 50">
+                <div class="explorer-td td-cumulative flex-align-center">
+                  <div class="explorer-cumulative-container flex-align-justify-center">
+                    <svg class="explorer-circular-progress" width="50" height="50" viewBox="0 0 50 50">
                       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle 
                         cx="25" cy="25" r="20" 
@@ -559,18 +559,18 @@
                         stroke-linecap="round"
                       ></circle>
                     </svg>
-                    <span class="cumulative-text">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
+                    <span class="explorer-cumulative-text flex-align-justify-center txt-weight-medium color-text-primary">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
                   </div>
                 </div>
-                <div class="td td-commission">
-                  <span class="commission-value">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
+                <div class="explorer-td td-commission flex-align-center">
+                  <span class="explorer-commission-value txt-weight-light color-text-secondary">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
                 </div>
-                <div class="td td-uptime">
-                  <span class="uptime-value">{{ getUptimeLabel(validator.address) }}</span>
+                <div class="explorer-td td-uptime flex-align-center">
+                  <span class="explorer-uptime-value txt-weight-light color-text-secondary">{{ getUptimeLabel(validator.address) }}</span>
                 </div>
-                <div class="td td-actions">
+                <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center">
                   <button 
-                    class="action-btn" 
+                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer" 
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
@@ -590,7 +590,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="copy-notification">
+    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -598,30 +598,30 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <div v-if="showStakeModal" class="modal-overlay" @click="closeStakeModal">
-      <div class="stake-modal" @click.stop>
-        <div class="modal-header">
+    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center" @click="closeStakeModal">
+      <div class="explorer-stake-modal" @click.stop>
+        <div class="explorer-modal-header flex-align-center-justify-space-between padding-150">
           <h3>Manage Stake with {{ selectedValidator?.moniker }}</h3>
-          <button class="close-btn hover-fill-primary" @click="closeStakeModal">×</button>
+          <button class="explorer-close-btn hover-fill-primary flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closeStakeModal">×</button>
         </div>
 
-        <div class="modal-body">
-          <div class="balance-info">
-            <div class="balance-item">
-              <span class="balance-label">Staked:</span>
-              <span class="balance-value">{{ stakedBalance }} LMN</span>
+        <div class="explorer-modal-body padding-150">
+          <div class="explorer-balance-info flex gap-100 margin-bottom-150 padding-100">
+            <div class="explorer-balance-item flex flex-column flex-1 gap-25">
+              <span class="explorer-balance-label fs-075rem color-text-secondary fw-500">Staked:</span>
+              <span class="explorer-balance-value color-text-primary txt-weight-medium">{{ stakedBalance }} LMN</span>
             </div>
-            <div class="balance-item">
-              <span class="balance-label">Balance:</span>
-              <span class="balance-value">{{ availableBalance }} LMN</span>
+            <div class="explorer-balance-item flex flex-column flex-1 gap-25">
+              <span class="explorer-balance-label fs-075rem color-text-secondary fw-500">Balance:</span>
+              <span class="explorer-balance-value color-text-primary txt-weight-medium">{{ availableBalance }} LMN</span>
             </div>
           </div>
 
-          <div class="action-tabs">
+          <div class="explorer-action-tabs flex gap-50 margin-bottom-150">
             <button 
               v-for="action in stakeActions" 
               :key="action"
-              class="tab-btn"
+              class="explorer-tab-btn flex-1 txt-weight-light color-text-secondary cursor-pointer"
               :class="{ active: currentStakeAction === action }"
               @click="currentStakeAction = action as 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'"
             >
@@ -631,14 +631,14 @@
 
           <div class="stake-form flex flex-column gap-125">
             <!-- Withdraw Rewards - No amount needed -->
-            <div v-if="currentStakeAction === 'Withdraw'" class="withdraw-info">
-              <div class="withdraw-notice">
+            <div v-if="currentStakeAction === 'Withdraw'" class="explorer-withdraw-info">
+              <div class="explorer-withdraw-notice flex-align-start gap-75 padding-100 border-radius-10px">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M12 16v-4"/>
                   <path d="M12 8h.01"/>
                 </svg>
-                <div class="withdraw-text flex flex-column gap-25">
+                <div class="explorer-withdraw-text flex flex-column gap-25">
                   <strong>Withdraw Staking Rewards</strong>
                   <p>This will claim all pending rewards from this validator to your wallet.</p>
                 </div>
@@ -646,44 +646,44 @@
             </div>
 
             <!-- Amount Input - Not for Withdraw -->
-            <div v-else class="form-group flex flex-column gap-50">
+            <div v-else class="explorer-form-group flex flex-column gap-50">
               <label>Amount to {{ currentStakeAction.toLowerCase() }}</label>
-              <div class="input-wrapper">
+              <div class="explorer-input-wrapper flex-align-center">
                 <input 
                   type="number" 
                   v-model="stakeAmount" 
                   :placeholder="`0.0`"
-                  class="stake-input"
+                  class="explorer-stake-input w-full color-text-primary txt-weight-light"
                   step="0.000001"
                   min="0"
                 />
-                <span class="input-suffix">LMN</span>
+                <span class="explorer-input-suffix txt-weight-light color-text-secondary">LMN</span>
               </div>
-              <div class="amount-slider">
+              <div class="explorer-amount-slider flex flex-column gap-50">
                 <input 
                   type="range" 
                   v-model="stakePercentage" 
                   min="0" 
                   max="100" 
-                  class="slider"
+                  class="explorer-slider w-full outline-none"
                 />
-                <div class="slider-labels">
+                <div class="explorer-slider-labels flex-justify-space-between color-text-tertiary">
                   <span>0%</span>
                   <span>50%</span>
                   <span>Max</span>
                 </div>
               </div>
-              <div class="quick-amounts">
-                <button @click="setStakePercentage(25)" class="quick-btn">25%</button>
-                <button @click="setStakePercentage(50)" class="quick-btn">50%</button>
-                <button @click="setStakePercentage(75)" class="quick-btn">75%</button>
-                <button @click="setStakePercentage(100)" class="quick-btn">Max</button>
+              <div class="explorer-quick-amounts gap-50">
+                <button @click="setStakePercentage(25)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer">25%</button>
+                <button @click="setStakePercentage(50)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer">50%</button>
+                <button @click="setStakePercentage(75)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer">75%</button>
+                <button @click="setStakePercentage(100)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer">Max</button>
               </div>
             </div>
 
-            <div v-if="currentStakeAction === 'Redelegate'" class="form-group flex flex-column gap-50">
+            <div v-if="currentStakeAction === 'Redelegate'" class="explorer-form-group flex flex-column gap-50">
               <label>Select New Validator</label>
-              <select v-model="targetValidator" class="validator-select">
+              <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer">
                 <option value="">Choose validator...</option>
                 <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
                   {{ val.moniker }}
@@ -692,7 +692,7 @@
             </div>
 
             <div class="advanced-options" v-if="showAdvancedOptions">
-              <button class="advanced-toggle" @click="showAdvancedOptions = !showAdvancedOptions">
+              <button class="explorer-advanced-toggle flex-align-center gap-50 color-text-secondary txt-weight-light cursor-pointer" @click="showAdvancedOptions = !showAdvancedOptions">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"/>
                   <path d="M12 1v6m0 6v6"/>
@@ -702,29 +702,29 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="tx-status-popup" :class="txStatus">
-              <div class="tx-status-content">
+            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200" :class="txStatus">
+              <div class="explorer-tx-status-content flex-align-center flex-column gap-150 text-center">
                 <!-- Processing -->
-                <div v-if="txStatus === 'processing'" class="tx-processing">
-                  <div class="tx-spinner"></div>
-                  <div class="tx-status-text flex flex-column gap-50">
+                <div v-if="txStatus === 'processing'" class="explorer-tx-processing">
+                  <div class="explorer-tx-spinner size-48px border-radius-circle"></div>
+                  <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong>Processing Transaction</strong>
                     <p>{{ txMessage }}</p>
                   </div>
                 </div>
 
                 <!-- Success -->
-                <div v-else-if="txStatus === 'success'" class="tx-success">
-                  <svg class="tx-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <div v-else-if="txStatus === 'success'" class="explorer-tx-success">
+                  <svg class="explorer-tx-icon color-text-tertiary" width="48" height="48" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2"/>
                     <path d="M8 12l3 3 5-5" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <div class="tx-status-text flex flex-column gap-50">
+                  <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong>Transaction Successful!</strong>
                     <p>{{ txMessage }}</p>
-                    <div v-if="txHash" class="tx-hash-display">
+                    <div v-if="txHash" class="explorer-tx-hash-display w-full">
                       <small>Transaction Hash:</small>
-                      <button class="tx-hash-link" @click="viewTransaction(txHash)">
+                      <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left" @click="viewTransaction(txHash)">
                         <code>{{ txHash }}</code>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -734,26 +734,26 @@
                       </button>
                     </div>
                   </div>
-                  <button class="tx-close-btn" @click="closeStakeModal">Close</button>
+                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->
-                <div v-else-if="txStatus === 'error'" class="tx-error">
-                  <svg class="tx-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <div v-else-if="txStatus === 'error'" class="explorer-tx-error">
+                  <svg class="explorer-tx-icon color-text-tertiary" width="48" height="48" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="var(--ios-red)" stroke-width="2"/>
                     <path d="M12 8v4m0 4h.01" stroke="var(--ios-red)" stroke-width="2" stroke-linecap="round"/>
                   </svg>
-                  <div class="tx-status-text flex flex-column gap-50">
+                  <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong>Transaction Failed</strong>
                     <p>{{ txMessage }}</p>
                   </div>
-                  <button class="tx-retry-btn" @click="txStatus = 'idle'">Try Again</button>
+                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer" @click="txStatus = 'idle'">Try Again</button>
                 </div>
               </div>
             </div>
 
             <button 
-              class="confirm-btn disabled-fade-40"
+              class="explorer-confirm-btn disabled-fade-40 w-full border-radius-sm txt-weight-light cursor-pointer"
               @click="() => confirmStakeAction()" 
               :disabled="!canConfirm || isProcessingTx"
             >
@@ -2109,1960 +2109,3 @@ watch(
   }
 );
 </script>
-
-<style scoped>
-/* Main Content */
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--bg-secondary);
-  padding: 1.5rem;
-}
-
-/* Search Section */
-.search-section {
-  margin-bottom: 2rem;
-}
-
-.search-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 800px;
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  transition: all 0.2s;
-}
-
-.search-container:focus-within {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.search-icon {
-  color: var(--text-tertiary);
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  background: transparent;
-}
-
-.search-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.search-btn {
-  padding: 0.5rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.search-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-/* Stats Bar */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1.25rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-}
-
-.stat-label {
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Loading State */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  color: var(--text-secondary);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border-color);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  color: var(--text-tertiary);
-  background: var(--card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-}
-
-.empty-state svg {
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-/* Content Area */
-.content-area {
-  background: transparent;
-  border-radius: 12px;
-  overflow: visible;
-}
-
-.overview-header {
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.overview-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.overview-header p {
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-}
-
-.content-area > .charts-section,
-.content-area > .recent-activity {
-  margin-bottom: 0;
-}
-
-.refresh-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-
-.refresh-indicator.active {
-  color: var(--ios-green);
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: currentColor;
-  border-radius: 50%;
-  animation: pulse-live 2s ease-in-out infinite;
-}
-
-@keyframes pulse-live {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-/* Tables */
-.blocks-table,
-.transactions-table {
-  width: 100%;
-}
-
-.table-header {
-  display: grid;
-  padding: 0.625rem 1rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.blocks-table .table-header {
-  grid-template-columns: 90px 180px 1fr 110px 150px;
-  gap: 1rem;
-}
-
-.transactions-table .table-header {
-  grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr;
-}
-
-.table-body {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.table-row {
-  display: grid;
-  padding: 0.625rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.2s;
-}
-
-.table-row:hover {
-  background: var(--bg-secondary);
-}
-
-.blocks-table .table-row {
-  grid-template-columns: 90px 180px 1fr 110px 150px;
-  gap: 1rem;
-}
-
-.transactions-table .table-row {
-  grid-template-columns: 180px 120px 100px 100px 120px;
-}
-
-.td {
-  display: flex;
-  align-items: center;
-  font-size: 0.8125rem;
-  color: var(--text-primary);
-}
-
-.height-link {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--accent-primary);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.height-link:hover {
-  color: var(--accent-secondary);
-  text-decoration: underline;
-}
-
-.height-link svg {
-  flex-shrink: 0;
-  opacity: 0.7;
-  width: 14px;
-  height: 14px;
-}
-
-.height-number {
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.proposer-info {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.proposer-avatar {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  border-radius: 50%;
-  background: var(--gradient-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 0.625rem;
-  overflow: hidden;
-}
-
-.proposer-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.proposer-name {
-  font-weight: 500;
-  font-size: 0.8125rem;
-}
-
-.tx-count {
-  padding: 0.2rem 0.4rem;
-  background: var(--bg-secondary);
-  border-radius: 3px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  font-size: 0.6875rem;
-}
-
-.time-text {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.hash-code {
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 0.6875rem;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-}
-
-.hash-container {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding-right: 0.5rem;
-}
-
-.hash-container.clickable:hover .hash-code {
-  background: var(--primary-a10);
-  color: var(--accent-primary);
-  text-decoration: underline;
-}
-
-.hash-container:hover .hash-code {
-  background: var(--primary-a10);
-  color: var(--accent-primary);
-}
-
-.link-icon {
-  opacity: 0.4;
-  transition: opacity 0.2s;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.hash-container:hover .link-icon {
-  opacity: 1;
-  color: var(--accent-primary);
-}
-
-.clickable {
-  cursor: pointer;
-}
-
-.clickable:hover {
-  color: var(--accent-primary);
-}
-
-.block-link.clickable:hover {
-  text-decoration: underline;
-}
-
-.validator-address.clickable:hover code {
-  color: var(--accent-primary);
-  text-decoration: underline;
-}
-
-/* Transactions View */
-.transactions-view {
-  background: var(--card-bg);
-}
-
-.transactions-header {
-  padding: 1.5rem 1.5rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.transactions-header .header-content {
-  flex: 1;
-  min-width: 200px;
-}
-
-.transactions-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem 0;
-}
-
-.transactions-subtitle {
-  font-size: 0.875rem;
-  color: var(--text-tertiary);
-  margin: 0;
-}
-
-.transactions-table .table-header {
-  grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr;
-}
-
-.transactions-table .table-row {
-  grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr;
-}
-
-.tx-icon {
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.tx-type-badge {
-  padding: 0.25rem 0.75rem;
-  background: var(--fill-blue);
-  color: var(--accent-secondary);
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.tx-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.tx-status svg {
-  width: 14px;
-  height: 14px;
-}
-
-.block-link {
-  color: var(--accent-primary);
-  font-weight: 600;
-  font-size: 0.8125rem;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.block-link:hover {
-  color: var(--accent-secondary);
-  text-decoration: underline;
-}
-
-.fee-amount {
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 0.75rem;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.td-hash {
-  display: flex !important;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.copy-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0;
-  flex-shrink: 0;
-}
-
-.table-row:hover .copy-icon-btn {
-  opacity: 1;
-}
-
-.copy-icon-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--accent-primary);
-}
-
-/* Blocks View - Compact Layout */
-.blocks-view {
-  background: var(--card-bg);
-}
-
-.blocks-header {
-  position: relative;
-  padding: 1rem 1.5rem 0.75rem;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.blocks-header .header-content {
-  flex: 1;
-  min-width: 200px;
-}
-
-.blocks-header h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.125rem 0;
-}
-
-.blocks-subtitle {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  margin: 0;
-}
-
-.blocks-header .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.filter-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.filter-select,
-.height-filter-input,
-.hash-filter-input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 0.8125rem;
-  transition: all 0.2s;
-}
-
-.filter-select {
-  cursor: pointer;
-  min-width: 120px;
-}
-
-.height-filter-input,
-.hash-filter-input {
-  min-width: 150px;
-}
-
-.filter-select:hover,
-.height-filter-input:hover,
-.hash-filter-input:hover {
-  border-color: var(--primary, var(--accent-primary));
-}
-
-.filter-select:focus,
-.height-filter-input:focus,
-.hash-filter-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.height-filter-input::placeholder,
-.hash-filter-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.blocks-header .refresh-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.5rem;
-  background: rgba(var(--ios-green-rgb), 0.1);
-  border: 1px solid rgba(var(--ios-green-rgb), 0.3);
-  border-radius: 4px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--ios-green);
-}
-
-.blocks-view .blocks-table {
-  width: 100%;
-}
-
-.blocks-view .table-header {
-  display: grid;
-  grid-template-columns: 90px 320px 2.2fr 130px 140px;
-  gap: 0.75rem;
-  padding: 0.625rem 1.5rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.blocks-view .table-body {
-  max-height: none;
-}
-
-.blocks-view .table-row {
-  display: grid;
-  grid-template-columns: 90px 320px 2.2fr 130px 140px;
-  gap: 0.75rem;
-  padding: 0.625rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.2s;
-}
-
-.blocks-view .table-row:hover {
-  background: var(--bg-secondary);
-}
-
-.blocks-view .height-link {
-  gap: 0.25rem;
-}
-
-.blocks-view .height-link svg {
-  width: 12px;
-  height: 12px;
-}
-
-.blocks-view .height-number {
-  font-size: 0.75rem;
-}
-
-.blocks-view .proposer-avatar {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  font-size: 0.625rem;
-}
-
-.blocks-view .proposer-info {
-  gap: 0.375rem;
-}
-
-.blocks-view .proposer-name {
-  font-size: 0.75rem;
-}
-
-.blocks-view .hash-code {
-  font-size: 0.625rem;
-  padding: 0.1875rem 0.375rem;
-}
-
-.blocks-view .tx-count {
-  font-size: 0.75rem;
-  padding: 0.1875rem 0.375rem;
-}
-
-.blocks-view .time-text {
-  font-size: 0.75rem;
-}
-
-.validator-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gradient-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 1.5rem;
-  overflow: hidden;
-}
-
-.validator-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.validator-name {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.validator-address {
-  margin-top: 0.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.validator-address code {
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.charts-section {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-
-.chart-card {
-  background: var(--card-bg);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
-  min-height: 220px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.chart-header h3 {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.filter-label {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  margin-right: 0.25rem;
-}
-
-.time-filter-btn {
-  padding: 0.375rem 0.75rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.time-filter-btn:hover {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-  color: var(--text-primary);
-}
-
-.time-filter-btn.active {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: white;
-}
-
-.chart-container canvas {
-  width: 100%;
-  height: 120px;
-}
-
-.chart-donut-wrapper {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 0.75rem;
-}
-
-.chart-donut-wrapper canvas {
-  width: 100px !important;
-  height: 100px !important;
-}
-
-.chart-center-label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  pointer-events: none;
-}
-
-.center-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.center-label {
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-  margin-top: 0.125rem;
-}
-
-.chart-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.legend-label {
-  flex: 1;
-  color: var(--text-secondary);
-}
-
-.legend-value {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.block-proposer-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 0.75rem;
-  min-height: 160px;
-}
-
-.proposer-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gradient-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  border: 2px solid var(--primary-a30);
-}
-
-.proposer-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.proposer-label {
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-  letter-spacing: 0.02em;
-  text-align: center;
-}
-
-.proposer-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-align: center;
-  margin-top: 0;
-}
-
-.proposer-stats {
-  width: 100%;
-  margin-top: 0.375rem;
-}
-
-.proposer-stat-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.proposer-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  text-align: center;
-}
-
-.proposer-stat .stat-label {
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-}
-
-.proposer-stat .stat-value {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--ios-green);
-}
-
-.live-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  background: var(--fill-success);
-  border-radius: 20px;
-  color: var(--ios-green);
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-.block-production-card .chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.block-production-card {
-  background: var(--card-bg);
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ios-green);
-  animation: pulse 2s infinite;
-}
-
-.recent-activity {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-
-.activity-column {
-  background: var(--card-bg);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.activity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.activity-header h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.view-all-btn {
-  background: transparent;
-  border: none;
-  color: var(--accent-primary);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.view-all-btn:hover {
-  opacity: 0.7;
-}
-
-.activity-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.activity-item:hover {
-  background: var(--primary-a08);
-}
-
-.activity-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--primary-a10);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-primary);
-  flex-shrink: 0;
-}
-
-.activity-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.activity-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.activity-meta {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.proposer-mini-avatar {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.tx-type-mini {
-  padding: 0.125rem 0.5rem;
-  background: rgba(var(--ios-blue-rgb), 0.1);
-  color: var(--accent-primary);
-  border-radius: 4px;
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.activity-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-}
-
-.activity-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.activity-time {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.activity-status {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
-}
-
-
-/* Validators Table Styles */
-.validators-view {
-  padding: 2rem;
-}
-
-.validators-header {
-  margin-bottom: 2rem;
-}
-
-.validators-header h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.validators-subtitle {
-  font-size: 0.875rem;
-  color: var(--text-tertiary);
-}
-
-.validators-table {
-  background: var(--card-bg);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.table-header {
-  display: grid;
-  grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
-  gap: 1rem;
-  padding: 1.25rem 1.75rem;
-  background: var(--black-a02);
-  border-bottom: 0.5px solid rgba(var(--black-rgb), 0.08);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.table-body {
-  display: flex;
-  flex-direction: column;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
-  gap: 1rem;
-  padding: 1.25rem 1.75rem;
-  border-bottom: 0.5px solid var(--black-a06);
-  transition: all var(--transition-fast);
-  align-items: center;
-}
-
-.table-row:hover {
-  background: var(--black-a02);
-  cursor: default;
-}
-
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.table-row:active {
-  background: var(--black-a04);
-  transform: scale(0.998);
-}
-
-.td {
-  display: flex;
-  align-items: center;
-  font-size: 0.875rem;
-}
-
-.rank-number {
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.9375rem;
-}
-
-.validator-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--ios-indigo), var(--ios-purple));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 0.8125rem;
-  flex-shrink: 0;
-  overflow: hidden;
-  border: 2px solid var(--border-color);
-}
-
-.validator-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.validator-name {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-}
-
-.validator-address {
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.validator-address:hover {
-  color: var(--ios-blue);
-}
-
-.voting-power-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  width: 100%;
-}
-
-.voting-power-text {
-  font-weight: 700;
-  color: var(--text-primary);
-  font-size: 0.9375rem;
-  margin-bottom: 0.375rem;
-}
-
-.voting-power-bar {
-  width: 100%;
-  height: 5px;
-  background: var(--border-color);
-  border-radius: 2.5px;
-  overflow: hidden;
-  margin-bottom: 0.375rem;
-}
-
-.voting-power-fill {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(var(--ios-green-rgb), 0.8), rgba(var(--ios-green-rgb), 0.6));
-  border-radius: 2.5px;
-  transition: width 0.3s ease;
-}
-
-.voting-power-amount {
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-
-.changes-value {
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.changes-value.positive {
-  color: var(--ios-green);
-}
-
-.changes-value.negative {
-  color: var(--ios-red);
-}
-
-.cumulative-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-}
-
-.circular-progress {
-  filter: none;
-  display: block;
-}
-
-.cumulative-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1;
-  pointer-events: none;
-}
-
-.commission-value {
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.uptime-value {
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.td-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  background: var(--ios-blue);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-xs);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  letter-spacing: -0.022em;
-  box-shadow: 0 1px 3px rgba(var(--ios-blue-rgb), 0.2);
-}
-
-.action-btn:hover:not(:disabled) {
-  transform: scale(1.02);
-  box-shadow: 0 3px 10px rgba(var(--ios-blue-rgb), 0.3);
-}
-
-.action-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: var(--ios-gray-4);
-}
-
-.action-btn svg {
-  flex-shrink: 0;
-}
-
-.copy-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-left: 0.5rem;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0;
-}
-
-.td-hash:hover .copy-icon-btn {
-  opacity: 1;
-}
-
-.copy-icon-btn:hover {
-  background: var(--hover-bg);
-  color: var(--accent-primary);
-}
-
-.copy-notification {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--ios-green);
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
-  font-weight: 600;
-  font-size: 0.875rem;
-  z-index: 9999;
-  animation: slideInUp 0.3s ease;
-}
-
-@keyframes slideInUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Stake Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  backdrop-filter: blur(4px);
-}
-
-.stake-modal {
-  background: var(--bg-primary);
-  border-radius: var(--border-radius-2xl);
-  width: 90%;
-  max-width: 420px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
-  animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.close-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.balance-info {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-}
-
-.balance-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.balance-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.balance-value {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.action-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0.25rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tab-btn.active {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.tab-btn:hover:not(.active) {
-  color: var(--text-primary);
-}
-
-.withdraw-info {
-  padding: 0.5rem 0;
-}
-
-.withdraw-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--primary-a08);
-  border-radius: 10px;
-  border: 1px solid var(--primary-a15);
-}
-
-.withdraw-notice svg {
-  flex-shrink: 0;
-  color: var(--accent-primary);
-  margin-top: 2px;
-}
-
-.withdraw-text strong {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.withdraw-text p {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.stake-input {
-  width: 100%;
-  padding: 0.75rem 4rem 0.75rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.stake-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a08);
-}
-
-.input-suffix {
-  position: absolute;
-  right: 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.amount-slider {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-}
-
-.slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--border-color);
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-.slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  border: none;
-}
-
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-}
-
-.quick-amounts {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-}
-
-.quick-btn {
-  padding: 0.5rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.quick-btn:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  background: var(--primary-a08);
-}
-
-.validator-select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.validator-select:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a08);
-}
-
-.advanced-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.advanced-toggle:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.confirm-btn {
-  width: 100%;
-  padding: 0.875rem;
-  background: var(--ios-blue);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: white;
-  font-size: var(--fs-base);
-  font-weight: 600;
-  letter-spacing: -0.022em;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.25);
-}
-
-.confirm-btn:hover:not(:disabled) {
-  transform: scale(1.01);
-  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.35);
-}
-
-.confirm-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-
-/* Transaction Status Popup */
-.tx-status-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg-primary);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  z-index: 10001;
-  min-width: 400px;
-  max-width: 90vw;
-  animation: popupFadeIn 0.3s ease;
-}
-
-@keyframes popupFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-.tx-status-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  text-align: center;
-}
-
-.tx-processing,
-.tx-success,
-.tx-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-
-.tx-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid var(--border-color);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: txSpin 0.8s linear infinite;
-}
-
-@keyframes txSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.tx-icon {
-  flex-shrink: 0;
-  animation: iconBounce 0.5s ease;
-}
-
-@keyframes iconBounce {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.tx-status-text strong {
-  font-size: 1.125rem;
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.tx-status-text p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-  max-width: 320px;
-  word-wrap: break-word;
-}
-
-.tx-hash-display {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  width: 100%;
-}
-
-.tx-hash-display small {
-  display: block;
-  font-size: 0.6875rem;
-  color: var(--text-tertiary);
-  margin-bottom: 0.375rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.tx-hash-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.625rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-}
-
-.tx-hash-link:hover {
-  background: var(--primary-a08);
-  border-color: var(--accent-primary);
-  transform: translateX(2px);
-}
-
-.tx-hash-link code {
-  flex: 1;
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 0.75rem;
-  color: var(--accent-primary);
-  word-break: break-all;
-  font-weight: 600;
-}
-
-.tx-hash-link svg {
-  flex-shrink: 0;
-  color: var(--accent-primary);
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.tx-hash-link:hover svg {
-  opacity: 1;
-}
-
-.tx-close-btn {
-  margin-top: 1rem;
-  padding: 0.625rem 2rem;
-  background: var(--accent-primary);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tx-close-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
-}
-
-.tx-retry-btn {
-  margin-top: 0.5rem;
-  padding: 0.625rem 1.5rem;
-  background: var(--accent-primary);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tx-retry-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
-}
-
-.tx-status-popup.processing {
-  border: 2px solid var(--accent-primary);
-}
-
-.tx-status-popup.success {
-  border: 2px solid rgba(var(--ios-green-rgb), 0.5);
-}
-
-.tx-status-popup.error {
-  border: 2px solid var(--ios-red);
-}
-
-@media (max-width: 768px) {
-  .explorer-page {
-    flex-direction: column;
-  }
-
-  .main-content {
-    padding: 1rem;
-  }
-  
-  .charts-section {
-    grid-template-columns: 1fr;
-  }
-
-  .recent-activity {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
