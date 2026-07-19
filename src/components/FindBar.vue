@@ -10,14 +10,14 @@
     <input
       ref="inputEl"
       v-model="query"
-      class="findbar-input"
+      class="findbar-input outline-none color-text-primary"
       type="text"
       placeholder="Find in page"
       autocomplete="off"
       @keydown="onInputKeydown"
     />
 
-    <div class="findbar-count" :class="{ 'findbar-count--muted': !query }" aria-live="polite">
+    <div class="findbar-count color-text-secondary" :class="{ 'findbar-count--muted': !query }" aria-live="polite">
       {{ countText }}
     </div>
 

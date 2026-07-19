@@ -6,13 +6,13 @@
         class="overlay-scrim backdrop-blur-4px z-10000"
         @click.self="handleCancel"
       >
-        <div class="modal-panel pwd-modal">
+        <div class="modal-panel pwd-modal bg-card border-default">
           <div class="pwd-modal-header">
             <LockKeyhole :size="24" class="color-primary" />
-            <h3>Password Required</h3>
+            <h3 class="color-text-primary">Password Required</h3>
           </div>
 
-          <p class="pwd-modal-message">
+          <p class="pwd-modal-message color-text-secondary">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
 
@@ -20,7 +20,7 @@
             <input
               ref="passwordInput"
               type="password"
-              class="pwd-modal-input"
+              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
@@ -28,7 +28,7 @@
               @keyup.escape="handleCancel"
             />
 
-            <div v-if="error" class="pwd-modal-error">
+            <div v-if="error" class="pwd-modal-error color-error">
               {{ error }}
             </div>
           </div>
@@ -36,14 +36,14 @@
           <div class="flex-align-center gap-75 flex-justify-end">
             <button
               v-if="cancelable !== false"
-              class="pwd-modal-btn-secondary disabled-fade-50"
+              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer"
               @click="handleCancel"
               :disabled="loading || busy"
             >
               Cancel
             </button>
             <button
-              class="pwd-modal-btn-primary disabled-fade-50"
+              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer"
               @click="handleSubmit"
               :disabled="loading || busy || !password"
             >

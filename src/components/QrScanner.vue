@@ -1,10 +1,10 @@
 <template>
   <div class="qr-scanner-wrapper">
     <div class="qr-scanner-overlay" @click="$emit('close')">
-      <div class="qr-scanner-modal" @click.stop>
+      <div class="qr-scanner-modal bg-card" @click.stop>
         <div class="qr-scanner-header">
-          <h3>{{ title }}</h3>
-          <button class="qr-close-btn" @click="$emit('close')" aria-label="Close">
+          <h3 class="color-text-primary">{{ title }}</h3>
+          <button class="qr-close-btn border-none cursor-pointer color-text-secondary" @click="$emit('close')" aria-label="Close">
             <X :size="24" />
           </button>
         </div>
@@ -20,17 +20,17 @@
               <div class="qr-corner qr-corner-bottom-left"></div>
               <div class="qr-corner qr-corner-bottom-right"></div>
             </div>
-            <p class="qr-scan-instruction">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
           <div v-if="error" class="qr-error-state">
             <AlertCircle :size="48" class="qr-error-icon" />
-            <h4>{{ error }}</h4>
-            <p v-if="error.includes('permission')">
+            <h4 class="color-text-primary">{{ error }}</h4>
+            <p v-if="error.includes('permission')" class="color-text-secondary">
               Please allow camera access in your browser settings
             </p>
-            <button class="qr-retry-btn" @click="initializeScanner">
+            <button class="qr-retry-btn color-white border-none cursor-pointer" @click="initializeScanner">
               <RefreshCw :size="16" />
               <span>Try Again</span>
             </button>
@@ -39,25 +39,25 @@
           <!-- Success State -->
           <div v-if="scannedData" class="qr-success-state">
             <CheckCircle :size="48" class="qr-success-icon" />
-            <h4>QR Code Scanned</h4>
+            <h4 class="color-text-primary">QR Code Scanned</h4>
 
             <div class="qr-scanned-data">
               <div class="qr-data-type">
-                <span class="qr-label">Type:</span>
-                <span class="qr-value">{{ detectedType }}</span>
+                <span class="qr-label color-text-secondary">Type:</span>
+                <span class="qr-value color-text-primary">{{ detectedType }}</span>
               </div>
               <div class="qr-data-content">
-                <span class="qr-label">Content:</span>
-                <div class="qr-value-box">{{ scannedData }}</div>
+                <span class="qr-label color-text-secondary">Content:</span>
+                <div class="qr-value-box bg-card color-text-primary">{{ scannedData }}</div>
               </div>
             </div>
 
             <div class="qr-action-buttons">
-              <button class="qr-btn qr-btn-secondary" @click="scanAgain">
+              <button class="qr-btn qr-btn-secondary color-text-primary bg-fill-tertiary border-default" @click="scanAgain">
                 <QrCode :size="16" />
                 <span>Scan Again</span>
               </button>
-              <button class="qr-btn qr-btn-primary" @click="handleUseScannedData">
+              <button class="qr-btn qr-btn-primary color-white" @click="handleUseScannedData">
                 <Check :size="16" />
                 <span>Use This</span>
               </button>

@@ -4,7 +4,7 @@
       <nav class="lsb-nav">
         <div class="lsb-section">
           <span class="lsb-label">Manage</span>
-          <button type="button" class="lsb-item active">
+          <button type="button" class="lsb-item active border-none bg-transparent cursor-pointer color-text-secondary">
             <List :size="18" />
             <span>Gateway List</span>
           </button>

@@ -7,7 +7,7 @@
           <span class="lsb-label">Monitoring</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: activeView === 'status' }"
             @click="activeView = 'status'"
           >
@@ -19,7 +19,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: activeView === 'params' }"
             @click="activeView = 'params'"
           >
@@ -29,7 +29,7 @@
           <button
             v-if="activeView === 'status'"
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             @click="refreshData"
             :disabled="refreshing"
           >

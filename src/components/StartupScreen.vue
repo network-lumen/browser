@@ -1,7 +1,7 @@
 <template>
-  <div class="startup-card" role="status" aria-live="polite">
+  <div class="startup-card bg-card border-default" role="status" aria-live="polite">
     <header class="startup-head">
-      <div class="startup-mark" aria-hidden="true">L</div>
+      <div class="startup-mark bg-gradient-primary color-white" aria-hidden="true">L</div>
       <div class="min-w-0">
         <div class="startup-title">Lumen</div>
       </div>
@@ -14,10 +14,10 @@
 
       <div v-else-if="phase === 'error'" class="startup-center">
         <div>
-          <div class="startup-msg-subtitle">
+          <div class="startup-msg-subtitle color-text-secondary">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="startup-btn startup-btn-primary margin-bottom-100" type="button" :disabled="busy" @click="restartAll">
+          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>
@@ -25,8 +25,8 @@
     </main>
 
     <footer class="startup-foot">
-      <span v-if="phase !== 'error'" class="startup-hint">This usually takes a few seconds.</span>
-      <span v-else class="startup-hint">If it keeps failing, restart Lumen.</span>
+      <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary">This usually takes a few seconds.</span>
+      <span v-else class="startup-hint color-text-tertiary">If it keeps failing, restart Lumen.</span>
     </footer>
   </div>
 </template>

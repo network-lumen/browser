@@ -1,16 +1,16 @@
 <template>
-  <aside class="lumen-sidebar">
+  <aside class="lumen-sidebar color-text-primary">
     <div class="lumen-sidebar-header flex">
-      <div class="lumen-sidebar-icon">
+      <div class="lumen-sidebar-icon bg-gradient-primary color-white">
         <component :is="icon" :size="20" />
       </div>
-      <span class="lumen-sidebar-title">{{ title }}</span>
+      <span class="lumen-sidebar-title color-text-primary">{{ title }}</span>
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <div v-else class="lumen-sidebar-no-profile">
-      <span class="lumen-sidebar-no-profile-title">No active profile</span>
-      <span class="lumen-sidebar-no-profile-sub">Create or import one from the navbar.</span>
+    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary">
+      <span class="lumen-sidebar-no-profile-title color-text-primary">No active profile</span>
+      <span class="lumen-sidebar-no-profile-sub color-text-tertiary">Create or import one from the navbar.</span>
     </div>
 
     <div class="lumen-sidebar-scroll">
@@ -24,8 +24,8 @@
 
       <div v-if="renderedFavouriteEntries.length" class="sidebar-section">
         <div class="sidebar-section-header">
-          <div class="sidebar-section-title">Shortcuts</div>
-          <div class="sidebar-section-count">{{ renderedFavouriteEntries.length }}</div>
+          <div class="sidebar-section-title color-text-tertiary">Shortcuts</div>
+          <div class="sidebar-section-count bg-fill-tertiary color-text-secondary">{{ renderedFavouriteEntries.length }}</div>
         </div>
         <div class="sidebar-favs flex flex-column gap-35">
           <div
@@ -33,17 +33,17 @@
             :key="entry.id"
             class="sidebar-fav-item"
           >
-            <button class="sidebar-fav-hit hover-fill-primary" @click="openFavourite(entry.url, $event)">
-              <span class="sidebar-fav-avatar" :class="`tone-${entry.kind}`">
+            <button class="sidebar-fav-hit hover-fill-primary bg-transparent border-none color-text-secondary cursor-pointer" @click="openFavourite(entry.url, $event)">
+              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
               <span class="sidebar-fav-copy">
-                <span class="sidebar-fav-title">{{ entry.title }}</span>
-                <span class="sidebar-fav-subtitle">{{ entry.subtitle }}</span>
+                <span class="sidebar-fav-title color-text-primary">{{ entry.title }}</span>
+                <span class="sidebar-fav-subtitle color-text-tertiary">{{ entry.subtitle }}</span>
               </span>
             </button>
             <button
-              class="sidebar-fav-remove hover-fill-primary"
+              class="sidebar-fav-remove hover-fill-primary border-none bg-transparent color-text-tertiary cursor-pointer"
               type="button"
               title="Remove shortcut"
               @click.stop="removeFavouriteById(entry.id)"
@@ -57,7 +57,7 @@
 
     <div v-if="showVersion || $slots.footer" class="lumen-sidebar-footer">
       <slot name="footer" />
-      <div v-if="showVersion" class="lumen-sidebar-version">
+      <div v-if="showVersion" class="lumen-sidebar-version color-text-tertiary">
         Lumen v{{ appVersion }}
       </div>
     </div>
