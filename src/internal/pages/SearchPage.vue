@@ -1,21 +1,21 @@
 <template>
   <main
     ref="scrollRoot"
-    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative"
+    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
           <button
         type="button"
-        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm"
+        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2"
         title="How search works"
         aria-label="How search works"
         @click="openHowSearchWorks"
       >
         <HelpCircle :size="18" />
       </button>
-    <section class="hero flex-column flex-inline-align-center gap-150 w-full relative flex">
-      <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002">Lumen</div>
+    <section class="hero flex-column flex-inline-align-center gap-150 w-full relative flex z-1">
+      <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
         <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md">
@@ -41,7 +41,7 @@
 
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62 margin-top-75">
         <button
-          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px"
+          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -72,7 +72,7 @@
 
     </section>
 
-    <section v-if="touched" class="searchpage-results relative">
+    <section v-if="touched" class="searchpage-results relative z-1">
       <div class="searchpage-meta flex-align-center-justify-space-between gap-100 margin-bottom-100">
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
@@ -91,7 +91,7 @@
 
       <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-87 padding-0 margin-0 list-style-none gap-100">
         <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-100 border-radius-xl border-default bg-card padding-125-150">
-          <div class="searchpage-skeleton-icon border-radius-lg flex-shrink-0"></div>
+          <div class="searchpage-skeleton-icon border-radius-lg flex-shrink-0 w-52px h-52px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
             <div class="searchpage-skeleton-title border-radius-6px"></div>
             <div class="searchpage-skeleton-url border-radius-6px margin-top-62"></div>
@@ -105,8 +105,8 @@
           <Search :size="48" />
         </div>
         <div class="searchpage-empty-content">
-          <h3 class="searchpage-empty-title">No results found</h3>
-          <p class="searchpage-empty-subtitle">
+          <h3 class="searchpage-empty-title fs-125rem txt-weight-medium color-text-primary">No results found</h3>
+          <p class="searchpage-empty-subtitle fs-15px color-text-secondary line-height-15">
             <template v-if="q.trim()">
               We couldn't find anything matching "<strong>{{ q }}</strong>"
             </template>
@@ -127,7 +127,7 @@
             <span class="searchpage-suggestion-label txt-weight-light color-text-secondary fs-13px block margin-bottom-50">Try:</span>
             <ul class="searchpage-suggestion-list margin-0 color-text-secondary fs-14px">
               <li>Using different keywords</li>
-              <li>Searching for a domain (e.g., <code>example.lmn</code>)</li>
+              <li>Searching for a domain (e.g., <code class="searchpage-suggestion-list-code fs-13px bg-primary-a08 border-radius-4px color-primary">example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
             </ul>
           </div>
@@ -143,7 +143,7 @@
         >
           <button
             type="button"
-            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02"
+            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2"
             :class="{ 'searchpage-saved': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -187,9 +187,9 @@
                   @load="onThumbLoad(r, $event)"
                   @error="onThumbError(r)"
                 />
-                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute">
+                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute padding-50-62">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35"
+                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
@@ -244,12 +244,12 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all" 
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100" 
             :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
             type="button" 
             @click="openResult(r)"
           >
-            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all" :class="`searchpage-icon-${r.kind}`">
+            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px" :class="`searchpage-icon-${r.kind}`">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -309,10 +309,10 @@
                 <Globe :size="14" />
                 {{ r.site.domain }}
               </div>
-              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500 fs-13px overflow-hidden txt-overflow-ellipsis nowrap">{{ r.url }}</div>
+              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500 fs-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap margin-0"
+                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap margin-0 padding-50-62"
                 :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -340,7 +340,7 @@
                 >
               </div>
             </div>
-            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto" />
+            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto margin-top-25" />
           </button>
         </li>
       </ul>
@@ -363,13 +363,13 @@
     <Transition name="searchpage-modal">
       <div
         v-if="showHowSearchWorks"
-        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35"
+        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35 z-100"
         role="dialog"
         aria-modal="true"
         aria-label="How search works"
         @click="closeHowSearchWorks"
       >
-        <div class="searchpage-modal-content searchpage-help-modal border-radius-18px bg-primary border-1 overflow-hidden relative shadow-primary-lg" @click.stop>
+        <div class="searchpage-modal-content searchpage-help-modal border-radius-18px bg-primary border-1 overflow-hidden relative shadow-primary-lg w-min-760" @click.stop>
           <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between border-bottom-1-light">
             <div class="searchpage-help-header-left flex-align-start gap-87 min-w-0">
               <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
@@ -391,7 +391,7 @@
           </header>
 
           <div class="searchpage-help-body color-text-primary overflow-y-auto">
-            <div class="searchpage-help-grid grid">
+            <div class="searchpage-help-grid grid gap-90-100">
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">What gets indexed</h3>
                 <p class="searchpage-help-p color-text-secondary line-height-145">
@@ -400,7 +400,7 @@
                   keywords.
                 </p>
                 <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62 padding-75-87">
-                  <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto" />
+                  <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto opacity-85" />
                   <div class="searchpage-help-callout-text color-text-secondary line-height-145 fs-14px">
                     Local-only content on your machine stays private and won’t appear in network
                     search.
@@ -411,17 +411,17 @@
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">How to get indexed</h3>
                 <ol class="searchpage-help-steps flex flex-column padding-0 color-text-secondary list-style-none gap-50 line-height-145 margin-0 margin-top-50">
-                  <li>
+                  <li class="searchpage-help-steps-li flex gap-62">
                     <span class="searchpage-help-step-text min-w-0">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
-                  <li>
+                  <li class="searchpage-help-steps-li flex gap-62">
                     <span class="searchpage-help-step-text min-w-0">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
-                  <li>
+                  <li class="searchpage-help-steps-li flex gap-62">
                     <span class="searchpage-help-step-text min-w-0">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>
@@ -432,15 +432,15 @@
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">How queries work</h3>
                 <ul class="searchpage-help-list padding-0 color-text-secondary list-style-none line-height-145 margin-0 margin-top-50">
-                  <li>
+                  <li class="searchpage-help-list-li relative padding-left-100">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
                   </li>
-                  <li>
+                  <li class="searchpage-help-list-li relative padding-left-100">
                     Very short queries can behave like “Explore” (show recent content) instead of
                     strict keyword matching.
                   </li>
-                  <li>
+                  <li class="searchpage-help-list-li relative padding-left-100">
                     Tabs switch mode: <strong>Sites</strong>, <strong>Images</strong>, or
                     <strong>Explore everything</strong>.
                   </li>
@@ -450,11 +450,11 @@
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">How results are ranked</h3>
                 <ul class="searchpage-help-list padding-0 color-text-secondary list-style-none line-height-145 margin-0 margin-top-50">
-                  <li><strong>Relevance</strong>: token matches in extracted tags/text.</li>
-                  <li><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
-                  <li><strong>Popularity</strong>: signals like views and saves.</li>
-                  <li><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
-                  <li><strong>Verified sites</strong>: linked domains can be boosted.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Popularity</strong>: signals like views and saves.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Verified sites</strong>: linked domains can be boosted.</li>
                 </ul>
               </section>
 

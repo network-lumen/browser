@@ -3,7 +3,7 @@
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Manage</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Manage</span>
           <button type="button" class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015" :class="{ active: true }">
             <Rocket :size="18" />
             <span>Publisher</span>
@@ -15,27 +15,27 @@
     <main class="relpage-main flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary padding-200-250">
       <header class="relpage-content-header flex-align-start flex-justify-space-between gap-100 flex-wrap-wrap margin-bottom-100">
         <div class="relpage-header-left">
-          <h1 class="margin-0 txt-weight-strong color-text-primary">Releases</h1>
-          <p v-if="allowed">Publisher access enabled for the active profile.</p>
-          <p v-else-if="loading">Checking publisher permissions…</p>
-          <p v-else>Publisher access required.</p>
-          <p v-if="pendingTtlSeconds" class="relpage-header-meta color-text-tertiary fs-13px">
+          <h1 class="margin-0 txt-weight-strong color-text-primary relpage-header-left-h1 fs-175rem">Releases</h1>
+          <p class="relpage-header-left-p color-text-secondary fs-14px" v-if="allowed">Publisher access enabled for the active profile.</p>
+          <p class="relpage-header-left-p color-text-secondary fs-14px" v-else-if="loading">Checking publisher permissions…</p>
+          <p class="relpage-header-left-p color-text-secondary fs-14px" v-else>Publisher access required.</p>
+          <p v-if="pendingTtlSeconds" class="relpage-header-meta color-text-tertiary fs-13px relpage-header-left-p color-text-secondary fs-14px">
             Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
           </p>
         </div>
         <div class="relpage-header-actions flex-inline-align-center gap-75 flex-wrap-wrap flex-0-0-auto">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" :disabled="loading" @click="refreshAll">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" :disabled="loading" @click="refreshAll">
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
           </button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" :disabled="loading || !allowed" @click="openPublishModal">
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" :disabled="loading || !allowed" @click="openPublishModal">
             <Plus :size="18" />
             <span>Publish release</span>
           </button>
         </div>
       </header>
 
-      <section class="relpage-toolbar flex flex-wrap-wrap margin-bottom-100 flex-align-end" aria-label="Filters">
+      <section class="relpage-toolbar flex flex-wrap-wrap margin-bottom-100 flex-align-end gap-90-100" aria-label="Filters">
         <div class="relpage-filter flex flex-column gap-35">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Channel</label>
           <select v-model="channelFilter" class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary padding-62-75" :disabled="loading">
@@ -64,7 +64,7 @@
             <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
             <span>Allow pending (stable)</span>
           </label>
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" @click="pollNow" :disabled="loading">Re-check</button>
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" @click="pollNow" :disabled="loading">Re-check</button>
         </div>
       </section>
 
@@ -90,7 +90,7 @@
             v-for="r in filteredReleases"
             :key="r.id"
             type="button"
-            class="relpage-row w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-100 border-1-transparent bg-transparent"
+            class="relpage-row w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-100 border-1-transparent bg-transparent padding-62-75"
             :class="{ active: selectedRelease?.id === r.id }"
             @click="selectedRelease = r"
           >
@@ -100,7 +100,7 @@
                 <span class="relpage-row-version txt-weight-medium color-text-primary">{{ r.version }}</span>
                 <span class="relpage-chip border-radius-full fs-12px border-1-light bg-secondary" :class="statusClass(r)">{{ r.status }}</span>
               </div>
-              <div class="relpage-row-sub relpage-muted flex-align-center gap-50 color-text-tertiary fw-500 fs-13px">
+              <div class="relpage-row-sub relpage-muted flex-align-center gap-50 color-text-tertiary fw-500 fs-13px margin-top-25">
                 <span>{{ r.channel }}</span>
                 <span>•</span>
                 <span>{{ formatDate(r.createdAt) }}</span>
@@ -119,10 +119,10 @@
           </div>
 
           <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75">
-            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" :disabled="submittingDao" @click="openDaoModal('validate')">
+            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </button>
-            <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" :disabled="submittingDao" @click="openDaoModal('reject')">
+            <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" :disabled="submittingDao" @click="openDaoModal('reject')">
               Send to DAO (reject)
             </button>
           </div>
@@ -148,7 +148,7 @@
             </div>
           </div>
 
-          <div class="relpage-notes padding-top-75 margin-top-75" v-if="selectedRelease.notes">
+          <div class="relpage-notes padding-top-75 margin-top-75 border-top-1-light" v-if="selectedRelease.notes">
             <div class="relpage-notes-title txt-weight-medium color-text-primary margin-bottom-50">Release notes</div>
             <div class="relpage-notes-body color-text-secondary pre-wrap">{{ selectedRelease.notes }}</div>
           </div>
@@ -193,7 +193,7 @@
     <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35" @click.self="closeDaoModal">
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
-          <h2>Send to DAO</h2>
+          <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Send to DAO</h2>
           <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px" @click="closeDaoModal">×</button>
         </div>
 
@@ -228,9 +228,9 @@
           </label>
         </div>
 
-        <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" @click="submitDaoProposal" :disabled="submittingDao">
+        <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75 border-top-1-light">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" @click="submitDaoProposal" :disabled="submittingDao">
             <span v-if="submittingDao" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
           </button>
@@ -241,7 +241,7 @@
     <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35" @click.self="closePublishModal">
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
-          <h2>Publish release</h2>
+          <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Publish release</h2>
           <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px" @click="closePublishModal">×</button>
         </div>
 
@@ -251,7 +251,7 @@
               <h3>Import from GitHub release</h3>
               <button
                 type="button"
-                class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650"
+                class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650 padding-75-100 padding-50-75"
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
                 @click="importFromGithubRelease"
               >
@@ -304,7 +304,7 @@
           <div class="relpage-artifacts-builder">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Artifacts</h3>
-              <button type="button" class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650" @click="addArtifact">Add artifact</button>
+              <button type="button" class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650 padding-75-100 padding-50-75" @click="addArtifact">Add artifact</button>
             </div>
 
             <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="relpage-artifact-draft border-radius-12px border-1-light padding-75 margin-top-75 bg-primary">
@@ -313,7 +313,7 @@
                 <button
                   v-if="draft.artifacts.length > 1"
                   type="button"
-                  class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650"
+                  class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650 padding-75-100 padding-50-75"
                   @click="removeArtifact(idx)"
                 >
                   Remove
@@ -354,9 +354,9 @@
           </div>
         </div>
 
-        <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" @click="closePublishModal" :disabled="submitting">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" @click="submitRelease" :disabled="submitting">
+        <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75 border-top-1-light">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" @click="closePublishModal" :disabled="submitting">Cancel</button>
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" @click="submitRelease" :disabled="submitting">
             <span v-if="submitting" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>
           </button>

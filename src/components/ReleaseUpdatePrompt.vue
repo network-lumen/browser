@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed padding-100">
       <header class="flex flex-column gap-10">
         <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em margin-0">
           Update available
@@ -22,8 +22,8 @@
         <li v-if="sizeLabel"><strong>Size:</strong> ~{{ sizeLabel }}</li>
         <li v-if="shaFull">
           <strong>SHA256:</strong>
-          <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer padding-0" @click.stop="copySha" aria-label="Copy SHA-256">
-            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px mono">{{ shaShort }}</code>
+          <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer padding-0 margin-left-25" @click.stop="copySha" aria-label="Copy SHA-256">
+            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px mono padding-0-50">{{ shaShort }}</code>
           </button>
         </li>
       </ul>
@@ -56,7 +56,7 @@
 
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0 bg-black-a50" @click.self="notesOpen = false">
+      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-10000" @click.self="notesOpen = false">
         <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden">
           <div class="release-prompt-notes-head flex-align-center-justify-space-between gap-100 padding-75-87">
             <h3 class="release-prompt-notes-title color-text-primary margin-0 fs-16px">Change notes</h3>

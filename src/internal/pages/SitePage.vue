@@ -10,8 +10,8 @@
           <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft">
             <Tag :size="26" />
           </div>
-          <h2 class="color-text-primary txt-weight-light margin-0">This domain belongs to no one</h2>
-          <p class="color-text-secondary"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+          <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This domain belongs to no one</h2>
+          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
           <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light bg-gradient-primary fs-15px shadow-primary transition-smooth padding-75-150" type="button" @click="goToBuyDomain">
             <span>Buy this domain</span>
           </button>
@@ -23,9 +23,9 @@
           <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft">
             <FileQuestion :size="26" />
           </div>
-          <h2 class="color-text-primary txt-weight-light margin-0">This content isn't available right now</h2>
-          <p class="color-text-secondary">The content couldn't be found. Please try again later.</p>
-          <p class="color-text-secondary">
+          <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This content isn't available right now</h2>
+          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15">The content couldn't be found. Please try again later.</p>
+          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15">
             If this is your site,
             <button type="button" class="sitepage-inline-link padding-0 border-none bg-transparent color-primary underline cursor-pointer txt-weight-light" @click="goToCreateWebsiteDocs">read the setup guide</button>.
           </p>

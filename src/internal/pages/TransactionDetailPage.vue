@@ -16,21 +16,21 @@
     </div>
 
     <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100">
-      <p class="color-error">{{ error }}</p>
+      <p class="color-error chaindetail-error-p fs-16px">{{ error }}</p>
     </div>
 
     <div v-else-if="transaction" class="flex flex-column gap-150">
       <!-- Transaction Overview Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary txt-weight-light margin-0">Transaction Overview</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Transaction Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Transaction Hash:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
-              <code class="bg-secondary color-text-primary flex-1">{{ transaction.hash }}</code>
-              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02" @click="copyToClipboard(transaction.hash)" title="Copy hash">
+              <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ transaction.hash }}</code>
+              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02 padding-25" @click="copyToClipboard(transaction.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -74,7 +74,7 @@
       <!-- Messages Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="transaction.messages && transaction.messages.length > 0">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary txt-weight-light margin-0">Messages ({{ transaction.messages.length }})</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Messages ({{ transaction.messages.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
@@ -84,7 +84,7 @@
                 <span class="txdetail-item-index color-text-tertiary fs-075rem">#{{ Number(index) + 1 }}</span>
               </div>
               <div class="txdetail-item-data">
-                <pre class="bg-primary color-text-primary padding-100 margin-0">{{ JSON.stringify(msg.value, null, 2) }}</pre>
+                <pre class="bg-primary color-text-primary padding-100 margin-0 txdetail-item-data-pre border-1 border-radius-6px mono fs-075rem pre-wrap">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@
       <!-- Events Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="transaction.events && transaction.events.length > 0">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary txt-weight-light margin-0">Events ({{ transaction.events.length }})</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Events ({{ transaction.events.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
@@ -114,7 +114,7 @@
       <!-- Raw Data Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary txt-weight-light margin-0">Raw Transaction Data</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Raw Transaction Data</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div>

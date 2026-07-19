@@ -1,9 +1,9 @@
 <template>
   <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
-    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap">
+    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
       <div class="extensions-store-copy">
-        <h1>{{ headerTitle }}</h1>
-        <p v-if="headerDescription">{{ headerDescription }}</p>
+        <h1 class="extensions-store-copy-h1">{{ headerTitle }}</h1>
+        <p class="extensions-store-copy-p" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
@@ -44,9 +44,9 @@
     ></webview>
 
     <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px gap-87 line-height-145">
-      <span><strong class="txt-weight-light">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
-      <span><strong class="txt-weight-light">Lumen install:</strong> installation is handled by Lumen.</span>
-      <span><strong class="txt-weight-light">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong">Lumen install:</strong> installation is handled by Lumen.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
     </footer>
   </div>
 </template>

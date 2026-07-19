@@ -1,5 +1,5 @@
 <template>
-  <div class="qr-scanner-wrapper fixed top-0">
+  <div class="qr-scanner-wrapper fixed top-0 z-10000">
     <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125" @click="$emit('close')">
       <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
         <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
@@ -26,8 +26,8 @@
           <!-- Error State -->
           <div v-if="error" class="qr-error-state text-center">
             <AlertCircle :size="48" class="qr-error-icon color-error margin-bottom-100" />
-            <h4 class="color-text-primary">{{ error }}</h4>
-            <p v-if="error.includes('permission')" class="color-text-secondary fs-14px">
+            <h4 class="color-text-primary qr-error-state-h4 fs-20px txt-weight-light">{{ error }}</h4>
+            <p v-if="error.includes('permission')" class="color-text-secondary fs-14px qr-error-state-p">
               Please allow camera access in your browser settings
             </p>
             <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500 gap-50 bg-accent border-radius-8px padding-62-125 transition-bg-02" @click="initializeScanner">
@@ -39,15 +39,15 @@
           <!-- Success State -->
           <div v-if="scannedData" class="qr-success-state text-center">
             <CheckCircle :size="48" class="qr-success-icon color-success margin-bottom-100" />
-            <h4 class="color-text-primary">QR Code Scanned</h4>
+            <h4 class="color-text-primary qr-success-state-h4 fs-20px txt-weight-light">QR Code Scanned</h4>
 
             <div class="qr-scanned-data text-left bg-secondary border-radius-8px padding-100">
               <div class="qr-data-type">
-                <span class="qr-label color-text-secondary">Type:</span>
-                <span class="qr-value color-text-primary">{{ detectedType }}</span>
+                <span class="qr-label color-text-secondary block fs-12px txt-weight-light text-uppercase margin-bottom-25">Type:</span>
+                <span class="qr-value color-text-primary fs-14px fw-500">{{ detectedType }}</span>
               </div>
               <div class="qr-data-content">
-                <span class="qr-label color-text-secondary">Content:</span>
+                <span class="qr-label color-text-secondary block fs-12px txt-weight-light text-uppercase margin-bottom-25">Content:</span>
                 <div class="qr-value-box bg-card color-text-primary fs-13px border-1 border-radius-6px padding-75 break-all overflow-y-auto mono">{{ scannedData }}</div>
               </div>
             </div>

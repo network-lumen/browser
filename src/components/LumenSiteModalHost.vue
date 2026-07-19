@@ -1,6 +1,6 @@
 <template>
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'permission'" class="overlay-scrim sitemodal-overlay padding-100" @click.stop>
+    <div v-if="current && modalType === 'permission'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click.stop>
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -9,7 +9,7 @@
             </div>
             <h3>Permission required</h3>
           </div>
-          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px" type="button" @click="denyPermission">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px padding-25" type="button" @click="denyPermission">
             <X :size="18" />
           </button>
         </div>
@@ -32,13 +32,13 @@
           </div>
         </div>
         <div class="sitemodal-actions flex flex-justify-end gap-62">
-          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary" type="button" @click="denyPermission">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="denyPermission">
             Deny
           </button>
-          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary" type="button" @click="allowOnce">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="allowOnce">
             Allow once
           </button>
-          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary" type="button" @click="allowAlways">
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="allowAlways">
             Always allow
           </button>
         </div>
@@ -47,7 +47,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'sendToken'" class="overlay-scrim sitemodal-overlay padding-100" @click="closeSend(false)">
+    <div v-if="current && modalType === 'sendToken'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closeSend(false)">
       <div class="sitemodal-content sitemodal-send bg-card border-radius-12px overflow-auto" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -56,7 +56,7 @@
             </div>
             <h3>Send LMN</h3>
           </div>
-          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px" type="button" @click="closeSend(false)" :disabled="sending">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px padding-25" type="button" @click="closeSend(false)" :disabled="sending">
             <X :size="18" />
           </button>
         </div>
@@ -68,21 +68,21 @@
           <div v-if="sendError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75">{{ sendError }}</div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary">From</label>
+            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">From</label>
             <div class="sitemodal-input-wrapper readonly relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" :value="activeAddress || '-'" readonly />
             </div>
           </div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary">To <span class="color-error">*</span></label>
+            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">To <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
             </div>
           </div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary">Amount (LMN) <span class="color-error">*</span></label>
+            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">Amount (LMN) <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
               <span class="sitemodal-input-suffix fs-12px color-text-secondary absolute top-half">LMN</span>
@@ -99,18 +99,18 @@
           </div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary">Memo (optional)</label>
+            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">Memo (optional)</label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendMemo" :disabled="sending" />
             </div>
           </div>
         </div>
         <div class="sitemodal-actions flex flex-justify-end gap-62">
-          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary" type="button" @click="closeSend(false)" :disabled="sending">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closeSend(false)" :disabled="sending">
             Cancel
           </button>
-          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary" type="button" @click="submitSend" :disabled="!canSend">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50" v-if="sending"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitSend" :disabled="!canSend">
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="sending"></span>
             <span>{{ sending ? 'Sending...' : 'Send' }}</span>
           </button>
         </div>
@@ -119,7 +119,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'pin'" class="overlay-scrim sitemodal-overlay padding-100" @click="closePin(false)">
+    <div v-if="current && modalType === 'pin'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closePin(false)">
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -128,7 +128,7 @@
             </div>
             <h3>Save to Drive</h3>
           </div>
-          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px" type="button" @click="closePin(false)" :disabled="pinning">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px padding-25" type="button" @click="closePin(false)" :disabled="pinning">
             <X :size="18" />
           </button>
         </div>
@@ -177,12 +177,12 @@
           </div>
         </div>
         <div class="sitemodal-actions flex flex-justify-end gap-62">
-          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary" type="button" @click="closePin(false)" :disabled="pinIsRunning">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closePin(false)" :disabled="pinIsRunning">
             Cancel
           </button>
           <button
             v-if="pinCanPause"
-            class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary"
+            class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75"
             type="button"
             @click="pausePinJob"
           >
@@ -190,7 +190,7 @@
           </button>
           <button
             v-if="pinCanResume"
-            class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary"
+            class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75"
             type="button"
             @click="resumePinJob"
           >
@@ -198,14 +198,14 @@
           </button>
           <button
             v-if="pinCanStop"
-            class="sitemodal-btn-danger badge-error border-none border-radius-10px cursor-pointer txt-weight-light"
+            class="sitemodal-btn-danger badge-error border-none border-radius-10px cursor-pointer txt-weight-light padding-62-75"
             type="button"
             @click="cancelPinJob"
           >
             Stop
           </button>
-          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50" v-if="pinning"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="pinning"></span>
             <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
           </button>
         </div>
@@ -214,7 +214,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'stableLink'" class="overlay-scrim sitemodal-overlay padding-100" @click="closeStableLink(false)">
+    <div v-if="current && modalType === 'stableLink'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closeStableLink(false)">
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -223,7 +223,7 @@
             </div>
             <h3>Choose or create a stable link for your live</h3>
           </div>
-          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px padding-25" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
             <X :size="18" />
           </button>
         </div>
@@ -234,10 +234,10 @@
           <div v-if="stableLinkError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75">{{ stableLinkError }}</div>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-25 padding-25 margin-bottom-75 bg-fill-tertiary">
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
               Create new
             </button>
           </div>
@@ -293,11 +293,11 @@
           </p>
         </div>
         <div class="sitemodal-actions flex flex-justify-end gap-62">
-          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
             Cancel
           </button>
-          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50" v-if="stableLinkSaving"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="stableLinkSaving"></span>
             <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
             <Save v-else :size="16" />
             <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
@@ -308,7 +308,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'stableLinkSetup'" class="overlay-scrim sitemodal-overlay padding-100" @click="closeStableLinkSetup(false)">
+    <div v-if="current && modalType === 'stableLinkSetup'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closeStableLinkSetup(false)">
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -317,7 +317,7 @@
             </div>
             <h3>Select a live link</h3>
           </div>
-          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
+          <button class="sitemodal-close border-none bg-transparent cursor-pointer color-text-primary border-radius-8px padding-25" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
             <X :size="18" />
           </button>
         </div>
@@ -342,11 +342,11 @@
           </p>
         </div>
         <div class="sitemodal-actions flex flex-justify-end gap-62">
-          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
+          <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
             Cancel
           </button>
-          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50" v-if="stableLinkSetupLoading"></span>
+          <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="stableLinkSetupLoading"></span>
             <Link v-else :size="16" />
             <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
           </button>

@@ -9,7 +9,7 @@
         <div class="modal-panel pwd-modal bg-card border-default w-full border-radius-16px">
           <div class="pwd-modal-header flex-align-center gap-75 margin-bottom-75">
             <LockKeyhole :size="24" class="color-primary" />
-            <h3 class="color-text-primary margin-0 txt-weight-light">Password Required</h3>
+            <h3 class="color-text-primary margin-0 txt-weight-light pwd-modal-header-h3 fs-18px">Password Required</h3>
           </div>
 
           <p class="pwd-modal-message color-text-secondary fs-14px line-height-14 margin-0 margin-bottom-125">
@@ -49,7 +49,7 @@
             >
               <span v-if="loading">Verifying...</span>
               <span v-else-if="busy" class="flex-inline-align-center gap-50">
-                <span class="pwd-modal-spinner border-radius-full" aria-hidden="true"></span>
+                <span class="pwd-modal-spinner border-radius-full w-14px h-14px" aria-hidden="true"></span>
                 Working...
               </span>
               <span v-else>Confirm</span>

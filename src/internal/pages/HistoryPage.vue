@@ -5,7 +5,7 @@
     <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
       <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between border-default bg-card shadow-sm">
         <div class="history-copy">
-          <h1 class="color-text-primary margin-0">History</h1>
+          <h1 class="color-text-primary margin-0 history-copy-h1">History</h1>
         </div>
 
         <div class="history-header-actions flex-align-center gap-62 flex-wrap-wrap">
@@ -40,7 +40,7 @@
             placeholder="Search history"
             spellcheck="false"
             autocomplete="off"
-            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary"
+            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary history-search-input fs-15px"
           />
         </label>
       </section>
@@ -52,8 +52,8 @@
       <div v-if="groupedEntries.length" class="flex flex-column gap-90">
         <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100 border-default bg-card shadow-sm">
           <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between">
-            <h2 class="color-text-primary margin-0">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong">{{ group.entries.length }}</span>
+            <h2 class="color-text-primary margin-0 history-group-head-h2 fs-16px">{{ group.label }}</h2>
+            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span padding-0-50 bg-fill-secondary fs-12px">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
@@ -93,8 +93,8 @@
           <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary">
             <HistoryIcon :size="22" />
           </div>
-          <h3 class="color-text-primary margin-0">{{ emptyTitle }}</h3>
-          <p class="color-text-secondary">{{ emptyCopy }}</p>
+          <h3 class="color-text-primary margin-0 history-empty-card-h3 fs-18px">{{ emptyTitle }}</h3>
+          <p class="color-text-secondary history-empty-card-p line-height-155">{{ emptyCopy }}</p>
           <div class="history-empty-actions flex-align-center margin-top-100 flex-justify-center gap-62 flex-wrap-wrap">
             <button
               v-if="!historyEnabled"

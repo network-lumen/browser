@@ -1,7 +1,7 @@
 <template>
   <div class="absolute inset-0 z-1400 bg-transparent" @click="requestClose()">
     <div class="extension-popup-shell absolute overflow-hidden border-radius-14px bg-dark-111" :style="popupShellStyle" @click.stop>
-      <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full" aria-label="Close extension popup" @click="requestClose()">
+      <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-2" aria-label="Close extension popup" @click="requestClose()">
         <X :size="14" />
       </button>
 

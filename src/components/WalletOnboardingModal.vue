@@ -1,7 +1,7 @@
 <template>
   <Transition name="walletonboard-transition">
-    <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50" @click="handleOverlayClick">
-      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh" @click.stop>
+    <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50 z-10000" @click="handleOverlayClick">
+      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct" @click.stop>
         <div class="walletonboard-header text-center border-bottom-default">
           <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />
@@ -185,10 +185,10 @@
             <div class="walletonboard-reminder-box margin-top-200 padding-150 border-radius-12px bg-secondary">
               <p class="txt-xs txt-weight-strong margin-0 margin-bottom-50 color-text-primary">Remember:</p>
               <ul class="walletonboard-reminder-list txt-xs color-gray-blue margin-0 padding-left-150">
-                <li>Never share your password or backup file</li>
-                <li>Store your backup in multiple secure locations</li>
-                <li>You'll need your password for all transactions</li>
-                <li>No one can recover your wallet if you lose both</li>
+                <li class="walletonboard-reminder-list-li margin-bottom-50">Never share your password or backup file</li>
+                <li class="walletonboard-reminder-list-li margin-bottom-50">Store your backup in multiple secure locations</li>
+                <li class="walletonboard-reminder-list-li margin-bottom-50">You'll need your password for all transactions</li>
+                <li class="walletonboard-reminder-list-li margin-bottom-50">No one can recover your wallet if you lose both</li>
               </ul>
             </div>
           </div>
