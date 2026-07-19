@@ -981,8 +981,8 @@ onMounted(async () => {
 
 .embedded-server-card.active {
   border-color: var(--ios-green);
-  background: linear-gradient(135deg, rgba(52, 199, 89, 0.05) 0%, rgba(52, 199, 89, 0.02) 100%);
-  box-shadow: 0 4px 20px rgba(52, 199, 89, 0.1);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
+  box-shadow: 0 4px 20px rgba(var(--ios-green-rgb), 0.1);
 }
 
 .server-card-header {
@@ -1005,7 +1005,7 @@ onMounted(async () => {
 }
 
 .embedded-server-card.active .server-icon {
-  background: rgba(52, 199, 89, 0.15);
+  background: rgba(var(--ios-green-rgb), 0.15);
   color: var(--ios-green);
 }
 
@@ -1038,7 +1038,7 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(142, 142, 147, 0.15);
+  background: var(--fill-tertiary);
   border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -1047,7 +1047,7 @@ onMounted(async () => {
 }
 
 .server-status-badge.running {
-  background: rgba(52, 199, 89, 0.15);
+  background: rgba(var(--ios-green-rgb), 0.15);
   color: var(--ios-green);
 }
 
@@ -1116,38 +1116,38 @@ onMounted(async () => {
 }
 
 .btn-start {
-  background: linear-gradient(135deg, #34C759 0%, #30B350 100%);
+  background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
   color: white;
   flex: 1;
-  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
 }
 
 .btn-start:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+  box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
 }
 
 .btn-stop {
-  background: linear-gradient(135deg, #FF3B30 0%, #E8352A 100%);
+  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
   color: white;
   flex: 1;
-  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--ios-red-rgb), 0.3);
 }
 
 .btn-stop:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+  box-shadow: 0 4px 12px rgba(var(--ios-red-rgb), 0.4);
 }
 
 .btn-add {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.3);
 }
 
 .btn-add:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.4);
 }
 
 .btn-outline:disabled,
@@ -1313,7 +1313,7 @@ onMounted(async () => {
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.3);
 }
 
 
@@ -1330,14 +1330,14 @@ onMounted(async () => {
 }
 
 .btn-danger {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--ios-red);
-  border: 1px solid rgba(255, 59, 48, 0.2);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.2);
   flex: 1;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: rgba(255, 59, 48, 0.15);
+  background: rgba(var(--ios-red-rgb), 0.15);
 }
 
 /* Modal Styles */
@@ -1405,8 +1405,8 @@ onMounted(async () => {
 }
 
 .modal-description {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(var(--ios-blue-rgb), 0.1);
+  border: 1px solid rgba(var(--ios-blue-rgb), 0.2);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   color: var(--text-secondary);
@@ -1441,13 +1441,13 @@ onMounted(async () => {
 .form-input:focus {
   outline: none;
   border-color: var(--ios-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1);
 }
 
 .error-message {
   padding: 0.75rem 1rem;
-  background: rgba(255, 59, 48, 0.1);
-  border: 1px solid rgba(255, 59, 48, 0.2);
+  background: rgba(var(--ios-red-rgb), 0.1);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.2);
   border-radius: 10px;
   color: var(--ios-red);
   font-size: 0.875rem;
@@ -1582,7 +1582,7 @@ onMounted(async () => {
 }
 
 .btn-icon.danger:hover {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--ios-red);
   border-color: var(--ios-red);
 }
