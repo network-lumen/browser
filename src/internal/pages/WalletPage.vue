@@ -91,8 +91,8 @@
           <div class="balance-header">
             <span class="balance-label">Total Balance</span>
             <button class="eye-btn" @click="showBalance = !showBalance">
-              <Eye v-if="showBalance" :size="18" :style="{ color: effectiveTheme === 'dark' ? 'white' : '#222' }" />
-              <EyeOff v-else :size="18" :style="{ color: effectiveTheme === 'dark' ? 'white' : '#222' }" />
+              <Eye v-if="showBalance" :size="18" />
+              <EyeOff v-else :size="18" />
             </button>
           </div>
           <div class="balance-amount">
@@ -4368,11 +4368,11 @@ function exportTransactions() {
 .action-btn.primary {
   background: var(--gradient-primary);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 15px rgba(var(--ios-blue-rgb), 0.4);
 }
 
 .action-btn.primary:hover {
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 8px 25px rgba(var(--ios-blue-rgb), 0.5);
   transform: translateY(-2px);
 }
 
@@ -4381,7 +4381,7 @@ function exportTransactions() {
   border-radius: 20px;
   padding: 2rem;
   color: white;
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3), 0 5px 15px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.3), 0 5px 15px rgba(var(--ios-blue-rgb), 0.2);
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -4507,7 +4507,7 @@ function exportTransactions() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.1) 0%, rgba(var(--ios-blue-rgb), 0.1) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -4518,8 +4518,8 @@ function exportTransactions() {
 
 .quick-btn:not(:disabled):hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.25);
-  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.25);
+  border-color: rgba(var(--ios-blue-rgb), 0.5);
 }
 
 .quick-icon {
@@ -4529,7 +4529,7 @@ function exportTransactions() {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 20px rgba(var(--ios-blue-rgb), 0.3);
   transition: all 0.3s ease;
 }
 
@@ -4554,7 +4554,7 @@ function exportTransactions() {
 }
 
 .quick-icon.disabled {
-  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
   color: white;
   opacity: 0.6;
 }
@@ -4896,11 +4896,11 @@ function exportTransactions() {
 }
 
 .dex-item-degraded {
-  border-color: rgba(245, 158, 11, 0.35);
+  border-color: rgba(var(--ios-orange-rgb), 0.35);
 }
 
 .dex-item-error {
-  border-color: rgba(239, 68, 68, 0.28);
+  border-color: rgba(var(--ios-red-rgb), 0.28);
 }
 
 .dex-top {
@@ -4988,27 +4988,27 @@ function exportTransactions() {
 
 .dex-status-badge.status-idle,
 .dex-status-badge.status-loading {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(var(--ios-blue-rgb), 0.1);
   color: var(--ios-blue);
-  border-color: rgba(59, 130, 246, 0.16);
+  border-color: rgba(var(--ios-blue-rgb), 0.16);
 }
 
 .dex-status-badge.status-online {
-  background: rgba(34, 197, 94, 0.12);
+  background: rgba(var(--ios-green-rgb), 0.12);
   color: var(--ios-green);
-  border-color: rgba(34, 197, 94, 0.16);
+  border-color: rgba(var(--ios-green-rgb), 0.16);
 }
 
 .dex-status-badge.status-degraded {
-  background: rgba(245, 158, 11, 0.12);
+  background: rgba(var(--ios-orange-rgb), 0.12);
   color: var(--ios-orange);
-  border-color: rgba(245, 158, 11, 0.18);
+  border-color: rgba(var(--ios-orange-rgb), 0.18);
 }
 
 .dex-status-badge.status-error {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(var(--ios-red-rgb), 0.12);
   color: var(--ios-red);
-  border-color: rgba(239, 68, 68, 0.18);
+  border-color: rgba(var(--ios-red-rgb), 0.18);
 }
 
 .dex-meta {
@@ -5193,22 +5193,22 @@ function exportTransactions() {
 }
 
 .type-badge.dns-update {
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(var(--ios-purple-rgb), 0.1);
   color: var(--ios-purple);
 }
 
 .type-badge.dns-transfer {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(var(--ios-blue-rgb), 0.1);
   color: var(--ios-blue);
 }
 
 .type-badge.dns-register {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(var(--ios-orange-rgb), 0.1);
   color: var(--ios-orange);
 }
 
 .type-badge.withdraw-rewards {
-  background: rgba(255, 204, 0, 0.1);
+  background: rgba(var(--ios-yellow-rgb), 0.1);
   color: var(--ios-yellow);
 }
 
@@ -5218,12 +5218,12 @@ function exportTransactions() {
 }
 
 .type-badge.send {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--ios-red);
 }
 
 .type-badge.receive {
-  background: rgba(34, 197, 94, 0.1);
+  background: rgba(var(--ios-green-rgb), 0.1);
   color: var(--ios-green);
 }
 
@@ -5433,13 +5433,13 @@ function exportTransactions() {
   padding: 0.875rem 1rem;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
-  color: var(--text-primary, var(--accent-primary));
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
 .info-banner.warning {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(var(--ios-orange-rgb), 0.1);
+  border-color: rgba(var(--ios-orange-rgb), 0.3);
   color: var(--text-primary);
 }
 
@@ -5679,22 +5679,9 @@ function exportTransactions() {
   width: 16px;
   height: 16px;
   border: 2px solid var(--text-tertiary);
-  border-top-color: var(--primary);
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .address-box {
@@ -5887,7 +5874,7 @@ function exportTransactions() {
 }
 
 .modal-icon.delete {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%);
 }
 
 .confirm-message {
@@ -5936,7 +5923,7 @@ function exportTransactions() {
   padding: 0.75rem 1.25rem;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%);
   color: white;
   font-size: 0.9375rem;
   font-weight: 600;
@@ -5946,12 +5933,12 @@ function exportTransactions() {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 15px rgba(var(--ios-red-rgb), 0.3);
 }
 
 .btn-modal-danger:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 80%, black) 0%, color-mix(in srgb, var(--ios-red) 60%, black) 100%);
+  box-shadow: 0 6px 20px rgba(var(--ios-red-rgb), 0.4);
   transform: translateY(-1px);
 }
 
