@@ -2173,6 +2173,119 @@ html, body {
     border-radius: 4px;
 }
 
+/* AddressDetailPage.vue */
+.addrdetail-status-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.addrdetail-empty-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.addrdetail-balance-item {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+}
+
+.addrdetail-balance-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+}
+
+.addrdetail-balance-amount {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.addrdetail-delegation-item {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+}
+
+.addrdetail-validator-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.addrdetail-validator-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.addrdetail-validator-address {
+    font-size: 0.75rem;
+    font-family: 'Courier New', monospace;
+}
+
+.addrdetail-delegation-amount {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.addrdetail-tx-item {
+    padding: 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.addrdetail-tx-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.addrdetail-tx-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-secondary);
+    border-radius: 50%;
+    color: var(--text-secondary);
+}
+
+.addrdetail-tx-hash {
+    cursor: pointer;
+    margin-bottom: 0.25rem;
+}
+
+.addrdetail-tx-hash code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-primary);
+}
+
+.addrdetail-tx-hash:hover code {
+    text-decoration: underline;
+}
+
+.addrdetail-tx-meta {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.addrdetail-tx-height {
+    cursor: pointer;
+    color: var(--accent-primary);
+}
+
+.addrdetail-tx-height:hover {
+    text-decoration: underline;
+}
+
 .transition-bounce {
     transition: var(--transition-bounce);
 }
