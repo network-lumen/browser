@@ -1,11 +1,11 @@
 <template>
-  <div class="all-pages">
+  <div class="margin-top-87 padding-top-75 border-top-light">
     <button type="button" class="lsb-item lsb-item--dropdown" @click="open = !open">
-      <span class="all-pages-title">{{ label }}</span>
+      <span class="fw-600">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </button>
 
-    <div v-if="open" class="all-pages-list">
+    <div v-if="open" class="margin-top-37 flex flex-column gap-2px">
       <button
         v-for="r in routes"
         :key="r.key"
@@ -15,7 +15,7 @@
         @click="openRoute(r.key)"
       >
         <component :is="iconFor(r.key)" :size="16" />
-        <span class="all-pages-name">{{ r.title }}</span>
+        <span class="overflow-hidden txt-overflow-ellipsis nowrap">{{ r.title }}</span>
       </button>
     </div>
   </div>
@@ -135,55 +135,3 @@ function openRoute(key: string) {
   openUrl(`lumen://${key}`);
 }
 </script>
-
-<style scoped>
-.all-pages {
-  margin-top: 0.875rem;
-  padding-top: 0.75rem;
-  border-top: 0.5px solid var(--border-light);
-}
-
-.lsb-item--dropdown {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  border: 0.5px solid var(--border-color);
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-secondary);
-  transition: all 0.15s ease;
-}
-
-.lsb-item--dropdown:hover {
-  background: var(--hover-bg);
-  border-color: var(--primary-a30);
-  color: var(--text-primary);
-}
-
-.all-pages-title {
-  font-weight: 600;
-}
-
-.all-pages-list {
-  margin-top: 0.375rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.lsb-item--compact {
-  padding: 0.4375rem 0.625rem;
-  font-size: 13px;
-}
-
-.all-pages-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>

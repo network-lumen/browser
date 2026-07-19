@@ -1,32 +1,32 @@
 <template>
-  <div class="card" role="status" aria-live="polite">
-    <header class="head">
-      <div class="mark" aria-hidden="true">L</div>
-      <div class="brand">
-        <div class="title">Lumen</div>
+  <div class="startup-card" role="status" aria-live="polite">
+    <header class="startup-head">
+      <div class="startup-mark" aria-hidden="true">L</div>
+      <div class="min-w-0">
+        <div class="startup-title">Lumen</div>
       </div>
     </header>
 
-    <main class="body h-auto">
-      <div v-if="phase === 'starting' || phase === 'retrying'" class="center">
-        <div class="spinner" aria-label="Loading"></div>
+    <main class="startup-body h-auto">
+      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center">
+        <div class="ring-spinner ring-spinner-lg" aria-label="Loading"></div>
       </div>
 
-      <div v-else-if="phase === 'error'" class="center">
-        <div class="msg">
-          <div class="msg-subtitle">
+      <div v-else-if="phase === 'error'" class="startup-center">
+        <div>
+          <div class="startup-msg-subtitle">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="btn primary margin-bottom-100" type="button" :disabled="busy" @click="restartAll">
+          <button class="startup-btn startup-btn-primary margin-bottom-100" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>
       </div>
     </main>
 
-    <footer class="foot">
-      <span v-if="phase !== 'error'" class="hint">This usually takes a few seconds.</span>
-      <span v-else class="hint">If it keeps failing, restart Lumen.</span>
+    <footer class="startup-foot">
+      <span v-if="phase !== 'error'" class="startup-hint">This usually takes a few seconds.</span>
+      <span v-else class="startup-hint">If it keeps failing, restart Lumen.</span>
     </footer>
   </div>
 </template>
@@ -105,128 +105,3 @@ onMounted(async () => {
   await bootSequence();
 });
 </script>
-
-<style scoped>
-.card {
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  box-shadow: none;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  border-bottom: var(--border-width) solid var(--border-color);
-}
-
-.mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gradient-primary);
-  color: #fff;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  font-size: 18px;
-  flex: 0 0 auto;
-}
-
-.brand {
-  min-width: 0;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.body {
-  flex: 1 1 auto;
-  display: flex;
-  min-height: 0;
-}
-
-.center {
-  margin: auto auto 30px auto ;
-  padding: 28px 22px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 3px solid var(--fill-secondary);
-  border-top-color: var(--accent-primary);
-  animation: spin 0.9s linear infinite;
-}
-
-.msg-subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.btn {
-  padding: 10px 16px;
-  border-radius: var(--border-radius-md);
-  border: var(--border-width) solid var(--border-color);
-  font-size: 13px;
-  font-weight: 650;
-  cursor: pointer;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-
-.btn.primary {
-  border-color: transparent;
-  background: var(--gradient-primary);
-  color: #ffffff;
-  box-shadow: var(--shadow-primary);
-}
-
-.btn:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.foot {
-  padding: 12px 18px;
-  border-top: var(--border-width) solid var(--border-color);
-  display: flex;
-  justify-content: center;
-}
-
-.hint {
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>
-
