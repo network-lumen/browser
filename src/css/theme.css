@@ -3931,3 +3931,393 @@ select.recurpay-input {
     white-space: nowrap;
     line-height: 1;
 }
+
+/* HelpPage.vue */
+.helppage-docs-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.helppage-docs-content-area {
+    overflow: hidden;
+}
+
+.helppage-docs-discover {
+    min-height: 0;
+}
+
+.helppage-doc-frame {
+    display: block;
+    min-height: 520px;
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    background: var(--card-bg);
+}
+
+.helppage-discover-card {
+    gap: 0.85rem;
+    padding: 1rem 1rem;
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+.helppage-discover-ico {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: var(--fill-blue);
+    border: 1px solid rgba(var(--ios-blue-rgb), 0.18);
+    color: var(--ios-blue);
+}
+
+.helppage-discover-card h4 {
+    font-size: 0.95rem;
+}
+
+.helppage-discover-card p {
+    margin: 0.25rem 0 0;
+    font-size: 0.86rem;
+    line-height: 1.35;
+}
+
+.helppage-discover-card code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 0.85em;
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.4rem;
+    background: var(--fill-tertiary);
+    border: 1px solid var(--border-color);
+}
+
+.helppage-discover-note {
+    padding: 0.75rem 0.85rem;
+    border-radius: 14px;
+    background: var(--fill-blue);
+    border: 1px solid rgba(var(--ios-blue-rgb), 0.14);
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.helppage-main {
+    min-width: 0;
+    overflow: hidden;
+    padding: 2rem 2.5rem;
+    background: var(--bg-secondary);
+    border-radius: 0;
+}
+
+.helppage-content-header h1 {
+    font-size: 1.75rem;
+}
+
+.helppage-content-header p {
+    font-size: 0.875rem;
+    margin: 0.25rem 0 0 0;
+}
+
+.helppage-content-area {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.25rem;
+}
+
+.helppage-step-number {
+    background: var(--gradient-primary);
+    color: white;
+    flex-shrink: 0;
+}
+
+.helppage-step-content h4 {
+    font-size: 1rem;
+    margin: 0 0 0.25rem 0;
+}
+
+@media (max-width: 700px) {
+    .help-page {
+        flex-direction: column;
+    }
+
+    .helppage-main {
+        margin: 0 0.5rem 0.5rem 0.5rem;
+        padding: 1.5rem;
+    }
+
+    .helppage-actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .helppage-steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .helppage-features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .helppage-contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .helppage-hero-features {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+.helppage-hero-section {
+    border: var(--border-width) solid var(--border-color);
+    background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%);
+    box-shadow: var(--shadow-sm);
+}
+
+.helppage-hero-section.small {
+    padding: 1.5rem;
+}
+
+.helppage-hero-title {
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+}
+
+.helppage-gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.helppage-hero-subtitle {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.helppage-hero-features {
+    justify-content: center;
+    gap: 2rem;
+}
+
+.helppage-feature-point {
+    align-items: flex-start;
+}
+
+.helppage-point-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.helppage-point-text strong {
+    font-size: 0.9rem;
+}
+
+.helppage-point-text span {
+    font-size: 0.8rem;
+}
+
+.helppage-section-title {
+    font-size: 1rem;
+}
+
+.helppage-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.helppage-action-card {
+    padding: 1rem 1.25rem;
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+    transition: all 0.15s ease;
+}
+
+.helppage-action-card:hover {
+    background: var(--hover-bg);
+    transform: translateY(-1px);
+}
+
+.helppage-action-icon {
+    border-radius: 14px;
+    flex-shrink: 0;
+}
+
+.helppage-action-icon.drive {
+    background: var(--fill-blue);
+    color: var(--ios-blue);
+}
+
+.helppage-action-icon.domain {
+    background: rgba(var(--ios-purple-rgb), 0.15);
+    color: var(--ios-purple);
+}
+
+.helppage-action-info {
+    min-width: 0;
+}
+
+.helppage-action-title {
+    font-size: 0.95rem;
+}
+
+.helppage-action-desc {
+    font-size: 0.8rem;
+}
+
+.helppage-action-arrow {
+    flex-shrink: 0;
+}
+
+.helppage-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.helppage-step-card {
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+}
+
+.helppage-step-card .helppage-step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.helppage-step-card .helppage-step-content h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.helppage-step-card .helppage-step-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.helppage-features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.helppage-feature-card {
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+}
+
+.helppage-feature-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--fill-tertiary);
+    color: var(--ios-blue);
+    flex-shrink: 0;
+}
+
+.helppage-feature-content h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.helppage-feature-content p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.helppage-tutorial-step {
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+}
+
+.helppage-step-header {
+    margin-bottom: 0.5rem;
+}
+
+.helppage-tutorial-step .helppage-step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.helppage-step-header h4 {
+    font-size: 1rem;
+}
+
+.helppage-tutorial-step p {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.helppage-step-action {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border-color);
+    background: var(--fill-tertiary);
+    transition: all 0.15s ease;
+}
+
+.helppage-step-action:hover {
+    background: var(--hover-bg);
+}
+
+.helppage-contact-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.helppage-contact-card {
+    border: var(--border-width) solid var(--border-color);
+    background: var(--card-bg);
+    transition: all 0.15s ease;
+}
+
+.helppage-contact-card:hover {
+    background: var(--hover-bg);
+    transform: translateY(-1px);
+}
+
+.helppage-contact-icon {
+    border-radius: 14px;
+    flex-shrink: 0;
+}
+
+.helppage-contact-icon.discord {
+    background: rgba(var(--ios-purple-rgb), 0.15);
+    color: var(--ios-purple);
+}
+
+.helppage-contact-icon.github {
+    background: var(--fill-tertiary);
+}
+
+.helppage-contact-icon.website {
+    background: var(--fill-blue);
+    color: var(--ios-blue);
+}
+
+.helppage-contact-info {
+    min-width: 0;
+}
+
+.helppage-contact-info h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+}
+
+.helppage-contact-info p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.helppage-contact-arrow {
+    flex-shrink: 0;
+}
