@@ -1,5 +1,5 @@
 <template>
-  <main class="app-root" :class="{ startup: stage === 'startup' }">
+  <main class="app-shell" :class="{ startup: stage === 'startup' }">
     <StartupScreen
       v-if="stage === 'startup'"
       @ready="handleStartupReady"
@@ -102,23 +102,3 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', onGlobalKeydown, true);
 });
 </script>
-
-<style scoped>
-.app-root {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
-              radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
-              linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
-}
-
-.app-root.startup {
-  align-items: stretch;
-  justify-content: stretch;
-  width: 100vw;
-  height: 100vh;
-  background: var(--card-bg);
-}
-</style>

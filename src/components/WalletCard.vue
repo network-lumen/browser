@@ -1,6 +1,6 @@
 <template>
-  <section class="wallet-card bg-white border-radius-20px box-shadow-default padding-100 w-full" aria-labelledby="wallet-title">
-    <header class="flex-align-justify-space-between flex-align-start margin-bottom-50">
+  <section class="max-w-800px margin-0-auto bg-white border-radius-20px box-shadow-default padding-100 w-full" aria-labelledby="wallet-title">
+    <header class="flex-align-start flex-justify-space-between margin-bottom-50">
       <div class="margin-25 flex-align-center gap-50">
         <div class="flex flex-column gap-0">
           <h3 id="wallet-title" class="txt-lg txt-weight-strong margin-0">Wallet</h3>
@@ -86,11 +86,3 @@ async function copyAddress() {
   }
 }
 </script>
-
-<style scoped>
-.wallet-card {
-  max-width: 800px;
-  margin: 0 auto;
-}
-</style>
-
