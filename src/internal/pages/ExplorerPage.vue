@@ -18,7 +18,7 @@
           <span class="lsb-label">Browse</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
@@ -31,7 +31,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'blocks' }"
             @click="currentView = 'blocks'"
           >
@@ -45,7 +45,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -57,7 +57,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'validators' }"
             @click="currentView = 'validators'"
           >

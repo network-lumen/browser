@@ -7,7 +7,7 @@
           <span class="lsb-label">Activity</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'assets' }"
             @click="currentView = 'assets'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'dex' }"
             @click="currentView = 'dex'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'recurring' }"
             @click="currentView = 'recurring'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'addressbook' }"
             @click="currentView = 'addressbook'"
           >

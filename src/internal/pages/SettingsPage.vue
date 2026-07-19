@@ -7,7 +7,7 @@
           <span class="lsb-label">General</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'content' }"
             @click="currentView = 'content'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'network' }"
             @click="currentView = 'network'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'security' }"
             @click="currentView = 'security'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'privatecloud' }"
             @click="currentView = 'privatecloud'"
           >
@@ -74,7 +74,7 @@
           <span class="lsb-label">Advanced</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'troubleshooting' }"
             @click="currentView = 'troubleshooting'"
           >
@@ -83,7 +83,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
@@ -92,7 +92,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'about' }"
             @click="currentView = 'about'"
           >

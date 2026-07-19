@@ -7,7 +7,7 @@
           <span class="lsb-label">Resources</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'discover' }"
             @click="setView('discover')"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'domains' }"
             @click="setView('domains')"
           >
@@ -29,7 +29,7 @@
           <span class="lsb-label">Support</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'publish' }"
             @click="setView('publish')"
           >
@@ -38,7 +38,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'contact' }"
             @click="setView('contact')"
           >
@@ -47,7 +47,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'docs' }"
             @click="setView('docs')"
           >

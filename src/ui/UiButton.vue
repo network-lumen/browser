@@ -33,10 +33,10 @@ const props = withDefaults(defineProps<{
 defineEmits<{ (e: 'click', ev: MouseEvent): void }>();
 
 const variantClass: Record<Variant, string> = {
-  ghost: 'button-ghost',
-  primary: 'button-primary',
-  icon: 'button-icon',
-  cta: 'button-cta',
+  ghost: 'button-ghost bg-transparent color-text-primary cursor-pointer',
+  primary: 'button-primary color-white cursor-pointer',
+  icon: 'button-icon bg-transparent border-none cursor-pointer color-text-secondary',
+  cta: 'button-cta bg-fill-tertiary color-text-primary cursor-pointer',
   none: ''
 };
 

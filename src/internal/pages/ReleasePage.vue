@@ -4,7 +4,7 @@
       <nav class="lsb-nav">
         <div class="lsb-section">
           <span class="lsb-label">Manage</span>
-          <button type="button" class="lsb-item" :class="{ active: true }">
+          <button type="button" class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary" :class="{ active: true }">
             <Rocket :size="18" />
             <span>Publisher</span>
           </button>

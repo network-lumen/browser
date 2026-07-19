@@ -1,29 +1,29 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary">
       <header class="flex flex-column gap-10">
-        <p class="release-prompt-eyebrow txt-xs txt-weight-medium text-uppercase letter-spacing-01em margin-0">
+        <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em margin-0">
           Update available
         </p>
         <h4 class="margin-0 txt-md txt-weight-light">
           {{ (latest.release && latest.release.version) || latest.version }}
         </h4>
-        <p class="release-prompt-muted txt-xs margin-0">Current version: {{ currentVersion || 'n/a' }}</p>
+        <p class="color-text-secondary txt-xs margin-0">Current version: {{ currentVersion || 'n/a' }}</p>
       </header>
 
-      <button v-if="hasNotes" class="release-prompt-notes-link margin-top-25" type="button" @click="notesOpen = true">
+      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline margin-top-25" type="button" @click="notesOpen = true">
         Change notes
       </button>
 
-      <ul class="meta txt-xs margin-top-25">
+      <ul class="meta color-text-secondary txt-xs margin-top-25">
         <li><strong>Platform:</strong> {{ latest.platform }}</li>
         <li><strong>Channel:</strong> {{ latest.channel }}</li>
         <li><strong>Artifact:</strong> {{ latest.artifact.kind }}</li>
         <li v-if="sizeLabel"><strong>Size:</strong> ~{{ sizeLabel }}</li>
         <li v-if="shaFull">
           <strong>SHA256:</strong>
-          <button type="button" class="release-prompt-sha-copy" @click.stop="copySha" aria-label="Copy SHA-256">
-            <code class="release-prompt-sha-short">{{ shaShort }}</code>
+          <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer" @click.stop="copySha" aria-label="Copy SHA-256">
+            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light">{{ shaShort }}</code>
           </button>
         </li>
       </ul>
@@ -57,12 +57,12 @@
   <Teleport to="body">
     <Transition name="fade">
       <div v-if="notesOpen" class="release-prompt-notes-overlay" @click.self="notesOpen = false">
-        <div class="release-prompt-notes-modal">
+        <div class="release-prompt-notes-modal bg-card border-default">
           <div class="release-prompt-notes-head">
-            <h3 class="release-prompt-notes-title">Change notes</h3>
-            <button type="button" class="release-prompt-notes-close" @click="notesOpen = false">&times;</button>
+            <h3 class="release-prompt-notes-title color-text-primary">Change notes</h3>
+            <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer" @click="notesOpen = false">&times;</button>
           </div>
-          <pre class="release-prompt-notes-body">{{ fullNotes }}</pre>
+          <pre class="release-prompt-notes-body color-text-primary bg-primary">{{ fullNotes }}</pre>
         </div>
       </div>
     </Transition>

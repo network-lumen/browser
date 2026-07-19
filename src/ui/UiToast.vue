@@ -4,8 +4,8 @@
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="toast"
-        :class="[`toast-${toast.type}`, { 'toast-dismissible': toast.dismissible }]"
+        class="toast bg-primary"
+        :class="[`toast-${toast.type}`, { 'toast-dismissible cursor-pointer': toast.dismissible }]"
         @click="toast.dismissible && removeToast(toast.id)"
       >
         <div class="toast-icon">

@@ -7,7 +7,7 @@
           <span class="lsb-label">Governance</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'proposals' }"
             @click="currentView = 'proposals'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'voting' }"
             @click="currentView = 'voting'"
           >
@@ -29,7 +29,7 @@
           <span class="lsb-label">Treasury</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'treasury' }"
             @click="currentView = 'treasury'"
           >
@@ -38,7 +38,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: currentView === 'members' }"
             @click="currentView = 'members'"
           >

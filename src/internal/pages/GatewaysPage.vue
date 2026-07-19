@@ -7,7 +7,7 @@
           <span class="lsb-label">Manage</span>
           <button
             type="button"
-            class="lsb-item"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
             :class="{ active: true }"
           >
             <List :size="18" />

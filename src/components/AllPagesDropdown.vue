@@ -1,6 +1,6 @@
 <template>
   <div class="margin-top-87 padding-top-75 border-top-light">
-    <button type="button" class="lsb-item lsb-item--dropdown" @click="open = !open">
+    <button type="button" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary" @click="open = !open">
       <span class="fw-600">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </button>
@@ -10,7 +10,7 @@
         v-for="r in routes"
         :key="r.key"
         type="button"
-        class="lsb-item lsb-item--compact"
+        class="lsb-item lsb-item--compact border-none bg-transparent cursor-pointer color-text-secondary"
         :class="{ active: r.key === activeKey }"
         @click="openRoute(r.key)"
       >
