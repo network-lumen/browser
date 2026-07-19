@@ -3,7 +3,7 @@
     <header class="startup-head flex-align-center gap-75 padding-62 border-bottom-default">
       <div class="startup-mark bg-gradient-primary color-white flex-align-justify-center flex-0-0-auto fs-18px border-radius-14px" aria-hidden="true">L</div>
       <div class="min-w-0">
-        <div class="startup-title fs-16px txt-weight-strong line-height-12">Lumen</div>
+        <div class="startup-title fs-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
       </div>
     </header>
 
@@ -17,14 +17,14 @@
           <div class="startup-msg-subtitle color-text-secondary fs-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px shadow-primary" type="button" :disabled="busy" @click="restartAll">
+          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px shadow-primary padding-62-100 fw-650" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>
       </div>
     </main>
 
-    <footer class="startup-foot flex-justify-center">
+    <footer class="startup-foot flex-justify-center border-top-default">
       <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary fs-12px">This usually takes a few seconds.</span>
       <span v-else class="startup-hint color-text-tertiary fs-12px">If it keeps failing, restart Lumen.</span>
     </footer>

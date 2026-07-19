@@ -12,12 +12,12 @@
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap fs-12px">{{ restBase }}</span>
         </div>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1" type="button" @click="copyAll" :disabled="!hasAnyData">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015" type="button" @click="copyAll" :disabled="!hasAnyData">
           <Copy :size="16" />
           Copy all
         </button>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1" type="button" @click="refreshAll" :disabled="loadingAll">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015" type="button" @click="refreshAll" :disabled="loadingAll">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </button>
@@ -26,7 +26,7 @@
 
     <div v-if="fatalError" class="netparams-fatal-error color-text-primary padding-125 border-radius-16px">
       <p class="netparams-fatal-title margin-0 txt-weight-strong">Unable to fetch params</p>
-      <p class="netparams-fatal-desc color-text-secondary fs-14px">{{ fatalError }}</p>
+      <p class="netparams-fatal-desc color-text-secondary fs-14px margin-0 margin-top-37">{{ fatalError }}</p>
     </div>
 
     <div v-else class="flex flex-column gap-75">
@@ -50,7 +50,7 @@
           <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-50 flex-0-0-auto">
             <button
               type="button"
-              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light"
+              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"
@@ -69,14 +69,14 @@
           <div v-else-if="s.error" class="netparams-section-error color-error fs-14px">
             {{ s.error }}
           </div>
-          <pre v-else class="netparams-json-block mono bg-primary color-text-primary margin-0 border-radius-12px padding-87 border-1-light overflow-auto fs-12px">{{ pretty(s.data) }}</pre>
+          <pre v-else class="netparams-json-block mono bg-primary color-text-primary margin-0 border-radius-12px padding-87 border-1-light overflow-auto fs-12px line-height-135">{{ pretty(s.data) }}</pre>
         </div>
       </section>
     </div>
   </section>
 
   <Transition name="netparams-toast">
-    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light">
+    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light fixed padding-75-125 shadow-primary-lg">
       <Check :size="16" />
       {{ toast }}
     </div>

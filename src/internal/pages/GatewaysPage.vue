@@ -64,8 +64,8 @@
                 <div class="gwpage-status-dot" :class="{ ok: gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge fs-11px letter-spacing-005em">Private</span>
               </div>
-              <h3 class="gwpage-private-gateway-name color-text-primary fs-16px">{{ gw.name }}</h3>
-              <p class="gwpage-private-gateway-url mono color-text-secondary fs-13px break-all">{{ gw.url }}</p>
+              <h3 class="gwpage-private-gateway-name color-text-primary fs-16px margin-0 margin-bottom-50">{{ gw.name }}</h3>
+              <p class="gwpage-private-gateway-url mono color-text-secondary fs-13px break-all margin-0 margin-bottom-75">{{ gw.url }}</p>
               <div class="gwpage-private-gateway-status flex-align-center gap-50">
                 <span class="border-radius-12px fw-500 text-capitalize" :class="`status-${gw.status}`">{{ gw.status }}</span>
               </div>
@@ -89,7 +89,7 @@
 
         <div v-else class="manage-wrap flex flex-column gap-100">
           <div v-if="gatewaysLoading" class="gwpage-empty-state-card border-radius-16px bg-primary border-1">
-            <div class="gwpage-spinner"></div>
+            <div class="gwpage-spinner border-3"></div>
             <p class="gwpage-empty-sub color-text-secondary fs-14px">Loading gateways…</p>
           </div>
 
@@ -126,19 +126,19 @@
               <div class="gwpage-manage-grid grid" v-if="editMap[gw.id]">
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px">Endpoint</label>
-                  <input v-model="editMap[gw.id].endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary" placeholder="gateway.city" />
+                  <input v-model="editMap[gw.id].endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="gateway.city" />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px">Regions</label>
                   <input
                     v-model="editMap[gw.id].regions"
-                    class="gwpage-form-input w-full color-text-primary border-1 bg-secondary"
+                    class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75"
                     placeholder="us-east, eu-west"
                   />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px">Payout address</label>
-                  <input v-model="editMap[gw.id].payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary" placeholder="lmn1..." />
+                  <input v-model="editMap[gw.id].payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75" placeholder="lmn1..." />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px">Active</label>
@@ -151,14 +151,14 @@
                   <label class="gwpage-form-label block color-text-tertiary fs-12px">Metadata (JSON object)</label>
                   <textarea
                     v-model="editMap[gw.id].metadata"
-                    class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary"
+                    class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75"
                     rows="7"
                     placeholder='{\n  "name": "My gateway"\n}'
                   ></textarea>
                 </div>
                 <div class="gwpage-form-group full">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px">Memo</label>
-                  <input v-model="editMap[gw.id].memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary" placeholder="Optional memo" />
+                  <input v-model="editMap[gw.id].memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="Optional memo" />
                 </div>
               </div>
 
@@ -194,16 +194,16 @@
           <Transition name="gwpage-modal-transition">
             <div
               v-if="showCreateModal"
-              class="gwpage-modal-overlay overlay-scrim backdrop-blur-4px"
+              class="gwpage-modal-overlay overlay-scrim backdrop-blur-4px bg-black-a35"
               @click="closeCreateModal"
             >
-              <div class="gwpage-modal-content overflow-hidden bg-primary border-1" @click.stop>
-                <div class="gwpage-modal-header flex-align-start flex-justify-space-between">
+              <div class="gwpage-modal-content overflow-hidden bg-primary border-1 shadow-primary-lg" @click.stop>
+                <div class="gwpage-modal-header flex-align-start flex-justify-space-between border-bottom-1-light">
                   <div>
                     <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
-                    <p class="gwpage-modal-sub color-text-secondary">Register a new gateway for the active profile.</p>
+                    <p class="gwpage-modal-sub color-text-secondary margin-0 margin-top-25">Register a new gateway for the active profile.</p>
                   </div>
-                  <button type="button" class="gwpage-icon-btn disabled-fade-60 hover-fill-primary-enabled bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer border-1-light line-height-1" @click="closeCreateModal" :disabled="registerState.busy">
+                  <button type="button" class="gwpage-icon-btn disabled-fade-60 hover-fill-primary-enabled bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer border-1-light line-height-1 w-34px transition-colors-015" @click="closeCreateModal" :disabled="registerState.busy">
                     ×
                   </button>
                 </div>
@@ -211,32 +211,32 @@
                 <div class="gwpage-modal-body grid">
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px">Endpoint</label>
-                    <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary" placeholder="gateway.city" />
+                    <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="gateway.city" />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px">Regions</label>
                     <input
                       v-model="registerForm.regions"
-                      class="gwpage-form-input w-full color-text-primary border-1 bg-secondary"
+                      class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75"
                       placeholder="us-east, eu-west"
                     />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px">Payout address</label>
-                    <input v-model="registerForm.payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary" placeholder="lmn1..." />
+                    <input v-model="registerForm.payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75" placeholder="lmn1..." />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px">Metadata (JSON object)</label>
                     <textarea
                       v-model="registerForm.metadata"
-                      class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary"
+                      class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75"
                       rows="7"
                       placeholder='{\n  "name": "My gateway"\n}'
                     ></textarea>
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px">Memo</label>
-                    <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary" placeholder="Optional memo" />
+                    <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="Optional memo" />
                   </div>
 
                   <div v-if="registerState.error" class="gwpage-inline-error margin-top-75 padding-75">
@@ -266,7 +266,7 @@
           </Transition>
 
           <Transition name="gwpage-toast-transition">
-            <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md" :class="toast.kind">
+            <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md fixed padding-75-125 shadow-primary-lg bg-gradient-primary color-white" :class="toast.kind">
               {{ toast.message }}
             </div>
           </Transition>

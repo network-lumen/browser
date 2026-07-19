@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
     <div class="margin-bottom-200">
-      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary" @click="goBack">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary transition-smooth-all" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -26,7 +26,7 @@
           <h2 class="color-text-primary">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary">{{ address.address }}</code>
@@ -38,11 +38,11 @@
               </button>
             </div>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Account Number:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Sequence:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.sequence }}</span>
           </div>
@@ -89,7 +89,7 @@
                 </div>
                 <div class="flex flex-column gap-25">
                   <div class="addrdetail-validator-name color-text-primary txt-weight-light fs-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
-                  <div class="addrdetail-validator-address color-text-tertiary fs-075rem">{{ shortenAddress(delegation.validator) }}</div>
+                  <div class="addrdetail-validator-address color-text-tertiary fs-075rem mono">{{ shortenAddress(delegation.validator) }}</div>
                 </div>
               </div>
               <div class="addrdetail-delegation-amount color-text-primary txt-weight-light fs-14px">

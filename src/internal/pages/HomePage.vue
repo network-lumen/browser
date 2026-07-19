@@ -38,7 +38,7 @@
 
       <!-- Quick Actions -->
       <section class="homepage-quick-actions margin-bottom-125">
-        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light margin-bottom-75 padding-bottom-50">My Space</h2>
+        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light margin-bottom-75 padding-bottom-50 letter-spacing-n001">My Space</h2>
         <div
           class="homepage-actions-grid gap-62 grid"
           @dragover.prevent="onMySpaceDragOver"
@@ -47,7 +47,7 @@
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25 bg-fill-tertiary transition-all-015"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25 bg-fill-tertiary transition-all-015 padding-87-100"
             :class="{ 'is-drag-over': dragOverMySpace }"
             @click="showAllPages = true"
           >
@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100"
             :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -80,8 +80,8 @@
             </div>
             <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :class="key" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light">{{ getCardTitle(key) }}</span>
-              <span class="homepage-action-desc color-text-secondary fs-12px">{{ getCardDescription(key) }}</span>
+              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
+              <span class="homepage-action-desc color-text-secondary fs-12px line-height-135">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="homepage-action-arrow color-text-tertiary transition-all-015" />
           </button>
@@ -89,7 +89,7 @@
       </section>
 
       <section class="homepage-quick-actions margin-bottom-125">
-        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light margin-bottom-75 padding-bottom-50">Lumen</h2>
+        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light margin-bottom-75 padding-bottom-50 letter-spacing-n001">Lumen</h2>
         <div
           class="homepage-actions-grid gap-62 grid"
           @dragover.prevent="onLumenDragOver"
@@ -98,7 +98,7 @@
         >
           <div
             v-if="lumenCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25 bg-fill-tertiary transition-all-015"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25 bg-fill-tertiary transition-all-015 padding-87-100"
             :class="{ 'is-drag-over': dragOverLumen }"
             @click="showAllPages = true"
           >
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100"
             :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"
@@ -130,8 +130,8 @@
             </div>
             <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :class="key" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light">{{ getCardTitle(key) }}</span>
-              <span class="homepage-action-desc color-text-secondary fs-12px">{{ getCardDescription(key) }}</span>
+              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
+              <span class="homepage-action-desc color-text-secondary fs-12px line-height-135">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="homepage-action-arrow color-text-tertiary transition-all-015" />
           </button>

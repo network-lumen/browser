@@ -1,8 +1,8 @@
 <template>
-  <div class="qr-scanner-wrapper fixed">
+  <div class="qr-scanner-wrapper fixed top-0">
     <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125" @click="$emit('close')">
-      <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden" @click.stop>
-        <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default">
+      <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
+        <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
           <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>
           <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02" @click="$emit('close')" aria-label="Close">
             <X :size="24" />
@@ -13,31 +13,31 @@
           <!-- Camera View -->
           <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden">
             <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
-            <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute"></canvas>
-            <div class="qr-scan-frame border-radius-12px absolute">
-              <div class="qr-corner qr-corner-top-left absolute"></div>
-              <div class="qr-corner qr-corner-top-right absolute"></div>
-              <div class="qr-corner qr-corner-bottom-left absolute"></div>
-              <div class="qr-corner qr-corner-bottom-right absolute"></div>
+            <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0"></canvas>
+            <div class="qr-scan-frame border-radius-12px absolute top-half">
+              <div class="qr-corner qr-corner-top-left absolute w-30px h-30px"></div>
+              <div class="qr-corner qr-corner-top-right absolute w-30px h-30px"></div>
+              <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px"></div>
+              <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px"></div>
             </div>
-            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute padding-50-100">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
-          <div v-if="error" class="qr-error-state">
+          <div v-if="error" class="qr-error-state text-center">
             <AlertCircle :size="48" class="qr-error-icon color-error margin-bottom-100" />
             <h4 class="color-text-primary">{{ error }}</h4>
             <p v-if="error.includes('permission')" class="color-text-secondary fs-14px">
               Please allow camera access in your browser settings
             </p>
-            <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500 gap-50 bg-accent border-radius-8px" @click="initializeScanner">
+            <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500 gap-50 bg-accent border-radius-8px padding-62-125 transition-bg-02" @click="initializeScanner">
               <RefreshCw :size="16" />
               <span>Try Again</span>
             </button>
           </div>
 
           <!-- Success State -->
-          <div v-if="scannedData" class="qr-success-state">
+          <div v-if="scannedData" class="qr-success-state text-center">
             <CheckCircle :size="48" class="qr-success-icon color-success margin-bottom-100" />
             <h4 class="color-text-primary">QR Code Scanned</h4>
 
@@ -48,16 +48,16 @@
               </div>
               <div class="qr-data-content">
                 <span class="qr-label color-text-secondary">Content:</span>
-                <div class="qr-value-box bg-card color-text-primary fs-13px border-1 border-radius-6px padding-75 break-all overflow-y-auto">{{ scannedData }}</div>
+                <div class="qr-value-box bg-card color-text-primary fs-13px border-1 border-radius-6px padding-75 break-all overflow-y-auto mono">{{ scannedData }}</div>
               </div>
             </div>
 
             <div class="qr-action-buttons flex-justify-center gap-75">
-              <button class="qr-btn qr-btn-secondary color-text-primary bg-fill-tertiary border-default flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02" @click="scanAgain">
+              <button class="qr-btn qr-btn-secondary color-text-primary bg-fill-tertiary border-default flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02 padding-62-125" @click="scanAgain">
                 <QrCode :size="16" />
                 <span>Scan Again</span>
               </button>
-              <button class="qr-btn qr-btn-primary color-white flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02 bg-accent" @click="handleUseScannedData">
+              <button class="qr-btn qr-btn-primary color-white flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02 bg-accent padding-62-125" @click="handleUseScannedData">
                 <Check :size="16" />
                 <span>Use This</span>
               </button>

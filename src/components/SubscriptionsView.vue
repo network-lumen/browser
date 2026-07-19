@@ -5,7 +5,7 @@
         <h2 class="color-text-primary txt-weight-medium fs-24px">Recurring Payments & Subscriptions</h2>
         <p class="color-text-secondary margin-0 fs-14px">Manage your scheduled automatic payments</p>
       </div>
-      <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px" @click="showCreateModal = true">
+      <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px padding-62-125" @click="showCreateModal = true">
         <Plus :size="16" />
         <span>New Payment</span>
       </button>
@@ -73,13 +73,13 @@
       <div class="subview-section-header flex-align-center-justify-space-between margin-bottom-150">
         <h3 class="color-text-primary margin-0 fs-18px">Your Recurring Payments</h3>
         <div class="subview-filters flex gap-75">
-          <select v-model="filterStatus" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px border-1 border-radius-6px">
+          <select v-model="filterStatus" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px border-1 border-radius-6px padding-45-75">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
           </select>
-          <select v-model="filterCategory" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px border-1 border-radius-6px">
+          <select v-model="filterCategory" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px border-1 border-radius-6px padding-45-75">
             <option value="all">All Categories</option>
             <option value="subscription">Subscriptions</option>
             <option value="bill">Bills</option>
@@ -95,7 +95,7 @@
         <Calendar :size="48" class="subview-empty-icon color-text-tertiary margin-bottom-100" />
         <h3 class="color-text-primary fs-18px">No Recurring Payments</h3>
         <p class="color-text-secondary">Schedule automatic payments for subscriptions, bills, and more</p>
-        <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px" @click="showCreateModal = true">
+        <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px padding-62-125" @click="showCreateModal = true">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
         </button>
@@ -149,7 +149,7 @@
             </div>
           </div>
 
-          <div class="subview-payment-actions flex gap-50 padding-top-100">
+          <div class="subview-payment-actions flex gap-50 padding-top-100 border-top-1">
             <button
               class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02"
               @click="viewHistory(payment)"
@@ -204,7 +204,7 @@
     <!-- Payment History Modal -->
     <Transition name="fade">
       <div v-if="showHistoryModal" class="subview-modal-overlay overlay-scrim z-9999 backdrop-blur-4px" @click="showHistoryModal = false">
-        <div class="subview-modal-content bg-card w-full flex flex-column overflow-hidden border-radius-12px" @click.stop>
+        <div class="subview-modal-content bg-card w-full flex flex-column overflow-hidden border-radius-12px max-w-500px" @click.stop>
           <div class="subview-modal-header flex-align-center-justify-space-between padding-125 border-bottom-1">
             <h3 class="flex-align-center gap-50 color-text-primary margin-0 fs-18px">
               <History :size="20" />

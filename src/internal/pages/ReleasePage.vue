@@ -24,11 +24,11 @@
           </p>
         </div>
         <div class="relpage-header-actions flex-inline-align-center gap-75 flex-wrap-wrap flex-0-0-auto">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary" :disabled="loading" @click="refreshAll">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" :disabled="loading" @click="refreshAll">
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
           </button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary" :disabled="loading || !allowed" @click="openPublishModal">
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" :disabled="loading || !allowed" @click="openPublishModal">
             <Plus :size="18" />
             <span>Publish release</span>
           </button>
@@ -37,25 +37,25 @@
 
       <section class="relpage-toolbar flex flex-wrap-wrap margin-bottom-100 flex-align-end" aria-label="Filters">
         <div class="relpage-filter flex flex-column gap-35">
-          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase">Channel</label>
-          <select v-model="channelFilter" class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary" :disabled="loading">
+          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Channel</label>
+          <select v-model="channelFilter" class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary padding-62-75" :disabled="loading">
             <option value="all">All</option>
             <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
 
         <div class="relpage-filter grow flex flex-column gap-35">
-          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase">Search</label>
+          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Search</label>
           <input
             v-model.trim="searchTerm"
-            class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary"
+            class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary padding-62-75"
             placeholder="Version, publisher, ID…"
             :disabled="loading"
           />
         </div>
 
-        <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-75 flex-wrap-wrap border-radius-14px border-1 bg-primary" aria-label="Update test tools">
-          <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase">Update test</span>
+        <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-75 flex-wrap-wrap border-radius-14px border-1 bg-primary padding-50-75" aria-label="Update test tools">
+          <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Update test</span>
           <label class="relpage-test-check flex-inline-align-center color-text-secondary gap-35 fs-13px">
             <input type="checkbox" v-model="testMode.forcePrompt" @change="applyTestMode" :disabled="loading" />
             <span>Force prompt</span>
@@ -64,7 +64,7 @@
             <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
             <span>Allow pending (stable)</span>
           </label>
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary" @click="pollNow" :disabled="loading">Re-check</button>
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" @click="pollNow" :disabled="loading">Re-check</button>
         </div>
       </section>
 
@@ -119,10 +119,10 @@
           </div>
 
           <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75">
-            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary" :disabled="submittingDao" @click="openDaoModal('validate')">
+            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </button>
-            <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary" :disabled="submittingDao" @click="openDaoModal('reject')">
+            <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" :disabled="submittingDao" @click="openDaoModal('reject')">
               Send to DAO (reject)
             </button>
           </div>
@@ -150,7 +150,7 @@
 
           <div class="relpage-notes padding-top-75 margin-top-75" v-if="selectedRelease.notes">
             <div class="relpage-notes-title txt-weight-medium color-text-primary margin-bottom-50">Release notes</div>
-            <div class="relpage-notes-body color-text-secondary">{{ selectedRelease.notes }}</div>
+            <div class="relpage-notes-body color-text-secondary pre-wrap">{{ selectedRelease.notes }}</div>
           </div>
 
           <div class="relpage-artifacts">
@@ -190,47 +190,47 @@
       </section>
     </main>
 
-    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100" @click.self="closeDaoModal">
-      <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1">
-        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75">
+    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35" @click.self="closeDaoModal">
+      <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
+        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2>Send to DAO</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem" @click="closeDaoModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px" @click="closeDaoModal">×</button>
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75">
           <div class="relpage-form-grid gap-75 grid">
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Action</span>
-              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary">
+              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Deposit (LMN)</span>
-              <input v-model.trim="daoForm.depositLmn" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="0" />
+              <input v-model.trim="daoForm.depositLmn" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="0" />
             </label>
           </div>
 
           <label class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Title</span>
-            <input v-model.trim="daoForm.title" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" />
+            <input v-model.trim="daoForm.title" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" />
           </label>
 
           <label class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Summary</span>
-            <textarea v-model="daoForm.summary" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" rows="3" />
+            <textarea v-model="daoForm.summary" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" rows="3" />
           </label>
 
           <label v-if="daoForm.kind === 'reject'" class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Reason (optional)</span>
-            <textarea v-model="daoForm.reason" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" rows="3" placeholder="Why should this release be rejected?" />
+            <textarea v-model="daoForm.reason" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" rows="3" placeholder="Why should this release be rejected?" />
           </label>
         </div>
 
         <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary" @click="submitDaoProposal" :disabled="submittingDao">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" @click="submitDaoProposal" :disabled="submittingDao">
             <span v-if="submittingDao" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
           </button>
@@ -238,11 +238,11 @@
       </div>
     </div>
 
-    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100" @click.self="closePublishModal">
-      <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1">
-        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75">
+    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35" @click.self="closePublishModal">
+      <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
+        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2>Publish release</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem" @click="closePublishModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px" @click="closePublishModal">×</button>
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75">
@@ -251,7 +251,7 @@
               <h3>Import from GitHub release</h3>
               <button
                 type="button"
-                class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px"
+                class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650"
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
                 @click="importFromGithubRelease"
               >
@@ -264,7 +264,7 @@
               <span class="relpage-label fs-075rem color-text-tertiary">GitHub release URL</span>
               <input
                 v-model.trim="githubReleaseUrl"
-                class="relpage-input mono w-full border-radius-md color-text-primary txt-md border-1 bg-secondary"
+                class="relpage-input mono w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62"
                 placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8"
               />
               <span class="relpage-muted fs-075rem color-text-tertiary fw-500">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
@@ -274,17 +274,17 @@
           <div class="relpage-form-grid gap-75 grid">
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Version</span>
-              <input v-model.trim="draft.version" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="0.1.9" />
+              <input v-model.trim="draft.version" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="0.1.9" />
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Channel</span>
-              <select v-model="draft.channel" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary">
+              <select v-model="draft.channel" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Supersedes (IDs)</span>
-              <input v-model.trim="draft.supersedes" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="12, 13" />
+              <input v-model.trim="draft.supersedes" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="12, 13" />
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Emergency flag</span>
@@ -297,14 +297,14 @@
 
           <label class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Release notes</span>
-            <textarea v-model="draft.notes" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" rows="4" placeholder="Changelog, highlights, etc." />
+            <textarea v-model="draft.notes" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" rows="4" placeholder="Changelog, highlights, etc." />
             <span class="relpage-muted fs-075rem color-text-tertiary fw-500">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
           </label>
 
           <div class="relpage-artifacts-builder">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Artifacts</h3>
-              <button type="button" class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px" @click="addArtifact">Add artifact</button>
+              <button type="button" class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650" @click="addArtifact">Add artifact</button>
             </div>
 
             <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="relpage-artifact-draft border-radius-12px border-1-light padding-75 margin-top-75 bg-primary">
@@ -313,7 +313,7 @@
                 <button
                   v-if="draft.artifacts.length > 1"
                   type="button"
-                  class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px"
+                  class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650"
                   @click="removeArtifact(idx)"
                 >
                   Remove
@@ -323,40 +323,40 @@
               <div class="relpage-form-grid gap-75 grid">
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">Platform</span>
-                  <input v-model.trim="a.platform" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="windows-amd64" />
+                  <input v-model.trim="a.platform" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="windows-amd64" />
                 </label>
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">Kind</span>
-                  <input v-model.trim="a.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="browser" />
+                  <input v-model.trim="a.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="browser" />
                 </label>
               </div>
 
               <div class="relpage-form-grid gap-75 grid">
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">CID</span>
-                  <input v-model.trim="a.cid" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="Optional" />
+                  <input v-model.trim="a.cid" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="Optional" />
                 </label>
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">SHA-256</span>
-                  <input v-model.trim="a.sha256Hex" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="64 hex chars" />
+                  <input v-model.trim="a.sha256Hex" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="64 hex chars" />
                 </label>
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">Size (bytes)</span>
-                  <input v-model.trim="a.size" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" placeholder="123456" />
+                  <input v-model.trim="a.size" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" placeholder="123456" />
                 </label>
               </div>
 
               <label class="relpage-field flex flex-column gap-35">
                 <span class="relpage-label fs-075rem color-text-tertiary">URLs (one per line)</span>
-                <textarea v-model="a.urlsText" class="relpage-input mono w-full border-radius-md color-text-primary txt-md border-1 bg-secondary" rows="3" placeholder="https://example.com/file.exe" />
+                <textarea v-model="a.urlsText" class="relpage-input mono w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62" rows="3" placeholder="https://example.com/file.exe" />
               </label>
             </div>
           </div>
         </div>
 
         <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary" @click="closePublishModal" :disabled="submitting">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary" @click="submitRelease" :disabled="submitting">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650" @click="closePublishModal" :disabled="submitting">Cancel</button>
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650" @click="submitRelease" :disabled="submitting">
             <span v-if="submitting" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>
           </button>

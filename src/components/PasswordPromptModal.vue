@@ -12,7 +12,7 @@
             <h3 class="color-text-primary margin-0 txt-weight-light">Password Required</h3>
           </div>
 
-          <p class="pwd-modal-message color-text-secondary fs-14px line-height-14">
+          <p class="pwd-modal-message color-text-secondary fs-14px line-height-14 margin-0 margin-bottom-125">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
 
@@ -20,7 +20,7 @@
             <input
               ref="passwordInput"
               type="password"
-              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px padding-75-100 fs-16px"
+              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px padding-75-100 fs-16px disabled-fade-60"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
@@ -36,14 +36,14 @@
           <div class="flex-align-center gap-75 flex-justify-end">
             <button
               v-if="cancelable !== false"
-              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer border-radius-10px fw-500 fs-14px"
+              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer border-radius-10px fw-500 fs-14px padding-62-125 transition-opacity-015"
               @click="handleCancel"
               :disabled="loading || busy"
             >
               Cancel
             </button>
             <button
-              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer border-radius-10px fw-500 bg-accent fs-14px"
+              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer border-radius-10px fw-500 bg-accent fs-14px padding-62-125 transition-opacity-015"
               @click="handleSubmit"
               :disabled="loading || busy || !password"
             >

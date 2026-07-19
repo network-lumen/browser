@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar flex-align-center gap-75">
+  <header class="navbar flex-align-center gap-75 padding-50-75 bg-primary border-bottom-default">
     <!-- Navigation Controls -->
     <div class="navbar-nav-controls flex-align-center gap-25">
       <button
@@ -38,13 +38,13 @@
         :value="urlField"
         @input="onInput"
         type="text"
-        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px"
+        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px border-default bg-secondary transition-all-02"
         placeholder="Search or enter a URL"
         @keydown.enter="onEnter"
       />
       <button
         type="button"
-        class="navbar-url-bar-action hover-fill-primary flex-inline-align-justify-center size-28px color-text-tertiary cursor-pointer absolute border-none border-radius-8px bg-transparent transition-all-015"
+        class="navbar-url-bar-action hover-fill-primary flex-inline-align-justify-center size-28px color-text-tertiary cursor-pointer absolute border-none border-radius-8px bg-transparent transition-all-015 top-half"
         :class="{ 'is-active': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
@@ -85,7 +85,7 @@
         <Puzzle :size="16" />
       </button>
 
-      <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg absolute bg-card border-default padding-50" role="menu">
+      <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl" role="menu">
         <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em">Extensions</div>
 
         <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-35 overflow-y-auto">
@@ -97,12 +97,12 @@
             <div class="navbar-extension-main flex-1 min-w-0">
               <div class="navbar-extension-name fs-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ ext.name }}</div>
               <div class="navbar-extension-meta flex-align-center flex-wrap-wrap gap-35">
-                <span class="navbar-extension-state" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
+                <span class="navbar-extension-state fs-11px color-text-tertiary" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
                   {{ extensionStateLabel(ext) }}
                 </span>
-                <span v-if="ext.version" class="navbar-extension-version">v{{ ext.version }}</span>
+                <span v-if="ext.version" class="navbar-extension-version fs-11px color-text-tertiary">v{{ ext.version }}</span>
               </div>
-              <div v-if="ext.lastError" class="navbar-extension-error fs-11px margin-top-25 break-word">{{ ext.lastError }}</div>
+              <div v-if="ext.lastError" class="navbar-extension-error fs-11px margin-top-25 break-word line-height-135">{{ ext.lastError }}</div>
             </div>
 
             <div class="navbar-extension-actions flex-align-center gap-35">
@@ -123,7 +123,7 @@
                   :disabled="extensionsBusy"
                   @change="toggleExtensionEnabled(ext)"
                 />
-                <span class="navbar-extension-toggle-slider border-radius-full relative bg-border"></span>
+                <span class="navbar-extension-toggle-slider border-radius-full relative bg-border w-34px h-20px"></span>
               </label>
 
               <button
@@ -153,7 +153,7 @@
           No extensions installed yet.
         </div>
 
-        <div class="navbar-extensions-menu-actions flex flex-column gap-50">
+        <div class="navbar-extensions-menu-actions flex flex-column gap-50 margin-top-62">
           <UiButton
             variant="none"
             class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015"
@@ -190,7 +190,7 @@
 
       <div
         v-if="showProfileMenu"
-        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50"
+        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl"
         role="menu"
       >
         <ActiveProfileCard
@@ -201,7 +201,7 @@
         />
 
         <div v-if="hasProfiles && !isGuestOnly" class="navbar-profile-menu-section">
-          <div class="navbar-profile-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase margin-top-50 letter-spacing-005em">Profiles</div>
+          <div class="navbar-profile-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase margin-top-50 letter-spacing-005em padding-0-50">Profiles</div>
           <ul class="navbar-profile-list flex flex-column padding-0 margin-0 gap-2px list-style-none overflow-y-auto">
             <li
               v-for="p in profiles"
@@ -261,7 +261,7 @@
 
   <!-- Export Options Modal -->
   <Teleport to="body">
-    <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0" @click.self="cancelExportModal">
+    <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50" @click.self="cancelExportModal">
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Export Profile</h3>
@@ -269,7 +269,7 @@
         </div>
         
         <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             Export your profile backup.
             <template v-if="exportRequiresPassword">
               <br/><strong>Note:</strong> Your wallet is password-protected. Enter your password to include wallet data in the backup.
@@ -328,15 +328,15 @@
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-sm fs-12px padding-50-62">
+          <div v-if="exportError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62">
             {{ exportError }}
           </div>
           
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="cancelExportModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelExportModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="confirmExportProfile">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="confirmExportProfile">
               Export {{ exportEncrypted ? '(Encrypted)' : '' }}
             </UiButton>
           </div>
@@ -347,7 +347,7 @@
 
   <!-- Import Modal -->
   <Teleport to="body">
-    <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0" @click.self="cancelImportModal">
+    <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50" @click.self="cancelImportModal">
       <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Import profile</h3>
@@ -355,7 +355,7 @@
         </div>
 
         <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             Choose how you want to import your profile.
           </p>
 
@@ -406,7 +406,7 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary fs-12px gap-25 bg-secondary"
+              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary fs-12px gap-25 bg-secondary padding-75-87"
             >
               <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-145 break-word">
                 Profile source: {{ manualImportProfileSourceName }}
@@ -441,7 +441,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -451,7 +451,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -467,17 +467,17 @@
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-sm fs-12px padding-50-62">
+          <div v-if="importModalError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62">
             {{ importModalError }}
           </div>
 
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="cancelImportModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelImportModal">
               Cancel
             </UiButton>
             <UiButton
               variant="none"
-              class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015"
+              class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100"
               :disabled="importBusy"
               @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
             >
@@ -492,7 +492,7 @@
 
   <!-- Import Password Modal (for encrypted backups) -->
   <Teleport to="body">
-    <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0" @click.self="cancelImportPasswordModal">
+    <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50" @click.self="cancelImportPasswordModal">
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Encrypted Backup</h3>
@@ -500,7 +500,7 @@
         </div>
         
         <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
           
@@ -517,15 +517,15 @@
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-sm fs-12px padding-50-62">
+          <div v-if="importError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62">
             {{ importError }}
           </div>
           
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="cancelImportPasswordModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelImportPasswordModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="confirmImportEncrypted">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="confirmImportEncrypted">
               Import
             </UiButton>
           </div>
@@ -538,7 +538,7 @@
   <Teleport to="body">
     <div
       v-if="showDeleteProfileModal"
-      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0"
+      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50"
       @click.self="cancelDeleteProfileModal"
     >
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default">
@@ -548,16 +548,16 @@
         </div>
 
         <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
             This cannot be recovered.
           </p>
 
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="cancelDeleteProfileModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelDeleteProfileModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="confirmDeleteProfile">
+            <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="confirmDeleteProfile">
               Delete
             </UiButton>
           </div>
@@ -570,7 +570,7 @@
   <Teleport to="body">
     <div
       v-if="showPqcLinkedModal"
-      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0"
+      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50"
       @click.self="dismissPqcLinkedModal"
     >
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default">
@@ -580,16 +580,16 @@
         </div>
 
         <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15">
+          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
             Your wallet is now linked on-chain and uses post-quantum security.
           </p>
 
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="dismissPqcLinkedModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="dismissPqcLinkedModal">
               Ignore
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015" @click="exportAfterPqcLinked">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="exportAfterPqcLinked">
               Export
             </UiButton>
           </div>

@@ -9,7 +9,7 @@
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px" :class="{ error: statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px padding-75-87" :class="{ error: statusError }">
       {{ statusMessage }}
     </div>
 

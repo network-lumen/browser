@@ -72,23 +72,23 @@
           <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Node Info</span>
           <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Chain ID</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem">lumen-1</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">lumen-1</span>
           </div>
           <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Network</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem">Mainnet</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">Mainnet</span>
           </div>
           <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">SDK</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem">v0.47.0</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">v0.47.0</span>
           </div>
           <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Peers</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem">{{ peers }}</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">{{ peers }}</span>
           </div>
           <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Uptime</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem">{{ uptime }}</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">{{ uptime }}</span>
           </div>
         </div>
       </nav>
@@ -130,7 +130,7 @@
       <div class="middle-column flex flex-column gap-125">
         <!-- Network Health -->
         <section class="netpage-health-section bg-card border-1 border-radius-14px padding-125-150">
-          <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px">Network Health</h2>
+          <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px margin-0 margin-bottom-100">Network Health</h2>
           <div class="netpage-health-grid gap-87 grid">
             <div class="netpage-health-card padding-100 bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Chain Status</div>
@@ -177,7 +177,7 @@
         <!-- Network Activity Chart -->
         <section class="netpage-activity-section bg-card border-1 border-radius-14px padding-125-150">
           <div class="netpage-section-header flex-align-center-justify-space-between margin-bottom-150">
-            <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px">Network Activity</h2>
+            <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px margin-0 margin-bottom-100">Network Activity</h2>
             <div class="netpage-chart-tabs flex gap-50">
               <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 padding-50-100 border-1 border-radius-8px fs-14px transition-all-02" :class="{ active: activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
               <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 padding-50-100 border-1 border-radius-8px fs-14px transition-all-02" :class="{ active: activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
@@ -212,9 +212,9 @@
       <div class="netpage-right-column flex flex-column gap-0">
         <!-- Recent Blocks -->
         <section class="netpage-data-table flex flex-column h-full bg-card border-1 border-radius-14px padding-125-150">
-          <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px">Recent Blocks</h2>
+          <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px margin-0 margin-bottom-100">Recent Blocks</h2>
           <div class="netpage-blocks-list flex flex-column gap-50 margin-top-100 flex-1">
-            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02" v-for="block in recentBlocks" :key="block.height">
+            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02 padding-87-100" v-for="block in recentBlocks" :key="block.height">
               <div class="netpage-block-left flex-align-center gap-87 flex-1 min-w-0">
                 <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px fs-13px txt-weight-medium color-white overflow-hidden" :title="block.validator">
                   <img v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
@@ -223,7 +223,7 @@
                 <div class="netpage-block-info flex flex-column gap-20 flex-1 min-w-0">
                   <div class="netpage-block-height-row flex-align-baseline gap-50">
                     <span class="netpage-height-label color-text-secondary txt-weight-light text-uppercase fs-10px letter-spacing-005em">Block</span>
-                    <span class="netpage-height-value color-text-primary txt-weight-medium fs-15px">#{{ formatNumber(block.height) }}</span>
+                    <span class="netpage-height-value color-text-primary txt-weight-medium fs-15px mono">#{{ formatNumber(block.height) }}</span>
                   </div>
                   <div class="block-validator flex-align-center gap-50">
                     <span class="netpage-validator-name-compact color-text-secondary fs-075rem nowrap overflow-hidden txt-overflow-ellipsis line-height-12">{{ block.validator }}</span>
@@ -234,7 +234,7 @@
                 <div class="netpage-block-meta flex flex-column flex-align-end gap-35 flex-justify-center">
                   <div class="meta-item flex-align-center gap-50">
                     <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase fs-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px fs-13px" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px fs-13px padding-0-50" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="netpage-meta-time flex-align-center color-text-secondary gap-35 fs-075rem line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">
