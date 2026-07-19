@@ -1110,7 +1110,7 @@ watch(
 }
 
 .toast.info {
-  background: rgba(59, 130, 246, 0.9);
+  background: rgba(var(--ios-blue-rgb), 0.9);
 }
 
 .toast-enter-active,
@@ -1147,7 +1147,7 @@ watch(
 }
 
 .badge-warn {
-  background: rgba(255, 204, 0, 0.15);
+  background: rgba(var(--ios-yellow-rgb), 0.15);
   color: var(--ios-orange);
 }
 
@@ -1273,8 +1273,8 @@ watch(
 
 .private-badge {
   padding: 0.25rem 0.625rem;
-  background: rgba(94, 92, 230, 0.15);
-  color: var(--ios-purple, #5e5ce6);
+  background: rgba(var(--ios-indigo-rgb), 0.15);
+  color: var(--ios-indigo);
   border-radius: 12px;
   font-size: 0.7rem;
   font-weight: 600;

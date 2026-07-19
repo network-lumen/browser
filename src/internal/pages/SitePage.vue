@@ -849,8 +849,8 @@ onBeforeUnmount(() => {
   bottom: 1rem;
   padding: 0.75rem 0.9rem;
   border-radius: 12px;
-  border: 1px solid #fecaca;
-  background: rgba(254, 202, 202, 0.18);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.35);
+  background: rgba(var(--ios-red-rgb), 0.12);
   color: var(--ios-red);
   font-size: 0.875rem;
   backdrop-filter: blur(6px);

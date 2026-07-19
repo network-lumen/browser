@@ -516,8 +516,8 @@ onMounted(() => {
 }
 
 .status-badge.loading {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(var(--ios-orange-rgb), 0.12);
+  border-color: rgba(var(--ios-orange-rgb), 0.25);
   color: var(--ios-orange);
 }
 
