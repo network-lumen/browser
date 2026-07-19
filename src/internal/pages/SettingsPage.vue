@@ -815,10 +815,9 @@
                 type="number"
                 min="1"
                 step="1"
-                class="input-control"
+                class="input-control w-96px"
                 v-model="localDriveMaxUploadSizeDraft"
                 :placeholder="String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB)"
-                style="width: 96px;"
               />
               <span class="setting-inline-note">GB</span>
             </div>
@@ -1136,8 +1135,7 @@
                     min="1"
                     max="10"
                     v-model="maxRetries"
-                    class="input-control"
-                    style="width: 80px;"
+                    class="input-control w-80px"
                   />
                 </div>
               </div>

@@ -426,7 +426,7 @@
           </div>
           <h3>Unable to load transactions</h3>
           <p>{{ activitiesError }}</p>
-          <div class="info-banner warning margin-top-100" style="max-width: 500px;">
+          <div class="info-banner warning margin-top-100 max-w-500px">
             <span>
               💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
               Your balance is still accurate and transactions are recorded on-chain.
@@ -440,14 +440,14 @@
           </div>
           <h3>No recent transactions</h3>
           <p>Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-          <div class="info-banner warning margin-top-100" style="max-width: 600px;">
+          <div class="info-banner warning margin-top-100 max-w-600px">
             <div class="margin-bottom-75">
               <strong>💡 Why can't I see my transactions?</strong>
             </div>
             <div class="margin-bottom-50">
               All Lumen Network RPC nodes currently have transaction indexing disabled. This means:
             </div>
-            <ul class="text-left" style="margin: 0.5rem 0 0.75rem 1.5rem;">
+            <ul class="text-left margin-top-50 margin-bottom-75 margin-left-150">
               <li>Your balance is still accurate and updated</li>
               <li>All transactions are recorded on-chain</li>
               <li>Transaction history cannot be queried via API</li>
@@ -458,8 +458,7 @@
               <a
                 :href="`https://explorer.lumen.network/account/${address}`"
                 target="_blank"
-                class="margin-top-25 inline-block"
-                style="color: var(--accent-primary); text-decoration: underline;"
+                class="margin-top-25 inline-block color-primary underline"
               >
                 View on Lumen Explorer →
               </a>
