@@ -2286,6 +2286,36 @@ html, body {
     text-decoration: underline;
 }
 
+/* WebPage.vue */
+.webpage-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: #000;
+}
+
+.webpage-fullscreen .webpage-webview {
+    width: 100vw;
+    height: 100vh;
+}
+
+.webpage-store-proxy-card {
+    max-width: 520px;
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-xl);
+}
+
+.webpage-store-proxy-btn {
+    align-self: center;
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    background: var(--accent-primary);
+    font-weight: 600;
+}
+
 .transition-bounce {
     transition: var(--transition-bounce);
 }
