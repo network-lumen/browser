@@ -903,7 +903,7 @@ onUnmounted(() => {
 }
 
 .proposal-status.deposit {
-  background: rgba(255, 204, 0, 0.15);
+  background: rgba(var(--ios-yellow-rgb), 0.15);
   color: var(--ios-orange);
 }
 
@@ -1090,7 +1090,7 @@ onUnmounted(() => {
 
 .progress-yes {
   height: 100%;
-  background: linear-gradient(90deg, #25bb8d, #10b981);
+  background: linear-gradient(90deg, var(--ios-teal), var(--ios-green));
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -1257,7 +1257,7 @@ onUnmounted(() => {
 
 .proposal-requirements {
   background: var(--card-bg);
-  border: 1px solid #bae6fd;
+  border: 1px solid rgba(var(--ios-blue-rgb), 0.3);
   border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -1349,7 +1349,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   background: var(--card-bg);
   transition: all 0.2s ease;

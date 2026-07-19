@@ -279,27 +279,27 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
 }
 
 .sidebar-fav-avatar.tone-search {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
-  border-color: rgba(59, 130, 246, 0.18);
+  border-color: rgba(var(--ios-blue-rgb), 0.18);
 }
 
 .sidebar-fav-avatar.tone-internal {
-  background: rgba(94, 92, 230, 0.12);
+  background: rgba(var(--ios-indigo-rgb), 0.12);
   color: var(--ios-indigo);
-  border-color: rgba(94, 92, 230, 0.18);
+  border-color: rgba(var(--ios-indigo-rgb), 0.18);
 }
 
 .sidebar-fav-avatar.tone-web {
-  background: rgba(52, 199, 89, 0.12);
+  background: rgba(var(--ios-green-rgb), 0.12);
   color: var(--ios-green);
-  border-color: rgba(52, 199, 89, 0.18);
+  border-color: rgba(var(--ios-green-rgb), 0.18);
 }
 
 .sidebar-fav-avatar.tone-file {
-  background: rgba(255, 149, 0, 0.12);
+  background: rgba(var(--ios-orange-rgb), 0.12);
   color: var(--ios-orange);
-  border-color: rgba(255, 149, 0, 0.18);
+  border-color: rgba(var(--ios-orange-rgb), 0.18);
 }
 
 .sidebar-fav-copy {
