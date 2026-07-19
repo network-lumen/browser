@@ -4,60 +4,60 @@
       <div class="qr-scanner-modal" @click.stop>
         <div class="qr-scanner-header">
           <h3>{{ title }}</h3>
-          <button class="close-btn" @click="$emit('close')" aria-label="Close">
+          <button class="qr-close-btn" @click="$emit('close')" aria-label="Close">
             <X :size="24" />
           </button>
         </div>
 
         <div class="qr-scanner-content">
           <!-- Camera View -->
-          <div v-if="!scannedData && !error" class="camera-container">
-            <video ref="videoElement" class="camera-video" autoplay playsinline></video>
-            <canvas ref="canvasElement" class="camera-canvas hidden"></canvas>
-            <div class="scan-frame">
-              <div class="corner top-left"></div>
-              <div class="corner top-right"></div>
-              <div class="corner bottom-left"></div>
-              <div class="corner bottom-right"></div>
+          <div v-if="!scannedData && !error" class="qr-camera-container">
+            <video ref="videoElement" class="qr-camera-video" autoplay playsinline></video>
+            <canvas ref="canvasElement" class="qr-camera-canvas hidden"></canvas>
+            <div class="qr-scan-frame">
+              <div class="qr-corner qr-corner-top-left"></div>
+              <div class="qr-corner qr-corner-top-right"></div>
+              <div class="qr-corner qr-corner-bottom-left"></div>
+              <div class="qr-corner qr-corner-bottom-right"></div>
             </div>
-            <p class="scan-instruction">Position QR code within the frame</p>
+            <p class="qr-scan-instruction">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
-          <div v-if="error" class="error-state">
-            <AlertCircle :size="48" class="error-icon" />
+          <div v-if="error" class="qr-error-state">
+            <AlertCircle :size="48" class="qr-error-icon" />
             <h4>{{ error }}</h4>
             <p v-if="error.includes('permission')">
               Please allow camera access in your browser settings
             </p>
-            <button class="retry-btn" @click="initializeScanner">
+            <button class="qr-retry-btn" @click="initializeScanner">
               <RefreshCw :size="16" />
               <span>Try Again</span>
             </button>
           </div>
 
           <!-- Success State -->
-          <div v-if="scannedData" class="success-state">
-            <CheckCircle :size="48" class="success-icon" />
+          <div v-if="scannedData" class="qr-success-state">
+            <CheckCircle :size="48" class="qr-success-icon" />
             <h4>QR Code Scanned</h4>
-            
-            <div class="scanned-data">
-              <div class="data-type">
-                <span class="label">Type:</span>
-                <span class="value">{{ detectedType }}</span>
+
+            <div class="qr-scanned-data">
+              <div class="qr-data-type">
+                <span class="qr-label">Type:</span>
+                <span class="qr-value">{{ detectedType }}</span>
               </div>
-              <div class="data-content">
-                <span class="label">Content:</span>
-                <div class="value-box">{{ scannedData }}</div>
+              <div class="qr-data-content">
+                <span class="qr-label">Content:</span>
+                <div class="qr-value-box">{{ scannedData }}</div>
               </div>
             </div>
 
-            <div class="action-buttons">
-              <button class="btn secondary" @click="scanAgain">
+            <div class="qr-action-buttons">
+              <button class="qr-btn qr-btn-secondary" @click="scanAgain">
                 <QrCode :size="16" />
                 <span>Scan Again</span>
               </button>
-              <button class="btn primary" @click="handleUseScannedData">
+              <button class="qr-btn qr-btn-primary" @click="handleUseScannedData">
                 <Check :size="16" />
                 <span>Use This</span>
               </button>
@@ -216,302 +216,3 @@ function cleanup() {
   }
 }
 </script>
-
-<style scoped>
-.qr-scanner-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10000;
-}
-
-.qr-scanner-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-
-.qr-scanner-modal {
-  background: var(--card-bg);
-  border-radius: 16px;
-  max-width: 500px;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.qr-scanner-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: var(--border-width) solid var(--border-color);
-}
-
-.qr-scanner-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  padding: 4px;
-  border-radius: 6px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-}
-
-.qr-scanner-content {
-  padding: 24px;
-}
-
-.camera-container {
-  position: relative;
-  background: #000;
-  border-radius: 12px;
-  overflow: hidden;
-  aspect-ratio: 1;
-  max-height: 400px;
-}
-
-.camera-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.camera-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.scan-frame {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 250px;
-  height: 250px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-}
-
-.corner {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border: 3px solid var(--accent-primary);
-}
-
-.corner.top-left {
-  top: -3px;
-  left: -3px;
-  border-right: none;
-  border-bottom: none;
-  border-top-left-radius: 12px;
-}
-
-.corner.top-right {
-  top: -3px;
-  right: -3px;
-  border-left: none;
-  border-bottom: none;
-  border-top-right-radius: 12px;
-}
-
-.corner.bottom-left {
-  bottom: -3px;
-  left: -3px;
-  border-right: none;
-  border-top: none;
-  border-bottom-left-radius: 12px;
-}
-
-.corner.bottom-right {
-  bottom: -3px;
-  right: -3px;
-  border-left: none;
-  border-top: none;
-  border-bottom-right-radius: 12px;
-}
-
-.scan-instruction {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  font-size: 14px;
-  margin: 0;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 8px 16px;
-  border-radius: 20px;
-  backdrop-filter: blur(8px);
-}
-
-.error-state,
-.success-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.error-icon {
-  color: var(--ios-red);
-  margin-bottom: 16px;
-}
-
-.success-icon {
-  color: var(--ios-green);
-  margin-bottom: 16px;
-}
-
-.error-state h4,
-.success-state h4 {
-  margin: 0 0 8px 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.error-state p {
-  color: var(--text-secondary);
-  margin: 0 0 24px 0;
-  font-size: 14px;
-}
-
-.retry-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: var(--accent-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.retry-btn:hover {
-  background: var(--accent-secondary);
-}
-
-.scanned-data {
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  padding: 16px;
-  margin: 24px 0;
-  text-align: left;
-}
-
-.data-type,
-.data-content {
-  margin-bottom: 12px;
-}
-
-.data-content:last-child {
-  margin-bottom: 0;
-}
-
-.scanned-data .label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  letter-spacing: 0.5px;
-}
-
-.scanned-data .value {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.value-box {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 12px;
-  font-size: 13px;
-  font-family: 'Monaco', 'Courier New', monospace;
-  color: var(--text-primary);
-  word-break: break-all;
-  max-height: 120px;
-  overflow-y: auto;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn.primary {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.btn.primary:hover {
-  background: var(--accent-secondary);
-}
-
-.btn.secondary {
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-  border: var(--border-width) solid var(--border-color);
-}
-
-.btn.secondary:hover {
-  background: var(--fill-secondary);
-}
-
-@media (max-width: 640px) {
-  .qr-scanner-modal {
-    max-width: 100%;
-    border-radius: 16px 16px 0 0;
-  }
-  
-  .scan-frame {
-    width: 200px;
-    height: 200px;
-  }
-}
-</style>
