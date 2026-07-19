@@ -1,36 +1,36 @@
 <template>
-  <div class="subscriptions-view">
-    <div class="view-header">
+  <div class="subview margin-0-auto padding-150">
+    <div class="subview-header flex-justify-space-between flex-align-start flex-wrap-wrap">
       <div>
-        <h2>Recurring Payments & Subscriptions</h2>
-        <p>Manage your scheduled automatic payments</p>
+        <h2 class="color-text-primary txt-weight-medium">Recurring Payments & Subscriptions</h2>
+        <p class="color-text-secondary">Manage your scheduled automatic payments</p>
       </div>
-      <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" @click="showCreateModal = true">
+      <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white" @click="showCreateModal = true">
         <Plus :size="16" />
         <span>New Payment</span>
       </button>
     </div>
 
     <!-- Payment Reminders -->
-    <div v-if="activeReminders.length > 0" class="reminders-section">
-      <h3>
+    <div v-if="activeReminders.length > 0" class="subview-reminders-section">
+      <h3 class="flex-align-center gap-50 color-text-primary">
         <Bell :size="18" />
         <span>Upcoming Payments</span>
       </h3>
-      <div class="reminders-list">
-        <div 
-          v-for="reminder in activeReminders" 
+      <div class="flex flex-column gap-75">
+        <div
+          v-for="reminder in activeReminders"
           :key="reminder.id"
-          class="reminder-card"
+          class="subview-reminder-card flex-align-center gap-75"
         >
-          <div class="reminder-icon">
+          <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle">
             <AlertCircle :size="20" />
           </div>
-          <div class="reminder-content">
-            <h4>{{ reminder.paymentName }}</h4>
-            <p>{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
+          <div class="flex-1">
+            <h4 class="color-text-primary">{{ reminder.paymentName }}</h4>
+            <p class="color-text-secondary">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
-          <button class="reminder-dismiss" @click="dismissReminder(reminder.id)">
+          <button class="subview-reminder-dismiss flex-0-0-auto bg-transparent border-none cursor-pointer color-text-tertiary" @click="dismissReminder(reminder.id)">
             <X :size="16" />
           </button>
         </div>
@@ -38,48 +38,48 @@
     </div>
 
     <!-- Filter and Stats -->
-    <div class="stats-section">
-      <div class="stat-card">
-        <div class="stat-icon active badge-success color-success">
+    <div class="subview-stats-section">
+      <div class="subview-stat-card flex-align-center">
+        <div class="subview-stat-icon active badge-success color-success flex-align-justify-center">
           <PlayCircle :size="20" />
         </div>
         <div>
-          <div class="stat-value txt-weight-medium color-text-primary">{{ activeCount }}</div>
-          <div class="stat-label color-text-tertiary text-uppercase">Active</div>
+          <div class="subview-stat-value txt-weight-medium color-text-primary">{{ activeCount }}</div>
+          <div class="subview-stat-label color-text-tertiary text-uppercase">Active</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon paused badge-warning color-warning">
+      <div class="subview-stat-card flex-align-center">
+        <div class="subview-stat-icon paused badge-warning color-warning flex-align-justify-center">
           <PauseCircle :size="20" />
         </div>
         <div>
-          <div class="stat-value txt-weight-medium color-text-primary">{{ pausedCount }}</div>
-          <div class="stat-label color-text-tertiary text-uppercase">Paused</div>
+          <div class="subview-stat-value txt-weight-medium color-text-primary">{{ pausedCount }}</div>
+          <div class="subview-stat-label color-text-tertiary text-uppercase">Paused</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon total">
+      <div class="subview-stat-card flex-align-center">
+        <div class="subview-stat-icon total flex-align-justify-center">
           <DollarSign :size="20" />
         </div>
         <div>
-          <div class="stat-value txt-weight-medium color-text-primary">{{ monthlyTotal }}</div>
-          <div class="stat-label color-text-tertiary text-uppercase">Monthly Total</div>
+          <div class="subview-stat-value txt-weight-medium color-text-primary">{{ monthlyTotal }}</div>
+          <div class="subview-stat-label color-text-tertiary text-uppercase">Monthly Total</div>
         </div>
       </div>
     </div>
 
     <!-- Payments List -->
-    <div class="payments-section">
-      <div class="section-header">
-        <h3>Your Recurring Payments</h3>
-        <div class="filters">
-          <select v-model="filterStatus" class="filter-select">
+    <div class="subview-payments-section">
+      <div class="subview-section-header flex-align-center-justify-space-between">
+        <h3 class="color-text-primary">Your Recurring Payments</h3>
+        <div class="subview-filters flex">
+          <select v-model="filterStatus" class="subview-filter-select bg-primary color-text-primary cursor-pointer">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
           </select>
-          <select v-model="filterCategory" class="filter-select">
+          <select v-model="filterCategory" class="subview-filter-select bg-primary color-text-primary cursor-pointer">
             <option value="all">All Categories</option>
             <option value="subscription">Subscriptions</option>
             <option value="bill">Bills</option>
@@ -91,97 +91,97 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="filteredPayments.length === 0" class="empty-state">
-        <Calendar :size="48" class="empty-icon" />
-        <h3>No Recurring Payments</h3>
-        <p>Schedule automatic payments for subscriptions, bills, and more</p>
-        <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" @click="showCreateModal = true">
+      <div v-if="filteredPayments.length === 0" class="subview-empty-state">
+        <Calendar :size="48" class="subview-empty-icon" />
+        <h3 class="color-text-primary">No Recurring Payments</h3>
+        <p class="color-text-secondary">Schedule automatic payments for subscriptions, bills, and more</p>
+        <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white" @click="showCreateModal = true">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
         </button>
       </div>
 
       <!-- Payments Grid -->
-      <div v-else class="payments-grid">
-        <div 
-          v-for="payment in filteredPayments" 
+      <div v-else class="subview-payments-grid">
+        <div
+          v-for="payment in filteredPayments"
           :key="payment.id"
-          class="payment-card"
+          class="subview-payment-card"
           :class="payment.status"
         >
-          <div class="payment-header">
+          <div class="subview-payment-header flex-align-start flex-justify-space-between">
             <div>
-              <h4>{{ payment.name }}</h4>
-              <span class="payment-category" v-if="payment.category">
+              <h4 class="color-text-primary">{{ payment.name }}</h4>
+              <span class="subview-payment-category color-text-secondary" v-if="payment.category">
                 {{ payment.category }}
               </span>
             </div>
             <div
-              class="payment-status"
+              class="subview-payment-status"
               :class="[payment.status, { 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }]"
             >
               {{ payment.status }}
             </div>
           </div>
 
-          <div class="payment-amount">
+          <div class="subview-payment-amount color-text-primary">
             {{ formatAmount(payment.amount) }} LMN
-            <span class="frequency">{{ getFrequencyLabel(payment.frequency) }}</span>
+            <span class="subview-frequency color-text-secondary">{{ getFrequencyLabel(payment.frequency) }}</span>
           </div>
 
-          <div class="payment-details">
-            <div class="detail-row">
-              <span class="detail-label">Next Payment:</span>
-              <span class="detail-value">{{ formatDate(payment.nextPaymentDate) }}</span>
+          <div class="subview-payment-details">
+            <div class="subview-detail-row flex-align-center-justify-space-between">
+              <span class="color-text-secondary">Next Payment:</span>
+              <span class="subview-detail-value color-text-primary">{{ formatDate(payment.nextPaymentDate) }}</span>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Recipient:</span>
-              <span class="detail-value mono">{{ formatAddress(payment.recipient) }}</span>
+            <div class="subview-detail-row flex-align-center-justify-space-between">
+              <span class="color-text-secondary">Recipient:</span>
+              <span class="subview-detail-value color-text-primary mono fs-12px">{{ formatAddress(payment.recipient) }}</span>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Success Rate:</span>
-              <span class="detail-value">
-                {{ payment.totalPayments > 0 
-                  ? Math.round((payment.successfulPayments / payment.totalPayments) * 100) 
+            <div class="subview-detail-row flex-align-center-justify-space-between">
+              <span class="color-text-secondary">Success Rate:</span>
+              <span class="subview-detail-value color-text-primary">
+                {{ payment.totalPayments > 0
+                  ? Math.round((payment.successfulPayments / payment.totalPayments) * 100)
                   : 0 }}%
                 ({{ payment.successfulPayments }}/{{ payment.totalPayments }})
               </span>
             </div>
           </div>
 
-          <div class="payment-actions">
-            <button 
-              class="action-btn" 
+          <div class="subview-payment-actions flex">
+            <button
+              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary"
               @click="viewHistory(payment)"
               title="View History"
             >
               <History :size="16" />
             </button>
-            <button 
-              class="action-btn" 
+            <button
+              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary"
               @click="editPayment(payment)"
               title="Edit"
             >
               <Edit :size="16" />
             </button>
-            <button 
+            <button
               v-if="payment.status === 'active'"
-              class="action-btn pause" 
+              class="subview-action-btn pause flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary"
               @click="pausePayment(payment.id)"
               title="Pause"
             >
               <PauseCircle :size="16" />
             </button>
-            <button 
+            <button
               v-else-if="payment.status === 'paused'"
-              class="action-btn resume" 
+              class="subview-action-btn resume flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary"
               @click="resumePayment(payment.id)"
               title="Resume"
             >
               <PlayCircle :size="16" />
             </button>
-            <button 
-              class="action-btn delete" 
+            <button
+              class="subview-action-btn delete flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary"
               @click="confirmDelete(payment)"
               title="Delete"
             >
@@ -203,46 +203,46 @@
 
     <!-- Payment History Modal -->
     <Transition name="fade">
-      <div v-if="showHistoryModal" class="modal-overlay" @click="showHistoryModal = false">
-        <div class="modal-content history-modal" @click.stop>
-          <div class="modal-header">
-            <h3>
+      <div v-if="showHistoryModal" class="subview-modal-overlay overlay-scrim z-9999 backdrop-blur-4px" @click="showHistoryModal = false">
+        <div class="subview-modal-content bg-card w-full flex flex-column overflow-hidden" @click.stop>
+          <div class="subview-modal-header flex-align-center-justify-space-between">
+            <h3 class="flex-align-center gap-50 color-text-primary">
               <History :size="20" />
               <span>Payment History</span>
             </h3>
-            <button class="close-btn" @click="showHistoryModal = false">
+            <button class="subview-close-btn bg-transparent border-none cursor-pointer color-text-secondary" @click="showHistoryModal = false">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
-            <div v-if="selectedPaymentHistory.length === 0" class="empty-state small">
-              <p>No payment history yet</p>
+          <div class="subview-modal-body flex-1 overflow-y-auto">
+            <div v-if="selectedPaymentHistory.length === 0" class="subview-empty-state small">
+              <p class="color-text-secondary">No payment history yet</p>
             </div>
-            <div v-else class="history-list">
-              <div 
-                v-for="record in selectedPaymentHistory" 
+            <div v-else class="flex flex-column gap-75">
+              <div
+                v-for="record in selectedPaymentHistory"
                 :key="record.id"
-                class="history-item"
+                class="subview-history-item flex gap-75"
                 :class="record.status"
               >
                 <div
-                  class="history-icon"
+                  class="subview-history-icon flex-0-0-auto flex-align-justify-center border-radius-circle"
                   :class="[record.status, { 'badge-success': record.status === 'success', 'badge-error': record.status === 'failed', 'badge-warning': record.status === 'pending' }]"
                 >
                   <Check v-if="record.status === 'success'" :size="16" />
                   <X v-else-if="record.status === 'failed'" :size="16" />
                   <Clock v-else :size="16" />
                 </div>
-                <div class="history-content">
-                  <div class="history-header">
-                    <strong>{{ formatAmount(record.amount) }} LMN</strong>
-                    <span class="history-status">{{ record.status }}</span>
+                <div class="flex-1">
+                  <div class="subview-history-header flex-align-center-justify-space-between">
+                    <strong class="color-text-primary">{{ formatAmount(record.amount) }} LMN</strong>
+                    <span class="subview-history-status color-text-secondary">{{ record.status }}</span>
                   </div>
-                  <div class="history-date">{{ formatDateTime(record.executedAt) }}</div>
-                  <div v-if="record.txHash" class="history-tx">
+                  <div class="subview-history-date color-text-secondary">{{ formatDateTime(record.executedAt) }}</div>
+                  <div v-if="record.txHash" class="subview-history-tx color-text-secondary mono">
                     <span>TxHash: {{ record.txHash.slice(0, 16) }}...</span>
                   </div>
-                  <div v-if="record.error" class="history-error">{{ record.error }}</div>
+                  <div v-if="record.error" class="subview-history-error">{{ record.error }}</div>
                 </div>
               </div>
             </div>
@@ -475,530 +475,4 @@ defineExpose({
 });
 </script>
 
-<style scoped>
-.subscriptions-view {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
 
-.view-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 32px;
-}
-
-.view-header h2 {
-  margin: 0 0 4px 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.view-header p {
-  margin: 0;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.reminders-section {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 24px;
-}
-
-.reminders-section h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.reminders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.reminder-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--card-bg);
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
-}
-
-.reminder-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ios-orange);
-}
-
-.reminder-content {
-  flex: 1;
-}
-
-.reminder-content h4 {
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.reminder-content p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.reminder-dismiss {
-  flex-shrink: 0;
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.reminder-dismiss:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.stats-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.stat-icon.total {
-  background: var(--fill-blue);
-  color: var(--accent-secondary);
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.stat-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.payments-section {
-  background: var(--card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  padding: 24px;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.filters {
-  display: flex;
-  gap: 12px;
-}
-
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 14px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-state.small {
-  padding: 40px 20px;
-}
-
-.empty-icon {
-  color: var(--text-tertiary);
-  margin-bottom: 16px;
-}
-
-.empty-state h3 {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.empty-state p {
-  margin: 0 0 24px 0;
-  color: var(--text-secondary);
-}
-
-.payments-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
-}
-
-.payment-card {
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 20px;
-  transition: all 0.2s;
-}
-
-.payment-card:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.15);
-}
-
-.payment-card.paused {
-  opacity: 0.7;
-  background: var(--bg-secondary);
-}
-
-.payment-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.payment-header h4 {
-  margin: 0 0 4px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.payment-category {
-  display: inline-block;
-  padding: 2px 8px;
-  background: var(--bg-tertiary);
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: capitalize;
-}
-
-.payment-status {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-
-.payment-status.completed {
-  background: rgba(var(--ios-indigo-rgb), 0.15);
-  color: var(--ios-indigo);
-}
-
-.payment-amount {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.frequency {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--text-secondary);
-  margin-left: 8px;
-}
-
-.payment-details {
-  margin-bottom: 16px;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  font-size: 13px;
-}
-
-.detail-label {
-  color: var(--text-secondary);
-}
-
-.detail-value {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.mono {
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 12px;
-}
-
-.payment-actions {
-  display: flex;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
-}
-
-.action-btn {
-  flex: 1;
-  padding: 8px;
-  background: var(--fill-tertiary);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-}
-
-.action-btn:hover {
-  background: var(--fill-secondary);
-  color: var(--text-primary);
-}
-
-.action-btn.pause:hover {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  color: var(--ios-orange);
-}
-
-.action-btn.resume:hover {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.action-btn.delete:hover {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn.primary {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.btn.primary:hover {
-  background: var(--accent-secondary);
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9998;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: var(--card-bg);
-  border-radius: 12px;
-  max-width: 500px;
-  width: 100%;
-  max-height: 80vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  padding: 4px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-}
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-}
-
-.history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.history-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-}
-
-.history-icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.history-content {
-  flex: 1;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.history-status {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-}
-
-.history-date {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-}
-
-.history-tx {
-  font-size: 12px;
-  font-family: 'Monaco', 'Courier New', monospace;
-  color: var(--text-secondary);
-}
-
-.history-error {
-  font-size: 12px;
-  color: var(--ios-red);
-  margin-top: 4px;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s;
-}
-
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
-@media (max-width: 768px) {
-  .view-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .payments-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .filters {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .filter-select {
-    width: 100%;
-  }
-}
-</style>
