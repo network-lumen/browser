@@ -9,7 +9,7 @@
         <div
           v-for="(t, i) in tabs"
           :key="t.id"
-          class="tab h-200 min-w-1500 max-w-3000 flex-0-0-auto padding-left-50 padding-right-50 gap-50 cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui"
+          class="mainscreen-tab h-200 min-w-1500 max-w-3000 flex-0-0-auto padding-left-50 padding-right-50 gap-50 cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui"
           :data-id="t.id"
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
@@ -29,7 +29,7 @@
               />
               <Earth v-else :size="16" class="color-gray-blue" />
             </div>
-          <div class="label txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
+          <div class="mainscreen-tab-label txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
             {{ currentTitle(t) }}
           </div>
 
@@ -47,7 +47,7 @@
           ref="addBtn"
           variant="none"
           title="New tab"
-          class="add-tab-btn margin-left-25 border-radius-circle padding-25 border-none cursor-pointer"
+          class="add-tab-btn margin-left-25 border-radius-circle padding-25 border-none cursor-pointer color-text-primary"
           @click="addTab"
         >
           <Plus :size="16" />
@@ -737,7 +737,7 @@ async function openInNewTab(url: string) {
   function measureLayout() {
     const root = hdr.value;
     if (!root) return;
-  const nodes = Array.from(root.querySelectorAll<HTMLElement>('.tab'));
+  const nodes = Array.from(root.querySelectorAll<HTMLElement>('.mainscreen-tab'));
   const rootLeft = root.getBoundingClientRect().left;
   layout.value = nodes.map((n, i) => {
     const r = n.getBoundingClientRect();
@@ -755,7 +755,7 @@ function currentLeftById() {
   if (!root) return {};
   const rootLeft = root.getBoundingClientRect().left;
   const map: Record<string, number> = {};
-  root.querySelectorAll<HTMLElement>('.tab').forEach((el) => {
+  root.querySelectorAll<HTMLElement>('.mainscreen-tab').forEach((el) => {
     const id = el.dataset.id as string;
     const rect = el.getBoundingClientRect();
     map[id] = rect.left - rootLeft;
@@ -873,7 +873,7 @@ function onTabPointerDown(e: PointerEvent, id: string, idx: number) {
           const after = currentLeftById();
           const root = hdr.value;
           if (root) {
-            root.querySelectorAll<HTMLElement>('.tab').forEach((node) => {
+            root.querySelectorAll<HTMLElement>('.mainscreen-tab').forEach((node) => {
               const idNode = node.dataset.id as string;
               if (before[idNode] === undefined || after[idNode] === undefined) return;
               const delta = before[idNode] - after[idNode];
@@ -909,8 +909,8 @@ function recalcLabelWidth() {
   const n = tabs.value.length || 1;
   const total = root.clientWidth;
   const plusW = (addBtn.value?.offsetWidth ?? 36) + 8;
-  const firstTab = root.querySelector<HTMLElement>('.tab');
-  const firstLabel = root.querySelector<HTMLElement>('.tab .label');
+  const firstTab = root.querySelector<HTMLElement>('.mainscreen-tab');
+  const firstLabel = root.querySelector<HTMLElement>('.mainscreen-tab .mainscreen-tab-label');
   let extras = 64;
   if (firstTab && firstLabel) {
     extras = firstTab.offsetWidth - firstLabel.offsetWidth;
@@ -1008,65 +1008,3 @@ function handleOnboardingSkip() {
 }
 </script>
 
-<style scoped>
-  .main-shell {
-    position: relative;
-    min-height: 100vh;
-    background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
-                radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
-                linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
-  }
-
-  .favicon {
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-    object-fit: cover;
-  }
-
-  .tab-icon {
-    min-width: 16px;
-    min-height: 16px;
-  }
-
-  .tab-spinner {
-    --spinner-size: 14px;
-    --spinner-stroke: 1.5px;
-  }
-
-  .tabs-header .tab {
-    position: relative;
-    border: 1px solid transparent;
-    background: transparent;
-  }
-
-  .tabs-header {
-    position: relative;
-    z-index: 1000;
-    background: var(--bg-primary);
-    border-bottom: var(--border-width) solid var(--border-color);
-  }
-
-  .tabs-header .tab.active {
-    background: var(--tab-active-bg);
-    z-index: 2;
-  }
-
-  .tabs-header .tab.active .label {
-    color: var(--text-primary);
-  }
-
-  .tabs-header .tab.active :deep(.button-icon) {
-    color: var(--text-primary);
-  }
-
-  .add-tab-btn {
-    background: var(--fill-secondary);
-    color: var(--text-primary);
-  }
-
-  .add-tab-btn:where(:hover, :focus-visible) {
-    background: var(--fill-primary);
-    color: var(--text-primary);
-  }
-    </style>
