@@ -18,20 +18,20 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="gwpage-main flex-1 flex flex-column overflow-hidden">
       <!-- Header -->
-      <header class="content-header">
+      <header class="gwpage-content-header flex-align-start flex-justify-space-between">
         <div>
-          <h1>My gateways</h1>
-          <p>Register and update on-chain gateway settings.</p>
-          <p v-if="gatewayParams" class="content-fees">
+          <h1 class="color-text-primary txt-weight-medium margin-0">My gateways</h1>
+          <p class="color-text-secondary">Register and update on-chain gateway settings.</p>
+          <p v-if="gatewayParams" class="gwpage-content-fees color-text-tertiary">
             Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
           </p>
         </div>
-        <div class="manage-head-actions">
+        <div class="gwpage-manage-head-actions flex-inline">
           <button
             type="button"
-            class="btn-secondary color-text-primary"
+            class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer"
             @click="refreshManage"
             :disabled="gatewaysLoading"
           >
@@ -39,7 +39,7 @@
           </button>
           <button
             type="button"
-            class="btn-primary"
+            class="gwpage-btn-primary color-white flex-inline-align-center border-none cursor-pointer"
             @click="openCreateModal"
             :disabled="gatewaysLoading || !hasProfile"
           >
@@ -49,130 +49,130 @@
       </header>
 
       <!-- Advanced gateway management -->
-      <div class="content-area">
+      <div class="gwpage-content-area">
         <!-- Private Gateways Section -->
-        <div v-if="privateGateways.length > 0" class="private-gateways-section">
-          <div class="section-header">
-            <h2>Private Gateways</h2>
-            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="manage-link">
+        <div v-if="privateGateways.length > 0" class="gwpage-private-gateways-section">
+          <div class="gwpage-section-header flex-align-center-justify-space-between">
+            <h2 class="color-text-primary txt-weight-light margin-0">Private Gateways</h2>
+            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="gwpage-manage-link">
               Manage Private Gateways →
             </a>
           </div>
-          <div class="private-gateways-grid">
-            <div v-for="gw in privateGateways" :key="gw.id" class="private-gateway-card">
-              <div class="private-gateway-header">
-                <div class="gateway-status-dot" :class="{ ok: gw.status === 'active' }"></div>
-                <span class="private-badge">Private</span>
+          <div class="gwpage-private-gateways-grid">
+            <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card">
+              <div class="gwpage-private-gateway-header flex-align-center">
+                <div class="gwpage-status-dot" :class="{ ok: gw.status === 'active' }"></div>
+                <span class="gwpage-private-badge">Private</span>
               </div>
-              <h3 class="private-gateway-name">{{ gw.name }}</h3>
-              <p class="private-gateway-url mono">{{ gw.url }}</p>
-              <div class="private-gateway-status flex-align-center gap-50">
-                <span :class="`status-${gw.status}`">{{ gw.status }}</span>
+              <h3 class="gwpage-private-gateway-name color-text-primary">{{ gw.name }}</h3>
+              <p class="gwpage-private-gateway-url mono color-text-secondary">{{ gw.url }}</p>
+              <div class="gwpage-private-gateway-status flex-align-center gap-50">
+                <span class="border-radius-12px fw-500 text-capitalize" :class="`status-${gw.status}`">{{ gw.status }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- DAO Gateways Section -->
-        <div v-if="hasProfile" class="dao-gateways-section">
-          <div class="section-header">
-            <h2>DAO Gateways</h2>
+        <div v-if="hasProfile" class="gwpage-dao-gateways-section">
+          <div class="gwpage-section-header flex-align-center-justify-space-between">
+            <h2 class="color-text-primary txt-weight-light margin-0">DAO Gateways</h2>
           </div>
         </div>
 
-        <div v-if="!hasProfile" class="empty-state-card">
-          <h2 class="empty-title">No active profile</h2>
-          <p class="empty-sub">
+        <div v-if="!hasProfile" class="gwpage-empty-state-card">
+          <h2 class="gwpage-empty-title color-text-primary">No active profile</h2>
+          <p class="gwpage-empty-sub color-text-secondary">
             Select or create a profile to manage gateways.
           </p>
         </div>
 
         <div v-else class="manage-wrap flex flex-column gap-100">
-          <div v-if="gatewaysLoading" class="empty-state-card">
-            <div class="spinner"></div>
-            <p class="empty-sub">Loading gateways…</p>
+          <div v-if="gatewaysLoading" class="gwpage-empty-state-card">
+            <div class="gwpage-spinner"></div>
+            <p class="gwpage-empty-sub color-text-secondary">Loading gateways…</p>
           </div>
 
-          <div v-else-if="gatewaysError" class="empty-state-card">
-            <h2 class="empty-title">Unable to load gateways</h2>
-            <p class="empty-sub">{{ gatewaysError }}</p>
-            <button class="btn-secondary color-text-primary" @click="refreshManage">Try again</button>
+          <div v-else-if="gatewaysError" class="gwpage-empty-state-card">
+            <h2 class="gwpage-empty-title color-text-primary">Unable to load gateways</h2>
+            <p class="gwpage-empty-sub color-text-secondary">{{ gatewaysError }}</p>
+            <button class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer" @click="refreshManage">Try again</button>
           </div>
 
-          <div v-else-if="!myGateways.length" class="empty-state-card">
-            <h2 class="empty-title">No gateways yet</h2>
-            <p class="empty-sub">
+          <div v-else-if="!myGateways.length" class="gwpage-empty-state-card">
+            <h2 class="gwpage-empty-title color-text-primary">No gateways yet</h2>
+            <p class="gwpage-empty-sub color-text-secondary">
               Use “Create gateway” to register your first gateway.
             </p>
           </div>
 
           <div v-else class="manage-list flex flex-column gap-100">
-            <section v-for="gw in myGateways" :key="gw.id" class="manage-card">
-              <header class="manage-card-head">
-                <div class="manage-card-title">
-                  <div class="gateway-status-dot" :class="{ ok: gw.active }"></div>
-                  <span class="manage-card-name" :title="gw.endpoint || `Gateway #${gw.id}`">
+            <section v-for="gw in myGateways" :key="gw.id" class="gwpage-manage-card">
+              <header class="gwpage-manage-card-head flex-align-center-justify-space-between">
+                <div class="gwpage-manage-card-title flex-align-center">
+                  <div class="gwpage-status-dot" :class="{ ok: gw.active }"></div>
+                  <span class="gwpage-manage-card-name color-text-primary" :title="gw.endpoint || `Gateway #${gw.id}`">
                     {{ gw.endpoint || `Gateway #${gw.id}` }}
                   </span>
-                  <span class="manage-card-id mono">#{{ gw.id }}</span>
+                  <span class="gwpage-manage-card-id mono color-text-tertiary">#{{ gw.id }}</span>
                 </div>
                 <div class="manage-card-badges">
-                  <span class="gateway-badge" :class="gw.active ? 'badge-success' : 'badge-warn'">
+                  <span class="gwpage-badge" :class="gw.active ? 'badge-success' : 'gwpage-badge-warn'">
                     {{ gw.active ? 'Active' : 'Inactive' }}
                   </span>
                 </div>
               </header>
 
-              <div class="manage-grid" v-if="editMap[gw.id]">
-                <div class="form-group">
-                  <label class="form-label">Endpoint</label>
-                  <input v-model="editMap[gw.id].endpoint" class="form-input" placeholder="gateway.city" />
+              <div class="gwpage-manage-grid" v-if="editMap[gw.id]">
+                <div class="gwpage-form-group">
+                  <label class="gwpage-form-label block color-text-tertiary">Endpoint</label>
+                  <input v-model="editMap[gw.id].endpoint" class="gwpage-form-input w-full color-text-primary" placeholder="gateway.city" />
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Regions</label>
+                <div class="gwpage-form-group">
+                  <label class="gwpage-form-label block color-text-tertiary">Regions</label>
                   <input
                     v-model="editMap[gw.id].regions"
-                    class="form-input"
+                    class="gwpage-form-input w-full color-text-primary"
                     placeholder="us-east, eu-west"
                   />
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Payout address</label>
-                  <input v-model="editMap[gw.id].payout" class="form-input mono" placeholder="lmn1..." />
+                <div class="gwpage-form-group">
+                  <label class="gwpage-form-label block color-text-tertiary">Payout address</label>
+                  <input v-model="editMap[gw.id].payout" class="gwpage-form-input w-full color-text-primary mono" placeholder="lmn1..." />
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Active</label>
-                  <label class="toggle">
+                <div class="gwpage-form-group">
+                  <label class="gwpage-form-label block color-text-tertiary">Active</label>
+                  <label class="gwpage-toggle flex-inline-align-center">
                     <input v-model="editMap[gw.id].active" type="checkbox" />
-                    <span class="toggle-ui"></span>
+                    <span class="gwpage-toggle-ui"></span>
                   </label>
                 </div>
-                <div class="form-group full">
-                  <label class="form-label">Metadata (JSON object)</label>
+                <div class="gwpage-form-group full">
+                  <label class="gwpage-form-label block color-text-tertiary">Metadata (JSON object)</label>
                   <textarea
                     v-model="editMap[gw.id].metadata"
-                    class="form-input mono"
+                    class="gwpage-form-input w-full color-text-primary mono"
                     rows="7"
                     placeholder='{\n  "name": "My gateway"\n}'
                   ></textarea>
                 </div>
-                <div class="form-group full">
-                  <label class="form-label">Memo</label>
-                  <input v-model="editMap[gw.id].memo" class="form-input" placeholder="Optional memo" />
+                <div class="gwpage-form-group full">
+                  <label class="gwpage-form-label block color-text-tertiary">Memo</label>
+                  <input v-model="editMap[gw.id].memo" class="gwpage-form-input w-full color-text-primary" placeholder="Optional memo" />
                 </div>
               </div>
 
-              <div v-if="editMap[gw.id]?.error" class="inline-error">
+              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error">
                 {{ editMap[gw.id].error }}
               </div>
-              <div v-if="editMap[gw.id]?.txhash" class="inline-success mono">
+              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono">
                 tx: {{ editMap[gw.id].txhash }}
               </div>
 
-              <footer class="manage-card-actions">
+              <footer class="gwpage-manage-card-actions flex">
                 <button
                   type="button"
-                  class="btn-secondary color-text-primary"
+                  class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer"
                   @click="resetEdit(gw.id)"
                   :disabled="editMap[gw.id].busy"
                 >
@@ -180,7 +180,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn-primary"
+                  class="gwpage-btn-primary color-white flex-inline-align-center border-none cursor-pointer"
                   @click="updateGateway(gw.id)"
                   :disabled="editMap[gw.id].busy || !isDirty(gw.id)"
                 >
@@ -191,69 +191,69 @@
             </section>
           </div>
 
-          <Transition name="modal">
+          <Transition name="gwpage-modal-transition">
             <div
               v-if="showCreateModal"
-              class="modal-overlay"
+              class="gwpage-modal-overlay overlay-scrim backdrop-blur-4px"
               @click="closeCreateModal"
             >
-              <div class="modal-content" @click.stop>
-                <div class="modal-header">
+              <div class="gwpage-modal-content overflow-hidden" @click.stop>
+                <div class="gwpage-modal-header flex-align-start flex-justify-space-between">
                   <div>
-                    <h2 class="modal-title">Create gateway</h2>
-                    <p class="modal-sub">Register a new gateway for the active profile.</p>
+                    <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
+                    <p class="gwpage-modal-sub color-text-secondary">Register a new gateway for the active profile.</p>
                   </div>
-                  <button type="button" class="icon-btn disabled-fade-60 hover-fill-primary-enabled" @click="closeCreateModal" :disabled="registerState.busy">
+                  <button type="button" class="gwpage-icon-btn disabled-fade-60 hover-fill-primary-enabled bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer" @click="closeCreateModal" :disabled="registerState.busy">
                     ×
                   </button>
                 </div>
 
-                <div class="modal-body">
-                  <div class="form-group">
-                    <label class="form-label">Endpoint</label>
-                    <input v-model="registerForm.endpoint" class="form-input" placeholder="gateway.city" />
+                <div class="gwpage-modal-body">
+                  <div class="gwpage-form-group">
+                    <label class="gwpage-form-label block color-text-tertiary">Endpoint</label>
+                    <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary" placeholder="gateway.city" />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Regions</label>
+                  <div class="gwpage-form-group">
+                    <label class="gwpage-form-label block color-text-tertiary">Regions</label>
                     <input
                       v-model="registerForm.regions"
-                      class="form-input"
+                      class="gwpage-form-input w-full color-text-primary"
                       placeholder="us-east, eu-west"
                     />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Payout address</label>
-                    <input v-model="registerForm.payout" class="form-input mono" placeholder="lmn1..." />
+                  <div class="gwpage-form-group">
+                    <label class="gwpage-form-label block color-text-tertiary">Payout address</label>
+                    <input v-model="registerForm.payout" class="gwpage-form-input w-full color-text-primary mono" placeholder="lmn1..." />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Metadata (JSON object)</label>
+                  <div class="gwpage-form-group">
+                    <label class="gwpage-form-label block color-text-tertiary">Metadata (JSON object)</label>
                     <textarea
                       v-model="registerForm.metadata"
-                      class="form-input mono"
+                      class="gwpage-form-input w-full color-text-primary mono"
                       rows="7"
                       placeholder='{\n  "name": "My gateway"\n}'
                     ></textarea>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Memo</label>
-                    <input v-model="registerForm.memo" class="form-input" placeholder="Optional memo" />
+                  <div class="gwpage-form-group">
+                    <label class="gwpage-form-label block color-text-tertiary">Memo</label>
+                    <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary" placeholder="Optional memo" />
                   </div>
 
-                  <div v-if="registerState.error" class="inline-error">
+                  <div v-if="registerState.error" class="gwpage-inline-error">
                     {{ registerState.error }}
                   </div>
-                  <div v-if="registerState.txhash" class="inline-success mono">
+                  <div v-if="registerState.txhash" class="gwpage-inline-success mono">
                     tx: {{ registerState.txhash }}
                   </div>
                 </div>
 
-                <div class="modal-actions">
-                  <button type="button" class="btn-secondary color-text-primary" @click="closeCreateModal" :disabled="registerState.busy">
+                <div class="gwpage-modal-actions flex">
+                  <button type="button" class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer" @click="closeCreateModal" :disabled="registerState.busy">
                     Cancel
                   </button>
                   <button
                     type="button"
-                    class="btn-primary"
+                    class="gwpage-btn-primary color-white flex-inline-align-center border-none cursor-pointer"
                     @click="registerGateway"
                     :disabled="registerState.busy || !canRegister"
                   >
@@ -265,8 +265,8 @@
             </div>
           </Transition>
 
-          <Transition name="toast">
-            <div v-if="toast.show" class="toast flex-align-start border-radius-md" :class="toast.kind">
+          <Transition name="gwpage-toast-transition">
+            <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md" :class="toast.kind">
               {{ toast.message }}
             </div>
           </Transition>
@@ -788,523 +788,4 @@ watch(
 );
 </script>
 
-<style scoped>
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-}
-
-.content-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-}
-
-.content-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.content-header p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0 0;
-}
-
-.content-fees {
-  font-size: 0.78rem;
-  color: var(--text-tertiary);
-  margin-top: 0.35rem;
-}
-
-.btn-primary {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--gradient-primary);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--primary-a30);
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  background: var(--hover-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background: var(--border-color);
-  color: var(--text-primary);
-}
-
-.manage-head-actions {
-  display: inline-flex;
-  gap: 0.75rem;
-  flex: 0 0 auto;
-}
-
-
-.manage-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.25rem;
-}
-
-.manage-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.manage-card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-width: 0;
-}
-
-.manage-card-name {
-  font-weight: 800;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 520px;
-}
-
-.manage-card-id {
-  font-size: 0.78rem;
-  color: var(--text-tertiary);
-  flex: 0 0 auto;
-}
-
-.manage-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1rem;
-}
-
-.form-group.full {
-  grid-column: 1 / -1;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.35rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  font-size: 0.85rem;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.form-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a15);
-}
-
-.manage-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.gateway-status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--text-tertiary);
-  flex: 0 0 auto;
-}
-
-.gateway-status-dot.ok {
-  background: var(--ios-green);
-}
-
-.inline-error {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ios-red-rgb), 0.25);
-  background: rgba(var(--ios-red-rgb), 0.08);
-  color: var(--ios-red);
-  font-size: 0.85rem;
-}
-
-.inline-success {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ios-green-rgb), 0.25);
-  background: rgba(var(--ios-green-rgb), 0.08);
-  color: var(--ios-green);
-  font-size: 0.85rem;
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', monospace;
-}
-
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.toggle input {
-  width: 16px;
-  height: 16px;
-}
-
-.toggle-ui {
-  display: none;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
-  z-index: 100;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  width: min(760px, 100%);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: var(--shadow-primary-lg);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem 1.25rem 0.75rem;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.modal-sub {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-}
-
-.modal-body {
-  padding: 1rem 1.25rem 0.25rem;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1rem;
-}
-
-.modal-body .form-group:nth-child(4) {
-  grid-column: 1 / -1;
-}
-
-.modal-actions {
-  padding: 1rem 1.25rem 1.25rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  border-top: 1px solid var(--border-light);
-}
-
-.icon-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: transparent;
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-  font-size: 18px;
-  line-height: 1;
-}
-
-
-
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  z-index: 110;
-  box-shadow: var(--shadow-primary-lg);
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.toast.error {
-  background: rgba(var(--ios-red-rgb), 0.9);
-}
-
-.toast.info {
-  background: rgba(var(--ios-blue-rgb), 0.9);
-}
-
-.toast-enter-active,
-.toast-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(8px);
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.18s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.content-area {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.gateway-badge {
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-.badge-warn {
-  background: rgba(var(--ios-yellow-rgb), 0.15);
-  color: var(--ios-orange);
-}
-
-.empty-state-card {
-  max-width: 520px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 16px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  text-align: center;
-}
-
-.empty-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.empty-sub {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 3px solid var(--border-color);
-  border-top-color: var(--accent-primary);
-  margin: 0 auto 1rem;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 700px) {
-  .gateways-page {
-    flex-direction: column;
-  }
-
-  .main-content {
-    margin: 0 0.5rem 0.5rem 0.5rem;
-    padding: 1.5rem;
-  }
-
-  .manage-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-body {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Private Gateways Section */
-.private-gateways-section {
-  margin-bottom: 2rem;
-}
-
-.dao-gateways-section {
-  margin-top: 2rem;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.section-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.manage-link {
-  color: var(--ios-blue);
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
-
-.manage-link:hover {
-  opacity: 0.8;
-}
-
-.private-gateways-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-}
-
-.private-gateway-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.2s;
-}
-
-.private-gateway-card:hover {
-  border-color: var(--ios-blue);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.private-gateway-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.private-badge {
-  padding: 0.25rem 0.625rem;
-  background: rgba(var(--ios-indigo-rgb), 0.15);
-  color: var(--ios-indigo);
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.private-gateway-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.private-gateway-url {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  margin: 0 0 0.75rem 0;
-  word-break: break-all;
-}
-
-
-.private-gateway-status span {
-  padding: 0.25rem 0.625rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: capitalize;
-}
-
-</style>
 
