@@ -2,8 +2,8 @@
   <div class="subview margin-0-auto padding-150">
     <div class="subview-header flex-justify-space-between flex-align-start flex-wrap-wrap margin-bottom-200">
       <div>
-        <h2 class="color-text-primary txt-weight-medium">Recurring Payments & Subscriptions</h2>
-        <p class="color-text-secondary">Manage your scheduled automatic payments</p>
+        <h2 class="color-text-primary txt-weight-medium fs-24px">Recurring Payments & Subscriptions</h2>
+        <p class="color-text-secondary margin-0 fs-14px">Manage your scheduled automatic payments</p>
       </div>
       <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white" @click="showCreateModal = true">
         <Plus :size="16" />
@@ -13,7 +13,7 @@
 
     <!-- Payment Reminders -->
     <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px">
-      <h3 class="flex-align-center gap-50 color-text-primary">
+      <h3 class="flex-align-center gap-50 color-text-primary fs-16px">
         <Bell :size="18" />
         <span>Upcoming Payments</span>
       </h3>
@@ -27,8 +27,8 @@
             <AlertCircle :size="20" />
           </div>
           <div class="flex-1">
-            <h4 class="color-text-primary">{{ reminder.paymentName }}</h4>
-            <p class="color-text-secondary">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
+            <h4 class="color-text-primary fs-14px">{{ reminder.paymentName }}</h4>
+            <p class="color-text-secondary margin-0 fs-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
           <button class="subview-reminder-dismiss flex-0-0-auto bg-transparent border-none cursor-pointer color-text-tertiary" @click="dismissReminder(reminder.id)">
             <X :size="16" />
@@ -71,7 +71,7 @@
     <!-- Payments List -->
     <div class="subview-payments-section border-radius-12px">
       <div class="subview-section-header flex-align-center-justify-space-between">
-        <h3 class="color-text-primary">Your Recurring Payments</h3>
+        <h3 class="color-text-primary margin-0 fs-18px">Your Recurring Payments</h3>
         <div class="subview-filters flex">
           <select v-model="filterStatus" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px">
             <option value="all">All Status</option>
@@ -93,7 +93,7 @@
       <!-- Empty State -->
       <div v-if="filteredPayments.length === 0" class="subview-empty-state text-center">
         <Calendar :size="48" class="subview-empty-icon color-text-tertiary" />
-        <h3 class="color-text-primary">No Recurring Payments</h3>
+        <h3 class="color-text-primary fs-18px">No Recurring Payments</h3>
         <p class="color-text-secondary">Schedule automatic payments for subscriptions, bills, and more</p>
         <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white" @click="showCreateModal = true">
           <Plus :size="16" />
@@ -111,7 +111,7 @@
         >
           <div class="subview-payment-header flex-align-start flex-justify-space-between">
             <div>
-              <h4 class="color-text-primary">{{ payment.name }}</h4>
+              <h4 class="color-text-primary fs-16px">{{ payment.name }}</h4>
               <span class="subview-payment-category color-text-secondary fs-11px fw-500 text-capitalize" v-if="payment.category">
                 {{ payment.category }}
               </span>
@@ -206,7 +206,7 @@
       <div v-if="showHistoryModal" class="subview-modal-overlay overlay-scrim z-9999 backdrop-blur-4px" @click="showHistoryModal = false">
         <div class="subview-modal-content bg-card w-full flex flex-column overflow-hidden border-radius-12px" @click.stop>
           <div class="subview-modal-header flex-align-center-justify-space-between">
-            <h3 class="flex-align-center gap-50 color-text-primary">
+            <h3 class="flex-align-center gap-50 color-text-primary margin-0 fs-18px">
               <History :size="20" />
               <span>Payment History</span>
             </h3>
