@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
     <div class="margin-bottom-200">
-      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500" @click="goBack">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -21,16 +21,16 @@
 
     <div v-else-if="address" class="flex flex-column gap-150">
       <!-- Address Overview Card -->
-      <div class="chaindetail-card bg-primary">
-        <div class="chaindetail-card-header bg-secondary">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1">
           <h2 class="color-text-primary">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100">
-            <span class="chaindetail-label color-text-secondary fw-500">Address:</span>
+          <div class="chaindetail-row gap-100 grid">
+            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary">{{ address.address }}</code>
-              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center" @click="copyToClipboard(address.address)" title="Copy address">
+              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02" @click="copyToClipboard(address.address)" title="Copy address">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -38,33 +38,33 @@
               </button>
             </div>
           </div>
-          <div class="chaindetail-row gap-100">
-            <span class="chaindetail-label color-text-secondary fw-500">Account Number:</span>
-            <span class="chaindetail-value color-text-primary">{{ address.accountNumber }}</span>
+          <div class="chaindetail-row gap-100 grid">
+            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Account Number:</span>
+            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="chaindetail-row gap-100">
-            <span class="chaindetail-label color-text-secondary fw-500">Sequence:</span>
-            <span class="chaindetail-value color-text-primary">{{ address.sequence }}</span>
+          <div class="chaindetail-row gap-100 grid">
+            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Sequence:</span>
+            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.sequence }}</span>
           </div>
         </div>
       </div>
 
       <!-- Balances Card -->
-      <div class="chaindetail-card bg-primary">
-        <div class="chaindetail-card-header bg-secondary">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1">
           <h2 class="color-text-primary">Balances</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-100">
-            <div class="addrdetail-balance-item flex-align-center gap-100 padding-100" v-for="(balance, index) in address.balances" :key="index">
-              <div class="addrdetail-balance-icon flex-align-justify-center color-white size-40px border-radius-circle">
+            <div class="addrdetail-balance-item flex-align-center gap-100 padding-100 bg-secondary border-1 border-radius-8px" v-for="(balance, index) in address.balances" :key="index">
+              <div class="addrdetail-balance-icon flex-align-justify-center color-white size-40px border-radius-circle bg-gradient-primary">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M12 6v6l4 2"></path>
                 </svg>
               </div>
               <div class="flex-1">
-                <div class="addrdetail-balance-amount color-text-primary txt-weight-light">{{ formatAmount(balance.amount) }}</div>
+                <div class="addrdetail-balance-amount color-text-primary txt-weight-light fs-18px">{{ formatAmount(balance.amount) }}</div>
                 <div class="fs-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
               </div>
             </div>
@@ -76,23 +76,23 @@
       </div>
 
       <!-- Delegations Card -->
-      <div class="chaindetail-card bg-primary" v-if="address.delegations && address.delegations.length > 0">
-        <div class="chaindetail-card-header bg-secondary">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="address.delegations && address.delegations.length > 0">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1">
           <h2 class="color-text-primary">Delegations ({{ address.delegations.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
-            <div class="addrdetail-delegation-item flex-align-center flex-justify-space-between padding-100" v-for="(delegation, index) in address.delegations" :key="index">
+            <div class="addrdetail-delegation-item flex-align-center flex-justify-space-between padding-100 bg-secondary border-1 border-radius-8px" v-for="(delegation, index) in address.delegations" :key="index">
               <div class="flex-align-center gap-75 flex-1">
-                <div class="addrdetail-validator-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light" :style="{ background: getValidatorColor(delegation.validator) }">
+                <div class="addrdetail-validator-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light fs-14px" :style="{ background: getValidatorColor(delegation.validator) }">
                   <span>{{ delegation.validatorMoniker?.charAt(0).toUpperCase() || 'V' }}</span>
                 </div>
                 <div class="flex flex-column gap-25">
-                  <div class="addrdetail-validator-name color-text-primary txt-weight-light">{{ delegation.validatorMoniker || delegation.validator }}</div>
-                  <div class="addrdetail-validator-address color-text-tertiary">{{ shortenAddress(delegation.validator) }}</div>
+                  <div class="addrdetail-validator-name color-text-primary txt-weight-light fs-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
+                  <div class="addrdetail-validator-address color-text-tertiary fs-075rem">{{ shortenAddress(delegation.validator) }}</div>
                 </div>
               </div>
-              <div class="addrdetail-delegation-amount color-text-primary txt-weight-light">
+              <div class="addrdetail-delegation-amount color-text-primary txt-weight-light fs-14px">
                 {{ formatAmount(delegation.amount) }} LUMEN
               </div>
             </div>
@@ -101,23 +101,23 @@
       </div>
 
       <!-- Recent Transactions Card -->
-      <div class="chaindetail-card bg-primary">
-        <div class="chaindetail-card-header bg-secondary">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1">
           <h2 class="color-text-primary">Recent Transactions</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-100">
-            <div class="addrdetail-tx-item flex-align-center gap-100 padding-100" v-for="(tx, index) in address.transactions" :key="index">
-              <div class="addrdetail-tx-icon flex-align-justify-center size-32px border-radius-circle color-text-secondary">
+            <div class="addrdetail-tx-item flex-align-center gap-100 padding-100 bg-primary border-1 border-radius-8px transition-all-02" v-for="(tx, index) in address.transactions" :key="index">
+              <div class="addrdetail-tx-icon flex-align-justify-center size-32px border-radius-circle color-text-secondary bg-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
               </div>
               <div class="flex-1">
-                <div class="addrdetail-tx-hash cursor-pointer" @click="navigateToTx(tx.hash)">
+                <div class="addrdetail-tx-hash cursor-pointer margin-bottom-25" @click="navigateToTx(tx.hash)">
                   <code class="color-primary">{{ shortenHash(tx.hash) }}</code>
                 </div>
-                <div class="addrdetail-tx-meta flex gap-100 color-text-tertiary">
+                <div class="addrdetail-tx-meta flex gap-100 color-text-tertiary fs-075rem">
                   <span class="addrdetail-tx-height cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
                   <span>{{ tx.time }}</span>
                 </div>

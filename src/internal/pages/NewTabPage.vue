@@ -1,5 +1,5 @@
 <template>
-  <div class="newtab-page internal-page">
+  <div class="newtab-page internal-page relative block min-h-full overflow-y-auto">
     <div
       v-if="showOnboarding"
       class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
@@ -10,11 +10,11 @@
     >
       <div class="newtab-onboarding-modal" @click.stop>
         <div class="flex-align-start gap-100 margin-bottom-100">
-          <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto" aria-hidden="true">
+          <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary" aria-hidden="true">
             <Hexagon :size="22" />
           </div>
           <div class="newtab-onboarding-text">
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Welcome</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Welcome</div>
             <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
             <p id="lumen-onboarding-desc" class="color-text-secondary">
               Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
@@ -23,10 +23,10 @@
         </div>
 
         <div class="newtab-onboarding-actions flex">
-          <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none" type="button" @click="learnLumen">
+          <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary" type="button" @click="learnLumen">
             Learn Lumen
           </button>
-          <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="dismissOnboarding">
+          <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary" type="button" @click="dismissOnboarding">
             Skip
           </button>
         </div>
@@ -36,7 +36,7 @@
     <Teleport to="body">
       <div
         v-if="showShortcutModal"
-        class="newtab-shortcut-modal-overlay newtab-onboarding-overlay flex-align-justify-center padding-100"
+        class="newtab-shortcut-modal-overlay newtab-onboarding-overlay flex-align-justify-center padding-100 fixed inset-0"
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcut-modal-title"
@@ -45,13 +45,13 @@
         <div class="newtab-shortcut-modal">
           <div class="newtab-shortcut-modal-head flex-align-start flex-justify-space-between">
             <div>
-              <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Shortcut</div>
+              <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcut</div>
               <h2 id="shortcut-modal-title" class="color-text-primary">
                 {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
               </h2>
             </div>
             <button
-              class="newtab-shortcut-modal-close flex-inline-align-justify-center border-none cursor-pointer h-200 border-radius-full color-text-secondary"
+              class="newtab-shortcut-modal-close flex-inline-align-justify-center border-none cursor-pointer h-200 border-radius-full color-text-secondary bg-fill-tertiary"
               type="button"
               aria-label="Close shortcut editor"
               @click="closeShortcutModal"
@@ -84,21 +84,21 @@
               />
             </label>
 
-            <label class="newtab-shortcut-checkbox flex-inline-align-center">
+            <label class="newtab-shortcut-checkbox flex-inline-align-center gap-50">
               <input v-model="shortcutDraft.pinned" type="checkbox" />
               <span>Mark this shortcut as favourite</span>
             </label>
 
-            <div v-if="shortcutError" class="newtab-shortcut-error color-error txt-weight-light">
+            <div v-if="shortcutError" class="newtab-shortcut-error color-error txt-weight-light fs-085rem">
               {{ shortcutError }}
             </div>
           </div>
 
           <div class="newtab-shortcut-modal-actions flex">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="closeShortcutModal">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary" type="button" @click="closeShortcutModal">
               Cancel
             </button>
-            <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none" type="button" @click="submitShortcutModal">
+            <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary" type="button" @click="submitShortcutModal">
               {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
             </button>
           </div>
@@ -106,42 +106,42 @@
       </div>
     </Teleport>
 
-    <div class="newtab-backdrop" aria-hidden="true">
-      <div class="newtab-glow newtab-glow--left border-radius-full"></div>
-      <div class="newtab-glow newtab-glow--right border-radius-full"></div>
+    <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
+      <div class="newtab-glow newtab-glow--left border-radius-full absolute"></div>
+      <div class="newtab-glow newtab-glow--right border-radius-full absolute"></div>
     </div>
 
-    <div class="newtab-shell flex flex-column margin-0-auto gap-100">
+    <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative">
       <section class="newtab-hero">
         <div class="newtab-hero-copy text-center margin-0-auto">
           <h1 class="color-text-primary margin-0">Search Lumen</h1>
           <p class="color-text-secondary">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full" @submit.prevent="submitOmnibox">
+        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
             type="text"
-            class="newtab-omnibox-input flex-1 border-none outline-none bg-transparent color-text-primary"
+            class="newtab-omnibox-input flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 fs-16px"
             placeholder="Search Lumen or enter a URL"
             spellcheck="false"
             autocapitalize="off"
             autocomplete="off"
             aria-label="Search Lumen or enter a URL"
           />
-          <button class="newtab-omnibox-submit flex-inline-align-justify-center color-white flex-0-0-auto border-none cursor-pointer" type="submit">
+          <button class="newtab-omnibox-submit flex-inline-align-justify-center color-white flex-0-0-auto border-none cursor-pointer bg-gradient-primary shadow-primary" type="submit">
             <ArrowUpRight :size="15" />
             <span>Go</span>
           </button>
         </form>
 
-        <div class="newtab-quick-links flex flex-wrap-wrap gap-50">
+        <div class="newtab-quick-links flex flex-wrap-wrap gap-50 flex-justify-center">
           <button
             v-for="link in quickLinks"
             :key="link.url"
             type="button"
-            class="newtab-quick-link flex-inline-align-center border-radius-full color-text-secondary border-none cursor-pointer"
+            class="newtab-quick-link flex-inline-align-center border-radius-full color-text-secondary border-none cursor-pointer gap-35 bg-fill-tertiary fs-13px"
             :disabled="link.requiresProfile && !hasProfiles"
             @click="openQuickLink(link, $event)"
           >
@@ -150,7 +150,7 @@
           </button>
         </div>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
@@ -159,22 +159,22 @@
       <section class="newtab-shortcuts-panel">
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap">
           <div>
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Shortcuts</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcuts</div>
           </div>
 
-          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="beginCreateShortcut">
+          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary" type="button" @click="beginCreateShortcut">
               <Plus :size="15" />
               <span>Add shortcut</span>
             </button>
           </div>
         </div>
 
-        <div class="newtab-shortcut-grid">
+        <div class="newtab-shortcut-grid grid gap-75">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="newtab-shortcut-card flex flex-column gap-75"
+            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light"
             :class="{
               pinned: entry.pinned,
               'is-dragging': draggingShortcutId === entry.id,
@@ -186,19 +186,19 @@
             @drop.prevent="onShortcutDrop(entry.id)"
             @dragend="onShortcutDragEnd"
           >
-            <button class="newtab-shortcut-card-main flex w-full border-none bg-transparent color-text-primary cursor-pointer flex-1 text-left" type="button" @click="openTarget(entry.url, $event)">
-              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong" :class="`tone-${entry.kind}`">
+            <button class="newtab-shortcut-card-main flex w-full border-none bg-transparent color-text-primary cursor-pointer flex-1 text-left flex-align-start gap-75" type="button" @click="openTarget(entry.url, $event)">
+              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
-              <span class="newtab-shortcut-copy flex flex-column">
-                <span class="newtab-shortcut-title block">{{ entry.title }}</span>
-                <span class="newtab-shortcut-subtitle block color-text-tertiary">{{ entry.subtitle }}</span>
+              <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-20">
+                <span class="newtab-shortcut-title block fs-15px nowrap">{{ entry.title }}</span>
+                <span class="newtab-shortcut-subtitle block color-text-tertiary fs-13px line-height-145 nowrap">{{ entry.subtitle }}</span>
               </span>
             </button>
 
-            <div class="newtab-shortcut-card-actions flex flex-wrap-wrap">
+            <div class="newtab-shortcut-card-actions flex flex-wrap-wrap gap-35">
               <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary"
                 type="button"
                 :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
                 @click.stop="togglePinned(entry.id, entry.pinned)"
@@ -206,7 +206,7 @@
                 <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
               </button>
               <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary"
                 type="button"
                 title="Edit shortcut"
                 @click.stop="beginEditShortcut(entry)"
@@ -214,7 +214,7 @@
                 <Pencil :size="14" />
               </button>
               <button
-                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer"
+                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary"
                 type="button"
                 title="Remove shortcut"
                 @click.stop="removeFavouriteById(entry.id)"
@@ -243,33 +243,33 @@
       >
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap">
           <div>
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Recent</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Recent</div>
           </div>
 
-          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="goto('lumen://history')">
+          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary" type="button" @click="goto('lumen://history')">
               <History :size="15" />
               <span>Open history</span>
             </button>
           </div>
         </div>
 
-        <div class="newtab-history-preview-list">
+        <div class="newtab-history-preview-list grid gap-62">
           <button
             v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left"
+            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light"
             @click="openTarget(entry.url, $event)"
           >
-            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong" :class="`tone-${entry.kind}`">
+            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">
               {{ entry.monogram }}
             </span>
-            <span class="newtab-history-preview-copy flex flex-column flex-1">
+            <span class="newtab-history-preview-copy flex flex-column flex-1 min-w-0 gap-2px">
               <span class="newtab-history-preview-title block txt-weight-medium">{{ entry.title }}</span>
               <span class="newtab-history-preview-subtitle block">{{ entry.subtitle }}</span>
             </span>
-            <span class="newtab-history-preview-time flex-0-0-auto txt-weight-medium margin-left-auto">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
+            <span class="newtab-history-preview-time flex-0-0-auto txt-weight-medium margin-left-auto padding-left-50">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
           </button>
         </div>
       </section>

@@ -1,35 +1,35 @@
 <template>
   <main
     ref="scrollRoot"
-    class="searchpage-search-page flex-align-center flex-column w-full h-full"
+    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
           <button
         type="button"
-        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer"
+        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm"
         title="How search works"
         aria-label="How search works"
         @click="openHowSearchWorks"
       >
         <HelpCircle :size="18" />
       </button>
-    <section class="hero">
-      <div class="searchpage-brand">Lumen</div>
+    <section class="hero flex-column flex-inline-align-center gap-150 w-full relative">
+      <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full">
+        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
             v-model="q"
             type="text"
-            class="searchpage-search-input flex-1-1-auto outline-none color-text-primary"
+            class="searchpage-search-input flex-1-1-auto outline-none color-text-primary min-w-0 border-none bg-transparent fs-16px"
             placeholder="Search the network"
             @keydown.enter.prevent="submit"
           />
           <button
-            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer"
+            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer border-none bg-accent color-white fs-15px relative overflow-hidden"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -39,9 +39,9 @@
         </div>
       </div>
 
-      <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62">
+      <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62 margin-top-75">
         <button
-          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light"
+          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -72,14 +72,14 @@
 
     </section>
 
-    <section v-if="touched" class="searchpage-results">
+    <section v-if="touched" class="searchpage-results relative">
       <div class="searchpage-meta flex-align-center-justify-space-between gap-100 margin-bottom-100">
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center">
         <button
-          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer"
+          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015"
           type="button"
           :disabled="loadingPrevious"
           @click="loadPrevious"
@@ -89,10 +89,10 @@
         </button>
       </div>
 
-      <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-87 padding-0 margin-0">
-        <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-100 border-radius-xl">
-          <div class="searchpage-skeleton-icon border-radius-lg"></div>
-          <div class="searchpage-skeleton-content flex-1">
+      <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-87 padding-0 margin-0 list-style-none">
+        <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-100 border-radius-xl border-default bg-card padding-125-150">
+          <div class="searchpage-skeleton-icon border-radius-lg flex-shrink-0"></div>
+          <div class="searchpage-skeleton-content flex-1 min-w-0">
             <div class="searchpage-skeleton-title"></div>
             <div class="searchpage-skeleton-url"></div>
             <div class="searchpage-skeleton-desc"></div>
@@ -100,8 +100,8 @@
         </li>
       </ul>
 
-      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center">
-        <div class="searchpage-empty-icon flex-align-justify-center w-80px border-radius-circle color-text-tertiary margin-bottom-150">
+      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center bg-card">
+        <div class="searchpage-empty-icon flex-align-justify-center w-80px border-radius-circle color-text-tertiary margin-bottom-150 bg-secondary">
           <Search :size="48" />
         </div>
         <div class="searchpage-empty-content">
@@ -123,9 +123,9 @@
               We couldn't find anything.
             </template>
           </p>
-          <div class="searchpage-empty-suggestions text-left border-radius-md">
-            <span class="searchpage-suggestion-label txt-weight-light color-text-secondary">Try:</span>
-            <ul class="searchpage-suggestion-list margin-0 color-text-secondary">
+          <div class="searchpage-empty-suggestions text-left border-radius-md padding-100-125 bg-secondary">
+            <span class="searchpage-suggestion-label txt-weight-light color-text-secondary fs-13px block margin-bottom-50">Try:</span>
+            <ul class="searchpage-suggestion-list margin-0 color-text-secondary fs-14px">
               <li>Using different keywords</li>
               <li>Searching for a domain (e.g., <code>example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
@@ -134,16 +134,16 @@
         </div>
       </div>
 
-      <div v-else-if="selectedType === 'image'" class="searchpage-image-grid gap-100">
+      <div v-else-if="selectedType === 'image'" class="searchpage-image-grid gap-100 grid">
         <div
           v-for="(r, idx) in imageResults"
           :key="r.id"
-          class="searchpage-image-card border-radius-xl"
+          class="searchpage-image-card border-radius-xl border-default bg-card overflow-hidden shadow-sm relative"
           :data-result-index="idx"
         >
           <button
             type="button"
-            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer"
+            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02"
             :class="{ 'searchpage-saved': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -155,28 +155,28 @@
           </button>
           <button
             type="button"
-            class="searchpage-image-card-btn w-full padding-0 cursor-pointer"
+            class="searchpage-image-card-btn w-full padding-0 cursor-pointer border-none block"
             @click="openResult(r)"
             :title="r.url"
           >
             <template v-if="shouldMountImageThumb(idx)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-                class="searchpage-safe-thumb w-full h-full"
+                class="searchpage-safe-thumb w-full h-full relative overflow-hidden bg-secondary"
                 :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'searchpage-thumb-loading': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer"
+                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="16" />
                 </button>
                 <img
-                  class="searchpage-image-thumb w-full"
+                  class="searchpage-image-thumb w-full object-fit-cover block bg-secondary"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -187,21 +187,21 @@
                   @load="onThumbLoad(r, $event)"
                   @error="onThumbError(r)"
                 />
-                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay">
+                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer"
+                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
                   </div>
                 </div>
               </div>
-              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary">
+              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary bg-secondary">
                 <Image :size="18" />
               </div>
               <img
                 v-else-if="r.thumbUrl"
-                class="searchpage-image-thumb w-full"
+                class="searchpage-image-thumb w-full object-fit-cover block bg-secondary"
                 :src="r.thumbUrl"
                 alt=""
                 :loading="imageThumbLoading(idx)"
@@ -209,25 +209,25 @@
                 :fetchpriority="imageThumbFetchPriority(idx)"
                 @load="markThumbLoaded(r.id)"
               />
-              <div v-else class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary">
+              <div v-else class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary bg-secondary">
                 <Image :size="18" />
               </div>
             </template>
-            <div v-else class="searchpage-image-fallback searchpage-image-fallback--deferred flex-align-justify-center w-full color-text-secondary color-text-tertiary">
+            <div v-else class="searchpage-image-fallback searchpage-image-fallback--deferred flex-align-justify-center w-full color-text-secondary color-text-tertiary bg-secondary">
               <Image :size="18" />
             </div>
           </button>
-          <div class="searchpage-image-meta flex-align-center gap-50">
-            <div v-if="r.badges?.length" class="searchpage-image-tags flex flex-wrap-wrap gap-35 flex-1">
+          <div class="searchpage-image-meta flex-align-center gap-50 flex-justify-start">
+            <div v-if="r.badges?.length" class="searchpage-image-tags flex flex-wrap-wrap gap-35 flex-1 min-w-0">
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
-                class="searchpage-image-badge border-radius-full color-primary"
+                class="searchpage-image-badge border-radius-full color-primary fs-11px line-height-1 bg-primary-a08 nowrap"
                 >{{ b }}</span
               >
               <span
                 v-if="r.badges.length > 4"
-                class="searchpage-image-badge-more border-radius-full color-text-secondary txt-weight-light"
+                class="searchpage-image-badge-more border-radius-full color-text-secondary txt-weight-light fs-11px line-height-1 bg-tertiary border-1 nowrap"
                 :title="r.badges.slice(4).join(', ')"
                 >+{{ r.badges.length - 4 }}</span
               >
@@ -244,29 +244,29 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer" 
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden" 
             :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
             type="button" 
             @click="openResult(r)"
           >
-            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto" :class="`searchpage-icon-${r.kind}`">
+            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default" :class="`searchpage-icon-${r.kind}`">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-                class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full"
+                class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
                 :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'searchpage-thumb-loading': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer"
+                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="14" />
                 </button>
                 <img
-                  class="searchpage-thumb w-full h-full"
+                  class="searchpage-thumb w-full h-full object-fit-cover"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -277,18 +277,18 @@
               </div>
               <img
                 v-else-if="r.thumbUrl && !brokenThumbs[r.id]"
-                class="searchpage-thumb w-full h-full"
+                class="searchpage-thumb w-full h-full object-fit-cover"
                 :src="r.thumbUrl"
                 alt=""
                 @error="onFaviconError(r)"
               />
               <component v-else :is="iconFor(r)" :size="20" />
             </div>
-            <div class="searchpage-result-body flex-1-1-auto">
-              <div class="searchpage-result-header flex-align-center gap-50">
+            <div class="searchpage-result-body flex-1-1-auto min-w-0">
+              <div class="searchpage-result-header flex-align-center gap-50 margin-bottom-25">
                 <span
                   v-if="r.kind !== 'site'"
-                  class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase"
+                  class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase fs-11px letter-spacing-004em border-radius-4px"
                   :class="typeBadgeClass(r)"
                 >
                   {{ typeBadgeLabel(r) }}
@@ -296,45 +296,45 @@
               </div>
               <div
                 v-if="displayTitle(r)"
-                class="searchpage-result-title margin-0 txt-weight-light color-text-primary"
+                class="searchpage-result-title margin-0 txt-weight-light color-text-primary fs-18px line-height-14"
                 :class="{ 'searchpage-result-title--placeholder': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
               </div>
               <div
                 v-if="r.kind === 'site' && r.site?.domain"
-                class="searchpage-site-domain mono flex-inline-align-center margin-top-37 gap-35 color-primary txt-weight-light"
+                class="searchpage-site-domain mono flex-inline-align-center margin-top-37 gap-35 color-primary txt-weight-light fs-13px"
                 :title="r.site.domain"
               >
                 <Globe :size="14" />
                 {{ r.site.domain }}
               </div>
-              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500">{{ r.url }}</div>
+              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500 fs-13px overflow-hidden txt-overflow-ellipsis nowrap">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary"
+                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145"
                 :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
               ></pre>
               <div
                 v-else-if="displayDescription(r)"
-                class="searchpage-result-desc color-text-secondary"
+                class="searchpage-result-desc color-text-secondary margin-top-50 fs-14px overflow-hidden"
                 :class="{ 'searchpage-result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
                 :title="displayDescription(r)"
               >
                 {{ displayDescription(r) }}
               </div>
-              <div v-if="r.badges?.length" class="searchpage-badges flex flex-wrap-wrap gap-50">
+              <div v-if="r.badges?.length" class="searchpage-badges flex flex-wrap-wrap gap-50 margin-top-75">
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge txt-weight-light border-radius-full color-primary"
+                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary"
+                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
@@ -347,7 +347,7 @@
 
       <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center">
         <button
-          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer"
+          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015"
           type="button"
           :disabled="loadingMore || loadingPrevious"
           @click="loadMore"
@@ -363,16 +363,16 @@
     <Transition name="searchpage-modal">
       <div
         v-if="showHowSearchWorks"
-        class="searchpage-modal-overlay flex-align-justify-center padding-125"
+        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0"
         role="dialog"
         aria-modal="true"
         aria-label="How search works"
         @click="closeHowSearchWorks"
       >
-        <div class="searchpage-modal-content searchpage-help-modal border-radius-18px" @click.stop>
-          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100">
-            <div class="searchpage-help-header-left flex-align-start">
-              <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto" aria-hidden="true">
+        <div class="searchpage-modal-content searchpage-help-modal border-radius-18px bg-primary border-1 overflow-hidden relative" @click.stop>
+          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between">
+            <div class="searchpage-help-header-left flex-align-start gap-87 min-w-0">
+              <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
                 <HelpCircle :size="18" />
               </div>
               <div>
@@ -382,7 +382,7 @@
             </div>
             <button
               type="button"
-              class="searchpage-icon-btn hover-fill-primary-enabled searchpage-help-close flex-inline-align-justify-center border-radius-10px color-text-secondary cursor-pointer flex-0-0-auto"
+              class="searchpage-icon-btn hover-fill-primary-enabled searchpage-help-close flex-inline-align-justify-center border-radius-10px color-text-secondary cursor-pointer flex-0-0-auto border-1-light bg-transparent"
               aria-label="Close"
               @click="closeHowSearchWorks"
             >
@@ -390,48 +390,48 @@
             </button>
           </header>
 
-          <div class="searchpage-help-body color-text-primary">
-            <div class="searchpage-help-grid">
-              <section class="searchpage-help-card">
-                <h3 class="searchpage-help-h3 margin-0 color-text-primary">What gets indexed</h3>
-                <p class="searchpage-help-p color-text-secondary">
+          <div class="searchpage-help-body color-text-primary overflow-y-auto">
+            <div class="searchpage-help-grid grid">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px">What gets indexed</h3>
+                <p class="searchpage-help-p color-text-secondary line-height-145">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="searchpage-help-callout flex-align-start">
+                <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62">
                   <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto" />
-                  <div class="searchpage-help-callout-text color-text-secondary">
+                  <div class="searchpage-help-callout-text color-text-secondary line-height-145 fs-14px">
                     Local-only content on your machine stays private and won’t appear in network
                     search.
                   </div>
                 </div>
               </section>
 
-              <section class="searchpage-help-card">
-                <h3 class="searchpage-help-h3 margin-0 color-text-primary">How to get indexed</h3>
-                <ol class="searchpage-help-steps flex flex-column padding-0 color-text-secondary">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px">How to get indexed</h3>
+                <ol class="searchpage-help-steps flex flex-column padding-0 color-text-secondary list-style-none gap-50 line-height-145">
                   <li>
-                    <span class="searchpage-help-step-text">
+                    <span class="searchpage-help-step-text min-w-0">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
                   <li>
-                    <span class="searchpage-help-step-text">
+                    <span class="searchpage-help-step-text min-w-0">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
                   <li>
-                    <span class="searchpage-help-step-text">
+                    <span class="searchpage-help-step-text min-w-0">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>
                   </li>
                 </ol>
               </section>
 
-              <section class="searchpage-help-card">
-                <h3 class="searchpage-help-h3 margin-0 color-text-primary">How queries work</h3>
-                <ul class="searchpage-help-list padding-0 color-text-secondary">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px">How queries work</h3>
+                <ul class="searchpage-help-list padding-0 color-text-secondary list-style-none line-height-145">
                   <li>
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
@@ -447,9 +447,9 @@
                 </ul>
               </section>
 
-              <section class="searchpage-help-card">
-                <h3 class="searchpage-help-h3 margin-0 color-text-primary">How results are ranked</h3>
-                <ul class="searchpage-help-list padding-0 color-text-secondary">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px">How results are ranked</h3>
+                <ul class="searchpage-help-list padding-0 color-text-secondary list-style-none line-height-145">
                   <li><strong>Relevance</strong>: token matches in extracted tags/text.</li>
                   <li><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
                   <li><strong>Popularity</strong>: signals like views and saves.</li>
@@ -458,7 +458,7 @@
                 </ul>
               </section>
 
-              <p class="searchpage-help-note color-text-secondary">
+              <p class="searchpage-help-note color-text-secondary border-radius-14px border-1-light bg-primary fs-14px">
                 Results can vary while indexing is in progress and as the network evolves.
               </p>
             </div>

@@ -6,21 +6,21 @@
       </div>
 
       <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg">
-          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary">
+        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md">
+          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75">
             <Tag :size="26" />
           </div>
           <h2 class="color-text-primary txt-weight-light margin-0">This domain belongs to no one</h2>
           <p class="color-text-secondary"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
-          <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light" type="button" @click="goToBuyDomain">
+          <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light bg-gradient-primary fs-15px shadow-primary transition-smooth" type="button" @click="goToBuyDomain">
             <span>Buy this domain</span>
           </button>
         </div>
       </div>
 
       <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg">
-          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary">
+        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md">
+          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75">
             <FileQuestion :size="26" />
           </div>
           <h2 class="color-text-primary txt-weight-light margin-0">This content isn't available right now</h2>
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div v-else class="sitepage-viewer flex-1 min-h-0 overflow-hidden">
+      <div v-else class="sitepage-viewer flex-1 min-h-0 overflow-hidden relative">
         <template v-if="resolvedHttpUrl && isHlsPath">
           <video
             ref="videoEl"
@@ -41,7 +41,7 @@
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="sitepage-hls-error">
+          <div v-if="hlsError" class="sitepage-hls-error absolute fs-14px cursor-events-none">
             {{ hlsError }}
           </div>
         </template>

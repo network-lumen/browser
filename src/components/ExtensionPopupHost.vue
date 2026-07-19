@@ -1,26 +1,26 @@
 <template>
   <div class="absolute inset-0 z-1400 bg-transparent" @click="requestClose()">
-    <div class="extension-popup-shell absolute overflow-hidden" :style="popupShellStyle" @click.stop>
+    <div class="extension-popup-shell absolute overflow-hidden border-radius-14px bg-dark-111" :style="popupShellStyle" @click.stop>
       <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full" aria-label="Close extension popup" @click="requestClose()">
         <X :size="14" />
       </button>
 
-      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center">
+      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150">
         {{ error }}
       </div>
-      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center">
+      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150">
         Preparing extension…
       </div>
-      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center">
+      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150">
         Extension guest preload is unavailable.
       </div>
-      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center">
+      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150">
         Loading extension…
       </div>
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
-        class="extension-popup-webview w-full h-full"
+        class="extension-popup-webview w-full h-full bg-dark-111"
         :src="webviewMountUrl"
         :preload="extensionGuestPreloadUrl"
         partition="persist:lumen"
@@ -35,7 +35,7 @@
         @did-stop-loading="onDidStopLoading"
         @dom-ready="onDomReady"
       ></webview>
-      <div v-else class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center">
+      <div v-else class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150">
         Preparing extension…
       </div>
     </div>

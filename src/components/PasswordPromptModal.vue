@@ -6,13 +6,13 @@
         class="overlay-scrim backdrop-blur-4px z-10000"
         @click.self="handleCancel"
       >
-        <div class="modal-panel pwd-modal bg-card border-default w-full">
-          <div class="pwd-modal-header flex-align-center gap-75">
+        <div class="modal-panel pwd-modal bg-card border-default w-full border-radius-16px">
+          <div class="pwd-modal-header flex-align-center gap-75 margin-bottom-75">
             <LockKeyhole :size="24" class="color-primary" />
             <h3 class="color-text-primary margin-0 txt-weight-light">Password Required</h3>
           </div>
 
-          <p class="pwd-modal-message color-text-secondary">
+          <p class="pwd-modal-message color-text-secondary fs-14px line-height-14">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
 
@@ -20,7 +20,7 @@
             <input
               ref="passwordInput"
               type="password"
-              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px"
+              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px padding-75-100 fs-16px"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
@@ -28,7 +28,7 @@
               @keyup.escape="handleCancel"
             />
 
-            <div v-if="error" class="pwd-modal-error color-error fs-085rem">
+            <div v-if="error" class="pwd-modal-error color-error fs-085rem margin-top-50 padding-50-75 bg-fill-error border-radius-8px">
               {{ error }}
             </div>
           </div>
@@ -36,14 +36,14 @@
           <div class="flex-align-center gap-75 flex-justify-end">
             <button
               v-if="cancelable !== false"
-              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer border-radius-10px fw-500"
+              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer border-radius-10px fw-500 fs-14px"
               @click="handleCancel"
               :disabled="loading || busy"
             >
               Cancel
             </button>
             <button
-              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer border-radius-10px fw-500"
+              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer border-radius-10px fw-500 bg-accent fs-14px"
               @click="handleSubmit"
               :disabled="loading || busy || !password"
             >

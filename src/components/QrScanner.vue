@@ -1,36 +1,36 @@
 <template>
-  <div class="qr-scanner-wrapper">
-    <div class="qr-scanner-overlay flex-align-justify-center" @click="$emit('close')">
-      <div class="qr-scanner-modal bg-card w-full" @click.stop>
-        <div class="qr-scanner-header flex-align-center-justify-space-between">
+  <div class="qr-scanner-wrapper fixed">
+    <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125" @click="$emit('close')">
+      <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden" @click.stop>
+        <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default">
           <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>
-          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center" @click="$emit('close')" aria-label="Close">
+          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02" @click="$emit('close')" aria-label="Close">
             <X :size="24" />
           </button>
         </div>
 
-        <div class="qr-scanner-content">
+        <div class="qr-scanner-content padding-150">
           <!-- Camera View -->
-          <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px">
-            <video ref="videoElement" class="qr-camera-video w-full h-full" autoplay playsinline></video>
-            <canvas ref="canvasElement" class="qr-camera-canvas hidden"></canvas>
-            <div class="qr-scan-frame border-radius-12px">
-              <div class="qr-corner qr-corner-top-left"></div>
-              <div class="qr-corner qr-corner-top-right"></div>
-              <div class="qr-corner qr-corner-bottom-left"></div>
-              <div class="qr-corner qr-corner-bottom-right"></div>
+          <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden">
+            <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
+            <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute"></canvas>
+            <div class="qr-scan-frame border-radius-12px absolute">
+              <div class="qr-corner qr-corner-top-left absolute"></div>
+              <div class="qr-corner qr-corner-top-right absolute"></div>
+              <div class="qr-corner qr-corner-bottom-left absolute"></div>
+              <div class="qr-corner qr-corner-bottom-right absolute"></div>
             </div>
-            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
           <div v-if="error" class="qr-error-state">
-            <AlertCircle :size="48" class="qr-error-icon color-error" />
+            <AlertCircle :size="48" class="qr-error-icon color-error margin-bottom-100" />
             <h4 class="color-text-primary">{{ error }}</h4>
             <p v-if="error.includes('permission')" class="color-text-secondary fs-14px">
               Please allow camera access in your browser settings
             </p>
-            <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500" @click="initializeScanner">
+            <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500 gap-50 bg-accent border-radius-8px" @click="initializeScanner">
               <RefreshCw :size="16" />
               <span>Try Again</span>
             </button>
@@ -38,26 +38,26 @@
 
           <!-- Success State -->
           <div v-if="scannedData" class="qr-success-state">
-            <CheckCircle :size="48" class="qr-success-icon color-success" />
+            <CheckCircle :size="48" class="qr-success-icon color-success margin-bottom-100" />
             <h4 class="color-text-primary">QR Code Scanned</h4>
 
-            <div class="qr-scanned-data text-left">
+            <div class="qr-scanned-data text-left bg-secondary border-radius-8px padding-100">
               <div class="qr-data-type">
                 <span class="qr-label color-text-secondary">Type:</span>
                 <span class="qr-value color-text-primary">{{ detectedType }}</span>
               </div>
               <div class="qr-data-content">
                 <span class="qr-label color-text-secondary">Content:</span>
-                <div class="qr-value-box bg-card color-text-primary fs-13px">{{ scannedData }}</div>
+                <div class="qr-value-box bg-card color-text-primary fs-13px border-1 border-radius-6px padding-75 break-all overflow-y-auto">{{ scannedData }}</div>
               </div>
             </div>
 
-            <div class="qr-action-buttons flex-justify-center">
-              <button class="qr-btn qr-btn-secondary color-text-primary bg-fill-tertiary border-default flex-inline-align-center fs-14px fw-500 cursor-pointer" @click="scanAgain">
+            <div class="qr-action-buttons flex-justify-center gap-75">
+              <button class="qr-btn qr-btn-secondary color-text-primary bg-fill-tertiary border-default flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02" @click="scanAgain">
                 <QrCode :size="16" />
                 <span>Scan Again</span>
               </button>
-              <button class="qr-btn qr-btn-primary color-white flex-inline-align-center fs-14px fw-500 cursor-pointer" @click="handleUseScannedData">
+              <button class="qr-btn qr-btn-primary color-white flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02 bg-accent" @click="handleUseScannedData">
                 <Check :size="16" />
                 <span>Use This</span>
               </button>

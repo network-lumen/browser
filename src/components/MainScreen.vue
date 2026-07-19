@@ -1,9 +1,9 @@
 <template>
-  <section class="main-shell flex flex-column w-full h-full">
+  <section class="main-shell flex flex-column w-full h-full relative">
     <UiToast />
     <div class="app overflow-hidden">
       <div
-        class="tabs-header  h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center"
+        class="tabs-header h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default"
         ref="hdr"
       >
         <div
@@ -47,7 +47,7 @@
           ref="addBtn"
           variant="none"
           title="New tab"
-          class="add-tab-btn margin-left-25 border-radius-circle padding-25 border-none cursor-pointer color-text-primary"
+          class="add-tab-btn margin-left-25 border-radius-circle padding-25 border-none cursor-pointer color-text-primary bg-fill-secondary"
           @click="addTab"
         >
           <Plus :size="16" />

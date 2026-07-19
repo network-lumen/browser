@@ -3,7 +3,7 @@
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
     <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
-      <header class="history-header flex-align-center-justify-space-between gap-100">
+      <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between">
         <div class="history-copy">
           <h1 class="color-text-primary margin-0">History</h1>
         </div>
@@ -11,7 +11,7 @@
         <div class="history-header-actions flex-align-center">
           <button
             type="button"
-            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer"
+            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary"
             :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
@@ -31,8 +31,8 @@
         </div>
       </header>
 
-      <section class="history-toolbar flex-align-center-justify-space-between">
-        <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary">
+      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-75">
+        <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-62 bg-fill-tertiary">
           <Search :size="17" />
           <input
             v-model="query"
@@ -51,32 +51,32 @@
 
       <div v-if="groupedEntries.length" class="flex flex-column gap-90">
         <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100">
-          <div class="history-group-head flex-align-center-justify-space-between gap-75">
+          <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between">
             <h2 class="color-text-primary margin-0">{{ group.label }}</h2>
             <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
-            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between">
-              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong" :class="`tone-${entry.kind}`">
+            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between">
+              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-75" type="button" @click="openEntry(entry.url)">
+                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px fs-12px letter-spacing-008em border-default bg-fill-secondary" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}
                 </span>
 
                 <span class="history-item-copy flex flex-column gap-15 min-w-0">
                   <span class="history-item-title color-text-primary txt-weight-medium">{{ entry.title }}</span>
-                  <span class="history-item-subtitle color-text-tertiary">{{ entry.subtitle }}</span>
+                  <span class="history-item-subtitle color-text-tertiary fs-085rem">{{ entry.subtitle }}</span>
                 </span>
               </button>
 
-              <div class="history-item-meta flex-inline-align-center flex-0-0-auto">
+              <div class="history-item-meta flex-inline-align-center flex-0-0-auto gap-50 margin-left-50">
                 <span class="history-item-time color-text-tertiary">{{ formatTime(entry.lastVisitedAt) }}</span>
                 <span v-if="entry.visitCount > 1" class="history-item-visits color-text-tertiary">
                   {{ entry.visitCount }} visits
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px"
+                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px transition-all-015"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
@@ -90,22 +90,22 @@
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
         <div class="history-empty-card padding-150 text-center">
-          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px">
+          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary">
             <HistoryIcon :size="22" />
           </div>
           <h3 class="color-text-primary margin-0">{{ emptyTitle }}</h3>
           <p class="color-text-secondary">{{ emptyCopy }}</p>
-          <div class="history-empty-actions flex-align-center margin-top-100">
+          <div class="history-empty-actions flex-align-center margin-top-100 flex-justify-center">
             <button
               v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success"
+              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success bg-fill-secondary"
               @click="setHistoryEnabled(true)"
             >
               <Power :size="15" />
               <span>Turn on history</span>
             </button>
-            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer" @click="openNewTab">
+            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer bg-gradient-primary shadow-primary" @click="openNewTab">
               <ArrowUpRight :size="14" />
               <span>Open new tab</span>
             </button>

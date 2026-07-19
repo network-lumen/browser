@@ -2,10 +2,10 @@
   <div class="domain-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
-      <nav class="domainpage-names-nav flex flex-column gap-35">
+      <nav class="domainpage-names-nav flex flex-column gap-35 margin-bottom-87">
         <button
           type="button"
-          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary fs-085rem cursor-pointer text-left"
+          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary fs-085rem cursor-pointer text-left gap-62 bg-transparent"
           :class="{ active: activeNameTab === 'lumen' }"
           @click="activeNameTab = 'lumen'"
         >
@@ -14,7 +14,7 @@
         </button>
         <button
           type="button"
-          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary fs-085rem cursor-pointer text-left"
+          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary fs-085rem cursor-pointer text-left gap-62 bg-transparent"
           :class="{ active: activeNameTab === 'stable' }"
           @click="activeNameTab = 'stable'"
         >
@@ -25,7 +25,7 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="domainpage-main flex-1 bg-secondary overflow-y-auto">
+    <main class="domainpage-main flex-1 bg-secondary overflow-y-auto padding-200-250">
       <header class="domainpage-content-header flex-align-center flex-justify-space-between margin-bottom-150">
         <div>
           <h1>{{ pageTitle }}</h1>
@@ -33,17 +33,17 @@
         </div>
         <div class="domainpage-header-actions flex gap-75">
           <template v-if="activeNameTab === 'lumen'">
-            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
+            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="openRegisterModal">
               <Plus :size="16" />
               <span>Buy domain</span>
             </button>
           </template>
           <template v-else>
-            <button class="domainpage-btn secondary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="importStableLink">
+            <button class="domainpage-btn secondary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="importStableLink">
               <Upload :size="16" />
               <span>Import</span>
             </button>
-            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
+            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="createStableLink">
               <Plus :size="16" />
               <span>Generate</span>
             </button>
@@ -51,7 +51,7 @@
         </div>
       </header>
 
-      <section v-if="activeNameTab === 'lumen'" class="domainpage-card">
+      <section v-if="activeNameTab === 'lumen'" class="domainpage-card bg-card border-radius-16px border-1">
 
 
         <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
@@ -61,33 +61,33 @@
           <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
           <p>Loading your domains...</p>
         </div>
-        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50">
+        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative">
           <p class="domainpage-hero-title txt-weight-light margin-0">Get your name on Lumen</p>
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
           </p>
-          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
+          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="openRegisterModal">
             <Plus :size="16" />
             <span>Buy domain</span>
           </button>
         </div>
-        <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0">
-          <li v-for="d in domains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px">
+        <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0 list-style-none">
+          <li v-for="d in domains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary">
             <div class="domain-main flex flex-column gap-15 min-w-0">
-              <span class="domainpage-domain-name txt-weight-light color-text-primary">{{ d.name }}</span>
+              <span class="domainpage-domain-name txt-weight-light color-text-primary fs-14px">{{ d.name }}</span>
             </div>
-            <div class="domainpage-domain-right flex-align-center">
+            <div class="domainpage-domain-right flex-align-center gap-35">
               <span
                 v-if="d.expireAtSeconds"
-                class="domainpage-pill border-radius-full color-text-secondary fw-500 txt-sm cursor-pointer"
+                class="domainpage-pill border-radius-full color-text-secondary fw-500 txt-sm cursor-pointer fs-11px border-1-transparent"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >
                 {{ expiryText(d) }}
               </span>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Open lumen URL"
                 @click="openDomain(d)"
@@ -95,7 +95,7 @@
                 <ExternalLink :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Copy lumen URL"
                 @click="copyDomainUrl(d)"
@@ -103,7 +103,7 @@
                 <Copy :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Settings (preview only)"
                 @click="openSettingsModal(d)"
@@ -111,7 +111,7 @@
                 <Settings :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Transfer domain"
                 @click="openTransferModal(d)"
@@ -123,7 +123,7 @@
         </ul>
       </section>
 
-      <section v-else class="domainpage-card">
+      <section v-else class="domainpage-card bg-card border-radius-16px border-1">
         <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
           <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
           <p>Loading stable links...</p>
@@ -131,22 +131,22 @@
         <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
           <p>{{ rawDomainsError }}</p>
         </div>
-        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50">
+        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative">
           <p class="domainpage-hero-title txt-weight-light margin-0">Generate a stable link</p>
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Stable links are cryptographic names backed by IPNS.
           </p>
-          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
+          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="createStableLink">
             <Plus :size="16" />
             <span>Generate</span>
           </button>
         </div>
-        <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0">
-          <li v-for="d in rawDomains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px">
+        <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0 list-style-none">
+          <li v-for="d in rawDomains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary">
             <div class="domain-main flex flex-column gap-15 min-w-0">
-              <div class="domainpage-stable-link-label-row flex-align-center gap-35">
+              <div class="domainpage-stable-link-label-row flex-align-center gap-35 min-w-0">
                 <input
-                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light"
+                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px"
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
@@ -160,11 +160,11 @@
                   :size="14"
                 />
               </div>
-              <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary">{{ d.id || 'IPNS id unavailable' }}</span>
+              <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
-            <div class="domainpage-domain-right flex-align-center">
+            <div class="domainpage-domain-right flex-align-center gap-35">
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Open stable link"
                 :disabled="!d.id"
@@ -173,7 +173,7 @@
                 <ExternalLink :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Copy stable link URL"
                 :disabled="!d.id"
@@ -182,7 +182,7 @@
                 <Copy :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Edit records"
                 :disabled="!d.name"
@@ -191,7 +191,7 @@
                 <Settings :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary"
                 type="button"
                 title="Export private key"
                 :disabled="!d.name"
@@ -200,7 +200,7 @@
                 <Download :size="16" />
               </button>
               <button
-                class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer"
+                class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer border-1 bg-tertiary"
                 type="button"
                 title="Delete stable link"
                 :disabled="!d.name"
@@ -215,14 +215,14 @@
 
       <Transition name="domainpage-fade">
         <div v-if="stableLinkModalMode" class="overlay-scrim domainpage-modal-overlay" @click="closeStableLinkModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeStableLinkModal">
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeStableLinkModal">
                 <X :size="16" />
               </button>
             </header>
-            <form class="domainpage-modal-body overflow-y-auto flex-1" @submit.prevent="confirmStableLinkModal">
+            <form class="domainpage-modal-body overflow-y-auto flex-1 min-h-0" @submit.prevent="confirmStableLinkModal">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary">
                 {{ stableLinkModalMode === 'import'
                   ? 'Choose a local private key file and attach it to this stable link name.'
@@ -232,7 +232,7 @@
                 <label class="color-text-secondary">Stable link name</label>
                 <input
                   v-model="stableLinkNameDraft"
-                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary"
+                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                   type="text"
                   autocomplete="off"
                   placeholder="my-link"
@@ -241,11 +241,11 @@
                 />
               </div>
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
                   Cancel
                 </button>
                 <button
-                  class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
+                  class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent"
                   type="submit"
                   :disabled="stableLinkSaving || !stableLinkNameDraft.trim()"
                 >
@@ -263,29 +263,29 @@
 
       <Transition name="domainpage-fade">
         <div v-if="showStableSettingsModal" class="overlay-scrim domainpage-modal-overlay" @click="closeStableSettingsModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Stable link records</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeStableSettingsModal">
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeStableSettingsModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary">Publish resolver records for this stable link.</p>
-              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100">
-                <div class="domainpage-info-name txt-weight-light">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
-                <div class="domainpage-info-expiry mono">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
+              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary">
+                <div class="domainpage-info-name txt-weight-light fs-15px">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
+                <div class="domainpage-info-expiry mono fs-13px margin-top-25">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
               </div>
 
               <div class="domainpage-form-group margin-bottom-100">
                 <label class="color-text-secondary">Records (key / value)</label>
-                <div v-if="stableSettingsLoading" class="domainpage-records-empty color-text-tertiary">
+                <div v-if="stableSettingsLoading" class="domainpage-records-empty color-text-tertiary fs-13px margin-bottom-50">
                   Loading records...
                 </div>
-                <div v-else-if="!stableSettingsRecords.length" class="domainpage-records-empty color-text-tertiary">
+                <div v-else-if="!stableSettingsRecords.length" class="domainpage-records-empty color-text-tertiary fs-13px margin-bottom-50">
                   No records yet. Add a target like <span class="mono">cid</span>, <span class="mono">ipfs</span>, or <span class="mono">ipns</span>.
                 </div>
-                <div v-else class="domainpage-records-list flex flex-column">
+                <div v-else class="domainpage-records-list flex flex-column gap-35">
                   <div
                     class="domainpage-record-row flex-align-center gap-35"
                     v-for="(r, idx) in stableSettingsRecords"
@@ -293,20 +293,20 @@
                   >
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary"
+                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
                       :disabled="stableSettingsSaving"
                     />
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary"
+                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
                       :disabled="stableSettingsSaving"
                     />
                     <button
-                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer"
+                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer border-1 bg-tertiary"
                       type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
@@ -316,16 +316,16 @@
                     </button>
                   </div>
                 </div>
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
                   Add record
                 </button>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
                   Cancel
                 </button>
-                <button class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
+                <button class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
                   <span v-if="!stableSettingsSaving">
                     <Check :size="16" />
                     Save records
@@ -341,14 +341,14 @@
       <!-- Register Domain Modal -->
       <Transition name="domainpage-fade">
         <div v-if="showRegisterModal" class="overlay-scrim domainpage-modal-overlay" @click="closeRegisterModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Register domain</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeRegisterModal">
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeRegisterModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary">
                 Register a new <span class="mono">.lmn</span> handle for the owner address.
               </p>
@@ -358,16 +358,16 @@
                 <div class="domainpage-domain-input-wrapper flex-align-center gap-35">
                   <input
                     type="text"
-                    class="domainpage-form-input domainpage-domain-part w-full border-radius-10px fs-085rem color-text-primary"
+                    class="domainpage-form-input domainpage-domain-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
                     @blur="refreshAvailability"
                   />
-                  <span class="domainpage-dot-sep txt-weight-light color-text-tertiary">.</span>
+                  <span class="domainpage-dot-sep txt-weight-light color-text-tertiary fs-14px">.</span>
                   <input
                     type="text"
-                    class="domainpage-form-input domainpage-ext-part w-full border-radius-10px fs-085rem color-text-primary"
+                    class="domainpage-form-input domainpage-ext-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                     v-model="registerForm.ext"
                     placeholder="lmn"
                     @blur="refreshAvailability"
@@ -375,7 +375,7 @@
                 </div>
                 <div
                   v-if="registerForm.domainName"
-                  class="domainpage-availability color-error"
+                  class="domainpage-availability color-error margin-top-50 border-radius-8px fs-13px bg-fill-error"
                   :class="{ available: domainAvailable, 'badge-success': domainAvailable }"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
@@ -387,15 +387,15 @@
                 <div class="domainpage-period-static">Fixed at 1 year</div>
               </div>
 
-              <div class="domainpage-price-box border-radius-10px">
-                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary">
+              <div class="domainpage-price-box border-radius-10px border-1 bg-secondary">
+                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>
               </div>
 
               <button
-                class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
+                class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent"
                 type="button"
                 @click="confirmRegister"
                 :disabled="!canRegister || registering"
@@ -414,28 +414,28 @@
       <!-- Settings Modal -->
       <Transition name="domainpage-fade">
         <div v-if="showSettingsModal" class="overlay-scrim domainpage-modal-overlay" @click="closeSettingsModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Domain settings</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeSettingsModal">
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeSettingsModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary">Edit resolver records for this domain.</p>
-              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100">
-                <div class="domainpage-info-name txt-weight-light">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="domainpage-info-expiry">
+              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary">
+                <div class="domainpage-info-name txt-weight-light fs-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="domainpage-info-expiry fs-13px margin-top-25">
                   {{ selectedDomain ? expiryText(selectedDomain) : 'Expires: unknown' }}
                 </div>
               </div>
 
               <div class="domainpage-form-group margin-bottom-100">
                 <label class="color-text-secondary">Records (key / value)</label>
-                <div v-if="!settingsRecords.length" class="domainpage-records-empty color-text-tertiary">
+                <div v-if="!settingsRecords.length" class="domainpage-records-empty color-text-tertiary fs-13px margin-bottom-50">
                   No records yet. Add a new row below.
                 </div>
-                <div v-else class="domainpage-records-list flex flex-column">
+                <div v-else class="domainpage-records-list flex flex-column gap-35">
                   <div
                     class="domainpage-record-row flex-align-center gap-35"
                     v-for="(r, idx) in settingsRecords"
@@ -443,18 +443,18 @@
                   >
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary"
+                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                       v-model="r.key"
                       placeholder="cid | ipns | txt | ..."
                     />
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary"
+                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                       v-model="r.value"
                       placeholder="Value"
                     />
                     <button
-                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer"
+                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer border-1 bg-tertiary"
                       type="button"
                       @click="removeSettingsRecord(idx)"
                       title="Remove row"
@@ -463,31 +463,31 @@
                     </button>
                   </div>
                 </div>
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addSettingsRecord">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="addSettingsRecord">
                   Add record
                 </button>
               </div>
 
-              <div class="domainpage-price-box border-radius-10px">
-                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary">
+              <div class="domainpage-price-box border-radius-10px border-1 bg-secondary">
+                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px">
                   <span>Cost</span>
                   <span class="txt-weight-light">{{ settingsCostLabel }}</span>
                 </div>
-                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary">
+                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px">
                   <span>Balance</span>
                   <span class="txt-weight-light">{{ settingsWalletBalanceLabel }}</span>
                 </div>
-                <p class="domainpage-owner-hint fs-075rem color-text-tertiary" v-if="settingsInsufficientBalance">
+                <p class="domainpage-owner-hint fs-075rem color-text-tertiary margin-top-37" v-if="settingsInsufficientBalance">
                   You need at least {{ settingsCostLabel }} available to keep your PQC link active.
                 </p>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeSettingsModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="closeSettingsModal">
                   Cancel
                 </button>
                 <button
-                  class="domainpage-btn primary full ghost flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
+                  class="domainpage-btn primary full ghost flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent"
                   type="button"
                   @click="saveSettings"
                   :disabled="!canSaveSettings || savingSettings"
@@ -507,19 +507,19 @@
       <!-- Transfer Modal -->
       <Transition name="domainpage-fade">
         <div v-if="showTransferModal" class="overlay-scrim domainpage-modal-overlay" @click="closeTransferModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Transfer domain</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeTransferModal">
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeTransferModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary">Transfer ownership of this domain to another address.</p>
               
-              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100">
-                <div class="domainpage-info-name txt-weight-light">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="domainpage-info-expiry">
+              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary">
+                <div class="domainpage-info-name txt-weight-light fs-15px">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="domainpage-info-expiry fs-13px margin-top-25">
                   {{ transferDomain ? expiryText(transferDomain) : 'Expires: unknown' }}
                 </div>
               </div>
@@ -528,26 +528,26 @@
                 <label class="color-text-secondary">New Owner Address</label>
                 <input
                   type="text"
-                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary"
+                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary"
                   v-model="transferForm.newOwner"
                   placeholder="lumen1..."
                 />
                 <p class="domainpage-form-hint fs-075rem color-text-tertiary margin-top-37">Enter the Lumen address of the new owner</p>
               </div>
 
-              <div class="domainpage-warning-box flex border-radius-10px gap-75">
-                <div class="domainpage-warning-icon">⚠️</div>
-                <div class="domainpage-warning-content color-text-primary">
+              <div class="domainpage-warning-box flex border-radius-10px gap-75 padding-87 bg-fill-error">
+                <div class="domainpage-warning-icon fs-125rem flex-shrink-0">⚠️</div>
+                <div class="domainpage-warning-content color-text-primary fs-13px">
                   <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.
                 </div>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeTransferModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent" type="button" @click="closeTransferModal">
                   Cancel
                 </button>
                 <button
-                  class="domainpage-btn primary full danger flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
+                  class="domainpage-btn primary full danger flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent"
                   type="button"
                   @click="confirmTransfer"
                   :disabled="!canTransfer || transferring"
