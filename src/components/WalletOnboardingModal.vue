@@ -1,15 +1,15 @@
 <template>
-  <Transition name="modal">
-    <div v-if="visible" class="modal-overlay" @click="handleOverlayClick">
-      <div class="modal-content onboarding-modal" @click.stop>
-        <div class="modal-header">
-          <div class="header-icon">
+  <Transition name="walletonboard-transition">
+    <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px" @click="handleOverlayClick">
+      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto" @click.stop>
+        <div class="walletonboard-header text-center">
+          <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />
           </div>
-          <h2 class="modal-title">
+          <h2 class="walletonboard-title color-text-primary">
             {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
           </h2>
-          <p class="modal-subtitle">
+          <p class="walletonboard-subtitle color-text-secondary">
             {{
               requiresProfileCreation
                 ? "A profile is required to use Drive, Wallet, and personal storage."
@@ -18,28 +18,28 @@
           </p>
         </div>
 
-        <div class="modal-body">
-          <div v-if="step === 'intro'" class="onboarding-step">
-            <div class="warning-box">
+        <div class="walletonboard-body flex-1 overflow-y-auto">
+          <div v-if="step === 'intro'" class="walletonboard-step">
+            <div class="walletonboard-warning-box flex">
               <AlertCircle :size="20" class="color-warning" />
-              <div class="warning-content">
+              <div class="flex-1 color-text-primary">
                 <p class="txt-sm txt-weight-strong margin-0">Important: No one can recover your wallet</p>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
-                  Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up, 
+                  Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up,
                   your funds are permanently lost. We cannot help you recover them.
                 </p>
               </div>
             </div>
 
-            <div class="info-cards">
-              <div class="info-card">
+            <div class="walletonboard-info-cards">
+              <div class="walletonboard-info-card color-text-primary">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Set a Password</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
                   Protect your wallet with a strong password
                 </p>
               </div>
-              <div class="info-card">
+              <div class="walletonboard-info-card color-text-primary">
                 <Download :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Backup Your Wallet</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
@@ -49,40 +49,40 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'password'" class="onboarding-step">
+          <div v-else-if="step === 'password'" class="walletonboard-step">
             <p class="txt-sm color-gray-blue margin-bottom-100">
               Create a strong password to protect your wallet. You'll need this password to send transactions.
             </p>
 
-            <div class="form-group">
-              <label class="txt-xs txt-weight-strong margin-bottom-25">Password (minimum 8 characters)</label>
+            <div class="walletonboard-group">
+              <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Password (minimum 8 characters)</label>
               <input
                 v-model="password"
                 type="password"
-                class="form-input"
+                class="walletonboard-input w-full color-text-primary outline-none"
                 placeholder="Enter password"
                 @keyup.enter="handlePasswordSubmit"
               />
             </div>
 
-            <div class="form-group">
-              <label class="txt-xs txt-weight-strong margin-bottom-25">Confirm Password</label>
+            <div class="walletonboard-group">
+              <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Confirm Password</label>
               <input
                 v-model="confirmPassword"
                 type="password"
-                class="form-input"
+                class="walletonboard-input w-full color-text-primary outline-none"
                 placeholder="Confirm password"
                 @keyup.enter="handlePasswordSubmit"
               />
             </div>
 
-            <div v-if="passwordError" class="error-message txt-xs color-red-base margin-top-50">
+            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary">
               {{ passwordError }}
             </div>
           </div>
 
-          <div v-else-if="step === 'profile-name'" class="onboarding-step">
-            <div class="success-box" v-if="passwordSet">
+          <div v-else-if="step === 'profile-name'" class="walletonboard-step">
+            <div class="walletonboard-success-box flex-align-center color-text-primary" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -91,61 +91,61 @@
               Choose a name for your first profile before creating your wallet.
             </p>
 
-            <div class="form-group">
-              <label class="txt-xs txt-weight-strong margin-bottom-25">Profile name</label>
+            <div class="walletonboard-group">
+              <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Profile name</label>
               <input
                 v-model="profileName"
                 type="text"
-                class="form-input"
+                class="walletonboard-input w-full color-text-primary outline-none"
                 placeholder="Enter a profile name"
                 maxlength="64"
                 @keyup.enter="handleProfileNameSubmit"
               />
             </div>
 
-            <div v-if="profileNameError" class="error-message txt-xs color-red-base margin-top-50">
+            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary">
               {{ profileNameError }}
             </div>
           </div>
 
-          <div v-else-if="step === 'creating-wallet'" class="onboarding-step">
-            <div class="success-box" v-if="passwordSet">
+          <div v-else-if="step === 'creating-wallet'" class="walletonboard-step">
+            <div class="walletonboard-success-box flex-align-center color-text-primary" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
 
-            <div class="creating-wallet-box">
-              <div v-if="creatingWallet" class="wallet-creating">
+            <div>
+              <div v-if="creatingWallet" class="text-center">
                 <UiSpinner size="lg" />
-                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">Creating Your Wallet</h3>
+                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">Creating Your Wallet</h3>
                 <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                   Generating secure keys and wallet address...
                 </p>
               </div>
 
-              <div v-else-if="walletCreated" class="wallet-created">
+              <div v-else-if="walletCreated" class="text-center">
                 <CheckCircle :size="48" class="color-success" />
-                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">Wallet Created!</h3>
+                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">Wallet Created!</h3>
                 <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                   Your wallet is ready. Let's back it up to keep it safe.
                 </p>
               </div>
 
-              <div v-else-if="walletError" class="wallet-error">
+              <div v-else-if="walletError" class="text-center">
                 <AlertCircle :size="48" class="color-red-base" />
-                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">Wallet Creation Failed</h3>
+                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">Wallet Creation Failed</h3>
                 <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                   {{ walletError }}
                 </p>
-                <button class="btn-retry margin-top-100" @click="createWallet">
+                <button class="walletonboard-btn-secondary flex-align-center margin-top-100 cursor-pointer gap-50 color-text-secondary" @click="createWallet">
                   Try Again
                 </button>
               </div>
             </div>
           </div>
 
-          <div v-else-if="step === 'backup'" class="onboarding-step">
-            <div class="success-box" v-if="passwordSet">
+          <div v-else-if="step === 'backup'" class="walletonboard-step">
+            <div class="walletonboard-success-box flex-align-center color-text-primary" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -154,37 +154,37 @@
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="warning-box">
+            <div class="walletonboard-warning-box flex">
               <AlertCircle :size="20" class="color-warning" />
-              <div class="warning-content">
+              <div class="flex-1 color-text-primary">
                 <p class="txt-xs margin-0">
-                  Store your backup in a secure location like an encrypted USB drive or password manager. 
+                  Store your backup in a secure location like an encrypted USB drive or password manager.
                   Never share it with anyone.
                 </p>
               </div>
             </div>
 
-            <div v-if="backupError" class="error-message txt-xs color-red-base margin-top-50">
+            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary">
               {{ backupError }}
             </div>
 
-            <div v-if="backupSuccess" class="success-message txt-xs color-success margin-top-50">
+            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success margin-top-50 color-text-primary">
               {{ backupSuccess }}
             </div>
           </div>
 
-          <div v-else-if="step === 'complete'" class="onboarding-step">
-            <div class="success-box-large">
+          <div v-else-if="step === 'complete'" class="walletonboard-step">
+            <div class="walletonboard-success-box-large">
               <CheckCircle :size="48" class="color-success" />
-              <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0">All Set!</h3>
+              <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">All Set!</h3>
               <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                 Your wallet is now protected. Remember to keep your password and backup file safe.
               </p>
             </div>
 
-            <div class="reminder-box">
-              <p class="txt-xs txt-weight-strong margin-0 margin-bottom-50">Remember:</p>
-              <ul class="txt-xs color-gray-blue reminder-list">
+            <div class="walletonboard-reminder-box">
+              <p class="txt-xs txt-weight-strong margin-0 margin-bottom-50 color-text-primary">Remember:</p>
+              <ul class="walletonboard-reminder-list txt-xs color-gray-blue">
                 <li>Never share your password or backup file</li>
                 <li>Store your backup in multiple secure locations</li>
                 <li>You'll need your password for all transactions</li>
@@ -194,17 +194,17 @@
           </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="walletonboard-footer flex">
           <button
             v-if="step === 'intro' && !requiresProfileCreation"
-            class="btn-modal-secondary"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary"
             @click="handleSkip"
           >
             Skip for now
           </button>
           <button
             v-if="step === 'intro'"
-            class="btn-modal-primary disabled-fade-60"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
             @click="step = 'password'"
           >
             Get Started
@@ -212,14 +212,14 @@
 
           <button
             v-if="step === 'password'"
-            class="btn-modal-secondary"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary"
             @click="step = 'intro'"
           >
             Back
           </button>
           <button
             v-if="step === 'password'"
-            class="btn-modal-primary disabled-fade-60"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
             :disabled="settingPassword"
             @click="handlePasswordSubmit"
           >
@@ -229,7 +229,7 @@
 
           <button
             v-if="step === 'profile-name'"
-            class="btn-modal-primary disabled-fade-60"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
             @click="handleProfileNameSubmit"
           >
             Continue
@@ -237,14 +237,14 @@
 
           <button
             v-if="step === 'backup'"
-            class="btn-modal-secondary"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary"
             @click="handleSkipBackup"
           >
             Skip Backup
           </button>
           <button
             v-if="step === 'backup'"
-            class="btn-modal-primary disabled-fade-60"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
             :disabled="exportingBackup"
             @click="handleExportBackup"
           >
@@ -254,7 +254,7 @@
 
           <button
             v-if="step === 'complete'"
-            class="btn-modal-primary disabled-fade-60"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
             @click="handleComplete"
           >
             Start Using Lumen
@@ -559,288 +559,3 @@ watch(
 );
 </script>
 
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  backdrop-filter: blur(4px);
-}
-
-.onboarding-modal {
-  width: 90%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-content {
-  background: var(--card-bg);
-  border-radius: 16px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  padding: 2rem 2rem 1.5rem;
-  text-align: center;
-  border-bottom: var(--border-width) solid var(--border-color);
-}
-
-.header-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem;
-  color: var(--text-primary);
-}
-
-.modal-subtitle {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.modal-body {
-  padding: 2rem;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.modal-body p {
-  color: var(--text-primary);
-}
-
-.onboarding-step {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.onboarding-step p {
-  color: var(--text-primary);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.warning-box {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  border: 1px solid rgba(var(--ios-orange-rgb), 0.3);
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-}
-
-.warning-content {
-  flex: 1;
-  color: var(--text-primary);
-}
-
-.warning-content p {
-  color: var(--text-primary);
-}
-
-.success-box {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--fill-success);
-  border: 1px solid rgba(var(--ios-green-rgb), 0.3);
-  border-radius: 8px;
-  color: var(--text-primary);
-}
-
-.success-box p {
-  color: var(--text-primary);
-}
-
-.success-box-large {
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
-.info-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.info-card {
-  padding: 1.5rem;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 12px;
-  text-align: center;
-  transition: all 0.2s;
-  background: var(--bg-secondary);
-}
-
-.info-card h4,
-.info-card p {
-  color: var(--text-primary);
-}
-
-.info-card:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.1);
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  color: var(--text-primary);
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-  background: var(--card-bg);
-  color: var(--text-primary);
-}
-
-.form-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1);
-}
-
-.error-message {
-  display: block;
-  padding: 0.75rem;
-  background: var(--fill-error);
-  border: 1px solid rgba(var(--ios-red-rgb), 0.3);
-  border-radius: 6px;
-  color: var(--text-primary);
-}
-
-.success-message {
-  display: block;
-  padding: 0.75rem;
-  background: var(--fill-success);
-  border: 1px solid rgba(var(--ios-green-rgb), 0.3);
-  border-radius: 6px;
-  color: var(--text-primary);
-}
-
-.reminder-box {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-}
-
-.reminder-box p,
-.reminder-list {
-  color: var(--text-primary);
-}
-
-.reminder-list {
-  margin: 0;
-  padding-left: 1.5rem;
-}
-
-.reminder-list li {
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.reminder-list li:last-child {
-  margin-bottom: 0;
-}
-
-.modal-footer {
-  padding: 1.5rem 2rem;
-  border-top: var(--border-width) solid var(--border-color);
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
-.btn-modal-primary,
-.btn-modal-secondary {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-modal-primary {
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.btn-modal-primary:hover:not(:disabled) {
-  background: var(--gradient-primary-hover);
-}
-
-
-.btn-modal-secondary {
-  background: transparent;
-  color: var(--text-secondary);
-  border: var(--border-width) solid var(--border-color);
-}
-
-.btn-modal-secondary:hover {
-  background: var(--bg-secondary);
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-content,
-.modal-leave-active .modal-content {
-  transition: transform 0.3s ease;
-}
-
-.modal-enter-from .modal-content,
-.modal-leave-to .modal-content {
-  transform: scale(0.95) translateY(20px);
-}
-</style>

@@ -2651,3 +2651,207 @@ select.recurpay-input {
         grid-template-columns: 1fr;
     }
 }
+
+/* WalletOnboardingModal.vue */
+.walletonboard-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+}
+
+.walletonboard-modal {
+    width: 90%;
+    max-width: 560px;
+    max-height: 90vh;
+}
+
+.walletonboard-content {
+    border-radius: 16px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+}
+
+.walletonboard-header {
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.walletonboard-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.walletonboard-subtitle {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.walletonboard-body {
+    padding: 2rem;
+}
+
+.walletonboard-step {
+    animation: walletonboard-fade-in 0.3s ease-in-out;
+}
+
+@keyframes walletonboard-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.walletonboard-warning-box {
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(var(--ios-orange-rgb), 0.15);
+    border: 1px solid rgba(var(--ios-orange-rgb), 0.3);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.walletonboard-success-box {
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--fill-success);
+    border: 1px solid rgba(var(--ios-green-rgb), 0.3);
+    border-radius: 8px;
+}
+
+.walletonboard-success-box-large {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.walletonboard-info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.walletonboard-info-card {
+    padding: 1.5rem;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.2s;
+    background: var(--bg-secondary);
+}
+
+.walletonboard-info-card:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.1);
+}
+
+.walletonboard-group {
+    margin-bottom: 1.5rem;
+}
+
+.walletonboard-input {
+    padding: 0.75rem;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    background: var(--card-bg);
+}
+
+.walletonboard-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.walletonboard-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1);
+}
+
+.walletonboard-error-message {
+    padding: 0.75rem;
+    background: var(--fill-error);
+    border: 1px solid rgba(var(--ios-red-rgb), 0.3);
+    border-radius: 6px;
+}
+
+.walletonboard-success-message {
+    padding: 0.75rem;
+    background: var(--fill-success);
+    border: 1px solid rgba(var(--ios-green-rgb), 0.3);
+    border-radius: 6px;
+}
+
+.walletonboard-reminder-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.walletonboard-reminder-list {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.walletonboard-reminder-list li {
+    margin-bottom: 0.5rem;
+}
+
+.walletonboard-reminder-list li:last-child {
+    margin-bottom: 0;
+}
+
+.walletonboard-footer {
+    padding: 1.5rem 2rem;
+    border-top: var(--border-width) solid var(--border-color);
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.walletonboard-btn-primary,
+.walletonboard-btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.walletonboard-btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.walletonboard-btn-primary:hover:not(:disabled) {
+    background: var(--gradient-primary-hover);
+}
+
+.walletonboard-btn-secondary {
+    background: transparent;
+    border: var(--border-width) solid var(--border-color);
+}
+
+.walletonboard-btn-secondary:hover {
+    background: var(--bg-secondary);
+}
+
+.walletonboard-transition-enter-active,
+.walletonboard-transition-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.walletonboard-transition-enter-from,
+.walletonboard-transition-leave-to {
+    opacity: 0;
+}
+
+.walletonboard-transition-enter-active .walletonboard-content,
+.walletonboard-transition-leave-active .walletonboard-content {
+    transition: transform 0.3s ease;
+}
+
+.walletonboard-transition-enter-from .walletonboard-content,
+.walletonboard-transition-leave-to .walletonboard-content {
+    transform: scale(0.95) translateY(20px);
+}
