@@ -1,15 +1,15 @@
 <template>
-  <div class="extensions-store-page">
-    <header class="extensions-store-header">
+  <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
+    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap">
       <div class="extensions-store-copy">
         <h1>{{ headerTitle }}</h1>
         <p v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
-      <div v-if="storeInstallId" class="extensions-store-header-actions">
+      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -25,7 +25,7 @@
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview"
+      class="extensions-store-webview flex-1 overflow-hidden"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"
@@ -43,10 +43,10 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote">
-      <span><strong>Official listing:</strong> Chrome Web Store content is provided by Google.</span>
-      <span><strong>Lumen install:</strong> installation is handled by Lumen.</span>
-      <span><strong>Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap">
+      <span><strong class="txt-weight-light">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
+      <span><strong class="txt-weight-light">Lumen install:</strong> installation is handled by Lumen.</span>
+      <span><strong class="txt-weight-light">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
     </footer>
   </div>
 </template>
@@ -708,141 +708,3 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
-.extensions-store-page {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%),
-    linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1));
-}
-
-.extensions-store-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  flex-wrap: wrap;
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-}
-
-.extensions-store-copy h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.extensions-store-copy p {
-  margin: 6px 0 0;
-  max-width: 760px;
-  color: rgba(226, 232, 240, 0.78);
-  font-size: 14px;
-}
-
-.extensions-store-header-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  flex: 1 1 420px;
-  flex-wrap: wrap;
-}
-
-.extensions-store-btn {
-  border: 0;
-  border-radius: 12px;
-  padding: 11px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  color: #e2e8f0;
-  background: rgba(30, 41, 59, 0.92);
-}
-
-.extensions-store-btn.primary {
-  color: #ffffff;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-}
-
-.extensions-store-btn.import-btn {
-  color: #ffffff;
-  background: linear-gradient(135deg, #0f766e, #0ea5e9);
-}
-
-.extensions-store-btn.install-hero-btn {
-  min-width: 168px;
-  min-height: 46px;
-  color: #ffffff;
-  background: linear-gradient(135deg, #0f766e, #0ea5e9);
-  box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
-}
-
-.extensions-store-status {
-  margin: 0 24px 14px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(37, 99, 235, 0.18);
-  color: #dbeafe;
-  font-size: 13px;
-}
-
-.extensions-store-status.error {
-  background: rgba(185, 28, 28, 0.2);
-  color: #fecaca;
-}
-
-.extensions-store-webview {
-  flex: 1;
-  min-height: 0;
-  margin: 12px 24px 24px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 22px;
-  overflow: hidden;
-  background: #ffffff;
-}
-
-.extensions-store-footnote {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin: 0 24px 18px;
-  color: rgba(148, 163, 184, 0.88);
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.extensions-store-footnote strong {
-  color: rgba(226, 232, 240, 0.94);
-  font-weight: 600;
-}
-
-@media (max-width: 900px) {
-  .extensions-store-header {
-    padding: 16px;
-  }
-
-  .extensions-store-header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .extensions-store-webview {
-    margin: 12px 16px 16px;
-    border-radius: 18px;
-  }
-
-  .extensions-store-status {
-    margin: 0 16px 12px;
-  }
-
-  .extensions-store-footnote {
-    margin: 0 16px 16px;
-  }
-}
-</style>

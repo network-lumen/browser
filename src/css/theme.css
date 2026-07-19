@@ -2855,3 +2855,113 @@ select.recurpay-input {
 .walletonboard-transition-leave-to .walletonboard-content {
     transform: scale(0.95) translateY(20px);
 }
+
+/* ExtensionsPage.vue (Chrome Web Store host — always-dark, theme-independent) */
+.extensions-store-page {
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%),
+        linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1));
+}
+
+.extensions-store-header {
+    gap: 18px;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.extensions-store-copy h1 {
+    color: #f8fafc;
+}
+
+.extensions-store-copy p {
+    margin: 6px 0 0;
+    max-width: 760px;
+    color: rgba(226, 232, 240, 0.78);
+}
+
+.extensions-store-header-actions {
+    justify-content: flex-end;
+    gap: 10px;
+    flex: 1 1 420px;
+}
+
+.extensions-store-btn {
+    padding: 11px 16px;
+    color: #e2e8f0;
+    background: rgba(30, 41, 59, 0.92);
+}
+
+.extensions-store-btn.primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.extensions-store-btn.import-btn {
+    color: #ffffff;
+    background: linear-gradient(135deg, #0f766e, #0ea5e9);
+}
+
+.extensions-store-btn.install-hero-btn {
+    min-width: 168px;
+    min-height: 46px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #0f766e, #0ea5e9);
+    box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
+}
+
+.extensions-store-status {
+    margin: 0 24px 14px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(37, 99, 235, 0.18);
+    color: #dbeafe;
+}
+
+.extensions-store-status.error {
+    background: rgba(185, 28, 28, 0.2);
+    color: #fecaca;
+}
+
+.extensions-store-webview {
+    min-height: 0;
+    margin: 12px 24px 24px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 22px;
+    background: #ffffff;
+}
+
+.extensions-store-footnote {
+    gap: 14px;
+    margin: 0 24px 18px;
+    color: rgba(148, 163, 184, 0.88);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.extensions-store-footnote strong {
+    color: rgba(226, 232, 240, 0.94);
+}
+
+@media (max-width: 900px) {
+    .extensions-store-header {
+        padding: 16px;
+    }
+
+    .extensions-store-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .extensions-store-webview {
+        margin: 12px 16px 16px;
+        border-radius: 18px;
+    }
+
+    .extensions-store-status {
+        margin: 0 16px 12px;
+    }
+
+    .extensions-store-footnote {
+        margin: 0 16px 16px;
+    }
+}
