@@ -374,24 +374,6 @@ html, body {
     line-height: 1;
 }
 
-.badge-success {
-    background-color: rgba(197, 255, 65, 0.15);
-    color: var(--lime-bright);
-    border: 1px solid rgba(197, 255, 65, 0.3);
-}
-
-.badge-warning {
-    background-color: rgba(245, 158, 11, 0.1);
-    color: var(--warning-orange);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.badge-info {
-    background-color: rgba(45, 95, 79, 0.15);
-    color: var(--green-dark);
-    border: 1px solid rgba(45, 95, 79, 0.3);
-}
-
 /* Circular Progress */
 .progress-circle {
     position: relative;
@@ -673,6 +655,7 @@ html, body {
 
 .badge-success { background: var(--fill-success); color: var(--ios-green); }
 .badge-error { background: var(--fill-error); color: var(--ios-red); }
+.badge-warning { background: rgba(var(--ios-orange-rgb), 0.15); color: var(--ios-orange); }
 
 /* Card Styles */
 .card {

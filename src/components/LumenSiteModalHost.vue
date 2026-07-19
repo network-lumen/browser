@@ -198,7 +198,7 @@
           </button>
           <button
             v-if="pinCanStop"
-            class="btn-danger"
+            class="btn-danger badge-error"
             type="button"
             @click="cancelPinJob"
           >
@@ -1321,10 +1321,6 @@ onBeforeUnmount(() => {
 .btn-secondary {
   background: var(--fill-tertiary);
   color: var(--text-primary);
-}
-.btn-danger {
-  background: var(--fill-error);
-  color: var(--ios-red);
 }
 .btn-primary:disabled,
 .btn-secondary:disabled,

@@ -359,7 +359,7 @@
             <div class="setting-control">
               <span 
                 class="status-badge" 
-                :class="securityStatus.enabled ? 'status-enabled' : 'status-disabled'"
+                :class="securityStatus.enabled ? 'status-enabled badge-success' : 'status-disabled'"
               >
                 {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
               </span>
@@ -381,7 +381,7 @@
                 <LockKeyhole :size="16" />
                 Lock Now
               </button>
-              <span v-else class="status-badge status-locked">
+              <span v-else class="status-badge status-locked badge-warning">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
@@ -2882,19 +2882,9 @@ document.documentElement.setAttribute('data-font-size', fontSize.value);
   font-weight: 500;
 }
 
-.status-enabled {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
 .status-disabled {
   background: var(--fill-tertiary);
   color: var(--text-secondary);
-}
-
-.status-locked {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  color: var(--ios-orange);
 }
 
 .security-form {

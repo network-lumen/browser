@@ -40,7 +40,7 @@
     <!-- Filter and Stats -->
     <div class="stats-section">
       <div class="stat-card">
-        <div class="stat-icon active">
+        <div class="stat-icon active badge-success">
           <PlayCircle :size="20" />
         </div>
         <div>
@@ -49,7 +49,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon paused">
+        <div class="stat-icon paused badge-warning">
           <PauseCircle :size="20" />
         </div>
         <div>
@@ -116,7 +116,10 @@
                 {{ payment.category }}
               </span>
             </div>
-            <div class="payment-status" :class="payment.status">
+            <div
+              class="payment-status"
+              :class="[payment.status, { 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }]"
+            >
               {{ payment.status }}
             </div>
           </div>
@@ -222,7 +225,10 @@
                 class="history-item"
                 :class="record.status"
               >
-                <div class="history-icon" :class="record.status">
+                <div
+                  class="history-icon"
+                  :class="[record.status, { 'badge-success': record.status === 'success', 'badge-error': record.status === 'failed', 'badge-warning': record.status === 'pending' }]"
+                >
                   <Check v-if="record.status === 'success'" :size="16" />
                   <X v-else-if="record.status === 'failed'" :size="16" />
                   <Clock v-else :size="16" />
@@ -600,15 +606,6 @@ defineExpose({
   justify-content: center;
 }
 
-.stat-icon.active {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.stat-icon.paused {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  color: var(--ios-orange);
-}
 
 .stat-icon.total {
   background: var(--fill-blue);
@@ -744,15 +741,6 @@ defineExpose({
   text-transform: uppercase;
 }
 
-.payment-status.active {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.payment-status.paused {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  color: var(--ios-orange);
-}
 
 .payment-status.completed {
   background: rgba(var(--ios-indigo-rgb), 0.15);
@@ -946,20 +934,6 @@ defineExpose({
   justify-content: center;
 }
 
-.history-icon.success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.history-icon.failed {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.history-icon.pending {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  color: var(--ios-orange);
-}
 
 .history-content {
   flex: 1;
