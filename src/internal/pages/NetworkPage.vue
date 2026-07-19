@@ -136,7 +136,7 @@
               <div class="health-label">Chain Status</div>
               <div class="health-indicator">
                 <div class="indicator-bar">
-                  <div class="indicator-fill excellent" style="width: 100%"></div>
+                  <div class="indicator-fill excellent indicator-fill--w100"></div>
                 </div>
                 <span class="indicator-value">Synced</span>
               </div>
@@ -156,7 +156,7 @@
               <div class="health-label">Block Production</div>
               <div class="health-indicator">
                 <div class="indicator-bar">
-                  <div class="indicator-fill" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'" style="width: 85%"></div>
+                  <div class="indicator-fill indicator-fill--w85" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
                 </div>
                 <span class="indicator-value">{{ blockTimeStatus }}</span>
               </div>
@@ -166,7 +166,7 @@
               <div class="health-label">Peer Connections</div>
               <div class="health-indicator">
                 <div class="indicator-bar">
-                  <div class="indicator-fill good" style="width: 70%"></div>
+                  <div class="indicator-fill good indicator-fill--w70"></div>
                 </div>
                 <span class="indicator-value">{{ peers }}</span>
               </div>
@@ -852,6 +852,18 @@ onMounted(() => {
 
 .indicator-fill.normal {
   background: var(--ios-orange);
+}
+
+.indicator-fill--w100 {
+  width: 100%;
+}
+
+.indicator-fill--w85 {
+  width: 85%;
+}
+
+.indicator-fill--w70 {
+  width: 70%;
 }
 
 .indicator-value {

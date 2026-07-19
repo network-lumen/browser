@@ -26,6 +26,7 @@
 .margin-left-auto { margin-left: auto; }        /* left */
 .margin-left-25 { margin-left: .25rem; }
 .margin-left-50 { margin-left: .5rem; }
+.margin-left-150 { margin-left: 1.5rem; }
 .margin-right-50 { margin-right: .5rem; }       /* right */
 /* ------------------------ DIMENSIONS ------------------------ */
 .w-full { width: 100%; }
@@ -87,6 +88,10 @@
 .color-gray-blue-light { color: var(--gray-blue-light) }
 .color-blue { color: var(--blue); }
 .color-red-base { color: var(--red-base); }
+.color-primary { color: var(--accent-primary); }
+.color-warning { color: var(--ios-orange); }
+.color-success { color: var(--ios-green); }
+.underline { text-decoration: underline; }
 .hover-underline { text-decoration: none; }
 @media (hover: hover) {
     .hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
@@ -172,6 +177,10 @@
 .size-200 { width:1.6rem;  height:1.6rem;  }
 
 /* ---------------------------- WIDTH HELPERS ---------------------------- */
+.w-80px  { width: 80px; }
+.w-96px  { width: 96px; }
+.max-w-500px { max-width: 500px; }
+.max-w-600px { max-width: 600px; }
 
 /* ---------------------------- EFFECTS / BACKDROP / TRANSITIONS ---------------------------- */
 .transition-ui { transition: background .12s ease, transform .05s ease, box-shadow .12s ease; }
