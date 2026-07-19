@@ -2,17 +2,17 @@
   <div class="home-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
-      <button type="button" class="toggle-pages" @click="showAllPages = !showAllPages">
+      <button type="button" class="homepage-toggle-pages w-full flex-align-center-justify-space-between gap-50 cursor-pointer color-text-secondary border-radius-sm fs-13px fw-500" @click="showAllPages = !showAllPages">
         <span>All pages</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </button>
 
-      <div v-if="showAllPages" class="all-pages-list">
+      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-25">
         <button
           v-for="key in allRoutes"
           :key="key"
           type="button"
-          class="page-item"
+          class="homepage-page-item w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-50 fs-13px fw-500 text-left"
           :class="{ dragging: draggedItem === key, 'drag-over': dragOverItem === key }"
           draggable="true"
           @dragstart="onItemDragStart($event, key)"
@@ -30,37 +30,37 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
-      <div v-if="!hasProfiles" class="no-profile-banner">
-        <div class="no-profile-title">No profile found</div>
-        <div class="no-profile-sub">Create one using the button in the top right.</div>
+    <main class="homepage-main flex-1 flex flex-column margin-0">
+      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md margin-bottom-100">
+        <div class="homepage-no-profile-title txt-weight-light fs-13px">No profile found</div>
+        <div class="homepage-no-profile-sub fs-12px">Create one using the button in the top right.</div>
       </div>
 
       <!-- Quick Actions -->
-      <section class="quick-actions">
-        <h2 class="section-title">My Space</h2>
-        <div 
-          class="actions-grid"
+      <section class="homepage-quick-actions margin-bottom-125">
+        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light">My Space</h2>
+        <div
+          class="homepage-actions-grid gap-62"
           @dragover.prevent="onMySpaceDragOver"
           @dragleave="onMySpaceDragLeave"
           @drop.prevent="onMySpaceDrop"
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="empty-grid"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25"
             :class="{ 'is-drag-over': dragOverMySpace }"
             @click="showAllPages = true"
           >
-            <div class="empty-title">No cards yet</div>
-            <div class="empty-desc">Drag a page from “All Pages” to add it here.</div>
-            <button class="empty-btn" type="button" @click.stop="restoreMySpaceDefaults">
+            <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
+            <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
+            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500" type="button" @click.stop="restoreMySpaceDefaults">
               Restore defaults
             </button>
           </div>
-          <button 
-            v-for="key in mySpaceCards" 
+          <button
+            v-for="key in mySpaceCards"
             :key="key"
-            class="action-card"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left"
             :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -68,50 +68,50 @@
             @dragleave="onCardDragLeave"
             @drop.prevent.stop="onCardDrop($event, key, 'myspace')"
             @dragend="onCardDragEnd"
-            @click="handleCardClick($event, key)" 
+            @click="handleCardClick($event, key)"
             :disabled="!hasProfiles && ['drive', 'domain', 'wallet'].includes(key)"
           >
-            <div 
-              class="remove-card-btn" 
+            <div
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary"
               @click.stop="removeMySpaceCard(key)"
               title="Remove card"
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="action-icon" :class="key" />
-            <div class="action-info">
-              <span class="action-title">{{ getCardTitle(key) }}</span>
-              <span class="action-desc">{{ getCardDescription(key) }}</span>
+            <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon flex-align-justify-center flex-0-0-auto size-40px border-radius-sm" :class="key" />
+            <div class="homepage-action-info flex flex-column flex-1 min-w-0">
+              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light">{{ getCardTitle(key) }}</span>
+              <span class="homepage-action-desc color-text-secondary fs-12px">{{ getCardDescription(key) }}</span>
             </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
+            <ArrowUpRight :size="16" class="homepage-action-arrow color-text-tertiary" />
           </button>
         </div>
       </section>
 
-      <section class="quick-actions">
-        <h2 class="section-title">Lumen</h2>
-        <div 
-          class="actions-grid"
+      <section class="homepage-quick-actions margin-bottom-125">
+        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light">Lumen</h2>
+        <div
+          class="homepage-actions-grid gap-62"
           @dragover.prevent="onLumenDragOver"
           @dragleave="onLumenDragLeave"
           @drop.prevent="onLumenDrop"
         >
           <div
             v-if="lumenCards.length === 0"
-            class="empty-grid"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25"
             :class="{ 'is-drag-over': dragOverLumen }"
             @click="showAllPages = true"
           >
-            <div class="empty-title">No cards yet</div>
-            <div class="empty-desc">Drag a page from “All Pages” to add it here.</div>
-            <button class="empty-btn" type="button" @click.stop="restoreLumenDefaults">
+            <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
+            <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
+            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500" type="button" @click.stop="restoreLumenDefaults">
               Restore defaults
             </button>
           </div>
-          <button 
-            v-for="key in lumenCards" 
+          <button
+            v-for="key in lumenCards"
             :key="key"
-            class="action-card"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left"
             :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"
@@ -121,19 +121,19 @@
             @dragend="onCardDragEnd"
             @click="handleCardClick($event, key)"
           >
-            <div 
-              class="remove-card-btn" 
+            <div
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary"
               @click.stop="removeLumenCard(key)"
               title="Remove card"
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="action-icon" :class="key" />
-            <div class="action-info">
-              <span class="action-title">{{ getCardTitle(key) }}</span>
-              <span class="action-desc">{{ getCardDescription(key) }}</span>
+            <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon flex-align-justify-center flex-0-0-auto size-40px border-radius-sm" :class="key" />
+            <div class="homepage-action-info flex flex-column flex-1 min-w-0">
+              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light">{{ getCardTitle(key) }}</span>
+              <span class="homepage-action-desc color-text-secondary fs-12px">{{ getCardDescription(key) }}</span>
             </div>
-            <ArrowUpRight :size="16" class="action-arrow" />
+            <ArrowUpRight :size="16" class="homepage-action-arrow color-text-tertiary" />
           </button>
 
         </div>
@@ -631,396 +631,3 @@ function getRouteIcon(key: string) {
 }
 </script>
 
-<style scoped>
-.all-pages-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding-bottom: 0.25rem;
-  animation: fadeDown 0.18s ease-out;
-}
-
-@keyframes fadeDown {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.page-item {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: grab;
-  transition: all 0.15s ease;
-  text-align: left;
-  user-select: none;
-}
-
-.page-item:active {
-  cursor: grabbing;
-}
-
-.page-item.dragging {
-  opacity: 0.4;
-  cursor: grabbing;
-}
-
-.page-item.drag-over {
-  background: var(--accent-primary);
-  color: white;
-  transform: translateX(4px);
-}
-
-.page-item:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-  transform: translateX(2px);
-}
-
-.toggle-pages {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  margin: 0.5rem 0;
-  border: 0.5px solid var(--border-color);
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-secondary);
-  transition: all 0.15s ease;
-  font-weight: 500;
-}
-
-.toggle-pages:hover {
-  background: var(--hover-bg);
-  border-color: var(--primary-a30);
-  color: var(--text-primary);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 1.25rem 1.5rem;
-  background: var(--bg-secondary);
-  margin: 0;
-  border-radius: 0;
-}
-
-.no-profile-banner {
-  border: 0.5px solid rgba(var(--ios-yellow-rgb), 0.4);
-  background: rgba(var(--ios-yellow-rgb), 0.08);
-  color: var(--ios-orange);
-  padding: 0.75rem 1rem;
-  border-radius: var(--border-radius-md);
-  margin-bottom: 1rem;
-}
-
-.no-profile-title {
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.no-profile-sub {
-  margin-top: 0.125rem;
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.action-card:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-/* Sections */
-.section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 0.5px solid var(--border-light);
-  letter-spacing: -0.01em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-
-/* Quick Actions */
-.quick-actions {
-  margin-bottom: 1.25rem;
-}
-
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.625rem;
-}
-
-.empty-grid {
-  grid-column: 1 / -1;
-  min-height: 100px;
-  border: 1.5px dashed var(--border-color);
-  border-radius: var(--border-radius-md);
-  background: var(--fill-tertiary);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.875rem 1rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.empty-grid.is-drag-over {
-  border-color: var(--accent-primary);
-  background: var(--primary-a08);
-}
-
-.empty-title {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-primary);
-}
-
-.empty-desc {
-  font-size: 12px;
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.empty-btn {
-  margin-top: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--border-radius-full);
-  border: 0.5px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.empty-btn:hover {
-  border-color: var(--accent-primary);
-  background: var(--primary-a08);
-}
-
-.action-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  background: var(--card-bg);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-  box-shadow: var(--shadow-xs);
-}
-
-.action-card:hover .remove-card-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.remove-card-btn {
-  position: absolute;
-  top: 0.375rem;
-  right: 0.375rem;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-primary);
-  border: 0.5px solid var(--border-color);
-  border-radius: var(--border-radius-full);
-  cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.15s ease;
-  color: var(--text-tertiary);
-  z-index: 10;
-}
-
-.remove-card-btn:hover {
-  background: var(--error-red);
-  border-color: var(--error-red);
-  color: white;
-  transform: scale(1.05);
-}
-
-.action-card:hover {
-  background: var(--hover-bg);
-  border-color: var(--primary-a30);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.action-card:active {
-  transform: translateY(0);
-}
-
-.action-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--border-radius-sm);
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.15s ease;
-}
-
-.action-card:hover .action-icon {
-  transform: scale(1.03);
-}
-
-.action-icon.drive {
-  background: linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%);
-  color: white;
-}
-
-.action-icon.wallet {
-  background: linear-gradient(135deg, var(--ios-orange) 0%, var(--ios-yellow) 100%);
-  color: white;
-}
-
-.action-icon.explorer {
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
-  color: var(--ios-green);
-}
-
-.action-icon.network {
-  background: linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%);
-  color: var(--ios-pink);
-}
-
-.action-icon.domain {
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.22) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%);
-  color: var(--ios-blue);
-}
-
-.action-icon.staking {
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
-  color: var(--ios-green);
-}
-
-.action-icon.dao {
-  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%);
-  color: var(--ios-orange);
-}
-
-.action-icon.gateways {
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
-  color: var(--ios-green);
-}
-
-.action-icon.search {
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
-  color: var(--ios-green);
-}
-
-.action-icon.help {
-  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%);
-  color: var(--ios-orange);
-}
-
-.action-icon.settings {
-  background: linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
-  color: var(--ios-purple);
-}
-
-.action-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.action-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-.action-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.35;
-}
-
-.action-arrow {
-  color: var(--text-tertiary);
-  transition: all 0.15s ease;
-}
-
-.action-card:hover .action-arrow {
-  color: var(--accent-primary);
-  transform: translateX(2px);
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-  .actions-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .main-content {
-    padding: 1.5rem;
-  }
-
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 700px) {
-  .main-content {
-    padding: 1rem;
-  }
-
-  .action-card {
-    padding: 1rem;
-  }
-
-  .action-icon {
-    width: 40px;
-    height: 40px;
-  }
-}
-</style>

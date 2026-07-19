@@ -2,7 +2,7 @@
   <div class="recurpay-overlay overlay-scrim z-9999 backdrop-blur-4px" @click="$emit('close')">
     <div class="recurpay-modal bg-primary w-full flex flex-column overflow-hidden" @click.stop>
       <div class="recurpay-header flex-align-center-justify-space-between">
-        <h2 class="flex-align-center margin-0 color-text-primary">
+        <h2 class="flex-align-center margin-0 color-text-primary fs-20px txt-weight-light">
           <Calendar :size="24" />
           <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
         </h2>
@@ -14,7 +14,7 @@
       <div class="recurpay-body flex-1 overflow-y-auto">
         <!-- Basic Information -->
         <div class="recurpay-section">
-          <h3 class="flex-align-center color-text-primary">Payment Details</h3>
+          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light">Payment Details</h3>
 
           <div class="recurpay-group">
             <label class="block color-text-primary">Payment Name <span class="required color-error">*</span></label>
@@ -22,7 +22,7 @@
               v-model="form.name"
               type="text"
               placeholder="e.g., Netflix Subscription"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px"
             />
           </div>
 
@@ -31,14 +31,14 @@
             <textarea
               v-model="form.description"
               placeholder="Optional notes about this payment"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px"
               rows="2"
             ></textarea>
           </div>
 
           <div class="recurpay-group">
             <label class="block color-text-primary">Category</label>
-            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none">
+            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -52,7 +52,7 @@
 
         <!-- Payment Configuration -->
         <div class="recurpay-section">
-          <h3 class="flex-align-center color-text-primary">Payment Configuration</h3>
+          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light">Payment Configuration</h3>
 
           <div class="recurpay-group">
             <label class="block color-text-primary">Recipient Address <span class="required color-error">*</span></label>
@@ -61,7 +61,7 @@
                 v-model="form.recipient"
                 type="text"
                 placeholder="lumen1..."
-                class="recurpay-input flex-1 bg-primary color-text-primary outline-none"
+                class="recurpay-input flex-1 bg-primary color-text-primary outline-none fs-14px"
               />
               <button
                 class="recurpay-input-btn cursor-pointer flex-align-justify-center color-text-primary"
@@ -83,7 +83,7 @@
                   step="0.000001"
                   min="0"
                   placeholder="0.000000"
-                  class="recurpay-input w-full bg-primary color-text-primary outline-none"
+                  class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px"
                 />
                 <span class="currency">LMN</span>
               </div>
@@ -91,7 +91,7 @@
 
             <div class="recurpay-group">
               <label class="block color-text-primary">Frequency <span class="required color-error">*</span></label>
-              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none">
+              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -109,7 +109,7 @@
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px"
               />
             </div>
 
@@ -119,7 +119,7 @@
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px"
               />
             </div>
           </div>
@@ -131,15 +131,15 @@
               type="number"
               min="1"
               placeholder="Leave empty for unlimited"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px"
             />
-            <p class="recurpay-hint color-text-secondary">Payment will stop after this many successful transactions</p>
+            <p class="recurpay-hint color-text-secondary fs-12px">Payment will stop after this many successful transactions</p>
           </div>
         </div>
 
         <!-- Reminder Settings -->
         <div class="recurpay-section">
-          <h3 class="flex-align-center color-text-primary">
+          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light">
             <Bell :size="18" />
             <span>Payment Reminders</span>
           </h3>
@@ -156,7 +156,7 @@
 
           <div v-if="form.reminderEnabled" class="recurpay-group">
             <label class="block color-text-primary">Remind me (days before payment)</label>
-            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none">
+            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>
@@ -167,31 +167,31 @@
         </div>
 
         <!-- Payment Summary -->
-        <div class="recurpay-summary">
-          <h4 class="margin-0">Payment Summary</h4>
+        <div class="recurpay-summary border-radius-12px">
+          <h4 class="margin-0 fs-16px txt-weight-light">Payment Summary</h4>
           <div class="recurpay-summary-row flex-align-center-justify-space-between">
             <span>Amount per payment:</span>
-            <strong>{{ formatAmount(form.amount) }} LMN</strong>
+            <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>
           </div>
           <div class="recurpay-summary-row flex-align-center-justify-space-between">
             <span>Frequency:</span>
-            <strong>{{ frequencyLabel }}</strong>
+            <strong class="txt-weight-light">{{ frequencyLabel }}</strong>
           </div>
           <div class="recurpay-summary-row flex-align-center-justify-space-between" v-if="form.startDate">
             <span>First payment:</span>
-            <strong>{{ formatDate(form.startDate) }}</strong>
+            <strong class="txt-weight-light">{{ formatDate(form.startDate) }}</strong>
           </div>
           <div class="recurpay-summary-row flex-align-center-justify-space-between" v-if="estimatedTotal">
             <span>{{ estimatedTotalLabel }}:</span>
-            <strong>{{ estimatedTotal }} LMN</strong>
+            <strong class="txt-weight-light">{{ estimatedTotal }} LMN</strong>
           </div>
         </div>
       </div>
 
       <div class="recurpay-footer flex">
-        <button class="recurpay-btn secondary disabled-fade-50 flex-inline-align-center cursor-pointer bg-tertiary color-text-primary border-none fw-500" @click="$emit('close')">Cancel</button>
+        <button class="recurpay-btn secondary disabled-fade-50 flex-inline-align-center cursor-pointer bg-tertiary color-text-primary border-none fw-500 fs-14px" @click="$emit('close')">Cancel</button>
         <button
-          class="recurpay-btn primary disabled-fade-50 flex-inline-align-center cursor-pointer color-white border-none fw-500"
+          class="recurpay-btn primary disabled-fade-50 flex-inline-align-center cursor-pointer color-white border-none fw-500 fs-14px"
           @click="handleSubmit"
           :disabled="!isFormValid"
         >

@@ -43,7 +43,7 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap">
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px">
       <span><strong class="txt-weight-light">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
       <span><strong class="txt-weight-light">Lumen install:</strong> installation is handled by Lumen.</span>
       <span><strong class="txt-weight-light">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
