@@ -210,6 +210,7 @@
 .fs-20px { font-size: 20px; }
 .fs-19px { font-size: 1.2rem; }
 .fs-24px { font-size: 24px; }
+.fs-075rem { font-size: 0.75rem; }
 .fs-085rem { font-size: 0.85rem; }
 .fs-11rem { font-size: 1.1rem; }
 .fs-28px { font-size: 28px; }
@@ -226,6 +227,7 @@
 .text-uppercase { text-transform: uppercase; }
 .text-capitalize { text-transform: capitalize; }
 .break-all { word-break: break-all; }
+.break-word { word-break: break-word; }
 .mono { font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
 .letter-spacing-005em { letter-spacing: 0.05em; }
 .letter-spacing-004em { letter-spacing: 0.04em; }

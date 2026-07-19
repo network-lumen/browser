@@ -6384,3 +6384,329 @@ textarea.mygw-form-input {
     min-height: 80px;
     font-family: inherit;
 }
+
+/* ReleasePage.vue */
+.relpage-main {
+    padding: 2rem 2.5rem;
+}
+
+.relpage-header-left h1 {
+    font-size: 1.75rem;
+}
+
+.relpage-header-left p {
+    margin: 0.35rem 0 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.relpage-header-meta {
+    font-size: 0.8rem;
+}
+
+.relpage-btn-primary,
+.relpage-btn-secondary {
+    padding: 0.75rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 650;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease,
+        background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.relpage-btn-primary {
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+}
+
+.relpage-btn-primary:hover:enabled {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary-lg);
+}
+
+.relpage-btn-secondary {
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.relpage-btn-secondary:hover:enabled {
+    background: var(--primary-a08);
+    border-color: var(--primary-a15);
+    color: var(--accent-primary);
+}
+
+.relpage-btn-primary:disabled,
+.relpage-btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.relpage-btn-sm {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.82rem;
+}
+
+.relpage-import-box {
+    padding: 0.9rem 0.9rem 0.25rem 0.9rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.relpage-toolbar {
+    align-items: flex-end;
+    gap: 0.9rem 1rem;
+}
+
+.relpage-filter {
+    min-width: 220px;
+}
+
+.relpage-filter.grow {
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
+.relpage-filter-label,
+.relpage-test-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+}
+
+.relpage-form-input {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.relpage-form-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.relpage-form-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--primary-a15);
+}
+
+.relpage-test-tools {
+    padding: 0.55rem 0.75rem;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.relpage-test-check {
+    font-size: 0.82rem;
+}
+
+.relpage-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    min-height: 0;
+}
+
+.relpage-panel {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow-primary);
+    padding: 0.75rem;
+    min-height: 0;
+}
+
+.relpage-panel-title {
+    padding: 0.25rem 0.25rem 0.75rem 0.25rem;
+}
+
+.relpage-panel-loading,
+.relpage-panel-empty {
+    padding: 1.5rem 0.5rem;
+}
+
+.relpage-row {
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0.65rem 0.65rem;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.relpage-row:hover {
+    background: var(--hover-bg);
+}
+
+.relpage-row.active {
+    background: var(--primary-a08);
+    border-color: var(--primary-a15);
+}
+
+.relpage-row-sub {
+    font-size: 0.8rem;
+    margin-top: 0.15rem;
+}
+
+.relpage-row-right {
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.relpage-chip {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+}
+
+.relpage-chip.success {
+    border-color: rgba(var(--ios-green-rgb), 0.25);
+    background: rgba(var(--ios-green-rgb), 0.12);
+    color: var(--ios-green);
+}
+
+.relpage-chip.warning {
+    border-color: rgba(var(--ios-orange-rgb), 0.25);
+    background: rgba(var(--ios-orange-rgb), 0.12);
+    color: var(--ios-orange);
+}
+
+.relpage-chip.danger {
+    border-color: rgba(var(--ios-red-rgb), 0.25);
+    background: rgba(var(--ios-red-rgb), 0.12);
+    color: var(--ios-red);
+}
+
+.relpage-chip.pending {
+    border-color: rgba(var(--ios-blue-rgb), 0.25);
+    background: rgba(var(--ios-blue-rgb), 0.12);
+    color: var(--ios-blue);
+}
+
+.relpage-detail-actions {
+    margin: 0.5rem 0 1rem;
+}
+
+.relpage-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.relpage-v {
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+}
+
+.relpage-notes {
+    border-top: 1px solid var(--border-light);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.relpage-notes-title {
+    margin-bottom: 0.5rem;
+}
+
+.relpage-notes-body {
+    white-space: pre-wrap;
+}
+
+.relpage-artifact-card {
+    border: 1px solid var(--border-light);
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    background: var(--bg-secondary);
+}
+
+.relpage-modal-overlay {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+}
+
+.relpage-modal {
+    width: min(900px, 96vw);
+    max-height: 92vh;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-primary-lg);
+}
+
+.relpage-modal-head {
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 0.75rem;
+}
+
+.relpage-modal-head h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.relpage-modal-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border-light);
+    background: transparent;
+    font-size: 1.25rem;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.relpage-modal-close:hover {
+    background: var(--hover-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.relpage-modal-body {
+    padding: 0.75rem 0;
+}
+
+.relpage-modal-foot {
+    border-top: 1px solid var(--border-light);
+    padding-top: 0.75rem;
+}
+
+.relpage-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.relpage-input {
+    border: 1px solid var(--border-color);
+    padding: 0.55rem 0.65rem;
+    background: var(--bg-secondary);
+}
+
+.relpage-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--primary-a15);
+}
+
+.relpage-builder-head {
+    margin-top: 0.5rem;
+}
+
+.relpage-artifact-draft {
+    border: 1px solid var(--border-light);
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    background: var(--bg-primary);
+}
+
+.relpage-artifact-draft-head {
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 1000px) {
+    .relpage-main {
+        padding: 1.5rem;
+    }
+
+    .relpage-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .relpage-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
