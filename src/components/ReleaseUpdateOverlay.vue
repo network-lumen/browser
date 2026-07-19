@@ -1,26 +1,26 @@
 <template>
   <Teleport to="body">
-    <Transition name="modal-fade">
-      <div v-if="active" class="overlay" @click.stop>
-        <div class="panel">
-          <div class="head">
-            <div class="title">
-              <div class="eyebrow">Updating Lumen</div>
-              <div class="version">{{ latest?.version || 'Preparing update' }}</div>
+    <Transition name="fade">
+      <div v-if="active" class="overlay-scrim backdrop-blur-6px z-10000" @click.stop>
+        <div class="w-min-520px-92vw bg-card border-default border-radius-18px padding-125 padding-bottom-100 shadow-panel-lg color-text-primary">
+          <div class="flex-align-start flex-justify-space-between gap-100 margin-bottom-100">
+            <div>
+              <div class="fs-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
+              <div class="fs-19px fw-700">{{ latest?.version || 'Preparing update' }}</div>
             </div>
           </div>
 
-          <div class="bar">
-            <div class="bar-fill" :style="{ width: `${percent}%` }"></div>
+          <div class="h-12px border-radius-full bg-fill-tertiary overflow-hidden">
+            <div class="h-full border-radius-full bg-gradient-primary transition-width-018s" :style="{ width: `${percent}%` }"></div>
           </div>
-          <div class="meta">
+          <div class="margin-top-50 flex-justify-space-between fs-085rem color-text-secondary">
             <span v-if="bytesLabel">{{ bytesLabel }}</span>
             <span v-if="percentKnown">{{ percent }}%</span>
           </div>
 
-          <div v-if="errorLabel" class="error">
+          <div v-if="errorLabel" class="margin-top-85 padding-75 border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-75">
             {{ errorLabel }}
-            <button type="button" class="btn" @click="clearError">Close</button>
+            <button type="button" class="bg-fill-secondary border-default border-radius-10px color-text-primary padding-45-75 cursor-pointer hover-bg-fill-primary" @click="clearError">Close</button>
           </div>
         </div>
       </div>
@@ -87,105 +87,3 @@ function clearError() {
   clearUpdateProgress();
 }
 </script>
-
-<style scoped>
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.panel {
-  width: min(520px, 92vw);
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 18px;
-  padding: 1.25rem 1.25rem 1rem 1.25rem;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-  color: var(--text-primary);
-}
-
-.head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.eyebrow {
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent-primary);
-}
-
-.version {
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-.bar {
-  height: 12px;
-  border-radius: 999px;
-  background: var(--fill-tertiary);
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  background: var(--gradient-primary);
-  transition: width 0.18s ease;
-}
-
-.meta {
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.error {
-  margin-top: 0.85rem;
-  padding: 0.75rem;
-  border-radius: 12px;
-  background: var(--fill-error);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.btn {
-  background: var(--fill-secondary);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 10px;
-  color: var(--text-primary);
-  padding: 0.45rem 0.75rem;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: var(--fill-primary);
-}
-
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-</style>

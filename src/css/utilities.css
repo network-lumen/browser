@@ -11,6 +11,7 @@
 .padding-right-50 { padding-right: .5rem; }     /* right */
 .padding-right-150 { padding-right: 1.5rem; }     /* right */
 .padding-top-50 { padding-top: .5rem; }           /* top */
+.padding-top-75 { padding-top: .75rem; }          /* top */
 .padding-top-100 { padding-top: 1rem; }           /* top */
 /* ------------------------ MARGINS ------------------------ */ 
 .margin-0 { margin: 0; }
@@ -20,6 +21,9 @@
 .margin-top-75 { margin-top: .75rem }
 .margin-top-100 { margin-top: 1rem }
 .margin-top-150 { margin-top: 1.5rem }
+.margin-top-37 { margin-top: 0.375rem }
+.margin-top-85 { margin-top: 0.85rem }
+.margin-top-87 { margin-top: 0.875rem }
 .margin-bottom-25 { margin-bottom: .25rem }     /* bottom */
 .margin-bottom-50 { margin-bottom: .5rem }
 .margin-bottom-75 { margin-bottom: .75rem }
@@ -81,6 +85,7 @@
   /* .hover-bg-white removed (unused) */
   .hover-bg-white-blue-light:where(:hover, :focus-visible) { background: var(--white-blue-light); }
   .hover-bg-black-a10:where(:hover, :focus-visible) { background: var(--black-a10); }
+  .hover-bg-fill-primary:where(:hover, :focus-visible) { background: var(--fill-primary); }
 }
 /* .focus-bg-blue removed (unused) */
 /* ------------------------------- COLORS ------------------------------- */
@@ -166,6 +171,7 @@
 
 /* ---------------------------- DIMENSION UTILS ---------------------------- */
 .min-w-0 { min-width: 0; }
+.min-h-0 { min-height: 0; }
 /* viewport max-height */
 .max-h-50vh { max-height: 50vh; }
 /* min-width tokens (rem) */
@@ -175,6 +181,7 @@
 /* Strict width/height tokens (rem) */
 .w-25  { width: .25rem; }
 .h-50  { height: .5rem; }
+.h-12px { height: 12px; }
 .h-200 { height: 2rem; }
 .size-100 { width:1rem;  height:1rem;  }
 .size-200 { width:1.6rem;  height:1.6rem;  }
@@ -194,7 +201,9 @@
 .fs-16px { font-size: 16px; }
 .fs-18px { font-size: 18px; }
 .fs-20px { font-size: 20px; }
+.fs-19px { font-size: 1.2rem; }
 .fs-24px { font-size: 24px; }
+.fs-085rem { font-size: 0.85rem; }
 .fs-28px { font-size: 28px; }
 .fs-32px { font-size: 32px; }
 
@@ -210,6 +219,7 @@
 .text-capitalize { text-transform: capitalize; }
 .letter-spacing-005em { letter-spacing: 0.05em; }
 .letter-spacing-004em { letter-spacing: 0.04em; }
+.letter-spacing-008em { letter-spacing: 0.08em; }
 .line-height-1 { line-height: 1; }
 .line-height-12 { line-height: 1.2; }
 .line-height-14 { line-height: 1.4; }
@@ -219,6 +229,7 @@
 .bg-fill-primary { background: var(--fill-primary); }
 .bg-fill-secondary { background: var(--fill-secondary); }
 .bg-fill-tertiary { background: var(--fill-tertiary); }
+.bg-fill-error { background: var(--fill-error); }
 .bg-card { background: var(--card-bg); }
 .bg-primary { background: var(--bg-primary); }
 .bg-secondary { background: var(--bg-secondary); }
@@ -238,6 +249,7 @@
 .border-light { border: var(--border-width) solid var(--border-light); }
 .border-top-default { border-top: var(--border-width) solid var(--border-color); }
 .border-bottom-default { border-bottom: var(--border-width) solid var(--border-color); }
+.border-top-light { border-top: var(--border-width) solid var(--border-light); }
 .border-radius-sm { border-radius: var(--border-radius-sm); }
 .border-radius-md { border-radius: var(--border-radius-md); }
 .border-radius-lg { border-radius: var(--border-radius-lg); }
@@ -250,10 +262,12 @@
 .shadow-md { box-shadow: var(--shadow-md); }
 .shadow-lg { box-shadow: var(--shadow-lg); }
 .shadow-none { box-shadow: none; }
+.shadow-panel-lg { box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35); }
 
 /* ---------------------------- ADDITIONAL SPACING ---------------------------- */
 .padding-10 { padding: 0.1rem; }
 .padding-125 { padding: 1.25rem; }
+.padding-45-75 { padding: 0.45rem 0.75rem; }
 .padding-left-25 { padding-left: .25rem; }
 .padding-left-75 { padding-left: .75rem; }
 .padding-left-100 { padding-left: 1rem; }
@@ -272,6 +286,7 @@
 .margin-x-auto { margin-left: auto; margin-right: auto; }
 .margin-0-auto { margin: 0 auto; }
 .max-w-800px { max-width: 800px; }
+.w-min-520px-92vw { width: min(520px, 92vw); }
 
 /* ---------------------------- GAP (extra) ---------------------------- */
 .gap-10  { gap: 0.1rem; }
@@ -291,6 +306,7 @@
 
 /* ---------------------------- EFFECTS / BACKDROP / TRANSITIONS ---------------------------- */
 .transition-ui { transition: background .12s ease, transform .05s ease, box-shadow .12s ease; }
+.transition-width-018s { transition: width 0.18s ease; }
 
 /* ---------------------------- MISC ---------------------------- */
 
@@ -315,6 +331,15 @@
 /* z-index */
 .z-1 { z-index: 1; }
 .z-2 { z-index: 2; }
+.z-1000 { z-index: 1000; }
+.z-9999 { z-index: 9999; }
+.z-10000 { z-index: 10000; }
+.backdrop-blur-4px { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.backdrop-blur-6px { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.border-radius-12px { border-radius: 12px; }
+.border-radius-18px { border-radius: 18px; }
+.fixed-inset-0 { position: fixed; inset: 0; }
+.overlay-scrim { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
 /* animations */
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
@@ -400,6 +425,17 @@
   --spinner-size: 1.5rem;
   --spinner-stroke: 2.35px;
 }
+.ring-spinner {
+  border-radius: 999px;
+  border-style: solid;
+  border-color: var(--fill-secondary);
+  border-top-color: var(--accent-primary);
+  animation: spin 0.9s linear infinite;
+}
+.ring-spinner-sm { width: 18px; height: 18px; border-width: 2px; }
+.ring-spinner-md { width: 36px; height: 36px; border-width: 3px; }
+.ring-spinner-lg { width: 40px; height: 40px; border-width: 3px; }
+
 /* Semantic helpers */
 .internal-page {
   display: flex;
@@ -418,6 +454,16 @@
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
               radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
               linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
+}
+
+/* Shared Vue <Transition name="fade"> — reuse instead of a local copy in every component */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 .app-shell.startup {

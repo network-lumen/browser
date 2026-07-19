@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-pane" :class="{ active }">
+  <div class="absolute inset-0 min-h-0" :class="active ? 'flex' : 'hidden'">
     <KeepAlive>
       <component
         :key="`${tabState.id}::${cacheKeyForUrl(tabState.url || '')}`"
@@ -184,16 +184,3 @@ watch(
   { immediate: true },
 );
 </script>
-
-<style scoped>
-.tab-pane {
-  position: absolute;
-  inset: 0;
-  min-height: 0;
-  display: none;
-}
-
-.tab-pane.active {
-  display: flex;
-}
-</style>

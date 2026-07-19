@@ -19,7 +19,7 @@
       @open-settings="openSettings"
     />
 
-    <div class="content-stack flex w-full flex-1">
+    <div class="min-h-0 overflow-hidden relative flex w-full flex-1">
       <TabPane
         v-for="t in tabs"
         :key="t.id"
@@ -213,11 +213,3 @@ function openSettings() {
   emit("openInNewTab", "lumen://settings");
 }
 </script>
-
-<style scoped>
-.content-stack {
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
-}
-</style>
