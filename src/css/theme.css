@@ -5958,3 +5958,429 @@ select.recurpay-input {
 .sitemodal-fade-leave-to {
     opacity: 0;
 }
+
+/* MyGatewaysPage.vue */
+.my-gateways-page {
+    height: 100vh;
+    background: var(--bg-primary);
+}
+
+.mygw-main {
+    padding: 2rem 2.5rem;
+}
+
+.mygw-header-text h1 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+}
+
+.mygw-header-text p {
+    font-size: 0.95rem;
+}
+
+.mygw-server-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.mygw-server-card.active {
+    border-color: var(--ios-green);
+    background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
+    box-shadow: 0 4px 20px rgba(var(--ios-green-rgb), 0.1);
+}
+
+.mygw-server-icon {
+    background: var(--hover-bg);
+    transition: all 0.3s ease;
+}
+
+.mygw-server-card.active .mygw-server-icon {
+    background: rgba(var(--ios-green-rgb), 0.15);
+    color: var(--ios-green);
+}
+
+.mygw-server-info h3 {
+    margin: 0 0 0.25rem;
+}
+
+.mygw-server-url {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: var(--ios-blue);
+}
+
+.mygw-server-status-text {
+    font-size: 0.875rem;
+}
+
+.mygw-server-status-badge {
+    padding: 0.5rem 1rem;
+    background: var(--fill-tertiary);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.mygw-server-status-badge.running {
+    background: rgba(var(--ios-green-rgb), 0.15);
+    color: var(--ios-green);
+}
+
+.mygw-status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--text-tertiary);
+    animation: mygw-pulse 2s ease-in-out infinite;
+}
+
+.mygw-status-dot.active {
+    background: var(--ios-green);
+}
+
+@keyframes mygw-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.mygw-section-header h2 {
+    font-size: 1.25rem;
+}
+
+.mygw-btn-outline,
+.mygw-btn-start,
+.mygw-btn-stop,
+.mygw-btn-add {
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.mygw-btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+}
+
+.mygw-btn-outline:hover {
+    background: var(--hover-bg);
+    border-color: var(--ios-blue);
+    color: var(--ios-blue);
+    transform: translateY(-1px);
+}
+
+.mygw-btn-start {
+    background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
+    box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
+}
+
+.mygw-btn-start:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
+}
+
+.mygw-btn-stop {
+    background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
+    box-shadow: 0 2px 8px rgba(var(--ios-red-rgb), 0.3);
+}
+
+.mygw-btn-stop:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--ios-red-rgb), 0.4);
+}
+
+.mygw-btn-add {
+    background: var(--gradient-primary);
+    box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.3);
+}
+
+.mygw-btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.4);
+}
+
+.mygw-btn-outline:disabled,
+.mygw-btn-start:disabled,
+.mygw-btn-stop:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.mygw-empty-state {
+    padding: 4rem 2rem;
+}
+
+.mygw-empty-state.small {
+    padding: 2rem 1rem;
+}
+
+.mygw-empty-state h2 {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+}
+
+.mygw-empty-state p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem;
+}
+
+.mygw-spinner {
+    border: 3px solid var(--border-color);
+    border-top-color: var(--ios-blue);
+    animation: spin 0.8s linear infinite;
+}
+
+.mygw-gateways-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+.mygw-gateway-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    transition: all 0.25s ease;
+}
+
+.mygw-gateway-card:hover {
+    border-color: var(--ios-blue);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+}
+
+.mygw-gateway-badge {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.mygw-info-row {
+    font-size: 0.875rem;
+}
+
+.mygw-info-label {
+    min-width: 60px;
+}
+
+.mygw-info-value.mono {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+.mygw-btn-primary,
+.mygw-btn-secondary,
+.mygw-btn-danger {
+    padding: 0.625rem 1rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.mygw-btn-primary {
+    background: var(--gradient-primary);
+}
+
+.mygw-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.3);
+}
+
+.mygw-btn-secondary {
+    background: var(--hover-bg);
+    border: 1px solid var(--border-color);
+}
+
+.mygw-btn-secondary:hover:not(:disabled) {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.mygw-btn-danger {
+    background: rgba(var(--ios-red-rgb), 0.1);
+    border: 1px solid rgba(var(--ios-red-rgb), 0.2);
+}
+
+.mygw-btn-danger:hover:not(:disabled) {
+    background: rgba(var(--ios-red-rgb), 0.15);
+}
+
+.mygw-modal-overlay {
+    backdrop-filter: blur(4px);
+}
+
+.mygw-modal-content {
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+}
+
+.mygw-modal-content.small {
+    max-width: 400px;
+}
+
+.mygw-modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mygw-modal-header h2 {
+    font-size: 1.25rem;
+}
+
+.mygw-icon-btn {
+    border-radius: 8px;
+    font-size: 1.5rem;
+    transition: all 0.2s;
+}
+
+.mygw-modal-description {
+    background: rgba(var(--ios-blue-rgb), 0.1);
+    border: 1px solid rgba(var(--ios-blue-rgb), 0.2);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.mygw-form-label {
+    font-size: 0.875rem;
+}
+
+.mygw-form-input {
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.mygw-form-input:focus {
+    outline: none;
+    border-color: var(--ios-blue);
+    box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1);
+}
+
+.mygw-error-message {
+    padding: 0.75rem 1rem;
+    background: rgba(var(--ios-red-rgb), 0.1);
+    border: 1px solid rgba(var(--ios-red-rgb), 0.2);
+    font-size: 0.875rem;
+}
+
+.mygw-warning-text {
+    font-size: 0.875rem;
+}
+
+.mygw-modal-actions {
+    border-top: 1px solid var(--border-color);
+}
+
+.mygw-modal-actions .mygw-btn-secondary,
+.mygw-modal-actions .mygw-btn-primary,
+.mygw-modal-actions .mygw-btn-danger {
+    flex: 1;
+}
+
+.mygw-modal-enter-active,
+.mygw-modal-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.mygw-modal-enter-from,
+.mygw-modal-leave-to {
+    opacity: 0;
+}
+
+.mygw-modal-enter-active .mygw-modal-content,
+.mygw-modal-leave-active .mygw-modal-content {
+    transition: transform 0.2s ease;
+}
+
+.mygw-modal-enter-from .mygw-modal-content,
+.mygw-modal-leave-to .mygw-modal-content {
+    transform: scale(0.95);
+}
+
+.mygw-whitelist-section {
+    margin-bottom: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.mygw-whitelist-table {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+}
+
+.mygw-whitelist-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mygw-whitelist-table thead {
+    background: var(--hover-bg);
+}
+
+.mygw-whitelist-table th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mygw-whitelist-table td {
+    padding: 1rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mygw-whitelist-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.mygw-whitelist-table tbody tr:hover {
+    background: var(--hover-bg);
+}
+
+.mygw-mono-text {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+.mygw-btn-icon {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.mygw-btn-icon:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    border-color: var(--ios-blue);
+}
+
+.mygw-btn-icon.danger:hover {
+    background: rgba(var(--ios-red-rgb), 0.1);
+    color: var(--ios-red);
+    border-color: var(--ios-red);
+}
+
+textarea.mygw-form-input {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
