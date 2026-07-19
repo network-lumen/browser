@@ -42,150 +42,150 @@
 
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Metrics</span>
-          <div class="metric-item">
-            <span class="metric-label">Block Height</span>
-            <span class="metric-value">{{ formatNumber(blockHeight) }}</span>
+          <div class="netpage-metric-item flex-align-center-justify-space-between">
+            <span class="color-text-secondary fw-500">Block Height</span>
+            <span class="color-text-primary txt-weight-light">{{ formatNumber(blockHeight) }}</span>
           </div>
-          <div class="metric-item">
-            <span class="metric-label">Validators</span>
-            <span class="metric-value">{{ validators.active }}/{{ validators.total }}</span>
+          <div class="netpage-metric-item flex-align-center-justify-space-between">
+            <span class="color-text-secondary fw-500">Validators</span>
+            <span class="color-text-primary txt-weight-light">{{ validators.active }}/{{ validators.total }}</span>
           </div>
-          <div class="metric-item">
-            <span class="metric-label">Block Time</span>
-            <span class="metric-value">{{ blockTime.toFixed(2) }}s</span>
+          <div class="netpage-metric-item flex-align-center-justify-space-between">
+            <span class="color-text-secondary fw-500">Block Time</span>
+            <span class="color-text-primary txt-weight-light">{{ blockTime.toFixed(2) }}s</span>
           </div>
-          <div class="metric-item">
-            <span class="metric-label">Throughput</span>
-            <span class="metric-value">{{ tps.toFixed(1) }} tx/s</span>
+          <div class="netpage-metric-item flex-align-center-justify-space-between">
+            <span class="color-text-secondary fw-500">Throughput</span>
+            <span class="color-text-primary txt-weight-light">{{ tps.toFixed(1) }} tx/s</span>
           </div>
-          <div class="metric-item">
-            <span class="metric-label">Blocks/Hour</span>
-            <span class="metric-value">{{ blocksPerHour }}</span>
+          <div class="netpage-metric-item flex-align-center-justify-space-between">
+            <span class="color-text-secondary fw-500">Blocks/Hour</span>
+            <span class="color-text-primary txt-weight-light">{{ blocksPerHour }}</span>
           </div>
-          <div class="metric-item">
-            <span class="metric-label">24h Volume</span>
-            <span class="metric-value">{{ formatNumber(txVolume24h) }}</span>
+          <div class="netpage-metric-item flex-align-center-justify-space-between">
+            <span class="color-text-secondary fw-500">24h Volume</span>
+            <span class="color-text-primary txt-weight-light">{{ formatNumber(txVolume24h) }}</span>
           </div>
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Node Info</span>
-          <div class="node-detail">
-            <span class="node-detail-label">Chain ID</span>
-            <span class="node-detail-value">lumen-1</span>
+          <div class="netpage-node-detail flex-align-center-justify-space-between">
+            <span class="netpage-node-detail-label color-text-tertiary fw-500">Chain ID</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light">lumen-1</span>
           </div>
-          <div class="node-detail">
-            <span class="node-detail-label">Network</span>
-            <span class="node-detail-value">Mainnet</span>
+          <div class="netpage-node-detail flex-align-center-justify-space-between">
+            <span class="netpage-node-detail-label color-text-tertiary fw-500">Network</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light">Mainnet</span>
           </div>
-          <div class="node-detail">
-            <span class="node-detail-label">SDK</span>
-            <span class="node-detail-value">v0.47.0</span>
+          <div class="netpage-node-detail flex-align-center-justify-space-between">
+            <span class="netpage-node-detail-label color-text-tertiary fw-500">SDK</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light">v0.47.0</span>
           </div>
-          <div class="node-detail">
-            <span class="node-detail-label">Peers</span>
-            <span class="node-detail-value">{{ peers }}</span>
+          <div class="netpage-node-detail flex-align-center-justify-space-between">
+            <span class="netpage-node-detail-label color-text-tertiary fw-500">Peers</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light">{{ peers }}</span>
           </div>
-          <div class="node-detail">
-            <span class="node-detail-label">Uptime</span>
-            <span class="node-detail-value">{{ uptime }}</span>
+          <div class="netpage-node-detail flex-align-center-justify-space-between">
+            <span class="netpage-node-detail-label color-text-tertiary fw-500">Uptime</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light">{{ uptime }}</span>
           </div>
         </div>
       </nav>
     </InternalSidebar>
 
     <!-- Main Content -->
-    <div class="main-content">
+    <div class="netpage-main flex-1 overflow-y-auto">
       <template v-if="activeView === 'status'">
         <!-- Main Grid Layout -->
-        <div class="main-grid">
+        <div class="netpage-main-grid gap-150 padding-200">
         <!-- Left Column: Overview Cards -->
-        <div class="left-column">
-          <div class="info-card">
-            <div class="card-label">Block Height</div>
-            <div class="card-value">{{ formatNumber(blockHeight) }}</div>
-            <div class="card-detail">Latest block on chain</div>
+        <div class="netpage-left-column flex flex-column gap-87">
+          <div class="netpage-info-card">
+            <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light">Block Height</div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium">{{ formatNumber(blockHeight) }}</div>
+            <div class="netpage-card-detail color-text-secondary txt-weight-normal">Latest block on chain</div>
           </div>
 
-          <div class="info-card">
-            <div class="card-label">Validators</div>
-            <div class="card-value">{{ validators.active }}<span class="card-unit">/{{ validators.total }}</span></div>
-            <div class="card-detail">{{ validatorPercent.toFixed(1) }}% active</div>
+          <div class="netpage-info-card">
+            <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light">Validators</div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium">{{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal">/{{ validators.total }}</span></div>
+            <div class="netpage-card-detail color-text-secondary txt-weight-normal">{{ validatorPercent.toFixed(1) }}% active</div>
           </div>
 
-          <div class="info-card">
-            <div class="card-label">Block Time</div>
-            <div class="card-value">{{ blockTime.toFixed(2) }}<span class="card-unit">s</span></div>
-            <div class="card-detail">Avg: {{ avgBlockTime.toFixed(2) }}s</div>
+          <div class="netpage-info-card">
+            <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light">Block Time</div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium">{{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal">s</span></div>
+            <div class="netpage-card-detail color-text-secondary txt-weight-normal">Avg: {{ avgBlockTime.toFixed(2) }}s</div>
           </div>
 
-          <div class="info-card">
-            <div class="card-label">Throughput</div>
-            <div class="card-value">{{ tps.toFixed(1) }} <span class="card-unit">tx/s</span></div>
-            <div class="card-detail">Peak: {{ maxTps.toFixed(1) }} tx/s</div>
+          <div class="netpage-info-card">
+            <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light">Throughput</div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium">{{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal">tx/s</span></div>
+            <div class="netpage-card-detail color-text-secondary txt-weight-normal">Peak: {{ maxTps.toFixed(1) }} tx/s</div>
           </div>
         </div>
 
       <!-- Middle Column: Health & Activity -->
       <div class="middle-column flex flex-column gap-125">
         <!-- Network Health -->
-        <section class="health-section">
-          <h2 class="section-title">Network Health</h2>
-          <div class="health-grid">
-            <div class="health-card">
-              <div class="health-label">Chain Status</div>
-              <div class="health-indicator">
-                <div class="indicator-bar">
-                  <div class="indicator-fill excellent indicator-fill--w100"></div>
+        <section class="netpage-health-section">
+          <h2 class="netpage-section-title color-text-primary txt-weight-light">Network Health</h2>
+          <div class="netpage-health-grid gap-87">
+            <div class="netpage-health-card padding-100">
+              <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase">Chain Status</div>
+              <div class="netpage-health-indicator flex-align-center gap-100">
+                <div class="netpage-indicator-bar flex-1">
+                  <div class="netpage-indicator-fill excellent netpage-indicator-fill--w100 h-full w-full"></div>
                 </div>
-                <span class="indicator-value">Synced</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right">Synced</span>
               </div>
             </div>
 
-            <div class="health-card">
-              <div class="health-label">Validator Participation</div>
-              <div class="health-indicator">
-                <div class="indicator-bar">
-                  <div class="indicator-fill" :class="validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal'" :style="{ width: validatorPercent + '%' }"></div>
+            <div class="netpage-health-card padding-100">
+              <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase">Validator Participation</div>
+              <div class="netpage-health-indicator flex-align-center gap-100">
+                <div class="netpage-indicator-bar flex-1">
+                  <div class="netpage-indicator-fill h-full" :class="validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal'" :style="{ width: validatorPercent + '%' }"></div>
                 </div>
-                <span class="indicator-value">{{ validatorPercent.toFixed(0) }}%</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right">{{ validatorPercent.toFixed(0) }}%</span>
               </div>
             </div>
 
-            <div class="health-card">
-              <div class="health-label">Block Production</div>
-              <div class="health-indicator">
-                <div class="indicator-bar">
-                  <div class="indicator-fill indicator-fill--w85" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
+            <div class="netpage-health-card padding-100">
+              <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase">Block Production</div>
+              <div class="netpage-health-indicator flex-align-center gap-100">
+                <div class="netpage-indicator-bar flex-1">
+                  <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
                 </div>
-                <span class="indicator-value">{{ blockTimeStatus }}</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right">{{ blockTimeStatus }}</span>
               </div>
             </div>
 
-            <div class="health-card">
-              <div class="health-label">Peer Connections</div>
-              <div class="health-indicator">
-                <div class="indicator-bar">
-                  <div class="indicator-fill good indicator-fill--w70"></div>
+            <div class="netpage-health-card padding-100">
+              <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase">Peer Connections</div>
+              <div class="netpage-health-indicator flex-align-center gap-100">
+                <div class="netpage-indicator-bar flex-1">
+                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full"></div>
                 </div>
-                <span class="indicator-value">{{ peers }}</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right">{{ peers }}</span>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Network Activity Chart -->
-        <section class="activity-section">
-          <div class="section-header">
-            <h2 class="section-title">Network Activity</h2>
-            <div class="chart-tabs">
-              <button class="tab-btn" :class="{ active: activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
-              <button class="tab-btn" :class="{ active: activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
-              <button class="tab-btn" :class="{ active: activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
+        <section class="netpage-activity-section">
+          <div class="netpage-section-header flex-align-center-justify-space-between margin-bottom-150">
+            <h2 class="netpage-section-title color-text-primary txt-weight-light">Network Activity</h2>
+            <div class="netpage-chart-tabs flex gap-50">
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500" :class="{ active: activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500" :class="{ active: activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500" :class="{ active: activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
             </div>
           </div>
-          <div class="activity-chart">
-            <div class="chart-container">
+          <div class="netpage-activity-chart padding-150">
+            <div class="netpage-chart-container w-full">
               <svg v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <path :d="blockChartLinePath" stroke="var(--accent-primary)" stroke-width="2" fill="none" />
                 <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--accent-primary)" />
@@ -209,39 +209,39 @@
       </div>
 
       <!-- Right Column: Recent Blocks & Node Info -->
-      <div class="right-column">
+      <div class="netpage-right-column flex flex-column gap-0">
         <!-- Recent Blocks -->
-        <section class="data-table">
-          <h2 class="section-title">Recent Blocks</h2>
-          <div class="blocks-list">
-            <div class="block-card" v-for="block in recentBlocks" :key="block.height">
-              <div class="block-left">
-                <div class="validator-avatar" :title="block.validator">
+        <section class="netpage-data-table flex flex-column h-full">
+          <h2 class="netpage-section-title color-text-primary txt-weight-light">Recent Blocks</h2>
+          <div class="netpage-blocks-list flex flex-column gap-50 margin-top-100 flex-1">
+            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer" v-for="block in recentBlocks" :key="block.height">
+              <div class="netpage-block-left flex-align-center gap-87 flex-1">
+                <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px fs-13px txt-weight-medium" :title="block.validator">
                   <img v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
-                  <span v-else class="avatar-placeholder">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
+                  <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
                 </div>
-                <div class="block-info">
-                  <div class="block-height-row">
-                    <span class="height-label">Block</span>
-                    <span class="height-value">#{{ formatNumber(block.height) }}</span>
+                <div class="netpage-block-info flex flex-column gap-20 flex-1">
+                  <div class="netpage-block-height-row flex-align-baseline gap-50">
+                    <span class="netpage-height-label color-text-secondary txt-weight-light text-uppercase">Block</span>
+                    <span class="netpage-height-value color-text-primary txt-weight-medium">#{{ formatNumber(block.height) }}</span>
                   </div>
                   <div class="block-validator flex-align-center gap-50">
-                    <span class="validator-name-compact">{{ block.validator }}</span>
+                    <span class="netpage-validator-name-compact color-text-secondary">{{ block.validator }}</span>
                   </div>
                 </div>
               </div>
-              <div class="block-right">
-                <div class="block-meta">
+              <div class="netpage-block-right flex-align-center flex-0-0-auto gap-100">
+                <div class="netpage-block-meta flex flex-column">
                   <div class="meta-item flex-align-center gap-50">
-                    <span class="meta-label">TXS</span>
-                    <span class="meta-value" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase">TXS</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
-                  <div class="meta-time">
+                  <div class="netpage-meta-time flex-align-center color-text-secondary gap-35">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">
                       <path d="M6 0C2.7 0 0 2.7 0 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.8c-2.65 0-4.8-2.15-4.8-4.8S3.35 1.2 6 1.2s4.8 2.15 4.8 4.8-2.15 4.8-4.8 4.8z"/>
                       <path d="M6.6 3H5.4v3.3l2.85 1.7.6-1-2.25-1.35V3z"/>
                     </svg>
-                    <span class="time-text">{{ formatTime(block.time) }}</span>
+                    <span class="netpage-time-text">{{ formatTime(block.time) }}</span>
                   </div>
                 </div>
               </div>
@@ -646,463 +646,3 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.metric-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1.5rem;
-  font-size: 0.8125rem;
-}
-
-.metric-label {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.metric-value {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.node-detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1.5rem;
-  font-size: 0.75rem;
-  border-left: 2px solid transparent;
-  transition: all 0.2s;
-}
-
-.node-detail:hover {
-  background: var(--hover-bg);
-  border-left-color: var(--accent-color);
-}
-
-.node-detail-label {
-  color: var(--text-tertiary);
-  font-weight: 500;
-  font-size: 0.7rem;
-}
-
-.node-detail-value {
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 0.75rem;
-  font-family: 'Courier New', monospace;
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--bg-secondary);
-}
-
-/* Main Grid Layout */
-.main-grid {
-  display: grid;
-  grid-template-columns: 320px 1fr 380px;
-  gap: 1.5rem;
-  align-items: start;
-  padding: 2rem;
-}
-
-@media (max-width: 1400px) {
-  .main-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .left-column {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-    padding: 1rem;
-  }
-}
-
-/* Left Column */
-.left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-/* Middle Column */
-/* Right Column */
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  height: 100%;
-}
-
-/* Info Cards */
-.info-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 0.875rem;
-  padding: 1.25rem 1.5rem;
-  transition: all 0.2s;
-}
-
-.info-card:hover {
-  background: var(--bg-tertiary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.card-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-}
-
-.card-value {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  line-height: 1;
-}
-
-.card-unit {
-  font-size: 1.125rem;
-  font-weight: 400;
-  color: var(--text-secondary);
-  margin-left: 0.25rem;
-}
-
-.card-detail {
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  font-weight: 400;
-}
-
-/* Health Section */
-.health-section {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 0.875rem;
-  padding: 1.25rem 1.5rem;
-}
-
-.section-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  color: var(--text-primary);
-}
-
-.health-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.875rem;
-}
-
-.health-card {
-  background: var(--bg-secondary);
-  border-radius: 0.625rem;
-  padding: 1rem;
-}
-
-.health-label {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.875rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.health-indicator {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.indicator-bar {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.indicator-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s;
-}
-
-.indicator-fill.excellent {
-  background: var(--ios-green);
-}
-
-.indicator-fill.good {
-  background: var(--ios-blue);
-}
-
-.indicator-fill.normal {
-  background: var(--ios-orange);
-}
-
-.indicator-fill--w100 {
-  width: 100%;
-}
-
-.indicator-fill--w85 {
-  width: 85%;
-}
-
-.indicator-fill--w70 {
-  width: 70%;
-}
-
-.indicator-value {
-  font-weight: 600;
-  color: var(--text-primary);
-  min-width: 70px;
-  text-align: right;
-  font-size: 0.9375rem;
-}
-
-/* Activity Section */
-.activity-section {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 0.875rem;
-  padding: 1.25rem 1.5rem;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.chart-tabs {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.tab-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  background: transparent;
-  color: var(--text-secondary);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.tab-btn:hover {
-  border-color: var(--accent-primary);
-  color: var(--text-primary);
-}
-
-.tab-btn.active {
-  background: rgba(var(--ios-indigo-rgb), 0.2);
-  border-color: var(--ios-blue);
-  color: var(--ios-blue);
-  font-weight: 600;
-}
-
-.activity-chart {
-  background: var(--bg-secondary);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-}
-
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 160px;
-}
-
-.chart-container svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Data Table */
-.data-table {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 0.875rem;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.blocks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  flex: 1;
-}
-
-.block-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.875rem 1rem;
-  min-height: 64px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.625rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.block-card:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--accent-color);
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.block-left {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.validator-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--ios-indigo) 0%, var(--ios-purple) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-  overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.validator-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-placeholder {
-  display: block;
-}
-
-.block-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.block-height-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.height-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.height-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-family: 'Courier New', monospace;
-}
-
-
-.validator-name-compact {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-.block-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.block-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.375rem;
-  justify-content: center;
-}
-
-
-.meta-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-}
-
-.meta-value {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 30px;
-  height: 22px;
-  padding: 0 8px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.meta-value.has-txs {
-  background: var(--fill-success);
-  border-color: rgba(var(--ios-green-rgb), 0.3);
-  color: var(--ios-green);
-}
-
-.meta-time {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1;
-}
-
-.time-text {
-  white-space: nowrap;
-  line-height: 1;
-}
-</style>

@@ -3013,12 +3013,6 @@ select.recurpay-input {
 
 .subview-header h2 {
     margin: 0 0 4px 0;
-    font-size: 24px;
-}
-
-.subview-header p {
-    margin: 0;
-    font-size: 14px;
 }
 
 .subview-btn {
@@ -3042,7 +3036,6 @@ select.recurpay-input {
 
 .subview-reminders-section h3 {
     margin: 0 0 16px 0;
-    font-size: 16px;
 }
 
 .subview-reminder-card {
@@ -3058,12 +3051,6 @@ select.recurpay-input {
 
 .subview-reminder-content h4 {
     margin: 0 0 4px 0;
-    font-size: 14px;
-}
-
-.subview-reminder-content p {
-    margin: 0;
-    font-size: 13px;
 }
 
 .subview-reminder-dismiss {
@@ -3105,10 +3092,6 @@ select.recurpay-input {
     margin-bottom: 24px;
 }
 
-.subview-section-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
 
 .subview-filters {
     gap: 12px;
@@ -3134,7 +3117,6 @@ select.recurpay-input {
 
 .subview-empty-state h3 {
     margin: 0 0 8px 0;
-    font-size: 18px;
 }
 
 .subview-empty-state p {
@@ -3169,7 +3151,6 @@ select.recurpay-input {
 
 .subview-payment-header h4 {
     margin: 0 0 4px 0;
-    font-size: 16px;
 }
 
 .subview-payment-category {
@@ -3251,10 +3232,6 @@ select.recurpay-input {
     border-bottom: 1px solid var(--border-color);
 }
 
-.subview-modal-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
 
 .subview-close-btn {
     padding: 4px;
@@ -3661,4 +3638,296 @@ select.recurpay-input {
 .add-tab-btn:where(:hover, :focus-visible) {
     background: var(--fill-primary);
     color: var(--text-primary);
+}
+
+/* NetworkPage.vue */
+.netpage-metric-item {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.8125rem;
+}
+
+.netpage-node-detail {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.75rem;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.netpage-node-detail:hover {
+    background: var(--hover-bg);
+    border-left-color: var(--accent-color);
+}
+
+.netpage-node-detail-label {
+    font-size: 0.7rem;
+}
+
+.netpage-node-detail-value {
+    font-size: 0.75rem;
+    font-family: 'Courier New', monospace;
+}
+
+.netpage-main {
+    background: var(--bg-secondary);
+}
+
+.netpage-main-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 380px;
+    align-items: start;
+}
+
+@media (max-width: 1400px) {
+    .netpage-main-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .netpage-left-column {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .netpage-main-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+}
+
+.netpage-info-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+    transition: all 0.2s;
+}
+
+.netpage-info-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.netpage-card-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+}
+
+.netpage-card-value {
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+}
+
+.netpage-card-unit {
+    font-size: 1.125rem;
+    margin-left: 0.25rem;
+}
+
+.netpage-card-detail {
+    font-size: 0.8125rem;
+}
+
+.netpage-health-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.netpage-section-title {
+    font-size: 1.125rem;
+    margin: 0 0 1rem 0;
+}
+
+.netpage-health-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.netpage-health-card {
+    background: var(--bg-secondary);
+    border-radius: 0.625rem;
+}
+
+.netpage-health-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+}
+
+.netpage-indicator-bar {
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.netpage-indicator-fill {
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.netpage-indicator-fill.excellent {
+    background: var(--ios-green);
+}
+
+.netpage-indicator-fill.good {
+    background: var(--ios-blue);
+}
+
+.netpage-indicator-fill.normal {
+    background: var(--ios-orange);
+}
+
+.netpage-indicator-fill--w85 {
+    width: 85%;
+}
+
+.netpage-indicator-fill--w70 {
+    width: 70%;
+}
+
+.netpage-indicator-value {
+    min-width: 70px;
+    font-size: 0.9375rem;
+}
+
+.netpage-activity-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.netpage-tab-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.netpage-tab-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+}
+
+.netpage-tab-btn.active {
+    background: rgba(var(--ios-indigo-rgb), 0.2);
+    border-color: var(--ios-blue);
+    color: var(--ios-blue);
+    font-weight: 600;
+}
+
+.netpage-activity-chart {
+    background: var(--bg-secondary);
+    border-radius: 0.75rem;
+}
+
+.netpage-chart-container {
+    position: relative;
+    height: 160px;
+}
+
+.netpage-chart-container svg {
+    width: 100%;
+    height: 100%;
+}
+
+.netpage-data-table {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.netpage-block-card {
+    padding: 0.875rem 1rem;
+    min-height: 64px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.625rem;
+    transition: all 0.2s ease;
+}
+
+.netpage-block-card:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.netpage-block-left {
+    min-width: 0;
+}
+
+.netpage-validator-avatar {
+    background: linear-gradient(135deg, var(--ios-indigo) 0%, var(--ios-purple) 100%);
+    color: white;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.netpage-validator-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.netpage-block-info {
+    min-width: 0;
+}
+
+.netpage-height-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+.netpage-height-value {
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+}
+
+.netpage-validator-name-compact {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.netpage-block-meta {
+    align-items: flex-end;
+    gap: 0.375rem;
+    justify-content: center;
+}
+
+.netpage-meta-label {
+    font-size: 0.65rem;
+}
+
+.netpage-meta-value {
+    min-width: 30px;
+    height: 22px;
+    padding: 0 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 0.8rem;
+}
+
+.netpage-meta-value.has-txs {
+    background: var(--fill-success);
+    border-color: rgba(var(--ios-green-rgb), 0.3);
+    color: var(--ios-green);
+}
+
+.netpage-meta-time {
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.netpage-time-text {
+    white-space: nowrap;
+    line-height: 1;
 }
