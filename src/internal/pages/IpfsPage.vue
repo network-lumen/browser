@@ -2748,15 +2748,15 @@ watch(
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--ios-red);
 }
 
 
 .pin-progress-card {
   margin-top: 0.9rem;
-  border: 1px solid rgba(var(--accent-primary-rgb, 59, 130, 246), 0.18);
-  background: rgba(var(--accent-primary-rgb, 59, 130, 246), 0.08);
+  border: 1px solid rgba(var(--ios-blue-rgb), 0.18);
+  background: rgba(var(--ios-blue-rgb), 0.08);
   border-radius: 12px;
   padding: 0.85rem 0.9rem;
 }
@@ -2788,7 +2788,7 @@ watch(
   width: 100%;
   height: 8px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: var(--fill-secondary);
 }
 
 .pin-progress-fill {
@@ -2860,14 +2860,14 @@ watch(
 }
 
 .plans-btn.save-active {
-  background: rgba(34, 197, 94, 0.12);
-  border-color: rgba(34, 197, 94, 0.38);
+  background: rgba(var(--ios-green-rgb), 0.12);
+  border-color: rgba(var(--ios-green-rgb), 0.38);
   color: var(--ios-green);
 }
 
 .plans-btn.save-active:hover:not(:disabled) {
-  background: rgba(34, 197, 94, 0.16);
-  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(var(--ios-green-rgb), 0.16);
+  border-color: rgba(var(--ios-green-rgb), 0.5);
 }
 
 .loading-wrap {
@@ -2883,7 +2883,7 @@ watch(
 .error-wrap {
   padding: 1rem;
   border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid #fecaca;
+  border: var(--border-width) solid rgba(var(--ios-red-rgb), 0.35);
   background: var(--fill-error);
   color: var(--ios-red);
 }
@@ -3071,8 +3071,8 @@ watch(
   bottom: 1rem;
   padding: 0.75rem 0.9rem;
   border-radius: 12px;
-  border: 1px solid #fecaca;
-  background: rgba(254, 202, 202, 0.18);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.35);
+  background: rgba(var(--ios-red-rgb), 0.12);
   color: var(--ios-red);
   font-size: 0.875rem;
   backdrop-filter: blur(6px);
