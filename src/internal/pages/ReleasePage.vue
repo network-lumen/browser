@@ -1408,24 +1408,24 @@ onMounted(async () => {
   background: var(--bg-secondary);
 }
 .chip.success {
-  border-color: rgba(48, 209, 88, 0.25);
-  background: rgba(48, 209, 88, 0.12);
-  color: rgba(20, 83, 45, 1);
+  border-color: rgba(var(--ios-green-rgb), 0.25);
+  background: rgba(var(--ios-green-rgb), 0.12);
+  color: var(--ios-green);
 }
 .chip.warning {
-  border-color: rgba(255, 159, 10, 0.25);
-  background: rgba(255, 159, 10, 0.12);
-  color: rgba(120, 53, 15, 1);
+  border-color: rgba(var(--ios-orange-rgb), 0.25);
+  background: rgba(var(--ios-orange-rgb), 0.12);
+  color: var(--ios-orange);
 }
 .chip.danger {
-  border-color: rgba(255, 69, 58, 0.25);
-  background: rgba(255, 69, 58, 0.12);
-  color: rgba(127, 29, 29, 1);
+  border-color: rgba(var(--ios-red-rgb), 0.25);
+  background: rgba(var(--ios-red-rgb), 0.12);
+  color: var(--ios-red);
 }
 .chip.pending {
-  border-color: rgba(0, 122, 255, 0.25);
-  background: rgba(0, 122, 255, 0.12);
-  color: rgba(30, 64, 175, 1);
+  border-color: rgba(var(--ios-blue-rgb), 0.25);
+  background: rgba(var(--ios-blue-rgb), 0.12);
+  color: var(--ios-blue);
 }
 
 .detail-actions {
