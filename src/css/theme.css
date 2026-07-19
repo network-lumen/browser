@@ -1838,6 +1838,165 @@ html, body {
     transition: var(--transition-fast);
 }
 
+/* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
+.chaindetail-back-btn {
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-smooth);
+    box-shadow: var(--shadow-primary);
+}
+
+.chaindetail-back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--primary-a30);
+}
+
+.chaindetail-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chaindetail-card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chaindetail-card-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.025em;
+}
+
+.chaindetail-card-body {
+    padding: 1.5rem;
+}
+
+.chaindetail-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.chaindetail-row:last-child {
+    border-bottom: none;
+}
+
+.chaindetail-row:hover {
+    background: var(--bg-hover);
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 0.375rem;
+}
+
+.chaindetail-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.chaindetail-value {
+    font-size: 0.875rem;
+    word-break: break-all;
+}
+
+.chaindetail-value-clickable {
+    color: var(--accent-primary);
+    text-decoration: underline;
+}
+
+.chaindetail-value-clickable:hover {
+    color: var(--accent-secondary);
+}
+
+.chaindetail-hash-value code {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+
+.chaindetail-copy-btn {
+    padding: 0.375rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+}
+
+.chaindetail-copy-btn:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.chaindetail-copy-btn:hover svg {
+    stroke: white;
+}
+
+.chaindetail-status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.chaindetail-loading,
+.chaindetail-error {
+    min-height: 300px;
+}
+
+.chaindetail-error p {
+    font-size: 1rem;
+}
+
+/* TransactionDetailPage.vue messages/events */
+.txdetail-item {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.txdetail-item-header {
+    margin-bottom: 0.75rem;
+}
+
+.txdetail-item-type {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.txdetail-item-index {
+    font-size: 0.75rem;
+}
+
+.txdetail-item-data pre {
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.txdetail-event-attributes {
+    margin-top: 0.75rem;
+}
+
+.txdetail-attr-key {
+    font-weight: 600;
+    min-width: 120px;
+}
+
 .transition-bounce {
     transition: var(--transition-bounce);
 }

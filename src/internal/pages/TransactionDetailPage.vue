@@ -1,36 +1,36 @@
 <template>
-  <div class="tx-detail-page">
-    <div class="tx-detail-header">
-      <button class="back-btn" @click="goBack">
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
+    <div class="margin-bottom-200">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         Back to Explorer
       </button>
-      <h1>Transaction Details</h1>
+      <h1 class="fs-28px fw-600 color-text-primary margin-0">Transaction Details</h1>
     </div>
 
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
+    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100">
+      <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading transaction data...</p>
     </div>
 
-    <div v-else-if="error" class="error-container">
-      <p>{{ error }}</p>
+    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100">
+      <p class="color-error">{{ error }}</p>
     </div>
 
-    <div v-else-if="transaction" class="tx-content flex flex-column gap-150">
+    <div v-else-if="transaction" class="flex flex-column gap-150">
       <!-- Transaction Overview Card -->
-      <div class="detail-card">
-        <div class="card-header">
-          <h2>Transaction Overview</h2>
+      <div class="chaindetail-card bg-primary">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Transaction Overview</h2>
         </div>
-        <div class="card-body">
-          <div class="detail-row">
-            <span class="label">Transaction Hash:</span>
-            <div class="hash-value flex-align-center gap-50">
-              <code>{{ transaction.hash }}</code>
-              <button class="copy-btn" @click="copyToClipboard(transaction.hash)" title="Copy hash">
+        <div class="chaindetail-card-body">
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Transaction Hash:</span>
+            <div class="chaindetail-hash-value flex-align-center gap-50">
+              <code class="bg-secondary color-text-primary">{{ transaction.hash }}</code>
+              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center" @click="copyToClipboard(transaction.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -38,53 +38,53 @@
               </button>
             </div>
           </div>
-          <div class="detail-row">
-            <span class="label">Status:</span>
-            <span class="value">
-              <span :class="['status-badge', transaction.success ? 'success badge-success' : 'failed badge-error']">
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Status:</span>
+            <span class="chaindetail-value color-text-primary">
+              <span :class="['chaindetail-status-badge', transaction.success ? 'badge-success' : 'badge-error']">
                 {{ transaction.success ? '✓ Success' : '✗ Failed' }}
               </span>
             </span>
           </div>
-          <div class="detail-row">
-            <span class="label">Block Height:</span>
-            <span class="value clickable" @click="navigateToBlock(transaction.height)">
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Block Height:</span>
+            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
-          <div class="detail-row">
-            <span class="label">Time:</span>
-            <span class="value">{{ transaction.time }}</span>
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Time:</span>
+            <span class="chaindetail-value color-text-primary">{{ transaction.time }}</span>
           </div>
-          <div class="detail-row">
-            <span class="label">Gas Used:</span>
-            <span class="value">{{ formatNumber(transaction.gasUsed) }}</span>
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Gas Used:</span>
+            <span class="chaindetail-value color-text-primary">{{ formatNumber(transaction.gasUsed) }}</span>
           </div>
-          <div class="detail-row">
-            <span class="label">Gas Wanted:</span>
-            <span class="value">{{ formatNumber(transaction.gasWanted) }}</span>
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Gas Wanted:</span>
+            <span class="chaindetail-value color-text-primary">{{ formatNumber(transaction.gasWanted) }}</span>
           </div>
-          <div class="detail-row">
-            <span class="label">Fee:</span>
-            <span class="value">{{ transaction.fee }}</span>
+          <div class="chaindetail-row">
+            <span class="chaindetail-label color-text-secondary">Fee:</span>
+            <span class="chaindetail-value color-text-primary">{{ transaction.fee }}</span>
           </div>
         </div>
       </div>
 
       <!-- Messages Card -->
-      <div class="detail-card" v-if="transaction.messages && transaction.messages.length > 0">
-        <div class="card-header">
-          <h2>Messages ({{ transaction.messages.length }})</h2>
+      <div class="chaindetail-card bg-primary" v-if="transaction.messages && transaction.messages.length > 0">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Messages ({{ transaction.messages.length }})</h2>
         </div>
-        <div class="card-body">
-          <div class="messages-list flex flex-column gap-100">
-            <div class="message-item" v-for="(msg, index) in transaction.messages" :key="index">
-              <div class="message-header">
-                <span class="message-type">{{ msg.type }}</span>
-                <span class="message-index">#{{ Number(index) + 1 }}</span>
+        <div class="chaindetail-card-body">
+          <div class="flex flex-column gap-100">
+            <div class="txdetail-item bg-secondary" v-for="(msg, index) in transaction.messages" :key="index">
+              <div class="txdetail-item-header flex-align-center flex-justify-space-between">
+                <span class="txdetail-item-type color-text-primary">{{ msg.type }}</span>
+                <span class="txdetail-item-index color-text-tertiary">#{{ Number(index) + 1 }}</span>
               </div>
-              <div class="message-data">
-                <pre>{{ JSON.stringify(msg.value, null, 2) }}</pre>
+              <div class="txdetail-item-data">
+                <pre class="bg-primary color-text-primary">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
             </div>
           </div>
@@ -92,18 +92,18 @@
       </div>
 
       <!-- Events Card -->
-      <div class="detail-card" v-if="transaction.events && transaction.events.length > 0">
-        <div class="card-header">
-          <h2>Events ({{ transaction.events.length }})</h2>
+      <div class="chaindetail-card bg-primary" v-if="transaction.events && transaction.events.length > 0">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Events ({{ transaction.events.length }})</h2>
         </div>
-        <div class="card-body">
-          <div class="events-list flex flex-column gap-100">
-            <div class="event-item" v-for="(event, index) in transaction.events" :key="index">
-              <div class="event-type">{{ event.type }}</div>
-              <div class="event-attributes">
-                <div class="attribute-row" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
-                  <span class="attr-key">{{ attr.key }}:</span>
-                  <span class="attr-value">{{ attr.value }}</span>
+        <div class="chaindetail-card-body">
+          <div class="flex flex-column gap-100">
+            <div class="txdetail-item bg-secondary" v-for="(event, index) in transaction.events" :key="index">
+              <div class="txdetail-item-type color-text-primary">{{ event.type }}</div>
+              <div class="txdetail-event-attributes flex flex-column gap-50">
+                <div class="flex gap-50 fs-12px" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
+                  <span class="txdetail-attr-key color-text-secondary">{{ attr.key }}:</span>
+                  <span class="color-text-primary break-all">{{ attr.value }}</span>
                 </div>
               </div>
             </div>
@@ -112,13 +112,13 @@
       </div>
 
       <!-- Raw Data Card -->
-      <div class="detail-card">
-        <div class="card-header">
-          <h2>Raw Transaction Data</h2>
+      <div class="chaindetail-card bg-primary">
+        <div class="chaindetail-card-header bg-secondary">
+          <h2 class="color-text-primary">Raw Transaction Data</h2>
         </div>
-        <div class="card-body">
-          <div class="raw-data">
-            <pre>{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
+        <div class="chaindetail-card-body">
+          <div>
+            <pre class="bg-primary color-text-primary">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
           </div>
         </div>
       </div>
@@ -282,250 +282,3 @@ watch(
 );
 </script>
 
-<style scoped>
-.tx-detail-page {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  padding: 2rem;
-}
-
-.tx-detail-header {
-  margin-bottom: 2rem;
-}
-
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-primary);
-}
-
-.back-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.tx-detail-header h1 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.loading-container,
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border-color);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.error-container p {
-  color: var(--ios-red);
-  font-size: 1rem;
-}
-
-.detail-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-}
-
-.card-header h2 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  letter-spacing: 0.025em;
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-.detail-row {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 1rem;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-row:hover {
-  background: var(--bg-hover);
-  margin: 0 -0.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.value {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  word-break: break-all;
-}
-
-.value.clickable {
-  color: var(--accent-primary);
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.value.clickable:hover {
-  color: var(--accent-secondary);
-}
-
-.hash-value code {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  word-break: break-all;
-  color: var(--text-primary);
-}
-
-.copy-btn {
-  padding: 0.375rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.copy-btn:hover {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-}
-
-.copy-btn:hover svg {
-  stroke: white;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-
-.message-item,
-.event-item {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.message-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.message-type,
-.event-type {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.message-index {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.message-data pre,
-.raw-data pre {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  padding: 1rem;
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  color: var(--text-primary);
-  overflow-x: auto;
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.event-attributes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.attribute-row {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-}
-
-.attr-key {
-  font-weight: 600;
-  color: var(--text-secondary);
-  min-width: 120px;
-}
-
-.attr-value {
-  color: var(--text-primary);
-  word-break: break-all;
-}
-</style>
