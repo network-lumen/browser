@@ -1,13 +1,13 @@
 <template>
   <main
     ref="scrollRoot"
-    class="search-page"
+    class="searchpage-search-page flex-align-center flex-column w-full h-full"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
           <button
         type="button"
-        class="help-icon-btn"
+        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer"
         title="How search works"
         aria-label="How search works"
         @click="openHowSearchWorks"
@@ -15,21 +15,21 @@
         <HelpCircle :size="18" />
       </button>
     <section class="hero">
-      <div class="brand">Lumen</div>
+      <div class="searchpage-brand">Lumen</div>
 
-      <div class="search-row">
-        <div class="search-box">
-          <Search :size="18" class="search-icon" />
+      <div class="searchpage-search-row flex-justify-center w-full">
+        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full">
+          <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
             v-model="q"
             type="text"
-            class="search-input"
+            class="searchpage-search-input flex-1-1-auto outline-none color-text-primary"
             placeholder="Search the network"
             @keydown.enter.prevent="submit"
           />
           <button
-            class="search-btn disabled-fade-50"
+            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -39,9 +39,9 @@
         </div>
       </div>
 
-      <div class="tabs">
+      <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62">
         <button
-          class="pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer"
+          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="pill color-text-secondary fw-500 txt-sm cursor-pointer"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="pill color-text-secondary fw-500 txt-sm cursor-pointer"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -72,14 +72,14 @@
 
     </section>
 
-    <section v-if="touched" class="results">
-      <div class="meta">
+    <section v-if="touched" class="searchpage-results">
+      <div class="searchpage-meta flex-align-center-justify-space-between gap-100 margin-bottom-100">
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
-      <div v-if="showLoadPrevious || loadingPrevious" class="load-more-bar load-more-bar--top">
+      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center">
         <button
-          class="load-more-btn disabled-fade-60"
+          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer"
           type="button"
           :disabled="loadingPrevious"
           @click="loadPrevious"
@@ -89,24 +89,24 @@
         </button>
       </div>
 
-      <ul v-if="loading" class="skeleton-list">
-        <li v-for="i in 5" :key="i" class="skeleton-item">
-          <div class="skeleton-icon"></div>
-          <div class="skeleton-content">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-url"></div>
-            <div class="skeleton-desc"></div>
+      <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-87 padding-0 margin-0">
+        <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-100 border-radius-xl">
+          <div class="searchpage-skeleton-icon border-radius-lg"></div>
+          <div class="searchpage-skeleton-content flex-1">
+            <div class="searchpage-skeleton-title"></div>
+            <div class="searchpage-skeleton-url"></div>
+            <div class="searchpage-skeleton-desc"></div>
           </div>
         </li>
       </ul>
 
-      <div v-else-if="!results.length" class="empty-state">
-        <div class="empty-icon">
+      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center">
+        <div class="searchpage-empty-icon flex-align-justify-center w-80px border-radius-circle color-text-tertiary margin-bottom-150">
           <Search :size="48" />
         </div>
-        <div class="empty-content">
-          <h3 class="empty-title">No results found</h3>
-          <p class="empty-subtitle">
+        <div class="searchpage-empty-content">
+          <h3 class="searchpage-empty-title">No results found</h3>
+          <p class="searchpage-empty-subtitle">
             <template v-if="q.trim()">
               We couldn't find anything matching "<strong>{{ q }}</strong>"
             </template>
@@ -123,9 +123,9 @@
               We couldn't find anything.
             </template>
           </p>
-          <div class="empty-suggestions">
-            <span class="suggestion-label">Try:</span>
-            <ul class="suggestion-list">
+          <div class="searchpage-empty-suggestions text-left border-radius-md">
+            <span class="searchpage-suggestion-label txt-weight-light color-text-secondary">Try:</span>
+            <ul class="searchpage-suggestion-list margin-0 color-text-secondary">
               <li>Using different keywords</li>
               <li>Searching for a domain (e.g., <code>example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
@@ -134,17 +134,17 @@
         </div>
       </div>
 
-      <div v-else-if="selectedType === 'image'" class="image-grid">
+      <div v-else-if="selectedType === 'image'" class="searchpage-image-grid gap-100">
         <div
           v-for="(r, idx) in imageResults"
           :key="r.id"
-          class="image-card"
+          class="searchpage-image-card border-radius-xl"
           :data-result-index="idx"
         >
           <button
             type="button"
-            class="image-save-btn"
-            :class="{ saved: isPinnedImage(r) }"
+            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer"
+            :class="{ 'searchpage-saved': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
           >
@@ -155,28 +155,28 @@
           </button>
           <button
             type="button"
-            class="image-card-btn"
+            class="searchpage-image-card-btn w-full padding-0 cursor-pointer"
             @click="openResult(r)"
             :title="r.url"
           >
             <template v-if="shouldMountImageThumb(idx)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-                class="safe-thumb"
-                :class="{ blurred: shouldBlurThumb(r), 'thumb-loading': !thumbLoadedById[r.id] }"
+                class="searchpage-safe-thumb w-full h-full"
+                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'searchpage-thumb-loading': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="safe-thumb-hide"
+                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="16" />
                 </button>
                 <img
-                  class="image-thumb"
+                  class="searchpage-image-thumb w-full"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -187,21 +187,21 @@
                   @load="onThumbLoad(r, $event)"
                   @error="onThumbError(r)"
                 />
-                <div v-if="shouldBlurThumb(r)" class="safe-thumb-overlay">
+                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay">
                   <div
-                    class="safe-thumb-reveal"
+                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
                   </div>
                 </div>
               </div>
-              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="image-fallback">
+              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary">
                 <Image :size="18" />
               </div>
               <img
                 v-else-if="r.thumbUrl"
-                class="image-thumb"
+                class="searchpage-image-thumb w-full"
                 :src="r.thumbUrl"
                 alt=""
                 :loading="imageThumbLoading(idx)"
@@ -209,25 +209,25 @@
                 :fetchpriority="imageThumbFetchPriority(idx)"
                 @load="markThumbLoaded(r.id)"
               />
-              <div v-else class="image-fallback">
+              <div v-else class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary">
                 <Image :size="18" />
               </div>
             </template>
-            <div v-else class="image-fallback image-fallback--deferred">
+            <div v-else class="searchpage-image-fallback searchpage-image-fallback--deferred flex-align-justify-center w-full color-text-secondary color-text-tertiary">
               <Image :size="18" />
             </div>
           </button>
-          <div class="image-meta">
-            <div v-if="r.badges?.length" class="image-tags">
+          <div class="searchpage-image-meta flex-align-center gap-50">
+            <div v-if="r.badges?.length" class="searchpage-image-tags flex flex-wrap-wrap gap-35 flex-1">
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
-                class="image-badge"
+                class="searchpage-image-badge border-radius-full color-primary"
                 >{{ b }}</span
               >
               <span
                 v-if="r.badges.length > 4"
-                class="image-badge-more"
+                class="searchpage-image-badge-more border-radius-full color-text-secondary txt-weight-light"
                 :title="r.badges.slice(4).join(', ')"
                 >+{{ r.badges.length - 4 }}</span
               >
@@ -236,7 +236,7 @@
         </div>
       </div>
 
-      <ul v-else class="result-list">
+      <ul v-else class="searchpage-result-list">
         <li
           v-for="(r, idx) in results"
           :key="r.id"
@@ -244,34 +244,29 @@
           :data-result-index="idx"
         >
           <button 
-            class="result-card" 
-            :class="[
-              `result-${r.kind}`,
-              r.media ? `media-${r.media}` : '',
-              r.fileKind ? `file-${r.fileKind}` : '',
-              selectedType === 'all' && r.media === 'image' ? 'explore-image' : ''
-            ]"
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer" 
+            :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
             type="button" 
             @click="openResult(r)"
           >
-            <div class="result-icon" :class="`icon-${r.kind}`">
+            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto" :class="`searchpage-icon-${r.kind}`">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-                class="safe-thumb safe-thumb--compact"
-                :class="{ blurred: shouldBlurThumb(r), 'thumb-loading': !thumbLoadedById[r.id] }"
+                class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full"
+                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'searchpage-thumb-loading': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="safe-thumb-hide safe-thumb-hide--compact"
+                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="14" />
                 </button>
                 <img
-                  class="thumb"
+                  class="searchpage-thumb w-full h-full"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -282,18 +277,18 @@
               </div>
               <img
                 v-else-if="r.thumbUrl && !brokenThumbs[r.id]"
-                class="thumb"
+                class="searchpage-thumb w-full h-full"
                 :src="r.thumbUrl"
                 alt=""
                 @error="onFaviconError(r)"
               />
               <component v-else :is="iconFor(r)" :size="20" />
             </div>
-            <div class="result-body">
-              <div class="result-header">
+            <div class="searchpage-result-body flex-1-1-auto">
+              <div class="searchpage-result-header flex-align-center gap-50">
                 <span
                   v-if="r.kind !== 'site'"
-                  class="result-type-badge"
+                  class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase"
                   :class="typeBadgeClass(r)"
                 >
                   {{ typeBadgeLabel(r) }}
@@ -301,58 +296,58 @@
               </div>
               <div
                 v-if="displayTitle(r)"
-                class="result-title"
-                :class="{ 'result-title--placeholder': isNoTitlePlaceholder(r) }"
+                class="searchpage-result-title margin-0 txt-weight-light color-text-primary"
+                :class="{ 'searchpage-result-title--placeholder': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
               </div>
               <div
                 v-if="r.kind === 'site' && r.site?.domain"
-                class="site-domain mono"
+                class="searchpage-site-domain mono flex-inline-align-center margin-top-37 gap-35 color-primary txt-weight-light"
                 :title="r.site.domain"
               >
                 <Globe :size="14" />
                 {{ r.site.domain }}
               </div>
-              <div v-if="shouldShowResultUrl(r)" class="result-url mono">{{ r.url }}</div>
+              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="result-desc result-desc--code"
-                :class="{ 'result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
+                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary"
+                :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
               ></pre>
               <div
                 v-else-if="displayDescription(r)"
-                class="result-desc"
-                :class="{ 'result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
+                class="searchpage-result-desc color-text-secondary"
+                :class="{ 'searchpage-result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
                 :title="displayDescription(r)"
               >
                 {{ displayDescription(r) }}
               </div>
-              <div v-if="r.badges?.length" class="badges">
+              <div v-if="r.badges?.length" class="searchpage-badges flex flex-wrap-wrap gap-50">
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="badge txt-weight-light"
+                  class="searchpage-badge txt-weight-light border-radius-full color-primary"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="badge badge-more txt-weight-light"
+                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
               </div>
             </div>
-            <ArrowUpRight :size="18" class="result-open" />
+            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto" />
           </button>
         </li>
       </ul>
 
-      <div v-if="showLoadMore" class="load-more-bar">
+      <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center">
         <button
-          class="load-more-btn disabled-fade-60"
+          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer"
           type="button"
           :disabled="loadingMore || loadingPrevious"
           @click="loadMore"
@@ -362,32 +357,32 @@
         </button>
       </div>
 
-      <div ref="paginationSentinel" class="load-more-sentinel" aria-hidden="true"></div>
+      <div ref="paginationSentinel" class="searchpage-load-more-sentinel w-full" aria-hidden="true"></div>
     </section>
 
-    <Transition name="modal">
+    <Transition name="searchpage-modal">
       <div
         v-if="showHowSearchWorks"
-        class="modal-overlay"
+        class="searchpage-modal-overlay flex-align-justify-center padding-125"
         role="dialog"
         aria-modal="true"
         aria-label="How search works"
         @click="closeHowSearchWorks"
       >
-        <div class="modal-content help-modal" @click.stop>
-          <header class="modal-header help-header">
-            <div class="help-header-left">
-              <div class="help-header-icon" aria-hidden="true">
+        <div class="searchpage-modal-content searchpage-help-modal border-radius-18px" @click.stop>
+          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100">
+            <div class="searchpage-help-header-left flex-align-start">
+              <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto" aria-hidden="true">
                 <HelpCircle :size="18" />
               </div>
               <div>
-                <h2 class="modal-title">How search works</h2>
-                <p class="modal-sub">Indexing, ranking, and how to get discovered.</p>
+                <h2 class="searchpage-modal-title margin-0 txt-weight-strong color-text-primary">How search works</h2>
+                <p class="searchpage-modal-sub color-text-secondary fs-085rem">Indexing, ranking, and how to get discovered.</p>
               </div>
             </div>
             <button
               type="button"
-              class="icon-btn hover-fill-primary-enabled help-close"
+              class="searchpage-icon-btn hover-fill-primary-enabled searchpage-help-close flex-inline-align-justify-center border-radius-10px color-text-secondary cursor-pointer flex-0-0-auto"
               aria-label="Close"
               @click="closeHowSearchWorks"
             >
@@ -395,48 +390,48 @@
             </button>
           </header>
 
-          <div class="help-body">
-            <div class="help-grid">
-              <section class="help-card">
-                <h3 class="help-h3">What gets indexed</h3>
-                <p class="help-p">
+          <div class="searchpage-help-body color-text-primary">
+            <div class="searchpage-help-grid">
+              <section class="searchpage-help-card">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary">What gets indexed</h3>
+                <p class="searchpage-help-p color-text-secondary">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="help-callout">
-                  <Sparkles :size="16" class="help-callout-icon" />
-                  <div class="help-callout-text">
+                <div class="searchpage-help-callout flex-align-start">
+                  <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto" />
+                  <div class="searchpage-help-callout-text color-text-secondary">
                     Local-only content on your machine stays private and won’t appear in network
                     search.
                   </div>
                 </div>
               </section>
 
-              <section class="help-card">
-                <h3 class="help-h3">How to get indexed</h3>
-                <ol class="help-steps">
+              <section class="searchpage-help-card">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary">How to get indexed</h3>
+                <ol class="searchpage-help-steps flex flex-column padding-0 color-text-secondary">
                   <li>
-                    <span class="help-step-text">
+                    <span class="searchpage-help-step-text">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
                   <li>
-                    <span class="help-step-text">
+                    <span class="searchpage-help-step-text">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
                   <li>
-                    <span class="help-step-text">
+                    <span class="searchpage-help-step-text">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>
                   </li>
                 </ol>
               </section>
 
-              <section class="help-card">
-                <h3 class="help-h3">How queries work</h3>
-                <ul class="help-list">
+              <section class="searchpage-help-card">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary">How queries work</h3>
+                <ul class="searchpage-help-list padding-0 color-text-secondary">
                   <li>
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
@@ -452,9 +447,9 @@
                 </ul>
               </section>
 
-              <section class="help-card">
-                <h3 class="help-h3">How results are ranked</h3>
-                <ul class="help-list">
+              <section class="searchpage-help-card">
+                <h3 class="searchpage-help-h3 margin-0 color-text-primary">How results are ranked</h3>
+                <ul class="searchpage-help-list padding-0 color-text-secondary">
                   <li><strong>Relevance</strong>: token matches in extracted tags/text.</li>
                   <li><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
                   <li><strong>Popularity</strong>: signals like views and saves.</li>
@@ -463,7 +458,7 @@
                 </ul>
               </section>
 
-              <p class="help-note">
+              <p class="searchpage-help-note color-text-secondary">
                 Results can vary while indexing is in progress and as the network evolves.
               </p>
             </div>
@@ -1611,12 +1606,12 @@ function typeBadgeLabel(r: ResultItem): string {
 }
 
 function typeBadgeClass(r: ResultItem): string {
-  if (!r) return "type-ipfs";
+  if (!r) return "searchpage-type-ipfs";
   if (r.kind === "ipfs") {
     const fk = r.fileKind || "unknown";
-    if (fk && fk !== "unknown") return `type-${fk}`;
+    if (fk && fk !== "unknown") return `searchpage-type-${fk}`;
   }
-  return `type-${r.kind}`;
+  return `searchpage-type-${r.kind}`;
 }
 
 function iconFor(r: ResultItem) {
@@ -4751,1324 +4746,3 @@ watch(
 );
 
 </script>
-
-<style scoped>
-.search-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background: var(--bg-tertiary);
-  padding: 2rem 1.5rem 5rem;
-  position: relative;
-}
-
-.search-page::before {
-  content: "";
-  position: fixed;
-  top: -50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, var(--primary-a08) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.hero {
-  margin-top: 15vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-}
-
-.brand {
-  font-size: 3.5rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
-  margin-bottom: 0.5rem;
-}
-
-.brand::after {
-  content: "Search";
-  position: absolute;
-  bottom: -1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  -webkit-text-fill-color: var(--text-tertiary);
-}
-
-.search-row {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.search-box {
-  width: min(820px, 100%);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem 0.85rem 1.25rem;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background: var(--card-bg);
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.search-box:focus-within {
-  border-color: var(--ios-blue);
-  box-shadow: var(--shadow-focus);
-  transform: translateY(-2px);
-}
-
-.search-icon {
-  color: var(--text-secondary);
-  flex: 0 0 auto;
-}
-
-.search-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 1rem;
-  color: var(--text-primary);
-}
-
-.search-btn {
-  border: none;
-  background: var(--accent-primary);
-  color: white;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.search-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.search-btn:hover::before {
-  opacity: 1;
-}
-
-.search-btn:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.search-btn:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-}
-
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.625rem;
-  margin-top: 0.75rem;
-}
-
-.help-icon-btn {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  z-index: 2;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.help-icon-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.help-icon-btn:active {
-  transform: translateY(0);
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.18s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
-  z-index: 100;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  width: min(760px, 100%);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: var(--shadow-primary-lg);
-}
-
-.help-modal {
-  position: relative;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem 1.25rem 0.75rem;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.help-header {
-  padding-top: 1.15rem;
-}
-
-.help-header-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  min-width: 0;
-}
-
-.help-header-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-light);
-  background: var(--primary-a08);
-  color: var(--text-primary);
-  flex: 0 0 auto;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.modal-sub {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-}
-
-.icon-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: transparent;
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-
-.help-close {
-  flex: 0 0 auto;
-}
-
-.help-body {
-  padding: 1rem 1.25rem 1.25rem;
-  color: var(--text-primary);
-  max-height: min(72vh, 720px);
-  overflow-y: auto;
-}
-
-.help-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1rem;
-}
-
-@media (max-width: 760px) {
-  .help-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.help-card {
-  border: 1px solid var(--border-light);
-  background: var(--bg-secondary);
-  border-radius: 16px;
-  padding: 0.95rem 1rem 1rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.help-h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 850;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
-
-.help-p {
-  margin: 0.5rem 0 0;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.help-callout {
-  margin-top: 0.75rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 14px;
-  border: 1px solid rgba(var(--ios-indigo-rgb), 0.18);
-  background: rgba(var(--ios-indigo-rgb), 0.08);
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-}
-
-.help-callout-icon {
-  color: var(--text-primary);
-  opacity: 0.85;
-  flex: 0 0 auto;
-  margin-top: 0.05rem;
-}
-
-.help-callout-text {
-  color: var(--text-secondary);
-  line-height: 1.45;
-  font-size: 0.9rem;
-}
-
-.help-list {
-  margin: 0.55rem 0 0;
-  padding: 0;
-  list-style: none;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.help-list li {
-  position: relative;
-  padding-left: 1.05rem;
-  margin: 0.45rem 0;
-}
-
-.help-list li::before {
-  content: "";
-  position: absolute;
-  left: 0.2rem;
-  top: 0.65rem;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--text-tertiary);
-  opacity: 0.7;
-}
-
-.help-steps {
-  margin: 0.55rem 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: helpstep;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.help-steps li {
-  display: flex;
-  gap: 0.65rem;
-}
-
-.help-steps li::before {
-  counter-increment: helpstep;
-  content: counter(helpstep);
-  width: 26px;
-  height: 26px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-light);
-  background: var(--card-bg);
-  color: var(--text-tertiary);
-  font-weight: 800;
-  font-size: 0.75rem;
-  flex: 0 0 auto;
-  margin-top: 0.05rem;
-}
-
-.help-step-text {
-  min-width: 0;
-}
-
-.help-note {
-  grid-column: 1 / -1;
-  margin: 0.2rem 0 0;
-  padding: 0.75rem 0.95rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-light);
-  background: var(--bg-primary);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1.5px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  padding: 0.625rem 1.25rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-}
-
-.pill svg {
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.pill:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.pill:hover:not(:disabled):not(.active) {
-  border-color: var(--primary-a40);
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.pill:hover:not(:disabled) svg {
-  transform: scale(1.1);
-}
-
-.pill.active {
-  background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
-  border-color: transparent;
-  color: white;
-  font-weight: 700;
-  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.3);
-}
-
-.pill.active svg {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-}
-
-.results {
-  width: min(920px, 100%);
-  margin: 3rem auto 0;
-  padding: 0 0.5rem 0.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-.meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 0 0.25rem;
-}
-
-.meta .txt-xs {
-  font-weight: 500;
-  font-size: 0.8125rem;
-}
-
-/* Load more */
-.load-more-bar {
-  display: flex;
-  justify-content: center;
-  padding: 1.25rem 0 0.5rem;
-}
-
-.load-more-bar--top {
-  padding: 0 0 1rem;
-}
-
-.load-more-sentinel {
-  width: 100%;
-  height: 1px;
-}
-
-.load-more-btn {
-  padding: 0.75rem 1.25rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 999px;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.load-more-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-}
-
-
-.error {
-  color: var(--ios-red);
-}
-
-.result-list,
-.skeleton-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.result-card {
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  gap: 1.125rem;
-  padding: 1.25rem 1.5rem;
-  border-radius: var(--border-radius-xl);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  text-align: left;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.result-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--gradient-brand);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.result-card:hover::before {
-  opacity: 1;
-}
-
-.result-card:hover {
-  transform: translateY(-4px) translateX(4px);
-  border-color: var(--ios-blue);
-  box-shadow: var(--shadow-primary);
-  background: var(--card-bg);
-}
-
-.result-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--border-radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gradient-secondary);
-  color: var(--ios-blue);
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: var(--border-width) solid var(--border-color);
-  transition: all var(--transition-smooth);
-}
-
-.result-card:hover .result-icon {
-  transform: scale(1.05) rotate(5deg);
-  box-shadow: 0 4px 12px var(--primary-a20);
-}
-
-.result-card.explore-image {
-  align-items: stretch;
-  padding: 0;
-  gap: 0;
-  min-height: 132px;
-  max-height: 132px;
-}
-
-.result-card.explore-image .result-icon {
-  width: 160px;
-  height: auto;
-  align-self: stretch;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-}
-
-.result-card.explore-image .safe-thumb--compact {
-  border-radius: 0;
-}
-
-.result-card.explore-image .result-body {
-  overflow: hidden;
-  padding: 1.25rem 1.5rem;
-}
-
-.result-card.explore-image .badges {
-  flex-wrap: nowrap;
-  overflow: hidden;
-}
-
-.result-card.explore-image .badge {
-  white-space: nowrap;
-}
-
-.result-card.explore-image:hover .result-icon {
-  transform: none;
-  box-shadow: 0 10px 30px var(--primary-a18);
-}
-
-/* Result type-specific icon colors */
-.icon-site {
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%);
-  color: var(--ios-blue);
-}
-
-.icon-ipfs {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.icon-tx {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-}
-
-.icon-block {
-  background: linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
-  color: var(--ios-purple);
-}
-
-.icon-address {
-  background: linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%);
-  color: var(--ios-teal);
-}
-
-.icon-link {
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-}
-
-/* Result type badges */
-.result-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.result-type-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-}
-
-.type-ipfs {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.type-image {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.type-html {
-  background: rgba(var(--ios-blue-rgb), 0.12);
-  color: var(--ios-blue);
-}
-
-.type-pdf {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.type-txt {
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-}
-
-.type-epub {
-  background: rgba(var(--ios-purple-rgb), 0.12);
-  color: var(--ios-purple);
-}
-
-.type-docx {
-  background: rgba(var(--ios-teal-rgb), 0.12);
-  color: var(--ios-teal);
-}
-
-.type-tx {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-}
-
-.type-block {
-  background: rgba(var(--ios-indigo-rgb), 0.12);
-  color: var(--ios-purple);
-}
-
-.type-address {
-  background: rgba(var(--ios-teal-rgb), 0.12);
-  color: var(--ios-teal);
-}
-
-.type-link {
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-}
-
-/* Card accent colors by type */
-.result-tx::before {
-  background: linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%);
-}
-
-.result-block::before {
-  background: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%);
-}
-
-.result-address::before {
-  background: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%);
-}
-
-.result-ipfs::before {
-  background: linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%);
-}
-
-.result-ipfs.file-html::before {
-  background: linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%);
-}
-
-.result-ipfs.file-pdf::before {
-  background: linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%);
-}
-
-.result-ipfs.file-txt::before {
-  background: linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%);
-}
-
-.result-ipfs.file-epub::before {
-  background: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%);
-}
-
-.result-ipfs.file-docx::before {
-  background: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%);
-}
-
-.thumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.safe-thumb {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg-secondary);
-}
-
-.safe-thumb.thumb-loading {
-  background: linear-gradient(
-    90deg,
-    rgba(148, 163, 184, 0.15) 0%,
-    rgba(148, 163, 184, 0.25) 50%,
-    rgba(148, 163, 184, 0.15) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.safe-thumb.blurred img {
-  filter: blur(14px) saturate(0.85) brightness(0.85);
-  transform: scale(1.06);
-  transition: filter 180ms ease, transform 180ms ease;
-}
-
-.safe-thumb:not(.blurred) img {
-  filter: none;
-  transform: none;
-  transition: filter 180ms ease, transform 180ms ease;
-}
-
-.safe-thumb-overlay {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0.45rem 0.5rem;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.02),
-    rgba(0, 0, 0, 0.55)
-  );
-}
-
-.safe-thumb-reveal {
-  width: 100%;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.45rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(8px);
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-.safe-thumb-reveal:hover {
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.safe-thumb--compact {
-  border-radius: 0.5rem;
-}
-
-.safe-thumb-hide {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  cursor: pointer;
-}
-
-.safe-thumb-hide:hover {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.safe-thumb-hide--compact {
-  top: 0.25rem;
-  right: 0.25rem;
-  width: 1.65rem;
-  height: 1.65rem;
-}
-
-.image-card .safe-thumb-hide {
-  left: 0.5rem;
-  right: auto;
-}
-
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.image-card {
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  border-radius: var(--border-radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-smooth);
-  position: relative;
-  content-visibility: auto;
-  contain-intrinsic-size: 240px 220px;
-}
-
-.image-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  border-color: var(--primary-a40);
-  box-shadow: 0 16px 32px var(--primary-a15);
-}
-
-.image-card-btn {
-  width: 100%;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  display: block;
-}
-
-.image-thumb {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  display: block;
-  background: var(--bg-secondary);
-}
-
-.image-fallback {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-}
-
-.image-fallback--deferred {
-  background:
-    linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-secondary) 76%, white) 100%);
-  color: var(--text-tertiary);
-}
-
-.image-meta {
-  padding: 0.75rem 0.75rem 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.5rem;
-}
-
-.image-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.image-badge {
-  font-size: 0.67rem;
-  line-height: 1;
-  padding: 0.25rem 0.4rem;
-  border-radius: 999px;
-  background: var(--primary-a08);
-  color: var(--accent-primary);
-  border: 1px solid var(--primary-a15);
-  white-space: nowrap;
-}
-
-.image-badge-more {
-  font-size: 0.67rem;
-  line-height: 1;
-  padding: 0.25rem 0.4rem;
-  border-radius: 999px;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  white-space: nowrap;
-  cursor: help;
-  font-weight: 600;
-}
-
-.image-save-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 2;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
-  backdrop-filter: blur(6px);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.image-save-btn:hover {
-  transform: scale(1.06);
-  color: var(--accent-primary);
-  border-color: var(--primary-a30);
-}
-
-.image-save-btn.saved {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: white;
-}
-
-.image-save-btn.saved:hover {
-  background: var(--error-red);
-  border-color: var(--error-red);
-  color: white;
-}
-
-.result-body {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.result-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  transition: color 0.2s ease;
-}
-
-.result-title--placeholder {
-  font-size: 0.95rem;
-  font-style: italic;
-  font-weight: 500;
-  opacity: 0.65;
-  letter-spacing: 0;
-}
-
-.result-card:hover .result-title {
-  color: var(--accent-primary);
-}
-
-.result-url {
-  margin-top: 0.375rem;
-  font-size: 0.8125rem;
-  color: var(--accent-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-  opacity: 0.85;
-  transition: opacity 0.2s ease;
-}
-
-.site-domain {
-  margin-top: 0.375rem;
-  font-size: 0.8125rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--accent-primary);
-  font-weight: 600;
-  opacity: 0.9;
-}
-
-.site-domain svg {
-  flex: 0 0 auto;
-}
-
-.result-card:hover .result-url {
-  opacity: 1;
-}
-
-.result-desc {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.result-desc--placeholder {
-  font-size: 0.75rem;
-  font-style: italic;
-  opacity: 0.6;
-}
-
-.result-desc--code {
-  margin: 0.5rem 0 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: var(--primary-a06);
-  border: 1px solid var(--primary-a12);
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.55rem;
-  line-height: 1.45;
-}
-
-.result-open {
-  color: var(--text-secondary);
-  margin-top: 0.15rem;
-  flex: 0 0 auto;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0.5;
-}
-
-.result-card:hover .result-open {
-  color: var(--accent-primary);
-  transform: translate(4px, -4px) scale(1.1);
-  opacity: 1;
-}
-
-.badges {
-  margin-top: 0.75rem;
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.badge {
-  font-weight: 600;
-  font-size: 0.56rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  background: var(--primary-a08);
-  color: var(--accent-primary);
-  border: 1px solid var(--primary-a20);
-  transition: all 0.2s ease;
-}
-
-.badge-more {
-  opacity: 0.85;
-}
-
-.result-card:hover .badge {
-  background: var(--primary-a10);
-  border-color: var(--primary-a30);
-  transform: translateY(-1px);
-}
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem 2rem;
-  border-radius: var(--border-radius-xl);
-  border: 2px dashed var(--border-color);
-  background: var(--card-bg);
-  text-align: center;
-}
-
-.empty-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
-  margin-bottom: 1.5rem;
-}
-
-.empty-content {
-  max-width: 400px;
-}
-
-.empty-state .empty-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem;
-}
-
-.empty-state .empty-subtitle {
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.5rem;
-  line-height: 1.5;
-}
-
-.empty-subtitle strong {
-  color: var(--text-primary);
-}
-
-.empty-suggestions {
-  text-align: left;
-  padding: 1rem 1.25rem;
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-}
-
-.suggestion-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.suggestion-list {
-  margin: 0;
-  padding-left: 1.25rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-
-.suggestion-list code {
-  font-size: 0.8125rem;
-  padding: 0.15rem 0.4rem;
-  background: var(--primary-a08);
-  border-radius: 4px;
-  color: var(--accent-primary);
-}
-
-/* Improved Skeleton */
-.skeleton-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.skeleton-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  border-radius: var(--border-radius-xl);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  padding: 1.25rem 1.5rem;
-}
-
-.skeleton-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--border-radius-lg);
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  flex-shrink: 0;
-}
-
-.skeleton-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.skeleton-title,
-.skeleton-url,
-.skeleton-desc {
-  border-radius: 6px;
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-title {
-  height: 1.125rem;
-  width: 60%;
-}
-
-.skeleton-url {
-  height: 0.875rem;
-  width: 40%;
-  margin-top: 0.625rem;
-}
-
-.skeleton-desc {
-  height: 2.5rem;
-  width: 85%;
-  margin-top: 0.625rem;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .hero {
-    margin-top: 12vh;
-  }
-  .brand {
-    font-size: 2.1rem;
-  }
-  .search-btn {
-    display: none;
-  }
-}
-</style>
