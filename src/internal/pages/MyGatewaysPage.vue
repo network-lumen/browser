@@ -1,10 +1,10 @@
 <template>
-  <div class="my-gateways-page internal-page flex">
+  <div class="my-gateways-page internal-page flex bg-primary">
     <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Manage</span>
-          <button type="button" class="lsb-item active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Manage</span>
+          <button type="button" class="lsb-item active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015">
             <List :size="18" />
             <span>Gateway List</span>
           </button>
@@ -12,7 +12,7 @@
       </nav>
     </InternalSidebar>
 
-    <main class="mygw-main flex-1 flex flex-column overflow-hidden bg-secondary">
+    <main class="mygw-main flex-1 flex flex-column overflow-hidden bg-secondary padding-200-250">
       <header class="mygw-content-header margin-bottom-200">
         <div class="mygw-header-text">
           <h1 class="txt-weight-medium color-text-primary">My Private Gateways</h1>
@@ -22,9 +22,9 @@
 
       <div class="mygw-content-area flex-1 overflow-y-auto">
         <!-- Embedded Server Card -->
-        <div class="mygw-server-card" :class="{ active: embeddedServerRunning }">
+        <div class="mygw-server-card bg-card border-2 border-radius-16px transition-all-03" :class="{ active: embeddedServerRunning }">
           <div class="mygw-server-card-header flex-align-center gap-125 margin-bottom-150">
-            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary">
+            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03">
               <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -40,10 +40,10 @@
             </div>
             <div class="mygw-server-info flex-1">
               <h3 class="fs-11rem txt-weight-light color-text-primary">Embedded Gateway Server</h3>
-              <p v-if="embeddedServerRunning" class="mygw-server-url margin-0">{{ embeddedServerUrl }}</p>
-              <p v-else class="mygw-server-status-text color-text-secondary margin-0">Start your personal gateway server</p>
+              <p v-if="embeddedServerRunning" class="mygw-server-url margin-0 fs-14px color-ios-blue">{{ embeddedServerUrl }}</p>
+              <p v-else class="mygw-server-status-text color-text-secondary margin-0 fs-14px">Start your personal gateway server</p>
             </div>
-            <div class="mygw-server-status-badge flex-align-center gap-50 fw-500 color-text-secondary border-radius-20px" :class="{ running: embeddedServerRunning }">
+            <div class="mygw-server-status-badge flex-align-center gap-50 fw-500 color-text-secondary border-radius-20px padding-50-100 bg-fill-tertiary fs-14px transition-all-03" :class="{ running: embeddedServerRunning }">
               <span class="mygw-status-dot border-radius-circle"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
@@ -53,7 +53,7 @@
             <button 
               v-if="embeddedServerRunning"
               type="button" 
-              class="mygw-btn-outline flex-align-center gap-50 cursor-pointer fw-500 color-text-primary flex-1"
+              class="mygw-btn-outline flex-align-center gap-50 cursor-pointer fw-500 color-text-primary flex-1 bg-transparent"
               @click="viewApiKey"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -83,7 +83,7 @@
         <div v-if="embeddedServerRunning" class="mygw-whitelist-section">
           <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
             <h2 class="txt-weight-light color-text-primary margin-0">Whitelist Management</h2>
-            <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="openWhitelistModal">
+            <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary" @click="openWhitelistModal">
               <Plus :size="18" />
               Add User
             </button>
@@ -98,7 +98,7 @@
             <p>No users in whitelist yet. Add wallet addresses to grant access.</p>
           </div>
 
-          <div v-else class="mygw-whitelist-table overflow-hidden">
+          <div v-else class="mygw-whitelist-table overflow-hidden bg-card border-radius-14px">
             <table>
               <thead>
                 <tr>
@@ -116,15 +116,15 @@
                     </div>
                   </td>
                   <td>
-                    <span class="mygw-mono-text color-text-secondary">{{ formatAddress(entry.wallet_address) }}</span>
+                    <span class="mygw-mono-text color-text-secondary fs-13px">{{ formatAddress(entry.wallet_address) }}</span>
                   </td>
                   <td>{{ formatDate(entry.added_at) }}</td>
                   <td>
                     <div class="mygw-table-actions flex gap-50">
-                      <button class="mygw-btn-icon flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px" @click="editWhitelistEntry(entry)" title="Edit display name">
+                      <button class="mygw-btn-icon flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px border-1 border-radius-8px transition-all-02" @click="editWhitelistEntry(entry)" title="Edit display name">
                         <Edit2 :size="14" />
                       </button>
-                      <button class="mygw-btn-icon danger flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
+                      <button class="mygw-btn-icon danger flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px border-1 border-radius-8px transition-all-02" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
                         <Trash2 :size="14" />
                       </button>
                     </div>
@@ -138,7 +138,7 @@
         <!-- External Gateways Section -->
         <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
           <h2 class="txt-weight-light color-text-primary margin-0">External Gateways</h2>
-          <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="openCreateModal">
+          <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary" @click="openCreateModal">
             <Plus :size="18" />
             Add Gateway
           </button>
@@ -153,48 +153,48 @@
           <AlertCircle :size="48" class="color-error margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary">Error Loading Gateways</h2>
           <p>{{ error }}</p>
-          <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="loadGateways">Try Again</button>
+          <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1" @click="loadGateways">Try Again</button>
         </div>
 
         <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center">
           <Server :size="48" class="color-text-tertiary margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary">No Gateways Yet</h2>
           <p>Create your first private gateway to get started</p>
-          <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="openCreateModal">
+          <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary" @click="openCreateModal">
             <Plus :size="18" />
             Create Gateway
           </button>
         </div>
 
-        <div v-else class="mygw-gateways-grid gap-125">
-          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150">
+        <div v-else class="mygw-gateways-grid gap-125 grid">
+          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150 bg-card border-radius-14px">
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between margin-bottom-100">
               <div class="mygw-gateway-title flex-align-center gap-50">
                 <div class="mygw-status-dot border-radius-circle" :class="{ active: gateway.status === 'active' }"></div>
                 <h3 class="fs-11rem txt-weight-light color-text-primary margin-0">{{ gateway.name }}</h3>
               </div>
-              <span class="mygw-gateway-badge fw-500 border-radius-12px text-capitalize" :class="`badge-${gateway.status}`">
+              <span class="mygw-gateway-badge fw-500 border-radius-12px text-capitalize fs-075rem" :class="`badge-${gateway.status}`">
                 {{ gateway.status }}
               </span>
             </div>
 
             <div class="mygw-gateway-info flex flex-column gap-50 margin-bottom-100">
-              <div class="mygw-info-row flex gap-50">
+              <div class="mygw-info-row flex gap-50 fs-14px">
                 <span class="mygw-info-label color-text-secondary fw-500">URL:</span>
                 <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.url }}</span>
               </div>
-              <div class="mygw-info-row flex gap-50">
+              <div class="mygw-info-row flex gap-50 fs-14px">
                 <span class="mygw-info-label color-text-secondary fw-500">ID:</span>
                 <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.id }}</span>
               </div>
-              <div class="mygw-info-row flex gap-50">
+              <div class="mygw-info-row flex gap-50 fs-14px">
                 <span class="mygw-info-label color-text-secondary fw-500">Created:</span>
                 <span class="mygw-info-value break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>
 
             <div class="mygw-gateway-actions flex gap-50 margin-top-100">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="openEditModal(gateway)">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
                 Edit
               </button>
@@ -210,58 +210,58 @@
       <!-- Create/Edit Modal -->
       <Transition name="mygw-modal">
         <div v-if="showModal" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeModal">
-          <div class="mygw-modal-content bg-card overflow-hidden flex flex-column" @click.stop>
-            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+          <div class="mygw-modal-content bg-card overflow-hidden flex flex-column border-radius-16px" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0">{{ editingGateway ? 'Edit External Gateway' : 'Add External Gateway' }}</h2>
-              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeModal">×</button>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px border-radius-8px fs-15rem transition-all-02" @click="closeModal">×</button>
             </div>
 
             <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
-              <p class="mygw-modal-description color-text-secondary margin-bottom-150">
+              <p class="mygw-modal-description color-text-secondary margin-bottom-150 border-radius-8px padding-75-100 fs-14px line-height-15">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
               
               <div class="mygw-form-group margin-bottom-125">
-                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Gateway Name</label>
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50 fs-14px">Gateway Name</label>
                 <input
                   v-model="form.name"
                   type="text"
-                  class="mygw-form-input w-full color-text-primary border-radius-10px"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px padding-75-100 bg-secondary border-1 fs-14px transition-all-02"
                   placeholder="My Private Gateway"
                 />
               </div>
 
               <div class="mygw-form-group margin-bottom-125">
-                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Gateway URL</label>
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50 fs-14px">Gateway URL</label>
                 <input
                   v-model="form.url"
                   type="text"
-                  class="mygw-form-input w-full color-text-primary border-radius-10px"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px padding-75-100 bg-secondary border-1 fs-14px transition-all-02"
                   placeholder="https://gateway.example.com"
                 />
               </div>
 
               <div class="mygw-form-group margin-bottom-125">
-                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">API Key</label>
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50 fs-14px">API Key</label>
                 <input
                   v-model="form.apiKey"
                   type="password"
-                  class="mygw-form-input w-full color-text-primary border-radius-10px"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px padding-75-100 bg-secondary border-1 fs-14px transition-all-02"
                   placeholder="Your gateway API key"
                 />
               </div>
 
-              <div v-if="modalError" class="mygw-error-message color-error margin-top-100 border-radius-10px">
+              <div v-if="modalError" class="mygw-error-message color-error margin-top-100 border-radius-10px padding-75-100 fs-14px">
                 {{ modalError }}
               </div>
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeModal" :disabled="saving">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1" @click="closeModal" :disabled="saving">
                 Cancel
               </button>
-              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="saveGateway" :disabled="saving || !isFormValid">
+              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary" @click="saveGateway" :disabled="saving || !isFormValid">
                 {{ saving ? 'Saving...' : (editingGateway ? 'Update' : 'Create') }}
               </button>
             </div>
@@ -272,19 +272,19 @@
       <!-- Delete Confirmation Modal -->
       <Transition name="mygw-modal">
         <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeDeleteConfirm">
-          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column" @click.stop>
-            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0">Delete Gateway</h2>
-              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeDeleteConfirm">×</button>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px border-radius-8px fs-15rem transition-all-02" @click="closeDeleteConfirm">×</button>
             </div>
 
             <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
               <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
-              <p class="mygw-warning-text color-warning margin-top-50">This action cannot be undone.</p>
+              <p class="mygw-warning-text color-warning margin-top-50 fs-14px">This action cannot be undone.</p>
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeDeleteConfirm" :disabled="deleting">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1" @click="closeDeleteConfirm" :disabled="deleting">
                 Cancel
               </button>
               <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1" @click="deleteGateway" :disabled="deleting">
@@ -298,54 +298,54 @@
       <!-- Whitelist Add/Edit Modal -->
       <Transition name="mygw-modal">
         <div v-if="showWhitelistModal" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeWhitelistModal">
-          <div class="mygw-modal-content bg-card overflow-hidden flex flex-column" @click.stop>
-            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+          <div class="mygw-modal-content bg-card overflow-hidden flex flex-column border-radius-16px" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0">{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
-              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeWhitelistModal">×</button>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px border-radius-8px fs-15rem transition-all-02" @click="closeWhitelistModal">×</button>
             </div>
 
             <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
               <div class="mygw-form-group margin-bottom-125">
-                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Wallet Address</label>
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50 fs-14px">Wallet Address</label>
                 <input
                   v-model="whitelistForm.address"
                   type="text"
-                  class="mygw-form-input w-full color-text-primary border-radius-10px"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px padding-75-100 bg-secondary border-1 fs-14px transition-all-02"
                   placeholder="lumen1..."
                   :disabled="!!editingWhitelistEntry"
                 />
               </div>
 
               <div class="mygw-form-group margin-bottom-125">
-                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Display Name (Optional)</label>
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50 fs-14px">Display Name (Optional)</label>
                 <input
                   v-model="whitelistForm.displayName"
                   type="text"
-                  class="mygw-form-input w-full color-text-primary border-radius-10px"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px padding-75-100 bg-secondary border-1 fs-14px transition-all-02"
                   placeholder="John Doe"
                 />
               </div>
 
               <div class="mygw-form-group margin-bottom-125">
-                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50">Notes (Optional)</label>
+                <label class="mygw-form-label block fw-500 color-text-secondary margin-bottom-50 fs-14px">Notes (Optional)</label>
                 <textarea
                   v-model="whitelistForm.notes"
-                  class="mygw-form-input w-full color-text-primary border-radius-10px"
+                  class="mygw-form-input w-full color-text-primary border-radius-10px padding-75-100 bg-secondary border-1 fs-14px transition-all-02"
                   rows="3"
                   placeholder="Additional notes about this user..."
                 ></textarea>
               </div>
 
-              <div v-if="whitelistModalError" class="mygw-error-message color-error margin-top-100 border-radius-10px">
+              <div v-if="whitelistModalError" class="mygw-error-message color-error margin-top-100 border-radius-10px padding-75-100 fs-14px">
                 {{ whitelistModalError }}
               </div>
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeWhitelistModal" :disabled="whitelistSaving">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1" @click="closeWhitelistModal" :disabled="whitelistSaving">
                 Cancel
               </button>
-              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
+              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
                 {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
               </button>
             </div>
@@ -356,19 +356,19 @@
       <!-- Whitelist Remove Confirmation Modal -->
       <Transition name="mygw-modal">
         <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeWhitelistDeleteConfirm">
-          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column" @click.stop>
-            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150">
+          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px" @click.stop>
+            <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0">Remove User</h2>
-              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px" @click="closeWhitelistDeleteConfirm">×</button>
+              <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px border-radius-8px fs-15rem transition-all-02" @click="closeWhitelistDeleteConfirm">×</button>
             </div>
 
             <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
               <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
-              <p class="mygw-warning-text color-warning margin-top-50">They will no longer be able to access your gateway.</p>
+              <p class="mygw-warning-text color-warning margin-top-50 fs-14px">They will no longer be able to access your gateway.</p>
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
                 Cancel
               </button>
               <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1" @click="removeFromWhitelist" :disabled="whitelistDeleting">

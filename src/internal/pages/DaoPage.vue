@@ -4,10 +4,10 @@
     <InternalSidebar title="DAO" :icon="Users" activeKey="dao">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Governance</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Governance</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'proposals' }"
             @click="currentView = 'proposals'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'voting' }"
             @click="currentView = 'voting'"
           >
@@ -26,10 +26,10 @@
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Treasury</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Treasury</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'treasury' }"
             @click="currentView = 'treasury'"
           >
@@ -38,7 +38,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'members' }"
             @click="currentView = 'members'"
           >
@@ -50,14 +50,14 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="daopage-main flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary margin-0">
+    <main class="daopage-main flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary margin-0 padding-200-250">
       <!-- Header -->
       <header class="daopage-content-header flex-align-start flex-justify-space-between margin-bottom-150">
         <div>
           <h1 class="txt-weight-medium color-text-primary margin-0">{{ getViewTitle() }}</h1>
           <p class="color-text-secondary">{{ getViewDescription() }}</p>
         </div>
-        <button v-if="currentView === 'proposals'" class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light" @click="openCreateProposalModal">
+        <button v-if="currentView === 'proposals'" class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light padding-75-125 bg-gradient-primary fs-14px transition-all-02" @click="openCreateProposalModal">
           <Plus :size="18" />
           New Proposal
         </button>
@@ -71,32 +71,32 @@
 
       <template v-else>
         <!-- Stats Grid -->
-        <div class="daopage-stats-grid margin-bottom-150 gap-100">
+        <div class="daopage-stats-grid margin-bottom-150 gap-100 grid">
           <div class="daopage-stat-card flex-align-center gap-100 padding-125 border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px">
+            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary">
               <FileText :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
-              <span class="daopage-stat-value txt-weight-medium color-text-primary">{{ activeProposalsCount }}</span>
-              <span class="daopage-stat-label text-uppercase color-text-secondary">Active Proposals</span>
+              <span class="daopage-stat-value txt-weight-medium color-text-primary fs-125rem">{{ activeProposalsCount }}</span>
+              <span class="daopage-stat-label text-uppercase color-text-secondary fs-075rem">Active Proposals</span>
             </div>
           </div>
           <div class="daopage-stat-card flex-align-center gap-100 padding-125 border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px">
+            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary">
               <Users :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
-              <span class="daopage-stat-value txt-weight-medium color-text-primary">{{ totalMembers }}</span>
-              <span class="daopage-stat-label text-uppercase color-text-secondary">Validators</span>
+              <span class="daopage-stat-value txt-weight-medium color-text-primary fs-125rem">{{ totalMembers }}</span>
+              <span class="daopage-stat-label text-uppercase color-text-secondary fs-075rem">Validators</span>
             </div>
           </div>
           <div class="daopage-stat-card flex-align-center gap-100 padding-125 border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px">
+            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary">
               <Wallet :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
-              <span class="daopage-stat-value txt-weight-medium color-text-primary">{{ treasuryBalance }} LUM</span>
-              <span class="daopage-stat-label text-uppercase color-text-secondary">Community Pool</span>
+              <span class="daopage-stat-value txt-weight-medium color-text-primary fs-125rem">{{ treasuryBalance }} LUM</span>
+              <span class="daopage-stat-label text-uppercase color-text-secondary fs-075rem">Community Pool</span>
             </div>
           </div>
         </div>
@@ -108,21 +108,21 @@
             <p>No proposals found</p>
           </div>
           <div v-else class="proposals-list flex flex-column gap-100">
-            <div class="daopage-proposal-card padding-150 border-radius-12px" v-for="proposal in proposals" :key="proposal.id">
+            <div class="daopage-proposal-card padding-150 border-radius-12px border-1" v-for="proposal in proposals" :key="proposal.id">
               <div class="daopage-proposal-header flex-align-center flex-justify-space-between margin-bottom-75">
-                <span class="daopage-proposal-id color-text-secondary">#{{ proposal.id }}</span>
-                <span class="daopage-proposal-status border-radius-20px fw-500" :class="getProposalStatusClass(proposal.status)">
+                <span class="daopage-proposal-id color-text-secondary fs-13px">#{{ proposal.id }}</span>
+                <span class="daopage-proposal-status border-radius-20px fw-500 fs-075rem" :class="getProposalStatusClass(proposal.status)">
                   {{ getProposalStatusText(proposal.status) }}
                 </span>
               </div>
               <h3 class="daopage-proposal-title color-text-primary fs-11rem txt-weight-light">{{ proposal.title }}</h3>
-              <p class="daopage-proposal-desc color-text-secondary">{{ proposal.description.substring(0, 150) }}{{ proposal.description.length > 150 ? '...' : '' }}</p>
+              <p class="daopage-proposal-desc color-text-secondary fs-14px">{{ proposal.description.substring(0, 150) }}{{ proposal.description.length > 150 ? '...' : '' }}</p>
               <div class="daopage-proposal-footer flex-align-center flex-justify-space-between">
-                <div class="daopage-proposal-votes flex gap-100">
+                <div class="daopage-proposal-votes flex gap-100 fs-13px">
                   <span class="color-success">{{ calculateVotePercentage(proposal, 'yes').toFixed(0) }}% Yes</span>
                   <span class="color-error">{{ calculateVotePercentage(proposal, 'no').toFixed(0) }}% No</span>
                 </div>
-                <button class="daopage-btn-secondary cursor-pointer color-text-secondary" @click="openVoteModal(proposal)">
+                <button class="daopage-btn-secondary cursor-pointer color-text-secondary padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02" @click="openVoteModal(proposal)">
                   {{ proposal.status === 'PROPOSAL_STATUS_VOTING_PERIOD' ? 'Vote' : 'View Details' }}
                 </button>
               </div>
@@ -132,29 +132,29 @@
 
         <!-- Voting View -->
         <div v-else-if="currentView === 'voting'" class="daopage-content-area flex-1 overflow-y-auto">
-          <div class="daopage-info-card text-center padding-200">
+          <div class="daopage-info-card text-center padding-200 bg-card border-radius-16px">
             <h3 class="txt-weight-light color-text-secondary">Active Voting Proposals</h3>
-            <p class="daopage-voting-desc color-text-secondary margin-0">Select a proposal from the Proposals tab to vote</p>
+            <p class="daopage-voting-desc color-text-secondary margin-0 fs-14px">Select a proposal from the Proposals tab to vote</p>
           </div>
           <div class="proposals-list flex flex-column gap-100 margin-top-100">
             <div
-              class="daopage-proposal-card padding-150 border-radius-12px"
+              class="daopage-proposal-card padding-150 border-radius-12px border-1"
               v-for="proposal in proposals.filter(p => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD')"
               :key="proposal.id"
             >
               <div class="daopage-proposal-header flex-align-center flex-justify-space-between margin-bottom-75">
-                <span class="daopage-proposal-id color-text-secondary">#{{ proposal.id }}</span>
-                <span class="daopage-proposal-status active border-radius-20px fw-500">Voting</span>
+                <span class="daopage-proposal-id color-text-secondary fs-13px">#{{ proposal.id }}</span>
+                <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem">Voting</span>
               </div>
               <h3 class="daopage-proposal-title color-text-primary fs-11rem txt-weight-light">{{ proposal.title }}</h3>
               <div class="daopage-proposal-footer flex-align-center flex-justify-space-between">
                 <div class="daopage-vote-progress flex-1 flex flex-column gap-25">
-                  <div class="daopage-progress-bar-container overflow-hidden">
-                    <div class="daopage-progress-yes h-full" :style="{ width: calculateVotePercentage(proposal, 'yes') + '%' }"></div>
+                  <div class="daopage-progress-bar-container overflow-hidden bg-border border-radius-4px">
+                    <div class="daopage-progress-yes h-full border-radius-4px" :style="{ width: calculateVotePercentage(proposal, 'yes') + '%' }"></div>
                   </div>
-                  <span class="daopage-progress-label color-text-secondary">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>
+                  <span class="daopage-progress-label color-text-secondary fs-075rem">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>
                 </div>
-                <button class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light" @click="openVoteModal(proposal)">
+                <button class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light padding-75-125 bg-gradient-primary fs-14px transition-all-02" @click="openVoteModal(proposal)">
                   <Vote :size="16" />
                   Vote Now
                 </button>
@@ -170,10 +170,10 @@
             <p>No treasury assets found</p>
           </div>
           <div v-else class="treasury-list flex flex-column gap-75">
-            <div class="daopage-treasury-item flex-align-center flex-justify-space-between padding-125 border-radius-12px" v-for="asset in treasuryAssets" :key="asset.denom">
+            <div class="daopage-treasury-item flex-align-center flex-justify-space-between padding-125 border-radius-12px border-1" v-for="asset in treasuryAssets" :key="asset.denom">
               <div class="asset-info flex flex-column gap-25">
-                <span class="daopage-asset-name color-text-primary txt-weight-light">{{ asset.displayName }}</span>
-                <span class="daopage-asset-value color-text-secondary">{{ formatAmount(asset.amount) }} {{ asset.denom === 'ulumen' ? 'LUM' : asset.denom }}</span>
+                <span class="daopage-asset-name color-text-primary txt-weight-light fs-14px">{{ asset.displayName }}</span>
+                <span class="daopage-asset-value color-text-secondary fs-13px">{{ formatAmount(asset.amount) }} {{ asset.denom === 'ulumen' ? 'LUM' : asset.denom }}</span>
               </div>
             </div>
           </div>
@@ -186,17 +186,17 @@
             <p>No validators found</p>
           </div>
           <div v-else class="members-list flex flex-column gap-50">
-            <div class="daopage-member-item flex-align-center gap-100 padding-100 border-radius-12px" v-for="(member, index) in members" :key="member.address">
-              <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px">{{ index + 1 }}</div>
-              <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light" :class="{ 'has-image': member.avatar }">
+            <div class="daopage-member-item flex-align-center gap-100 padding-100 border-radius-12px border-1 transition-all-02" v-for="(member, index) in members" :key="member.address">
+              <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-tertiary border-radius-6px fs-075rem">{{ index + 1 }}</div>
+              <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary" :class="{ 'has-image': member.avatar }">
                 <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" />
                 <span v-else>{{ member.moniker.charAt(0).toUpperCase() }}</span>
               </div>
               <div class="daopage-member-info flex flex-column flex-1">
-                <span class="daopage-member-name color-text-primary txt-weight-light">{{ member.moniker }}</span>
-                <span class="daopage-member-address color-text-tertiary">{{ shortenAddress(member.address) }}</span>
+                <span class="daopage-member-name color-text-primary txt-weight-light fs-14px">{{ member.moniker }}</span>
+                <span class="daopage-member-address color-text-tertiary fs-075rem">{{ shortenAddress(member.address) }}</span>
               </div>
-              <div class="daopage-member-power txt-weight-light color-primary">{{ formatTokens(member.tokens) }} LUM</div>
+              <div class="daopage-member-power txt-weight-light color-primary fs-14px nowrap">{{ formatTokens(member.tokens) }} LUM</div>
             </div>
           </div>
         </div>
@@ -206,17 +206,17 @@
     <!-- Create Proposal Modal -->
     <Transition name="fade">
       <div v-if="showCreateProposalModal" class="overlay-scrim z-1000 padding-100" @click="closeCreateProposalModal">
-        <div class="daopage-modal-content large w-full overflow-y-auto" @click.stop>
-          <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150">
+        <div class="daopage-modal-content large w-full overflow-y-auto border-radius-16px" @click.stop>
+          <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
             <h3 class="margin-0 txt-weight-light color-text-primary">Create Proposal</h3>
-            <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px" @click="closeCreateProposalModal">
+            <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px border-radius-8px bg-hover transition-all-02" @click="closeCreateProposalModal">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
           <div class="daopage-modal-body padding-150">
-            <p class="daopage-modal-desc color-text-secondary margin-bottom-150">Submit a proposal for DAO governance</p>
+            <p class="daopage-modal-desc color-text-secondary margin-bottom-150 fs-14px">Submit a proposal for DAO governance</p>
 
             <div class="daopage-form-group margin-bottom-125">
               <label class="txt-weight-light color-text-primary">Proposal Title</label>
@@ -249,14 +249,14 @@
               </select>
             </div>
 
-            <div class="daopage-proposal-requirements margin-bottom-150 border-radius-10px padding-100">
-              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary">
+            <div class="daopage-proposal-requirements margin-bottom-150 border-radius-10px padding-100 bg-card">
+              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>
                 </svg>
                 <span>Minimum 1000 LMN required to submit</span>
               </div>
-              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary">
+              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>
                 </svg>
@@ -264,7 +264,7 @@
               </div>
             </div>
 
-            <button class="daopage-btn-modal-primary w-full flex-align-justify-center gap-50 border-none color-white cursor-pointer border-radius-10px fw-500" @click="submitProposal" :disabled="!canSubmitProposal()">
+            <button class="daopage-btn-modal-primary w-full flex-align-justify-center gap-50 border-none color-white cursor-pointer border-radius-10px fw-500 padding-87 bg-gradient-primary fs-15px transition-all-02" @click="submitProposal" :disabled="!canSubmitProposal()">
               <Plus :size="18" />
               Submit Proposal
             </button>
@@ -276,55 +276,55 @@
     <!-- Vote Modal -->
     <Transition name="fade">
       <div v-if="showVoteModal" class="overlay-scrim z-1000 padding-100" @click="closeVoteModal">
-        <div class="daopage-modal-content w-full overflow-y-auto" @click.stop>
-          <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150">
+        <div class="daopage-modal-content w-full overflow-y-auto border-radius-16px" @click.stop>
+          <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
             <h3 class="margin-0 txt-weight-light color-text-primary">Cast Your Vote</h3>
-            <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px" @click="closeVoteModal">
+            <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px border-radius-8px bg-hover transition-all-02" @click="closeVoteModal">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
           <div class="daopage-modal-body padding-150">
-            <div class="daopage-proposal-title-card flex-align-center flex-justify-space-between margin-bottom-150 border-radius-12px padding-150">
+            <div class="daopage-proposal-title-card flex-align-center flex-justify-space-between margin-bottom-150 border-radius-12px padding-150 bg-gradient-primary">
               <h4 class="margin-0 txt-weight-light">{{ selectedProposal?.title || 'Proposal Title' }}</h4>
-              <span class="daopage-proposal-status active border-radius-20px fw-500">Active</span>
+              <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem">Active</span>
             </div>
 
             <div class="daopage-vote-options flex flex-column gap-75 margin-bottom-150">
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'for' }">
                 <input type="radio" name="vote" value="for" v-model="voteChoice" />
-                <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px">
+                <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px border-2 bg-card transition-all-02">
                   <div class="daopage-vote-icon flex-align-justify-center flex-0-0-auto badge-success color-success size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/>
                     </svg>
                   </div>
                   <div>
-                    <div class="daopage-vote-label color-text-primary txt-weight-light">Vote For</div>
-                    <div class="daopage-vote-desc color-text-secondary">Support this proposal</div>
+                    <div class="daopage-vote-label color-text-primary txt-weight-light fs-15px margin-bottom-25">Vote For</div>
+                    <div class="daopage-vote-desc color-text-secondary fs-13px">Support this proposal</div>
                   </div>
                 </div>
               </label>
 
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
                 <input type="radio" name="vote" value="against" v-model="voteChoice" />
-                <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px">
+                <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px border-2 bg-card transition-all-02">
                   <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM15 13.59L13.59 15L10 11.41L6.41 15L5 13.59L8.59 10L5 6.41L6.41 5L10 8.59L13.59 5L15 6.41L11.41 10L15 13.59Z"/>
                     </svg>
                   </div>
                   <div>
-                    <div class="daopage-vote-label color-text-primary txt-weight-light">Vote Against</div>
-                    <div class="daopage-vote-desc color-text-secondary">Oppose this proposal</div>
+                    <div class="daopage-vote-label color-text-primary txt-weight-light fs-15px margin-bottom-25">Vote Against</div>
+                    <div class="daopage-vote-desc color-text-secondary fs-13px">Oppose this proposal</div>
                   </div>
                 </div>
               </label>
 
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
                 <input type="radio" name="vote" value="abstain" v-model="voteChoice" />
-                <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px">
+                <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px border-2 bg-card transition-all-02">
                   <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -332,19 +332,19 @@
                     </svg>
                   </div>
                   <div>
-                    <div class="daopage-vote-label color-text-primary txt-weight-light">Abstain</div>
-                    <div class="daopage-vote-desc color-text-secondary">No preference</div>
+                    <div class="daopage-vote-label color-text-primary txt-weight-light fs-15px margin-bottom-25">Abstain</div>
+                    <div class="daopage-vote-desc color-text-secondary fs-13px">No preference</div>
                   </div>
                 </div>
               </label>
             </div>
 
-            <div class="daopage-voting-power flex-align-center flex-justify-space-between margin-bottom-150 padding-100 border-radius-10px">
-              <span class="daopage-power-label color-text-secondary">Your Voting Power:</span>
-              <span class="daopage-power-value color-text-primary txt-weight-light">9,000 LMN</span>
+            <div class="daopage-voting-power flex-align-center flex-justify-space-between margin-bottom-150 padding-100 border-radius-10px bg-secondary border-1">
+              <span class="daopage-power-label color-text-secondary fs-14px">Your Voting Power:</span>
+              <span class="daopage-power-value color-text-primary txt-weight-light fs-15px">9,000 LMN</span>
             </div>
 
-            <button class="daopage-btn-modal-primary w-full flex-align-justify-center gap-50 border-none color-white cursor-pointer border-radius-10px fw-500" @click="castVote" :disabled="!voteChoice">
+            <button class="daopage-btn-modal-primary w-full flex-align-justify-center gap-50 border-none color-white cursor-pointer border-radius-10px fw-500 padding-87 bg-gradient-primary fs-15px transition-all-02" @click="castVote" :disabled="!voteChoice">
               <Vote :size="18" />
               Cast Vote
             </button>

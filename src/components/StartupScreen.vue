@@ -1,23 +1,23 @@
 <template>
-  <div class="startup-card bg-card border-default flex flex-column w-full h-full" role="status" aria-live="polite">
-    <header class="startup-head flex-align-center">
-      <div class="startup-mark bg-gradient-primary color-white flex-align-justify-center flex-0-0-auto fs-18px" aria-hidden="true">L</div>
+  <div class="startup-card bg-card border-default flex flex-column w-full h-full border-radius-0 shadow-none overflow-hidden" role="status" aria-live="polite">
+    <header class="startup-head flex-align-center gap-75 padding-62 border-bottom-default">
+      <div class="startup-mark bg-gradient-primary color-white flex-align-justify-center flex-0-0-auto fs-18px border-radius-14px" aria-hidden="true">L</div>
       <div class="min-w-0">
-        <div class="startup-title fs-16px txt-weight-strong">Lumen</div>
+        <div class="startup-title fs-16px txt-weight-strong line-height-12">Lumen</div>
       </div>
     </header>
 
-    <main class="startup-body h-auto flex flex-1-1-auto">
-      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center">
+    <main class="startup-body h-auto flex flex-1-1-auto min-h-0">
+      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-87">
         <div class="ring-spinner ring-spinner-lg" aria-label="Loading"></div>
       </div>
 
-      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center">
+      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-87">
         <div>
           <div class="startup-msg-subtitle color-text-secondary fs-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px" type="button" :disabled="busy" @click="restartAll">
+          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px shadow-primary" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>

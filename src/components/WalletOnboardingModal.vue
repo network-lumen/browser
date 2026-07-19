@@ -1,15 +1,15 @@
 <template>
   <Transition name="walletonboard-transition">
     <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px" @click="handleOverlayClick">
-      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto" @click.stop>
-        <div class="walletonboard-header text-center">
+      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px" @click.stop>
+        <div class="walletonboard-header text-center border-bottom-default">
           <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />
           </div>
-          <h2 class="walletonboard-title color-text-primary txt-weight-light">
+          <h2 class="walletonboard-title color-text-primary txt-weight-light fs-15rem">
             {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
           </h2>
-          <p class="walletonboard-subtitle color-text-secondary margin-0">
+          <p class="walletonboard-subtitle color-text-secondary margin-0 fs-14px">
             {{
               requiresProfileCreation
                 ? "A profile is required to use Drive, Wallet, and personal storage."
@@ -20,7 +20,7 @@
 
         <div class="walletonboard-body flex-1 overflow-y-auto padding-200">
           <div v-if="step === 'intro'" class="walletonboard-step">
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150">
+            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="txt-sm txt-weight-strong margin-0">Important: No one can recover your wallet</p>
@@ -31,15 +31,15 @@
               </div>
             </div>
 
-            <div class="walletonboard-info-cards gap-100">
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center">
+            <div class="walletonboard-info-cards gap-100 grid">
+              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Set a Password</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
                   Protect your wallet with a strong password
                 </p>
               </div>
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center">
+              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary">
                 <Download :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Backup Your Wallet</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
@@ -59,7 +59,7 @@
               <input
                 v-model="password"
                 type="password"
-                class="walletonboard-input w-full color-text-primary outline-none"
+                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card"
                 placeholder="Enter password"
                 @keyup.enter="handlePasswordSubmit"
               />
@@ -70,19 +70,19 @@
               <input
                 v-model="confirmPassword"
                 type="password"
-                class="walletonboard-input w-full color-text-primary outline-none"
+                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card"
                 placeholder="Confirm password"
                 @keyup.enter="handlePasswordSubmit"
               />
             </div>
 
-            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary">
+            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px">
               {{ passwordError }}
             </div>
           </div>
 
           <div v-else-if="step === 'profile-name'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -96,20 +96,20 @@
               <input
                 v-model="profileName"
                 type="text"
-                class="walletonboard-input w-full color-text-primary outline-none"
+                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card"
                 placeholder="Enter a profile name"
                 maxlength="64"
                 @keyup.enter="handleProfileNameSubmit"
               />
             </div>
 
-            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary">
+            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px">
               {{ profileNameError }}
             </div>
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -137,7 +137,7 @@
                 <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                   {{ walletError }}
                 </p>
-                <button class="walletonboard-btn-secondary flex-align-center margin-top-100 cursor-pointer gap-50 color-text-secondary" @click="createWallet">
+                <button class="walletonboard-btn-secondary flex-align-center margin-top-100 cursor-pointer gap-50 color-text-secondary bg-transparent border-default" @click="createWallet">
                   Try Again
                 </button>
               </div>
@@ -145,7 +145,7 @@
           </div>
 
           <div v-else-if="step === 'backup'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -154,7 +154,7 @@
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150">
+            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="txt-xs margin-0">
@@ -164,11 +164,11 @@
               </div>
             </div>
 
-            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary">
+            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px">
               {{ backupError }}
             </div>
 
-            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success margin-top-50 color-text-primary">
+            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success margin-top-50 color-text-primary padding-75 bg-fill-success border-radius-6px">
               {{ backupSuccess }}
             </div>
           </div>
@@ -182,7 +182,7 @@
               </p>
             </div>
 
-            <div class="walletonboard-reminder-box margin-top-200 padding-150 border-radius-12px">
+            <div class="walletonboard-reminder-box margin-top-200 padding-150 border-radius-12px bg-secondary">
               <p class="txt-xs txt-weight-strong margin-0 margin-bottom-50 color-text-primary">Remember:</p>
               <ul class="walletonboard-reminder-list txt-xs color-gray-blue margin-0 padding-left-150">
                 <li>Never share your password or backup file</li>
@@ -194,17 +194,17 @@
           </div>
         </div>
 
-        <div class="walletonboard-footer flex gap-100">
+        <div class="walletonboard-footer flex gap-100 flex-justify-end">
           <button
             v-if="step === 'intro' && !requiresProfileCreation"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default"
             @click="handleSkip"
           >
             Skip for now
           </button>
           <button
             v-if="step === 'intro'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
             @click="step = 'password'"
           >
             Get Started
@@ -212,14 +212,14 @@
 
           <button
             v-if="step === 'password'"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default"
             @click="step = 'intro'"
           >
             Back
           </button>
           <button
             v-if="step === 'password'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
             :disabled="settingPassword"
             @click="handlePasswordSubmit"
           >
@@ -229,7 +229,7 @@
 
           <button
             v-if="step === 'profile-name'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
             @click="handleProfileNameSubmit"
           >
             Continue
@@ -237,14 +237,14 @@
 
           <button
             v-if="step === 'backup'"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default"
             @click="handleSkipBackup"
           >
             Skip Backup
           </button>
           <button
             v-if="step === 'backup'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
             :disabled="exportingBackup"
             @click="handleExportBackup"
           >
@@ -254,7 +254,7 @@
 
           <button
             v-if="step === 'complete'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
             @click="handleComplete"
           >
             Start Using Lumen

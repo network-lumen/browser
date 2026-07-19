@@ -4,10 +4,10 @@
     <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Resources</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Resources</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'discover' }"
             @click="setView('discover')"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'domains' }"
             @click="setView('domains')"
           >
@@ -26,10 +26,10 @@
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Support</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Support</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'publish' }"
             @click="setView('publish')"
           >
@@ -38,7 +38,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'contact' }"
             @click="setView('contact')"
           >
@@ -47,7 +47,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'docs' }"
             @click="setView('docs')"
           >
@@ -59,7 +59,7 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="helppage-main flex-1 flex flex-column margin-0">
+    <main class="helppage-main flex-1 flex flex-column margin-0 min-w-0 overflow-hidden padding-200-250 bg-secondary border-radius-0">
       <!-- Header -->
       <header class="helppage-content-header margin-bottom-150">
         <div>
@@ -69,31 +69,31 @@
       </header>
 
       <!-- Discover View -->
-      <div v-if="currentView === 'discover'" class="helppage-content-area flex-1">
+      <div v-if="currentView === 'discover'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25">
         <div class="discover flex flex-column gap-125">
           <!-- Hero Section -->
-          <section class="helppage-hero-section padding-200 border-radius-lg text-center">
+          <section class="helppage-hero-section padding-200 border-radius-lg text-center border-default shadow-sm">
             <div class="helppage-hero-content margin-bottom-150">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0">Welcome to <span class="helppage-gradient-text">Lumen</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary">The decentralized web browser for the next generation of internet</p>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem">Welcome to <span class="helppage-gradient-text bg-gradient-primary">Lumen</span></h2>
+              <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
-            <div class="helppage-hero-features flex flex-wrap-wrap">
-              <div class="helppage-feature-point flex gap-75 text-left">
-                <div class="helppage-point-icon">🌐</div>
+            <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center">
+              <div class="helppage-feature-point flex gap-75 text-left flex-align-start">
+                <div class="helppage-point-icon fs-15rem line-height-1">🌐</div>
                 <div class="helppage-point-text flex flex-column gap-15">
                   <strong class="color-text-primary">Decentralized Storage</strong>
                   <span class="color-text-secondary">Store and share content without central servers</span>
                 </div>
               </div>
-              <div class="helppage-feature-point flex gap-75 text-left">
-                <div class="helppage-point-icon">🔐</div>
+              <div class="helppage-feature-point flex gap-75 text-left flex-align-start">
+                <div class="helppage-point-icon fs-15rem line-height-1">🔐</div>
                 <div class="helppage-point-text flex flex-column gap-15">
                   <strong class="color-text-primary">Blockchain Domains</strong>
                   <span class="color-text-secondary">Own your identity with .lmn domains</span>
                 </div>
               </div>
-              <div class="helppage-feature-point flex gap-75 text-left">
-                <div class="helppage-point-icon">⚡</div>
+              <div class="helppage-feature-point flex gap-75 text-left flex-align-start">
+                <div class="helppage-point-icon fs-15rem line-height-1">⚡</div>
                 <div class="helppage-point-text flex flex-column gap-15">
                   <strong class="color-text-primary">Secure by Design</strong>
                   <span class="color-text-secondary">Encrypted connections and local-first data</span>
@@ -104,71 +104,71 @@
 
           <!-- Quick Actions -->
           <section class="quick-actions flex flex-column gap-100">
-            <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0">Get Started</h3>
-            <div class="helppage-actions-grid gap-75">
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left" type="button" @click="goto('lumen://drive')">
-                <div class="helppage-action-icon drive flex-align-justify-center size-48px">
+            <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Get Started</h3>
+            <div class="helppage-actions-grid gap-75 grid">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://drive')">
+                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <FolderOpen :size="24" />
                 </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-15">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium">Drive</span>
-                  <span class="helppage-action-desc color-text-secondary">Upload and manage your files</span>
+                <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
+                  <span class="helppage-action-title color-text-primary txt-weight-medium fs-15px">Drive</span>
+                  <span class="helppage-action-desc color-text-secondary fs-13px">Upload and manage your files</span>
                 </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary" />
+                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left" type="button" @click="goto('lumen://domain')">
-                <div class="helppage-action-icon domain flex-align-justify-center size-48px">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://domain')">
+                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Link2 :size="24" />
                 </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-15">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium">Domains</span>
-                  <span class="helppage-action-desc color-text-secondary">Register your .lmn domain</span>
+                <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
+                  <span class="helppage-action-title color-text-primary txt-weight-medium fs-15px">Domains</span>
+                  <span class="helppage-action-desc color-text-secondary fs-13px">Register your .lmn domain</span>
                 </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary" />
+                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left" type="button" @click="goto('lumen://wallet')">
-                <div class="helppage-action-icon wallet badge-success color-success flex-align-justify-center size-48px">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://wallet')">
+                <div class="helppage-action-icon wallet badge-success color-success flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Wallet :size="24" />
                 </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-15">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium">Wallet</span>
-                  <span class="helppage-action-desc color-text-secondary">Manage your LMN tokens</span>
+                <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
+                  <span class="helppage-action-title color-text-primary txt-weight-medium fs-15px">Wallet</span>
+                  <span class="helppage-action-desc color-text-secondary fs-13px">Manage your LMN tokens</span>
                 </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary" />
+                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left" type="button" @click="goto('lumen://search')">
-                <div class="helppage-action-icon search badge-warning color-warning flex-align-justify-center size-48px">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://search')">
+                <div class="helppage-action-icon search badge-warning color-warning flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Search :size="24" />
                 </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-15">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium">Search</span>
-                  <span class="helppage-action-desc color-text-secondary">Discover decentralized content</span>
+                <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
+                  <span class="helppage-action-title color-text-primary txt-weight-medium fs-15px">Search</span>
+                  <span class="helppage-action-desc color-text-secondary fs-13px">Discover decentralized content</span>
                 </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary" />
+                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
             </div>
           </section>
 
           <!-- How it Works -->
           <section class="how-it-works flex flex-column gap-100">
-            <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0">How Lumen Works</h3>
-            <div class="helppage-steps-grid gap-100">
-              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">1</div>
+            <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">How Lumen Works</h3>
+            <div class="helppage-steps-grid gap-100 grid">
+              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light">Blockchain Names</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Domain names are stored on the blockchain - no central authority can take them away.</p>
                 </div>
               </div>
-              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">2</div>
+              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light">Distributed Storage</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
                 </div>
               </div>
-              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">3</div>
+              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light">Verified Access</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Every piece of content is cryptographically verified for authenticity.</p>
@@ -179,10 +179,10 @@
 
           <!-- Features Grid -->
           <section class="features-section flex flex-column gap-100">
-            <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0">Key Features</h3>
-            <div class="helppage-features-grid gap-100">
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px">
+            <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Key Features</h3>
+            <div class="helppage-features-grid gap-100 grid">
+              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
                   <Globe :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -190,8 +190,8 @@
                   <p class="color-text-secondary margin-0">Type <code>demo.lmn</code> instead of long cryptographic hashes.</p>
                 </div>
               </div>
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px">
+              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
                   <Database :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -199,8 +199,8 @@
                   <p class="color-text-secondary margin-0">Your website exists in many places, so it stays available.</p>
                 </div>
               </div>
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px">
+              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
                   <Server :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -208,8 +208,8 @@
                   <p class="color-text-secondary margin-0">Optional premium service for faster loading and reliability.</p>
                 </div>
               </div>
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px">
+              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
                   <Wallet :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -223,57 +223,57 @@
       </div>
 
       <!-- Domains & Drive View -->
-      <div v-else-if="currentView === 'domains'" class="helppage-content-area flex-1">
+      <div v-else-if="currentView === 'domains'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25">
         <div class="discover flex flex-column gap-125">
           <!-- Hero -->
-          <section class="helppage-hero-section small padding-200 border-radius-lg text-center">
+          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm">
             <div class="helppage-hero-content margin-bottom-150">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0">Publish Your <span class="helppage-gradient-text">Website</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary">Create a domain and link it to your Drive content in 4 easy steps</p>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem">Publish Your <span class="helppage-gradient-text bg-gradient-primary">Website</span></h2>
+              <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
             </div>
           </section>
 
           <!-- Steps -->
           <div class="tutorial-steps flex flex-column gap-100">
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">1</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Upload to Drive</h4>
               </div>
               <p class="color-text-secondary">Go to Drive, upload a file or folder, then click <strong>Share</strong> to get a Lumen link.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem" type="button" @click="goto('lumen://drive')">
+              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015" type="button" @click="goto('lumen://drive')">
                 <FolderOpen :size="18" />
                 <span>Open Drive</span>
               </button>
             </div>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">2</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Buy Your Domain</h4>
               </div>
               <p class="color-text-secondary">Go to Domains, click <strong>Buy domain</strong>, choose a name like <code>yourname.lmn</code>.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem" type="button" @click="goto('lumen://domain')">
+              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015" type="button" @click="goto('lumen://domain')">
                 <Link2 :size="18" />
                 <span>Open Domains</span>
               </button>
             </div>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">3</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Link Domain to Content</h4>
               </div>
               <p class="color-text-secondary">In Domain settings, add a record with <code>Key: cid</code> and <code>Value: your-content-hash</code>.</p>
             </div>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">4</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Visit Your Site</h4>
               </div>
               <p class="color-text-secondary">Type <code>lumen://yourname.lmn</code> in the address bar to access your decentralized website!</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem" type="button" @click="goto('lumen://newtab')">
+              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015" type="button" @click="goto('lumen://newtab')">
                 <Globe :size="18" />
                 <span>Open New Tab</span>
               </button>
@@ -283,60 +283,60 @@
       </div>
 
       <!-- Publish My Site View -->
-      <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1">
+      <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25">
         <div class="discover flex flex-column gap-125">
           <!-- Hero -->
-          <section class="helppage-hero-section small padding-200 border-radius-lg text-center">
+          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm">
             <div class="helppage-hero-content margin-bottom-150">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0">Create Your <span class="helppage-gradient-text">First Website</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary">Publish a site on the decentralized web in four simple steps — no server required.</p>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem">Create Your <span class="helppage-gradient-text bg-gradient-primary">First Website</span></h2>
+              <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
             </div>
           </section>
 
           <!-- Steps -->
           <div class="tutorial-steps flex flex-column gap-100">
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">1</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Build Your Website</h4>
               </div>
               <p class="color-text-secondary">Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.</p>
             </div>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">2</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Upload It to Drive</h4>
               </div>
               <p class="color-text-secondary">Open Drive, upload that folder, then copy its Lumen link — that's your content's address.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem" type="button" @click="goto('lumen://drive')">
+              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015" type="button" @click="goto('lumen://drive')">
                 <FolderOpen :size="18" />
                 <span>Open Drive</span>
               </button>
             </div>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">3</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Get a Domain</h4>
               </div>
               <p class="color-text-secondary">Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem" type="button" @click="goto('lumen://domain')">
+              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015" type="button" @click="goto('lumen://domain')">
                 <Link2 :size="18" />
                 <span>Open Domains</span>
               </button>
             </div>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg">
-              <div class="helppage-step-header flex-align-center gap-75">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium">4</div>
+            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+              <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
+                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium">Link Your Domain to Your Content</h4>
               </div>
               <p class="color-text-secondary">Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.</p>
             </div>
           </div>
 
-          <div class="helppage-discover-note color-text-primary margin-top-85">
+          <div class="helppage-discover-note color-text-primary margin-top-85 border-radius-14px fs-14px">
             <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
             If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
             uploaded folder, and give it a minute to propagate.
@@ -345,69 +345,69 @@
       </div>
 
       <!-- Contact View -->
-      <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1">
+      <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25">
         <div class="discover flex flex-column gap-125">
           <!-- Hero -->
-          <section class="helppage-hero-section small padding-200 border-radius-lg text-center">
+          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm">
             <div class="helppage-hero-content margin-bottom-150">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0">Get <span class="helppage-gradient-text">Help</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary">Connect with our community and get support</p>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem">Get <span class="helppage-gradient-text bg-gradient-primary">Help</span></h2>
+              <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">Connect with our community and get support</p>
             </div>
           </section>
 
           <!-- Contact Cards -->
-          <div class="helppage-contact-grid gap-100">
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
-              <div class="helppage-contact-icon discord flex-align-justify-center size-56px">
+          <div class="helppage-contact-grid gap-100 grid">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
+              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0">
                 <MessageCircle :size="28" />
               </div>
-              <div class="helppage-contact-info">
+              <div class="helppage-contact-info min-w-0">
                 <h4 class="color-text-primary txt-weight-medium">Discord Community</h4>
                 <p class="color-text-secondary margin-0 fs-085rem">Join our active community, ask questions, and get help from other users.</p>
               </div>
-              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary" />
+              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
-              <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-56px">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
+              <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-56px border-radius-14px flex-shrink-0">
                 <Github :size="28" />
               </div>
-              <div class="helppage-contact-info">
+              <div class="helppage-contact-info min-w-0">
                 <h4 class="color-text-primary txt-weight-medium">GitHub</h4>
                 <p class="color-text-secondary margin-0 fs-085rem">Report bugs, contribute to the codebase, or explore our open-source projects.</p>
               </div>
-              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary" />
+              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
-              <div class="helppage-contact-icon website flex-align-justify-center size-56px">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
+              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0">
                 <Globe :size="28" />
               </div>
-              <div class="helppage-contact-info">
+              <div class="helppage-contact-info min-w-0">
                 <h4 class="color-text-primary txt-weight-medium">Official Website</h4>
                 <p class="color-text-secondary margin-0 fs-085rem">Visit our website for documentation, news, and updates.</p>
               </div>
-              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary" />
+              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
           </div>
         </div>
       </div>
       
       <!-- Docs View -->
-      <div v-else-if="currentView === 'docs'" class="helppage-content-area helppage-docs-content-area flex flex-column overflow-hidden flex-1">
+      <div v-else-if="currentView === 'docs'" class="helppage-content-area helppage-docs-content-area flex flex-column overflow-hidden flex-1 overflow-y-auto padding-right-25">
         <div class="discover helppage-docs-discover flex flex-column gap-125 flex-1 min-h-0">
           <iframe
-            class="helppage-doc-frame w-full h-full border-radius-lg"
+            class="helppage-doc-frame w-full h-full border-radius-lg block border-default shadow-sm bg-card"
             :src="lumenDocFrameSrc"
             title="window.lumen API Reference"
             loading="lazy"
           ></iframe>
 
           <!-- Documentation Grid -->
-          <div class="helppage-docs-grid gap-90" v-if="false" aria-hidden="true">
+          <div class="helppage-docs-grid gap-90 grid" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <BookOpen :size="20" />
               </div>
               <div>
@@ -431,8 +431,8 @@
             </div>
 
             <!-- Secure your Wallet -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Wallet :size="20" />
               </div>
               <div>
@@ -446,8 +446,8 @@
             </div>
 
             <!-- Upload -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <FolderOpen :size="20" />
               </div>
               <div>
@@ -461,8 +461,8 @@
             </div>
 
             <!-- Cloud -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Database :size="20" />
               </div>
               <div>
@@ -476,8 +476,8 @@
             </div>
 
             <!-- How to Manage Domain -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Link2 :size="20" />
               </div>
               <div>
@@ -491,8 +491,8 @@
             </div>
 
             <!-- Domain Setting -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Globe :size="20" />
               </div>
               <div>
@@ -506,8 +506,8 @@
             </div>
 
             <!-- How to Linked Domain -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Link2 :size="20" />
               </div>
               <div>
@@ -521,8 +521,8 @@
             </div>
 
             <!-- Publish Website with .lmn -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Server :size="20" />
               </div>
               <div>
@@ -536,8 +536,8 @@
             </div>
 
             <!-- Theme -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Sparkles :size="20" />
               </div>
               <div>
@@ -551,8 +551,8 @@
             </div>
 
             <!-- Font Size -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Sparkles :size="20" />
               </div>
               <div>
@@ -566,8 +566,8 @@
             </div>
 
             <!-- Brightness -->
-            <div class="helppage-discover-card flex border-radius-lg">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto">
+            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue">
                 <Sparkles :size="20" />
               </div>
               <div>

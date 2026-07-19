@@ -6,7 +6,7 @@
         <p v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
-      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap">
+      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
         <button
           type="button"
           class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none"
@@ -18,14 +18,14 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status" :class="{ error: statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px" :class="{ error: statusError }">
       {{ statusMessage }}
     </div>
 
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview flex-1 overflow-hidden"
+      class="extensions-store-webview flex-1 overflow-hidden min-h-0"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"
@@ -43,7 +43,7 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px">
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px gap-87 line-height-145">
       <span><strong class="txt-weight-light">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
       <span><strong class="txt-weight-light">Lumen install:</strong> installation is handled by Lumen.</span>
       <span><strong class="txt-weight-light">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>

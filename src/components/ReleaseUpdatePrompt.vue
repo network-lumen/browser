@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed">
       <header class="flex flex-column gap-10">
         <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em margin-0">
           Update available
@@ -23,7 +23,7 @@
         <li v-if="shaFull">
           <strong>SHA256:</strong>
           <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer padding-0" @click.stop="copySha" aria-label="Copy SHA-256">
-            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light">{{ shaShort }}</code>
+            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px">{{ shaShort }}</code>
           </button>
         </li>
       </ul>
@@ -56,13 +56,13 @@
 
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center" @click.self="notesOpen = false">
-        <div class="release-prompt-notes-modal bg-card border-default flex flex-column">
+      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0" @click.self="notesOpen = false">
+        <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden">
           <div class="release-prompt-notes-head flex-align-center-justify-space-between gap-100">
-            <h3 class="release-prompt-notes-title color-text-primary margin-0">Change notes</h3>
-            <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer" @click="notesOpen = false">&times;</button>
+            <h3 class="release-prompt-notes-title color-text-primary margin-0 fs-16px">Change notes</h3>
+            <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer fs-15rem line-height-1" @click="notesOpen = false">&times;</button>
           </div>
-          <pre class="release-prompt-notes-body color-text-primary bg-primary margin-0">{{ fullNotes }}</pre>
+          <pre class="release-prompt-notes-body color-text-primary bg-primary margin-0 padding-87 overflow-auto fs-14px line-height-14 break-word">{{ fullNotes }}</pre>
         </div>
       </div>
     </Transition>

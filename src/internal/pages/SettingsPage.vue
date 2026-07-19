@@ -4,10 +4,10 @@
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">General</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">General</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'content' }"
             @click="currentView = 'content'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'network' }"
             @click="currentView = 'network'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'security' }"
             @click="currentView = 'security'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'privatecloud' }"
             @click="currentView = 'privatecloud'"
           >
@@ -71,10 +71,10 @@
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Advanced</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Advanced</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'troubleshooting' }"
             @click="currentView = 'troubleshooting'"
           >
@@ -83,7 +83,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
@@ -92,7 +92,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'about' }"
             @click="currentView = 'about'"
           >
@@ -105,7 +105,7 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="settingspage-main-content flex flex-column flex-1 margin-0">
+    <main class="settingspage-main-content flex flex-column flex-1 margin-0 min-w-0 overflow-hidden padding-200-250 bg-secondary border-radius-0">
       <!-- Header -->
       <header class="settingspage-content-header margin-bottom-200">
         <div>
@@ -115,17 +115,17 @@
       </header>
 
       <!-- Appearance View -->
-      <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1">
+      <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Theme Preference</span>
-              <span class="settingspage-setting-desc color-text-secondary">Choose your preferred color scheme</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Theme Preference</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Choose your preferred color scheme</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <div class="settingspage-theme-selector flex gap-50 border-radius-10px">
+              <div class="settingspage-theme-selector flex gap-50 border-radius-10px bg-secondary border-1">
                 <button 
-                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
                   :class="{ active: theme === 'light' }"
                   @click="setTheme('light')"
                 >
@@ -133,7 +133,7 @@
                   <span>Light</span>
                 </button>
                 <button 
-                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
                   :class="{ active: theme === 'dark' }"
                   @click="setTheme('dark')"
                 >
@@ -141,7 +141,7 @@
                   <span>Dark</span>
                 </button>
                 <button 
-                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
                   :class="{ active: theme === 'system' }"
                   @click="setTheme('system')"
                 >
@@ -151,32 +151,32 @@
               </div>
             </div>
           </div>
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Font Size</span>
-              <span class="settingspage-setting-desc color-text-secondary">Adjust the default font size</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Font Size</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust the default font size</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <select class="settingspage-select-control fs-085rem color-text-primary cursor-pointer" v-model="fontSize">
+              <select class="settingspage-select-control fs-085rem color-text-primary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px" v-model="fontSize">
                 <option value="small">Small</option>
                 <option value="medium">Medium</option>
                 <option value="large">Large</option>
               </select>
             </div>
           </div>
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Brightness</span>
-              <span class="settingspage-setting-desc color-text-secondary">Adjust screen brightness ({{ brightness }}%)</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Brightness</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust screen brightness ({{ brightness }}%)</span>
             </div>
             <div class="settingspage-setting-control settingspage-brightness-control flex-align-center gap-100 w-full">
-              <Sun :size="16" class="settingspage-brightness-icon color-text-secondary" />
+              <Sun :size="16" class="settingspage-brightness-icon color-text-secondary flex-shrink-0" />
               <input 
                 type="range" 
                 min="50" 
                 max="100" 
                 v-model="brightness"
-                class="settingspage-brightness-slider flex-1 outline-none"
+                class="settingspage-brightness-slider flex-1 outline-none border-radius-4px bg-border"
               />
               <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary">{{ brightness }}%</span>
             </div>
@@ -185,120 +185,120 @@
       </div>
 
       <!-- Content View -->
-      <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Show sexual content</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show sexual content</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <label class="settingspage-toggle size-48px">
+              <label class="settingspage-toggle size-48px relative inline-block">
                 <input type="checkbox" v-model="showSexualContent" />
-                <span class="settingspage-toggle-slider cursor-pointer"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Show violent / gore content</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show violent / gore content</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <label class="settingspage-toggle size-48px">
+              <label class="settingspage-toggle size-48px relative inline-block">
                 <input type="checkbox" v-model="showViolentContent" />
-                <span class="settingspage-toggle-slider cursor-pointer"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Show disturbing imagery</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show disturbing imagery</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <label class="settingspage-toggle size-48px">
+              <label class="settingspage-toggle size-48px relative inline-block">
                 <input type="checkbox" v-model="showDisturbingImagery" />
-                <span class="settingspage-toggle-slider cursor-pointer"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
           </div>
 
-          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Sensitive content is blurred by default. You can choose what to reveal.
           </div>
         </div>
       </div>
 
       <!-- Privacy View -->
-      <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Save browsing history</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Save browsing history</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Keep recent web, domain, IPFS, and IPNS pages for
                 {{ activeHistoryProfileDisplay }}. Internal pages like New Tab, Wallet, Settings,
                 and Extensions are excluded automatically.
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <label class="settingspage-toggle size-48px">
+              <label class="settingspage-toggle size-48px relative inline-block">
                 <input type="checkbox" :checked="historyEnabled" @change="onHistoryToggleChange" />
-                <span class="settingspage-toggle-slider cursor-pointer"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Saved items</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Saved items</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 {{ historyEntries.length }} history item{{ historyEntries.length === 1 ? '' : 's' }}
                 saved for {{ activeHistoryProfileDisplay }}.
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer" @click="openInNewTabSafe('lumen://history')">
+              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02" @click="openInNewTabSafe('lumen://history')">
                 Open history
               </button>
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Clear saved history</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Clear saved history</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Permanently remove the saved browsing history for this profile.
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer" :disabled="!historyEntries.length" @click="clearProfileHistory">
+              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02" :disabled="!historyEntries.length" @click="clearProfileHistory">
                 Clear history
               </button>
             </div>
           </div>
 
-          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Turning history off stops new entries from being saved, but does not delete existing ones.
           </div>
         </div>
       </div>
 
       <!-- Network View -->
-      <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Kubo connectivity</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Kubo connectivity</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Controls how many peer connections the embedded IPFS node tries to keep.
               </span>
             </div>
-            <div class="settingspage-setting-control settingspage-network-mode-control flex-align-center">
-              <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap">
+            <div class="settingspage-setting-control settingspage-network-mode-control flex-align-center flex-justify-end">
+              <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap bg-secondary border-1">
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
                   :class="{ active: ipfsConnectivityMode === 'light' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('light')"
@@ -307,7 +307,7 @@
                 </button>
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
                   :class="{ active: ipfsConnectivityMode === 'normal' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('normal')"
@@ -316,7 +316,7 @@
                 </button>
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
                   :class="{ active: ipfsConnectivityMode === 'high' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('high')"
@@ -327,30 +327,30 @@
             </div>
           </div>
 
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             If your network is unstable or your device is resource-constrained, Light is recommended.
           </p>
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Changes are applied automatically by restarting the embedded Kubo daemon.
           </p>
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Current idle connection target:
-            <span class="settingspage-mono-path">{{ networkModeSummary }}</span>
+            <span class="settingspage-mono-path break-all">{{ networkModeSummary }}</span>
           </p>
-          <p v-if="networkSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
+          <p v-if="networkSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ networkSettingsError }}
           </p>
         </div>
       </div>
 
       <!-- Security View -->
-      <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Status Display -->
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Password Protection</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Password Protection</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 {{ securityStatus.enabled 
                   ? 'Password is required for wallet signing operations' 
                   : 'No password set - wallet operations are unprotected' }}
@@ -367,15 +367,15 @@
           </div>
 
           <!-- Session Status (only shown when password is enabled) -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Session Status</span>
-              <span class="settingspage-setting-desc color-text-secondary">{{ securitySessionStatusText }}</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Session Status</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">{{ securitySessionStatusText }}</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button 
                 v-if="securitySessionActive"
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 @click="lockSecuritySession"
               >
                 <LockKeyhole :size="16" />
@@ -388,17 +388,17 @@
             </div>
           </div>
 
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Password Cache Duration</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Password Cache Duration</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Choose how long the password stays cached before the session locks.
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <select
                 v-model="securitySessionTimeoutValue"
-                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer"
+                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px"
                 :disabled="securitySessionTimeoutSaving"
                 @change="saveSecuritySessionTimeout"
               >
@@ -414,32 +414,32 @@
           </div>
 
           <!-- Set Password (when no password is set) -->
-          <div v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Set Password</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Set Password</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Create a password to protect wallet signing operations. 
                 Your keys will be encrypted with this password.
               </span>
             </div>
           </div>
 
-          <div v-if="!securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px">
+          <div v-if="!securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px padding-100-125 bg-fill-tertiary margin-top-50">
             <div class="form-row flex flex-column gap-35">
-              <label class="settingspage-form-label fw-500 color-text-secondary">New Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">New Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="newPassword"
                 placeholder="Enter password (min 8 characters)"
                 :disabled="securityLoading"
               />
             </div>
             <div class="form-row flex flex-column gap-35">
-              <label class="settingspage-form-label fw-500 color-text-secondary">Confirm Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">Confirm Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="confirmPassword"
                 placeholder="Confirm password"
                 :disabled="securityLoading"
@@ -450,7 +450,7 @@
               {{ securityError }}
             </div>
             <button 
-              class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer"
+              class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px"
               @click="setSecurityPassword"
               :disabled="securityLoading || !newPassword || !confirmPassword"
             >
@@ -459,41 +459,41 @@
           </div>
 
           <!-- Change/Remove Password (when password is set) -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Change Password</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Change Password</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Update your security password. You'll need to enter your current password.
               </span>
             </div>
           </div>
 
-          <div v-if="securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px">
+          <div v-if="securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px padding-100-125 bg-fill-tertiary margin-top-50">
             <div class="form-row flex flex-column gap-35">
-              <label class="settingspage-form-label fw-500 color-text-secondary">Current Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">Current Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="currentPassword"
                 placeholder="Enter current password"
                 :disabled="securityLoading"
               />
             </div>
             <div class="form-row flex flex-column gap-35">
-              <label class="settingspage-form-label fw-500 color-text-secondary">New Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">New Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="newPassword"
                 placeholder="Enter new password (min 8 characters)"
                 :disabled="securityLoading"
               />
             </div>
             <div class="form-row flex flex-column gap-35">
-              <label class="settingspage-form-label fw-500 color-text-secondary">Confirm New Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">Confirm New Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="confirmPassword"
                 placeholder="Confirm new password"
                 :disabled="securityLoading"
@@ -506,9 +506,9 @@
             <div v-if="securitySuccess" class="settingspage-security-success color-success fs-085rem">
               {{ securitySuccess }}
             </div>
-            <div class="settingspage-security-actions flex gap-75">
+            <div class="settingspage-security-actions flex gap-75 margin-top-50">
               <button 
-                class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer"
+                class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px"
                 @click="changeSecurityPassword"
                 :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword"
               >
@@ -518,16 +518,16 @@
           </div>
 
           <!-- Remove Password -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Remove Password</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Remove Password</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Disable password protection. Your keys will be re-encrypted with app-level encryption only.
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button 
-                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer"
+                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none"
                 @click="showRemovePasswordConfirm = true"
                 :disabled="securityLoading"
               >
@@ -537,11 +537,11 @@
           </div>
 
           <!-- Remove Password Confirmation -->
-          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px">
+          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px padding-100-125 bg-fill-error margin-top-75">
             <p>Enter your current password to disable protection:</p>
             <input 
               type="password" 
-              class="settingspage-input-control fs-085rem color-text-primary"
+              class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
               v-model="removePasswordInput"
               placeholder="Current password"
               :disabled="securityLoading"
@@ -550,16 +550,16 @@
             <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
               {{ securityError }}
             </div>
-            <div class="settingspage-security-actions flex gap-75">
+            <div class="settingspage-security-actions flex gap-75 margin-top-50">
               <button 
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 @click="cancelRemovePassword"
                 :disabled="securityLoading"
               >
                 Cancel
               </button>
               <button 
-                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer"
+                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none"
                 @click="removeSecurityPassword"
                 :disabled="securityLoading || !removePasswordInput"
               >
@@ -568,7 +568,7 @@
             </div>
           </div>
 
-          <p class="settingspage-setting-hint margin-top-100 fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint margin-top-100 fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             <strong>How it works:</strong> When enabled, every wallet signing operation 
             (send tokens, delegate, create domain, etc.) will require your password. 
             {{ securitySessionHintText }}
@@ -577,16 +577,16 @@
       </div>
 
       <!-- Profiles View -->
-      <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item profiles-header flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item profiles-header flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Profiles</span>
-              <span class="settingspage-setting-desc color-text-secondary">Select one or more profiles to export.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Profiles</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Select one or more profiles to export.</span>
             </div>
             <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 @click="selectAllProfiles"
                 :disabled="!profiles.length"
@@ -594,7 +594,7 @@
                 Select all
               </button>
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 @click="clearSelectedProfiles"
                 :disabled="!selectedProfileIds.length"
@@ -604,11 +604,11 @@
             </div>
           </div>
 
-          <div v-if="profiles.length" class="settingspage-profiles-list flex flex-column gap-25 border-radius-lg">
+          <div v-if="profiles.length" class="settingspage-profiles-list flex flex-column gap-25 border-radius-lg padding-50 bg-card border-default">
             <label
               v-for="p in profiles"
               :key="p.id"
-              class="settingspage-profile-row flex-align-center gap-75 border-radius-md cursor-pointer"
+              class="settingspage-profile-row flex-align-center gap-75 border-radius-md cursor-pointer padding-75-100 cursor-select-none"
               :class="{ active: p.id === activeProfileId }"
             >
               <input
@@ -617,27 +617,27 @@
                 :value="p.id"
                 v-model="selectedProfileIds"
               />
-              <ProfileAvatar class="settingspage-profile-row-avatar" :profile="p" :size="32" :title="p.name || p.id" />
-              <div class="settingspage-profile-row-main flex flex-column gap-20">
-                <div class="settingspage-profile-row-title flex-align-center gap-50">
-                  <span class="settingspage-profile-title txt-weight-light color-text-primary">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary">Active</span>
+              <ProfileAvatar class="settingspage-profile-row-avatar flex-shrink-0" :profile="p" :size="32" :title="p.name || p.id" />
+              <div class="settingspage-profile-row-main flex flex-column gap-20 min-w-0">
+                <div class="settingspage-profile-row-title flex-align-center gap-50 min-w-0">
+                  <span class="settingspage-profile-title txt-weight-light color-text-primary fs-14px overflow-hidden txt-overflow-ellipsis nowrap">{{ p.name || p.id }}</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px">Active</span>
                 </div>
-                <span class="settingspage-profile-id fs-075rem color-text-tertiary">{{ p.id }}</span>
+                <span class="settingspage-profile-id fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap">{{ p.id }}</span>
               </div>
             </label>
           </div>
-          <p v-else class="settingspage-setting-hint fs-075rem color-text-tertiary">No profiles found.</p>
+          <p v-else class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">No profiles found.</p>
 
-          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Display name</span>
-              <span class="settingspage-setting-desc color-text-secondary">Rename a profile without changing its internal profile ID.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Display name</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Rename a profile without changing its internal profile ID.</span>
             </div>
             <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
               <select
                 v-model="renameProfileId"
-                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer"
+                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px"
                 :disabled="profileRenameSaving"
               >
                 <option
@@ -651,13 +651,13 @@
               <input
                 v-model="renameProfileDraft"
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 placeholder="Enter a display name"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @keyup.enter="saveProfileDisplayName"
               />
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="resetProfileDisplayNameDraft"
@@ -665,7 +665,7 @@
                 Reset
               </button>
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="saveProfileDisplayName"
@@ -674,19 +674,19 @@
               </button>
             </div>
           </div>
-          <p v-if="profileRenameError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
+          <p v-if="profileRenameError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ profileRenameError }}
           </p>
 
-          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Profile photo</span>
-              <span class="settingspage-setting-desc color-text-secondary">Override the generated profile thumbnail with a local image.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Profile photo</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Override the generated profile thumbnail with a local image.</span>
             </div>
-            <div class="settingspage-setting-control settingspage-profile-photo-control flex-align-center flex-wrap-wrap gap-50">
+            <div class="settingspage-setting-control settingspage-profile-photo-control flex-align-center flex-wrap-wrap gap-50 flex-justify-end">
               <select
                 v-model="avatarProfileId"
-                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer"
+                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px"
                 :disabled="profileAvatarSaving"
               >
                 <option
@@ -698,13 +698,13 @@
                 </option>
               </select>
               <ProfileAvatar
-                class="settingspage-profile-photo-preview"
+                class="settingspage-profile-photo-preview flex-shrink-0"
                 :profile="avatarProfileTarget"
                 :size="44"
                 :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
               />
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
                 @click="chooseProfileAvatar"
@@ -712,7 +712,7 @@
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
               </button>
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
                 @click="resetProfileAvatar"
@@ -721,21 +721,21 @@
               </button>
             </div>
           </div>
-          <p v-if="profileAvatarError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
+          <p v-if="profileAvatarError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ profileAvatarError }}
           </p>
-          <p v-if="profiles.length" class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p v-if="profiles.length" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </p>
 
-           <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+           <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
              <div class="setting-info flex flex-column gap-20">
-               <span class="settingspage-setting-label txt-weight-light color-text-primary">Backups</span>
-               <span class="settingspage-setting-desc color-text-secondary">Export full backup folders (profiles + PQC keys).</span>
+               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Backups</span>
+               <span class="settingspage-setting-desc color-text-secondary fs-13px">Export full backup folders (profiles + PQC keys).</span>
              </div>
              <div class="settingspage-setting-control settingspage-profile-backup-actions flex-align-center gap-50">
                <button
-                 class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+                 class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                  type="button"
                  @click="onExportSelectedBackups"
                  :disabled="!selectedProfileIds.length || exportingBackup"
@@ -744,12 +744,12 @@
                </button>
              </div>
            </div>
-           <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+           <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
              Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
            </p>
-           <p v-if="backupExportSummary" class="settingspage-setting-hint fs-075rem color-text-tertiary">{{ backupExportSummary }}</p>
-           <div v-if="backupExportFailures.length" class="settingspage-backup-failures flex flex-column gap-25">
-             <div v-for="f in backupExportFailures" :key="f.id" class="settingspage-backup-failure color-error">
+           <p v-if="backupExportSummary" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">{{ backupExportSummary }}</p>
+           <div v-if="backupExportFailures.length" class="settingspage-backup-failures flex flex-column gap-25 margin-top-25">
+             <div v-for="f in backupExportFailures" :key="f.id" class="settingspage-backup-failure color-error fs-13px">
                {{ f.id }}: {{ f.error || 'failed' }}
              </div>
            </div>
@@ -757,56 +757,56 @@
        </div>
 
       <!-- Developer settings View -->
-      <div v-else-if="currentView === 'advanced'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'advanced'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             These settings are intended for developers. Most users should not need to change them.
           </p>
 
-          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary">
+          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary margin-bottom-50 fs-14px">
             <Globe :size="18" />
             <span>Network</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Local IPFS Gateway</span>
-              <span class="settingspage-setting-desc color-text-secondary">Used for loading IPFS content in the UI</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Local IPFS Gateway</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Used for loading IPFS content in the UI</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="localGatewayDraft"
                 placeholder="http://127.0.0.1:8080"
               />
             </div>
           </div>
 
-          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary">
+          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary margin-bottom-50 fs-14px">
             <Database :size="18" />
             <span>IPFS</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">IPFS API Endpoint</span>
-              <span class="settingspage-setting-desc color-text-secondary">Used by the Electron backend (Kubo API)</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">IPFS API Endpoint</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Used by the Electron backend (Kubo API)</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="ipfsApiDraft"
                 placeholder="http://127.0.0.1:5001"
               />
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Max upload size (local drive)</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Max upload size (local drive)</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Maximum size per local upload before it is rejected. Default 10 GB.
               </span>
             </div>
@@ -815,21 +815,21 @@
                 type="number"
                 min="1"
                 step="1"
-                class="settingspage-input-control w-96px fs-085rem color-text-primary"
+                class="settingspage-input-control w-96px fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                 v-model="localDriveMaxUploadSizeDraft"
                 :placeholder="String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB)"
               />
-              <span class="settingspage-setting-inline-note color-text-secondary">GB</span>
+              <span class="settingspage-setting-inline-note color-text-secondary fs-13px">GB</span>
             </div>
           </div>
 
-          <div v-if="devSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
+          <div v-if="devSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ devSettingsError }}
           </div>
 
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
               type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings"
@@ -837,7 +837,7 @@
               Reset
             </button>
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
               type="button"
               :disabled="devSettingsSaving"
               @click="saveDevSettings"
@@ -846,36 +846,36 @@
             </button>
           </div>
 
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Note: the local IPFS daemon must actually be configured to use these ports/addresses.
           </p>
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Network changes are applied automatically (no restart prompt).
           </p>
 
-          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary">
+          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary margin-bottom-50 fs-14px">
             <FolderOpen :size="18" />
             <span>Lumen data folder</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Custom data folder target</span>
-              <span class="settingspage-setting-desc color-text-secondary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Custom data folder target</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Override the default folder used by the Lumen binary for IPFS, profiles, logs and app metadata.
               </span>
             </div>
-            <div class="settingspage-setting-control settingspage-data-folder-control flex-align-center">
+            <div class="settingspage-setting-control settingspage-data-folder-control flex-align-center flex-justify-end">
               <div class="settingspage-data-folder-input-row flex-align-center-justify-end gap-50 w-full">
                 <input
                   type="text"
-                  class="settingspage-input-control settingspage-data-folder-input fs-085rem color-text-primary"
+                  class="settingspage-input-control settingspage-data-folder-input fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                   v-model="lumenDataFolderDraft"
                   :placeholder="defaultUserDataPath || 'D:\\Lumen'"
                   :disabled="lumenDataFolderBusy"
                 />
                 <button
-                  class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50"
+                  class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                   type="button"
                   :disabled="lumenDataFolderBusy"
                   @click="browseLumenDataFolder"
@@ -887,31 +887,31 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
-            Active now: <span class="settingspage-mono-path">{{ activeUserDataPath || 'Unavailable' }}</span>
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
+            Active now: <span class="settingspage-mono-path break-all">{{ activeUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
-            Next launch target: <span class="settingspage-mono-path">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
+            Next launch target: <span class="settingspage-mono-path break-all">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
-            Default target: <span class="settingspage-mono-path">{{ defaultUserDataPath || 'Unavailable' }}</span>
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
+            Default target: <span class="settingspage-mono-path break-all">{{ defaultUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div v-if="bootstrapConfigPath" class="settingspage-setting-hint fs-075rem color-text-tertiary">
-            Bootstrap config: <span class="settingspage-mono-path">{{ bootstrapConfigPath }}</span>
+          <div v-if="bootstrapConfigPath" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
+            Bootstrap config: <span class="settingspage-mono-path break-all">{{ bootstrapConfigPath }}</span>
           </div>
-          <div v-if="activeLogsPath" class="settingspage-setting-hint fs-075rem color-text-tertiary">
-            Active logs folder: <span class="settingspage-mono-path">{{ activeLogsPath }}</span>
+          <div v-if="activeLogsPath" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
+            Active logs folder: <span class="settingspage-mono-path break-all">{{ activeLogsPath }}</span>
           </div>
           <div
             v-if="lumenDataFolderError"
-            class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary"
+            class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25"
           >
             {{ lumenDataFolderError }}
           </div>
 
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft"
@@ -919,7 +919,7 @@
               Revert
             </button>
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="useDefaultLumenDataFolderDraft"
@@ -927,7 +927,7 @@
               Use default
             </button>
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="saveLumenDataFolder"
@@ -936,33 +936,33 @@
             </button>
           </div>
 
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Leave the field empty to go back to the default folder target.
           </p>
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Restart Lumen after changing this target. Existing files are not moved automatically.
           </p>
-          <p v-if="bootstrapRestartRequired" class="settingspage-setting-hint fs-075rem color-text-tertiary">
-            Restart required: the running app is still using <span class="settingspage-mono-path">{{ activeUserDataPath }}</span>.
+          <p v-if="bootstrapRestartRequired" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
+            Restart required: the running app is still using <span class="settingspage-mono-path break-all">{{ activeUserDataPath }}</span>.
           </p>
         </div>
       </div>
 
       <!-- Troubleshooting View -->
-      <div v-else-if="currentView === 'troubleshooting'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'troubleshooting'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Copy Debug Report</span>
-              <span class="settingspage-setting-desc color-text-secondary">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Copy Debug Report</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button
-                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50"
+                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 @click="copyDebugReport"
                 :disabled="troubleshootingBusy"
@@ -973,14 +973,14 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">Open Logs Folder</span>
-              <span class="settingspage-setting-desc color-text-secondary">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Open Logs Folder</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button
-                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50"
+                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
                 type="button"
                 @click="openLogsFolderAction"
                 :disabled="troubleshootingBusy"
@@ -991,36 +991,36 @@
             </div>
           </div>
 
-          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
           </p>
-          <p v-if="troubleshootingDir" class="settingspage-troubleshooting-path border-radius-md color-text-secondary">
+          <p v-if="troubleshootingDir" class="settingspage-troubleshooting-path border-radius-md color-text-secondary margin-top-25 padding-75-100 bg-card border-default fs-12px break-all">
             Logs folder: {{ troubleshootingDir }}
           </p>
-          <p v-if="troubleshootingReportPath" class="settingspage-troubleshooting-path border-radius-md color-text-secondary">
+          <p v-if="troubleshootingReportPath" class="settingspage-troubleshooting-path border-radius-md color-text-secondary margin-top-25 padding-75-100 bg-card border-default fs-12px break-all">
             Debug report: {{ troubleshootingReportPath }}
           </p>
         </div>
       </div>
 
       <!-- Private Cloud View -->
-      <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1">
+      <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Main Enable Toggle -->
-          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg" :class="{ active: privateCloudEnabled }">
+          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default" :class="{ active: privateCloudEnabled }">
             <div class="setting-info flex flex-column gap-20">
-              <span class="settingspage-setting-label txt-weight-light color-text-primary">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
                   <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
                 </svg>
                 Enable Private Cloud
               </span>
-              <span class="settingspage-setting-desc color-text-secondary">Use your own private IPFS gateways for content delivery</span>
+              <span class="settingspage-setting-desc color-text-secondary fs-13px">Use your own private IPFS gateways for content delivery</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <label class="settingspage-toggle size-48px">
+              <label class="settingspage-toggle size-48px relative inline-block">
                 <input type="checkbox" v-model="privateCloudEnabled" />
-                <span class="settingspage-toggle-slider cursor-pointer"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
           </div>
@@ -1029,30 +1029,30 @@
           <template v-if="privateCloudEnabled">
             <!-- Gateway Preferences -->
             <div class="settingspage-settings-subsection margin-top-100">
-              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary">Gateway Preferences</h3>
+              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px">Gateway Preferences</h3>
               
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Prefer Private Gateways</span>
-                  <span class="settingspage-setting-desc color-text-secondary">Try private gateways first before DAO gateways</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Prefer Private Gateways</span>
+                  <span class="settingspage-setting-desc color-text-secondary fs-13px">Try private gateways first before DAO gateways</span>
                 </div>
                 <div class="settingspage-setting-control flex-align-center">
-                  <label class="settingspage-toggle size-48px">
+                  <label class="settingspage-toggle size-48px relative inline-block">
                     <input type="checkbox" v-model="preferPrivateGateways" />
-                    <span class="settingspage-toggle-slider cursor-pointer"></span>
+                    <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
                   </label>
                 </div>
               </div>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Fallback to DAO Gateways</span>
-                  <span class="settingspage-setting-desc color-text-secondary">Use DAO gateways if private gateways fail</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Fallback to DAO Gateways</span>
+                  <span class="settingspage-setting-desc color-text-secondary fs-13px">Use DAO gateways if private gateways fail</span>
                 </div>
                 <div class="settingspage-setting-control flex-align-center">
-                  <label class="settingspage-toggle size-48px">
+                  <label class="settingspage-toggle size-48px relative inline-block">
                     <input type="checkbox" v-model="fallbackToDAO" />
-                    <span class="settingspage-toggle-slider cursor-pointer"></span>
+                    <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
                   </label>
                 </div>
               </div>
@@ -1060,17 +1060,17 @@
 
             <!-- Gateway IDs -->
             <div class="settingspage-settings-subsection margin-top-100">
-              <div class="settingspage-subsection-header flex-align-center-justify-space-between">
-                <h3 class="settingspage-subsection-title txt-weight-light color-text-primary">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light">{{ gatewayIds.length }}</span>
+              <div class="settingspage-subsection-header flex-align-center-justify-space-between margin-bottom-50">
+                <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px">Gateway IDs</h3>
+                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc fs-085rem color-text-secondary">Add gateway IDs to use for private content delivery</p>
 
-              <div class="settingspage-gateway-ids-wrapper border-radius-12px padding-100">
+              <div class="settingspage-gateway-ids-wrapper border-radius-12px padding-100 bg-secondary border-1">
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
-                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between">
-                    <span class="settingspage-gateway-id-text mono color-text-primary">{{ id }}</span>
-                    <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer" @click="removeGatewayId(index)">
+                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between padding-75-100 bg-card border-1 border-radius-8px transition-all-02">
+                    <span class="settingspage-gateway-id-text mono color-text-primary fs-14px">{{ id }}</span>
+                    <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px transition-all-02" @click="removeGatewayId(index)">
                       <X :size="16" />
                     </button>
                   </div>
@@ -1090,11 +1090,11 @@
                   <input
                     v-model="newGatewayId"
                     type="text"
-                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
+                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                  <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02" @click="addGatewayId" :disabled="!newGatewayId.trim()">
                     <Plus :size="16" />
                     Add
                   </button>
@@ -1104,12 +1104,12 @@
 
             <!-- Advanced Settings -->
             <div class="settingspage-settings-subsection margin-top-100">
-              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary">Advanced Settings</h3>
+              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px">Advanced Settings</h3>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Request Timeout</span>
-                  <span class="settingspage-setting-desc color-text-secondary">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Request Timeout</span>
+                  <span class="settingspage-setting-desc color-text-secondary fs-13px">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
                 </div>
                 <div class="settingspage-setting-control flex-align-center">
                   <input
@@ -1118,16 +1118,16 @@
                     max="30000"
                     step="1000"
                     v-model="gatewayTimeout"
-                    class="settingspage-brightness-slider flex-1 outline-none"
+                    class="settingspage-brightness-slider flex-1 outline-none border-radius-4px bg-border"
                   />
                   <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary">{{ gatewayTimeout / 1000 }}s</span>
                 </div>
               </div>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Max Retries</span>
-                  <span class="settingspage-setting-desc color-text-secondary">Maximum retry attempts per gateway</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Max Retries</span>
+                  <span class="settingspage-setting-desc color-text-secondary fs-13px">Maximum retry attempts per gateway</span>
                 </div>
                 <div class="settingspage-setting-control flex-align-center">
                   <input
@@ -1135,14 +1135,14 @@
                     min="1"
                     max="10"
                     v-model="maxRetries"
-                    class="settingspage-input-control w-80px fs-085rem color-text-primary"
+                    class="settingspage-input-control w-80px fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                   />
                 </div>
               </div>
             </div>
 
             <!-- Info Box -->
-            <div class="settingspage-info-box flex gap-100 border-radius-12px margin-top-100">
+            <div class="settingspage-info-box flex gap-100 border-radius-12px margin-top-100 padding-100-125">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -1158,10 +1158,10 @@
       </div>
 
       <!-- About View -->
-      <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1">
-        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px">
+      <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
+        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card">
           <div class="settingspage-about-logo margin-bottom-150">
-            <div class="settingspage-logo-icon large flex-align-justify-center size-40px border-radius-md">
+            <div class="settingspage-logo-icon large flex-align-justify-center size-40px border-radius-md bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />
             </div>
           </div>
@@ -1171,19 +1171,19 @@
           <div class="settingspage-about-links flex gap-100">
             <a
               href="https://lumen-browser.com/"
-              class="settingspage-about-link color-primary fw-500"
+              class="settingspage-about-link color-primary fw-500 fs-14px"
               @click.prevent="openInNewTabSafe('https://lumen-browser.com/')"
               >Website</a
             >
             <a
               href="https://github.com/network-lumen"
-              class="settingspage-about-link color-primary fw-500"
+              class="settingspage-about-link color-primary fw-500 fs-14px"
               @click.prevent="openInNewTabSafe('https://github.com/network-lumen')"
               >GitHub</a
             >
             <a
               href="lumen://help"
-              class="settingspage-about-link color-primary fw-500"
+              class="settingspage-about-link color-primary fw-500 fs-14px"
               @click.prevent="openInNewTabSafe('lumen://help')"
               >Documentation</a
             >

@@ -1,19 +1,19 @@
 <template>
-  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100">
-    <div class="lumen-sidebar-header flex gap-62 margin-bottom-100">
-      <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm">
+  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0">
+    <div class="lumen-sidebar-header flex gap-62 margin-bottom-100 flex-inline-align-center">
+      <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm shadow-primary">
         <component :is="icon" :size="20" />
       </div>
-      <span class="lumen-sidebar-title color-text-primary txt-weight-medium">{{ title }}</span>
+      <span class="lumen-sidebar-title color-text-primary txt-weight-medium fs-11rem">{{ title }}</span>
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-25 border-radius-md margin-bottom-87">
+    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-25 border-radius-md margin-bottom-87 padding-87">
       <span class="lumen-sidebar-no-profile-title color-text-primary fs-13px txt-weight-light">No active profile</span>
-      <span class="lumen-sidebar-no-profile-sub color-text-tertiary fs-12px">Create or import one from the navbar.</span>
+      <span class="lumen-sidebar-no-profile-sub color-text-tertiary fs-12px line-height-14">Create or import one from the navbar.</span>
     </div>
 
-    <div class="lumen-sidebar-scroll flex-1">
+    <div class="lumen-sidebar-scroll flex-1 min-h-0 overflow-y-auto padding-right-25">
       <slot />
 
       <AllPagesDropdown
@@ -22,28 +22,28 @@
         :exclude="allPagesExclude"
       />
 
-      <div v-if="renderedFavouriteEntries.length" class="sidebar-section margin-top-100">
-        <div class="sidebar-section-header flex-align-center-justify-space-between gap-50">
-          <div class="sidebar-section-title color-text-tertiary fs-11px txt-weight-light text-uppercase">Shortcuts</div>
+      <div v-if="renderedFavouriteEntries.length" class="sidebar-section margin-top-100 padding-top-75">
+        <div class="sidebar-section-header flex-align-center-justify-space-between gap-50 margin-bottom-50">
+          <div class="sidebar-section-title color-text-tertiary fs-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
           <div class="sidebar-section-count bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full fs-11px txt-weight-medium">{{ renderedFavouriteEntries.length }}</div>
         </div>
         <div class="sidebar-favs flex flex-column gap-35">
           <div
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="sidebar-fav-item flex"
+            class="sidebar-fav-item flex gap-35"
           >
-            <button class="sidebar-fav-hit hover-fill-primary bg-transparent border-none color-text-secondary cursor-pointer flex-align-center flex-1 w-full border-radius-sm text-left" @click="openFavourite(entry.url, $event)">
-              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto fs-11px txt-weight-strong" :class="`tone-${entry.kind}`">
+            <button class="sidebar-fav-hit hover-fill-primary bg-transparent border-none color-text-secondary cursor-pointer flex-align-center flex-1 w-full border-radius-sm text-left min-w-0 gap-62 transition-all-015" @click="openFavourite(entry.url, $event)">
+              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto fs-11px txt-weight-strong letter-spacing-008em border-1-light" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
-              <span class="sidebar-fav-copy flex flex-column gap-10">
+              <span class="sidebar-fav-copy flex flex-column gap-10 min-w-0">
                 <span class="sidebar-fav-title color-text-primary fs-13px txt-weight-light">{{ entry.title }}</span>
                 <span class="sidebar-fav-subtitle color-text-tertiary fs-11px">{{ entry.subtitle }}</span>
               </span>
             </button>
             <button
-              class="sidebar-fav-remove hover-fill-primary border-none bg-transparent color-text-tertiary cursor-pointer border-radius-10px"
+              class="sidebar-fav-remove hover-fill-primary border-none bg-transparent color-text-tertiary cursor-pointer border-radius-10px transition-all-015"
               type="button"
               title="Remove shortcut"
               @click.stop="removeFavouriteById(entry.id)"
@@ -55,9 +55,9 @@
       </div>
     </div>
 
-    <div v-if="showVersion || $slots.footer" class="lumen-sidebar-footer flex flex-column">
+    <div v-if="showVersion || $slots.footer" class="lumen-sidebar-footer flex flex-column padding-top-75 gap-35">
       <slot name="footer" />
-      <div v-if="showVersion" class="lumen-sidebar-version color-text-tertiary text-center fs-11px">
+      <div v-if="showVersion" class="lumen-sidebar-version color-text-tertiary text-center fs-11px padding-50">
         Lumen v{{ appVersion }}
       </div>
     </div>
