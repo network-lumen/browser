@@ -33,17 +33,17 @@
         </div>
         <div class="header-actions">
           <template v-if="activeNameTab === 'lumen'">
-            <button class="btn primary" type="button" @click="openRegisterModal">
+            <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
               <Plus :size="16" />
               <span>Buy domain</span>
             </button>
           </template>
           <template v-else>
-            <button class="btn secondary" type="button" @click="importStableLink">
+            <button class="btn secondary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="importStableLink">
               <Upload :size="16" />
               <span>Import</span>
             </button>
-            <button class="btn primary" type="button" @click="createStableLink">
+            <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
               <Plus :size="16" />
               <span>Generate</span>
             </button>
@@ -67,7 +67,7 @@
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
           </p>
-          <button class="btn primary" type="button" @click="openRegisterModal">
+          <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
             <Plus :size="16" />
             <span>Buy domain</span>
           </button>
@@ -80,7 +80,7 @@
             <div class="domain-right">
               <span
                 v-if="d.expireAtSeconds"
-                class="pill"
+                class="pill color-text-secondary fw-500 txt-sm cursor-pointer"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >
@@ -136,7 +136,7 @@
           <p class="hero-text">
             Stable links are cryptographic names backed by IPNS.
           </p>
-          <button class="btn primary" type="button" @click="createStableLink">
+          <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
             <Plus :size="16" />
             <span>Generate</span>
           </button>
@@ -241,11 +241,11 @@
                 />
               </div>
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
+                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
                   Cancel
                 </button>
                 <button
-                  class="btn primary full"
+                  class="btn primary full txt-weight-light txt-sm cursor-pointer outline-none"
                   type="submit"
                   :disabled="stableLinkSaving || !stableLinkNameDraft.trim()"
                 >
@@ -316,16 +316,16 @@
                     </button>
                   </div>
                 </div>
-                <button class="btn secondary full" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
+                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
                   Add record
                 </button>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
+                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
                   Cancel
                 </button>
-                <button class="btn primary full" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
+                <button class="btn primary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
                   <span v-if="!stableSettingsSaving">
                     <Check :size="16" />
                     Save records
@@ -395,7 +395,7 @@
               </div>
 
               <button
-                class="btn primary full"
+                class="btn primary full txt-weight-light txt-sm cursor-pointer outline-none"
                 type="button"
                 @click="confirmRegister"
                 :disabled="!canRegister || registering"
@@ -463,7 +463,7 @@
                     </button>
                   </div>
                 </div>
-                <button class="btn secondary full" type="button" @click="addSettingsRecord">
+                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addSettingsRecord">
                   Add record
                 </button>
               </div>
@@ -483,11 +483,11 @@
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full" type="button" @click="closeSettingsModal">
+                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeSettingsModal">
                   Cancel
                 </button>
                 <button
-                  class="btn primary full ghost"
+                  class="btn primary full ghost txt-weight-light txt-sm cursor-pointer outline-none"
                   type="button"
                   @click="saveSettings"
                   :disabled="!canSaveSettings || savingSettings"
@@ -543,11 +543,11 @@
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full" type="button" @click="closeTransferModal">
+                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeTransferModal">
                   Cancel
                 </button>
                 <button
-                  class="btn primary full danger"
+                  class="btn primary full danger txt-weight-light txt-sm cursor-pointer outline-none"
                   type="button"
                   @click="confirmTransfer"
                   :disabled="!canTransfer || transferring"

@@ -1,27 +1,27 @@
 <template>
   <Teleport to="body">
-    <TransitionGroup name="toast" tag="div" class="toast-container">
+    <TransitionGroup name="toast" tag="div" class="toast-container flex flex-column">
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="toast bg-primary"
+        class="toast bg-primary flex-align-start border-radius-md"
         :class="[`toast-${toast.type}`, { 'toast-dismissible cursor-pointer': toast.dismissible }]"
         @click="toast.dismissible && removeToast(toast.id)"
       >
-        <div class="toast-icon">
+        <div class="toast-icon flex-align-justify-center size-24px border-radius-circle">
           <CheckCircle v-if="toast.type === 'success'" :size="18" />
           <AlertCircle v-else-if="toast.type === 'error'" :size="18" />
           <AlertTriangle v-else-if="toast.type === 'warning'" :size="18" />
           <Info v-else :size="18" />
         </div>
-        <div class="toast-content">
-          <span v-if="toast.title" class="toast-title">{{ toast.title }}</span>
-          <span class="toast-message">{{ toast.message }}</span>
+        <div class="toast-content flex flex-column flex-1 gap-2px">
+          <span v-if="toast.title" class="toast-title fs-13px txt-weight-light color-text-primary">{{ toast.title }}</span>
+          <span class="toast-message fs-12px color-text-secondary">{{ toast.message }}</span>
         </div>
-        <div v-if="toast.copyable || toast.dismissible" class="toast-actions">
+        <div v-if="toast.copyable || toast.dismissible" class="toast-actions flex-align-start">
           <button
             v-if="toast.copyable"
-            class="toast-action"
+            class="toast-action flex-align-justify-center border-radius-circle color-text-tertiary cursor-pointer"
             :class="{ 'toast-action-copied': copiedState[toast.id] }"
             :title="copiedState[toast.id] ? 'Copied' : 'Copy message'"
             @click.stop="copyToast(toast)"
@@ -29,7 +29,7 @@
             <Check v-if="copiedState[toast.id]" :size="14" />
             <Copy v-else :size="14" />
           </button>
-          <button v-if="toast.dismissible" class="toast-action" title="Dismiss" @click.stop="removeToast(toast.id)">
+          <button v-if="toast.dismissible" class="toast-action flex-align-justify-center border-radius-circle color-text-tertiary cursor-pointer" title="Dismiss" @click.stop="removeToast(toast.id)">
             <X :size="14" />
           </button>
         </div>

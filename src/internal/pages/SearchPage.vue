@@ -41,7 +41,7 @@
 
       <div class="tabs">
         <button
-          class="pill pill-sites"
+          class="pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="pill"
+          class="pill color-text-secondary fw-500 txt-sm cursor-pointer"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="pill"
+          class="pill color-text-secondary fw-500 txt-sm cursor-pointer"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -334,12 +334,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="badge"
+                  class="badge txt-weight-light"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="badge badge-more"
+                  class="badge badge-more txt-weight-light"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >

@@ -2,12 +2,12 @@
   <div class="gateways-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">Manage</span>
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Manage</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: true }"
           >
             <List :size="18" />
@@ -31,7 +31,7 @@
         <div class="manage-head-actions">
           <button
             type="button"
-            class="btn-secondary"
+            class="btn-secondary color-text-primary"
             @click="refreshManage"
             :disabled="gatewaysLoading"
           >
@@ -96,7 +96,7 @@
           <div v-else-if="gatewaysError" class="empty-state-card">
             <h2 class="empty-title">Unable to load gateways</h2>
             <p class="empty-sub">{{ gatewaysError }}</p>
-            <button class="btn-secondary" @click="refreshManage">Try again</button>
+            <button class="btn-secondary color-text-primary" @click="refreshManage">Try again</button>
           </div>
 
           <div v-else-if="!myGateways.length" class="empty-state-card">
@@ -172,7 +172,7 @@
               <footer class="manage-card-actions">
                 <button
                   type="button"
-                  class="btn-secondary"
+                  class="btn-secondary color-text-primary"
                   @click="resetEdit(gw.id)"
                   :disabled="editMap[gw.id].busy"
                 >
@@ -248,7 +248,7 @@
                 </div>
 
                 <div class="modal-actions">
-                  <button type="button" class="btn-secondary" @click="closeCreateModal" :disabled="registerState.busy">
+                  <button type="button" class="btn-secondary color-text-primary" @click="closeCreateModal" :disabled="registerState.busy">
                     Cancel
                   </button>
                   <button
@@ -266,7 +266,7 @@
           </Transition>
 
           <Transition name="toast">
-            <div v-if="toast.show" class="toast" :class="toast.kind">
+            <div v-if="toast.show" class="toast flex-align-start border-radius-md" :class="toast.kind">
               {{ toast.message }}
             </div>
           </Transition>

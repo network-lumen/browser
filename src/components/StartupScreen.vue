@@ -1,32 +1,32 @@
 <template>
-  <div class="startup-card bg-card border-default" role="status" aria-live="polite">
-    <header class="startup-head">
-      <div class="startup-mark bg-gradient-primary color-white" aria-hidden="true">L</div>
+  <div class="startup-card bg-card border-default flex flex-column w-full h-full" role="status" aria-live="polite">
+    <header class="startup-head flex-align-center">
+      <div class="startup-mark bg-gradient-primary color-white flex-align-justify-center flex-0-0-auto fs-18px" aria-hidden="true">L</div>
       <div class="min-w-0">
-        <div class="startup-title">Lumen</div>
+        <div class="startup-title fs-16px txt-weight-strong">Lumen</div>
       </div>
     </header>
 
-    <main class="startup-body h-auto">
-      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center">
+    <main class="startup-body h-auto flex flex-1-1-auto">
+      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center">
         <div class="ring-spinner ring-spinner-lg" aria-label="Loading"></div>
       </div>
 
-      <div v-else-if="phase === 'error'" class="startup-center">
+      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center">
         <div>
-          <div class="startup-msg-subtitle color-text-secondary">
+          <div class="startup-msg-subtitle color-text-secondary fs-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100" type="button" :disabled="busy" @click="restartAll">
+          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>
       </div>
     </main>
 
-    <footer class="startup-foot">
-      <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary">This usually takes a few seconds.</span>
-      <span v-else class="startup-hint color-text-tertiary">If it keeps failing, restart Lumen.</span>
+    <footer class="startup-foot flex-justify-center">
+      <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary fs-12px">This usually takes a few seconds.</span>
+      <span v-else class="startup-hint color-text-tertiary fs-12px">If it keeps failing, restart Lumen.</span>
     </footer>
   </div>
 </template>

@@ -5,7 +5,7 @@
         <h2>Recurring Payments & Subscriptions</h2>
         <p>Manage your scheduled automatic payments</p>
       </div>
-      <button class="btn primary" @click="showCreateModal = true">
+      <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" @click="showCreateModal = true">
         <Plus :size="16" />
         <span>New Payment</span>
       </button>
@@ -40,21 +40,21 @@
     <!-- Filter and Stats -->
     <div class="stats-section">
       <div class="stat-card">
-        <div class="stat-icon active badge-success">
+        <div class="stat-icon active badge-success color-success">
           <PlayCircle :size="20" />
         </div>
         <div>
-          <div class="stat-value">{{ activeCount }}</div>
-          <div class="stat-label">Active</div>
+          <div class="stat-value txt-weight-medium color-text-primary">{{ activeCount }}</div>
+          <div class="stat-label color-text-tertiary text-uppercase">Active</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon paused badge-warning">
+        <div class="stat-icon paused badge-warning color-warning">
           <PauseCircle :size="20" />
         </div>
         <div>
-          <div class="stat-value">{{ pausedCount }}</div>
-          <div class="stat-label">Paused</div>
+          <div class="stat-value txt-weight-medium color-text-primary">{{ pausedCount }}</div>
+          <div class="stat-label color-text-tertiary text-uppercase">Paused</div>
         </div>
       </div>
       <div class="stat-card">
@@ -62,8 +62,8 @@
           <DollarSign :size="20" />
         </div>
         <div>
-          <div class="stat-value">{{ monthlyTotal }}</div>
-          <div class="stat-label">Monthly Total</div>
+          <div class="stat-value txt-weight-medium color-text-primary">{{ monthlyTotal }}</div>
+          <div class="stat-label color-text-tertiary text-uppercase">Monthly Total</div>
         </div>
       </div>
     </div>
@@ -95,7 +95,7 @@
         <Calendar :size="48" class="empty-icon" />
         <h3>No Recurring Payments</h3>
         <p>Schedule automatic payments for subscriptions, bills, and more</p>
-        <button class="btn primary" @click="showCreateModal = true">
+        <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" @click="showCreateModal = true">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
         </button>

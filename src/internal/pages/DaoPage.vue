@@ -2,12 +2,12 @@
   <div class="dao-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="DAO" :icon="Users" activeKey="dao">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">Governance</span>
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Governance</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'proposals' }"
             @click="currentView = 'proposals'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'voting' }"
             @click="currentView = 'voting'"
           >
@@ -25,11 +25,11 @@
           </button>
         </div>
 
-        <div class="lsb-section">
-          <span class="lsb-label">Treasury</span>
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Treasury</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'treasury' }"
             @click="currentView = 'treasury'"
           >
@@ -38,7 +38,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: currentView === 'members' }"
             @click="currentView = 'members'"
           >
@@ -77,8 +77,8 @@
               <FileText :size="20" />
             </div>
             <div class="stat-info">
-              <span class="stat-value">{{ activeProposalsCount }}</span>
-              <span class="stat-label">Active Proposals</span>
+              <span class="stat-value txt-weight-medium color-text-primary">{{ activeProposalsCount }}</span>
+              <span class="stat-label color-text-tertiary text-uppercase">Active Proposals</span>
             </div>
           </div>
           <div class="stat-card">
@@ -86,8 +86,8 @@
               <Users :size="20" />
             </div>
             <div class="stat-info">
-              <span class="stat-value">{{ totalMembers }}</span>
-              <span class="stat-label">Validators</span>
+              <span class="stat-value txt-weight-medium color-text-primary">{{ totalMembers }}</span>
+              <span class="stat-label color-text-tertiary text-uppercase">Validators</span>
             </div>
           </div>
           <div class="stat-card">
@@ -95,8 +95,8 @@
               <Wallet :size="20" />
             </div>
             <div class="stat-info">
-              <span class="stat-value">{{ treasuryBalance }} LUM</span>
-              <span class="stat-label">Community Pool</span>
+              <span class="stat-value txt-weight-medium color-text-primary">{{ treasuryBalance }} LUM</span>
+              <span class="stat-label color-text-tertiary text-uppercase">Community Pool</span>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@
                   <span class="vote-for">{{ calculateVotePercentage(proposal, 'yes').toFixed(0) }}% Yes</span>
                   <span class="vote-against">{{ calculateVotePercentage(proposal, 'no').toFixed(0) }}% No</span>
                 </div>
-                <button class="btn-secondary" @click="openVoteModal(proposal)">
+                <button class="btn-secondary color-text-primary" @click="openVoteModal(proposal)">
                   {{ proposal.status === 'PROPOSAL_STATUS_VOTING_PERIOD' ? 'Vote' : 'View Details' }}
                 </button>
               </div>
@@ -295,7 +295,7 @@
               <label class="vote-option" :class="{ selected: voteChoice === 'for' }">
                 <input type="radio" name="vote" value="for" v-model="voteChoice" />
                 <div class="vote-option-content">
-                  <div class="vote-icon for badge-success">
+                  <div class="vote-icon for badge-success color-success">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/>
                     </svg>

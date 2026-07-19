@@ -1,10 +1,10 @@
 <template>
   <div class="release-page internal-page">
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">Manage</span>
-          <button type="button" class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary" :class="{ active: true }">
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Manage</span>
+          <button type="button" class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left" :class="{ active: true }">
             <Rocket :size="18" />
             <span>Publisher</span>
           </button>
@@ -24,7 +24,7 @@
           </p>
         </div>
         <div class="header-actions">
-          <button type="button" class="btn-secondary" :disabled="loading" @click="refreshAll">
+          <button type="button" class="btn-secondary color-text-primary" :disabled="loading" @click="refreshAll">
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
           </button>
@@ -64,7 +64,7 @@
             <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
             <span>Allow pending (stable)</span>
           </label>
-          <button type="button" class="btn-secondary" @click="pollNow" :disabled="loading">Re-check</button>
+          <button type="button" class="btn-secondary color-text-primary" @click="pollNow" :disabled="loading">Re-check</button>
         </div>
       </section>
 
@@ -122,7 +122,7 @@
             <button type="button" class="btn-primary" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </button>
-            <button type="button" class="btn-secondary" :disabled="submittingDao" @click="openDaoModal('reject')">
+            <button type="button" class="btn-secondary color-text-primary" :disabled="submittingDao" @click="openDaoModal('reject')">
               Send to DAO (reject)
             </button>
           </div>
@@ -201,35 +201,35 @@
           <div class="form-grid">
             <label class="field flex flex-column gap-35">
               <span class="label">Action</span>
-              <select v-model="daoForm.kind" class="input">
+              <select v-model="daoForm.kind" class="input w-full border-radius-md color-text-primary txt-md">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
             </label>
             <label class="field flex flex-column gap-35">
               <span class="label">Deposit (LMN)</span>
-              <input v-model.trim="daoForm.depositLmn" class="input" placeholder="0" />
+              <input v-model.trim="daoForm.depositLmn" class="input w-full border-radius-md color-text-primary txt-md" placeholder="0" />
             </label>
           </div>
 
           <label class="field flex flex-column gap-35">
             <span class="label">Title</span>
-            <input v-model.trim="daoForm.title" class="input" />
+            <input v-model.trim="daoForm.title" class="input w-full border-radius-md color-text-primary txt-md" />
           </label>
 
           <label class="field flex flex-column gap-35">
             <span class="label">Summary</span>
-            <textarea v-model="daoForm.summary" class="input" rows="3" />
+            <textarea v-model="daoForm.summary" class="input w-full border-radius-md color-text-primary txt-md" rows="3" />
           </label>
 
           <label v-if="daoForm.kind === 'reject'" class="field flex flex-column gap-35">
             <span class="label">Reason (optional)</span>
-            <textarea v-model="daoForm.reason" class="input" rows="3" placeholder="Why should this release be rejected?" />
+            <textarea v-model="daoForm.reason" class="input w-full border-radius-md color-text-primary txt-md" rows="3" placeholder="Why should this release be rejected?" />
           </label>
         </div>
 
         <div class="modal-foot">
-          <button type="button" class="btn-secondary" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
+          <button type="button" class="btn-secondary color-text-primary" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
           <button type="button" class="btn-primary" @click="submitDaoProposal" :disabled="submittingDao">
             <span v-if="submittingDao" class="inline-spinner"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
@@ -251,7 +251,7 @@
               <h3>Import from GitHub release</h3>
               <button
                 type="button"
-                class="btn-secondary btn-sm"
+                class="btn-secondary btn-sm color-text-primary"
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
                 @click="importFromGithubRelease"
               >
@@ -264,7 +264,7 @@
               <span class="label">GitHub release URL</span>
               <input
                 v-model.trim="githubReleaseUrl"
-                class="input mono"
+                class="input mono w-full border-radius-md color-text-primary txt-md"
                 placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8"
               />
               <span class="muted small">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
@@ -274,17 +274,17 @@
           <div class="form-grid">
             <label class="field flex flex-column gap-35">
               <span class="label">Version</span>
-              <input v-model.trim="draft.version" class="input" placeholder="0.1.9" />
+              <input v-model.trim="draft.version" class="input w-full border-radius-md color-text-primary txt-md" placeholder="0.1.9" />
             </label>
             <label class="field flex flex-column gap-35">
               <span class="label">Channel</span>
-              <select v-model="draft.channel" class="input">
+              <select v-model="draft.channel" class="input w-full border-radius-md color-text-primary txt-md">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </label>
             <label class="field flex flex-column gap-35">
               <span class="label">Supersedes (IDs)</span>
-              <input v-model.trim="draft.supersedes" class="input" placeholder="12, 13" />
+              <input v-model.trim="draft.supersedes" class="input w-full border-radius-md color-text-primary txt-md" placeholder="12, 13" />
             </label>
             <label class="field flex flex-column gap-35 checkbox-field">
               <span class="label">Emergency flag</span>
@@ -297,14 +297,14 @@
 
           <label class="field flex flex-column gap-35">
             <span class="label">Release notes</span>
-            <textarea v-model="draft.notes" class="input" rows="4" placeholder="Changelog, highlights, etc." />
+            <textarea v-model="draft.notes" class="input w-full border-radius-md color-text-primary txt-md" rows="4" placeholder="Changelog, highlights, etc." />
             <span class="muted small">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
           </label>
 
           <div class="artifacts-builder">
             <div class="builder-head">
               <h3>Artifacts</h3>
-              <button type="button" class="btn-secondary btn-sm" @click="addArtifact">Add artifact</button>
+              <button type="button" class="btn-secondary btn-sm color-text-primary" @click="addArtifact">Add artifact</button>
             </div>
 
             <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="artifact-draft">
@@ -313,7 +313,7 @@
                 <button
                   v-if="draft.artifacts.length > 1"
                   type="button"
-                  class="btn-secondary btn-sm"
+                  class="btn-secondary btn-sm color-text-primary"
                   @click="removeArtifact(idx)"
                 >
                   Remove
@@ -323,39 +323,39 @@
               <div class="form-grid">
                 <label class="field flex flex-column gap-35">
                   <span class="label">Platform</span>
-                  <input v-model.trim="a.platform" class="input" placeholder="windows-amd64" />
+                  <input v-model.trim="a.platform" class="input w-full border-radius-md color-text-primary txt-md" placeholder="windows-amd64" />
                 </label>
                 <label class="field flex flex-column gap-35">
                   <span class="label">Kind</span>
-                  <input v-model.trim="a.kind" class="input" placeholder="browser" />
+                  <input v-model.trim="a.kind" class="input w-full border-radius-md color-text-primary txt-md" placeholder="browser" />
                 </label>
               </div>
 
               <div class="form-grid">
                 <label class="field flex flex-column gap-35">
                   <span class="label">CID</span>
-                  <input v-model.trim="a.cid" class="input" placeholder="Optional" />
+                  <input v-model.trim="a.cid" class="input w-full border-radius-md color-text-primary txt-md" placeholder="Optional" />
                 </label>
                 <label class="field flex flex-column gap-35">
                   <span class="label">SHA-256</span>
-                  <input v-model.trim="a.sha256Hex" class="input" placeholder="64 hex chars" />
+                  <input v-model.trim="a.sha256Hex" class="input w-full border-radius-md color-text-primary txt-md" placeholder="64 hex chars" />
                 </label>
                 <label class="field flex flex-column gap-35">
                   <span class="label">Size (bytes)</span>
-                  <input v-model.trim="a.size" class="input" placeholder="123456" />
+                  <input v-model.trim="a.size" class="input w-full border-radius-md color-text-primary txt-md" placeholder="123456" />
                 </label>
               </div>
 
               <label class="field flex flex-column gap-35">
                 <span class="label">URLs (one per line)</span>
-                <textarea v-model="a.urlsText" class="input mono" rows="3" placeholder="https://example.com/file.exe" />
+                <textarea v-model="a.urlsText" class="input mono w-full border-radius-md color-text-primary txt-md" rows="3" placeholder="https://example.com/file.exe" />
               </label>
             </div>
           </div>
         </div>
 
         <div class="modal-foot">
-          <button type="button" class="btn-secondary" @click="closePublishModal" :disabled="submitting">Cancel</button>
+          <button type="button" class="btn-secondary color-text-primary" @click="closePublishModal" :disabled="submitting">Cancel</button>
           <button type="button" class="btn-primary" @click="submitRelease" :disabled="submitting">
             <span v-if="submitting" class="inline-spinner"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>

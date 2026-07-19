@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
     <div class="margin-bottom-200">
-      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100" @click="goBack">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -23,13 +23,13 @@
       <!-- Transaction Overview Card -->
       <div class="chaindetail-card bg-primary">
         <div class="chaindetail-card-header bg-secondary">
-          <h2 class="color-text-primary">Transaction Overview</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0">Transaction Overview</h2>
         </div>
-        <div class="chaindetail-card-body">
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Transaction Hash:</span>
+        <div class="chaindetail-card-body padding-150">
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Transaction Hash:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
-              <code class="bg-secondary color-text-primary">{{ transaction.hash }}</code>
+              <code class="bg-secondary color-text-primary flex-1">{{ transaction.hash }}</code>
               <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center" @click="copyToClipboard(transaction.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -38,34 +38,34 @@
               </button>
             </div>
           </div>
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Status:</span>
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Status:</span>
             <span class="chaindetail-value color-text-primary">
               <span :class="['chaindetail-status-badge', transaction.success ? 'badge-success' : 'badge-error']">
                 {{ transaction.success ? '✓ Success' : '✗ Failed' }}
               </span>
             </span>
           </div>
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Block Height:</span>
-            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer" @click="navigateToBlock(transaction.height)">
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Block Height:</span>
+            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Time:</span>
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Time:</span>
             <span class="chaindetail-value color-text-primary">{{ transaction.time }}</span>
           </div>
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Gas Used:</span>
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Gas Used:</span>
             <span class="chaindetail-value color-text-primary">{{ formatNumber(transaction.gasUsed) }}</span>
           </div>
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Gas Wanted:</span>
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Gas Wanted:</span>
             <span class="chaindetail-value color-text-primary">{{ formatNumber(transaction.gasWanted) }}</span>
           </div>
-          <div class="chaindetail-row">
-            <span class="chaindetail-label color-text-secondary">Fee:</span>
+          <div class="chaindetail-row gap-100">
+            <span class="chaindetail-label color-text-secondary fw-500">Fee:</span>
             <span class="chaindetail-value color-text-primary">{{ transaction.fee }}</span>
           </div>
         </div>
@@ -74,17 +74,17 @@
       <!-- Messages Card -->
       <div class="chaindetail-card bg-primary" v-if="transaction.messages && transaction.messages.length > 0">
         <div class="chaindetail-card-header bg-secondary">
-          <h2 class="color-text-primary">Messages ({{ transaction.messages.length }})</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0">Messages ({{ transaction.messages.length }})</h2>
         </div>
-        <div class="chaindetail-card-body">
+        <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
-            <div class="txdetail-item bg-secondary" v-for="(msg, index) in transaction.messages" :key="index">
+            <div class="txdetail-item bg-secondary padding-100" v-for="(msg, index) in transaction.messages" :key="index">
               <div class="txdetail-item-header flex-align-center flex-justify-space-between">
-                <span class="txdetail-item-type color-text-primary">{{ msg.type }}</span>
+                <span class="txdetail-item-type color-text-primary txt-weight-light">{{ msg.type }}</span>
                 <span class="txdetail-item-index color-text-tertiary">#{{ Number(index) + 1 }}</span>
               </div>
               <div class="txdetail-item-data">
-                <pre class="bg-primary color-text-primary">{{ JSON.stringify(msg.value, null, 2) }}</pre>
+                <pre class="bg-primary color-text-primary padding-100 margin-0">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
             </div>
           </div>
@@ -94,15 +94,15 @@
       <!-- Events Card -->
       <div class="chaindetail-card bg-primary" v-if="transaction.events && transaction.events.length > 0">
         <div class="chaindetail-card-header bg-secondary">
-          <h2 class="color-text-primary">Events ({{ transaction.events.length }})</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0">Events ({{ transaction.events.length }})</h2>
         </div>
-        <div class="chaindetail-card-body">
+        <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
-            <div class="txdetail-item bg-secondary" v-for="(event, index) in transaction.events" :key="index">
-              <div class="txdetail-item-type color-text-primary">{{ event.type }}</div>
+            <div class="txdetail-item bg-secondary padding-100" v-for="(event, index) in transaction.events" :key="index">
+              <div class="txdetail-item-type color-text-primary txt-weight-light">{{ event.type }}</div>
               <div class="txdetail-event-attributes flex flex-column gap-50">
                 <div class="flex gap-50 fs-12px" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
-                  <span class="txdetail-attr-key color-text-secondary">{{ attr.key }}:</span>
+                  <span class="txdetail-attr-key color-text-secondary txt-weight-light">{{ attr.key }}:</span>
                   <span class="color-text-primary break-all">{{ attr.value }}</span>
                 </div>
               </div>
@@ -114,9 +114,9 @@
       <!-- Raw Data Card -->
       <div class="chaindetail-card bg-primary">
         <div class="chaindetail-card-header bg-secondary">
-          <h2 class="color-text-primary">Raw Transaction Data</h2>
+          <h2 class="color-text-primary txt-weight-light margin-0">Raw Transaction Data</h2>
         </div>
-        <div class="chaindetail-card-body">
+        <div class="chaindetail-card-body padding-150">
           <div>
             <pre class="bg-primary color-text-primary">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
           </div>

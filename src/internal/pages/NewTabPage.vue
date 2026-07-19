@@ -23,10 +23,10 @@
         </div>
 
         <div class="onboarding-actions">
-          <button class="btn btn-primary" type="button" @click="learnLumen">
+          <button class="btn btn-primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="learnLumen">
             Learn Lumen
           </button>
-          <button class="btn btn-secondary" type="button" @click="dismissOnboarding">
+          <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="dismissOnboarding">
             Skip
           </button>
         </div>
@@ -93,10 +93,10 @@
           </div>
 
           <div class="shortcut-modal-actions">
-            <button class="btn btn-secondary" type="button" @click="closeShortcutModal">
+            <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="closeShortcutModal">
               Cancel
             </button>
-            <button class="btn btn-primary" type="button" @click="submitShortcutModal">
+            <button class="btn btn-primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="submitShortcutModal">
               {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
             </button>
           </div>
@@ -161,7 +161,7 @@
           </div>
 
           <div class="shortcuts-head-actions">
-            <button class="btn btn-secondary" type="button" @click="beginCreateShortcut">
+            <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="beginCreateShortcut">
               <Plus :size="15" />
               <span>Add shortcut</span>
             </button>
@@ -245,7 +245,7 @@
           </div>
 
           <div class="shortcuts-head-actions">
-            <button class="btn btn-secondary" type="button" @click="goto('lumen://history')">
+            <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="goto('lumen://history')">
               <History :size="15" />
               <span>Open history</span>
             </button>

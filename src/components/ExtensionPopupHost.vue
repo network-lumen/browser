@@ -5,16 +5,16 @@
         <X :size="14" />
       </button>
 
-      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center">
+      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center">
         {{ error }}
       </div>
-      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center">
+      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center">
         Preparing extension…
       </div>
-      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center">
+      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center">
         Extension guest preload is unavailable.
       </div>
-      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center">
+      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center">
         Loading extension…
       </div>
       <webview
@@ -35,7 +35,7 @@
         @did-stop-loading="onDidStopLoading"
         @dom-ready="onDomReady"
       ></webview>
-      <div v-else class="extension-popup-status w-full h-full fs-14px text-center">
+      <div v-else class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center">
         Preparing extension…
       </div>
     </div>

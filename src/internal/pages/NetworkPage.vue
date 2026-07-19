@@ -2,12 +2,12 @@
   <div class="network-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
-      <nav class="lsb-nav">
-        <div class="lsb-section">
-          <span class="lsb-label">Monitoring</span>
+      <nav class="lsb-nav flex flex-column gap-75">
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Monitoring</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: activeView === 'status' }"
             @click="activeView = 'status'"
           >
@@ -19,7 +19,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             :class="{ active: activeView === 'params' }"
             @click="activeView = 'params'"
           >
@@ -29,7 +29,7 @@
           <button
             v-if="activeView === 'status'"
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left"
             @click="refreshData"
             :disabled="refreshing"
           >
@@ -40,8 +40,8 @@
           </button>
         </div>
 
-        <div class="lsb-section">
-          <span class="lsb-label">Metrics</span>
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Metrics</span>
           <div class="metric-item">
             <span class="metric-label">Block Height</span>
             <span class="metric-value">{{ formatNumber(blockHeight) }}</span>
@@ -68,8 +68,8 @@
           </div>
         </div>
 
-        <div class="lsb-section">
-          <span class="lsb-label">Node Info</span>
+        <div class="lsb-section flex flex-column gap-2px">
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase">Node Info</span>
           <div class="node-detail">
             <span class="node-detail-label">Chain ID</span>
             <span class="node-detail-value">lumen-1</span>
