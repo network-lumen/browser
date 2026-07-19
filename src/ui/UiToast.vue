@@ -102,10 +102,10 @@ async function copyToast(toast: Toast) {
   align-items: flex-start;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: var(--border-radius-md, 10px);
-  background: var(--bg-primary, #fff);
-  border: 0.5px solid var(--border-primary, rgba(0,0,0,0.08));
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15));
+  border-radius: var(--border-radius-md);
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-color);
+  box-shadow: var(--shadow-md);
   pointer-events: auto;
   min-width: 280px;
   backdrop-filter: blur(12px);
@@ -117,7 +117,7 @@ async function copyToast(toast: Toast) {
 }
 
 .toast-dismissible:hover {
-  background: var(--bg-secondary, #f5f5f7);
+  background: var(--bg-secondary);
 }
 
 .toast-icon {
@@ -131,23 +131,23 @@ async function copyToast(toast: Toast) {
 }
 
 .toast-success .toast-icon {
-  color: var(--ios-green, #30d158);
-  background: rgba(48, 209, 88, 0.12);
+  color: var(--ios-green);
+  background: rgba(var(--ios-green-rgb), 0.12);
 }
 
 .toast-error .toast-icon {
-  color: var(--ios-red, #ff453a);
-  background: rgba(255, 69, 58, 0.12);
+  color: var(--ios-red);
+  background: rgba(var(--ios-red-rgb), 0.12);
 }
 
 .toast-warning .toast-icon {
-  color: var(--ios-orange, #ff9f0a);
-  background: rgba(255, 159, 10, 0.12);
+  color: var(--ios-orange);
+  background: rgba(var(--ios-orange-rgb), 0.12);
 }
 
 .toast-info .toast-icon {
-  color: var(--ios-blue, #007aff);
-  background: rgba(0, 122, 255, 0.12);
+  color: var(--ios-blue);
+  background: rgba(var(--ios-blue-rgb), 0.12);
 }
 
 .toast-content {
@@ -161,13 +161,13 @@ async function copyToast(toast: Toast) {
 .toast-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary, #1d1d1f);
+  color: var(--text-primary);
   line-height: 1.3;
 }
 
 .toast-message {
   font-size: 12px;
-  color: var(--text-secondary, #86868b);
+  color: var(--text-secondary);
   line-height: 1.4;
   word-break: break-word;
   user-select: text;
@@ -190,19 +190,19 @@ async function copyToast(toast: Toast) {
   border-radius: 50%;
   background: transparent;
   border: none;
-  color: var(--text-tertiary, #aeaeb2);
+  color: var(--text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
   margin: -2px -4px -2px 0;
 }
 
 .toast-action:hover {
-  background: var(--bg-tertiary, rgba(0,0,0,0.05));
-  color: var(--text-primary, #1d1d1f);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .toast-action-copied {
-  color: var(--ios-green, #30d158);
+  color: var(--ios-green);
 }
 
 /* Animations */
@@ -236,9 +236,4 @@ async function copyToast(toast: Toast) {
   }
 }
 
-/* Dark mode adjustments */
-:root[data-theme="dark"] .toast {
-  background: rgba(44, 44, 46, 0.95);
-  border-color: rgba(255,255,255,0.1);
-}
 </style>
