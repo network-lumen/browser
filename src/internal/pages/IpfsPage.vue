@@ -1,11 +1,11 @@
 <template>
-  <div class="ipfs-page" :class="{ 'ipfs-page--bare': isBareHtmlView }">
-    <main class="main-content">
-      <header v-if="!isBareHtmlView" class="content-header">
-        <div class="header-actions">
+  <div class="ipfspage-ipfs-page flex w-full h-full" :class="{ 'ipfspage-ipfs-page--bare': isBareHtmlView }">
+    <main class="ipfspage-main-content flex flex-column flex-1 padding-150">
+      <header v-if="!isBareHtmlView" class="ipfspage-content-header flex-align-start gap-100 margin-bottom-100">
+        <div class="ipfspage-header-actions flex gap-50">
           <button
             v-if="isDir && indexHtmlEntry"
-            class="plans-btn disabled-fade-50"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer"
             type="button"
             @click="openIndexHtml"
             :disabled="!navigate"
@@ -14,7 +14,7 @@
           </button>
           <button
             v-if="isDir && masterM3u8Entry"
-            class="plans-btn disabled-fade-50"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer"
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
@@ -24,10 +24,10 @@
             <span>Play video</span>
           </button>
           <button
-            class="plans-btn disabled-fade-50"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer"
             type="button"
             @click="openSaveModal"
-            :class="{ 'save-active': saved }"
+            :class="{ 'ipfspage-save-active': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
               saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'
@@ -38,7 +38,7 @@
             <span>{{ saved ? "Saved" : saving ? "Saving..." : "Save" }}</span>
           </button>
           <button
-            class="plans-btn disabled-fade-50"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer"
             type="button"
             @click="copyLink"
             :disabled="!rootCid"
@@ -47,7 +47,7 @@
             <span>Copy link</span>
           </button>
           <button
-            class="plans-btn disabled-fade-50"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer"
             type="button"
             @click="download"
             v-if="!isPreviewUnavailable"
@@ -59,35 +59,35 @@
         </div>
       </header>
 
-      <div v-if="loading" class="loading-wrap">
+      <div v-if="loading" class="ipfspage-loading-wrap flex-align-center gap-75 padding-100 border-radius-lg">
         <UiSpinner size="md" />
       </div>
 
-      <div v-else-if="error" class="error-wrap">
+      <div v-else-if="error" class="ipfspage-error-wrap padding-100 border-radius-lg color-error">
         {{ error }}
       </div>
 
       <template v-else>
-        <div v-if="!rootCid" class="welcome-wrap">
-          <div class="welcome-content">
+        <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center">
+          <div class="ipfspage-welcome-content text-center">
             <h2>IPFS Content Viewer</h2>
             <p>View and download content from IPFS using CIDs.</p>
-            <div class="welcome-example">
-              <p class="example-label">Example:</p>
+            <div class="ipfspage-welcome-example border-radius-lg padding-150 margin-bottom-200">
+              <p class="ipfspage-example-label fw-500 color-text-secondary">Example:</p>
               <code
                 >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
               >
             </div>
-            <p class="welcome-hint">
+            <p class="ipfspage-welcome-hint color-text-tertiary">
               Enter an IPFS CID in the address bar to view content.
             </p>
           </div>
         </div>
 
         <div v-else-if="isDir" class="dir-wrap">
-          <div class="breadcrumb">
+          <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-35">
             <button
-              class="crumb disabled-fade-60"
+              class="ipfspage-crumb disabled-fade-60 padding-0 cursor-pointer color-text-primary fs-085rem"
               type="button"
               @click="openDirRoot"
               :disabled="!navigate"
@@ -95,9 +95,9 @@
               /
             </button>
             <template v-for="(c, idx) in crumbs" :key="c.path">
-              <span v-if="idx > 0" class="sep">/</span>
+              <span v-if="idx > 0" class="ipfspage-sep color-text-secondary">/</span>
               <button
-                class="crumb disabled-fade-60"
+                class="ipfspage-crumb disabled-fade-60 padding-0 cursor-pointer color-text-primary fs-085rem"
                 type="button"
                 @click="openDirCrumb(idx)"
                 :disabled="!navigate"
@@ -107,36 +107,36 @@
             </template>
           </div>
 
-          <div v-if="!entries.length" class="empty-dir">Empty folder.</div>
+          <div v-if="!entries.length" class="ipfspage-empty-dir padding-100 border-radius-lg color-text-secondary">Empty folder.</div>
 
-          <div v-else class="dir-table">
+          <div v-else class="ipfspage-dir-table border-radius-lg">
             <div
               v-for="it in entries"
               :key="it.key"
-              class="dir-row"
+              class="ipfspage-dir-row gap-75"
               @dblclick="openEntry(it)"
             >
-              <div class="dir-name" @click="openEntry(it)">
-                <Folder v-if="it.type === 'dir'" :size="16" class="ico" />
-                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="ico" />
-                <File v-else :size="16" class="ico" />
+              <div class="ipfspage-dir-name flex-align-center cursor-pointer" @click="openEntry(it)">
+                <Folder v-if="it.type === 'dir'" :size="16" class="ipfspage-ico color-text-secondary" />
+                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="ipfspage-ico color-text-secondary" />
+                <File v-else :size="16" class="ipfspage-ico color-text-secondary" />
                 <span class="txt-overflow-ellipsis nowrap overflow-hidden">{{
                   it.name
                 }}</span>
               </div>
-              <div class="dir-size mono">
+              <div class="ipfspage-dir-size mono text-right color-text-secondary fs-085rem">
                 {{ it.size != null ? formatSize(it.size) : "-" }}
               </div>
-              <div class="dir-actions">
+              <div class="ipfspage-dir-actions flex-justify-end gap-50">
                 <button
-                  class="btn-ghost"
+                  class="ipfspage-btn-ghost color-text-primary border-radius-sm cursor-pointer"
                   type="button"
                   @click.stop="copyLinkFor(it)"
                 >
                   Copy link
                 </button>
                 <button
-                  class="btn-ghost"
+                  class="ipfspage-btn-ghost color-text-primary border-radius-sm cursor-pointer"
                   type="button"
                   @click.stop="openEntry(it)"
                 >
@@ -149,17 +149,13 @@
 
         <div
           v-else
-          class="viewer"
-          :class="{
-            'viewer--bare': isBareHtmlView,
-            'viewer--document':
-              viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx',
-          }"
+          class="ipfspage-viewer flex-align-justify-center border-radius-12px padding-100"
+          :class="{ 'ipfspage-viewer--bare': isBareHtmlView, 'ipfspage-viewer--document': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
         >
           <img
             v-if="viewKind === 'image'"
             :src="contentUrl"
-            class="media img"
+            class="ipfspage-media img border-radius-12px"
             alt=""
             @error="onMediaError"
           />
@@ -168,11 +164,11 @@
             <video
               ref="videoEl"
               :src="videoSrc"
-              class="media"
+              class="ipfspage-media border-radius-12px"
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="hls-error">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error">
               {{ hlsError }}
             </div>
           </template>
@@ -181,15 +177,15 @@
             v-else-if="viewKind === 'audio'"
             :src="contentUrl"
             controls
-            class="audio"
+            class="ipfspage-audio w-full"
           ></audio>
 
            <webview
              v-else-if="viewKind === 'html'"
              ref="siteWebview"
              :src="contentUrl"
-             class="embed"
-             :class="{ 'embed--bare': isBareHtmlView }"
+             class="ipfspage-embed w-full border-radius-12px"
+             :class="{ 'ipfspage-embed--bare': isBareHtmlView }"
              partition="persist:lumen"
              allowpopups
              :webpreferences="webprefs"
@@ -206,34 +202,34 @@
           <iframe
             v-else-if="viewKind === 'pdf'"
             :src="contentUrl"
-            class="embed"
+            class="ipfspage-embed w-full border-radius-12px"
           ></iframe>
 
           <iframe
             v-else-if="viewKind === 'epub'"
             :src="epubReaderUrl"
-            class="embed"
+            class="ipfspage-embed w-full border-radius-12px"
             allow="fullscreen"
           ></iframe>
 
-          <pre v-else-if="viewKind === 'docx'" class="text">{{
+          <pre v-else-if="viewKind === 'docx'" class="ipfspage-text w-full fs-085rem color-text-primary">{{
             docxContent
           }}</pre>
 
           <article
             v-else-if="viewKind === 'markdown'"
-            class="markdown-body markdown-view"
+            class="markdown-body ipfspage-markdown-view w-full margin-0-auto"
             data-color-mode="auto"
             v-html="markdownHtml"
             @click="onMarkdownClick"
           ></article>
 
-          <pre v-else-if="viewKind === 'text'" class="text">{{
+          <pre v-else-if="viewKind === 'text'" class="ipfspage-text w-full fs-085rem color-text-primary">{{
             textContent
           }}</pre>
 
-          <div v-else class="unsupported">
-            <div class="unsupported-content">
+          <div v-else class="ipfspage-unsupported flex-align-justify-center w-full">
+            <div class="ipfspage-unsupported-content text-center padding-200">
               <h3>Preview not available</h3>
               <p>This content type cannot be previewed directly.</p>
             </div>
@@ -242,71 +238,71 @@
       </template>
     </main>
 
-    <Transition name="fade">
+    <Transition name="ipfspage-fade">
       <div
         v-if="showSaveModal"
-        class="modal-overlay"
+        class="ipfspage-modal-overlay flex-align-justify-center padding-125"
         role="dialog"
         aria-modal="true"
         @click="closeSaveModal"
       >
-        <div class="modal" @click.stop>
-          <header class="modal-header">
+        <div class="ipfspage-modal" @click.stop>
+          <header class="ipfspage-modal-header flex-align-center-justify-space-between">
             <h3>Save to Drive</h3>
-            <button class="modal-close" type="button" @click="closeSaveModal">
+            <button class="ipfspage-modal-close color-text-secondary cursor-pointer" type="button" @click="closeSaveModal">
               <span>×</span>
             </button>
           </header>
 
-          <div class="modal-body">
-            <label class="modal-label" for="save-name">Name</label>
+          <div class="ipfspage-modal-body flex flex-column padding-100 gap-50">
+            <label class="ipfspage-modal-label fs-085rem txt-weight-light color-text-primary" for="save-name">Name</label>
             <input
               id="save-name"
               v-model="saveNameDraft"
-              class="modal-input"
+              class="ipfspage-modal-input w-full border-radius-12px color-text-primary outline-none"
               type="text"
               :placeholder="saveNamePlaceholder"
               :disabled="savePreparing || saving"
               @keydown.enter.prevent="confirmSaveToDrive"
             />
 
-            <div v-if="saveModalError" class="modal-error">
+            <div v-if="saveModalError" class="ipfspage-modal-error fs-085rem color-error">
               {{ saveModalError }}
             </div>
 
-            <div v-if="savePinJobId" class="pin-progress-card">
-              <div class="pin-progress-head">
-                <span class="pin-progress-status">{{ savePinStatusLabel }}</span>
-                <span v-if="savePinProgressCounter" class="pin-progress-counter">{{ savePinProgressCounter }}</span>
+            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px">
+              <div class="ipfspage-pin-progress-head flex-align-center-justify-space-between gap-75">
+                <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase">{{ savePinStatusLabel }}</span>
+                <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary">{{ savePinProgressCounter }}</span>
               </div>
-              <div class="pin-progress-track">
+              <div class="ipfspage-pin-progress-track w-full border-radius-full">
                 <div
-                  class="pin-progress-fill"
+                  class="ipfspage-pin-progress-fill h-full"
                   :class="{ indeterminate: savePinProgressPercent == null && savePinIsRunning }"
                   :style="{ width: savePinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, savePinProgressPercent))}%` }"
                 ></div>
               </div>
-              <div class="pin-progress-text">
+              <div class="ipfspage-pin-progress-text color-text-secondary">
                 {{ savePinProgressText || (savePinIsRunning ? "Saving content from the network…" : "Waiting for action.") }}
               </div>
             </div>
           </div>
 
-          <footer class="modal-actions">
-            <button class="btn-secondary disabled-fade-60" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
+          <footer class="ipfspage-modal-actions flex-justify-end gap-75">
+            <button class="ipfspage-btn-secondary disabled-fade-60 color-text-primary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
               Cancel
             </button>
-            <button v-if="savePinCanPause" class="btn-secondary disabled-fade-60" type="button" @click="pauseSavePinJob">
+            <button v-if="savePinCanPause" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary" type="button" @click="pauseSavePinJob">
               Pause
             </button>
-            <button v-if="savePinCanResume" class="btn-secondary disabled-fade-60" type="button" @click="resumeSavePinJob">
+            <button v-if="savePinCanResume" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary" type="button" @click="resumeSavePinJob">
               Resume
             </button>
-            <button v-if="savePinCanStop" class="btn-danger disabled-fade-60" type="button" @click="cancelSavePinJob">
+            <button v-if="savePinCanStop" class="ipfspage-btn-danger disabled-fade-60 color-error" type="button" @click="cancelSavePinJob">
               Stop
             </button>
             <button
-              class="btn-primary disabled-fade-60"
+              class="ipfspage-btn-primary disabled-fade-60"
               type="button"
               :disabled="savePreparing || savePinIsRunning"
               @click="confirmSaveToDrive"
@@ -2606,665 +2602,3 @@ watch(
 );
 
 </script>
-
-<style scoped>
-.ipfs-page {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-primary);
-}
-
-.ipfs-page--bare {
-  background: var(--bg-tertiary);
-}
-
-.ipfs-page--bare .main-content {
-  padding: 0;
-  overflow: hidden;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 1.25rem;
-}
-
-.modal {
-  width: min(520px, 100%);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.25);
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 650;
-  color: var(--text-primary);
-}
-
-.modal-close {
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 1.25rem;
-  line-height: 1;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-}
-
-.modal-body {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.modal-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.modal-input {
-  width: 100%;
-  padding: 0.7rem 0.8rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.modal-input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a15);
-}
-
-.modal-error {
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
-  color: var(--ios-red);
-}
-
-.modal-actions {
-  padding: 0.9rem 1rem;
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  border-top: 1px solid var(--border-color);
-}
-
-.btn-secondary,
-.btn-primary,
-.btn-danger {
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 0.65rem 0.9rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.btn-secondary {
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--hover-bg, var(--bg-secondary));
-  color: var(--text-primary);
-}
-
-.btn-primary {
-  background: var(--gradient-primary);
-  border-color: transparent;
-  color: white;
-}
-
-.btn-danger {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--ios-red);
-}
-
-
-.pin-progress-card {
-  margin-top: 0.9rem;
-  border: 1px solid rgba(var(--ios-blue-rgb), 0.18);
-  background: rgba(var(--ios-blue-rgb), 0.08);
-  border-radius: 12px;
-  padding: 0.85rem 0.9rem;
-}
-
-.pin-progress-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.55rem;
-}
-
-.pin-progress-status {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent-primary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.pin-progress-counter {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-}
-
-.pin-progress-track {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--fill-secondary);
-}
-
-.pin-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--gradient-primary);
-  transition: width 0.2s ease;
-}
-
-.pin-progress-fill.indeterminate {
-  width: 42% !important;
-  animation: pin-progress-slide 1.2s ease-in-out infinite;
-}
-
-.pin-progress-text {
-  margin-top: 0.55rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  word-break: break-word;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  overflow: auto;
-}
-
-@keyframes pin-progress-slide {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(320%);
-  }
-}
-
-.content-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.plans-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.9rem;
-  border-radius: var(--border-radius-sm);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-}
-
-.plans-btn:hover:not(:disabled) {
-  background: var(--bg-primary);
-  border-color: var(--accent-primary);
-}
-
-.plans-btn.save-active {
-  background: rgba(var(--ios-green-rgb), 0.12);
-  border-color: rgba(var(--ios-green-rgb), 0.38);
-  color: var(--ios-green);
-}
-
-.plans-btn.save-active:hover:not(:disabled) {
-  background: rgba(var(--ios-green-rgb), 0.16);
-  border-color: rgba(var(--ios-green-rgb), 0.5);
-}
-
-.loading-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-}
-
-.error-wrap {
-  padding: 1rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid rgba(var(--ios-red-rgb), 0.35);
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0;
-  flex-wrap: wrap;
-}
-
-.crumb {
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-}
-
-
-.sep {
-  color: var(--text-secondary);
-}
-
-.dir-table {
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-}
-
-.dir-row {
-  display: grid;
-  grid-template-columns: minmax(200px, 1fr) 140px 180px;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-primary);
-}
-
-.dir-row:last-child {
-  border-bottom: none;
-}
-
-.dir-row:hover {
-  background: var(--bg-secondary);
-}
-
-.dir-name {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  cursor: pointer;
-  min-width: 0;
-}
-
-.ico {
-  color: var(--text-secondary);
-}
-
-.dir-size {
-  text-align: right;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-}
-
-.dir-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.btn-ghost {
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  padding: 0.4rem 0.6rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.btn-ghost:hover {
-  background: var(--bg-primary);
-  border-color: var(--accent-primary);
-}
-
-.empty-dir {
-  padding: 1rem;
-  border-radius: var(--border-radius-lg);
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-}
-
-.welcome-wrap {
-  padding: 3rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.welcome-content {
-  max-width: 600px;
-  text-align: center;
-}
-
-.welcome-content h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-}
-
-.welcome-content > p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 2rem;
-}
-
-.welcome-example {
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.example-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 0.75rem;
-}
-
-.welcome-example code {
-  display: block;
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  font-family: "Courier New", monospace;
-  font-size: 0.875rem;
-  color: var(--accent-primary);
-  word-break: break-all;
-}
-
-.welcome-hint {
-  font-size: 0.875rem;
-  color: var(--text-tertiary);
-}
-
-.viewer {
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  padding: 1rem;
-  min-height: 360px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.viewer--bare {
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-  min-height: 0;
-  flex: 1 1 auto;
-}
-
-.viewer--document {
-  display: block;
-  min-width: 0;
-}
-
-.hls-error {
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ios-red-rgb), 0.35);
-  background: rgba(var(--ios-red-rgb), 0.12);
-  color: var(--ios-red);
-  font-size: 0.875rem;
-  backdrop-filter: blur(6px);
-  pointer-events: none;
-}
-
-.media {
-  max-width: 100%;
-  max-height: 75vh;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-}
-
-.audio {
-  width: 100%;
-}
-
-.embed {
-  width: 100%;
-  height: 75vh;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-}
-
-.embed--bare {
-  height: 100%;
-  border: none;
-  border-radius: 0;
-}
-
-.text {
-  width: 100%;
-  max-height: 75vh;
-  overflow: auto;
-  white-space: pre-wrap;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-}
-
-.markdown-view {
-  width: 100%;
-  max-width: 980px;
-  margin: 0 auto;
-  max-height: 75vh;
-  overflow: auto;
-  box-sizing: border-box;
-  padding: clamp(1.25rem, 2vw, 2rem);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: none;
-  background: var(--card-bg);
-  color-scheme: light;
-  --bgColor-default: #ffffff;
-  --bgColor-muted: #f6f8fa;
-  --bgColor-attention-muted: #fff8c5;
-  --bgColor-neutral-muted: #818b981f;
-  --borderColor-default: #d0d7de;
-  --borderColor-muted: #d8dee4b3;
-  --borderColor-neutral-muted: #afb8c133;
-  --borderColor-accent-emphasis: #0969da;
-  --fgColor-default: #1f2328;
-  --fgColor-muted: #59636e;
-  --fgColor-accent: #0969da;
-  --fgColor-attention: #9a6700;
-  --fgColor-danger: #d1242f;
-  --fgColor-success: #1a7f37;
-  --fgColor-done: #8250df;
-  --color-prettylights-syntax-comment: #59636e;
-  --color-prettylights-syntax-constant: #0550ae;
-  --color-prettylights-syntax-entity: #6639ba;
-  --color-prettylights-syntax-keyword: #cf222e;
-  --color-prettylights-syntax-string: #0a3069;
-  --color-prettylights-syntax-variable: #953800;
-}
-
-:global(:root.dark) .markdown-view {
-  color-scheme: dark;
-  --bgColor-default: #0d1117;
-  --bgColor-muted: #151b23;
-  --bgColor-attention-muted: #bb800926;
-  --bgColor-neutral-muted: #656c7633;
-  --borderColor-default: #3d444d;
-  --borderColor-muted: #3d444db3;
-  --borderColor-neutral-muted: #3d444db3;
-  --borderColor-accent-emphasis: #1f6feb;
-  --fgColor-default: #f0f6fc;
-  --fgColor-muted: #9198a1;
-  --fgColor-accent: #4493f8;
-  --fgColor-attention: #d29922;
-  --fgColor-danger: #f85149;
-  --fgColor-success: #3fb950;
-  --fgColor-done: #ab7df8;
-  --color-prettylights-syntax-comment: #9198a1;
-  --color-prettylights-syntax-constant: #79c0ff;
-  --color-prettylights-syntax-entity: #d2a8ff;
-  --color-prettylights-syntax-keyword: #ff7b72;
-  --color-prettylights-syntax-string: #a5d6ff;
-  --color-prettylights-syntax-variable: #ffa657;
-}
-
-.markdown-view :deep(img) {
-  max-width: 100%;
-  height: auto;
-}
-
-.markdown-view :deep(pre) {
-  overflow: auto;
-}
-
-.markdown-view :deep(code) {
-  word-break: break-word;
-}
-
-.unsupported {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.unsupported-content {
-  text-align: center;
-  max-width: 500px;
-  padding: 2rem;
-}
-
-.unsupported-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-}
-
-.unsupported-content > p {
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-}
-
-.unsupported-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.btn-download,
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-download {
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  box-shadow: var(--shadow-primary);
-}
-
-.btn-download:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.btn-secondary {
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-  background: var(--bg-primary);
-  border-color: var(--accent-primary);
-}
-
-.unsupported-hint {
-  font-size: 0.8125rem;
-  color: var(--text-tertiary);
-  text-align: left;
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: 1rem;
-  font-family: "Courier New", monospace;
-  word-break: break-all;
-}
-</style>
