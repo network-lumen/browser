@@ -107,6 +107,7 @@
 /* ---------------------------- OVERFLOWS ---------------------------- */
 .overflow-hidden { overflow: hidden; }
 .overflow-auto { overflow: auto; }
+.overflow-y-auto { overflow-y: auto; }
 /* ---------------------------- FONTS ----------------------------*/
 .txt-xs  { font-size: var(--fs-xs); line-height: 1.2; }
 .txt-sm  { font-size: var(--fs-sm); line-height: 1.2; }
@@ -218,6 +219,7 @@
 /* ---------------------------- TEXT TRANSFORM / SPACING ---------------------------- */
 .text-uppercase { text-transform: uppercase; }
 .text-capitalize { text-transform: capitalize; }
+.break-all { word-break: break-all; }
 .letter-spacing-005em { letter-spacing: 0.05em; }
 .letter-spacing-004em { letter-spacing: 0.04em; }
 .letter-spacing-008em { letter-spacing: 0.08em; }
@@ -270,6 +272,7 @@
 .padding-10 { padding: 0.1rem; }
 .padding-125 { padding: 1.25rem; }
 .padding-45-75 { padding: 0.45rem 0.75rem; }
+.padding-62-125 { padding: 0.625rem 1.25rem; }
 .padding-left-25 { padding-left: .25rem; }
 .padding-left-75 { padding-left: .75rem; }
 .padding-left-100 { padding-left: 1rem; }
