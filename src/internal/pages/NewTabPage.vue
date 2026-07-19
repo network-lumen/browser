@@ -1,5 +1,5 @@
 <template>
-  <div class="newtab-page internal-page relative block min-h-full overflow-y-auto">
+  <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden">
     <div
       v-if="showOnboarding"
       class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
@@ -62,11 +62,11 @@
 
           <div class="newtab-shortcut-form flex flex-column margin-top-100 gap-90">
             <label class="newtab-shortcut-field flex flex-column gap-35">
-              <span>Name</span>
+              <span class="newtab-shortcut-field-span color-text-secondary fs-085rem txt-weight-light">Name</span>
               <input
                 v-model="shortcutDraft.title"
                 type="text"
-                class="w-full color-text-primary outline-none"
+                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02"
                 placeholder="Optional custom title"
                 maxlength="60"
                 @keydown.enter.prevent="submitShortcutModal"
@@ -74,11 +74,11 @@
             </label>
 
             <label class="newtab-shortcut-field flex flex-column gap-35">
-              <span>URL or Lumen page</span>
+              <span class="newtab-shortcut-field-span color-text-secondary fs-085rem txt-weight-light">URL or Lumen page</span>
               <input
                 v-model="shortcutDraft.url"
                 type="text"
-                class="w-full color-text-primary outline-none"
+                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02"
                 placeholder="lumen://home or example.lmn"
                 @keydown.enter.prevent="submitShortcutModal"
               />
@@ -86,7 +86,7 @@
 
             <label class="newtab-shortcut-checkbox flex-inline-align-center gap-50">
               <input v-model="shortcutDraft.pinned" type="checkbox" />
-              <span>Mark this shortcut as favourite</span>
+              <span class="newtab-shortcut-checkbox-span color-text-secondary fs-085rem txt-weight-light">Mark this shortcut as favourite</span>
             </label>
 
             <div v-if="shortcutError" class="newtab-shortcut-error color-error txt-weight-light fs-085rem">
@@ -111,14 +111,14 @@
       <div class="newtab-glow newtab-glow--right border-radius-full absolute"></div>
     </div>
 
-    <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative">
-      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0">
+    <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative z-1">
+      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 padding-125">
         <div class="newtab-hero-copy text-center margin-0-auto">
-          <h1 class="color-text-primary margin-0">Search Lumen</h1>
-          <p class="color-text-secondary">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
+          <h1 class="color-text-primary margin-0 newtab-hero-copy-h1">Search Lumen</h1>
+          <p class="color-text-secondary newtab-hero-copy-p fs-16px line-height-155">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light" @submit.prevent="submitOmnibox">
+        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light w-min-760 padding-75-87" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -150,13 +150,13 @@
           </button>
         </div>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
       </section>
 
-      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0">
+      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 padding-125">
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-100">
           <div>
             <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcuts</div>
@@ -170,7 +170,7 @@
           </div>
         </div>
 
-        <div class="newtab-shortcut-grid grid gap-75">
+        <div class="newtab-shortcut-grid grid gap-75 margin-top-100">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
@@ -226,7 +226,7 @@
           </article>
         </div>
 
-        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty margin-top-100 border-radius-20px padding-87-100">
+        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty margin-top-100 border-radius-20px padding-87-100 bg-black-a02">
           <div class="newtab-shortcuts-empty-copy">
             <h3 class="color-text-primary">No shortcuts yet</h3>
             <p class="color-text-secondary">
@@ -239,7 +239,7 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="newtab-shortcuts-panel newtab-history-preview-panel padding-top-100 padding-bottom-100 border-1-light relative overflow-hidden flex-shrink-0"
+        class="newtab-shortcuts-panel newtab-history-preview-panel padding-top-100 padding-bottom-100 border-1-light relative overflow-hidden flex-shrink-0 padding-125"
       >
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-100">
           <div>
@@ -259,7 +259,7 @@
             v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87"
+            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02"
             @click="openTarget(entry.url, $event)"
           >
             <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">

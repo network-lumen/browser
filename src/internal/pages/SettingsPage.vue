@@ -4,7 +4,7 @@
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">General</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">General</span>
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
@@ -71,7 +71,7 @@
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Advanced</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Advanced</span>
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
@@ -109,8 +109,8 @@
       <!-- Header -->
       <header class="settingspage-content-header margin-bottom-200">
         <div>
-          <h1>{{ getViewTitle() }}</h1>
-          <p>{{ getViewDescription() }}</p>
+          <h1 class="settingspage-content-header-h1 fs-175rem txt-weight-medium color-text-primary margin-0">{{ getViewTitle() }}</h1>
+          <p class="settingspage-content-header-p fs-14px color-text-secondary">{{ getViewDescription() }}</p>
         </div>
       </header>
 
@@ -123,7 +123,7 @@
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Choose your preferred color scheme</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <div class="settingspage-theme-selector flex gap-50 border-radius-10px bg-secondary border-1">
+              <div class="settingspage-theme-selector flex gap-50 border-radius-10px bg-secondary border-1 padding-25">
                 <button 
                   class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
                   :class="{ active: theme === 'light' }"
@@ -193,7 +193,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
-                <input type="checkbox" v-model="showSexualContent" />
+                <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="showSexualContent" />
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
@@ -205,7 +205,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
-                <input type="checkbox" v-model="showViolentContent" />
+                <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="showViolentContent" />
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
@@ -217,7 +217,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
-                <input type="checkbox" v-model="showDisturbingImagery" />
+                <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="showDisturbingImagery" />
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
@@ -243,7 +243,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
-                <input type="checkbox" :checked="historyEnabled" @change="onHistoryToggleChange" />
+                <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" :checked="historyEnabled" @change="onHistoryToggleChange" />
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
@@ -295,7 +295,7 @@
               </span>
             </div>
             <div class="settingspage-setting-control settingspage-network-mode-control flex-align-center flex-justify-end">
-              <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap bg-secondary border-1">
+              <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap bg-secondary border-1 padding-25">
                 <button
                   type="button"
                   class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
@@ -358,7 +358,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <span 
-                class="settingspage-status-badge flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex" 
+                class="settingspage-status-badge flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex padding-25-75" 
                 :class="securityStatus.enabled ? 'status-enabled badge-success' : 'settingspage-status-disabled'"
               >
                 {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
@@ -381,7 +381,7 @@
                 <LockKeyhole :size="16" />
                 Lock Now
               </button>
-              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex">
+              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex padding-25-75">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
@@ -538,7 +538,7 @@
 
           <!-- Remove Password Confirmation -->
           <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px padding-100-125 bg-fill-error margin-top-75">
-            <p>Enter your current password to disable protection:</p>
+            <p class="settingspage-security-confirm-box-p margin-0 fs-14px color-text-primary">Enter your current password to disable protection:</p>
             <input 
               type="password" 
               class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
@@ -620,10 +620,10 @@
               <ProfileAvatar class="settingspage-profile-row-avatar flex-shrink-0" :profile="p" :size="32" :title="p.name || p.id" />
               <div class="settingspage-profile-row-main flex flex-column gap-20 min-w-0">
                 <div class="settingspage-profile-row-title flex-align-center gap-50 min-w-0">
-                  <span class="settingspage-profile-title txt-weight-light color-text-primary fs-14px overflow-hidden txt-overflow-ellipsis nowrap">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px">Active</span>
+                  <span class="settingspage-profile-title txt-weight-light color-text-primary fs-14px overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.name || p.id }}</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px padding-0-50">Active</span>
                 </div>
-                <span class="settingspage-profile-id fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap">{{ p.id }}</span>
+                <span class="settingspage-profile-id fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
               </div>
             </label>
           </div>
@@ -1019,7 +1019,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
-                <input type="checkbox" v-model="privateCloudEnabled" />
+                <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="privateCloudEnabled" />
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
               </label>
             </div>
@@ -1038,7 +1038,7 @@
                 </div>
                 <div class="settingspage-setting-control flex-align-center">
                   <label class="settingspage-toggle size-48px relative inline-block">
-                    <input type="checkbox" v-model="preferPrivateGateways" />
+                    <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="preferPrivateGateways" />
                     <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
                   </label>
                 </div>
@@ -1051,7 +1051,7 @@
                 </div>
                 <div class="settingspage-setting-control flex-align-center">
                   <label class="settingspage-toggle size-48px relative inline-block">
-                    <input type="checkbox" v-model="fallbackToDAO" />
+                    <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="fallbackToDAO" />
                     <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
                   </label>
                 </div>
@@ -1062,7 +1062,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px">{{ gatewayIds.length }}</span>
+                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px h-22px padding-0-50">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc fs-085rem color-text-secondary margin-0 margin-bottom-100">Add gateway IDs to use for private content delivery</p>
 
@@ -1082,8 +1082,8 @@
                     <line x1="6" y1="6" x2="6.01" y2="6"></line>
                     <line x1="6" y1="18" x2="6.01" y2="18"></line>
                   </svg>
-                  <p>No gateway IDs configured</p>
-                  <span>Add your first gateway ID below</span>
+                  <p class="settingspage-empty-gateway-ids-p fs-14px fw-500 color-text-secondary">No gateway IDs configured</p>
+                  <span class="settingspage-empty-gateway-ids-span fs-085rem">Add your first gateway ID below</span>
                 </div>
 
                 <div class="settingspage-add-gateway-id flex gap-75">
@@ -1143,14 +1143,14 @@
 
             <!-- Info Box -->
             <div class="settingspage-info-box flex gap-100 border-radius-12px margin-top-100 padding-100-125">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="settingspage-info-box-svg flex-shrink-0 color-ios-blue" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
               <div>
-                <strong>Need to create a gateway?</strong>
-                <p>Visit <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
+                <strong class="settingspage-info-box-strong block fs-14px color-text-primary margin-bottom-25">Need to create a gateway?</strong>
+                <p class="settingspage-info-box-p fs-085rem color-text-secondary margin-0 line-height-15">Visit <a class="settingspage-info-box-a color-ios-blue fw-500" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
               </div>
             </div>
           </template>
@@ -1165,9 +1165,9 @@
               <Hexagon :size="32" />
             </div>
           </div>
-          <h2>Lumen Browser</h2>
-          <p class="settingspage-version">Version {{ appVersion }}</p>
-          <p class="settingspage-description">The Decentralized Internet Stack</p>
+          <h2 class="settingspage-about-card-h2 fs-15rem txt-weight-medium color-text-primary">Lumen Browser</h2>
+          <p class="settingspage-version fs-14px color-text-secondary">Version {{ appVersion }}</p>
+          <p class="settingspage-description fs-14px color-text-secondary">The Decentralized Internet Stack</p>
           <div class="settingspage-about-links flex gap-100">
             <a
               href="https://lumen-browser.com/"

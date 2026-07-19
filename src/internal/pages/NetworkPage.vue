@@ -4,14 +4,14 @@
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Monitoring</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Monitoring</span>
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: activeView === 'status' }"
             @click="activeView = 'status'"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18"/>
               <path d="M18 17l-4-4-4 4-4-4"/>
             </svg>
@@ -33,7 +33,7 @@
             @click="refreshData"
             :disabled="refreshing"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
+            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             <span>{{ refreshing ? 'Refreshing...' : 'Refresh' }}</span>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Metrics</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Metrics</span>
           <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
             <span class="color-text-secondary fw-500">Block Height</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(blockHeight) }}</span>
@@ -69,7 +69,7 @@
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Node Info</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Node Info</span>
           <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Chain ID</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">lumen-1</span>
@@ -136,7 +136,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Chain Status</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill excellent netpage-indicator-fill--w100 h-full w-full border-radius-4px"></div>
+                  <div class="netpage-indicator-fill excellent netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">Synced</span>
               </div>
@@ -146,7 +146,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Validator Participation</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill h-full border-radius-4px" :class="validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal'" :style="{ width: validatorPercent + '%' }"></div>
+                  <div class="netpage-indicator-fill h-full border-radius-4px transition-width-03" :class="validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal'" :style="{ width: validatorPercent + '%' }"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ validatorPercent.toFixed(0) }}%</span>
               </div>
@@ -156,7 +156,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Block Production</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full border-radius-4px" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
+                  <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ blockTimeStatus }}</span>
               </div>
@@ -166,7 +166,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Peer Connections</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px"></div>
+                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ peers }}</span>
               </div>
@@ -186,14 +186,14 @@
           </div>
           <div class="netpage-activity-chart padding-150 bg-secondary border-radius-12px">
             <div class="netpage-chart-container w-full relative">
-              <svg v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <path :d="blockChartLinePath" stroke="var(--accent-primary)" stroke-width="2" fill="none" />
                 <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--accent-primary)" />
               </svg>
-              <svg v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <rect v-for="(point, i) in txChartPoints" :key="i" :x="point.x - 8" :y="point.y" width="16" :height="120 - point.y" fill="#6366f1" opacity="0.8" rx="2" />
               </svg>
-              <svg v-if="activeChart === 'tps'" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'tps'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="grad-tps" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" style="stop-color:#059669;stop-opacity:0.3" />
@@ -217,7 +217,7 @@
             <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02 padding-87-100" v-for="block in recentBlocks" :key="block.height">
               <div class="netpage-block-left flex-align-center gap-87 flex-1 min-w-0">
                 <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px fs-13px txt-weight-medium color-white overflow-hidden" :title="block.validator">
-                  <img v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
+                  <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
                   <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
                 </div>
                 <div class="netpage-block-info flex flex-column gap-20 flex-1 min-w-0">
@@ -234,7 +234,7 @@
                 <div class="netpage-block-meta flex flex-column flex-align-end gap-35 flex-justify-center">
                   <div class="meta-item flex-align-center gap-50">
                     <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase fs-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px fs-13px padding-0-50" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px fs-13px padding-0-50 h-22px" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="netpage-meta-time flex-align-center color-text-secondary gap-35 fs-075rem line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">

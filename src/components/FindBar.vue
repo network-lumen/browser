@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="open"
-    class="findbar flex-align-center border-radius-12px absolute gap-35 padding-50 border-default bg-primary"
+    class="findbar flex-align-center border-radius-12px absolute gap-35 padding-50 border-default bg-primary z-50"
     role="dialog"
     aria-label="Find in page"
     @mousedown.stop
@@ -10,7 +10,7 @@
     <input
       ref="inputEl"
       v-model="query"
-      class="findbar-input outline-none color-text-primary border-radius-10px fs-13px border-default bg-primary h-30px"
+      class="findbar-input outline-none color-text-primary border-radius-10px fs-13px border-default bg-primary h-30px padding-0-50"
       type="text"
       placeholder="Find in page"
       autocomplete="off"

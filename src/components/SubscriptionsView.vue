@@ -13,7 +13,7 @@
 
     <!-- Payment Reminders -->
     <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px padding-125 margin-bottom-150">
-      <h3 class="flex-align-center gap-50 color-text-primary fs-16px">
+      <h3 class="flex-align-center gap-50 color-text-primary fs-16px subview-reminders-section-h3">
         <Bell :size="18" />
         <span>Upcoming Payments</span>
       </h3>
@@ -93,8 +93,8 @@
       <!-- Empty State -->
       <div v-if="filteredPayments.length === 0" class="subview-empty-state text-center">
         <Calendar :size="48" class="subview-empty-icon color-text-tertiary margin-bottom-100" />
-        <h3 class="color-text-primary fs-18px">No Recurring Payments</h3>
-        <p class="color-text-secondary">Schedule automatic payments for subscriptions, bills, and more</p>
+        <h3 class="color-text-primary fs-18px subview-empty-state-h3">No Recurring Payments</h3>
+        <p class="color-text-secondary subview-empty-state-p">Schedule automatic payments for subscriptions, bills, and more</p>
         <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px padding-62-125" @click="showCreateModal = true">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
@@ -112,12 +112,12 @@
           <div class="subview-payment-header flex-align-start flex-justify-space-between margin-bottom-75">
             <div>
               <h4 class="color-text-primary fs-16px">{{ payment.name }}</h4>
-              <span class="subview-payment-category color-text-secondary fs-11px fw-500 text-capitalize inline-block bg-tertiary border-radius-4px" v-if="payment.category">
+              <span class="subview-payment-category color-text-secondary fs-11px fw-500 text-capitalize inline-block bg-tertiary border-radius-4px padding-0-50" v-if="payment.category">
                 {{ payment.category }}
               </span>
             </div>
             <div
-              class="subview-payment-status border-radius-12px fs-12px txt-weight-light text-uppercase"
+              class="subview-payment-status border-radius-12px fs-12px txt-weight-light text-uppercase padding-25-75"
               :class="[payment.status, { 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }]"
             >
               {{ payment.status }}
@@ -216,7 +216,7 @@
           </div>
           <div class="subview-modal-body flex-1 overflow-y-auto padding-125">
             <div v-if="selectedPaymentHistory.length === 0" class="subview-empty-state small text-center">
-              <p class="color-text-secondary">No payment history yet</p>
+              <p class="color-text-secondary subview-empty-state-p">No payment history yet</p>
             </div>
             <div v-else class="flex flex-column gap-75">
               <div
@@ -236,7 +236,7 @@
                 <div class="flex-1">
                   <div class="subview-history-header flex-align-center-justify-space-between margin-bottom-25">
                     <strong class="color-text-primary">{{ formatAmount(record.amount) }} LMN</strong>
-                    <span class="subview-history-status color-text-secondary fs-12px txt-weight-light text-uppercase border-radius-4px bg-fill-tertiary">{{ record.status }}</span>
+                    <span class="subview-history-status color-text-secondary fs-12px txt-weight-light text-uppercase border-radius-4px bg-fill-tertiary padding-0-50">{{ record.status }}</span>
                   </div>
                   <div class="subview-history-date color-text-secondary fs-13px margin-bottom-25">{{ formatDateTime(record.executedAt) }}</div>
                   <div v-if="record.txHash" class="subview-history-tx color-text-secondary mono fs-12px">

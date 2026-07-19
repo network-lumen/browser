@@ -33,7 +33,7 @@
     <main class="homepage-main flex-1 flex flex-column margin-0 min-w-0 overflow-y-auto padding-125-150 bg-secondary border-radius-0">
       <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md margin-bottom-100 padding-75-100">
         <div class="homepage-no-profile-title txt-weight-light fs-13px">No profile found</div>
-        <div class="homepage-no-profile-sub fs-12px">Create one using the button in the top right.</div>
+        <div class="homepage-no-profile-sub fs-12px margin-top-25">Create one using the button in the top right.</div>
       </div>
 
       <!-- Quick Actions -->
@@ -53,7 +53,7 @@
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
             <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
-            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500 border-default bg-card transition-all-015" type="button" @click.stop="restoreMySpaceDefaults">
+            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500 border-default bg-card transition-all-015 padding-45-75 border-radius-full" type="button" @click.stop="restoreMySpaceDefaults">
               Restore defaults
             </button>
           </div>
@@ -72,7 +72,7 @@
             :disabled="!hasProfiles && ['drive', 'domain', 'wallet'].includes(key)"
           >
             <div
-              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015"
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0"
               @click.stop="removeMySpaceCard(key)"
               title="Remove card"
             >
@@ -104,7 +104,7 @@
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
             <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
-            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500 border-default bg-card transition-all-015" type="button" @click.stop="restoreLumenDefaults">
+            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500 border-default bg-card transition-all-015 padding-45-75 border-radius-full" type="button" @click.stop="restoreLumenDefaults">
               Restore defaults
             </button>
           </div>
@@ -122,7 +122,7 @@
             @click="handleCardClick($event, key)"
           >
             <div
-              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015"
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0"
               @click.stop="removeLumenCard(key)"
               title="Remove card"
             >

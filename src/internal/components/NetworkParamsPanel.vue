@@ -2,8 +2,8 @@
   <section class="padding-200">
     <header class="netparams-header flex margin-bottom-125 flex-wrap-wrap gap-100 flex-align-start flex-justify-space-between">
       <div>
-        <h1 class="color-text-primary txt-weight-strong margin-0">Params</h1>
-        <p class="color-text-secondary">Live view of the blockchain parameters (fetched from the REST API).</p>
+        <h1 class="color-text-primary txt-weight-strong margin-0 netparams-header-h1 fs-15rem">Params</h1>
+        <p class="color-text-secondary netparams-header-p fs-14px">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
       <div class="netparams-header-actions flex flex-wrap-wrap gap-75 flex-inline-align-center">
@@ -61,7 +61,7 @@
           </div>
         </button>
 
-        <div v-if="s.open" class="netparams-section-body bg-secondary">
+        <div v-if="s.open" class="netparams-section-body bg-secondary border-top-1-light">
           <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary gap-75">
             <UiSpinner size="sm" />
             <span>Loading…</span>
@@ -76,7 +76,7 @@
   </section>
 
   <Transition name="netparams-toast">
-    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light fixed padding-75-125 shadow-primary-lg">
+    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light fixed padding-75-125 shadow-primary-lg z-100">
       <Check :size="16" />
       {{ toast }}
     </div>

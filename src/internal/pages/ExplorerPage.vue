@@ -15,14 +15,14 @@
     <InternalSidebar title="Explorer" :icon="LayoutGrid" activeKey="explorer">
       <nav class="lsb-nav flex flex-column gap-75">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25">Browse</span>
+          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Browse</span>
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             :class="{ active: currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="3" y1="9" x2="21" y2="9"/>
               <line x1="9" y1="21" x2="9" y2="9"/>
@@ -35,7 +35,7 @@
             :class="{ active: currentView === 'blocks' }"
             @click="currentView = 'blocks'"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -49,7 +49,7 @@
             :class="{ active: currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
             </svg>
@@ -61,7 +61,7 @@
             :class="{ active: currentView === 'validators' }"
             @click="currentView = 'validators'"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -89,7 +89,7 @@
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
           />
-          <button class="explorer-search-btn disabled-fade-50 txt-weight-light cursor-pointer bg-gradient-primary color-white border-none border-radius-8px transition-all-02" @click="performSearch" :disabled="!searchQuery">
+          <button class="explorer-search-btn disabled-fade-50 txt-weight-light cursor-pointer bg-gradient-primary color-white border-none border-radius-8px transition-all-02 padding-62-125" @click="performSearch" :disabled="!searchQuery">
             Search
           </button>
         </div>
@@ -126,34 +126,34 @@
         <div v-if="currentView === 'overview'" class="explorer-content-area border-radius-12px bg-transparent">
           <!-- Section Header -->
           <div class="explorer-overview-header margin-bottom-150 text-center">
-            <h1>Network Overview</h1>
-            <p>Real-time blockchain statistics</p>
+            <h1 class="explorer-overview-header-h1 fs-175rem txt-weight-medium color-text-primary margin-bottom-25">Network Overview</h1>
+            <p class="explorer-overview-header-p fs-15px color-text-secondary">Real-time blockchain statistics</p>
           </div>
 
           <!-- Charts Section -->
           <div class="explorer-charts-section gap-75 grid">
             <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
-                <h3>{{ txHistoryTitle }}</h3>
+                <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-50">
                   <span class="explorer-filter-label fs-075rem color-text-tertiary margin-right-25">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
                     :class="{ active: txHistoryWindow === 5 }"
                     @click="txHistoryWindow = 5"
                   >5B</button>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
                     :class="{ active: txHistoryWindow === 10 }"
                     @click="txHistoryWindow = 10"
                   >10B</button>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
                     :class="{ active: txHistoryWindow === 15 }"
                     @click="txHistoryWindow = 15"
                   >15B</button>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
                     :class="{ active: txHistoryWindow === 20 }"
                     @click="txHistoryWindow = 20"
                   >20B</button>
@@ -166,24 +166,24 @@
 
             <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
-                <h3>Bonded / Supply</h3>
+                <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ bondedRatioLabel }}</div>
-                    <div class="explorer-center-label color-text-tertiary fs-11px">Bonded</div>
+                    <div class="explorer-center-label color-text-tertiary fs-11px margin-top-25">Bonded</div>
                   </div>
                 </div>
                 <div class="explorer-chart-legend flex flex-column gap-35">
                   <div class="explorer-legend-item flex-align-center gap-35 fs-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0" style="background: linear-gradient(135deg, #ec4899, #8b5cf6)"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" style="background: linear-gradient(135deg, #ec4899, #8b5cf6)"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">Bonded</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(bondedTokens) }} LMN</span>
                   </div>
                   <div class="explorer-legend-item flex-align-center gap-35 fs-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0" style="background: rgba(139, 92, 246, 0.2)"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" style="background: rgba(139, 92, 246, 0.2)"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">Unbonded</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(unbondedTokens) }} LMN</span>
                   </div>
@@ -197,24 +197,24 @@
 
             <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
-                <h3>Voting Power</h3>
+                <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative">
                   <canvas ref="votingPowerChart" width="120" height="120"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ topValidatorsPower.length }}</div>
-                    <div class="explorer-center-label color-text-tertiary fs-11px">Active</div>
+                    <div class="explorer-center-label color-text-tertiary fs-11px margin-top-25">Active</div>
                   </div>
                 </div>
                 <div class="explorer-chart-legend flex flex-column gap-35">
                   <div v-for="(vp, idx) in topValidatorsPower.slice(0, 5)" :key="idx" class="explorer-legend-item flex-align-center gap-35 fs-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0" :style="{ background: getVotingPowerColor(idx) }"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" :style="{ background: getVotingPowerColor(idx) }"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">{{ vp.moniker }}</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ vp.percentage }}%</span>
                   </div>
                   <div class="explorer-legend-item flex-align-center gap-35 fs-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0" style="background: rgba(148, 163, 184, 0.3)"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" style="background: rgba(148, 163, 184, 0.3)"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">Others</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ othersPercentage }}%</span>
                   </div>
@@ -224,16 +224,16 @@
 
             <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
-                <h3>Block Production</h3>
-                <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light bg-fill-success fs-13px">
-                  <span class="explorer-live-dot border-radius-circle w-8px h-8px"></span>
+                <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Block Production</h3>
+                <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light bg-fill-success fs-13px padding-45-75">
+                  <span class="explorer-live-dot border-radius-circle w-8px h-8px bg-ios-green"></span>
                   <span>Live</span>
                 </div>
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75">
                   <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0">
-                    <img v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
+                    <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
                   <div class="explorer-proposer-name txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ latestProposer.moniker }}</div>
@@ -259,7 +259,7 @@
           <div class="explorer-recent-activity gap-75 grid margin-top-75">
             <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
-                <h3>Latest Blocks</h3>
+                <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Blocks</h3>
                 <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'blocks'">View All →</button>
               </div>
               <div class="activity-list flex flex-column gap-75">
@@ -289,7 +289,7 @@
 
             <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
-                <h3>Latest Transactions</h3>
+                <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Transactions</h3>
                 <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'transactions'">View All →</button>
               </div>
               <div class="activity-list flex flex-column gap-75">
@@ -303,11 +303,11 @@
                   <div class="explorer-activity-content flex-1 min-w-0">
                     <div class="explorer-activity-title txt-weight-light color-text-primary fs-14px margin-bottom-25">{{ shortenHash(tx.hash) }}</div>
                     <div class="explorer-activity-meta flex-align-center fs-075rem color-text-tertiary gap-50">
-                      <span class="explorer-tx-type-mini color-primary txt-weight-light text-uppercase border-radius-4px fs-10px">{{ tx.type }}</span>
+                      <span class="explorer-tx-type-mini color-primary txt-weight-light text-uppercase border-radius-4px fs-10px padding-0-50">{{ tx.type }}</span>
                     </div>
                   </div>
                   <div class="explorer-activity-side flex-align-end flex-column gap-25">
-                    <div class="explorer-activity-status fs-075rem txt-weight-light border-radius-12px" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
+                    <div class="explorer-activity-status fs-075rem txt-weight-light border-radius-12px padding-0-50" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
                       {{ tx.success ? 'Success' : 'Failed' }}
                     </div>
                     <div class="explorer-activity-time fs-075rem color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
@@ -322,10 +322,10 @@
         <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card">
           <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between">
             <div class="explorer-header-content">
-              <h2>Blocks</h2>
+              <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary">Blocks</h2>
               <p class="explorer-blocks-subtitle fs-075rem color-text-tertiary margin-0">View all blocks on the lumen-mainnet</p>
             </div>
-            <div class="explorer-header-actions">
+            <div class="explorer-header-actions flex flex-inline-align-center gap-75 flex-wrap-wrap">
               <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
                 <select v-model="blockFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02">
                   <option value="all">All Blocks</option>
@@ -340,7 +340,7 @@
                   class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02"
                 />
               </div>
-              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px" :class="{ active: autoRefresh }">
+              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success" :class="{ active: autoRefresh }">
                 <span class="explorer-pulse-dot border-radius-circle w-8px h-8px"></span>
                 Live
               </span>
@@ -348,7 +348,7 @@
           </div>
 
           <div class="explorer-blocks-table">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
               <div class="th th-hash">HASH</div>
@@ -360,7 +360,7 @@
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02" @click="navigateToBlock(block.height)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -370,7 +370,7 @@
                 <div class="explorer-td td-proposer flex-align-center fs-13px fs-14px">
                   <div class="explorer-proposer-info flex-align-center gap-35">
                     <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0">
-                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
+                      <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
                     <span class="explorer-proposer-name txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ block.proposer }}</span>
@@ -379,7 +379,7 @@
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click.stop="navigateToBlock(block.height)" title="View block details">
                     <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono">{{ block.hash }}</code>
-                    <svg class="explorer-link-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -408,7 +408,7 @@
         <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card">
           <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100 border-bottom-1 flex-justify-space-between">
             <div class="explorer-header-content">
-              <h2>Transactions</h2>
+              <h2 class="explorer-transactions-header-h2 fs-15rem txt-weight-medium color-text-primary">Transactions</h2>
               <p class="explorer-transactions-subtitle color-text-tertiary margin-0 fs-14px">Latest transactions on the lumen-mainnet</p>
             </div>
             <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
@@ -442,7 +442,7 @@
           </div>
 
           <div v-else class="explorer-transactions-table">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
               <div class="th th-result">Result</div>
@@ -459,7 +459,7 @@
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
                     <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono">{{ shortenHash(tx.hash) }}</code>
-                    <svg class="explorer-link-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -476,7 +476,7 @@
                 </div>
                 <div class="explorer-td td-result flex-align-center fs-13px fs-14px">
                   <span class="explorer-tx-status flex-inline-align-center fs-075rem txt-weight-light gap-35 border-radius-4px padding-25-75" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
-                    <svg v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="explorer-tx-status-svg w-14px h-14px" v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
@@ -500,12 +500,12 @@
         <!-- Validators View -->
         <div v-else-if="currentView === 'validators'" class="explorer-content-area explorer-validators-view border-radius-12px padding-200 bg-transparent">
           <div class="explorer-validators-header margin-bottom-200">
-            <h2>Active Validators</h2>
+            <h2 class="explorer-validators-header-h2 fs-175rem txt-weight-medium color-text-primary margin-bottom-50">Active Validators</h2>
             <p class="explorer-validators-subtitle color-text-tertiary fs-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
           <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
               <div class="th th-voting-power">VOTING POWER %</div>
@@ -524,7 +524,7 @@
                 <div class="explorer-td td-validator flex-align-center fs-13px fs-14px">
                   <div class="validator-info flex-align-center gap-75">
                     <div class="explorer-validator-avatar flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-15rem overflow-hidden fs-13px flex-shrink-0 border-2">
-                      <img v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
+                      <img class="explorer-validator-avatar-img w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
                       <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
                     </div>
                     <div class="validator-name-wrapper flex flex-column gap-25">
@@ -535,9 +535,9 @@
                 </div>
                 <div class="explorer-td td-voting-power flex-align-center fs-13px fs-14px">
                   <div class="explorer-voting-power-container flex flex-column gap-25 w-full">
-                    <div class="explorer-voting-power-text txt-weight-medium color-text-primary fs-15px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
-                    <div class="explorer-voting-power-bar w-full bg-border border-radius-4px overflow-hidden">
-                      <div class="explorer-voting-power-fill h-full border-radius-4px" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
+                    <div class="explorer-voting-power-text txt-weight-medium color-text-primary fs-15px margin-bottom-25">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
+                    <div class="explorer-voting-power-bar w-full bg-border border-radius-4px overflow-hidden margin-bottom-25">
+                      <div class="explorer-voting-power-fill h-full border-radius-4px transition-width-03" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
                     </div>
                     <div class="explorer-voting-power-amount color-text-tertiary fw-500 fs-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
                   </div>
@@ -574,7 +574,7 @@
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="explorer-action-btn-svg flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <circle cx="12" cy="12" r="10"/>
                       <line x1="12" y1="8" x2="12" y2="16"/>
                       <line x1="8" y1="12" x2="16" y2="12"/>
@@ -590,7 +590,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light fixed padding-75-125 color-white border-radius-8px fs-14px">
+    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light fixed padding-75-125 color-white border-radius-8px fs-14px bg-ios-green z-9999">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -598,10 +598,10 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0" @click="closeStakeModal">
-      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh" @click.stop>
+    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000" @click="closeStakeModal">
+      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct" @click.stop>
         <div class="explorer-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-          <h3>Manage Stake with {{ selectedValidator?.moniker }}</h3>
+          <h3 class="explorer-modal-header-h3 fs-18px txt-weight-medium color-text-primary margin-0">Manage Stake with {{ selectedValidator?.moniker }}</h3>
           <button class="explorer-close-btn hover-fill-primary flex-align-justify-center size-32px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px fs-15rem transition-all-02" @click="closeStakeModal">×</button>
         </div>
 
@@ -633,21 +633,21 @@
             <!-- Withdraw Rewards - No amount needed -->
             <div v-if="currentStakeAction === 'Withdraw'" class="explorer-withdraw-info">
               <div class="explorer-withdraw-notice flex-align-start gap-75 padding-100 border-radius-10px bg-primary-a08 border-1-primary-a15">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="explorer-withdraw-notice-svg flex-shrink-0 color-primary margin-top-25" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M12 16v-4"/>
                   <path d="M12 8h.01"/>
                 </svg>
                 <div class="explorer-withdraw-text flex flex-column gap-25">
-                  <strong>Withdraw Staking Rewards</strong>
-                  <p>This will claim all pending rewards from this validator to your wallet.</p>
+                  <strong class="explorer-withdraw-text-strong fs-15px txt-weight-light color-text-primary">Withdraw Staking Rewards</strong>
+                  <p class="explorer-withdraw-text-p margin-0 fs-13px color-text-secondary line-height-14">This will claim all pending rewards from this validator to your wallet.</p>
                 </div>
               </div>
             </div>
 
             <!-- Amount Input - Not for Withdraw -->
             <div v-else class="explorer-form-group flex flex-column gap-50">
-              <label>Amount to {{ currentStakeAction.toLowerCase() }}</label>
+              <label class="explorer-form-group-label fs-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
               <div class="explorer-input-wrapper flex-align-center relative">
                 <input 
                   type="number" 
@@ -682,7 +682,7 @@
             </div>
 
             <div v-if="currentStakeAction === 'Redelegate'" class="explorer-form-group flex flex-column gap-50">
-              <label>Select New Validator</label>
+              <label class="explorer-form-group-label fs-14px txt-weight-light color-text-primary">Select New Validator</label>
               <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer padding-75-100 bg-secondary border-1 border-radius-8px fs-14px transition-all-02">
                 <option value="">Choose validator...</option>
                 <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
@@ -708,8 +708,8 @@
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-100 w-full">
                   <div class="explorer-tx-spinner size-48px border-radius-circle"></div>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
-                    <strong>Processing Transaction</strong>
-                    <p>{{ txMessage }}</p>
+                    <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
+                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
                   </div>
                 </div>
 
@@ -720,13 +720,13 @@
                     <path d="M8 12l3 3 5-5" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
-                    <strong>Transaction Successful!</strong>
-                    <p>{{ txMessage }}</p>
+                    <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
+                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full margin-top-75 padding-75 bg-secondary border-radius-8px border-1">
-                      <small>Transaction Hash:</small>
+                      <small class="explorer-tx-hash-display-small block fs-11px color-text-tertiary margin-bottom-25 text-uppercase letter-spacing-005em">Transaction Hash:</small>
                       <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02" @click="viewTransaction(txHash)">
-                        <code>{{ txHash }}</code>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <code class="explorer-tx-hash-link-code flex-1 mono fs-075rem color-primary break-all txt-weight-light">{{ txHash }}</code>
+                        <svg class="explorer-tx-hash-link-svg flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                           <polyline points="15 3 21 3 21 9"/>
                           <line x1="10" y1="14" x2="21" y2="3"/>
@@ -744,10 +744,10 @@
                     <path d="M12 8v4m0 4h.01" stroke="var(--ios-red)" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
-                    <strong>Transaction Failed</strong>
-                    <p>{{ txMessage }}</p>
+                    <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
+                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
                   </div>
-                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02" @click="txStatus = 'idle'">Try Again</button>
+                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150" @click="txStatus = 'idle'">Try Again</button>
                 </div>
               </div>
             </div>

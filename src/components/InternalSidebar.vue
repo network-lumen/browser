@@ -1,6 +1,6 @@
 <template>
-  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0">
-    <div class="lumen-sidebar-header flex gap-62 margin-bottom-100 flex-inline-align-center">
+  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0 w-240px">
+    <div class="lumen-sidebar-header flex gap-62 margin-bottom-100 flex-inline-align-center padding-50-62">
       <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm shadow-primary">
         <component :is="icon" :size="20" />
       </div>
@@ -13,7 +13,7 @@
       <span class="lumen-sidebar-no-profile-sub color-text-tertiary fs-12px line-height-14">Create or import one from the navbar.</span>
     </div>
 
-    <div class="lumen-sidebar-scroll flex-1 min-h-0 overflow-y-auto padding-right-25">
+    <div class="lumen-sidebar-scroll flex-1 min-h-0 overflow-y-auto padding-right-25 overflow-x-hidden">
       <slot />
 
       <AllPagesDropdown
@@ -25,7 +25,7 @@
       <div v-if="renderedFavouriteEntries.length" class="sidebar-section margin-top-100 padding-top-75">
         <div class="sidebar-section-header flex-align-center-justify-space-between gap-50 margin-bottom-50 padding-0-50">
           <div class="sidebar-section-title color-text-tertiary fs-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
-          <div class="sidebar-section-count bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full fs-11px txt-weight-medium">{{ renderedFavouriteEntries.length }}</div>
+          <div class="sidebar-section-count bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full fs-11px txt-weight-medium padding-0-50">{{ renderedFavouriteEntries.length }}</div>
         </div>
         <div class="sidebar-favs flex flex-column gap-35">
           <div

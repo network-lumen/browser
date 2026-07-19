@@ -28,8 +28,8 @@
     <main class="domainpage-main flex-1 bg-secondary overflow-y-auto padding-200-250">
       <header class="domainpage-content-header flex-align-center flex-justify-space-between margin-bottom-150">
         <div>
-          <h1>{{ pageTitle }}</h1>
-          <p class="color-text-secondary">{{ pageDescription }}</p>
+          <h1 class="domainpage-content-header-h1 fw-650">{{ pageTitle }}</h1>
+          <p class="color-text-secondary domainpage-content-header-p fs-14px">{{ pageDescription }}</p>
         </div>
         <div class="domainpage-header-actions flex gap-75">
           <template v-if="activeNameTab === 'lumen'">
@@ -61,7 +61,7 @@
           <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
           <p>Loading your domains...</p>
         </div>
-        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative">
+        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1">
           <p class="domainpage-hero-title txt-weight-light margin-0">Get your name on Lumen</p>
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Register a new domain and open it as
@@ -131,7 +131,7 @@
         <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
           <p>{{ rawDomainsError }}</p>
         </div>
-        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative">
+        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1">
           <p class="domainpage-hero-title txt-weight-light margin-0">Generate a stable link</p>
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Stable links are cryptographic names backed by IPNS.
@@ -160,7 +160,7 @@
                   :size="14"
                 />
               </div>
-              <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap">{{ d.id || 'IPNS id unavailable' }}</span>
+              <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
             <div class="domainpage-domain-right flex-align-center gap-35">
               <button
@@ -229,7 +229,7 @@
                   : 'Create a new IPNS-backed stable link with a local private key.' }}
               </p>
               <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary">Stable link name</label>
+                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Stable link name</label>
                 <input
                   v-model="stableLinkNameDraft"
                   class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
@@ -278,14 +278,14 @@
               </div>
 
               <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary">Records (key / value)</label>
+                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Records (key / value)</label>
                 <div v-if="stableSettingsLoading" class="domainpage-records-empty color-text-tertiary fs-13px margin-bottom-50">
                   Loading records...
                 </div>
                 <div v-else-if="!stableSettingsRecords.length" class="domainpage-records-empty color-text-tertiary fs-13px margin-bottom-50">
                   No records yet. Add a target like <span class="mono">cid</span>, <span class="mono">ipfs</span>, or <span class="mono">ipns</span>.
                 </div>
-                <div v-else class="domainpage-records-list flex flex-column gap-35">
+                <div v-else class="domainpage-records-list flex flex-column gap-35 margin-bottom-50">
                   <div
                     class="domainpage-record-row flex-align-center gap-35"
                     v-for="(r, idx) in stableSettingsRecords"
@@ -354,7 +354,7 @@
               </p>
 
               <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary">Domain</label>
+                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Domain</label>
                 <div class="domainpage-domain-input-wrapper flex-align-center gap-35">
                   <input
                     type="text"
@@ -375,7 +375,7 @@
                 </div>
                 <div
                   v-if="registerForm.domainName"
-                  class="domainpage-availability color-error margin-top-50 border-radius-8px fs-13px bg-fill-error"
+                  class="domainpage-availability color-error margin-top-50 border-radius-8px fs-13px bg-fill-error padding-50-62"
                   :class="{ available: domainAvailable, 'badge-success': domainAvailable }"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
@@ -383,7 +383,7 @@
               </div>
 
               <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary">Registration period</label>
+                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Registration period</label>
                 <div class="domainpage-period-static">Fixed at 1 year</div>
               </div>
 
@@ -431,11 +431,11 @@
               </div>
 
               <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary">Records (key / value)</label>
+                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Records (key / value)</label>
                 <div v-if="!settingsRecords.length" class="domainpage-records-empty color-text-tertiary fs-13px margin-bottom-50">
                   No records yet. Add a new row below.
                 </div>
-                <div v-else class="domainpage-records-list flex flex-column gap-35">
+                <div v-else class="domainpage-records-list flex flex-column gap-35 margin-bottom-50">
                   <div
                     class="domainpage-record-row flex-align-center gap-35"
                     v-for="(r, idx) in settingsRecords"
@@ -525,7 +525,7 @@
               </div>
 
               <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary">New Owner Address</label>
+                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">New Owner Address</label>
                 <input
                   type="text"
                   class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"

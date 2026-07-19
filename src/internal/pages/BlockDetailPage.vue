@@ -7,7 +7,7 @@
         </svg>
         Back to Explorer
       </button>
-      <h1 class="color-text-primary txt-weight-medium margin-0">Block Details</h1>
+      <h1 class="color-text-primary txt-weight-medium margin-0 blockdetail-header-h1 fs-175rem letter-spacing-n002">Block Details</h1>
     </div>
 
     <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-100 padding-400-200">
@@ -23,7 +23,7 @@
       <!-- Block Overview Card -->
       <div class="blockdetail-card bg-primary border-radius-12px border-1 overflow-hidden">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium margin-0">Block Overview</h2>
+          <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
@@ -33,8 +33,8 @@
           <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Hash:</span>
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-75">
-              <code class="flex-1">{{ block.hash }}</code>
-              <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0" @click="copyToClipboard(block.hash)" title="Copy hash">
+              <code class="flex-1 blockdetail-hash-value-code padding-50-75 border-1 border-radius-6px fs-13px mono break-all">{{ block.hash }}</code>
+              <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25" @click="copyToClipboard(block.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -46,7 +46,7 @@
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Proposer:</span>
             <div class="flex-align-center gap-75">
               <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium fs-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
-                <img
+                <img class="blockdetail-proposer-avatar-img w-full h-full object-fit-cover"
                   v-if="block.proposerAvatar"
                   :src="block.proposerAvatar"
                   :alt="block.proposer"
@@ -70,7 +70,7 @@
       <!-- Block Data Card -->
       <div class="blockdetail-card bg-primary border-radius-12px border-1 overflow-hidden">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium margin-0">Block Data</h2>
+          <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Data</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
@@ -95,7 +95,7 @@
       <!-- Transactions Card -->
       <div class="blockdetail-card bg-primary border-radius-12px border-1 overflow-hidden" v-if="block.txs > 0">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium margin-0">Transactions ({{ block.txs }})</h2>
+          <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
@@ -107,8 +107,8 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="blockdetail-tx-hash flex-align-center gap-50 margin-bottom-50">
-                  <code class="flex-1 border-radius-sm">{{ tx.hash }}</code>
-                  <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0" @click.stop="copyToClipboard(tx.hash)">
+                  <code class="flex-1 border-radius-sm blockdetail-tx-hash-code padding-50-62 bg-card border-default fs-075rem mono break-all">{{ tx.hash }}</code>
+                  <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25" @click.stop="copyToClipboard(tx.hash)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>

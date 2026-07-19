@@ -3,7 +3,7 @@
     <UiToast />
     <div class="app overflow-hidden">
       <div
-        class="tabs-header h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default"
+        class="tabs-header h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
         ref="hdr"
       >
         <div

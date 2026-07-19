@@ -16,21 +16,21 @@
     </div>
 
     <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100">
-      <p class="color-error">{{ error }}</p>
+      <p class="color-error chaindetail-error-p fs-16px">{{ error }}</p>
     </div>
 
     <div v-else-if="address" class="flex flex-column gap-150">
       <!-- Address Overview Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary">Address Overview</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
-              <code class="bg-secondary color-text-primary">{{ address.address }}</code>
-              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02" @click="copyToClipboard(address.address)" title="Copy address">
+              <code class="bg-secondary color-text-primary chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ address.address }}</code>
+              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02 padding-25" @click="copyToClipboard(address.address)" title="Copy address">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -52,7 +52,7 @@
       <!-- Balances Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary">Balances</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Balances</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-100">
@@ -78,7 +78,7 @@
       <!-- Delegations Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="address.delegations && address.delegations.length > 0">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary">Delegations ({{ address.delegations.length }})</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Delegations ({{ address.delegations.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
@@ -103,7 +103,7 @@
       <!-- Recent Transactions Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
         <div class="chaindetail-card-header bg-secondary border-bottom-1">
-          <h2 class="color-text-primary">Recent Transactions</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Recent Transactions</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-100">
@@ -115,7 +115,7 @@
               </div>
               <div class="flex-1">
                 <div class="addrdetail-tx-hash cursor-pointer margin-bottom-25" @click="navigateToTx(tx.hash)">
-                  <code class="color-primary">{{ shortenHash(tx.hash) }}</code>
+                  <code class="color-primary addrdetail-tx-hash-code mono fs-075rem">{{ shortenHash(tx.hash) }}</code>
                 </div>
                 <div class="addrdetail-tx-meta flex gap-100 color-text-tertiary fs-075rem">
                   <span class="addrdetail-tx-height cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
