@@ -2853,6 +2853,23 @@ html, body {
     }
 }
 
+/* ExtensionPage.vue */
+.extension-webview {
+    border: 0;
+    background: #111111;
+}
+
+.extension-status {
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.extension-status-error {
+    color: #ffb4b4;
+}
+
 .transition-bounce {
     transition: var(--transition-bounce);
 }

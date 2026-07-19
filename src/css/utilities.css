@@ -243,6 +243,7 @@
 .bg-fill-error { background: var(--fill-error); }
 .bg-card { background: var(--card-bg); }
 .bg-primary { background: var(--bg-primary); }
+.bg-dark-111 { background: #111111; }
 .bg-secondary { background: var(--bg-secondary); }
 .bg-tertiary { background: var(--bg-tertiary); }
 .bg-hover { background: var(--hover-bg); }

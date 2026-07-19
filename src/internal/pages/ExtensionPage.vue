@@ -1,27 +1,27 @@
 <template>
-  <div class="extension-page">
-    <div v-if="error" class="extension-status extension-status-error">
+  <div class="extension-page absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
+    <div v-if="error" class="extension-status extension-status-error w-full fs-14px text-center">
       {{ error }}
     </div>
     <div
       v-else-if="guestPreloadLoading"
-      class="extension-status"
+      class="extension-status w-full fs-14px text-center"
     >
       Preparing extension host…
     </div>
     <div
       v-else-if="!extensionGuestPreloadUrl"
-      class="extension-status extension-status-error"
+      class="extension-status extension-status-error w-full fs-14px text-center"
     >
       Extension guest preload is unavailable.
     </div>
-    <div v-else-if="loading && !webviewMountUrl" class="extension-status">
+    <div v-else-if="loading && !webviewMountUrl" class="extension-status w-full fs-14px text-center">
       Loading extension…
     </div>
     <webview
       v-else-if="webviewMountUrl"
       ref="webviewRef"
-      class="extension-webview"
+      class="extension-webview flex-1 w-full h-full"
       :src="webviewMountUrl"
       :preload="extensionGuestPreloadUrl"
       partition="persist:lumen"
@@ -36,7 +36,7 @@
       @did-stop-loading="onDidStopLoading"
       @dom-ready="onDomReady"
     ></webview>
-    <div v-else class="extension-status">
+    <div v-else class="extension-status w-full fs-14px text-center">
       Preparing extension…
     </div>
   </div>
@@ -643,35 +643,3 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
-.extension-page {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  min-height: 0;
-  min-width: 0;
-  background: #111111;
-}
-
-.extension-webview {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #111111;
-}
-
-.extension-status {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  padding: 24px;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
-  text-align: center;
-}
-
-.extension-status-error {
-  color: #ffb4b4;
-}
-</style>
