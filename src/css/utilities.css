@@ -14,6 +14,7 @@
 .padding-top-100 { padding-top: 1rem; }           /* top */
 /* ------------------------ MARGINS ------------------------ */ 
 .margin-0 { margin: 0; }
+.margin-25 { margin: .25rem; }
 .margin-top-25 { margin-top: .25rem }
 .margin-top-50 { margin-top: .5rem }
 .margin-top-75 { margin-top: .75rem }
@@ -50,6 +51,7 @@
 /* border radius */
 .border-radius-circle { border-radius: 50%; }
 .border-radius-10px { border-radius: 10px; }
+.border-radius-20px { border-radius: 20px; }
 .border-radius-top-left-top-right-10px { border-radius: 10px 10px 0 0; }
 /* ------------------------------- BACKGROUNDS ------------------------------- */
 .bg-transparent { background-color: transparent; }
@@ -125,6 +127,7 @@
 /* ---------------------------- BUTTONS ---------------------------- */
 .button:disabled { cursor: not-allowed; opacity: .7; }
 /* ---------------------------- GAPS ---------------------------- */
+.gap-0   { gap: 0; }
 .gap-15  { gap: 0.15rem; }
 .gap-20  { gap: 0.2rem; }
 .gap-25  { gap: 0.25rem; }
@@ -246,6 +249,7 @@
 .shadow-sm { box-shadow: var(--shadow-sm); }
 .shadow-md { box-shadow: var(--shadow-md); }
 .shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-none { box-shadow: none; }
 
 /* ---------------------------- ADDITIONAL SPACING ---------------------------- */
 .padding-10 { padding: 0.1rem; }
@@ -266,6 +270,8 @@
 .margin-right-100 { margin-right: 1rem; }
 .margin-auto { margin: auto; }
 .margin-x-auto { margin-left: auto; margin-right: auto; }
+.margin-0-auto { margin: 0 auto; }
+.max-w-800px { max-width: 800px; }
 
 /* ---------------------------- GAP (extra) ---------------------------- */
 .gap-10  { gap: 0.1rem; }
@@ -296,6 +302,8 @@
 .block { display: block; }
 .inline-block { display: inline-block; }
 .align-middle { vertical-align: middle; }
+.object-fit-cover { object-fit: cover; }
+.translate-y-05px { transform: translateY(0.5px); }
 /* Removed generic grid display; prefer flex utilities */
 /* position absolute placement */
 .top-25 { top: .25rem; }
@@ -323,4 +331,22 @@
   min-height: 0;
   background: var(--bg-tertiary);
   overflow: hidden;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
+              radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
+              linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
+}
+
+.app-shell.startup {
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100vw;
+  height: 100vh;
+  background: var(--card-bg);
 }

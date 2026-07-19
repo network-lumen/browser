@@ -1,13 +1,13 @@
 <template>
   <span
-    class="lumen-avatar"
-    :class="[hueClass, isGuest ? 'is-guest' : '']"
+    class="flex-inline-align-justify-center border-radius-full border-light fw-800 line-height-1 cursor-select-none overflow-hidden"
+    :class="isGuest ? 'bg-fill-secondary color-text-secondary shadow-none' : [hueClass, 'shadow-xs']"
     :style="avatarStyle"
     :title="titleText"
   >
-    <img v-if="imageSrc" class="lumen-avatar-image" :src="imageSrc" :alt="titleText" />
+    <img v-if="imageSrc" class="w-full h-full block object-fit-cover" :src="imageSrc" :alt="titleText" />
     <User v-else-if="showGuestIcon" :size="iconSize" stroke-width="2.5" />
-    <span v-else class="lumen-avatar-letter">{{ letter }}</span>
+    <span v-else class="translate-y-05px">{{ letter }}</span>
   </span>
 </template>
 
@@ -81,37 +81,3 @@ const showGuestIcon = computed(() => props.guestIcon && isGuest.value && !imageS
 
 const titleText = computed(() => props.title || baseText.value || 'Profile');
 </script>
-
-<style scoped>
-.lumen-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--border-radius-full);
-  border: var(--border-width) solid var(--border-light);
-  box-shadow: var(--shadow-xs);
-  font-weight: 800;
-  line-height: 1;
-  user-select: none;
-  overflow: hidden;
-}
-
-.lumen-avatar.is-guest {
-  background: var(--fill-secondary);
-  color: var(--text-secondary);
-  border: var(--border-width) solid var(--border-light);
-  box-shadow: none;
-}
-
-.lumen-avatar-letter {
-  transform: translateY(0.5px);
-}
-
-.lumen-avatar-image {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
-</style>
-
