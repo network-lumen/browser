@@ -572,7 +572,7 @@ onMounted(() => {
   padding: 1.5rem 1rem 2rem;
   background:
     radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%),
-    radial-gradient(700px 340px at 100% 10%, rgba(94, 92, 230, 0.1), transparent 62%),
+    radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%),
     var(--bg-tertiary);
 }
 
@@ -595,13 +595,13 @@ onMounted(() => {
 .newtab-glow--left {
   top: -14rem;
   left: -10rem;
-  background: rgba(10, 132, 255, 0.18);
+  background: rgba(var(--ios-blue-rgb), 0.18);
 }
 
 .newtab-glow--right {
   top: 2rem;
   right: -12rem;
-  background: rgba(94, 92, 230, 0.12);
+  background: rgba(var(--ios-indigo-rgb), 0.12);
 }
 
 .newtab-shell {
@@ -618,7 +618,7 @@ onMounted(() => {
 .shortcuts-panel,
 .onboarding-modal,
 .shortcut-modal {
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--border-light);
   background: color-mix(in srgb, var(--card-bg) 94%, transparent);
   box-shadow:
     0 22px 48px rgba(15, 23, 42, 0.08),
@@ -713,7 +713,7 @@ onMounted(() => {
   gap: 0.75rem;
   padding: 0.85rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.09);
+  border: 1px solid var(--border-light);
   background: color-mix(in srgb, var(--card-bg) 90%, transparent);
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
@@ -787,7 +787,7 @@ onMounted(() => {
 }
 
 .btn-secondary {
-  background: rgba(15, 23, 42, 0.05);
+  background: var(--fill-tertiary);
   color: var(--text-primary);
 }
 
@@ -813,7 +813,7 @@ onMounted(() => {
   gap: 0.4rem;
   padding: 0.56rem 0.74rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.05);
+  background: var(--fill-tertiary);
   color: var(--text-secondary);
   font-size: 0.82rem;
   font-weight: 650;
@@ -830,8 +830,8 @@ onMounted(() => {
   margin: 1rem auto 0;
   padding: 0.9rem 1rem;
   border-radius: 18px;
-  background: rgba(255, 149, 0, 0.08);
-  border: 1px solid rgba(255, 149, 0, 0.14);
+  background: rgba(var(--ios-orange-rgb), 0.08);
+  border: 1px solid rgba(var(--ios-orange-rgb), 0.14);
   color: var(--text-secondary);
   line-height: 1.45;
   text-align: center;
@@ -868,16 +868,16 @@ onMounted(() => {
   min-height: 150px;
   padding: 0.9rem;
   border-radius: 22px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--border-light);
   background: color-mix(in srgb, var(--card-bg) 92%, transparent);
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
 }
 
 .shortcut-card.pinned {
-  border-color: rgba(59, 130, 246, 0.18);
+  border-color: rgba(var(--ios-blue-rgb), 0.18);
   box-shadow:
     0 14px 28px rgba(15, 23, 42, 0.06),
-    inset 0 0 0 1px rgba(59, 130, 246, 0.1);
+    inset 0 0 0 1px rgba(var(--ios-blue-rgb), 0.1);
 }
 
 .shortcut-card.is-dragging {
@@ -886,10 +886,10 @@ onMounted(() => {
 }
 
 .shortcut-card.is-drop-target {
-  border-color: rgba(59, 130, 246, 0.28);
+  border-color: rgba(var(--ios-blue-rgb), 0.28);
   box-shadow:
     0 16px 32px rgba(15, 23, 42, 0.08),
-    inset 0 0 0 2px rgba(59, 130, 246, 0.18);
+    inset 0 0 0 2px rgba(var(--ios-blue-rgb), 0.18);
 }
 
 .shortcut-card-main {
@@ -916,33 +916,33 @@ onMounted(() => {
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--border-light);
+  background: var(--fill-tertiary);
   color: var(--text-primary);
 }
 
 .shortcut-avatar.tone-search {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
-  border-color: rgba(59, 130, 246, 0.18);
+  border-color: rgba(var(--ios-blue-rgb), 0.18);
 }
 
 .shortcut-avatar.tone-internal {
-  background: rgba(94, 92, 230, 0.12);
+  background: rgba(var(--ios-indigo-rgb), 0.12);
   color: var(--ios-indigo);
-  border-color: rgba(94, 92, 230, 0.18);
+  border-color: rgba(var(--ios-indigo-rgb), 0.18);
 }
 
 .shortcut-avatar.tone-web {
-  background: rgba(52, 199, 89, 0.12);
+  background: rgba(var(--ios-green-rgb), 0.12);
   color: var(--ios-green);
-  border-color: rgba(52, 199, 89, 0.18);
+  border-color: rgba(var(--ios-green-rgb), 0.18);
 }
 
 .shortcut-avatar.tone-file {
-  background: rgba(255, 149, 0, 0.12);
+  background: rgba(var(--ios-orange-rgb), 0.12);
   color: var(--ios-orange);
-  border-color: rgba(255, 149, 0, 0.18);
+  border-color: rgba(var(--ios-orange-rgb), 0.18);
 }
 
 .shortcut-copy {
@@ -986,21 +986,21 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.05);
+  background: var(--fill-tertiary);
   color: var(--text-secondary);
 }
 
 .shortcut-action--danger:hover {
-  background: rgba(255, 59, 48, 0.12);
-  color: #ff3b30;
+  background: rgba(var(--ios-red-rgb), 0.12);
+  color: var(--ios-red);
 }
 
 .shortcuts-empty {
   margin-top: 1rem;
   padding: 0.95rem 1rem;
   border-radius: 20px;
-  border: 1px dashed rgba(15, 23, 42, 0.14);
-  background: rgba(15, 23, 42, 0.02);
+  border: 1px dashed var(--border-color);
+  background: var(--black-a02);
 }
 
 .history-preview-panel {
@@ -1022,8 +1022,8 @@ onMounted(() => {
   gap: 0.75rem;
   padding: 0.8rem 0.9rem;
   border-radius: 18px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid var(--border-light);
+  background: var(--black-a02);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -1035,8 +1035,8 @@ onMounted(() => {
 
 .history-preview-item:hover {
   transform: translateY(-1px);
-  background: rgba(15, 23, 42, 0.05);
-  border-color: rgba(59, 130, 246, 0.14);
+  background: var(--fill-tertiary);
+  border-color: rgba(var(--ios-blue-rgb), 0.14);
 }
 
 .history-preview-copy {
@@ -1113,7 +1113,7 @@ onMounted(() => {
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.05);
+  background: var(--fill-tertiary);
   color: var(--text-secondary);
   display: inline-flex;
   align-items: center;
@@ -1136,10 +1136,10 @@ onMounted(() => {
 
 .shortcut-field input {
   width: 100%;
-  border: 1px solid rgba(15, 23, 42, 0.09);
+  border: 1px solid var(--border-light);
   border-radius: 14px;
   padding: 0.8rem 0.9rem;
-  background: rgba(15, 23, 42, 0.03);
+  background: var(--black-a02);
   color: var(--text-primary);
   outline: none;
 }
@@ -1156,7 +1156,7 @@ onMounted(() => {
 }
 
 .shortcut-error {
-  color: #ff3b30;
+  color: var(--ios-red);
   font-size: 0.84rem;
   font-weight: 600;
 }
