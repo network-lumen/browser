@@ -2,31 +2,31 @@
   <div class="newtab-page internal-page">
     <div
       v-if="showOnboarding"
-      class="onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
+      class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="lumen-onboarding-title"
       aria-describedby="lumen-onboarding-desc"
     >
-      <div class="onboarding-modal" @click.stop>
-        <div class="onboarding-brand flex-align-start gap-100 margin-bottom-100">
-          <div class="brand-logo" aria-hidden="true">
+      <div class="newtab-onboarding-modal" @click.stop>
+        <div class="flex-align-start gap-100 margin-bottom-100">
+          <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto" aria-hidden="true">
             <Hexagon :size="22" />
           </div>
-          <div class="onboarding-text">
-            <div class="section-kicker">Welcome</div>
-            <h2 id="lumen-onboarding-title">Learn what Lumen is</h2>
-            <p id="lumen-onboarding-desc">
+          <div class="newtab-onboarding-text">
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Welcome</div>
+            <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
+            <p id="lumen-onboarding-desc" class="color-text-secondary">
               Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
             </p>
           </div>
         </div>
 
-        <div class="onboarding-actions">
-          <button class="btn btn-primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="learnLumen">
+        <div class="newtab-onboarding-actions flex">
+          <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none" type="button" @click="learnLumen">
             Learn Lumen
           </button>
-          <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="dismissOnboarding">
+          <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="dismissOnboarding">
             Skip
           </button>
         </div>
@@ -36,22 +36,22 @@
     <Teleport to="body">
       <div
         v-if="showShortcutModal"
-        class="shortcut-modal-overlay"
+        class="newtab-shortcut-modal-overlay newtab-onboarding-overlay flex-align-justify-center padding-100"
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcut-modal-title"
         @click.self="closeShortcutModal"
       >
-        <div class="shortcut-modal">
-          <div class="shortcut-modal-head">
+        <div class="newtab-shortcut-modal">
+          <div class="newtab-shortcut-modal-head flex-align-start flex-justify-space-between">
             <div>
-              <div class="section-kicker">Shortcut</div>
-              <h2 id="shortcut-modal-title">
+              <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Shortcut</div>
+              <h2 id="shortcut-modal-title" class="color-text-primary">
                 {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
               </h2>
             </div>
             <button
-              class="shortcut-modal-close"
+              class="newtab-shortcut-modal-close flex-inline-align-justify-center border-none cursor-pointer h-200 border-radius-full color-text-secondary"
               type="button"
               aria-label="Close shortcut editor"
               @click="closeShortcutModal"
@@ -60,43 +60,45 @@
             </button>
           </div>
 
-          <div class="shortcut-form">
-            <label class="shortcut-field flex flex-column gap-35">
+          <div class="newtab-shortcut-form flex flex-column margin-top-100 gap-90">
+            <label class="newtab-shortcut-field flex flex-column gap-35">
               <span>Name</span>
               <input
                 v-model="shortcutDraft.title"
                 type="text"
+                class="w-full color-text-primary outline-none"
                 placeholder="Optional custom title"
                 maxlength="60"
                 @keydown.enter.prevent="submitShortcutModal"
               />
             </label>
 
-            <label class="shortcut-field flex flex-column gap-35">
+            <label class="newtab-shortcut-field flex flex-column gap-35">
               <span>URL or Lumen page</span>
               <input
                 v-model="shortcutDraft.url"
                 type="text"
+                class="w-full color-text-primary outline-none"
                 placeholder="lumen://home or example.lmn"
                 @keydown.enter.prevent="submitShortcutModal"
               />
             </label>
 
-            <label class="shortcut-checkbox">
+            <label class="newtab-shortcut-checkbox flex-inline-align-center">
               <input v-model="shortcutDraft.pinned" type="checkbox" />
               <span>Mark this shortcut as favourite</span>
             </label>
 
-            <div v-if="shortcutError" class="shortcut-error">
+            <div v-if="shortcutError" class="newtab-shortcut-error color-error txt-weight-light">
               {{ shortcutError }}
             </div>
           </div>
 
-          <div class="shortcut-modal-actions">
-            <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="closeShortcutModal">
+          <div class="newtab-shortcut-modal-actions flex">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="closeShortcutModal">
               Cancel
             </button>
-            <button class="btn btn-primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="submitShortcutModal">
+            <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none" type="button" @click="submitShortcutModal">
               {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
             </button>
           </div>
@@ -105,41 +107,41 @@
     </Teleport>
 
     <div class="newtab-backdrop" aria-hidden="true">
-      <div class="newtab-glow newtab-glow--left"></div>
-      <div class="newtab-glow newtab-glow--right"></div>
+      <div class="newtab-glow newtab-glow--left border-radius-full"></div>
+      <div class="newtab-glow newtab-glow--right border-radius-full"></div>
     </div>
 
-    <div class="newtab-shell">
-      <section class="hero">
-        <div class="hero-copy">
-          <h1>Search Lumen</h1>
-          <p>Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
+    <div class="newtab-shell flex flex-column margin-0-auto gap-100">
+      <section class="newtab-hero">
+        <div class="newtab-hero-copy text-center margin-0-auto">
+          <h1 class="color-text-primary margin-0">Search Lumen</h1>
+          <p class="color-text-secondary">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="omnibox" @submit.prevent="submitOmnibox">
-          <Search :size="18" class="omnibox-icon" />
+        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full" @submit.prevent="submitOmnibox">
+          <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
             type="text"
-            class="omnibox-input"
+            class="newtab-omnibox-input flex-1 border-none outline-none bg-transparent color-text-primary"
             placeholder="Search Lumen or enter a URL"
             spellcheck="false"
             autocapitalize="off"
             autocomplete="off"
             aria-label="Search Lumen or enter a URL"
           />
-          <button class="omnibox-submit" type="submit">
+          <button class="newtab-omnibox-submit flex-inline-align-justify-center color-white flex-0-0-auto border-none cursor-pointer" type="submit">
             <ArrowUpRight :size="15" />
             <span>Go</span>
           </button>
         </form>
 
-        <div class="quick-links">
+        <div class="newtab-quick-links flex flex-wrap-wrap gap-50">
           <button
             v-for="link in quickLinks"
             :key="link.url"
             type="button"
-            class="quick-link"
+            class="newtab-quick-link flex-inline-align-center border-radius-full color-text-secondary border-none cursor-pointer"
             :disabled="link.requiresProfile && !hasProfiles"
             @click="openQuickLink(link, $event)"
           >
@@ -148,31 +150,31 @@
           </button>
         </div>
 
-        <div v-if="!hasProfiles" class="hero-hint">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
       </section>
 
-      <section class="shortcuts-panel">
-        <div class="shortcuts-head">
+      <section class="newtab-shortcuts-panel">
+        <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap">
           <div>
-            <div class="section-kicker">Shortcuts</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Shortcuts</div>
           </div>
 
-          <div class="shortcuts-head-actions">
-            <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="beginCreateShortcut">
+          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="beginCreateShortcut">
               <Plus :size="15" />
               <span>Add shortcut</span>
             </button>
           </div>
         </div>
 
-        <div class="shortcut-grid">
+        <div class="newtab-shortcut-grid">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="shortcut-card"
+            class="newtab-shortcut-card flex flex-column gap-75"
             :class="{
               pinned: entry.pinned,
               'is-dragging': draggingShortcutId === entry.id,
@@ -184,19 +186,19 @@
             @drop.prevent="onShortcutDrop(entry.id)"
             @dragend="onShortcutDragEnd"
           >
-            <button class="shortcut-card-main" type="button" @click="openTarget(entry.url, $event)">
-              <span class="shortcut-avatar" :class="`tone-${entry.kind}`">
+            <button class="newtab-shortcut-card-main flex w-full border-none bg-transparent color-text-primary cursor-pointer flex-1 text-left" type="button" @click="openTarget(entry.url, $event)">
+              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
-              <span class="shortcut-copy">
-                <span class="shortcut-title">{{ entry.title }}</span>
-                <span class="shortcut-subtitle">{{ entry.subtitle }}</span>
+              <span class="newtab-shortcut-copy flex flex-column">
+                <span class="newtab-shortcut-title block">{{ entry.title }}</span>
+                <span class="newtab-shortcut-subtitle block color-text-tertiary">{{ entry.subtitle }}</span>
               </span>
             </button>
 
-            <div class="shortcut-card-actions">
+            <div class="newtab-shortcut-card-actions flex flex-wrap-wrap">
               <button
-                class="shortcut-action"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer"
                 type="button"
                 :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
                 @click.stop="togglePinned(entry.id, entry.pinned)"
@@ -204,7 +206,7 @@
                 <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
               </button>
               <button
-                class="shortcut-action"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer"
                 type="button"
                 title="Edit shortcut"
                 @click.stop="beginEditShortcut(entry)"
@@ -212,7 +214,7 @@
                 <Pencil :size="14" />
               </button>
               <button
-                class="shortcut-action shortcut-action--danger"
+                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer"
                 type="button"
                 title="Remove shortcut"
                 @click.stop="removeFavouriteById(entry.id)"
@@ -224,10 +226,10 @@
           </article>
         </div>
 
-        <div v-if="!renderedFavouriteEntries.length" class="shortcuts-empty">
-          <div class="shortcuts-empty-copy">
-            <h3>No shortcuts yet</h3>
-            <p>
+        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty margin-top-100 border-radius-20px">
+          <div class="newtab-shortcuts-empty-copy">
+            <h3 class="color-text-primary">No shortcuts yet</h3>
+            <p class="color-text-secondary">
               Star a page from the address bar or create a custom shortcut here. Favourite
               shortcuts stay first.
             </p>
@@ -237,37 +239,37 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="shortcuts-panel history-preview-panel"
+        class="newtab-shortcuts-panel newtab-history-preview-panel padding-top-100 padding-bottom-100"
       >
-        <div class="shortcuts-head">
+        <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap">
           <div>
-            <div class="section-kicker">Recent</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary">Recent</div>
           </div>
 
-          <div class="shortcuts-head-actions">
-            <button class="btn btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary" type="button" @click="goto('lumen://history')">
+          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none" type="button" @click="goto('lumen://history')">
               <History :size="15" />
               <span>Open history</span>
             </button>
           </div>
         </div>
 
-        <div class="history-preview-list">
+        <div class="newtab-history-preview-list">
           <button
             v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            class="history-preview-item"
+            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left"
             @click="openTarget(entry.url, $event)"
           >
-            <span class="shortcut-avatar" :class="`tone-${entry.kind}`">
+            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong" :class="`tone-${entry.kind}`">
               {{ entry.monogram }}
             </span>
-            <span class="history-preview-copy">
-              <span class="history-preview-title">{{ entry.title }}</span>
-              <span class="history-preview-subtitle">{{ entry.subtitle }}</span>
+            <span class="newtab-history-preview-copy flex flex-column flex-1">
+              <span class="newtab-history-preview-title block txt-weight-medium">{{ entry.title }}</span>
+              <span class="newtab-history-preview-subtitle block">{{ entry.subtitle }}</span>
             </span>
-            <span class="history-preview-time">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
+            <span class="newtab-history-preview-time flex-0-0-auto txt-weight-medium margin-left-auto">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
           </button>
         </div>
       </section>
@@ -560,790 +562,4 @@ onMounted(() => {
     showOnboarding.value = true;
   }
 });
-</script>
-
-<style scoped>
-.newtab-page {
-  position: relative;
-  display: block;
-  min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 1.5rem 1rem 2rem;
-  background:
-    radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%),
-    radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%),
-    var(--bg-tertiary);
-}
-
-.newtab-backdrop {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.newtab-glow {
-  position: absolute;
-  width: 28rem;
-  height: 28rem;
-  border-radius: 999px;
-  filter: blur(36px);
-  opacity: 0.55;
-}
-
-.newtab-glow--left {
-  top: -14rem;
-  left: -10rem;
-  background: rgba(var(--ios-blue-rgb), 0.18);
-}
-
-.newtab-glow--right {
-  top: 2rem;
-  right: -12rem;
-  background: rgba(var(--ios-indigo-rgb), 0.12);
-}
-
-.newtab-shell {
-  position: relative;
-  z-index: 1;
-  width: min(1040px, 100%);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.hero,
-.shortcuts-panel,
-.onboarding-modal,
-.shortcut-modal {
-  border: 1px solid var(--border-light);
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
-  box-shadow:
-    0 22px 48px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.hero,
-.shortcuts-panel {
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-  border-radius: 28px;
-  padding: 1.15rem;
-}
-
-.hero {
-  padding: 2.3rem 1.15rem;
-}
-
-.hero::before,
-.shortcuts-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 25%);
-  pointer-events: none;
-}
-
-.shortcuts-head,
-.shortcut-modal-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.shortcuts-head {
-  flex-wrap: wrap;
-}
-
-.brand-logo {
-  --brand-logo-size: 46px;
-  --brand-logo-radius: 15px;
-  width: var(--brand-logo-size);
-  height: var(--brand-logo-size);
-  border-radius: var(--brand-logo-radius);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-primary);
-  flex: 0 0 auto;
-}
-
-.section-kicker {
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  color: var(--accent-primary);
-}
-
-.hero-copy {
-  max-width: 40rem;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.hero-copy h1 {
-  margin: 0;
-  font-size: clamp(2.2rem, 7vw, 4.3rem);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
-  color: var(--text-primary);
-}
-
-.hero-copy p {
-  margin: 0.85rem auto 0;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.55;
-}
-
-.omnibox {
-  width: min(760px, 100%);
-  margin: 1.2rem auto 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-light);
-  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-}
-
-.omnibox:focus-within {
-  border-color: var(--primary-a50);
-  box-shadow:
-    0 14px 30px rgba(15, 23, 42, 0.08),
-    0 0 0 4px var(--primary-a12);
-}
-
-.omnibox-icon {
-  color: var(--text-tertiary);
-  flex: 0 0 auto;
-}
-
-.omnibox-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 1rem;
-}
-
-.omnibox-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.omnibox-submit,
-.btn,
-.shortcut-action,
-.quick-link,
-.shortcut-modal-close {
-  border: none;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.2s ease;
-}
-
-.omnibox-submit,
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-.omnibox-submit {
-  padding: 0.78rem 1rem;
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-primary);
-  flex: 0 0 auto;
-}
-
-.btn {
-  padding: 0.75rem 1rem;
-}
-
-.btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.btn-secondary {
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-}
-
-.btn:hover,
-.omnibox-submit:hover,
-.shortcut-action:hover,
-.quick-link:hover {
-  transform: translateY(-1px);
-}
-
-.quick-links {
-  width: min(980px, 100%);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 1rem auto 0;
-}
-
-.quick-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.56rem 0.74rem;
-  border-radius: 999px;
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 650;
-}
-
-.quick-link:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.hero-hint {
-  width: min(760px, 100%);
-  margin: 1rem auto 0;
-  padding: 0.9rem 1rem;
-  border-radius: 18px;
-  background: rgba(var(--ios-orange-rgb), 0.08);
-  border: 1px solid rgba(var(--ios-orange-rgb), 0.14);
-  color: var(--text-secondary);
-  line-height: 1.45;
-  text-align: center;
-}
-
-.shortcuts-head h2,
-.shortcut-modal-head h2,
-.shortcuts-empty h3 {
-  margin: 0.2rem 0 0;
-  color: var(--text-primary);
-  letter-spacing: -0.03em;
-}
-
-.shortcuts-head p,
-.shortcuts-empty p,
-.onboarding-text p {
-  margin: 0.4rem 0 0;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.shortcut-grid {
-  margin-top: 1.1rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
-  gap: 0.8rem;
-}
-
-.shortcut-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-height: 150px;
-  padding: 0.9rem;
-  border-radius: 22px;
-  border: 1px solid var(--border-light);
-  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
-}
-
-.shortcut-card.pinned {
-  border-color: rgba(var(--ios-blue-rgb), 0.18);
-  box-shadow:
-    0 14px 28px rgba(15, 23, 42, 0.06),
-    inset 0 0 0 1px rgba(var(--ios-blue-rgb), 0.1);
-}
-
-.shortcut-card.is-dragging {
-  opacity: 0.5;
-  transform: scale(0.98);
-}
-
-.shortcut-card.is-drop-target {
-  border-color: rgba(var(--ios-blue-rgb), 0.28);
-  box-shadow:
-    0 16px 32px rgba(15, 23, 42, 0.08),
-    inset 0 0 0 2px rgba(var(--ios-blue-rgb), 0.18);
-}
-
-.shortcut-card-main {
-  display: flex;
-  flex: 1;
-  align-items: flex-start;
-  gap: 0.8rem;
-  width: 100%;
-  text-align: left;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.shortcut-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  border: 1px solid var(--border-light);
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-}
-
-.shortcut-avatar.tone-search {
-  background: rgba(var(--ios-blue-rgb), 0.12);
-  color: var(--ios-blue);
-  border-color: rgba(var(--ios-blue-rgb), 0.18);
-}
-
-.shortcut-avatar.tone-internal {
-  background: rgba(var(--ios-indigo-rgb), 0.12);
-  color: var(--ios-indigo);
-  border-color: rgba(var(--ios-indigo-rgb), 0.18);
-}
-
-.shortcut-avatar.tone-web {
-  background: rgba(var(--ios-green-rgb), 0.12);
-  color: var(--ios-green);
-  border-color: rgba(var(--ios-green-rgb), 0.18);
-}
-
-.shortcut-avatar.tone-file {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-  border-color: rgba(var(--ios-orange-rgb), 0.18);
-}
-
-.shortcut-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-}
-
-.shortcut-title,
-.shortcut-subtitle {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.shortcut-title {
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  font-weight: 760;
-  white-space: nowrap;
-}
-
-.shortcut-subtitle {
-  color: var(--text-tertiary);
-  font-size: 0.8rem;
-  line-height: 1.45;
-  white-space: nowrap;
-}
-
-.shortcut-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.shortcut-action {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-}
-
-.shortcut-action--danger:hover {
-  background: rgba(var(--ios-red-rgb), 0.12);
-  color: var(--ios-red);
-}
-
-.shortcuts-empty {
-  margin-top: 1rem;
-  padding: 0.95rem 1rem;
-  border-radius: 20px;
-  border: 1px dashed var(--border-color);
-  background: var(--black-a02);
-}
-
-.history-preview-panel {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-.history-preview-list {
-  margin-top: 0.65rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 0.65rem;
-}
-
-.history-preview-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 0.9rem;
-  border-radius: 18px;
-  border: 1px solid var(--border-light);
-  background: var(--black-a02);
-  color: var(--text-primary);
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.history-preview-item:hover {
-  transform: translateY(-1px);
-  background: var(--fill-tertiary);
-  border-color: rgba(var(--ios-blue-rgb), 0.14);
-}
-
-.history-preview-copy {
-  min-width: 0;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.12rem;
-}
-
-.history-preview-title,
-.history-preview-subtitle {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.history-preview-title {
-  font-weight: 700;
-}
-
-.history-preview-subtitle,
-.history-preview-time {
-  color: var(--text-tertiary);
-  font-size: 0.82rem;
-}
-
-.history-preview-time {
-  flex: 0 0 auto;
-  font-weight: 700;
-  margin-left: auto;
-  padding-left: 0.5rem;
-}
-
-.shortcuts-head-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  justify-content: flex-end;
-}
-
-.shortcuts-head-actions .btn {
-  white-space: nowrap;
-}
-
-.onboarding-overlay,
-.shortcut-modal-overlay {
-  background: rgba(2, 6, 23, 0.56);
-  z-index: 20;
-}
-
-.shortcut-modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.onboarding-modal,
-.shortcut-modal {
-  width: min(34rem, 100%);
-  border-radius: 24px;
-  padding: 1.2rem;
-}
-
-.shortcut-modal {
-  width: min(32rem, 100%);
-}
-
-.shortcut-modal-close {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.shortcut-form {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-.shortcut-field span,
-.shortcut-checkbox span {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.shortcut-field input {
-  width: 100%;
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: 0.8rem 0.9rem;
-  background: var(--black-a02);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.shortcut-field input:focus {
-  border-color: var(--primary-a50);
-  box-shadow: 0 0 0 4px var(--primary-a12);
-}
-
-.shortcut-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.shortcut-error {
-  color: var(--ios-red);
-  font-size: 0.84rem;
-  font-weight: 600;
-}
-
-.shortcut-modal-actions,
-.onboarding-actions {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 1040px) {
-  .newtab-page {
-    padding-inline: 0.85rem;
-  }
-
-  .hero {
-    padding: 2rem 1rem;
-  }
-
-  .hero-copy {
-    max-width: 34rem;
-  }
-
-  .quick-links {
-    width: min(880px, 100%);
-    gap: 0.5rem;
-  }
-}
-
-@media (max-height: 760px) {
-  .newtab-page {
-    padding-top: 1rem;
-    padding-bottom: 1.25rem;
-  }
-
-  .newtab-shell {
-    gap: 0.85rem;
-  }
-
-  .hero,
-  .shortcuts-panel {
-    border-radius: 24px;
-    padding: 1rem;
-  }
-
-  .hero {
-    padding: 1.5rem 1rem 1rem;
-  }
-
-  .hero-copy {
-    max-width: 32rem;
-  }
-
-  .hero-copy h1 {
-    font-size: clamp(2.3rem, 9vh, 3.7rem);
-  }
-
-  .hero-copy p {
-    margin-top: 0.6rem;
-    font-size: 0.95rem;
-  }
-
-  .omnibox {
-    margin-top: 0.95rem;
-    padding: 0.75rem 0.82rem;
-  }
-
-  .quick-links {
-    margin-top: 0.75rem;
-  }
-}
-
-@media (max-height: 680px) {
-  .newtab-page {
-    padding-top: 0.85rem;
-  }
-
-  .hero {
-    padding-top: 1.2rem;
-    padding-bottom: 0.9rem;
-  }
-
-  .hero-copy h1 {
-    font-size: clamp(2.05rem, 8vh, 3.2rem);
-  }
-
-  .hero-copy p {
-    font-size: 0.9rem;
-  }
-
-  .omnibox {
-    margin-top: 0.8rem;
-  }
-}
-
-@media (max-width: 1180px) {
-  .shortcuts-head-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 900px) {
-  .shortcut-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .newtab-page {
-    padding: 0.85rem 0.75rem 1.2rem;
-  }
-
-  .hero,
-  .shortcuts-panel {
-    border-radius: 22px;
-    padding: 0.95rem;
-  }
-
-  .hero {
-    padding: 1.9rem 0.95rem;
-  }
-
-  .shortcuts-head {
-    flex-direction: column;
-  }
-
-  .omnibox {
-    flex-wrap: wrap;
-    border-radius: 24px;
-  }
-
-  .omnibox-submit {
-    width: 100%;
-  }
-
-  .shortcut-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .history-preview-list {
-    grid-template-columns: 1fr;
-  }
-
-  .history-preview-item {
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .history-preview-time {
-    width: calc(100% - 3.75rem);
-    margin-left: 3.75rem;
-    padding-left: 0;
-  }
-
-  .shortcut-card {
-    min-height: 0;
-  }
-}
-
-@media (max-width: 520px) {
-  .hero-copy h1 {
-    font-size: 2.45rem;
-  }
-
-  .hero-copy p {
-    font-size: 0.92rem;
-  }
-
-  .quick-links {
-    justify-content: flex-start;
-  }
-
-  .quick-link {
-    flex: 1 1 calc(50% - 0.5rem);
-    justify-content: center;
-  }
-
-  .shortcut-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .shortcut-card-actions {
-    justify-content: flex-start;
-  }
-}
-</style>
+</script>

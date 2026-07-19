@@ -4669,3 +4669,646 @@ select.recurpay-input {
     padding: 0.25rem 0.625rem;
     font-size: 0.75rem;
 }
+
+/* NewTabPage.vue */
+.newtab-page {
+    position: relative;
+    display: block;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 1.5rem 1rem 2rem;
+    background:
+        radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%),
+        radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%),
+        var(--bg-tertiary);
+}
+
+.newtab-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.newtab-glow {
+    position: absolute;
+    width: 28rem;
+    height: 28rem;
+    filter: blur(36px);
+    opacity: 0.55;
+}
+
+.newtab-glow--left {
+    top: -14rem;
+    left: -10rem;
+    background: rgba(var(--ios-blue-rgb), 0.18);
+}
+
+.newtab-glow--right {
+    top: 2rem;
+    right: -12rem;
+    background: rgba(var(--ios-indigo-rgb), 0.12);
+}
+
+.newtab-shell {
+    position: relative;
+    z-index: 1;
+    width: min(1040px, 100%);
+}
+
+.newtab-hero,
+.newtab-shortcuts-panel,
+.newtab-onboarding-modal,
+.newtab-shortcut-modal {
+    border: 1px solid var(--border-light);
+    background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+    box-shadow:
+        0 22px 48px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.newtab-hero,
+.newtab-shortcuts-panel {
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 28px;
+    padding: 1.15rem;
+}
+
+.newtab-hero {
+    padding: 2.3rem 1.15rem;
+}
+
+.newtab-hero::before,
+.newtab-shortcuts-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 25%);
+    pointer-events: none;
+}
+
+.newtab-shortcuts-head,
+.newtab-shortcut-modal-head {
+    gap: 1rem;
+}
+
+.newtab-brand-logo {
+    --brand-logo-size: 46px;
+    --brand-logo-radius: 15px;
+    width: var(--brand-logo-size);
+    height: var(--brand-logo-size);
+    border-radius: var(--brand-logo-radius);
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow-primary);
+}
+
+.newtab-section-kicker {
+    font-size: 0.72rem;
+    letter-spacing: 0.11em;
+}
+
+.newtab-hero-copy {
+    max-width: 40rem;
+}
+
+.newtab-hero-copy h1 {
+    font-size: clamp(2.2rem, 7vw, 4.3rem);
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+}
+
+.newtab-hero-copy p {
+    margin: 0.85rem auto 0;
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.newtab-omnibox {
+    width: min(760px, 100%);
+    margin: 1.2rem auto 0;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid var(--border-light);
+    background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.newtab-omnibox:focus-within {
+    border-color: var(--primary-a50);
+    box-shadow:
+        0 14px 30px rgba(15, 23, 42, 0.08),
+        0 0 0 4px var(--primary-a12);
+}
+
+.newtab-omnibox-input {
+    min-width: 0;
+    font-size: 1rem;
+}
+
+.newtab-omnibox-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.newtab-omnibox-submit,
+.newtab-btn,
+.newtab-shortcut-action,
+.newtab-quick-link,
+.newtab-shortcut-modal-close {
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.newtab-omnibox-submit,
+.newtab-btn {
+    gap: 0.45rem;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.newtab-omnibox-submit {
+    padding: 0.78rem 1rem;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+}
+
+.newtab-btn {
+    padding: 0.75rem 1rem;
+}
+
+.newtab-btn-primary {
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+}
+
+.newtab-btn-secondary {
+    background: var(--fill-tertiary);
+}
+
+.newtab-btn:hover,
+.newtab-omnibox-submit:hover,
+.newtab-shortcut-action:hover,
+.newtab-quick-link:hover {
+    transform: translateY(-1px);
+}
+
+.newtab-quick-links {
+    width: min(980px, 100%);
+    justify-content: center;
+    margin: 1rem auto 0;
+}
+
+.newtab-quick-link {
+    gap: 0.4rem;
+    padding: 0.56rem 0.74rem;
+    background: var(--fill-tertiary);
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+
+.newtab-quick-link:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.newtab-hero-hint {
+    width: min(760px, 100%);
+    margin: 1rem auto 0;
+    padding: 0.9rem 1rem;
+    background: rgba(var(--ios-orange-rgb), 0.08);
+    border: 1px solid rgba(var(--ios-orange-rgb), 0.14);
+    line-height: 1.45;
+}
+
+.newtab-shortcuts-head h2,
+.newtab-shortcut-modal-head h2,
+.newtab-shortcuts-empty h3 {
+    margin: 0.2rem 0 0;
+    letter-spacing: -0.03em;
+}
+
+.newtab-shortcuts-head p,
+.newtab-shortcuts-empty p,
+.newtab-onboarding-text p {
+    margin: 0.4rem 0 0;
+    line-height: 1.5;
+}
+
+.newtab-shortcut-grid {
+    margin-top: 1.1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+    gap: 0.8rem;
+}
+
+.newtab-shortcut-card {
+    position: relative;
+    min-height: 150px;
+    padding: 0.9rem;
+    border-radius: 22px;
+    border: 1px solid var(--border-light);
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+}
+
+.newtab-shortcut-card.pinned {
+    border-color: rgba(var(--ios-blue-rgb), 0.18);
+    box-shadow:
+        0 14px 28px rgba(15, 23, 42, 0.06),
+        inset 0 0 0 1px rgba(var(--ios-blue-rgb), 0.1);
+}
+
+.newtab-shortcut-card.is-dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+
+.newtab-shortcut-card.is-drop-target {
+    border-color: rgba(var(--ios-blue-rgb), 0.28);
+    box-shadow:
+        0 16px 32px rgba(15, 23, 42, 0.08),
+        inset 0 0 0 2px rgba(var(--ios-blue-rgb), 0.18);
+}
+
+.newtab-shortcut-card-main {
+    align-items: flex-start;
+    gap: 0.8rem;
+}
+
+.newtab-shortcut-avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 16px;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--border-light);
+    background: var(--fill-tertiary);
+}
+
+.newtab-shortcut-avatar.tone-search {
+    background: rgba(var(--ios-blue-rgb), 0.12);
+    color: var(--ios-blue);
+    border-color: rgba(var(--ios-blue-rgb), 0.18);
+}
+
+.newtab-shortcut-avatar.tone-internal {
+    background: rgba(var(--ios-indigo-rgb), 0.12);
+    color: var(--ios-indigo);
+    border-color: rgba(var(--ios-indigo-rgb), 0.18);
+}
+
+.newtab-shortcut-avatar.tone-web {
+    background: rgba(var(--ios-green-rgb), 0.12);
+    color: var(--ios-green);
+    border-color: rgba(var(--ios-green-rgb), 0.18);
+}
+
+.newtab-shortcut-avatar.tone-file {
+    background: rgba(var(--ios-orange-rgb), 0.12);
+    color: var(--ios-orange);
+    border-color: rgba(var(--ios-orange-rgb), 0.18);
+}
+
+.newtab-shortcut-copy {
+    min-width: 0;
+    gap: 0.18rem;
+}
+
+.newtab-shortcut-title,
+.newtab-shortcut-subtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.newtab-shortcut-title {
+    font-size: 0.95rem;
+    font-weight: 760;
+    white-space: nowrap;
+}
+
+.newtab-shortcut-subtitle {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    white-space: nowrap;
+}
+
+.newtab-shortcut-card-actions {
+    gap: 0.4rem;
+}
+
+.newtab-shortcut-action {
+    width: 2rem;
+    background: var(--fill-tertiary);
+}
+
+.newtab-shortcut-action--danger:hover {
+    background: rgba(var(--ios-red-rgb), 0.12);
+    color: var(--ios-red);
+}
+
+.newtab-shortcuts-empty {
+    padding: 0.95rem 1rem;
+    border: 1px dashed var(--border-color);
+    background: var(--black-a02);
+}
+
+.newtab-history-preview-list {
+    margin-top: 0.65rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.65rem;
+}
+
+.newtab-history-preview-item {
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--border-light);
+    background: var(--black-a02);
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.newtab-history-preview-item:hover {
+    transform: translateY(-1px);
+    background: var(--fill-tertiary);
+    border-color: rgba(var(--ios-blue-rgb), 0.14);
+}
+
+.newtab-history-preview-copy {
+    min-width: 0;
+    gap: 0.12rem;
+}
+
+.newtab-history-preview-title,
+.newtab-history-preview-subtitle {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.newtab-history-preview-subtitle,
+.newtab-history-preview-time {
+    color: var(--text-tertiary);
+    font-size: 0.82rem;
+}
+
+.newtab-history-preview-time {
+    padding-left: 0.5rem;
+}
+
+.newtab-shortcuts-head-actions {
+    gap: 0.6rem;
+    justify-content: flex-end;
+}
+
+.newtab-shortcuts-head-actions .newtab-btn {
+    white-space: nowrap;
+}
+
+.newtab-onboarding-overlay,
+.newtab-shortcut-modal-overlay {
+    background: rgba(2, 6, 23, 0.56);
+    z-index: 20;
+}
+
+.newtab-shortcut-modal-overlay {
+    position: fixed;
+    inset: 0;
+}
+
+.newtab-onboarding-modal,
+.newtab-shortcut-modal {
+    width: min(34rem, 100%);
+    border-radius: 24px;
+    padding: 1.2rem;
+}
+
+.newtab-shortcut-modal {
+    width: min(32rem, 100%);
+}
+
+.newtab-shortcut-modal-close {
+    width: 2rem;
+    background: var(--fill-tertiary);
+}
+
+.newtab-shortcut-field span,
+.newtab-shortcut-checkbox span {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.newtab-shortcut-field input {
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 0.8rem 0.9rem;
+    background: var(--black-a02);
+}
+
+.newtab-shortcut-field input:focus {
+    border-color: var(--primary-a50);
+    box-shadow: 0 0 0 4px var(--primary-a12);
+}
+
+.newtab-shortcut-checkbox {
+    gap: 0.55rem;
+}
+
+.newtab-shortcut-error {
+    font-size: 0.84rem;
+}
+
+.newtab-shortcut-modal-actions,
+.newtab-onboarding-actions {
+    margin-top: 1rem;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1040px) {
+    .newtab-page {
+        padding-inline: 0.85rem;
+    }
+
+    .newtab-hero {
+        padding: 2rem 1rem;
+    }
+
+    .newtab-hero-copy {
+        max-width: 34rem;
+    }
+
+    .newtab-quick-links {
+        width: min(880px, 100%);
+        gap: 0.5rem;
+    }
+}
+
+@media (max-height: 760px) {
+    .newtab-page {
+        padding-top: 1rem;
+        padding-bottom: 1.25rem;
+    }
+
+    .newtab-shell {
+        gap: 0.85rem;
+    }
+
+    .newtab-hero,
+    .newtab-shortcuts-panel {
+        border-radius: 24px;
+        padding: 1rem;
+    }
+
+    .newtab-hero {
+        padding: 1.5rem 1rem 1rem;
+    }
+
+    .newtab-hero-copy {
+        max-width: 32rem;
+    }
+
+    .newtab-hero-copy h1 {
+        font-size: clamp(2.3rem, 9vh, 3.7rem);
+    }
+
+    .newtab-hero-copy p {
+        margin-top: 0.6rem;
+        font-size: 0.95rem;
+    }
+
+    .newtab-omnibox {
+        margin-top: 0.95rem;
+        padding: 0.75rem 0.82rem;
+    }
+
+    .newtab-quick-links {
+        margin-top: 0.75rem;
+    }
+}
+
+@media (max-height: 680px) {
+    .newtab-page {
+        padding-top: 0.85rem;
+    }
+
+    .newtab-hero {
+        padding-top: 1.2rem;
+        padding-bottom: 0.9rem;
+    }
+
+    .newtab-hero-copy h1 {
+        font-size: clamp(2.05rem, 8vh, 3.2rem);
+    }
+
+    .newtab-hero-copy p {
+        font-size: 0.9rem;
+    }
+
+    .newtab-omnibox {
+        margin-top: 0.8rem;
+    }
+}
+
+@media (max-width: 1180px) {
+    .newtab-shortcuts-head-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 900px) {
+    .newtab-shortcut-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .newtab-page {
+        padding: 0.85rem 0.75rem 1.2rem;
+    }
+
+    .newtab-hero,
+    .newtab-shortcuts-panel {
+        border-radius: 22px;
+        padding: 0.95rem;
+    }
+
+    .newtab-hero {
+        padding: 1.9rem 0.95rem;
+    }
+
+    .newtab-shortcuts-head {
+        flex-direction: column;
+    }
+
+    .newtab-omnibox {
+        flex-wrap: wrap;
+        border-radius: 24px;
+    }
+
+    .newtab-omnibox-submit {
+        width: 100%;
+    }
+
+    .newtab-shortcut-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .newtab-history-preview-list {
+        grid-template-columns: 1fr;
+    }
+
+    .newtab-history-preview-item {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .newtab-history-preview-time {
+        width: calc(100% - 3.75rem);
+        margin-left: 3.75rem;
+        padding-left: 0;
+    }
+
+    .newtab-shortcut-card {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    .newtab-hero-copy h1 {
+        font-size: 2.45rem;
+    }
+
+    .newtab-hero-copy p {
+        font-size: 0.92rem;
+    }
+
+    .newtab-quick-links {
+        justify-content: flex-start;
+    }
+
+    .newtab-quick-link {
+        flex: 1 1 calc(50% - 0.5rem);
+        justify-content: center;
+    }
+
+    .newtab-shortcut-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .newtab-shortcut-card-actions {
+        justify-content: flex-start;
+    }
+}
