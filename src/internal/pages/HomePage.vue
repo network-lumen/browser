@@ -728,8 +728,8 @@ function getRouteIcon(key: string) {
 }
 
 .no-profile-banner {
-  border: 0.5px solid rgba(255, 204, 0, 0.4);
-  background: rgba(255, 204, 0, 0.08);
+  border: 0.5px solid rgba(var(--ios-yellow-rgb), 0.4);
+  background: rgba(var(--ios-yellow-rgb), 0.08);
   color: var(--ios-orange);
   padding: 0.75rem 1rem;
   border-radius: var(--border-radius-md);
@@ -917,47 +917,47 @@ function getRouteIcon(key: string) {
 }
 
 .action-icon.explorer {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
   color: var(--ios-green);
 }
 
 .action-icon.network {
-  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%);
   color: var(--ios-pink);
 }
 
 .action-icon.domain {
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.22) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%);
   color: var(--ios-blue);
 }
 
 .action-icon.staking {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
   color: var(--ios-green);
 }
 
 .action-icon.dao {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%);
   color: var(--ios-orange);
 }
 
 .action-icon.gateways {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
   color: var(--ios-green);
 }
 
 .action-icon.search {
-  background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
   color: var(--ios-green);
 }
 
 .action-icon.help {
-  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%);
   color: var(--ios-orange);
 }
 
 .action-icon.settings {
-  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
   color: var(--ios-purple);
 }
 
