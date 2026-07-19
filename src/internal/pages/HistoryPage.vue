@@ -1,17 +1,17 @@
 <template>
-  <div class="history-page internal-page">
+  <div class="history-page internal-page flex min-h-full">
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
-    <main class="history-main">
-      <header class="history-header">
+    <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
+      <header class="history-header flex-align-center-justify-space-between">
         <div class="history-copy">
-          <h1>History</h1>
+          <h1 class="color-text-primary">History</h1>
         </div>
 
-        <div class="history-header-actions">
+        <div class="history-header-actions flex-align-center">
           <button
             type="button"
-            class="history-mode-btn"
+            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer"
             :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45 badge-error"
+            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -31,8 +31,8 @@
         </div>
       </header>
 
-      <section class="history-toolbar">
-        <label class="history-search">
+      <section class="history-toolbar flex-align-center-justify-space-between">
+        <label class="history-search flex-align-center flex-1 min-w-0">
           <Search :size="17" />
           <input
             v-model="query"
@@ -40,42 +40,43 @@
             placeholder="Search history"
             spellcheck="false"
             autocomplete="off"
+            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary"
           />
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner">
+      <div v-if="!historyEnabled" class="history-banner color-text-secondary">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 
-      <div v-if="groupedEntries.length" class="history-groups">
+      <div v-if="groupedEntries.length" class="flex flex-column gap-90">
         <section v-for="group in groupedEntries" :key="group.label" class="history-group">
-          <div class="history-group-head">
-            <h2>{{ group.label }}</h2>
-            <span>{{ group.entries.length }}</span>
+          <div class="history-group-head flex-align-center-justify-space-between">
+            <h2 class="color-text-primary">{{ group.label }}</h2>
+            <span class="flex-inline-align-justify-center color-text-secondary">{{ group.entries.length }}</span>
           </div>
 
-          <div class="history-list">
-            <article v-for="entry in group.entries" :key="entry.id" class="history-item">
-              <button class="history-item-main" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar" :class="`tone-${entry.kind}`">
+          <div class="flex flex-column">
+            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between">
+              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer" type="button" @click="openEntry(entry.url)">
+                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}
                 </span>
 
                 <span class="history-item-copy flex flex-column gap-15 min-w-0">
-                  <span class="history-item-title">{{ entry.title }}</span>
-                  <span class="history-item-subtitle">{{ entry.subtitle }}</span>
+                  <span class="history-item-title color-text-primary">{{ entry.title }}</span>
+                  <span class="history-item-subtitle color-text-tertiary">{{ entry.subtitle }}</span>
                 </span>
               </button>
 
-              <div class="history-item-meta">
-                <span class="history-item-time">{{ formatTime(entry.lastVisitedAt) }}</span>
-                <span v-if="entry.visitCount > 1" class="history-item-visits">
+              <div class="history-item-meta flex-inline-align-center">
+                <span class="history-item-time color-text-tertiary">{{ formatTime(entry.lastVisitedAt) }}</span>
+                <span v-if="entry.visitCount > 1" class="history-item-visits color-text-tertiary">
                   {{ entry.visitCount }} visits
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove"
+                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
@@ -87,24 +88,24 @@
         </section>
       </div>
 
-      <div v-else class="history-empty">
+      <div v-else class="history-empty flex-1 flex-align-justify-center">
         <div class="history-empty-card">
-          <div class="history-empty-icon">
+          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto">
             <HistoryIcon :size="22" />
           </div>
-          <h3>{{ emptyTitle }}</h3>
-          <p>{{ emptyCopy }}</p>
-          <div class="history-empty-actions">
+          <h3 class="color-text-primary">{{ emptyTitle }}</h3>
+          <p class="color-text-secondary">{{ emptyCopy }}</p>
+          <div class="history-empty-actions flex-align-center">
             <button
               v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active badge-success"
+              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer"
               @click="setHistoryEnabled(true)"
             >
               <Power :size="15" />
               <span>Turn on history</span>
             </button>
-            <button type="button" class="history-open-btn" @click="openNewTab">
+            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer" @click="openNewTab">
               <ArrowUpRight :size="14" />
               <span>Open new tab</span>
             </button>
@@ -250,380 +251,4 @@ function formatTime(timestamp: number) {
 }
 </script>
 
-<style scoped>
-.history-page {
-  display: flex;
-  min-height: 100%;
-}
 
-.history-main {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
-}
-
-.history-header,
-.history-toolbar,
-.history-group,
-.history-empty-card {
-  border: var(--border-width) solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-sm);
-}
-
-.history-header,
-.history-toolbar,
-.history-empty-card {
-  border-radius: 24px;
-}
-
-.history-header {
-  padding: 1.2rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.history-copy h1 {
-  margin: 0;
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  letter-spacing: -0.05em;
-  color: var(--text-primary);
-}
-
-.history-copy p {
-  margin: 0.5rem 0 0;
-  color: var(--text-secondary);
-}
-
-.history-copy strong {
-  color: var(--text-primary);
-}
-
-.history-header-actions,
-.history-empty-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  flex-wrap: wrap;
-}
-
-.history-mode-btn,
-.history-clear-btn,
-.history-open-btn {
-  border: none;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.72rem 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.history-mode-btn {
-  background: var(--fill-secondary);
-  color: var(--text-secondary);
-}
-
-
-.history-open-btn {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.history-mode-btn:hover,
-.history-clear-btn:hover:not(:disabled),
-.history-open-btn:hover {
-  transform: translateY(-1px);
-}
-
-.history-toolbar {
-  padding: 0.95rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-.history-search {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.8rem 0.95rem;
-  border-radius: 999px;
-  background: var(--fill-tertiary);
-  color: var(--text-tertiary);
-}
-
-.history-search input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 0.96rem;
-}
-
-.history-search input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.history-banner {
-  padding: 0.9rem 1rem;
-  border-radius: 18px;
-  border: 1px solid rgba(var(--ios-orange-rgb), 0.16);
-  background: rgba(var(--ios-orange-rgb), 0.08);
-  color: var(--text-secondary);
-}
-
-.history-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-.history-group {
-  border-radius: 24px;
-  padding: 1rem;
-}
-
-.history-group-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0 0.1rem 0.7rem;
-}
-
-.history-group-head h2 {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--text-primary);
-}
-
-.history-group-head span {
-  min-width: 1.7rem;
-  height: 1.7rem;
-  padding: 0 0.45rem;
-  border-radius: 999px;
-  background: var(--fill-secondary);
-  color: var(--text-secondary);
-  font-size: 0.76rem;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.history-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.history-item {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  justify-content: space-between;
-  padding: 0.8rem 0.15rem;
-  border-top: 1px solid var(--separator);
-}
-
-.history-list .history-item:first-child {
-  border-top: none;
-}
-
-.history-item-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  text-align: left;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-.history-item-avatar {
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  border: var(--border-width) solid var(--border-color);
-  background: var(--fill-secondary);
-  color: var(--text-primary);
-}
-
-.history-item-avatar.tone-search {
-  background: rgba(var(--ios-blue-rgb), 0.12);
-  color: var(--ios-blue);
-  border-color: rgba(var(--ios-blue-rgb), 0.18);
-}
-
-.history-item-avatar.tone-internal {
-  background: rgba(var(--ios-indigo-rgb), 0.12);
-  color: var(--ios-indigo);
-  border-color: rgba(var(--ios-indigo-rgb), 0.18);
-}
-
-.history-item-avatar.tone-web {
-  background: rgba(var(--ios-green-rgb), 0.12);
-  color: var(--ios-green);
-  border-color: rgba(var(--ios-green-rgb), 0.18);
-}
-
-.history-item-avatar.tone-file {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-  border-color: rgba(var(--ios-orange-rgb), 0.18);
-}
-
-
-.history-item-title,
-.history-item-subtitle {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.history-item-title {
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.history-item-subtitle {
-  color: var(--text-tertiary);
-  font-size: 0.84rem;
-}
-
-.history-item-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  flex: 0 0 auto;
-  margin-left: 0.5rem;
-}
-
-.history-item-time,
-.history-item-visits {
-  font-size: 0.78rem;
-  color: var(--text-tertiary);
-  font-weight: 700;
-}
-
-.history-item-remove {
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.history-item-remove:hover {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.history-empty {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.history-empty-card {
-  width: min(560px, 100%);
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.history-empty-icon {
-  width: 3.25rem;
-  height: 3.25rem;
-  margin: 0 auto 0.9rem;
-  border-radius: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--fill-secondary);
-  color: var(--text-primary);
-}
-
-.history-empty-card h3 {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 1.15rem;
-}
-
-.history-empty-card p {
-  margin: 0.7rem auto 0;
-  max-width: 34rem;
-  color: var(--text-secondary);
-  line-height: 1.55;
-}
-
-.history-empty-actions {
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-@media (max-width: 980px) {
-  .history-page {
-    flex-direction: column;
-  }
-
-  .history-header,
-  .history-toolbar,
-  .history-item {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .history-item-meta,
-  .history-header-actions {
-    justify-content: flex-start;
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .history-main {
-    padding: 0.85rem;
-  }
-
-  .history-header,
-  .history-toolbar,
-  .history-group,
-  .history-empty-card {
-    border-radius: 20px;
-  }
-}
-</style>
