@@ -11,18 +11,18 @@
 
         <div class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px margin-top-50 border-1-transparent" :class="{ active: hosting.kind === 'local' }">
           <button
-            class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left grid flex-inline-align-center border-none bg-transparent min-w-0"
+            class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left grid flex-inline-align-center border-none bg-transparent min-w-0 padding-75-87"
             type="button"
             @click="selectHosting('local')"
           >
             <span
-              class="drivepage-hosting-dot border-radius-circle"
+              class="drivepage-hosting-dot border-radius-circle w-8px h-8px"
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
             <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
           </button>
           <button
-            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent"
+            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015"
             type="button"
             @click.stop="openLocalDetails"
             title="Local details"
@@ -36,7 +36,7 @@
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between margin-top-25">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase fs-11px letter-spacing-005em">Subscriptions</span>
           <button
-            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08"
+            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08 border-1-primary-a15 color-accent-secondary transition-colors-015"
             type="button"
             @click="openPlansModal"
           >
@@ -44,7 +44,7 @@
           </button>
         </div>
 
-        <div v-if="!subscriptionRows.length" class="drivepage-hosting-empty border-radius-12px fs-075rem color-text-tertiary margin-top-50 bg-transparent">
+        <div v-if="!subscriptionRows.length" class="drivepage-hosting-empty border-radius-12px fs-075rem color-text-tertiary margin-top-50 bg-transparent padding-75-87">
           No active subscriptions yet.
         </div>
 
@@ -55,11 +55,11 @@
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
           <button
-              class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left grid flex-inline-align-center border-none bg-transparent min-w-0"
+              class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left grid flex-inline-align-center border-none bg-transparent min-w-0 padding-75-87"
               type="button"
               @click="selectGateway(sub.gatewayId)"
             >
-              <span class="drivepage-hosting-dot border-radius-circle" :class="sub.statusDot"></span>
+              <span class="drivepage-hosting-dot border-radius-circle w-8px h-8px" :class="sub.statusDot"></span>
               <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
@@ -71,13 +71,13 @@
                 {{ sub.regionLabel }}
               </span>
               <span class="drivepage-hosting-tags flex-inline flex-wrap-wrap gap-35" v-if="sub.planTags.length">
-                <span v-for="p in sub.planTags" :key="p" class="drivepage-hosting-tag flex-inline-align-center border-radius-full txt-weight-medium bg-primary-a08 fs-11px">{{
+                <span v-for="p in sub.planTags" :key="p" class="drivepage-hosting-tag flex-inline-align-center border-radius-full txt-weight-medium bg-primary-a08 fs-11px border-1-primary-a15 color-accent-secondary">{{
                   p
                 }}</span>
               </span>
           </button>
           <button
-            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent"
+            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015"
             type="button"
             @click.stop="openGatewayDetails(sub.gatewayId)"
             title="Subscription details"
@@ -106,20 +106,20 @@
           </button>
 
           <div class="drivepage-upload-menu flex-inline relative" @click.stop>
-            <button class="drivepage-upload-btn" type="button" @click="toggleUploadMenu">
+            <button class="drivepage-upload-btn inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02" type="button" @click="toggleUploadMenu">
               <Plus :size="18" />
               <span>Upload</span>
             </button>
             <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1" @click.stop>
               <button
-                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none"
+                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
                 type="button"
                 @click="openFilePicker"
               >
                 Upload files
               </button>
               <button
-                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none"
+                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
                 type="button"
                 @click="openFolderPicker"
               >
@@ -160,7 +160,7 @@
             placeholder="Search files..."
             @input="currentPage = 1"
           />
-          <button v-if="searchQuery" class="drivepage-clear-search flex-align-justify-center border-radius-circle color-text-secondary cursor-pointer border-none bg-fill-tertiary transition-all-015" @click="searchQuery = ''; currentPage = 1">
+          <button v-if="searchQuery" class="drivepage-clear-search flex-align-justify-center border-radius-circle color-text-secondary cursor-pointer border-none bg-fill-tertiary transition-all-015 h-20px" @click="searchQuery = ''; currentPage = 1">
             <X :size="14" />
           </button>
         </div>
@@ -175,7 +175,7 @@
         </div>
       </div>
 
-      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar flex-align-center flex-wrap-wrap margin-bottom-100 gap-87 border-radius-14px border-1 shadow-sm" :class="{ active: selectedLocalCount > 0 }">
+      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar flex-align-center flex-wrap-wrap margin-bottom-100 gap-87 border-radius-14px border-1 shadow-sm padding-75-100" :class="{ active: selectedLocalCount > 0 }">
         <label class="drivepage-bulk-checkbox drivepage-bulk-toolbar-checkbox flex-inline-align-justify-center ring-spinner-sm flex-shrink-0 relative" title="Select visible entries">
           <input
             type="checkbox"
@@ -192,7 +192,7 @@
         </div>
         <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap margin-left-auto gap-50">
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75"
             type="button"
             :disabled="!selectedLocalCount"
             @click="clearLocalSelection"
@@ -201,7 +201,7 @@
           </button>
           <button
             v-if="canBulkConvertSelectedLocal"
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75"
             type="button"
             @click="convertSelectedLocalToHls"
           >
@@ -211,7 +211,7 @@
             </span>
           </button>
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -265,7 +265,7 @@
             </span>
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
               <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
                 type="button"
                 @click="cancelUpload(key)"
                 :disabled="upload?.uploadingCanceling"
@@ -275,7 +275,7 @@
             </div>
           </div>
         </div>
-        <div v-if="upload?.uploadingPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden">
+        <div v-if="upload?.uploadingPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden margin-top-62">
           <div
             class="drivepage-progress-bar-fill h-full bg-accent"
             :style="{ width: `${upload?.uploadingPercent}%` }"
@@ -316,7 +316,7 @@
             </span>
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
               <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
                 type="button"
                 @click="pauseHlsQueue"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -326,7 +326,7 @@
                 }}
               </button>
               <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
                 type="button"
                 @click="cancelHlsConversion"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -336,7 +336,7 @@
             </div>
           </div>
         </div>
-        <div v-if="convertingPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden">
+        <div v-if="convertingPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden margin-top-62">
           <div
             class="drivepage-progress-bar-fill h-full bg-accent"
             :style="{ width: `${convertingPercent}%` }"
@@ -385,7 +385,7 @@
           <div
             v-for="item in visibleHlsQueueItems"
             :key="item.id"
-            class="drivepage-hls-queue-item flex-align-center-justify-space-between gap-75 border-radius-12px bg-primary border-1-light"
+            class="drivepage-hls-queue-item flex-align-center-justify-space-between gap-75 border-radius-12px bg-primary border-1-light padding-75-87"
             :class="`status-${item.status}`"
           >
             <div class="drivepage-hls-queue-item-copy flex flex-column gap-2px min-w-0">
@@ -418,7 +418,7 @@
             </span>
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
               <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
                 type="button"
                 @click="cancelHlsArchiveDownload"
                 :disabled="archiveDownloadCanceling"
@@ -428,7 +428,7 @@
             </div>
           </div>
         </div>
-        <div v-if="archiveDownloadPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden">
+        <div v-if="archiveDownloadPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden margin-top-62">
           <div
             class="drivepage-progress-bar-fill h-full bg-accent"
             :style="{ width: `${archiveDownloadPercent}%` }"
@@ -447,8 +447,8 @@
         class="drivepage-files-list flex flex-column flex-1 border-radius-12px overflow-y-auto bg-primary border-1 shadow-sm min-h-0"
       >
         <!-- List Header -->
-        <div class="drivepage-list-header flex-align-center gap-75 txt-weight-light text-uppercase color-text-secondary padding-75-100 bg-secondary border-bottom-1 fs-11px letter-spacing-005em">
-          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header">
+        <div class="drivepage-list-header flex-align-center gap-75 txt-weight-light text-uppercase color-text-secondary padding-75-100 bg-secondary border-bottom-1 fs-11px letter-spacing-005em top-0">
+          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header flex flex-inline-align-center flex-justify-center flex-shrink-0">
             <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative" title="Select visible entries">
               <input
                 type="checkbox"
@@ -468,11 +468,11 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="drivepage-list-item flex-align-center gap-75 cursor-pointer"
+          class="drivepage-list-item flex-align-center gap-75 cursor-pointer padding-62-100"
           @click="handleEntryClick(file)"
           :class="{ selected: selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
-          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell" @click.stop>
+          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell flex flex-inline-align-center flex-justify-center flex-shrink-0" @click.stop>
             <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative">
               <input
                 type="checkbox"
@@ -525,7 +525,7 @@
           <span class="drivepage-list-date color-text-secondary text-right fs-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none">
+          <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015">
             <button
               v-if="!isBrowsing && isDirEntry(file)"
               class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative"
@@ -596,7 +596,7 @@
             <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary fs-085rem">...</span>
             <button 
               v-else
-              class="drivepage-page-num flex-align-justify-center size-32px color-text-primary fs-085rem fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015" 
+              class="drivepage-page-num flex-align-justify-center size-32px color-text-primary fs-085rem fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px padding-0-50" 
               :class="{ active: currentPage === page }"
               @click="currentPage = page as number"
             >
@@ -647,7 +647,7 @@
           }}
         </p>
         <button
-          class="drivepage-upload-btn-large margin-top-50"
+          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02"
           type="button"
           @click="openFilePicker"
         >
@@ -663,7 +663,7 @@
         <h3 class="txt-sm txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}
         </h3>
-        <button class="drivepage-close-btn flex-align-justify-center size-28px cursor-pointer color-text-tertiary border-1-light bg-transparent border-radius-8px" @click="selectedFile = null">
+        <button class="drivepage-close-btn flex-align-justify-center size-28px cursor-pointer color-text-tertiary border-1-light bg-transparent border-radius-8px transition-colors-015" @click="selectedFile = null">
           <X :size="18" />
         </button>
       </div>
@@ -708,7 +708,7 @@
           <span class="drivepage-info-label color-text-tertiary text-uppercase fs-10px letter-spacing-005em">Name</span>
           <input
             v-if="canRenameSelected"
-            class="drivepage-info-value drivepage-name-input color-text-primary fw-500 w-full border-radius-10px fs-085rem fs-13px border-1 bg-secondary"
+            class="drivepage-info-value drivepage-name-input color-text-primary fw-500 w-full border-radius-10px fs-085rem fs-13px border-1 bg-secondary padding-50-62"
             v-model.trim="renameDraft"
             type="text"
             placeholder="Unknown"
@@ -761,7 +761,7 @@
 
     <!-- Toast -->
     <Transition name="drivepage-toast">
-      <div v-if="toast" class="drivepage-toast flex-align-center gap-50 border-radius-10px fw-500" :class="toastType">
+      <div v-if="toast" class="drivepage-toast flex-align-center gap-50 border-radius-10px fw-500 fixed padding-75-125 bg-gradient-primary color-white fs-13px" :class="toastType">
         <component :is="toastIcon" :size="16" />
         {{ toast }}
       </div>
@@ -781,10 +781,10 @@
     <Transition name="modal">
       <div
         v-if="showUploadPathModal"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50"
         @click="closeUploadPathModal"
       >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>{{ uploadPathMode === "folder" ? "Upload folder" : "Upload files" }}</h3>
             <button
@@ -805,7 +805,7 @@
             </p>
             <textarea
               v-model="uploadPathText"
-              class="drivepage-upload-path-textarea w-full border-radius-12px color-text-primary outline-none padding-75 border-1 bg-secondary fs-14px"
+              class="drivepage-upload-path-textarea w-full border-radius-12px color-text-primary outline-none padding-75 border-1 bg-secondary fs-14px mono"
               rows="5"
               :placeholder="
                 uploadPathMode === 'folder'
@@ -815,7 +815,7 @@
             ></textarea>
           </div>
 
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px"
               type="button"
@@ -841,10 +841,10 @@
     <Transition name="modal">
       <div
         v-if="showLocalDetails"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50"
         @click="closeLocalDetails"
       >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>Local drive</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeLocalDetails">
@@ -891,7 +891,7 @@
                 (only references). Keep the file + password safe.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50">
+              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87">
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">{{ driveBackupError }}</div>
               </div>
@@ -946,10 +946,10 @@
     <Transition name="modal">
       <div
         v-if="showDriveBackupExportModal"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50"
         @click="closeDriveBackupExportModal"
       >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>Export drive snapshot</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeDriveBackupExportModal">
@@ -966,7 +966,7 @@
               <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPassword"
                   placeholder="Min 8 characters (recommended: long passphrase)"
@@ -977,7 +977,7 @@
               <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Confirm password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPasswordConfirm"
                   placeholder="Repeat password"
@@ -999,13 +999,13 @@
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50">
+              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87">
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">{{ driveBackupError }}</div>
               </div>
             </div>
           </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px"
               type="button"
@@ -1037,10 +1037,10 @@
     <Transition name="modal">
       <div
         v-if="showDriveBackupImportModal"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50"
         @click="closeDriveBackupImportModal"
       >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>Import drive snapshot</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeDriveBackupImportModal">
@@ -1067,7 +1067,7 @@
               <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87"
                   :type="driveBackupImportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupImportPassword"
                   placeholder="Enter backup password"
@@ -1085,7 +1085,7 @@
                 <span>Show password</span>
               </label>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50">
+              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87">
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">{{ driveBackupError }}</div>
               </div>
@@ -1119,7 +1119,7 @@
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="drivepage-plans-error margin-top-100 flex flex-column border-radius-12px margin-top-50 gap-50"
+                class="drivepage-plans-error margin-top-100 flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87"
               >
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Different wallet</div>
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">
@@ -1128,7 +1128,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error margin-top-100 flex flex-column border-radius-12px margin-top-50 gap-50">
+              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error margin-top-100 flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87">
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Older snapshot</div>
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">
                   This snapshot looks older than your current local version (seq
@@ -1136,13 +1136,13 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50">
+              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87">
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">{{ driveBackupError }}</div>
               </div>
             </template>
           </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px"
               type="button"
@@ -1182,10 +1182,10 @@
     <Transition name="modal">
       <div
         v-if="showGatewayDetails"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50"
         @click="closeGatewayDetails"
       >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>Subscription details</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeGatewayDetails">
@@ -1232,7 +1232,7 @@
                 </div>
                 <div
                   v-if="gatewayDetailsUsageError === 'password_required'"
-                  class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50"
+                  class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87"
                 >
                   <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Wallet locked</div>
                   <div class="drivepage-plans-error-text color-text-secondary fs-13px">
@@ -1246,7 +1246,7 @@
                     Unlock
                   </button>
                 </div>
-                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50">
+                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87">
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="details-grid">
@@ -1302,8 +1302,8 @@
 
     <!-- Plans Modal -->
     <Transition name="modal">
-      <div v-if="showPlansModal" class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed" @click="closePlansModal">
-        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+      <div v-if="showPlansModal" class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50" @click="closePlansModal">
+        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>Cloud plans</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closePlansModal">
@@ -1385,7 +1385,7 @@
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 fs-14px bg-secondary border-none bg-transparent"
+                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 fs-14px bg-secondary border-none bg-transparent padding-75-87"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1455,7 +1455,7 @@
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
-                   class="drivepage-gateway-card flex flex-column border-radius-10px gap-75 border-1 bg-primary"
+                   class="drivepage-gateway-card flex flex-column border-radius-10px gap-75 border-1 bg-primary padding-87-100"
                    :class="{ offline: !group.gateway.active }"
                  >
                   <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-50">
@@ -1488,14 +1488,14 @@
                           :key="plan.id + '-chip'"
                           class="drivepage-plan-chip flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary"
                         >
-                          <span class="drivepage-plan-chip-price">
+                          <span class="drivepage-plan-chip-price mono">
                             {{ formatPlanPriceShort(plan.priceUlmn) }}
                           </span>
                         </span>
                       </span>
                       <button
                         type="button"
-                        class="drivepage-gateway-expand-btn border-radius-full fs-075rem color-text-secondary cursor-pointer border-1 bg-primary transition-all-02"
+                        class="drivepage-gateway-expand-btn border-radius-full fs-075rem color-text-secondary cursor-pointer border-1 bg-primary transition-all-02 padding-25-75"
                         @click.stop="toggleGatewayExpanded(group.gateway.id)"
                       >
                         {{
@@ -1507,7 +1507,7 @@
                     </div>
                   </header>
 
-                  <div class="drivepage-gateway-plans flex flex-column gap-75 padding-top-75">
+                  <div class="drivepage-gateway-plans flex flex-column gap-75 padding-top-75 border-top-1">
                     <div
                       v-if="isGatewayExpanded(group.gateway.id)"
                       class="gateway-plan-details"
@@ -1649,10 +1649,10 @@
     <Transition name="modal">
       <div
         v-if="showSubscribeModal && subscribePlan"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50"
         @click="closeSubscribeModal"
       >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3>Confirm subscription "{{ planDisplayName(subscribePlan) }}"</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeSubscribeModal">
@@ -1751,7 +1751,7 @@
               first time (PQC setup + block confirmation).
             </p>
           </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px"
               type="button"

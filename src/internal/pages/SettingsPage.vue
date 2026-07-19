@@ -335,7 +335,7 @@
           </p>
           <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Current idle connection target:
-            <span class="settingspage-mono-path break-all">{{ networkModeSummary }}</span>
+            <span class="settingspage-mono-path break-all mono">{{ networkModeSummary }}</span>
           </p>
           <p v-if="networkSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ networkSettingsError }}
@@ -358,7 +358,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <span 
-                class="settingspage-status-badge flex-inline-align-center gap-35 border-radius-20px fw-500" 
+                class="settingspage-status-badge flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex" 
                 :class="securityStatus.enabled ? 'status-enabled badge-success' : 'settingspage-status-disabled'"
               >
                 {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
@@ -381,7 +381,7 @@
                 <LockKeyhole :size="16" />
                 Lock Now
               </button>
-              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500">
+              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
@@ -450,7 +450,7 @@
               {{ securityError }}
             </div>
             <button 
-              class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px"
+              class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px padding-62-125 transition-opacity-015"
               @click="setSecurityPassword"
               :disabled="securityLoading || !newPassword || !confirmPassword"
             >
@@ -508,7 +508,7 @@
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
               <button 
-                class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px"
+                class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px padding-62-125 transition-opacity-015"
                 @click="changeSecurityPassword"
                 :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword"
               >
@@ -527,7 +527,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button 
-                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none"
+                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none transition-opacity-015"
                 @click="showRemovePasswordConfirm = true"
                 :disabled="securityLoading"
               >
@@ -559,7 +559,7 @@
                 Cancel
               </button>
               <button 
-                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none"
+                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none transition-opacity-015"
                 @click="removeSecurityPassword"
                 :disabled="securityLoading || !removePasswordInput"
               >
@@ -888,19 +888,19 @@
           </div>
 
           <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
-            Active now: <span class="settingspage-mono-path break-all">{{ activeUserDataPath || 'Unavailable' }}</span>
+            Active now: <span class="settingspage-mono-path break-all mono">{{ activeUserDataPath || 'Unavailable' }}</span>
           </div>
           <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
-            Next launch target: <span class="settingspage-mono-path break-all">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
+            Next launch target: <span class="settingspage-mono-path break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
           </div>
           <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
-            Default target: <span class="settingspage-mono-path break-all">{{ defaultUserDataPath || 'Unavailable' }}</span>
+            Default target: <span class="settingspage-mono-path break-all mono">{{ defaultUserDataPath || 'Unavailable' }}</span>
           </div>
           <div v-if="bootstrapConfigPath" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
-            Bootstrap config: <span class="settingspage-mono-path break-all">{{ bootstrapConfigPath }}</span>
+            Bootstrap config: <span class="settingspage-mono-path break-all mono">{{ bootstrapConfigPath }}</span>
           </div>
           <div v-if="activeLogsPath" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
-            Active logs folder: <span class="settingspage-mono-path break-all">{{ activeLogsPath }}</span>
+            Active logs folder: <span class="settingspage-mono-path break-all mono">{{ activeLogsPath }}</span>
           </div>
           <div
             v-if="lumenDataFolderError"
@@ -943,7 +943,7 @@
             Restart Lumen after changing this target. Existing files are not moved automatically.
           </p>
           <p v-if="bootstrapRestartRequired" class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
-            Restart required: the running app is still using <span class="settingspage-mono-path break-all">{{ activeUserDataPath }}</span>.
+            Restart required: the running app is still using <span class="settingspage-mono-path break-all mono">{{ activeUserDataPath }}</span>.
           </p>
         </div>
       </div>
@@ -1029,7 +1029,7 @@
           <template v-if="privateCloudEnabled">
             <!-- Gateway Preferences -->
             <div class="settingspage-settings-subsection margin-top-100">
-              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px">Gateway Preferences</h3>
+              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway Preferences</h3>
               
               <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
                 <div class="setting-info flex flex-column gap-20">
@@ -1061,10 +1061,10 @@
             <!-- Gateway IDs -->
             <div class="settingspage-settings-subsection margin-top-100">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between margin-bottom-50">
-                <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px">Gateway IDs</h3>
+                <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway IDs</h3>
                 <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px">{{ gatewayIds.length }}</span>
               </div>
-              <p class="settingspage-subsection-desc fs-085rem color-text-secondary">Add gateway IDs to use for private content delivery</p>
+              <p class="settingspage-subsection-desc fs-085rem color-text-secondary margin-0 margin-bottom-100">Add gateway IDs to use for private content delivery</p>
 
               <div class="settingspage-gateway-ids-wrapper border-radius-12px padding-100 bg-secondary border-1">
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
@@ -1104,7 +1104,7 @@
 
             <!-- Advanced Settings -->
             <div class="settingspage-settings-subsection margin-top-100">
-              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px">Advanced Settings</h3>
+              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Advanced Settings</h3>
 
               <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
                 <div class="setting-info flex flex-column gap-20">

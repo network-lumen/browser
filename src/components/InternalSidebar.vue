@@ -4,7 +4,7 @@
       <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm shadow-primary">
         <component :is="icon" :size="20" />
       </div>
-      <span class="lumen-sidebar-title color-text-primary txt-weight-medium fs-11rem">{{ title }}</span>
+      <span class="lumen-sidebar-title color-text-primary txt-weight-medium fs-11rem letter-spacing-n002">{{ title }}</span>
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
@@ -23,7 +23,7 @@
       />
 
       <div v-if="renderedFavouriteEntries.length" class="sidebar-section margin-top-100 padding-top-75">
-        <div class="sidebar-section-header flex-align-center-justify-space-between gap-50 margin-bottom-50">
+        <div class="sidebar-section-header flex-align-center-justify-space-between gap-50 margin-bottom-50 padding-0-50">
           <div class="sidebar-section-title color-text-tertiary fs-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
           <div class="sidebar-section-count bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full fs-11px txt-weight-medium">{{ renderedFavouriteEntries.length }}</div>
         </div>
@@ -33,17 +33,17 @@
             :key="entry.id"
             class="sidebar-fav-item flex gap-35"
           >
-            <button class="sidebar-fav-hit hover-fill-primary bg-transparent border-none color-text-secondary cursor-pointer flex-align-center flex-1 w-full border-radius-sm text-left min-w-0 gap-62 transition-all-015" @click="openFavourite(entry.url, $event)">
-              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto fs-11px txt-weight-strong letter-spacing-008em border-1-light" :class="`tone-${entry.kind}`">
+            <button class="sidebar-fav-hit hover-fill-primary bg-transparent border-none color-text-secondary cursor-pointer flex-align-center flex-1 w-full border-radius-sm text-left min-w-0 gap-62 transition-all-015 padding-50-62" @click="openFavourite(entry.url, $event)">
+              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto fs-11px txt-weight-strong letter-spacing-008em border-1-light w-30px h-30px" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
               <span class="sidebar-fav-copy flex flex-column gap-10 min-w-0">
-                <span class="sidebar-fav-title color-text-primary fs-13px txt-weight-light">{{ entry.title }}</span>
-                <span class="sidebar-fav-subtitle color-text-tertiary fs-11px">{{ entry.subtitle }}</span>
+                <span class="sidebar-fav-title color-text-primary fs-13px txt-weight-light block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
+                <span class="sidebar-fav-subtitle color-text-tertiary fs-11px block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
             </button>
             <button
-              class="sidebar-fav-remove hover-fill-primary border-none bg-transparent color-text-tertiary cursor-pointer border-radius-10px transition-all-015"
+              class="sidebar-fav-remove hover-fill-primary border-none bg-transparent color-text-tertiary cursor-pointer border-radius-10px transition-all-015 w-30px"
               type="button"
               title="Remove shortcut"
               @click.stop="removeFavouriteById(entry.id)"

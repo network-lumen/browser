@@ -1,12 +1,12 @@
 <template>
   <Transition name="walletonboard-transition">
-    <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px" @click="handleOverlayClick">
-      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px" @click.stop>
+    <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50" @click="handleOverlayClick">
+      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh" @click.stop>
         <div class="walletonboard-header text-center border-bottom-default">
           <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />
           </div>
-          <h2 class="walletonboard-title color-text-primary txt-weight-light fs-15rem">
+          <h2 class="walletonboard-title color-text-primary txt-weight-light fs-15rem margin-0 margin-bottom-50">
             {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
           </h2>
           <p class="walletonboard-subtitle color-text-secondary margin-0 fs-14px">
@@ -137,7 +137,7 @@
                 <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                   {{ walletError }}
                 </p>
-                <button class="walletonboard-btn-secondary flex-align-center margin-top-100 cursor-pointer gap-50 color-text-secondary bg-transparent border-default" @click="createWallet">
+                <button class="walletonboard-btn-secondary flex-align-center margin-top-100 cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02" @click="createWallet">
                   Try Again
                 </button>
               </div>
@@ -194,17 +194,17 @@
           </div>
         </div>
 
-        <div class="walletonboard-footer flex gap-100 flex-justify-end">
+        <div class="walletonboard-footer flex gap-100 flex-justify-end border-top-default">
           <button
             v-if="step === 'intro' && !requiresProfileCreation"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             @click="handleSkip"
           >
             Skip for now
           </button>
           <button
             v-if="step === 'intro'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             @click="step = 'password'"
           >
             Get Started
@@ -212,14 +212,14 @@
 
           <button
             v-if="step === 'password'"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             @click="step = 'intro'"
           >
             Back
           </button>
           <button
             v-if="step === 'password'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             :disabled="settingPassword"
             @click="handlePasswordSubmit"
           >
@@ -229,7 +229,7 @@
 
           <button
             v-if="step === 'profile-name'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             @click="handleProfileNameSubmit"
           >
             Continue
@@ -237,14 +237,14 @@
 
           <button
             v-if="step === 'backup'"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default"
+            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             @click="handleSkipBackup"
           >
             Skip Backup
           </button>
           <button
             v-if="step === 'backup'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             :disabled="exportingBackup"
             @click="handleExportBackup"
           >
@@ -254,7 +254,7 @@
 
           <button
             v-if="step === 'complete'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
             @click="handleComplete"
           >
             Start Using Lumen

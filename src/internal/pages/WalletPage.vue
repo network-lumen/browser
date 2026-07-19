@@ -97,7 +97,7 @@
           </div>
           <div class="walletpage-balance-amount flex gap-75 flex-align-baseline margin-bottom-75">
             <span class="walletpage-currency txt-weight-light fs-18px">LMN</span>
-            <span class="walletpage-amount txt-weight-strong">
+            <span class="walletpage-amount txt-weight-strong letter-spacing-n002">
               {{ showBalance ? balanceLabel : '••••••' }}
             </span>
           </div>
@@ -154,39 +154,39 @@
           <h3>Cross-chain Assets</h3>
         </div>
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary" v-if="!isConnected">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Coins :size="32" />
           </div>
           <h3>Connect Your Wallet</h3>
           <p>Connect a wallet to view your assets across linked IBC chains.</p>
-          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white" @click="connectWallet">
+          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white padding-62-100" @click="connectWallet">
             <Link :size="16" />
             <span>Connect Wallet</span>
           </button>
         </div>
         <div v-else-if="assetsLoading && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Coins :size="32" />
           </div>
           <h3>Loading assets…</h3>
           <p>Fetching balances on Lumen and linked IBC chains.</p>
         </div>
         <div v-else-if="assetsError && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <AlertCircle :size="32" />
           </div>
           <h3>Unable to load assets</h3>
           <p>{{ assetsError }}</p>
         </div>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column margin-top-100 gap-75 gap-100">
             <div
               v-for="asset in assetRows"
               :key="asset.id"
-              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-100 border-radius-14px bg-card border-1"
+              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-100 border-radius-14px bg-card border-1 padding-87-100"
             >
               <div class="walletpage-asset-main flex-align-start gap-75 flex-1 min-w-0">
                 <div class="walletpage-asset-icon flex-align-justify-center size-40px border-radius-full txt-weight-light fs-14px color-white overflow-hidden flex-shrink-0" :class="asset.iconClass">
@@ -235,7 +235,7 @@
                     <Copy :size="14" />
                   </button>
                   <button
-                    class="walletpage-action-btn secondary walletpage-asset-send-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02"
+                    class="walletpage-action-btn secondary walletpage-asset-send-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 inline-flex gap-35"
                     @click="openAssetSendModal(asset)"
                     :disabled="!asset.sendEnabled"
                   >
@@ -243,7 +243,7 @@
                     <span>{{ asset.sendButtonLabel }}</span>
                   </button>
                   <button
-                    class="walletpage-action-btn secondary walletpage-asset-transfer-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02"
+                    class="walletpage-action-btn secondary walletpage-asset-transfer-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 inline-flex gap-35"
                     @click="openAssetTransferModal(asset)"
                     :disabled="!asset.transferTargets.length || !asset.transferEnabled"
                   >
@@ -255,7 +255,7 @@
             </div>
           </div>
           <div v-else class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-            <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+            <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
               <Coins :size="32" />
             </div>
             <h3>No assets yet</h3>
@@ -266,7 +266,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-150 w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+        <div v-if="dexError" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
           <span>{{ dexError }}</span>
         </div>
 
@@ -311,7 +311,7 @@
                 <div class="walletpage-dex-actions flex-align-center-justify-end flex-wrap-wrap gap-50">
                   <button
                     type="button"
-                    class="walletpage-action-btn secondary walletpage-dex-detail-toggle flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02"
+                    class="walletpage-action-btn secondary walletpage-dex-detail-toggle flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 flex-justify-center"
                     @click="toggleDexExpanded(dex.key)"
                   >
                     <ChevronDown
@@ -323,7 +323,7 @@
                   </button>
                   <button
                     type="button"
-                    class="walletpage-action-btn primary walletpage-dex-open-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02"
+                    class="walletpage-action-btn primary walletpage-dex-open-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 flex-justify-center"
                     @click="openDexTab(dex.openUrl || dex.baseUrl)"
                   >
                     <ExternalLink :size="16" />
@@ -335,22 +335,22 @@
 
             <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary">
               <div class="walletpage-dex-detail-grid gap-75 grid">
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">Trading pairs</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">Liquidity pools</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card">
+                <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">24h price</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card">
+                <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">24h volume</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
@@ -361,7 +361,7 @@
                   v-for="link in dex.quickLinks"
                   :key="`${dex.key}:${link.label}:${link.url}`"
                   type="button"
-                  class="walletpage-dex-link-chip flex-inline-align-center gap-35 border-radius-full color-text-secondary cursor-pointer border-1 bg-card fs-13px transition-all-02"
+                  class="walletpage-dex-link-chip flex-inline-align-center gap-35 border-radius-full color-text-secondary cursor-pointer border-1 bg-card fs-13px transition-all-02 padding-50-75"
                   @click="openDexTab(link.url)"
                 >
                   <span>{{ link.label }}</span>
@@ -405,7 +405,7 @@
         </div>
 
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary" v-if="!isConnected || !address">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>No wallet connected</h3>
@@ -413,7 +413,7 @@
         </div>
 
         <div v-else-if="activitiesLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>Loading transactions…</h3>
@@ -421,12 +421,12 @@
         </div>
 
         <div v-else-if="activitiesError" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>Unable to load transactions</h3>
           <p>{{ activitiesError }}</p>
-          <div class="walletpage-info-banner warning margin-top-100 max-w-500px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+          <div class="walletpage-info-banner warning margin-top-100 max-w-500px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
             <span>
               💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
               Your balance is still accurate and transactions are recorded on-chain.
@@ -435,12 +435,12 @@
         </div>
 
         <div v-else-if="!activities.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>No recent transactions</h3>
           <p>Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-          <div class="walletpage-info-banner warning margin-top-100 max-w-600px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+          <div class="walletpage-info-banner warning margin-top-100 max-w-600px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
             <div class="margin-bottom-75">
               <strong>💡 Why can't I see my transactions?</strong>
             </div>
@@ -480,7 +480,7 @@
           <div
             v-for="tx in enhancedActivities"
             :key="tx.id"
-            class="walletpage-activity-row gap-100 grid padding-100-125 flex-inline-align-center transition-all-02"
+            class="walletpage-activity-row gap-100 grid padding-100-125 flex-inline-align-center transition-all-02 border-bottom-1-light"
           >
             <div class="col-type">
               <div class="walletpage-type-badge flex-inline fs-075rem txt-weight-light flex-align-start gap-35 border-radius-6px nowrap" :class="getActivityBadgeClass(tx)">
@@ -504,7 +504,7 @@
             </div>
 
             <div class="col-amount">
-              <span class="walletpage-amount-value txt-weight-medium fs-14px" :class="tx.type">
+              <span class="walletpage-amount-value txt-weight-medium fs-14px mono" :class="tx.type">
                 <template v-if="tx.amounts && tx.amounts.length && tx.amounts[0].amount">
                   {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount) / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} {{ formatDenom(tx.amounts[0].denom) }}
                 </template>
@@ -515,7 +515,7 @@
             </div>
 
             <div class="walletpage-col-from flex-align-center gap-50">
-              <span class="walletpage-address-value" :title="tx.from || '-'">
+              <span class="walletpage-address-value mono fs-13px color-text-secondary" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
                 </template>
@@ -538,7 +538,7 @@
             </div>
 
             <div class="walletpage-col-to flex-align-center gap-50">
-              <span class="walletpage-address-value" :title="tx.to || '-'">
+              <span class="walletpage-address-value mono fs-13px color-text-secondary" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
                 </template>
@@ -561,7 +561,7 @@
             </div>
 
             <div class="col-hash flex-align-center gap-50">
-              <span class="walletpage-hash-value color-text-secondary fs-13px" :title="tx.txhash">
+              <span class="walletpage-hash-value color-text-secondary fs-13px mono" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
               <button
@@ -604,19 +604,19 @@
         </div>
 
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary" v-if="!contacts.length && !contactsLoading">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Users :size="32" />
           </div>
           <h3>No Contacts Yet</h3>
           <p>Add addresses you frequently send to for quick access.</p>
-          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white" @click="openAddContactModal">
+          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white padding-62-100" @click="openAddContactModal">
             <Plus :size="16" />
             <span>Add First Contact</span>
           </button>
         </div>
 
         <div v-else-if="contactsLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Users :size="32" />
           </div>
           <h3>Loading contacts…</h3>
@@ -630,7 +630,7 @@
               </div>
               <div class="walletpage-contact-info flex-1 min-w-0">
                 <h4>{{ contact.name }}</h4>
-                <p class="walletpage-contact-address color-text-tertiary fs-13px overflow-hidden txt-overflow-ellipsis nowrap" :title="contact.address">
+                <p class="walletpage-contact-address color-text-tertiary fs-13px overflow-hidden txt-overflow-ellipsis nowrap mono" :title="contact.address">
                   {{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}
                 </p>
               </div>
@@ -672,7 +672,7 @@
     <!-- Asset Transfer Modal -->
     <Transition name="fade">
       <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0" @click="closeAssetTransferModal">
-        <div class="walletpage-modal-content send-modal asset-transfer-modal w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="walletpage-modal-content send-modal asset-transfer-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
@@ -685,7 +685,7 @@
             </button>
           </div>
           <div class="walletpage-modal-body padding-150" v-if="assetTransferContext">
-            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
               <span>
                 Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
               </span>
@@ -695,7 +695,7 @@
               <label>Asset</label>
               <div class="walletpage-input-wrapper readonly relative">
                 <input
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono"
                   type="text"
                   :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
                   readonly
@@ -707,13 +707,13 @@
               <div class="walletpage-form-group margin-bottom-125">
                 <label>From chain</label>
                 <div class="walletpage-input-wrapper readonly relative">
-                  <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" type="text" :value="assetTransferContext.chainLabel" readonly />
+                  <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" type="text" :value="assetTransferContext.chainLabel" readonly />
                 </div>
               </div>
               <div class="walletpage-form-group margin-bottom-125">
                 <label>To chain</label>
                 <div class="walletpage-input-wrapper relative">
-                  <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer padding-75-100 border-2 fs-15px bg-card transition-all-02" v-model="assetTransferForm.destinationKey">
+                  <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" v-model="assetTransferForm.destinationKey">
                     <option
                       v-for="target in assetTransferContext.transferTargets"
                       :key="target.key"
@@ -729,7 +729,7 @@
             <div class="walletpage-form-group margin-bottom-125">
               <label>From address</label>
               <div class="walletpage-input-wrapper readonly relative">
-                <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" type="text" :value="assetTransferContext.ownerAddress" readonly />
+                <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" type="text" :value="assetTransferContext.ownerAddress" readonly />
               </div>
             </div>
 
@@ -737,7 +737,7 @@
               <label>Recipient <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper relative">
                 <input
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono"
                   type="text"
                   v-model="assetTransferForm.recipient"
                   :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'"
@@ -752,14 +752,14 @@
               <label>Amount <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper walletpage-amount-input relative">
                 <input
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono"
                   type="text"
                   inputmode="decimal"
                   v-model="assetTransferForm.amount"
                   placeholder="0.000000"
                   @input="validateAssetTransferAmountInput"
                 />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none">{{ assetTransferContext.displaySymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none top-half">{{ assetTransferContext.displaySymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary margin-top-50 fs-13px">
                 Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
@@ -767,20 +767,20 @@
             </div>
 
             <div class="walletpage-tx-summary margin-top-150 margin-bottom-150 border-radius-12px padding-0 border-1 bg-secondary overflow-hidden">
-              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 fs-13px letter-spacing-005em">
+              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 fs-13px letter-spacing-005em padding-87-100">
                 <span>Transfer Summary</span>
               </div>
-              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Route</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
               </div>
-              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Source chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ assetTransferContext.chainLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ assetTransferContext.chainLabel }}</span>
               </div>
-              <div class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Destination chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
               </div>
             </div>
 
@@ -801,7 +801,7 @@
     <!-- Send Modal -->
     <Transition name="fade">
       <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0" @click="closeSendModal">
-        <div class="walletpage-modal-content send-modal w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="walletpage-modal-content send-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
@@ -814,7 +814,7 @@
             </button>
           </div>
           <div class="walletpage-modal-body padding-150">
-            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
               <span v-if="sendAssetContext">
                 <template v-if="isIbcSend">
                   Move this asset from {{ sendSourceChainLabel }} to another linked chain over IBC.
@@ -831,7 +831,7 @@
             <div class="walletpage-form-group margin-bottom-125">
               <label>From</label>
               <div class="walletpage-input-wrapper readonly relative">
-                <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" type="text" :value="sendSourceAddress" readonly />
+                <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" type="text" :value="sendSourceAddress" readonly />
               </div>
               <div class="walletpage-field-hint color-text-secondary margin-top-50 fs-13px">Chain: {{ sendSourceChainLabel }}</div>
             </div>
@@ -839,14 +839,14 @@
             <div class="walletpage-form-group margin-bottom-125">
               <label>Asset</label>
               <div class="walletpage-input-wrapper readonly relative">
-                <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly />
+                <input class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly />
               </div>
             </div>
 
             <div v-if="!sendAssetContext" class="walletpage-form-group margin-bottom-125">
               <label>Send to</label>
               <div class="walletpage-input-wrapper relative">
-                <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer padding-75-100 border-2 fs-15px bg-card transition-all-02" v-model="sendTargetMode">
+                <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" v-model="sendTargetMode">
                   <option value="lumen">On the current chain</option>
                   <option value="ibc">Across IBC to another chain</option>
                 </select>
@@ -857,7 +857,7 @@
               <label>IBC route <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper relative">
                 <select
-                  class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer padding-75-100 border-2 fs-15px bg-card transition-all-02"
+                  class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer padding-75-100 border-2 fs-15px bg-card transition-all-02 mono"
                   v-model="ibcForm.sourceChannel"
                   :disabled="ibcChannelsLoading || !ibcChannels.length"
                 >
@@ -887,13 +887,13 @@
               <div class="walletpage-input-wrapper-relative relative">
                 <div class="walletpage-input-wrapper relative">
                   <input 
-                    class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" 
+                    class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" 
                     type="text" 
                     v-model="sendForm.recipient" 
                     :placeholder="sendRecipientPlaceholder"
                   />
                   <button 
-                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer absolute padding-50 border-none bg-hover border-radius-6px transition-all-02" 
+                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer absolute padding-50 border-none bg-hover border-radius-6px transition-all-02 top-half" 
                     @click="openQrScanner"
                     type="button"
                     title="Scan QR Code"
@@ -902,7 +902,7 @@
                   </button>
                   <button 
                     v-if="contacts.length > 0" 
-                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer absolute padding-50 border-none bg-hover border-radius-6px transition-all-02" 
+                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer absolute padding-50 border-none bg-hover border-radius-6px transition-all-02 top-half" 
                     @click="showContactPicker = !showContactPicker"
                     type="button"
                     title="Select from contacts"
@@ -927,7 +927,7 @@
                       <div class="walletpage-picker-avatar flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-14px flex-shrink-0">{{ contact.name.charAt(0).toUpperCase() }}</div>
                       <div class="walletpage-picker-info flex flex-column flex-1 gap-25 min-w-0">
                         <span class="walletpage-picker-name txt-weight-light color-text-primary fs-14px">{{ contact.name }}</span>
-                        <span class="walletpage-picker-address fs-075rem color-text-tertiary">{{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}</span>
+                        <span class="walletpage-picker-address fs-075rem color-text-tertiary mono">{{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}</span>
                       </div>
                     </button>
                   </div>
@@ -939,14 +939,14 @@
               <label>Amount ({{ sendAssetSymbol }}) <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper walletpage-amount-input relative">
                 <input 
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" 
                   type="text" 
                   inputmode="decimal"
                   v-model="sendForm.amount"
                   placeholder="0.000000"
                   @input="validateAmountInput"
                 />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none">{{ sendAssetSymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none top-half">{{ sendAssetSymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary margin-top-50 fs-13px" v-if="sendAvailableLabel">
                 Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
@@ -954,32 +954,32 @@
             </div>
 
             <div class="walletpage-tx-summary margin-top-150 margin-bottom-150 border-radius-12px padding-0 border-1 bg-secondary overflow-hidden">
-              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 fs-13px letter-spacing-005em">
+              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 fs-13px letter-spacing-005em padding-87-100">
                 <span>{{ isIbcSend ? 'Transfer Summary' : 'Transaction Summary' }}</span>
               </div>
-              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="!isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div v-if="!isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSourceChainLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSourceChainLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Tax</span>
-                <span class="walletpage-summary-value tax txt-weight-light color-text-primary">{{ sendSummary.taxLabel }}</span>
+                <span class="walletpage-summary-value tax txt-weight-light color-text-primary mono">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Receiver net</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div v-if="isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Route</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.routeLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.routeLabel }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1">
+              <div v-if="isIbcSend" class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary fs-15px border-bottom-1 padding-87-100">
                 <span>Destination chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.destinationChain }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.destinationChain }}</span>
               </div>
             </div>
 
@@ -996,7 +996,7 @@
     <!-- Receive Modal -->
     <Transition name="fade">
       <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0" @click="closeReceiveModal">
-        <div class="walletpage-modal-content receive-modal w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="walletpage-modal-content receive-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon receive flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
@@ -1009,7 +1009,7 @@
             </button>
           </div>
           <div class="walletpage-modal-body padding-150">
-            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15">
+            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
               <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
             </div>
 
@@ -1029,7 +1029,7 @@
 
             <div class="walletpage-address-box border-radius-12px padding-125 border-2 bg-secondary">
               <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase fs-14px margin-bottom-75 letter-spacing-005em">Your Wallet Address</div>
-              <div class="walletpage-address-value">{{ address || '-' }}</div>
+              <div class="walletpage-address-value mono fs-13px color-text-secondary">{{ address || '-' }}</div>
               <button class="walletpage-btn-copy-address disabled-fade-50 flex-align-justify-center w-full border-radius-10px txt-weight-light color-primary gap-50 cursor-pointer bg-card padding-75 fs-15px transition-all-02" type="button" @click="copyAddressWithToast" :disabled="!address">
                 <Copy :size="16" />
                 <span>Copy Address</span>
@@ -1043,7 +1043,7 @@
     <!-- Add/Edit Contact Modal -->
     <Transition name="fade">
       <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0" @click="closeContactModal">
-        <div class="walletpage-modal-content walletpage-contact-modal w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="walletpage-modal-content walletpage-contact-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
@@ -1060,7 +1060,7 @@
               <label>Name <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper relative">
                 <input 
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" 
                   type="text" 
                   v-model="contactForm.name" 
                   placeholder="Enter contact name" 
@@ -1072,7 +1072,7 @@
               <label>Address <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper relative">
                 <input 
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" 
                   type="text" 
                   v-model="contactForm.address" 
                   placeholder="lmn1..." 
@@ -1085,7 +1085,7 @@
               <label>Note (optional)</label>
               <div class="walletpage-input-wrapper relative">
                 <textarea 
-                  class="walletpage-form-input walletpage-form-textarea w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02" 
+                  class="walletpage-form-input walletpage-form-textarea w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono" 
                   v-model="contactForm.note" 
                   placeholder="Add a note about this contact"
                   rows="3"
@@ -1118,7 +1118,7 @@
     <!-- Delete Confirmation Modal -->
     <Transition name="fade">
       <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0" @click="cancelDeleteContact">
-        <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto" @click.stop>
+        <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon delete flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">

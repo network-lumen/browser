@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
     <div class="margin-bottom-200">
-      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary" @click="goBack">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary transition-smooth-all" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -26,7 +26,7 @@
           <h2 class="color-text-primary txt-weight-light margin-0">Transaction Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Transaction Hash:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary flex-1">{{ transaction.hash }}</code>
@@ -38,7 +38,7 @@
               </button>
             </div>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Status:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">
               <span :class="['chaindetail-status-badge', transaction.success ? 'badge-success' : 'badge-error']">
@@ -46,25 +46,25 @@
               </span>
             </span>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Block Height:</span>
             <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary fs-14px break-all" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Time:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ transaction.time }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Gas Used:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ formatNumber(transaction.gasUsed) }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Gas Wanted:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ formatNumber(transaction.gasWanted) }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Fee:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ transaction.fee }}</span>
           </div>

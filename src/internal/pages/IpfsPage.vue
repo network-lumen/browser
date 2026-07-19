@@ -5,7 +5,7 @@
         <div class="ipfspage-header-actions flex gap-50">
           <button
             v-if="isDir && indexHtmlEntry"
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all"
             type="button"
             @click="openIndexHtml"
             :disabled="!navigate"
@@ -14,7 +14,7 @@
           </button>
           <button
             v-if="isDir && masterM3u8Entry"
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all"
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
@@ -24,7 +24,7 @@
             <span>Play video</span>
           </button>
           <button
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all"
             type="button"
             @click="openSaveModal"
             :class="{ 'ipfspage-save-active': saved }"
@@ -38,7 +38,7 @@
             <span>{{ saved ? "Saved" : saving ? "Saving..." : "Save" }}</span>
           </button>
           <button
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all"
             type="button"
             @click="copyLink"
             :disabled="!rootCid"
@@ -47,7 +47,7 @@
             <span>Copy link</span>
           </button>
           <button
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card"
+            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all"
             type="button"
             @click="download"
             v-if="!isPreviewUnavailable"
@@ -69,7 +69,7 @@
 
       <template v-else>
         <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center">
-          <div class="ipfspage-welcome-content text-center">
+          <div class="ipfspage-welcome-content text-center max-w-600px">
             <h2>IPFS Content Viewer</h2>
             <p>View and download content from IPFS using CIDs.</p>
             <div class="ipfspage-welcome-example border-radius-lg padding-150 margin-bottom-200 bg-card border-default">
@@ -168,7 +168,7 @@
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute fs-14px cursor-events-none">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute fs-14px cursor-events-none padding-75-87">
               {{ hlsError }}
             </div>
           </template>
@@ -212,7 +212,7 @@
             allow="fullscreen"
           ></iframe>
 
-          <pre v-else-if="viewKind === 'docx'" class="ipfspage-text w-full fs-085rem color-text-primary overflow-auto">{{
+          <pre v-else-if="viewKind === 'docx'" class="ipfspage-text w-full fs-085rem color-text-primary overflow-auto pre-wrap">{{
             docxContent
           }}</pre>
 
@@ -224,12 +224,12 @@
             @click="onMarkdownClick"
           ></article>
 
-          <pre v-else-if="viewKind === 'text'" class="ipfspage-text w-full fs-085rem color-text-primary overflow-auto">{{
+          <pre v-else-if="viewKind === 'text'" class="ipfspage-text w-full fs-085rem color-text-primary overflow-auto pre-wrap">{{
             textContent
           }}</pre>
 
           <div v-else class="ipfspage-unsupported flex-align-justify-center w-full">
-            <div class="ipfspage-unsupported-content text-center padding-200">
+            <div class="ipfspage-unsupported-content text-center padding-200 max-w-500px">
               <h3>Preview not available</h3>
               <p>This content type cannot be previewed directly.</p>
             </div>
@@ -247,7 +247,7 @@
         @click="closeSaveModal"
       >
         <div class="ipfspage-modal border-radius-16px border-1 bg-primary overflow-hidden" @click.stop>
-          <header class="ipfspage-modal-header flex-align-center-justify-space-between border-bottom-1">
+          <header class="ipfspage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-87-100">
             <h3>Save to Drive</h3>
             <button class="ipfspage-modal-close color-text-secondary cursor-pointer border-none bg-transparent fs-125rem line-height-1" type="button" @click="closeSaveModal">
               <span>×</span>
@@ -259,7 +259,7 @@
             <input
               id="save-name"
               v-model="saveNameDraft"
-              class="ipfspage-modal-input w-full border-radius-12px color-text-primary outline-none border-1 bg-primary"
+              class="ipfspage-modal-input w-full border-radius-12px color-text-primary outline-none border-1 bg-primary padding-62-75"
               type="text"
               :placeholder="saveNamePlaceholder"
               :disabled="savePreparing || saving"
@@ -275,7 +275,7 @@
                 <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase fs-12px letter-spacing-004em">{{ savePinStatusLabel }}</span>
                 <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary fs-12px">{{ savePinProgressCounter }}</span>
               </div>
-              <div class="ipfspage-pin-progress-track w-full border-radius-full relative overflow-hidden bg-fill-secondary">
+              <div class="ipfspage-pin-progress-track w-full border-radius-full relative overflow-hidden bg-fill-secondary h-8px">
                 <div
                   class="ipfspage-pin-progress-fill h-full bg-gradient-primary"
                   :class="{ indeterminate: savePinProgressPercent == null && savePinIsRunning }"
@@ -288,21 +288,21 @@
             </div>
           </div>
 
-          <footer class="ipfspage-modal-actions flex-justify-end gap-75">
-            <button class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
+          <footer class="ipfspage-modal-actions flex-justify-end gap-75 padding-87-100 border-top-1">
+            <button class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
               Cancel
             </button>
-            <button v-if="savePinCanPause" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default" type="button" @click="pauseSavePinJob">
+            <button v-if="savePinCanPause" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light" type="button" @click="pauseSavePinJob">
               Pause
             </button>
-            <button v-if="savePinCanResume" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default" type="button" @click="resumeSavePinJob">
+            <button v-if="savePinCanResume" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light" type="button" @click="resumeSavePinJob">
               Resume
             </button>
-            <button v-if="savePinCanStop" class="ipfspage-btn-danger disabled-fade-60 color-error" type="button" @click="cancelSavePinJob">
+            <button v-if="savePinCanStop" class="ipfspage-btn-danger disabled-fade-60 color-error border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light" type="button" @click="cancelSavePinJob">
               Stop
             </button>
             <button
-              class="ipfspage-btn-primary disabled-fade-60 bg-gradient-primary color-white"
+              class="ipfspage-btn-primary disabled-fade-60 bg-gradient-primary color-white border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light"
               type="button"
               :disabled="savePreparing || savePinIsRunning"
               @click="confirmSaveToDrive"

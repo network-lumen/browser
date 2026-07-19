@@ -10,12 +10,12 @@
       <h1 class="color-text-primary txt-weight-medium margin-0">Block Details</h1>
     </div>
 
-    <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-100">
+    <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-100 padding-400-200">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading block data...</p>
     </div>
 
-    <div v-else-if="error" class="blockdetail-error flex flex-column flex-align-justify-center gap-100">
+    <div v-else-if="error" class="blockdetail-error flex flex-column flex-align-justify-center gap-100 padding-400-200">
       <p class="color-error">{{ error }}</p>
     </div>
 
@@ -26,11 +26,11 @@
           <h2 class="color-text-primary txt-weight-medium margin-0">Block Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Height:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.height }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Hash:</span>
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-75">
               <code class="flex-1">{{ block.hash }}</code>
@@ -42,10 +42,10 @@
               </button>
             </div>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Proposer:</span>
             <div class="flex-align-center gap-75">
-              <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium fs-14px overflow-hidden" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
+              <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium fs-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img
                   v-if="block.proposerAvatar"
                   :src="block.proposerAvatar"
@@ -56,11 +56,11 @@
               <span class="color-text-primary fs-15px fw-600">{{ block.proposer }}</span>
             </div>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Time:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.time }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Transactions:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.txs }}</span>
           </div>
@@ -73,19 +73,19 @@
           <h2 class="color-text-primary txt-weight-medium margin-0">Block Data</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Chain ID:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.chainId || 'lumen-mainnet' }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Block Size:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ calculateBlockSize(block) }} KB</span>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Gas Used:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ formatNumber(block.gasUsed || 0) }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Gas Limit:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ formatNumber(block.gasLimit || 0) }}</span>
           </div>
@@ -99,8 +99,8 @@
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
-            <div class="blockdetail-tx-item flex gap-100 cursor-pointer border-radius-md flex-align-start padding-100-125 bg-card border-default shadow-xs" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
-              <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-md color-ios-blue">
+            <div class="blockdetail-tx-item flex gap-100 cursor-pointer border-radius-md flex-align-start padding-100-125 bg-card border-default shadow-xs transition-smooth-all" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
+              <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-md color-ios-blue min-w-32px">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
