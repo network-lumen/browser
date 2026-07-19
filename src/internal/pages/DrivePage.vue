@@ -6713,22 +6713,22 @@ async function reloadForActiveProfileChange() {
   height: 8px;
   border-radius: 50%;
   background: var(--ios-red);
-  box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  box-shadow: 0 0 0 rgba(var(--ios-red-rgb), 0);
 }
 
 .hosting-dot.ok {
   background: var(--ios-green);
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35);
 }
 
 .hosting-dot.pending {
   background: var(--ios-orange);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35);
 }
 
 .hosting-dot.off {
   background: var(--ios-red);
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.2);
 }
 
 .hosting-details {
@@ -6886,8 +6886,8 @@ async function reloadForActiveProfileChange() {
   gap: 1rem;
   padding: 0.875rem 1.25rem;
   margin-bottom: 1.25rem;
-  background: linear-gradient(135deg, rgba(255, 149, 0, 0.1) 0%, rgba(255, 149, 0, 0.05) 100%);
-  border: 1.5px solid rgba(255, 149, 0, 0.3);
+  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.1) 0%, rgba(var(--ios-orange-rgb), 0.05) 100%);
+  border: 1.5px solid rgba(var(--ios-orange-rgb), 0.3);
   border-radius: 12px;
   animation: fadeIn 0.3s ease;
 }
@@ -6910,7 +6910,7 @@ async function reloadForActiveProfileChange() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 149, 0, 0.15);
+  background: rgba(var(--ios-orange-rgb), 0.15);
   border-radius: 8px;
   color: var(--ios-orange);
 }
@@ -7101,14 +7101,14 @@ async function reloadForActiveProfileChange() {
 
 .bulk-action-btn.danger {
   color: var(--error-red);
-  border-color: rgba(255, 59, 48, 0.2);
-  background: rgba(255, 59, 48, 0.06);
+  border-color: rgba(var(--ios-red-rgb), 0.2);
+  background: rgba(var(--ios-red-rgb), 0.06);
 }
 
 .bulk-action-btn.danger:hover:not(:disabled) {
-  border-color: rgba(255, 59, 48, 0.38);
+  border-color: rgba(var(--ios-red-rgb), 0.38);
   color: var(--error-red);
-  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.08);
+  box-shadow: 0 0 0 3px rgba(var(--ios-red-rgb), 0.08);
 }
 
 .bulk-action-count {
@@ -7274,23 +7274,23 @@ async function reloadForActiveProfileChange() {
 }
 
 .hls-queue-item.status-done {
-  border-color: rgba(52, 199, 89, 0.25);
-  background: rgba(52, 199, 89, 0.06);
+  border-color: rgba(var(--ios-green-rgb), 0.25);
+  background: rgba(var(--ios-green-rgb), 0.06);
 }
 
 .hls-queue-item.status-paused {
-  border-color: rgba(0, 122, 255, 0.2);
-  background: rgba(0, 122, 255, 0.05);
+  border-color: rgba(var(--ios-blue-rgb), 0.2);
+  background: rgba(var(--ios-blue-rgb), 0.05);
 }
 
 .hls-queue-item.status-failed {
-  border-color: rgba(255, 59, 48, 0.2);
-  background: rgba(255, 59, 48, 0.06);
+  border-color: rgba(var(--ios-red-rgb), 0.2);
+  background: rgba(var(--ios-red-rgb), 0.06);
 }
 
 .hls-queue-item.status-cancelled {
-  border-color: rgba(255, 159, 10, 0.22);
-  background: rgba(255, 159, 10, 0.06);
+  border-color: rgba(var(--ios-orange-rgb), 0.22);
+  background: rgba(var(--ios-orange-rgb), 0.06);
 }
 
 .hls-queue-item-copy {
@@ -7325,7 +7325,7 @@ async function reloadForActiveProfileChange() {
 }
 
 .hls-queue-item.status-done .hls-queue-item-status {
-  color: #1f8f46;
+  color: var(--ios-green);
 }
 
 .hls-queue-item.status-paused .hls-queue-item-status {
@@ -7337,7 +7337,7 @@ async function reloadForActiveProfileChange() {
 }
 
 .hls-queue-item.status-cancelled .hls-queue-item-status {
-  color: #c77b00;
+  color: var(--ios-orange);
 }
 
 .hls-queue-more {
@@ -7506,7 +7506,7 @@ async function reloadForActiveProfileChange() {
 }
 
 .plan-status-badge.pending {
-  background: rgba(255, 204, 0, 0.15);
+  background: rgba(var(--ios-yellow-rgb), 0.15);
   color: var(--ios-orange);
   border-color: var(--border-light);
 }
@@ -7684,8 +7684,8 @@ async function reloadForActiveProfileChange() {
   margin-top: 0.5rem;
   padding: 0.75rem 0.85rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 59, 48, 0.25);
-  background: rgba(255, 59, 48, 0.06);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.25);
+  background: rgba(var(--ios-red-rgb), 0.06);
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
@@ -7950,7 +7950,7 @@ async function reloadForActiveProfileChange() {
 
 .upload-btn:hover,
 .upload-btn-large:hover {
-  background: linear-gradient(135deg, var(--accent-secondary) 0%, #1a5276 100%);
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
   box-shadow: 0 6px 16px var(--primary-a40);
   transform: translateY(-1px);
 }
@@ -8082,7 +8082,7 @@ async function reloadForActiveProfileChange() {
   margin-top: 0.65rem;
   height: 6px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.25);
+  background: var(--fill-secondary);
   overflow: hidden;
 }
 
@@ -8140,7 +8140,7 @@ async function reloadForActiveProfileChange() {
 }
 
 .action-btn.danger {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--error-red);
 }
 
@@ -8210,8 +8210,8 @@ async function reloadForActiveProfileChange() {
 }
 
 .close-btn:hover {
-  background: rgba(255, 59, 48, 0.12);
-  border-color: rgba(255, 59, 48, 0.25);
+  background: rgba(var(--ios-red-rgb), 0.12);
+  border-color: rgba(var(--ios-red-rgb), 0.25);
   color: var(--ios-red);
 }
 
@@ -8314,7 +8314,7 @@ async function reloadForActiveProfileChange() {
 }
 
 .detail-btn.primary:hover {
-  background: linear-gradient(135deg, var(--accent-secondary) 0%, #1a5276 100%);
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px var(--primary-a40);
 }
@@ -8338,7 +8338,7 @@ async function reloadForActiveProfileChange() {
 }
 
 .toast.error {
-  background: #ff3b30;
+  background: var(--ios-red);
 }
 
 .toast-enter-active,
@@ -8786,7 +8786,7 @@ async function reloadForActiveProfileChange() {
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  border: 3px solid rgba(148, 163, 184, 0.28);
+  border: 3px solid var(--fill-secondary);
   border-top-color: var(--accent-primary);
   animation: drive-spin 0.9s linear infinite;
 }
