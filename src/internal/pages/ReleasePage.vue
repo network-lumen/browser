@@ -12,95 +12,95 @@
       </nav>
     </InternalSidebar>
 
-    <main class="main-content">
-      <header class="content-header">
-        <div class="header-left">
-          <h1>Releases</h1>
+    <main class="relpage-main flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary">
+      <header class="relpage-content-header flex-align-start flex-justify-space-between gap-100 flex-wrap-wrap margin-bottom-100">
+        <div class="relpage-header-left">
+          <h1 class="margin-0 txt-weight-strong color-text-primary">Releases</h1>
           <p v-if="allowed">Publisher access enabled for the active profile.</p>
           <p v-else-if="loading">Checking publisher permissions…</p>
           <p v-else>Publisher access required.</p>
-          <p v-if="pendingTtlSeconds" class="header-meta">
+          <p v-if="pendingTtlSeconds" class="relpage-header-meta color-text-tertiary">
             Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
           </p>
         </div>
-        <div class="header-actions">
-          <button type="button" class="btn-secondary color-text-primary" :disabled="loading" @click="refreshAll">
+        <div class="relpage-header-actions flex-inline-align-center gap-75 flex-wrap-wrap flex-0-0-auto">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary" :disabled="loading" @click="refreshAll">
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
           </button>
-          <button type="button" class="btn-primary" :disabled="loading || !allowed" @click="openPublishModal">
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white" :disabled="loading || !allowed" @click="openPublishModal">
             <Plus :size="18" />
             <span>Publish release</span>
           </button>
         </div>
       </header>
 
-      <section class="toolbar" aria-label="Filters">
-        <div class="filter">
-          <label class="filter-label">Channel</label>
-          <select v-model="channelFilter" class="form-input" :disabled="loading">
+      <section class="relpage-toolbar flex flex-wrap-wrap margin-bottom-100" aria-label="Filters">
+        <div class="relpage-filter flex flex-column gap-35">
+          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase">Channel</label>
+          <select v-model="channelFilter" class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px" :disabled="loading">
             <option value="all">All</option>
             <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
 
-        <div class="filter grow">
-          <label class="filter-label">Search</label>
+        <div class="relpage-filter grow flex flex-column gap-35">
+          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase">Search</label>
           <input
             v-model.trim="searchTerm"
-            class="form-input"
+            class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px"
             placeholder="Version, publisher, ID…"
             :disabled="loading"
           />
         </div>
 
-        <div v-if="testMode.enabled" class="test-tools" aria-label="Update test tools">
-          <span class="test-label">Update test</span>
-          <label class="test-check">
+        <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-75 flex-wrap-wrap" aria-label="Update test tools">
+          <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase">Update test</span>
+          <label class="relpage-test-check flex-inline-align-center color-text-secondary gap-35">
             <input type="checkbox" v-model="testMode.forcePrompt" @change="applyTestMode" :disabled="loading" />
             <span>Force prompt</span>
           </label>
-          <label class="test-check">
+          <label class="relpage-test-check flex-inline-align-center color-text-secondary gap-35">
             <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
             <span>Allow pending (stable)</span>
           </label>
-          <button type="button" class="btn-secondary color-text-primary" @click="pollNow" :disabled="loading">Re-check</button>
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary" @click="pollNow" :disabled="loading">Re-check</button>
         </div>
       </section>
 
-      <section v-if="!allowed && !loading" class="no-access">
+      <section v-if="!allowed && !loading" class="relpage-no-access">
         <p>Redirecting…</p>
       </section>
 
-      <section v-else class="grid">
-        <article class="panel list-panel">
-          <div class="panel-title">
+      <section v-else class="relpage-grid flex-1 overflow-hidden gap-100">
+        <article class="relpage-panel overflow-auto">
+          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75">
             <span>Releases</span>
-            <span class="muted">{{ filteredReleases.length }} total</span>
+            <span class="relpage-muted color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
           </div>
 
-          <div v-if="loading" class="panel-loading">
+          <div v-if="loading" class="relpage-panel-loading flex-align-justify-center gap-50 color-text-secondary">
             <UiSpinner size="sm" />
             <span>Loading releases…</span>
           </div>
 
-          <div v-else-if="!filteredReleases.length" class="panel-empty">No releases found.</div>
+          <div v-else-if="!filteredReleases.length" class="relpage-panel-empty flex-align-justify-center gap-50 color-text-secondary">No releases found.</div>
 
           <button
             v-for="r in filteredReleases"
             :key="r.id"
             type="button"
-            class="row"
+            class="relpage-row w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-100"
             :class="{ active: selectedRelease?.id === r.id }"
             @click="selectedRelease = r"
           >
-            <div class="row-main">
-              <div class="row-top flex-align-center gap-50">
-                <span class="row-id">#{{ r.id }}</span>
-                <span class="row-version">{{ r.version }}</span>
-                <span class="chip" :class="statusClass(r)">{{ r.status }}</span>
+            <div class="relpage-row-main">
+              <div class="relpage-row-top flex-align-center gap-50">
+                <span class="relpage-row-id color-text-tertiary fs-085rem">#{{ r.id }}</span>
+                <span class="relpage-row-version txt-weight-medium color-text-primary">{{ r.version }}</span>
+                <span class="relpage-chip border-radius-full" :class="statusClass(r)">{{ r.status }}</span>
               </div>
-              <div class="row-sub muted">
+              <div class="relpage-row-sub relpage-muted flex-align-center gap-50 color-text-tertiary fw-500">
                 <span>{{ r.channel }}</span>
                 <span>•</span>
                 <span>{{ formatDate(r.createdAt) }}</span>
@@ -108,71 +108,71 @@
                 <span v-if="r.publisher">{{ shortAddr(r.publisher) }}</span>
               </div>
             </div>
-            <div class="row-right muted">{{ artifactSummary(r) }}</div>
+            <div class="relpage-row-right relpage-muted color-text-tertiary fw-500">{{ artifactSummary(r) }}</div>
           </button>
         </article>
 
-        <article class="panel detail-panel" v-if="selectedRelease">
-          <div class="panel-title">
+        <article class="relpage-panel overflow-auto" v-if="selectedRelease">
+          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75">
             <span>Release #{{ selectedRelease.id }}</span>
-            <span class="muted">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
+            <span class="relpage-muted color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
           </div>
 
-          <div v-if="selectedRelease.status === 'PENDING'" class="detail-actions">
-            <button type="button" class="btn-primary" :disabled="submittingDao" @click="openDaoModal('validate')">
+          <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75">
+            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </button>
-            <button type="button" class="btn-secondary color-text-primary" :disabled="submittingDao" @click="openDaoModal('reject')">
+            <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary" :disabled="submittingDao" @click="openDaoModal('reject')">
               Send to DAO (reject)
             </button>
           </div>
 
-          <div class="detail-grid">
-            <div class="kv">
-              <div class="k">Status</div>
-              <div class="v">
-                <span class="chip" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
+          <div class="relpage-detail-grid gap-75 margin-bottom-100">
+            <div class="relpage-kv">
+              <div class="relpage-k fs-075rem color-text-tertiary">Status</div>
+              <div class="relpage-v color-text-primary">
+                <span class="relpage-chip border-radius-full" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
               </div>
             </div>
-            <div class="kv">
-              <div class="k">Publisher</div>
-              <div class="v mono">{{ selectedRelease.publisher || '-' }}</div>
+            <div class="relpage-kv">
+              <div class="relpage-k fs-075rem color-text-tertiary">Publisher</div>
+              <div class="relpage-v mono color-text-primary">{{ selectedRelease.publisher || '-' }}</div>
             </div>
-            <div class="kv">
-              <div class="k">Created</div>
-              <div class="v">{{ formatDate(selectedRelease.createdAt) }}</div>
+            <div class="relpage-kv">
+              <div class="relpage-k fs-075rem color-text-tertiary">Created</div>
+              <div class="relpage-v color-text-primary">{{ formatDate(selectedRelease.createdAt) }}</div>
             </div>
-            <div class="kv" v-if="selectedRelease.supersedes.length">
-              <div class="k">Supersedes</div>
-              <div class="v mono">{{ selectedRelease.supersedes.join(', ') }}</div>
+            <div class="relpage-kv" v-if="selectedRelease.supersedes.length">
+              <div class="relpage-k fs-075rem color-text-tertiary">Supersedes</div>
+              <div class="relpage-v mono color-text-primary">{{ selectedRelease.supersedes.join(', ') }}</div>
             </div>
           </div>
 
-          <div class="notes" v-if="selectedRelease.notes">
-            <div class="notes-title">Release notes</div>
-            <div class="notes-body">{{ selectedRelease.notes }}</div>
+          <div class="relpage-notes" v-if="selectedRelease.notes">
+            <div class="relpage-notes-title txt-weight-medium color-text-primary">Release notes</div>
+            <div class="relpage-notes-body color-text-secondary">{{ selectedRelease.notes }}</div>
           </div>
 
-          <div class="artifacts">
-            <div class="notes-title">Artifacts ({{ selectedRelease.artifacts.length }})</div>
-            <div v-for="(a, idx) in selectedRelease.artifacts" :key="`${a.platform}-${a.kind}-${idx}`" class="artifact-card">
-              <div class="artifact-head">
-                <div class="artifact-title">{{ a.platform }} · {{ a.kind }}</div>
-                <div class="muted">{{ formatBytes(a.size) }}</div>
+          <div class="relpage-artifacts">
+            <div class="relpage-notes-title txt-weight-medium color-text-primary">Artifacts ({{ selectedRelease.artifacts.length }})</div>
+            <div v-for="(a, idx) in selectedRelease.artifacts" :key="`${a.platform}-${a.kind}-${idx}`" class="relpage-artifact-card border-radius-12px">
+              <div class="relpage-artifact-head flex-align-baseline flex-justify-space-between gap-75">
+                <div class="relpage-artifact-title txt-weight-medium color-text-primary">{{ a.platform }} · {{ a.kind }}</div>
+                <div class="relpage-muted color-text-tertiary fw-500">{{ formatBytes(a.size) }}</div>
               </div>
-              <div class="artifact-meta">
-                <div class="kv">
-                  <div class="k">SHA-256</div>
-                  <div class="v mono break">{{ a.sha256Hex || '-' }}</div>
+              <div class="relpage-artifact-meta">
+                <div class="relpage-kv">
+                  <div class="relpage-k fs-075rem color-text-tertiary">SHA-256</div>
+                  <div class="relpage-v mono break-word color-text-primary">{{ a.sha256Hex || '-' }}</div>
                 </div>
-                <div class="kv" v-if="a.cid">
-                  <div class="k">CID</div>
-                  <div class="v mono break">{{ a.cid }}</div>
+                <div class="relpage-kv" v-if="a.cid">
+                  <div class="relpage-k fs-075rem color-text-tertiary">CID</div>
+                  <div class="relpage-v mono break-word color-text-primary">{{ a.cid }}</div>
                 </div>
-                <div class="kv" v-if="a.urls.length">
-                  <div class="k">URLs</div>
-                  <div class="v">
-                    <div v-for="(u, uIdx) in a.urls" :key="uIdx" class="mono break">{{ u }}</div>
+                <div class="relpage-kv" v-if="a.urls.length">
+                  <div class="relpage-k fs-075rem color-text-tertiary">URLs</div>
+                  <div class="relpage-v color-text-primary">
+                    <div v-for="(u, uIdx) in a.urls" :key="uIdx" class="mono break-word">{{ u }}</div>
                   </div>
                 </div>
               </div>
@@ -180,184 +180,184 @@
           </div>
         </article>
 
-        <article class="panel detail-panel" v-else>
-          <div class="panel-title">
+        <article class="relpage-panel overflow-auto" v-else>
+          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75">
             <span>Details</span>
-            <span class="muted">Select a release</span>
+            <span class="relpage-muted color-text-tertiary fw-500">Select a release</span>
           </div>
-          <div class="panel-empty">Pick a release from the list.</div>
+          <div class="relpage-panel-empty flex-align-justify-center gap-50 color-text-secondary">Pick a release from the list.</div>
         </article>
       </section>
     </main>
 
-    <div v-if="daoModalOpen" class="modal-overlay" @click.self="closeDaoModal">
-      <div class="modal">
-        <div class="modal-head">
+    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100" @click.self="closeDaoModal">
+      <div class="relpage-modal overflow-auto border-radius-18px padding-125">
+        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100">
           <h2>Send to DAO</h2>
-          <button type="button" class="modal-close" @click="closeDaoModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px" @click="closeDaoModal">×</button>
         </div>
 
-        <div class="modal-body">
-          <div class="form-grid">
-            <label class="field flex flex-column gap-35">
-              <span class="label">Action</span>
-              <select v-model="daoForm.kind" class="input w-full border-radius-md color-text-primary txt-md">
+        <div class="relpage-modal-body flex flex-column gap-75">
+          <div class="relpage-form-grid gap-75">
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">Action</span>
+              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
             </label>
-            <label class="field flex flex-column gap-35">
-              <span class="label">Deposit (LMN)</span>
-              <input v-model.trim="daoForm.depositLmn" class="input w-full border-radius-md color-text-primary txt-md" placeholder="0" />
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">Deposit (LMN)</span>
+              <input v-model.trim="daoForm.depositLmn" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="0" />
             </label>
           </div>
 
-          <label class="field flex flex-column gap-35">
-            <span class="label">Title</span>
-            <input v-model.trim="daoForm.title" class="input w-full border-radius-md color-text-primary txt-md" />
+          <label class="relpage-field flex flex-column gap-35">
+            <span class="relpage-label fs-075rem color-text-tertiary">Title</span>
+            <input v-model.trim="daoForm.title" class="relpage-input w-full border-radius-md color-text-primary txt-md" />
           </label>
 
-          <label class="field flex flex-column gap-35">
-            <span class="label">Summary</span>
-            <textarea v-model="daoForm.summary" class="input w-full border-radius-md color-text-primary txt-md" rows="3" />
+          <label class="relpage-field flex flex-column gap-35">
+            <span class="relpage-label fs-075rem color-text-tertiary">Summary</span>
+            <textarea v-model="daoForm.summary" class="relpage-input w-full border-radius-md color-text-primary txt-md" rows="3" />
           </label>
 
-          <label v-if="daoForm.kind === 'reject'" class="field flex flex-column gap-35">
-            <span class="label">Reason (optional)</span>
-            <textarea v-model="daoForm.reason" class="input w-full border-radius-md color-text-primary txt-md" rows="3" placeholder="Why should this release be rejected?" />
+          <label v-if="daoForm.kind === 'reject'" class="relpage-field flex flex-column gap-35">
+            <span class="relpage-label fs-075rem color-text-tertiary">Reason (optional)</span>
+            <textarea v-model="daoForm.reason" class="relpage-input w-full border-radius-md color-text-primary txt-md" rows="3" placeholder="Why should this release be rejected?" />
           </label>
         </div>
 
-        <div class="modal-foot">
-          <button type="button" class="btn-secondary color-text-primary" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
-          <button type="button" class="btn-primary" @click="submitDaoProposal" :disabled="submittingDao">
-            <span v-if="submittingDao" class="inline-spinner"><UiSpinner size="sm" /> Sending…</span>
+        <div class="relpage-modal-foot flex flex-justify-end gap-75">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white" @click="submitDaoProposal" :disabled="submittingDao">
+            <span v-if="submittingDao" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
           </button>
         </div>
       </div>
     </div>
 
-    <div v-if="publishModalOpen" class="modal-overlay" @click.self="closePublishModal">
-      <div class="modal">
-        <div class="modal-head">
+    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100" @click.self="closePublishModal">
+      <div class="relpage-modal overflow-auto border-radius-18px padding-125">
+        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100">
           <h2>Publish release</h2>
-          <button type="button" class="modal-close" @click="closePublishModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px" @click="closePublishModal">×</button>
         </div>
 
-        <div class="modal-body">
-          <div class="import-box">
-            <div class="builder-head">
+        <div class="relpage-modal-body flex flex-column gap-75">
+          <div class="relpage-import-box margin-bottom-100">
+            <div class="relpage-builder-head flex-align-center flex-justify-space-between">
               <h3>Import from GitHub release</h3>
               <button
                 type="button"
-                class="btn-secondary btn-sm color-text-primary"
+                class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary"
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
                 @click="importFromGithubRelease"
               >
-                <span v-if="importingGithub" class="inline-spinner"><UiSpinner size="sm" /> Importing…</span>
+                <span v-if="importingGithub" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Importing…</span>
                 <span v-else>Auto-fill</span>
               </button>
             </div>
 
-            <label class="field flex flex-column gap-35">
-              <span class="label">GitHub release URL</span>
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">GitHub release URL</span>
               <input
                 v-model.trim="githubReleaseUrl"
-                class="input mono w-full border-radius-md color-text-primary txt-md"
+                class="relpage-input mono w-full border-radius-md color-text-primary txt-md"
                 placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8"
               />
-              <span class="muted small">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
+              <span class="relpage-muted fs-075rem color-text-tertiary fw-500">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
             </label>
           </div>
 
-          <div class="form-grid">
-            <label class="field flex flex-column gap-35">
-              <span class="label">Version</span>
-              <input v-model.trim="draft.version" class="input w-full border-radius-md color-text-primary txt-md" placeholder="0.1.9" />
+          <div class="relpage-form-grid gap-75">
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">Version</span>
+              <input v-model.trim="draft.version" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="0.1.9" />
             </label>
-            <label class="field flex flex-column gap-35">
-              <span class="label">Channel</span>
-              <select v-model="draft.channel" class="input w-full border-radius-md color-text-primary txt-md">
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">Channel</span>
+              <select v-model="draft.channel" class="relpage-input w-full border-radius-md color-text-primary txt-md">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </label>
-            <label class="field flex flex-column gap-35">
-              <span class="label">Supersedes (IDs)</span>
-              <input v-model.trim="draft.supersedes" class="input w-full border-radius-md color-text-primary txt-md" placeholder="12, 13" />
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">Supersedes (IDs)</span>
+              <input v-model.trim="draft.supersedes" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="12, 13" />
             </label>
-            <label class="field flex flex-column gap-35 checkbox-field">
-              <span class="label">Emergency flag</span>
-              <label class="checkbox-row">
+            <label class="relpage-field flex flex-column gap-35">
+              <span class="relpage-label fs-075rem color-text-tertiary">Emergency flag</span>
+              <label class="relpage-checkbox-row flex-align-center color-text-secondary gap-50 fs-085rem">
                 <input type="checkbox" v-model="draft.emergencyOk" />
                 <span>Allow emergency rollout</span>
               </label>
             </label>
           </div>
 
-          <label class="field flex flex-column gap-35">
-            <span class="label">Release notes</span>
-            <textarea v-model="draft.notes" class="input w-full border-radius-md color-text-primary txt-md" rows="4" placeholder="Changelog, highlights, etc." />
-            <span class="muted small">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
+          <label class="relpage-field flex flex-column gap-35">
+            <span class="relpage-label fs-075rem color-text-tertiary">Release notes</span>
+            <textarea v-model="draft.notes" class="relpage-input w-full border-radius-md color-text-primary txt-md" rows="4" placeholder="Changelog, highlights, etc." />
+            <span class="relpage-muted fs-075rem color-text-tertiary fw-500">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
           </label>
 
-          <div class="artifacts-builder">
-            <div class="builder-head">
+          <div class="relpage-artifacts-builder">
+            <div class="relpage-builder-head flex-align-center flex-justify-space-between">
               <h3>Artifacts</h3>
-              <button type="button" class="btn-secondary btn-sm color-text-primary" @click="addArtifact">Add artifact</button>
+              <button type="button" class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary" @click="addArtifact">Add artifact</button>
             </div>
 
-            <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="artifact-draft">
-              <div class="artifact-draft-head">
-                <div class="muted">Artifact #{{ idx + 1 }}</div>
+            <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="relpage-artifact-draft border-radius-12px">
+              <div class="relpage-artifact-draft-head flex-align-center flex-justify-space-between">
+                <div class="relpage-muted color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
                 <button
                   v-if="draft.artifacts.length > 1"
                   type="button"
-                  class="btn-secondary btn-sm color-text-primary"
+                  class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary"
                   @click="removeArtifact(idx)"
                 >
                   Remove
                 </button>
               </div>
 
-              <div class="form-grid">
-                <label class="field flex flex-column gap-35">
-                  <span class="label">Platform</span>
-                  <input v-model.trim="a.platform" class="input w-full border-radius-md color-text-primary txt-md" placeholder="windows-amd64" />
+              <div class="relpage-form-grid gap-75">
+                <label class="relpage-field flex flex-column gap-35">
+                  <span class="relpage-label fs-075rem color-text-tertiary">Platform</span>
+                  <input v-model.trim="a.platform" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="windows-amd64" />
                 </label>
-                <label class="field flex flex-column gap-35">
-                  <span class="label">Kind</span>
-                  <input v-model.trim="a.kind" class="input w-full border-radius-md color-text-primary txt-md" placeholder="browser" />
-                </label>
-              </div>
-
-              <div class="form-grid">
-                <label class="field flex flex-column gap-35">
-                  <span class="label">CID</span>
-                  <input v-model.trim="a.cid" class="input w-full border-radius-md color-text-primary txt-md" placeholder="Optional" />
-                </label>
-                <label class="field flex flex-column gap-35">
-                  <span class="label">SHA-256</span>
-                  <input v-model.trim="a.sha256Hex" class="input w-full border-radius-md color-text-primary txt-md" placeholder="64 hex chars" />
-                </label>
-                <label class="field flex flex-column gap-35">
-                  <span class="label">Size (bytes)</span>
-                  <input v-model.trim="a.size" class="input w-full border-radius-md color-text-primary txt-md" placeholder="123456" />
+                <label class="relpage-field flex flex-column gap-35">
+                  <span class="relpage-label fs-075rem color-text-tertiary">Kind</span>
+                  <input v-model.trim="a.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="browser" />
                 </label>
               </div>
 
-              <label class="field flex flex-column gap-35">
-                <span class="label">URLs (one per line)</span>
-                <textarea v-model="a.urlsText" class="input mono w-full border-radius-md color-text-primary txt-md" rows="3" placeholder="https://example.com/file.exe" />
+              <div class="relpage-form-grid gap-75">
+                <label class="relpage-field flex flex-column gap-35">
+                  <span class="relpage-label fs-075rem color-text-tertiary">CID</span>
+                  <input v-model.trim="a.cid" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="Optional" />
+                </label>
+                <label class="relpage-field flex flex-column gap-35">
+                  <span class="relpage-label fs-075rem color-text-tertiary">SHA-256</span>
+                  <input v-model.trim="a.sha256Hex" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="64 hex chars" />
+                </label>
+                <label class="relpage-field flex flex-column gap-35">
+                  <span class="relpage-label fs-075rem color-text-tertiary">Size (bytes)</span>
+                  <input v-model.trim="a.size" class="relpage-input w-full border-radius-md color-text-primary txt-md" placeholder="123456" />
+                </label>
+              </div>
+
+              <label class="relpage-field flex flex-column gap-35">
+                <span class="relpage-label fs-075rem color-text-tertiary">URLs (one per line)</span>
+                <textarea v-model="a.urlsText" class="relpage-input mono w-full border-radius-md color-text-primary txt-md" rows="3" placeholder="https://example.com/file.exe" />
               </label>
             </div>
           </div>
         </div>
 
-        <div class="modal-foot">
-          <button type="button" class="btn-secondary color-text-primary" @click="closePublishModal" :disabled="submitting">Cancel</button>
-          <button type="button" class="btn-primary" @click="submitRelease" :disabled="submitting">
-            <span v-if="submitting" class="inline-spinner"><UiSpinner size="sm" /> Publishing…</span>
+        <div class="relpage-modal-foot flex flex-justify-end gap-75">
+          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary" @click="closePublishModal" :disabled="submitting">Cancel</button>
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white" @click="submitRelease" :disabled="submitting">
+            <span v-if="submitting" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>
           </button>
         </div>
@@ -1128,477 +1128,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style scoped>
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-}
-
-.content-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-.header-left h1 {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-.header-left p {
-  margin: 0.35rem 0 0 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-.header-meta {
-  color: var(--text-tertiary);
-  font-size: 0.8rem;
-}
-
-.header-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  flex: 0 0 auto;
-}
-
-.btn-primary,
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.1rem;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 650;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease,
-    background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.btn-primary {
-  border: none;
-  color: white;
-  background: var(--gradient-primary);
-  box-shadow: var(--shadow-primary);
-}
-
-.btn-primary:hover:enabled {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary-lg);
-}
-
-.btn-secondary {
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-}
-
-.btn-secondary:hover:enabled {
-  background: var(--primary-a08);
-  border-color: var(--primary-a15);
-  color: var(--accent-primary);
-}
-
-.btn-primary:disabled,
-.btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-sm {
-  padding: 0.55rem 0.85rem;
-  font-size: 0.82rem;
-  border-radius: 10px;
-}
-
-.import-box {
-  margin-bottom: 1rem;
-  padding: 0.9rem 0.9rem 0.25rem 0.9rem;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-}
-
-.inline-spinner {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.toolbar {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.9rem 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-
-.filter {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 220px;
-}
-
-.filter.grow {
-  flex: 1 1 320px;
-  min-width: 260px;
-}
-
-.filter-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  font-size: 0.85rem;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-.form-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a15);
-}
-
-.test-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding: 0.55rem 0.75rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-}
-
-.test-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.test-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-}
-
-.grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 1rem;
-  min-height: 0;
-  overflow: hidden;
-}
-.panel {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow-primary);
-  padding: 0.75rem;
-  min-height: 0;
-  overflow: auto;
-}
-.panel-title {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.25rem 0.25rem 0.75rem 0.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.muted {
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-.small {
-  font-size: 0.75rem;
-}
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-.break {
-  word-break: break-word;
-}
-.panel-loading,
-.panel-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1.5rem 0.5rem;
-  color: var(--text-secondary);
-}
-.row {
-  width: 100%;
-  text-align: left;
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: 12px;
-  padding: 0.65rem 0.65rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
-}
-.row:hover {
-  background: var(--hover-bg);
-}
-.row.active {
-  background: var(--primary-a08);
-  border-color: var(--primary-a15);
-}
-.row-id {
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-}
-.row-version {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.row-sub {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  margin-top: 0.15rem;
-}
-.row-right {
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-.chip {
-  font-size: 0.72rem;
-  border-radius: 999px;
-  padding: 0.2rem 0.55rem;
-  border: 1px solid var(--border-light);
-  background: var(--bg-secondary);
-}
-.chip.success {
-  border-color: rgba(var(--ios-green-rgb), 0.25);
-  background: rgba(var(--ios-green-rgb), 0.12);
-  color: var(--ios-green);
-}
-.chip.warning {
-  border-color: rgba(var(--ios-orange-rgb), 0.25);
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-}
-.chip.danger {
-  border-color: rgba(var(--ios-red-rgb), 0.25);
-  background: rgba(var(--ios-red-rgb), 0.12);
-  color: var(--ios-red);
-}
-.chip.pending {
-  border-color: rgba(var(--ios-blue-rgb), 0.25);
-  background: rgba(var(--ios-blue-rgb), 0.12);
-  color: var(--ios-blue);
-}
-
-.detail-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin: 0.5rem 0 1rem;
-}
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-.kv .k {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-.kv .v {
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  margin-top: 0.2rem;
-}
-.notes {
-  border-top: 1px solid var(--border-light);
-  padding-top: 0.75rem;
-  margin-top: 0.75rem;
-}
-.notes-title {
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-.notes-body {
-  color: var(--text-secondary);
-  white-space: pre-wrap;
-}
-.artifact-card {
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 0.75rem;
-  margin-top: 0.75rem;
-  background: var(--bg-secondary);
-}
-.artifact-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-.artifact-title {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  z-index: 2000;
-}
-.modal {
-  width: min(900px, 96vw);
-  max-height: 92vh;
-  overflow: auto;
-  background: var(--bg-primary);
-  border-radius: 18px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-primary-lg);
-  padding: 1.25rem;
-}
-.modal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 0.75rem;
-}
-.modal-head h2 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-.modal-close {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: transparent;
-  font-size: 1.25rem;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-.modal-close:hover {
-  background: var(--hover-bg);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-.modal-body {
-  padding: 0.75rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.modal-foot {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  border-top: 1px solid var(--border-light);
-  padding-top: 0.75rem;
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-.field .label {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-.input {
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 0.55rem 0.65rem;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-.input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a15);
-}
-.checkbox-field .checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-}
-.artifacts-builder .builder-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.5rem;
-}
-.artifact-draft {
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 0.75rem;
-  margin-top: 0.75rem;
-  background: var(--bg-primary);
-}
-.artifact-draft-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-@media (max-width: 1000px) {
-  .main-content {
-    padding: 1.5rem;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
