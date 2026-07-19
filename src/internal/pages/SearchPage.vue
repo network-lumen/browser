@@ -5080,8 +5080,8 @@ watch(
   margin-top: 0.75rem;
   padding: 0.75rem 0.85rem;
   border-radius: 14px;
-  border: 1px solid rgba(99, 102, 241, 0.18);
-  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(var(--ios-indigo-rgb), 0.18);
+  background: rgba(var(--ios-indigo-rgb), 0.08);
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
@@ -5217,11 +5217,11 @@ watch(
 }
 
 .pill.active {
-  background: linear-gradient(135deg, var(--ios-blue) 0%, #5856d6 100%);
+  background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
   border-color: transparent;
   color: white;
   font-weight: 700;
-  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.3);
 }
 
 .pill.active svg {
@@ -5400,33 +5400,33 @@ watch(
 
 /* Result type-specific icon colors */
 .icon-site {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.12) 0%, rgba(88, 86, 214, 0.12) 100%);
+  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%);
   color: var(--ios-blue);
 }
 
 .icon-ipfs {
-  background: linear-gradient(135deg, rgba(48, 209, 88, 0.12) 0%, rgba(52, 199, 89, 0.12) 100%);
+  background: var(--fill-success);
   color: var(--ios-green);
 }
 
 .icon-tx {
-  background: linear-gradient(135deg, rgba(255, 159, 10, 0.12) 0%, rgba(255, 149, 0, 0.12) 100%);
+  background: rgba(var(--ios-orange-rgb), 0.12);
   color: var(--ios-orange);
 }
 
 .icon-block {
-  background: linear-gradient(135deg, rgba(88, 86, 214, 0.12) 0%, rgba(175, 82, 222, 0.12) 100%);
-  color: var(--ios-purple, #af52de);
+  background: linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
+  color: var(--ios-purple);
 }
 
 .icon-address {
-  background: linear-gradient(135deg, rgba(90, 200, 250, 0.12) 0%, rgba(0, 122, 255, 0.12) 100%);
-  color: var(--ios-teal, #5ac8fa);
+  background: linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%);
+  color: var(--ios-teal);
 }
 
 .icon-link {
-  background: linear-gradient(135deg, rgba(142, 142, 147, 0.12) 0%, rgba(99, 99, 102, 0.12) 100%);
-  color: var(--ios-gray, #8e8e93);
+  background: var(--fill-tertiary);
+  color: var(--text-secondary);
 }
 
 /* Result type badges */
@@ -5449,95 +5449,95 @@ watch(
 }
 
 .type-ipfs {
-  background: rgba(48, 209, 88, 0.12);
+  background: var(--fill-success);
   color: var(--ios-green);
 }
 
 .type-image {
-  background: rgba(48, 209, 88, 0.12);
+  background: var(--fill-success);
   color: var(--ios-green);
 }
 
 .type-html {
-  background: rgba(0, 122, 255, 0.12);
+  background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
 }
 
 .type-pdf {
-  background: rgba(255, 59, 48, 0.12);
+  background: var(--fill-error);
   color: var(--ios-red);
 }
 
 .type-txt {
-  background: rgba(142, 142, 147, 0.12);
-  color: var(--ios-gray, #8e8e93);
+  background: var(--fill-tertiary);
+  color: var(--text-secondary);
 }
 
 .type-epub {
-  background: rgba(175, 82, 222, 0.12);
-  color: var(--ios-purple, #af52de);
+  background: rgba(var(--ios-purple-rgb), 0.12);
+  color: var(--ios-purple);
 }
 
 .type-docx {
-  background: rgba(90, 200, 250, 0.12);
-  color: var(--ios-teal, #5ac8fa);
+  background: rgba(var(--ios-teal-rgb), 0.12);
+  color: var(--ios-teal);
 }
 
 .type-tx {
-  background: rgba(255, 159, 10, 0.12);
+  background: rgba(var(--ios-orange-rgb), 0.12);
   color: var(--ios-orange);
 }
 
 .type-block {
-  background: rgba(88, 86, 214, 0.12);
-  color: var(--ios-purple, #af52de);
+  background: rgba(var(--ios-indigo-rgb), 0.12);
+  color: var(--ios-purple);
 }
 
 .type-address {
-  background: rgba(90, 200, 250, 0.12);
-  color: var(--ios-teal, #5ac8fa);
+  background: rgba(var(--ios-teal-rgb), 0.12);
+  color: var(--ios-teal);
 }
 
 .type-link {
-  background: rgba(142, 142, 147, 0.12);
-  color: var(--ios-gray, #8e8e93);
+  background: var(--fill-tertiary);
+  color: var(--text-secondary);
 }
 
 /* Card accent colors by type */
 .result-tx::before {
-  background: linear-gradient(180deg, var(--ios-orange) 0%, rgba(255, 159, 10, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%);
 }
 
 .result-block::before {
-  background: linear-gradient(180deg, var(--ios-purple, #af52de) 0%, rgba(175, 82, 222, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%);
 }
 
 .result-address::before {
-  background: linear-gradient(180deg, var(--ios-teal, #5ac8fa) 0%, rgba(90, 200, 250, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%);
 }
 
 .result-ipfs::before {
-  background: linear-gradient(180deg, var(--ios-green) 0%, rgba(48, 209, 88, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%);
 }
 
 .result-ipfs.file-html::before {
-  background: linear-gradient(180deg, var(--ios-blue) 0%, rgba(0, 122, 255, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%);
 }
 
 .result-ipfs.file-pdf::before {
-  background: linear-gradient(180deg, var(--ios-red) 0%, rgba(255, 59, 48, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%);
 }
 
 .result-ipfs.file-txt::before {
-  background: linear-gradient(180deg, var(--ios-gray, #8e8e93) 0%, rgba(142, 142, 147, 0.5) 100%);
+  background: linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%);
 }
 
 .result-ipfs.file-epub::before {
-  background: linear-gradient(180deg, var(--ios-purple, #af52de) 0%, rgba(175, 82, 222, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%);
 }
 
 .result-ipfs.file-docx::before {
-  background: linear-gradient(180deg, var(--ios-teal, #5ac8fa) 0%, rgba(90, 200, 250, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%);
 }
 
 .thumb {
@@ -5725,9 +5725,9 @@ watch(
   line-height: 1;
   padding: 0.25rem 0.4rem;
   border-radius: 999px;
-  background: rgba(45, 95, 79, 0.08);
+  background: var(--primary-a08);
   color: var(--accent-primary);
-  border: 1px solid rgba(45, 95, 79, 0.16);
+  border: 1px solid var(--primary-a15);
   white-space: nowrap;
 }
 
