@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-page internal-page">
+  <div class="settingspage-settings-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
       <nav class="lsb-nav flex flex-column gap-75">
@@ -105,9 +105,9 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="settingspage-main-content flex flex-column flex-1 margin-0">
       <!-- Header -->
-      <header class="content-header">
+      <header class="settingspage-content-header margin-bottom-200">
         <div>
           <h1>{{ getViewTitle() }}</h1>
           <p>{{ getViewDescription() }}</p>
@@ -115,17 +115,17 @@
       </header>
 
       <!-- Appearance View -->
-      <div v-if="currentView === 'appearance'" class="settings-section">
+      <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Theme Preference</span>
-              <span class="setting-desc">Choose your preferred color scheme</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Theme Preference</span>
+              <span class="settingspage-setting-desc color-text-secondary">Choose your preferred color scheme</span>
             </div>
-            <div class="setting-control">
-              <div class="theme-selector">
+            <div class="settingspage-setting-control flex-align-center">
+              <div class="settingspage-theme-selector flex gap-50 border-radius-10px">
                 <button 
-                  class="theme-option"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
                   :class="{ active: theme === 'light' }"
                   @click="setTheme('light')"
                 >
@@ -133,7 +133,7 @@
                   <span>Light</span>
                 </button>
                 <button 
-                  class="theme-option"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
                   :class="{ active: theme === 'dark' }"
                   @click="setTheme('dark')"
                 >
@@ -141,7 +141,7 @@
                   <span>Dark</span>
                 </button>
                 <button 
-                  class="theme-option"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
                   :class="{ active: theme === 'system' }"
                   @click="setTheme('system')"
                 >
@@ -151,154 +151,154 @@
               </div>
             </div>
           </div>
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Font Size</span>
-              <span class="setting-desc">Adjust the default font size</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Font Size</span>
+              <span class="settingspage-setting-desc color-text-secondary">Adjust the default font size</span>
             </div>
-            <div class="setting-control">
-              <select class="select-control" v-model="fontSize">
+            <div class="settingspage-setting-control flex-align-center">
+              <select class="settingspage-select-control fs-085rem color-text-primary cursor-pointer" v-model="fontSize">
                 <option value="small">Small</option>
                 <option value="medium">Medium</option>
                 <option value="large">Large</option>
               </select>
             </div>
           </div>
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Brightness</span>
-              <span class="setting-desc">Adjust screen brightness ({{ brightness }}%)</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Brightness</span>
+              <span class="settingspage-setting-desc color-text-secondary">Adjust screen brightness ({{ brightness }}%)</span>
             </div>
-            <div class="setting-control brightness-control">
-              <Sun :size="16" class="brightness-icon" />
+            <div class="settingspage-setting-control settingspage-brightness-control flex-align-center gap-100 w-full">
+              <Sun :size="16" class="settingspage-brightness-icon color-text-secondary" />
               <input 
                 type="range" 
                 min="50" 
                 max="100" 
                 v-model="brightness"
-                class="brightness-slider"
+                class="settingspage-brightness-slider flex-1 outline-none"
               />
-              <span class="brightness-value">{{ brightness }}%</span>
+              <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary">{{ brightness }}%</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Content View -->
-      <div v-else-if="currentView === 'content'" class="settings-section">
+      <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Show sexual content</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Show sexual content</span>
             </div>
-            <div class="setting-control">
-              <label class="toggle">
+            <div class="settingspage-setting-control flex-align-center">
+              <label class="settingspage-toggle size-48px">
                 <input type="checkbox" v-model="showSexualContent" />
-                <span class="toggle-slider"></span>
+                <span class="settingspage-toggle-slider cursor-pointer"></span>
               </label>
             </div>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Show violent / gore content</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Show violent / gore content</span>
             </div>
-            <div class="setting-control">
-              <label class="toggle">
+            <div class="settingspage-setting-control flex-align-center">
+              <label class="settingspage-toggle size-48px">
                 <input type="checkbox" v-model="showViolentContent" />
-                <span class="toggle-slider"></span>
+                <span class="settingspage-toggle-slider cursor-pointer"></span>
               </label>
             </div>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Show disturbing imagery</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Show disturbing imagery</span>
             </div>
-            <div class="setting-control">
-              <label class="toggle">
+            <div class="settingspage-setting-control flex-align-center">
+              <label class="settingspage-toggle size-48px">
                 <input type="checkbox" v-model="showDisturbingImagery" />
-                <span class="toggle-slider"></span>
+                <span class="settingspage-toggle-slider cursor-pointer"></span>
               </label>
             </div>
           </div>
 
-          <div class="setting-hint">
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Sensitive content is blurred by default. You can choose what to reveal.
           </div>
         </div>
       </div>
 
       <!-- Privacy View -->
-      <div v-else-if="currentView === 'privacy'" class="settings-section">
+      <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Save browsing history</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Save browsing history</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Keep recent web, domain, IPFS, and IPNS pages for
                 {{ activeHistoryProfileDisplay }}. Internal pages like New Tab, Wallet, Settings,
                 and Extensions are excluded automatically.
               </span>
             </div>
-            <div class="setting-control">
-              <label class="toggle">
+            <div class="settingspage-setting-control flex-align-center">
+              <label class="settingspage-toggle size-48px">
                 <input type="checkbox" :checked="historyEnabled" @change="onHistoryToggleChange" />
-                <span class="toggle-slider"></span>
+                <span class="settingspage-toggle-slider cursor-pointer"></span>
               </label>
             </div>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Saved items</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Saved items</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 {{ historyEntries.length }} history item{{ historyEntries.length === 1 ? '' : 's' }}
                 saved for {{ activeHistoryProfileDisplay }}.
               </span>
             </div>
-            <div class="setting-control">
-              <button class="btn-secondary disabled-fade-50 color-text-primary" @click="openInNewTabSafe('lumen://history')">
+            <div class="settingspage-setting-control flex-align-center">
+              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer" @click="openInNewTabSafe('lumen://history')">
                 Open history
               </button>
             </div>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Clear saved history</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Clear saved history</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Permanently remove the saved browsing history for this profile.
               </span>
             </div>
-            <div class="setting-control">
-              <button class="btn-secondary disabled-fade-50 color-text-primary" :disabled="!historyEntries.length" @click="clearProfileHistory">
+            <div class="settingspage-setting-control flex-align-center">
+              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer" :disabled="!historyEntries.length" @click="clearProfileHistory">
                 Clear history
               </button>
             </div>
           </div>
 
-          <div class="setting-hint">
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Turning history off stops new entries from being saved, but does not delete existing ones.
           </div>
         </div>
       </div>
 
       <!-- Network View -->
-      <div v-else-if="currentView === 'network'" class="settings-section">
+      <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Kubo connectivity</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Kubo connectivity</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Controls how many peer connections the embedded IPFS node tries to keep.
               </span>
             </div>
-            <div class="setting-control network-mode-control">
-              <div class="theme-selector network-mode-selector">
+            <div class="settingspage-setting-control settingspage-network-mode-control flex-align-center">
+              <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap">
                 <button
                   type="button"
-                  class="theme-option network-mode-option"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
                   :class="{ active: ipfsConnectivityMode === 'light' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('light')"
@@ -307,7 +307,7 @@
                 </button>
                 <button
                   type="button"
-                  class="theme-option network-mode-option"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
                   :class="{ active: ipfsConnectivityMode === 'normal' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('normal')"
@@ -316,7 +316,7 @@
                 </button>
                 <button
                   type="button"
-                  class="theme-option network-mode-option"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer"
                   :class="{ active: ipfsConnectivityMode === 'high' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('high')"
@@ -327,39 +327,39 @@
             </div>
           </div>
 
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             If your network is unstable or your device is resource-constrained, Light is recommended.
           </p>
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Changes are applied automatically by restarting the embedded Kubo daemon.
           </p>
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Current idle connection target:
-            <span class="mono-path">{{ networkModeSummary }}</span>
+            <span class="settingspage-mono-path">{{ networkModeSummary }}</span>
           </p>
-          <p v-if="networkSettingsError" class="setting-hint color-red-base">
+          <p v-if="networkSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
             {{ networkSettingsError }}
           </p>
         </div>
       </div>
 
       <!-- Security View -->
-      <div v-else-if="currentView === 'security'" class="settings-section">
+      <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
           <!-- Status Display -->
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Password Protection</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Password Protection</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 {{ securityStatus.enabled 
                   ? 'Password is required for wallet signing operations' 
                   : 'No password set - wallet operations are unprotected' }}
               </span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <span 
-                class="status-badge" 
-                :class="securityStatus.enabled ? 'status-enabled badge-success' : 'status-disabled'"
+                class="settingspage-status-badge flex-inline-align-center gap-35 border-radius-20px fw-500" 
+                :class="securityStatus.enabled ? 'status-enabled badge-success' : 'settingspage-status-disabled'"
               >
                 {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
               </span>
@@ -367,38 +367,38 @@
           </div>
 
           <!-- Session Status (only shown when password is enabled) -->
-          <div v-if="securityStatus.enabled" class="setting-item">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Session Status</span>
-              <span class="setting-desc">{{ securitySessionStatusText }}</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Session Status</span>
+              <span class="settingspage-setting-desc color-text-secondary">{{ securitySessionStatusText }}</span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <button 
                 v-if="securitySessionActive"
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 @click="lockSecuritySession"
               >
                 <LockKeyhole :size="16" />
                 Lock Now
               </button>
-              <span v-else class="status-badge status-locked badge-warning color-warning">
+              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
             </div>
           </div>
 
-          <div v-if="securityStatus.enabled" class="setting-item">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Password Cache Duration</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Password Cache Duration</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Choose how long the password stays cached before the session locks.
               </span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <select
                 v-model="securitySessionTimeoutValue"
-                class="select-control"
+                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer"
                 :disabled="securitySessionTimeoutSaving"
                 @change="saveSecuritySessionTimeout"
               >
@@ -414,43 +414,43 @@
           </div>
 
           <!-- Set Password (when no password is set) -->
-          <div v-if="!securityStatus.enabled" class="setting-item">
+          <div v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Set Password</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Set Password</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Create a password to protect wallet signing operations. 
                 Your keys will be encrypted with this password.
               </span>
             </div>
           </div>
 
-          <div v-if="!securityStatus.enabled" class="security-form">
+          <div v-if="!securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px">
             <div class="form-row flex flex-column gap-35">
-              <label class="form-label">New Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary">New Password</label>
               <input 
                 type="password" 
-                class="input-control"
+                class="settingspage-input-control fs-085rem color-text-primary"
                 v-model="newPassword"
                 placeholder="Enter password (min 8 characters)"
                 :disabled="securityLoading"
               />
             </div>
             <div class="form-row flex flex-column gap-35">
-              <label class="form-label">Confirm Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary">Confirm Password</label>
               <input 
                 type="password" 
-                class="input-control"
+                class="settingspage-input-control fs-085rem color-text-primary"
                 v-model="confirmPassword"
                 placeholder="Confirm password"
                 :disabled="securityLoading"
                 @keyup.enter="setSecurityPassword"
               />
             </div>
-            <div v-if="securityError" class="security-error">
+            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
               {{ securityError }}
             </div>
             <button 
-              class="btn-primary disabled-fade-50"
+              class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer"
               @click="setSecurityPassword"
               :disabled="securityLoading || !newPassword || !confirmPassword"
             >
@@ -459,56 +459,56 @@
           </div>
 
           <!-- Change/Remove Password (when password is set) -->
-          <div v-if="securityStatus.enabled" class="setting-item">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Change Password</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Change Password</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Update your security password. You'll need to enter your current password.
               </span>
             </div>
           </div>
 
-          <div v-if="securityStatus.enabled" class="security-form">
+          <div v-if="securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px">
             <div class="form-row flex flex-column gap-35">
-              <label class="form-label">Current Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary">Current Password</label>
               <input 
                 type="password" 
-                class="input-control"
+                class="settingspage-input-control fs-085rem color-text-primary"
                 v-model="currentPassword"
                 placeholder="Enter current password"
                 :disabled="securityLoading"
               />
             </div>
             <div class="form-row flex flex-column gap-35">
-              <label class="form-label">New Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary">New Password</label>
               <input 
                 type="password" 
-                class="input-control"
+                class="settingspage-input-control fs-085rem color-text-primary"
                 v-model="newPassword"
                 placeholder="Enter new password (min 8 characters)"
                 :disabled="securityLoading"
               />
             </div>
             <div class="form-row flex flex-column gap-35">
-              <label class="form-label">Confirm New Password</label>
+              <label class="settingspage-form-label fw-500 color-text-secondary">Confirm New Password</label>
               <input 
                 type="password" 
-                class="input-control"
+                class="settingspage-input-control fs-085rem color-text-primary"
                 v-model="confirmPassword"
                 placeholder="Confirm new password"
                 :disabled="securityLoading"
                 @keyup.enter="changeSecurityPassword"
               />
             </div>
-            <div v-if="securityError" class="security-error">
+            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
               {{ securityError }}
             </div>
-            <div v-if="securitySuccess" class="security-success">
+            <div v-if="securitySuccess" class="settingspage-security-success color-success fs-085rem">
               {{ securitySuccess }}
             </div>
-            <div class="security-actions">
+            <div class="settingspage-security-actions flex gap-75">
               <button 
-                class="btn-primary disabled-fade-50"
+                class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer"
                 @click="changeSecurityPassword"
                 :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword"
               >
@@ -518,16 +518,16 @@
           </div>
 
           <!-- Remove Password -->
-          <div v-if="securityStatus.enabled" class="setting-item margin-top-150">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Remove Password</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Remove Password</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Disable password protection. Your keys will be re-encrypted with app-level encryption only.
               </span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <button 
-                class="btn-danger disabled-fade-50"
+                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer"
                 @click="showRemovePasswordConfirm = true"
                 :disabled="securityLoading"
               >
@@ -537,29 +537,29 @@
           </div>
 
           <!-- Remove Password Confirmation -->
-          <div v-if="showRemovePasswordConfirm" class="security-confirm-box">
+          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px">
             <p>Enter your current password to disable protection:</p>
             <input 
               type="password" 
-              class="input-control"
+              class="settingspage-input-control fs-085rem color-text-primary"
               v-model="removePasswordInput"
               placeholder="Current password"
               :disabled="securityLoading"
               @keyup.enter="removeSecurityPassword"
             />
-            <div v-if="securityError" class="security-error">
+            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
               {{ securityError }}
             </div>
-            <div class="security-actions">
+            <div class="settingspage-security-actions flex gap-75">
               <button 
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 @click="cancelRemovePassword"
                 :disabled="securityLoading"
               >
                 Cancel
               </button>
               <button 
-                class="btn-danger disabled-fade-50"
+                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer"
                 @click="removeSecurityPassword"
                 :disabled="securityLoading || !removePasswordInput"
               >
@@ -568,7 +568,7 @@
             </div>
           </div>
 
-          <p class="setting-hint margin-top-100">
+          <p class="settingspage-setting-hint margin-top-100 fs-075rem color-text-tertiary">
             <strong>How it works:</strong> When enabled, every wallet signing operation 
             (send tokens, delegate, create domain, etc.) will require your password. 
             {{ securitySessionHintText }}
@@ -577,16 +577,16 @@
       </div>
 
       <!-- Profiles View -->
-      <div v-else-if="currentView === 'profiles'" class="settings-section">
+      <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <div class="setting-item profiles-header">
+          <div class="settingspage-setting-item profiles-header flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Profiles</span>
-              <span class="setting-desc">Select one or more profiles to export.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Profiles</span>
+              <span class="settingspage-setting-desc color-text-secondary">Select one or more profiles to export.</span>
             </div>
-            <div class="setting-control profile-select-actions">
+            <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
               <button
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 type="button"
                 @click="selectAllProfiles"
                 :disabled="!profiles.length"
@@ -594,7 +594,7 @@
                 Select all
               </button>
               <button
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 type="button"
                 @click="clearSelectedProfiles"
                 :disabled="!selectedProfileIds.length"
@@ -604,40 +604,40 @@
             </div>
           </div>
 
-          <div v-if="profiles.length" class="profiles-list">
+          <div v-if="profiles.length" class="settingspage-profiles-list flex flex-column gap-25 border-radius-lg">
             <label
               v-for="p in profiles"
               :key="p.id"
-              class="profile-row"
+              class="settingspage-profile-row flex-align-center gap-75 border-radius-md cursor-pointer"
               :class="{ active: p.id === activeProfileId }"
             >
               <input
-                class="profile-checkbox"
+                class="settingspage-profile-checkbox"
                 type="checkbox"
                 :value="p.id"
                 v-model="selectedProfileIds"
               />
-              <ProfileAvatar class="profile-row-avatar" :profile="p" :size="32" :title="p.name || p.id" />
-              <div class="profile-row-main">
-                <div class="profile-row-title">
-                  <span class="profile-title">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="profile-badge">Active</span>
+              <ProfileAvatar class="settingspage-profile-row-avatar" :profile="p" :size="32" :title="p.name || p.id" />
+              <div class="settingspage-profile-row-main flex flex-column gap-20">
+                <div class="settingspage-profile-row-title flex-align-center gap-50">
+                  <span class="settingspage-profile-title txt-weight-light color-text-primary">{{ p.name || p.id }}</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary">Active</span>
                 </div>
-                <span class="profile-id">{{ p.id }}</span>
+                <span class="settingspage-profile-id fs-075rem color-text-tertiary">{{ p.id }}</span>
               </div>
             </label>
           </div>
-          <p v-else class="setting-hint">No profiles found.</p>
+          <p v-else class="settingspage-setting-hint fs-075rem color-text-tertiary">No profiles found.</p>
 
-          <div v-if="profiles.length" class="setting-item">
+          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Display name</span>
-              <span class="setting-desc">Rename a profile without changing its internal profile ID.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Display name</span>
+              <span class="settingspage-setting-desc color-text-secondary">Rename a profile without changing its internal profile ID.</span>
             </div>
-            <div class="setting-control profile-select-actions">
+            <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
               <select
                 v-model="renameProfileId"
-                class="select-control"
+                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer"
                 :disabled="profileRenameSaving"
               >
                 <option
@@ -651,13 +651,13 @@
               <input
                 v-model="renameProfileDraft"
                 type="text"
-                class="input-control wide"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
                 placeholder="Enter a display name"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @keyup.enter="saveProfileDisplayName"
               />
               <button
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="resetProfileDisplayNameDraft"
@@ -665,7 +665,7 @@
                 Reset
               </button>
               <button
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="saveProfileDisplayName"
@@ -674,19 +674,19 @@
               </button>
             </div>
           </div>
-          <p v-if="profileRenameError" class="setting-hint color-red-base">
+          <p v-if="profileRenameError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
             {{ profileRenameError }}
           </p>
 
-          <div v-if="profiles.length" class="setting-item">
+          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Profile photo</span>
-              <span class="setting-desc">Override the generated profile thumbnail with a local image.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Profile photo</span>
+              <span class="settingspage-setting-desc color-text-secondary">Override the generated profile thumbnail with a local image.</span>
             </div>
-            <div class="setting-control profile-photo-control">
+            <div class="settingspage-setting-control settingspage-profile-photo-control flex-align-center flex-wrap-wrap gap-50">
               <select
                 v-model="avatarProfileId"
-                class="select-control"
+                class="settingspage-select-control fs-085rem color-text-primary cursor-pointer"
                 :disabled="profileAvatarSaving"
               >
                 <option
@@ -698,13 +698,13 @@
                 </option>
               </select>
               <ProfileAvatar
-                class="profile-photo-preview"
+                class="settingspage-profile-photo-preview"
                 :profile="avatarProfileTarget"
                 :size="44"
                 :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
               />
               <button
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
                 @click="chooseProfileAvatar"
@@ -712,7 +712,7 @@
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
               </button>
               <button
-                class="btn-secondary disabled-fade-50 color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
                 @click="resetProfileAvatar"
@@ -721,21 +721,21 @@
               </button>
             </div>
           </div>
-          <p v-if="profileAvatarError" class="setting-hint color-red-base">
+          <p v-if="profileAvatarError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
             {{ profileAvatarError }}
           </p>
-          <p v-if="profiles.length" class="setting-hint">
+          <p v-if="profiles.length" class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </p>
 
-           <div class="setting-item">
+           <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
              <div class="setting-info flex flex-column gap-20">
-               <span class="setting-label">Backups</span>
-               <span class="setting-desc">Export full backup folders (profiles + PQC keys).</span>
+               <span class="settingspage-setting-label txt-weight-light color-text-primary">Backups</span>
+               <span class="settingspage-setting-desc color-text-secondary">Export full backup folders (profiles + PQC keys).</span>
              </div>
-             <div class="setting-control profile-backup-actions">
+             <div class="settingspage-setting-control settingspage-profile-backup-actions flex-align-center gap-50">
                <button
-                 class="btn-secondary disabled-fade-50 color-text-primary"
+                 class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
                  type="button"
                  @click="onExportSelectedBackups"
                  :disabled="!selectedProfileIds.length || exportingBackup"
@@ -744,12 +744,12 @@
                </button>
              </div>
            </div>
-           <p class="setting-hint">
+           <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
              Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
            </p>
-           <p v-if="backupExportSummary" class="setting-hint">{{ backupExportSummary }}</p>
-           <div v-if="backupExportFailures.length" class="backup-failures">
-             <div v-for="f in backupExportFailures" :key="f.id" class="backup-failure">
+           <p v-if="backupExportSummary" class="settingspage-setting-hint fs-075rem color-text-tertiary">{{ backupExportSummary }}</p>
+           <div v-if="backupExportFailures.length" class="settingspage-backup-failures flex flex-column gap-25">
+             <div v-for="f in backupExportFailures" :key="f.id" class="settingspage-backup-failure color-error">
                {{ f.id }}: {{ f.error || 'failed' }}
              </div>
            </div>
@@ -757,79 +757,79 @@
        </div>
 
       <!-- Developer settings View -->
-      <div v-else-if="currentView === 'advanced'" class="settings-section">
+      <div v-else-if="currentView === 'advanced'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             These settings are intended for developers. Most users should not need to change them.
           </p>
 
-          <div class="advanced-title">
+          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary">
             <Globe :size="18" />
             <span>Network</span>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Local IPFS Gateway</span>
-              <span class="setting-desc">Used for loading IPFS content in the UI</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Local IPFS Gateway</span>
+              <span class="settingspage-setting-desc color-text-secondary">Used for loading IPFS content in the UI</span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="input-control wide"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
                 v-model="localGatewayDraft"
                 placeholder="http://127.0.0.1:8080"
               />
             </div>
           </div>
 
-          <div class="advanced-title">
+          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary">
             <Database :size="18" />
             <span>IPFS</span>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">IPFS API Endpoint</span>
-              <span class="setting-desc">Used by the Electron backend (Kubo API)</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">IPFS API Endpoint</span>
+              <span class="settingspage-setting-desc color-text-secondary">Used by the Electron backend (Kubo API)</span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="input-control wide"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
                 v-model="ipfsApiDraft"
                 placeholder="http://127.0.0.1:5001"
               />
             </div>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Max upload size (local drive)</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Max upload size (local drive)</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Maximum size per local upload before it is rejected. Default 10 GB.
               </span>
             </div>
-            <div class="setting-control setting-number-control">
+            <div class="settingspage-setting-control settingspage-setting-number-control flex-align-center gap-50">
               <input
                 type="number"
                 min="1"
                 step="1"
-                class="input-control w-96px"
+                class="settingspage-input-control w-96px fs-085rem color-text-primary"
                 v-model="localDriveMaxUploadSizeDraft"
                 :placeholder="String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB)"
               />
-              <span class="setting-inline-note">GB</span>
+              <span class="settingspage-setting-inline-note color-text-secondary">GB</span>
             </div>
           </div>
 
-          <div v-if="devSettingsError" class="setting-hint color-red-base">
+          <div v-if="devSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary">
             {{ devSettingsError }}
           </div>
 
-          <div class="profile-backup-actions margin-top-75">
+          <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <button
-              class="btn-secondary disabled-fade-50 color-text-primary"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
               type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings"
@@ -837,7 +837,7 @@
               Reset
             </button>
             <button
-              class="btn-secondary disabled-fade-50 color-text-primary"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
               type="button"
               :disabled="devSettingsSaving"
               @click="saveDevSettings"
@@ -846,36 +846,36 @@
             </button>
           </div>
 
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Note: the local IPFS daemon must actually be configured to use these ports/addresses.
           </p>
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Network changes are applied automatically (no restart prompt).
           </p>
 
-          <div class="advanced-title">
+          <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary">
             <FolderOpen :size="18" />
             <span>Lumen data folder</span>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Custom data folder target</span>
-              <span class="setting-desc">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Custom data folder target</span>
+              <span class="settingspage-setting-desc color-text-secondary">
                 Override the default folder used by the Lumen binary for IPFS, profiles, logs and app metadata.
               </span>
             </div>
-            <div class="setting-control data-folder-control">
-              <div class="data-folder-input-row">
+            <div class="settingspage-setting-control settingspage-data-folder-control flex-align-center">
+              <div class="settingspage-data-folder-input-row flex-align-center-justify-end gap-50 w-full">
                 <input
                   type="text"
-                  class="input-control data-folder-input"
+                  class="settingspage-input-control settingspage-data-folder-input fs-085rem color-text-primary"
                   v-model="lumenDataFolderDraft"
                   :placeholder="defaultUserDataPath || 'D:\\Lumen'"
                   :disabled="lumenDataFolderBusy"
                 />
                 <button
-                  class="btn-secondary disabled-fade-50 troubleshooting-btn color-text-primary"
+                  class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50"
                   type="button"
                   :disabled="lumenDataFolderBusy"
                   @click="browseLumenDataFolder"
@@ -887,31 +887,31 @@
             </div>
           </div>
 
-          <div class="setting-hint">
-            Active now: <span class="mono-path">{{ activeUserDataPath || 'Unavailable' }}</span>
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
+            Active now: <span class="settingspage-mono-path">{{ activeUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div class="setting-hint">
-            Next launch target: <span class="mono-path">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
+            Next launch target: <span class="settingspage-mono-path">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div class="setting-hint">
-            Default target: <span class="mono-path">{{ defaultUserDataPath || 'Unavailable' }}</span>
+          <div class="settingspage-setting-hint fs-075rem color-text-tertiary">
+            Default target: <span class="settingspage-mono-path">{{ defaultUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div v-if="bootstrapConfigPath" class="setting-hint">
-            Bootstrap config: <span class="mono-path">{{ bootstrapConfigPath }}</span>
+          <div v-if="bootstrapConfigPath" class="settingspage-setting-hint fs-075rem color-text-tertiary">
+            Bootstrap config: <span class="settingspage-mono-path">{{ bootstrapConfigPath }}</span>
           </div>
-          <div v-if="activeLogsPath" class="setting-hint">
-            Active logs folder: <span class="mono-path">{{ activeLogsPath }}</span>
+          <div v-if="activeLogsPath" class="settingspage-setting-hint fs-075rem color-text-tertiary">
+            Active logs folder: <span class="settingspage-mono-path">{{ activeLogsPath }}</span>
           </div>
           <div
             v-if="lumenDataFolderError"
-            class="setting-hint color-red-base"
+            class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary"
           >
             {{ lumenDataFolderError }}
           </div>
 
-          <div class="profile-backup-actions margin-top-75">
+          <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <button
-              class="btn-secondary disabled-fade-50 color-text-primary"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft"
@@ -919,7 +919,7 @@
               Revert
             </button>
             <button
-              class="btn-secondary disabled-fade-50 color-text-primary"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="useDefaultLumenDataFolderDraft"
@@ -927,7 +927,7 @@
               Use default
             </button>
             <button
-              class="btn-secondary disabled-fade-50 color-text-primary"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="saveLumenDataFolder"
@@ -936,33 +936,33 @@
             </button>
           </div>
 
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Leave the field empty to go back to the default folder target.
           </p>
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Restart Lumen after changing this target. Existing files are not moved automatically.
           </p>
-          <p v-if="bootstrapRestartRequired" class="setting-hint">
-            Restart required: the running app is still using <span class="mono-path">{{ activeUserDataPath }}</span>.
+          <p v-if="bootstrapRestartRequired" class="settingspage-setting-hint fs-075rem color-text-tertiary">
+            Restart required: the running app is still using <span class="settingspage-mono-path">{{ activeUserDataPath }}</span>.
           </p>
         </div>
       </div>
 
       <!-- Troubleshooting View -->
-      <div v-else-if="currentView === 'troubleshooting'" class="settings-section">
+      <div v-else-if="currentView === 'troubleshooting'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Copy Debug Report</span>
-              <span class="setting-desc">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Copy Debug Report</span>
+              <span class="settingspage-setting-desc color-text-secondary">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <button
-                class="btn-secondary disabled-fade-50 troubleshooting-btn color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50"
                 type="button"
                 @click="copyDebugReport"
                 :disabled="troubleshootingBusy"
@@ -973,14 +973,14 @@
             </div>
           </div>
 
-          <div class="setting-item">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">Open Logs Folder</span>
-              <span class="setting-desc">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">Open Logs Folder</span>
+              <span class="settingspage-setting-desc color-text-secondary">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
             </div>
-            <div class="setting-control">
+            <div class="settingspage-setting-control flex-align-center">
               <button
-                class="btn-secondary disabled-fade-50 troubleshooting-btn color-text-primary"
+                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50"
                 type="button"
                 @click="openLogsFolderAction"
                 :disabled="troubleshootingBusy"
@@ -991,36 +991,36 @@
             </div>
           </div>
 
-          <p class="setting-hint">
+          <p class="settingspage-setting-hint fs-075rem color-text-tertiary">
             The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
           </p>
-          <p v-if="troubleshootingDir" class="troubleshooting-path">
+          <p v-if="troubleshootingDir" class="settingspage-troubleshooting-path border-radius-md color-text-secondary">
             Logs folder: {{ troubleshootingDir }}
           </p>
-          <p v-if="troubleshootingReportPath" class="troubleshooting-path">
+          <p v-if="troubleshootingReportPath" class="settingspage-troubleshooting-path border-radius-md color-text-secondary">
             Debug report: {{ troubleshootingReportPath }}
           </p>
         </div>
       </div>
 
       <!-- Private Cloud View -->
-      <div v-else-if="currentView === 'privatecloud'" class="settings-section">
+      <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1">
         <div class="setting-group flex flex-column gap-50">
           <!-- Main Enable Toggle -->
-          <div class="setting-item featured" :class="{ active: privateCloudEnabled }">
+          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg" :class="{ active: privateCloudEnabled }">
             <div class="setting-info flex flex-column gap-20">
-              <span class="setting-label">
+              <span class="settingspage-setting-label txt-weight-light color-text-primary">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
                   <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
                 </svg>
                 Enable Private Cloud
               </span>
-              <span class="setting-desc">Use your own private IPFS gateways for content delivery</span>
+              <span class="settingspage-setting-desc color-text-secondary">Use your own private IPFS gateways for content delivery</span>
             </div>
-            <div class="setting-control">
-              <label class="toggle">
+            <div class="settingspage-setting-control flex-align-center">
+              <label class="settingspage-toggle size-48px">
                 <input type="checkbox" v-model="privateCloudEnabled" />
-                <span class="toggle-slider"></span>
+                <span class="settingspage-toggle-slider cursor-pointer"></span>
               </label>
             </div>
           </div>
@@ -1028,54 +1028,54 @@
           <!-- Settings when enabled -->
           <template v-if="privateCloudEnabled">
             <!-- Gateway Preferences -->
-            <div class="settings-subsection">
-              <h3 class="subsection-title">Gateway Preferences</h3>
+            <div class="settingspage-settings-subsection margin-top-100">
+              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary">Gateway Preferences</h3>
               
-              <div class="setting-item">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="setting-label">Prefer Private Gateways</span>
-                  <span class="setting-desc">Try private gateways first before DAO gateways</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Prefer Private Gateways</span>
+                  <span class="settingspage-setting-desc color-text-secondary">Try private gateways first before DAO gateways</span>
                 </div>
-                <div class="setting-control">
-                  <label class="toggle">
+                <div class="settingspage-setting-control flex-align-center">
+                  <label class="settingspage-toggle size-48px">
                     <input type="checkbox" v-model="preferPrivateGateways" />
-                    <span class="toggle-slider"></span>
+                    <span class="settingspage-toggle-slider cursor-pointer"></span>
                   </label>
                 </div>
               </div>
 
-              <div class="setting-item">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="setting-label">Fallback to DAO Gateways</span>
-                  <span class="setting-desc">Use DAO gateways if private gateways fail</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Fallback to DAO Gateways</span>
+                  <span class="settingspage-setting-desc color-text-secondary">Use DAO gateways if private gateways fail</span>
                 </div>
-                <div class="setting-control">
-                  <label class="toggle">
+                <div class="settingspage-setting-control flex-align-center">
+                  <label class="settingspage-toggle size-48px">
                     <input type="checkbox" v-model="fallbackToDAO" />
-                    <span class="toggle-slider"></span>
+                    <span class="settingspage-toggle-slider cursor-pointer"></span>
                   </label>
                 </div>
               </div>
             </div>
 
             <!-- Gateway IDs -->
-            <div class="settings-subsection">
-              <div class="subsection-header">
-                <h3 class="subsection-title">Gateway IDs</h3>
-                <span class="count-badge">{{ gatewayIds.length }}</span>
+            <div class="settingspage-settings-subsection margin-top-100">
+              <div class="settingspage-subsection-header flex-align-center-justify-space-between">
+                <h3 class="settingspage-subsection-title txt-weight-light color-text-primary">Gateway IDs</h3>
+                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light">{{ gatewayIds.length }}</span>
               </div>
-              <p class="subsection-desc">Add gateway IDs to use for private content delivery</p>
+              <p class="settingspage-subsection-desc fs-085rem color-text-secondary">Add gateway IDs to use for private content delivery</p>
 
-              <div class="gateway-ids-wrapper">
-                <div v-if="gatewayIds.length > 0" class="gateway-ids-list">
-                  <div v-for="(id, index) in gatewayIds" :key="index" class="gateway-id-item">
-                    <span class="gateway-id-text mono">{{ id }}</span>
-                    <button class="icon-btn-small" @click="removeGatewayId(index)">
+              <div class="settingspage-gateway-ids-wrapper border-radius-12px padding-100">
+                <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
+                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between">
+                    <span class="settingspage-gateway-id-text mono color-text-primary">{{ id }}</span>
+                    <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer" @click="removeGatewayId(index)">
                       <X :size="16" />
                     </button>
                   </div>
                 </div>
-                <div v-else class="empty-gateway-ids">
+                <div v-else class="settingspage-empty-gateway-ids flex-align-center flex-column text-center color-text-tertiary">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-30 margin-bottom-50">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                     <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -1086,15 +1086,15 @@
                   <span>Add your first gateway ID below</span>
                 </div>
 
-                <div class="add-gateway-id">
+                <div class="settingspage-add-gateway-id flex gap-75">
                   <input
                     v-model="newGatewayId"
                     type="text"
-                    class="input-control wide"
+                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary"
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <button class="btn-secondary disabled-fade-50 color-text-primary" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                  <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer" @click="addGatewayId" :disabled="!newGatewayId.trim()">
                     <Plus :size="16" />
                     Add
                   </button>
@@ -1103,46 +1103,46 @@
             </div>
 
             <!-- Advanced Settings -->
-            <div class="settings-subsection">
-              <h3 class="subsection-title">Advanced Settings</h3>
+            <div class="settingspage-settings-subsection margin-top-100">
+              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary">Advanced Settings</h3>
 
-              <div class="setting-item">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="setting-label">Request Timeout</span>
-                  <span class="setting-desc">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Request Timeout</span>
+                  <span class="settingspage-setting-desc color-text-secondary">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
                 </div>
-                <div class="setting-control">
+                <div class="settingspage-setting-control flex-align-center">
                   <input
                     type="range"
                     min="1000"
                     max="30000"
                     step="1000"
                     v-model="gatewayTimeout"
-                    class="brightness-slider"
+                    class="settingspage-brightness-slider flex-1 outline-none"
                   />
-                  <span class="brightness-value">{{ gatewayTimeout / 1000 }}s</span>
+                  <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary">{{ gatewayTimeout / 1000 }}s</span>
                 </div>
               </div>
 
-              <div class="setting-item">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg">
                 <div class="setting-info flex flex-column gap-20">
-                  <span class="setting-label">Max Retries</span>
-                  <span class="setting-desc">Maximum retry attempts per gateway</span>
+                  <span class="settingspage-setting-label txt-weight-light color-text-primary">Max Retries</span>
+                  <span class="settingspage-setting-desc color-text-secondary">Maximum retry attempts per gateway</span>
                 </div>
-                <div class="setting-control">
+                <div class="settingspage-setting-control flex-align-center">
                   <input
                     type="number"
                     min="1"
                     max="10"
                     v-model="maxRetries"
-                    class="input-control w-80px"
+                    class="settingspage-input-control w-80px fs-085rem color-text-primary"
                   />
                 </div>
               </div>
             </div>
 
             <!-- Info Box -->
-            <div class="info-box">
+            <div class="settingspage-info-box flex gap-100 border-radius-12px margin-top-100">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -1158,32 +1158,32 @@
       </div>
 
       <!-- About View -->
-      <div v-else-if="currentView === 'about'" class="settings-section">
-        <div class="about-card">
-          <div class="about-logo">
-            <div class="logo-icon large">
+      <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1">
+        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px">
+          <div class="settingspage-about-logo margin-bottom-150">
+            <div class="settingspage-logo-icon large flex-align-justify-center size-40px border-radius-md">
               <Hexagon :size="32" />
             </div>
           </div>
           <h2>Lumen Browser</h2>
-          <p class="version">Version {{ appVersion }}</p>
-          <p class="description">The Decentralized Internet Stack</p>
-          <div class="about-links">
+          <p class="settingspage-version">Version {{ appVersion }}</p>
+          <p class="settingspage-description">The Decentralized Internet Stack</p>
+          <div class="settingspage-about-links flex gap-100">
             <a
               href="https://lumen-browser.com/"
-              class="about-link"
+              class="settingspage-about-link color-primary fw-500"
               @click.prevent="openInNewTabSafe('https://lumen-browser.com/')"
               >Website</a
             >
             <a
               href="https://github.com/network-lumen"
-              class="about-link"
+              class="settingspage-about-link color-primary fw-500"
               @click.prevent="openInNewTabSafe('https://github.com/network-lumen')"
               >GitHub</a
             >
             <a
               href="lumen://help"
-              class="about-link"
+              class="settingspage-about-link color-primary fw-500"
               @click.prevent="openInNewTabSafe('lumen://help')"
               >Documentation</a
             >
@@ -2312,831 +2312,3 @@ async function onExportSelectedBackups() {
 // Initialize font size on mount
 document.documentElement.setAttribute('data-font-size', fontSize.value);
 </script>
-
-<style scoped>
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.logo-icon.large {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--border-radius-xl);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-  margin: 0;
-  border-radius: 0;
-}
-
-.content-header {
-  margin-bottom: 2rem;
-}
-
-.content-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.content-header p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0 0 0;
-}
-
-/* Settings Section */
-.settings-section {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.setting-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  transition: all var(--transition-fast);
-}
-
-.setting-item:hover {
-  background: var(--hover-bg);
-  border-color: var(--ios-blue);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.setting-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.setting-desc {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.setting-control {
-  display: flex;
-  align-items: center;
-}
-
-.setting-number-control {
-  gap: 0.5rem;
-}
-
-.setting-inline-note {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.profile-backup-actions {
-  gap: 0.5rem;
-}
-
-.profile-select-actions {
-  gap: 0.5rem;
-}
-
-.profiles-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-}
-
-.profile-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--border-radius-md);
-  cursor: pointer;
-  user-select: none;
-  transition: background var(--transition-fast);
-}
-
-.profile-row:hover {
-  background: var(--hover-bg);
-}
-
-.profile-row.active {
-  background: rgba(var(--ios-blue-rgb), 0.12);
-}
-
-.profile-checkbox {
-  width: 16px;
-  height: 16px;
-}
-
-.profile-row-avatar {
-  flex-shrink: 0;
-}
-
-.profile-row-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-}
-
-.profile-row-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.profile-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 520px;
-}
-
-.profile-badge {
-  font-size: 0.7rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(var(--ios-blue-rgb), 0.18);
-  color: var(--text-primary);
-  border: 1px solid rgba(var(--ios-blue-rgb), 0.25);
-}
-
-.profile-id {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 520px;
-}
-
-.profile-photo-control {
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.profile-photo-preview {
-  flex-shrink: 0;
-}
-
-.backup-failures {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
-}
-
-.backup-failure {
-  font-size: 0.8rem;
-  color: var(--ios-red);
-}
-
-.setting-hint {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.advanced-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.select-control {
-  padding: 0.5rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.input-control {
-  padding: 0.5rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  width: 150px;
-}
-
-.input-control.wide {
-  width: 320px;
-}
-
-.data-folder-control {
-  min-width: 420px;
-  justify-content: flex-end;
-}
-
-.data-folder-input-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.data-folder-input {
-  width: min(520px, 100%);
-}
-
-.mono-path {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  word-break: break-all;
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background: var(--border-color);
-  color: var(--text-primary);
-}
-
-.troubleshooting-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.troubleshooting-path {
-  margin-top: 0.25rem;
-  padding: 0.75rem 1rem;
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  word-break: break-all;
-}
-
-/* Theme Selector */
-.theme-selector {
-  display: flex;
-  gap: 0.5rem;
-  background: var(--bg-secondary);
-  padding: 0.375rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-}
-
-.setting-hint {
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.theme-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.theme-option:hover {
-  background: var(--hover-bg, var(--primary-a10));
-  color: var(--text-primary);
-}
-
-.theme-option.active {
-  background: var(--card-bg);
-  color: var(--accent-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-.network-mode-control {
-  justify-content: flex-end;
-}
-
-.network-mode-selector {
-  flex-wrap: wrap;
-}
-
-.network-mode-option {
-  min-width: 140px;
-  justify-content: center;
-}
-
-/* Toggle */
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 26px;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background: var(--border-color);
-  border-radius: 26px;
-  transition: all 0.2s;
-}
-
-.toggle-slider:before {
-  content: '';
-  position: absolute;
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background: var(--text-primary);
-  border-radius: 50%;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.toggle input:checked + .toggle-slider {
-  background: var(--gradient-primary);
-}
-
-.toggle input:checked + .toggle-slider:before {
-  transform: translateX(22px);
-}
-
-/* Brightness Control */
-.brightness-control {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 320px;
-}
-
-.brightness-icon {
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.brightness-slider {
-  flex: 1;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--border-color);
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.brightness-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-
-.brightness-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.4);
-}
-
-.brightness-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-
-.brightness-slider::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.4);
-}
-
-.brightness-value {
-  min-width: 45px;
-  text-align: right;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.status-badge {
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* About Card */
-.about-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 3rem;
-  background: var(--card-bg);
-  border-radius: 20px;
-  border: 1px solid var(--border-color, transparent);
-}
-
-.about-logo {
-  margin-bottom: 1.5rem;
-}
-
-.about-card h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.about-card .version {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0 0 1rem 0;
-}
-
-.about-card .description {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.5rem 0;
-}
-
-.about-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.about-link {
-  color: var(--accent-primary);
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.about-link:hover {
-  text-decoration: underline;
-}
-
-/* Responsive */
-@media (max-width: 700px) {
-  .settings-page {
-    flex-direction: column;
-  }
-
-  .main-content {
-    margin: 0 0.5rem 0.5rem 0.5rem;
-    padding: 1.5rem;
-  }
-  
-  .setting-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .data-folder-control {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .data-folder-input-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .data-folder-input {
-    width: 100%;
-  }
-}
-
-/* Security Section Styles */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.status-disabled {
-  background: var(--fill-tertiary);
-  color: var(--text-secondary);
-}
-
-.security-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--fill-tertiary);
-  border-radius: 12px;
-  margin-top: 0.5rem;
-}
-
-.form-label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.security-error {
-  color: var(--ios-red);
-  font-size: 0.85rem;
-  padding: 0.5rem 0;
-}
-
-.security-success {
-  color: var(--ios-green);
-  font-size: 0.85rem;
-  padding: 0.5rem 0;
-}
-
-.security-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.security-confirm-box {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  background: var(--fill-error);
-  border: 1px solid rgba(var(--ios-red-rgb), 0.2);
-  border-radius: 12px;
-  margin-top: 0.75rem;
-}
-
-.security-confirm-box p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.btn-primary {
-  padding: 0.6rem 1.25rem;
-  background: var(--accent-primary);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.btn-danger {
-  padding: 0.5rem 1rem;
-  background: var(--ios-red);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.btn-danger:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-
-/* Private Cloud - Simple Styles */
-.setting-item.featured {
-  border-width: 2px;
-}
-
-.setting-item.featured.active {
-  border-color: var(--ios-green);
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
-}
-
-.settings-subsection {
-  margin-top: 1rem;
-}
-
-.subsection-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.75rem;
-}
-
-.subsection-desc {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0 0 1rem;
-}
-
-.subsection-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.count-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  background: rgba(var(--ios-blue-rgb), 0.15);
-  color: var(--ios-blue);
-  border-radius: 11px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.gateway-ids-wrapper {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1rem;
-}
-
-.gateway-ids-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.gateway-id-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.gateway-id-item:hover {
-  border-color: var(--ios-blue);
-}
-
-.gateway-id-text {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-}
-
-.empty-gateway-ids {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 2rem 1rem;
-  color: var(--text-tertiary);
-}
-
-.empty-gateway-ids p {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin: 0.5rem 0 0.25rem;
-}
-
-.empty-gateway-ids span {
-  font-size: 0.85rem;
-}
-
-.icon-btn-small {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.icon-btn-small:hover {
-  background: rgba(var(--ios-red-rgb), 0.15);
-  color: var(--ios-red);
-}
-
-.add-gateway-id {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.add-gateway-id .input-control {
-  flex: 1;
-}
-
-.info-box {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.08) 0%, rgba(var(--ios-blue-rgb), 0.02) 100%);
-  border: 1.5px solid rgba(var(--ios-blue-rgb), 0.2);
-  border-radius: 12px;
-  margin-top: 1rem;
-}
-
-.info-box svg {
-  flex-shrink: 0;
-  color: var(--ios-blue);
-}
-
-.info-box strong {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.info-box p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.info-box a {
-  color: var(--ios-blue);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.info-box a:hover {
-  text-decoration: underline;
-}
-</style>
