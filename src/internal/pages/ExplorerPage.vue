@@ -548,7 +548,7 @@
                 <div class="td td-cumulative">
                   <div class="cumulative-container">
                     <svg class="circular-progress" width="50" height="50" viewBox="0 0 50 50">
-                      <circle cx="25" cy="25" r="20" fill="none" stroke="#e5e7eb" stroke-width="4"></circle>
+                      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle 
                         cx="25" cy="25" r="20" 
                         fill="none" 
@@ -716,8 +716,8 @@
                 <!-- Success -->
                 <div v-else-if="txStatus === 'success'" class="tx-success">
                   <svg class="tx-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(48, 209, 88, 0.7)" stroke-width="2"/>
-                    <path d="M8 12l3 3 5-5" stroke="rgba(48, 209, 88, 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2"/>
+                    <path d="M8 12l3 3 5-5" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   <div class="tx-status-text flex flex-column gap-50">
                     <strong>Transaction Successful!</strong>
@@ -740,8 +740,8 @@
                 <!-- Error -->
                 <div v-else-if="txStatus === 'error'" class="tx-error">
                   <svg class="tx-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="#ef4444" stroke-width="2"/>
-                    <path d="M12 8v4m0 4h.01" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="var(--ios-red)" stroke-width="2"/>
+                    <path d="M12 8v4m0 4h.01" stroke="var(--ios-red)" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                   <div class="tx-status-text flex flex-column gap-50">
                     <strong>Transaction Failed</strong>
@@ -2698,7 +2698,7 @@ watch(
 .height-filter-input:focus,
 .hash-filter-input:focus {
   outline: none;
-  border-color: var(--primary, var(--accent-primary));
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px var(--primary-a10);
 }
 
@@ -2712,8 +2712,8 @@ watch(
   align-items: center;
   gap: 0.375rem;
   padding: 0.25rem 0.5rem;
-  background: rgba(52, 211, 153, 0.1);
-  border: 1px solid rgba(52, 211, 153, 0.3);
+  background: rgba(var(--ios-green-rgb), 0.1);
+  border: 1px solid rgba(var(--ios-green-rgb), 0.3);
   border-radius: 4px;
   font-size: 0.6875rem;
   font-weight: 600;
@@ -3046,7 +3046,7 @@ watch(
   align-items: center;
   gap: 0.5rem;
   padding: 0.375rem 0.75rem;
-  background: rgba(16, 185, 129, 0.15);
+  background: var(--fill-success);
   border-radius: 20px;
   color: var(--ios-green);
   font-size: 0.8125rem;
@@ -3170,7 +3170,7 @@ watch(
 
 .tx-type-mini {
   padding: 0.125rem 0.5rem;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(var(--ios-blue-rgb), 0.1);
   color: var(--accent-primary);
   border-radius: 4px;
   font-size: 0.625rem;
@@ -3204,12 +3204,12 @@ watch(
 }
 
 .activity-status.success {
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--fill-success);
   color: var(--ios-green);
 }
 
 .activity-status.failed {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--fill-error);
   color: var(--ios-red);
 }
 
@@ -3249,8 +3249,8 @@ watch(
   grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
   gap: 1rem;
   padding: 1.25rem 1.75rem;
-  background: rgba(0, 0, 0, 0.02);
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+  background: var(--black-a02);
+  border-bottom: 0.5px solid rgba(var(--black-rgb), 0.08);
   font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-tertiary);
@@ -3270,13 +3270,13 @@ watch(
   grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
   gap: 1rem;
   padding: 1.25rem 1.75rem;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 0.5px solid var(--black-a06);
   transition: all var(--transition-fast);
   align-items: center;
 }
 
 .table-row:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--black-a02);
   cursor: default;
 }
 
@@ -3285,7 +3285,7 @@ watch(
 }
 
 .table-row:active {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--black-a04);
   transform: scale(0.998);
 }
 
@@ -3305,7 +3305,7 @@ watch(
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--ios-indigo), var(--ios-purple));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3366,7 +3366,7 @@ watch(
 
 .voting-power-fill {
   height: 100%;
-  background: linear-gradient(90deg, rgba(48, 209, 88, 0.8), rgba(52, 199, 89, 0.6));
+  background: linear-gradient(90deg, rgba(var(--ios-green-rgb), 0.8), rgba(var(--ios-green-rgb), 0.6));
   border-radius: 2.5px;
   transition: width 0.3s ease;
 }
@@ -3449,12 +3449,12 @@ watch(
   cursor: pointer;
   transition: all var(--transition-base);
   letter-spacing: -0.022em;
-  box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
+  box-shadow: 0 1px 3px rgba(var(--ios-blue-rgb), 0.2);
 }
 
 .action-btn:hover:not(:disabled) {
   transform: scale(1.02);
-  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 3px 10px rgba(var(--ios-blue-rgb), 0.3);
 }
 
 .action-btn:active:not(:disabled) {
@@ -3508,7 +3508,7 @@ watch(
   background: var(--ios-green);
   color: white;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
   font-weight: 600;
   font-size: 0.875rem;
   z-index: 9999;
@@ -3666,14 +3666,14 @@ watch(
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--primary-a08, rgba(0, 122, 255, 0.08));
+  background: var(--primary-a08);
   border-radius: 10px;
-  border: 1px solid var(--primary-a15, rgba(0, 122, 255, 0.15));
+  border: 1px solid var(--primary-a15);
 }
 
 .withdraw-notice svg {
   flex-shrink: 0;
-  color: var(--accent-primary, #007aff);
+  color: var(--accent-primary);
   margin-top: 2px;
 }
 
@@ -3850,12 +3850,12 @@ watch(
   letter-spacing: -0.022em;
   cursor: pointer;
   transition: all var(--transition-base);
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.25);
 }
 
 .confirm-btn:hover:not(:disabled) {
   transform: scale(1.01);
-  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.35);
+  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.35);
 }
 
 .confirm-btn:active:not(:disabled) {
@@ -4024,7 +4024,7 @@ watch(
 
 .tx-close-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
 }
 
 .tx-retry-btn {
@@ -4042,7 +4042,7 @@ watch(
 
 .tx-retry-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
 }
 
 .tx-status-popup.processing {
@@ -4050,11 +4050,11 @@ watch(
 }
 
 .tx-status-popup.success {
-  border: 2px solid rgba(48, 209, 88, 0.5);
+  border: 2px solid rgba(var(--ios-green-rgb), 0.5);
 }
 
 .tx-status-popup.error {
-  border: 2px solid #ef4444;
+  border: 2px solid var(--ios-red);
 }
 
 @media (max-width: 768px) {
