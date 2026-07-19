@@ -5312,3 +5312,396 @@ select.recurpay-input {
         justify-content: flex-start;
     }
 }
+
+/* DaoPage.vue */
+.daopage-main {
+    padding: 2rem 2.5rem;
+}
+
+.daopage-content-header h1 {
+    font-size: 1.75rem;
+}
+
+.daopage-content-header p {
+    font-size: 0.875rem;
+    margin: 0.25rem 0 0 0;
+}
+
+.daopage-btn-primary {
+    padding: 0.75rem 1.25rem;
+    background: var(--gradient-primary);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.daopage-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--primary-a30);
+}
+
+.daopage-btn-secondary {
+    padding: 0.5rem 1rem;
+    background: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.daopage-btn-secondary:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.daopage-loading-state,
+.daopage-empty-state {
+    padding: 4rem 2rem;
+}
+
+.daopage-spinner {
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-primary);
+}
+
+.daopage-empty-state svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.daopage-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.daopage-stat-card {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%);
+}
+
+.daopage-stat-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--gradient-primary);
+}
+
+.daopage-stat-value {
+    font-size: 1.25rem;
+}
+
+.daopage-stat-label {
+    font-size: 0.75rem;
+}
+
+.daopage-proposal-card {
+    background: var(--bg-primary, white);
+    border: 1px solid var(--border-color);
+}
+
+.daopage-proposal-id {
+    font-size: 0.8rem;
+}
+
+.daopage-proposal-status {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.daopage-proposal-status.active {
+    background: var(--fill-blue);
+    color: var(--accent-secondary);
+}
+
+.daopage-proposal-status.deposit {
+    background: rgba(var(--ios-yellow-rgb), 0.15);
+    color: var(--ios-orange);
+}
+
+.daopage-proposal-status.unknown {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.daopage-proposal-title {
+    margin: 0 0 0.5rem 0;
+}
+
+.daopage-proposal-desc {
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+}
+
+.daopage-proposal-votes {
+    font-size: 0.8rem;
+}
+
+.daopage-info-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+}
+
+.daopage-info-card h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.daopage-voting-desc {
+    font-size: 0.875rem;
+}
+
+.daopage-treasury-item {
+    background: var(--bg-primary, white);
+    border: 1px solid var(--border-color);
+}
+
+.daopage-asset-name {
+    font-size: 0.9rem;
+}
+
+.daopage-asset-value {
+    font-size: 0.8rem;
+}
+
+.daopage-member-item {
+    background: var(--bg-primary, white);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.daopage-member-item:hover {
+    background: var(--hover-bg);
+}
+
+.daopage-member-rank {
+    min-width: 24px;
+    height: 24px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.daopage-member-avatar {
+    min-width: 40px;
+    background: var(--gradient-primary);
+}
+
+.daopage-member-avatar.has-image {
+    background: transparent;
+}
+
+.daopage-member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.daopage-member-name {
+    font-size: 0.9rem;
+}
+
+.daopage-member-address {
+    font-size: 0.75rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.daopage-member-power {
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.daopage-progress-bar-container {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.daopage-progress-yes {
+    background: linear-gradient(90deg, var(--ios-teal), var(--ios-green));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.daopage-progress-label {
+    font-size: 0.75rem;
+}
+
+.daopage-modal-content {
+    background: var(--bg-primary, white);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 520px;
+    max-height: 90vh;
+}
+
+.daopage-modal-content.large {
+    max-width: 640px;
+}
+
+.daopage-modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.daopage-modal-header h3 {
+    font-size: 1.25rem;
+}
+
+.daopage-modal-close {
+    border-radius: 8px;
+    background: var(--hover-bg);
+    transition: all 0.2s ease;
+}
+
+.daopage-modal-close:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.daopage-modal-desc {
+    font-size: 0.875rem;
+}
+
+.daopage-form-group label {
+    display: block;
+    font-size: 0.8125rem;
+    margin-bottom: 0.5rem;
+}
+
+.daopage-form-input,
+.daopage-form-textarea,
+.daopage-form-select {
+    width: 100%;
+    padding: 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--bg-primary, white);
+    transition: all 0.2s ease;
+}
+
+.daopage-form-input:focus,
+.daopage-form-textarea:focus,
+.daopage-form-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--primary-a10);
+}
+
+.daopage-form-textarea {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.daopage-form-select:hover {
+    border-color: var(--border-color);
+}
+
+.daopage-proposal-requirements {
+    background: var(--card-bg);
+    border: 1px solid rgba(var(--ios-blue-rgb), 0.3);
+}
+
+.daopage-requirement-item {
+    padding: 0.5rem 0;
+    font-size: 0.8125rem;
+}
+
+.daopage-requirement-item svg {
+    flex-shrink: 0;
+    color: var(--accent-primary);
+}
+
+.daopage-btn-modal-primary {
+    padding: 0.875rem;
+    background: var(--gradient-primary);
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+}
+
+.daopage-btn-modal-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--primary-a30);
+}
+
+.daopage-btn-modal-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.daopage-proposal-title-card {
+    background: var(--gradient-primary);
+}
+
+.daopage-proposal-title-card h4 {
+    font-size: 1.125rem;
+    color: white;
+}
+
+.daopage-proposal-title-card .daopage-proposal-status {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.daopage-vote-option input[type="radio"] {
+    display: none;
+}
+
+.daopage-vote-option-content {
+    border: 2px solid var(--border-color);
+    background: var(--card-bg);
+    transition: all 0.2s ease;
+}
+
+.daopage-vote-option:hover .daopage-vote-option-content {
+    border-color: var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.daopage-vote-option.selected .daopage-vote-option-content {
+    border-color: var(--accent-primary);
+    background: var(--card-bg);
+}
+
+.daopage-vote-icon.against {
+    background: var(--card-bg);
+    color: var(--ios-red);
+}
+
+.daopage-vote-icon.abstain {
+    background: var(--card-bg);
+    color: var(--text-tertiary);
+}
+
+.daopage-vote-label {
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+}
+
+.daopage-vote-desc {
+    font-size: 0.8125rem;
+}
+
+.daopage-voting-power {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.daopage-power-label {
+    font-size: 0.875rem;
+}
+
+.daopage-power-value {
+    font-size: 0.9375rem;
+}
+
+@media (max-width: 700px) {
+    .dao-page {
+        flex-direction: column;
+    }
+
+    .daopage-main {
+        margin: 0 0.5rem 0.5rem 0.5rem;
+        padding: 1.5rem;
+    }
+}
