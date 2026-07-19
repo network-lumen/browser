@@ -307,7 +307,7 @@
                     </div>
                   </div>
                   <div class="activity-side">
-                    <div class="activity-status" :class="tx.success ? 'success' : 'failed'">
+                    <div class="activity-status" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
                       {{ tx.success ? 'Success' : 'Failed' }}
                     </div>
                     <div class="activity-time">{{ formatTimeAgo(tx.time) }}</div>
@@ -3203,15 +3203,6 @@ watch(
   border-radius: 12px;
 }
 
-.activity-status.success {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.activity-status.failed {
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
 
 /* Validators Table Styles */
 .validators-view {

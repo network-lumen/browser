@@ -127,7 +127,7 @@
                 <ArrowRight :size="16" class="action-arrow" />
               </button>
               <button class="action-card" type="button" @click="goto('lumen://wallet')">
-                <div class="action-icon wallet">
+                <div class="action-icon wallet badge-success">
                   <Wallet :size="24" />
                 </div>
                 <div class="action-info">
@@ -137,7 +137,7 @@
                 <ArrowRight :size="16" class="action-arrow" />
               </button>
               <button class="action-card" type="button" @click="goto('lumen://search')">
-                <div class="action-icon search">
+                <div class="action-icon search badge-warning">
                   <Search :size="24" />
                 </div>
                 <div class="action-info">
@@ -1055,15 +1055,6 @@ function getViewDescription(): string {
   color: var(--ios-purple);
 }
 
-.action-icon.wallet {
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.action-icon.search {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  color: var(--ios-orange);
-}
 
 .action-info {
   flex: 1;
