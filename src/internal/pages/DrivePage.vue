@@ -3,26 +3,26 @@
     <!-- Sidebar -->
     <InternalSidebar title="Drive" :icon="Cloud" activeKey="drive">
       <!-- Hosting -->
-      <div class="hosting-panel">
-        <div class="stats-header">
+      <div class="drivepage-hosting-panel flex flex-column gap-35">
+        <div class="drivepage-stats-header flex-align-center gap-50 color-text-secondary text-uppercase">
           <Database :size="14" />
           <span>Storage</span>
         </div>
 
-        <div class="hosting-row" :class="{ active: hosting.kind === 'local' }">
+        <div class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px" :class="{ active: hosting.kind === 'local' }">
           <button
-            class="hosting-main"
+            class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left"
             type="button"
             @click="selectHosting('local')"
           >
             <span
-              class="hosting-dot"
+              class="drivepage-hosting-dot border-radius-circle"
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
-            <span class="hosting-title">Local</span>
+            <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary">Local</span>
           </button>
           <button
-            class="hosting-details"
+            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer"
             type="button"
             @click.stop="openLocalDetails"
             title="Local details"
@@ -31,12 +31,12 @@
           </button>
         </div>
 
-        <div class="hosting-divider"></div>
+        <div class="drivepage-hosting-divider"></div>
 
-        <div class="hosting-subheader">
-          <span class="hosting-subheader-title">Subscriptions</span>
+        <div class="drivepage-hosting-subheader flex-align-center-justify-space-between">
+          <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase">Subscriptions</span>
           <button
-            class="hosting-subheader-action"
+            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full"
             type="button"
             @click="openPlansModal"
           >
@@ -44,43 +44,40 @@
           </button>
         </div>
 
-        <div v-if="!subscriptionRows.length" class="hosting-empty">
+        <div v-if="!subscriptionRows.length" class="drivepage-hosting-empty border-radius-12px fs-075rem color-text-tertiary">
           No active subscriptions yet.
         </div>
 
         <div
           v-for="sub in subscriptionRows"
           :key="sub.gatewayId"
-          class="hosting-row"
-          :class="{
-            active:
-              hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId,
-          }"
+          class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px"
+          :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
           <button
-              class="hosting-main"
+              class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left"
               type="button"
               @click="selectGateway(sub.gatewayId)"
             >
-              <span class="hosting-dot" :class="sub.statusDot"></span>
-              <span class="hosting-title" :title="sub.hoverTitle">{{
+              <span class="drivepage-hosting-dot border-radius-circle" :class="sub.statusDot"></span>
+              <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
               <span
                 v-if="sub.regionLabel"
-                class="hosting-region"
+                class="drivepage-hosting-region txt-weight-medium color-text-tertiary"
                 :title="sub.regionTitle"
               >
                 {{ sub.regionLabel }}
               </span>
-              <span class="hosting-tags" v-if="sub.planTags.length">
-                <span v-for="p in sub.planTags" :key="p" class="hosting-tag">{{
+              <span class="drivepage-hosting-tags flex-inline flex-wrap-wrap gap-35" v-if="sub.planTags.length">
+                <span v-for="p in sub.planTags" :key="p" class="drivepage-hosting-tag flex-inline-align-center border-radius-full txt-weight-medium">{{
                   p
                 }}</span>
               </span>
           </button>
           <button
-            class="hosting-details"
+            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer"
             type="button"
             @click.stop="openGatewayDetails(sub.gatewayId)"
             title="Subscription details"
@@ -92,37 +89,37 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="drivepage-main-content flex flex-column flex-1 margin-0">
       <!-- Header -->
-      <header class="content-header">
+      <header class="drivepage-content-header flex-align-center-justify-space-between flex-wrap-wrap margin-bottom-150 gap-100">
         <div>
           <h1>{{ headerTitle }}</h1>
           <p>{{ headerSubtitle }}</p>
         </div>
 
-        <div class="header-actions">
+        <div class="drivepage-header-actions flex-align-center flex-wrap-wrap gap-75">
 
 
-          <button class="plans-btn" type="button" @click="openPlansModal">
+          <button class="drivepage-plans-btn flex-inline-align-center border-radius-full color-text-secondary cursor-pointer" type="button" @click="openPlansModal">
             <Database :size="16" />
             <span>Cloud</span>
           </button>
 
-          <div class="upload-menu" @click.stop>
-            <button class="upload-btn" type="button" @click="toggleUploadMenu">
+          <div class="drivepage-upload-menu flex-inline" @click.stop>
+            <button class="drivepage-upload-btn" type="button" @click="toggleUploadMenu">
               <Plus :size="18" />
               <span>Upload</span>
             </button>
-            <div v-if="showUploadMenu" class="upload-dropdown" @click.stop>
+            <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px" @click.stop>
               <button
-                class="upload-dropdown-item"
+                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary"
                 type="button"
                 @click="openFilePicker"
               >
                 Upload files
               </button>
               <button
-                class="upload-dropdown-item"
+                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary"
                 type="button"
                 @click="openFolderPicker"
               >
@@ -135,41 +132,41 @@
       </header>
 
       <!-- Privacy Warning Banner -->
-      <div class="warning-banner">
-        <div class="warning-icon">
+      <div class="drivepage-warning-banner flex-align-center gap-100 margin-bottom-125 border-radius-12px">
+        <div class="drivepage-warning-icon flex-align-justify-center size-36px color-warning">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </div>
-        <div class="warning-content">
+        <div class="drivepage-warning-content flex flex-column flex-1 gap-25">
           <strong>Privacy Notice:</strong>
           <span>Everything uploaded on Lumen is public. Don't upload personal files.</span>
         </div>
       </div>
 
       <!-- Search and Filter Bar -->
-      <div class="search-filter-bar">
-        <div class="search-box">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="drivepage-search-filter-bar flex-align-center-justify-space-between flex-wrap-wrap gap-100 margin-bottom-100">
+        <div class="drivepage-search-box flex-align-center gap-50 flex-1 border-radius-10px">
+          <svg class="drivepage-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
           </svg>
           <input
             v-model="searchQuery"
             type="text"
-            class="search-input"
+            class="drivepage-search-input"
             placeholder="Search files..."
             @input="currentPage = 1"
           />
-          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''; currentPage = 1">
+          <button v-if="searchQuery" class="drivepage-clear-search flex-align-justify-center border-radius-circle color-text-secondary cursor-pointer" @click="searchQuery = ''; currentPage = 1">
             <X :size="14" />
           </button>
         </div>
         <div class="filter-info flex-align-center gap-75">
-          <span class="file-count">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
-          <select v-model="itemsPerPage" class="per-page-select" @change="currentPage = 1">
+          <span class="drivepage-file-count color-text-secondary">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
+          <select v-model="itemsPerPage" class="drivepage-per-page-select color-text-primary cursor-pointer outline-none" @change="currentPage = 1">
             <option :value="10">10 per page</option>
             <option :value="20">20 per page</option>
             <option :value="50">50 per page</option>
@@ -178,8 +175,8 @@
         </div>
       </div>
 
-      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bulk-toolbar" :class="{ active: selectedLocalCount > 0 }">
-        <label class="bulk-checkbox bulk-toolbar-checkbox" title="Select visible entries">
+      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar flex-align-center flex-wrap-wrap margin-bottom-100" :class="{ active: selectedLocalCount > 0 }">
+        <label class="drivepage-bulk-checkbox drivepage-bulk-toolbar-checkbox flex-inline-align-justify-center ring-spinner-sm" title="Select visible entries">
           <input
             type="checkbox"
             :checked="allVisibleLocalEntriesSelected"
@@ -187,15 +184,15 @@
           />
           <span></span>
         </label>
-        <div class="bulk-toolbar-copy">
+        <div class="drivepage-bulk-toolbar-copy flex flex-column">
           <strong>{{ selectedLocalCount }} selected</strong>
           <span v-if="canBulkConvertSelectedLocal">
             {{ selectedLocalConvertibleCount }} video{{ selectedLocalConvertibleCount === 1 ? "" : "s" }} ready for HLS
           </span>
         </div>
-        <div class="bulk-toolbar-actions">
+        <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap margin-left-auto gap-50">
           <button
-            class="bulk-action-btn disabled-fade-45"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer"
             type="button"
             :disabled="!selectedLocalCount"
             @click="clearLocalSelection"
@@ -204,17 +201,17 @@
           </button>
           <button
             v-if="canBulkConvertSelectedLocal"
-            class="bulk-action-btn disabled-fade-45"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer"
             type="button"
             @click="convertSelectedLocalToHls"
           >
             Convert to HLS
-            <span v-if="selectedLocalConvertibleCount" class="bulk-action-count">
+            <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium">
               {{ selectedLocalConvertibleCount }}
             </span>
           </button>
           <button
-            class="bulk-action-btn disabled-fade-45 danger"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -225,39 +222,39 @@
       </div>
 
       <!-- Breadcrumb (folders) -->
-      <div v-if="isBrowsing" class="browse-bar">
-        <button class="btn-ghost" type="button" @click="exitBrowse">
+      <div v-if="isBrowsing" class="drivepage-browse-bar flex-align-center gap-75">
+        <button class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer" type="button" @click="exitBrowse">
           Back
         </button>
-        <div class="browse-crumbs">
-          <button class="crumb" type="button" @click="exitBrowse">
+        <div class="drivepage-browse-crumbs flex-align-center flex-wrap-wrap gap-35">
+          <button class="drivepage-crumb" type="button" @click="exitBrowse">
             {{ browseHostingLabel }}
           </button>
-          <span class="sep">/</span>
-          <button class="crumb" type="button" @click="openBrowseAt('')">
+          <span class="drivepage-sep">/</span>
+          <button class="drivepage-crumb" type="button" @click="openBrowseAt('')">
             {{ browseRootLabel }}
           </button>
           <template v-for="c in browseCrumbs" :key="c.path">
-            <span class="sep">/</span>
-            <button class="crumb" type="button" @click="openBrowseAt(c.path)">
+            <span class="drivepage-sep">/</span>
+            <button class="drivepage-crumb" type="button" @click="openBrowseAt(c.path)">
               {{ c.label }}
             </button>
           </template>
         </div>
       </div>
 
-      <div v-if="browseLoading" class="listing-loading">
-        <div class="drive-spinner" aria-busy="true"></div>
+      <div v-if="browseLoading" class="drivepage-listing-loading flex-align-justify-center flex-1">
+        <div class="drivepage-drive-spinner size-36px border-radius-full" aria-busy="true"></div>
       </div>
 
-      <div v-else-if="browseError" class="fetch-error txt-xs margin-top-25">
+      <div v-else-if="browseError" class="drivepage-fetch-error txt-xs margin-top-25 color-error margin-top-100">
         {{ browseError }}
       </div>
 
 
       <!-- Upload Progress -->
-      <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="upload-progress">
-        <div class="progress-content" >
+      <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="drivepage-upload-progress border-radius-10px margin-bottom-100">
+        <div class="drivepage-progress-content flex-align-center gap-100" >
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-20">
             <span class="txt-sm txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
@@ -266,9 +263,9 @@
                 ({{ upload?.uploadingPercent }}%)
               </template>
             </span>
-            <div class="progress-actions">
+            <div class="drivepage-progress-actions flex gap-50">
               <button
-                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer"
                 type="button"
                 @click="cancelUpload(key)"
                 :disabled="upload?.uploadingCanceling"
@@ -278,9 +275,9 @@
             </div>
           </div>
         </div>
-        <div v-if="upload?.uploadingPercent != null" class="progress-bar">
+        <div v-if="upload?.uploadingPercent != null" class="drivepage-progress-bar border-radius-full">
           <div
-            class="progress-bar-fill"
+            class="drivepage-progress-bar-fill h-full"
             :style="{ width: `${upload?.uploadingPercent}%` }"
           ></div>
         </div>
@@ -304,8 +301,8 @@
 
 
       <!-- HLS Conversion Progress -->
-      <div v-if="converting" class="upload-progress">
-        <div class="progress-content">
+      <div v-if="converting" class="drivepage-upload-progress border-radius-10px margin-bottom-100">
+        <div class="drivepage-progress-content flex-align-center gap-100">
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-20">
             <span class="txt-sm txt-weight-strong"
@@ -317,9 +314,9 @@
             <span class="txt-xs color-gray-blue">
               {{ convertingStatusText }}
             </span>
-            <div class="progress-actions">
+            <div class="drivepage-progress-actions flex gap-50">
               <button
-                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer"
                 type="button"
                 @click="pauseHlsQueue"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -329,7 +326,7 @@
                 }}
               </button>
               <button
-                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer"
                 type="button"
                 @click="cancelHlsConversion"
                 :disabled="convertingCanceling || convertingPauseRequested"
@@ -339,24 +336,24 @@
             </div>
           </div>
         </div>
-        <div v-if="convertingPercent != null" class="progress-bar">
+        <div v-if="convertingPercent != null" class="drivepage-progress-bar border-radius-full">
           <div
-            class="progress-bar-fill"
+            class="drivepage-progress-bar-fill h-full"
             :style="{ width: `${convertingPercent}%` }"
           ></div>
         </div>
       </div>
 
-      <div v-if="hlsQueueVisible" class="hls-queue-panel">
-        <div class="hls-queue-header">
-          <div class="hls-queue-copy flex flex-column gap-15 min-w-0">
+      <div v-if="hlsQueueVisible" class="drivepage-hls-queue-panel flex flex-column gap-75 margin-bottom-100 padding-100">
+        <div class="drivepage-hls-queue-header flex-align-start gap-100">
+          <div class="drivepage-hls-queue-copy flex flex-column gap-15 min-w-0">
             <strong>HLS queue</strong>
             <span>{{ hlsQueueSummaryText() }}</span>
           </div>
-          <div class="hls-queue-actions">
+          <div class="drivepage-hls-queue-actions flex-inline-align-center flex-wrap-wrap gap-50">
             <button
               v-if="hlsQueueCanPause"
-              class="hls-queue-action-btn disabled-fade-45"
+              class="drivepage-hls-queue-action-btn disabled-fade-45 flex-inline-align-center color-text-secondary border-radius-10px txt-weight-light cursor-pointer"
               type="button"
               @click="pauseHlsQueue"
               :disabled="convertingPauseRequested"
@@ -366,7 +363,7 @@
             </button>
             <button
               v-if="hlsQueueCanResume"
-              class="hls-queue-action-btn disabled-fade-45"
+              class="drivepage-hls-queue-action-btn disabled-fade-45 flex-inline-align-center color-text-secondary border-radius-10px txt-weight-light cursor-pointer"
               type="button"
               @click="resumeHlsQueue"
             >
@@ -374,7 +371,7 @@
               <span>Resume</span>
             </button>
             <button
-              class="hls-queue-clear-btn disabled-fade-45"
+              class="drivepage-hls-queue-clear-btn disabled-fade-45 color-text-secondary border-radius-10px txt-weight-light cursor-pointer"
               type="button"
               @click="clearHlsQueue"
               :disabled="!hlsQueue.length"
@@ -384,33 +381,33 @@
           </div>
         </div>
 
-        <div class="hls-queue-list">
+        <div class="drivepage-hls-queue-list flex flex-column">
           <div
             v-for="item in visibleHlsQueueItems"
             :key="item.id"
-            class="hls-queue-item"
+            class="drivepage-hls-queue-item flex-align-center-justify-space-between gap-75 border-radius-12px"
             :class="`status-${item.status}`"
           >
-            <div class="hls-queue-item-copy">
-              <span class="hls-queue-item-name">{{ item.file.name }}</span>
-              <span v-if="item.error && item.status === 'failed'" class="hls-queue-item-error">
+            <div class="drivepage-hls-queue-item-copy flex flex-column">
+              <span class="drivepage-hls-queue-item-name txt-weight-light color-text-primary">{{ item.file.name }}</span>
+              <span v-if="item.error && item.status === 'failed'" class="drivepage-hls-queue-item-error">
                 {{ compactError(item.error) }}
               </span>
             </div>
-            <span class="hls-queue-item-status">
+            <span class="drivepage-hls-queue-item-status flex-inline-align-center txt-weight-medium color-text-secondary">
               <UiSpinner v-if="item.status === 'converting'" size="sm" />
               <span>{{ hlsQueueStatusLabel(item) }}</span>
             </span>
           </div>
         </div>
 
-        <div v-if="hlsQueue.length > visibleHlsQueueItems.length" class="hls-queue-more">
+        <div v-if="hlsQueue.length > visibleHlsQueueItems.length" class="drivepage-hls-queue-more color-text-secondary">
           +{{ hlsQueue.length - visibleHlsQueueItems.length }} more item{{ hlsQueue.length - visibleHlsQueueItems.length === 1 ? "" : "s" }}
         </div>
       </div>
 
-      <div v-if="archiveDownloading" class="upload-progress">
-        <div class="progress-content">
+      <div v-if="archiveDownloading" class="drivepage-upload-progress border-radius-10px margin-bottom-100">
+        <div class="drivepage-progress-content flex-align-center gap-100">
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-20">
             <span class="txt-sm txt-weight-strong">
@@ -419,9 +416,9 @@
             <span class="txt-xs color-gray-blue">
               {{ archiveDownloadStatusText }}
             </span>
-            <div class="progress-actions">
+            <div class="drivepage-progress-actions flex gap-50">
               <button
-                class="progress-cancel-btn disabled-fade-60 hover-fill-primary"
+                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer"
                 type="button"
                 @click="cancelHlsArchiveDownload"
                 :disabled="archiveDownloadCanceling"
@@ -431,28 +428,28 @@
             </div>
           </div>
         </div>
-        <div v-if="archiveDownloadPercent != null" class="progress-bar">
+        <div v-if="archiveDownloadPercent != null" class="drivepage-progress-bar border-radius-full">
           <div
-            class="progress-bar-fill"
+            class="drivepage-progress-bar-fill h-full"
             :style="{ width: `${archiveDownloadPercent}%` }"
           ></div>
         </div>
       </div>
 
-      <div v-if="showSavedListSpinner" class="listing-loading">
-        <div class="drive-spinner" aria-busy="true"></div>
+      <div v-if="showSavedListSpinner" class="drivepage-listing-loading flex-align-justify-center flex-1">
+        <div class="drivepage-drive-spinner size-36px border-radius-full" aria-busy="true"></div>
       </div>
 
 
       <!-- Files List View -->
       <div
         v-else-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 "
-        class="files-list"
+        class="drivepage-files-list flex flex-column flex-1 border-radius-12px"
       >
         <!-- List Header -->
-        <div class="list-header">
-          <div v-if="canUseLocalMultiSelect" class="list-select-header">
-            <label class="bulk-checkbox" title="Select visible entries">
+        <div class="drivepage-list-header flex-align-center gap-75 txt-weight-light text-uppercase color-text-secondary">
+          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header">
+            <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm" title="Select visible entries">
               <input
                 type="checkbox"
                 :checked="allVisibleLocalEntriesSelected"
@@ -461,25 +458,22 @@
               <span></span>
             </label>
           </div>
-          <div class="list-icon-header"></div>
-          <span class="list-name-header">Name</span>
-          <span class="list-size-header">Size</span>
-          <span class="list-date-header">Date Added</span>
-          <div class="list-actions-header"></div>
+          <div class="drivepage-list-icon-header size-32px"></div>
+          <span class="drivepage-list-name-header flex-1">Name</span>
+          <span class="drivepage-list-size-header w-80px text-right">Size</span>
+          <span class="drivepage-list-date-header text-right">Date Added</span>
+          <div class="drivepage-list-actions-header"></div>
         </div>
         <!-- List Items -->
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="list-item"
+          class="drivepage-list-item flex-align-center gap-75 cursor-pointer"
           @click="handleEntryClick(file)"
-          :class="{
-            selected: selectedFile?.cid === file.cid,
-            checked: isLocalFileSelected(file),
-          }"
+          :class="{ selected: selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
-          <div v-if="canUseLocalMultiSelect" class="list-select-cell" @click.stop>
-            <label class="bulk-checkbox">
+          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell" @click.stop>
+            <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm">
               <input
                 type="checkbox"
                 :checked="isLocalFileSelected(file)"
@@ -488,13 +482,13 @@
               <span></span>
             </label>
           </div>
-          <div class="list-icon" :class="getFileTypeClass(file)">
+          <div class="drivepage-list-icon flex-align-justify-center size-32px color-text-secondary" :class="getFileTypeClass(file)">
             <!-- Show small thumbnail for images -->
             <img
               v-if="isImageFile(file.name)"
               :src="getImageSrc(file)"
               :alt="file.name"
-              class="list-thumbnail"
+              class="drivepage-list-thumbnail w-full h-full"
               loading="lazy"
               decoding="async"
               fetchpriority="low"
@@ -503,7 +497,7 @@
             <video
               v-else-if="isVideoFile(file.name)"
               :src="getGatewayUrl(contentTargetFor(file))"
-              class="list-thumbnail-video"
+              class="drivepage-list-thumbnail-video w-full h-full"
               :poster="videoPosterFor(file)"
               preload="metadata"
               muted
@@ -514,7 +508,7 @@
               v-else-if="isHlsEntry(file)"
               :src="videoPosterFor(file) || ''"
               :alt="file.name"
-              class="list-thumbnail"
+              class="drivepage-list-thumbnail w-full h-full"
               loading="lazy"
               decoding="async"
               fetchpriority="low"
@@ -526,22 +520,22 @@
               stroke-width="1.5"
             />
           </div>
-          <span class="list-name">{{ file.name }}</span>
-          <span class="list-size">{{ formatSize(file.size) }}</span>
-          <span class="list-date">{{
+          <span class="drivepage-list-name flex-1 fs-085rem fw-500 color-text-primary">{{ file.name }}</span>
+          <span class="drivepage-list-size color-text-secondary w-80px text-right">{{ formatSize(file.size) }}</span>
+          <span class="drivepage-list-date color-text-secondary text-right">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="list-actions">
+          <div class="drivepage-list-actions flex-justify-end gap-25">
             <button
               v-if="!isBrowsing && isDirEntry(file)"
-              class="action-btn"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary"
               title="Details"
               @click.stop="openEntryDetails(file)"
             >
               <TableProperties :size="14" />
             </button>
             <button
-              class="action-btn"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary"
               title="Download"
               @click.stop="downloadFile(file)"
             >
@@ -549,7 +543,7 @@
             </button>
             <button
               v-if="!isDirEntry(file) && isVideoFile(file.name)"
-              class="action-btn"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary"
               title="Convert to HLS"
               :disabled="converting || uploading"
               @click.stop="convertToHls(file)"
@@ -557,14 +551,14 @@
               <Clapperboard :size="14" />
             </button>
             <button
-              class="action-btn"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary"
               title="Share"
               @click.stop="copyLumenLinkFor(file)"
             >
               <Share2 :size="14" />
             </button>
             <button
-              class="action-btn danger"
+              class="drivepage-action-btn danger flex-inline-align-justify-center cursor-pointer color-text-primary"
               title="Remove"
               @click.stop="removeFile(file)"
             >
@@ -575,9 +569,9 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="pagination-bar">
+      <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="drivepage-pagination-bar flex-align-justify-center flex-wrap-wrap gap-50">
         <button 
-          class="page-btn disabled-fade-40"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer"
           :disabled="currentPage === 1"
           @click="currentPage = 1"
           title="First page"
@@ -587,7 +581,7 @@
           </svg>
         </button>
         <button 
-          class="page-btn disabled-fade-40"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer"
           :disabled="currentPage === 1"
           @click="currentPage--"
           title="Previous page"
@@ -597,12 +591,12 @@
           </svg>
         </button>
         
-        <div class="page-numbers">
+        <div class="drivepage-page-numbers flex-align-center gap-25">
           <template v-for="(page, idx) in pageNumbers" :key="idx">
-            <span v-if="page === '...'" class="page-ellipsis">...</span>
+            <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary fs-085rem">...</span>
             <button 
               v-else
-              class="page-num" 
+              class="drivepage-page-num flex-align-justify-center size-32px color-text-primary fs-085rem fw-500 cursor-pointer" 
               :class="{ active: currentPage === page }"
               @click="currentPage = page as number"
             >
@@ -612,7 +606,7 @@
         </div>
         
         <button 
-          class="page-btn disabled-fade-40"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer"
           :disabled="currentPage === totalPages"
           @click="currentPage++"
           title="Next page"
@@ -622,7 +616,7 @@
           </svg>
         </button>
         <button 
-          class="page-btn disabled-fade-40"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer"
           :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
           title="Last page"
@@ -632,14 +626,14 @@
           </svg>
         </button>
         
-        <span class="page-info">
+        <span class="drivepage-page-info color-text-secondary">
           {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }} of {{ filteredFiles.length }}
         </span>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="!showSavedListSpinner && !browseLoading && filteredFiles.length === 0" class="empty-state">
-        <div class="empty-icon">
+      <div v-else-if="!showSavedListSpinner && !browseLoading && filteredFiles.length === 0" class="drivepage-empty-state flex-align-justify-center flex-column flex-1 text-center">
+        <div class="drivepage-empty-icon flex-align-justify-center w-80px border-radius-20px color-text-tertiary margin-bottom-100">
           <Cloud :size="64" stroke-width="1" />
         </div>
         <h3 class="txt-md txt-weight-strong margin-top-50">
@@ -653,7 +647,7 @@
           }}
         </p>
         <button
-          class="upload-btn-large margin-top-50"
+          class="drivepage-upload-btn-large margin-top-50"
           type="button"
           @click="openFilePicker"
         >
@@ -664,23 +658,23 @@
     </main>
 
     <!-- File Detail Panel -->
-    <aside v-if="selectedFile" class="detail-panel">
-      <div class="detail-header">
+    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column padding-150 margin-0">
+      <div class="drivepage-detail-header flex-align-center-justify-space-between margin-bottom-125">
         <h3 class="txt-sm txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}
         </h3>
-        <button class="close-btn" @click="selectedFile = null">
+        <button class="drivepage-close-btn flex-align-justify-center size-28px cursor-pointer color-text-tertiary" @click="selectedFile = null">
           <X :size="18" />
         </button>
       </div>
 
-      <div class="detail-preview" :class="getFileTypeClass(selectedFile)">
+      <div class="drivepage-detail-preview flex-align-justify-center border-radius-12px margin-bottom-125 color-text-tertiary" :class="getFileTypeClass(selectedFile)">
         <!-- Show actual image preview in detail panel -->
         <img
           v-if="isImageFile(selectedFile.name)"
           :src="getImageSrc(selectedFile)"
           :alt="selectedFile.name"
-          class="detail-preview-image"
+          class="drivepage-detail-preview-image w-full h-full border-radius-12px"
           decoding="async"
           @error="() => selectedFile && onImageError(selectedFile)"
         />
@@ -688,7 +682,7 @@
         <video
           v-else-if="isVideoFile(selectedFile.name)"
           :src="getGatewayUrl(contentTargetFor(selectedFile))"
-          class="detail-preview-video"
+          class="drivepage-detail-preview-video w-full h-full border-radius-12px"
           controls
           muted
           playsinline
@@ -697,7 +691,7 @@
           v-else-if="isHlsEntry(selectedFile)"
           :src="videoPosterFor(selectedFile) || ''"
           :alt="selectedFile.name"
-          class="detail-preview-image"
+          class="drivepage-detail-preview-image w-full h-full border-radius-12px"
           decoding="async"
         />
         <!-- Show icon for other files -->
@@ -709,27 +703,27 @@
         />
       </div>
 
-      <div class="detail-info">
+      <div class="drivepage-detail-info flex flex-column gap-100 margin-bottom-125">
         <div class="info-row flex flex-column gap-20">
-          <span class="info-label">Name</span>
+          <span class="drivepage-info-label color-text-tertiary text-uppercase">Name</span>
           <input
             v-if="canRenameSelected"
-            class="info-value name-input"
+            class="drivepage-info-value drivepage-name-input color-text-primary fw-500 w-full border-radius-10px fs-085rem"
             v-model.trim="renameDraft"
             type="text"
             placeholder="Unknown"
             @keyup.enter="saveSelectedName"
             @blur="saveSelectedName"
           />
-          <span v-else class="info-value">{{ selectedFile.name }}</span>
+          <span v-else class="drivepage-info-value color-text-primary fw-500">{{ selectedFile.name }}</span>
         </div>
         <div class="info-row flex flex-column gap-20">
-          <span class="info-label">Size</span>
-          <span class="info-value">{{ formatSize(selectedFile.size) }}</span>
+          <span class="drivepage-info-label color-text-tertiary text-uppercase">Size</span>
+          <span class="drivepage-info-value color-text-primary fw-500">{{ formatSize(selectedFile.size) }}</span>
         </div>
         <div class="info-row flex flex-column gap-20" v-if="selectedFile.uploadedAt">
-          <span class="info-label">Added</span>
-          <span class="info-value">{{
+          <span class="drivepage-info-label color-text-tertiary text-uppercase">Added</span>
+          <span class="drivepage-info-value color-text-primary fw-500">{{
             formatDate(selectedFile.uploadedAt)
           }}</span>
         </div>
@@ -738,7 +732,7 @@
       <div class="detail-actions flex flex-column gap-50">
         <button
           v-if="!isDirEntry(selectedFile)"
-          class="detail-btn primary"
+          class="drivepage-detail-btn primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary"
           @click="downloadFile(selectedFile)"
         >
           <Download :size="16" />
@@ -746,7 +740,7 @@
         </button>
         <button
           v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
-          class="detail-btn hover-fill-primary"
+          class="drivepage-detail-btn hover-fill-primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary"
           :disabled="converting || uploading"
           @click="convertSelectedToHls"
           title="Convert to HLS (creates a new CID)"
@@ -754,11 +748,11 @@
           <Clapperboard :size="16" />
           Convert to HLS
         </button>
-        <button class="detail-btn hover-fill-primary" @click="copyLumenLinkFor(selectedFile)">
+        <button class="drivepage-detail-btn hover-fill-primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary" @click="copyLumenLinkFor(selectedFile)">
           <Share2 :size="16" />
           Share
         </button>
-        <button class="detail-btn hover-fill-primary" @click="openInIpfs(selectedFile)">
+        <button class="drivepage-detail-btn hover-fill-primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary" @click="openInIpfs(selectedFile)">
           <ExternalLink :size="16" />
           Open
         </button>
@@ -766,16 +760,16 @@
     </aside>
 
     <!-- Toast -->
-    <Transition name="toast">
-      <div v-if="toast" class="toast" :class="toastType">
+    <Transition name="drivepage-toast">
+      <div v-if="toast" class="drivepage-toast flex-align-center gap-50 border-radius-10px fw-500" :class="toastType">
         <component :is="toastIcon" :size="16" />
         {{ toast }}
       </div>
     </Transition>
 
     <!-- Drop Overlay
-    <div v-if="isDragging" class="drop-overlay">
-      <div class="drop-content">
+    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center">
+      <div class="drivepage-drop-content text-center">
         <Upload :size="48" />
         <p class="txt-md txt-weight-strong margin-top-25">
           Drop files to upload
@@ -787,14 +781,14 @@
     <Transition name="modal">
       <div
         v-if="showUploadPathModal"
-        class="modal-overlay"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100"
         @click="closeUploadPathModal"
       >
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
+        <div class="drivepage-modal-content w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>{{ uploadPathMode === "folder" ? "Upload folder" : "Upload files" }}</h3>
             <button
-              class="modal-close"
+              class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer"
               type="button"
               @click="closeUploadPathModal"
             >
@@ -802,8 +796,8 @@
             </button>
           </div>
 
-          <div class="modal-body">
-            <p class="modal-desc">
+          <div class="drivepage-modal-body padding-150">
+            <p class="drivepage-modal-desc color-text-secondary margin-bottom-150">
               Paste {{ uploadPathMode === "folder" ? "folder" : "file" }} path{{
                 uploadPathMode === "folder" ? "" : "s"
               }}
@@ -811,7 +805,7 @@
             </p>
             <textarea
               v-model="uploadPathText"
-              class="upload-path-textarea"
+              class="drivepage-upload-path-textarea w-full border-radius-12px color-text-primary outline-none"
               rows="5"
               :placeholder="
                 uploadPathMode === 'folder'
@@ -821,9 +815,9 @@
             ></textarea>
           </div>
 
-          <div class="modal-footer">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
             <button
-              class="btn-modal-secondary disabled-fade-60"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer"
               type="button"
               @click="closeUploadPathModal"
               :disabled="uploadPathBusy"
@@ -831,7 +825,7 @@
               Cancel
             </button>
             <button
-              class="btn-modal-primary"
+              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer"
               type="button"
               :disabled="uploadPathBusy"
             >
@@ -847,17 +841,17 @@
     <Transition name="modal">
       <div
         v-if="showLocalDetails"
-        class="modal-overlay"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100"
         @click="closeLocalDetails"
       >
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
+        <div class="drivepage-modal-content w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>Local drive</h3>
-            <button class="modal-close" @click="closeLocalDetails">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closeLocalDetails">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
+          <div class="drivepage-modal-body padding-150">
 
             <div class="details-grid">
               <div class="details-row">
@@ -897,9 +891,9 @@
                 (only references). Keep the file + password safe.
               </p>
 
-              <div v-if="driveBackupError" class="plans-error">
-                <div class="plans-error-title">Backup failed</div>
-                <div class="plans-error-text">{{ driveBackupError }}</div>
+              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px">
+                <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Backup failed</div>
+                <div class="drivepage-plans-error-text color-text-secondary">{{ driveBackupError }}</div>
               </div>
 
               <div class="details-grid">
@@ -917,9 +911,9 @@
                 </div>
               </div>
 
-              <div class="details-actions margin-top-75 flex-wrap-wrap">
+              <div class="drivepage-details-actions margin-top-75 flex-wrap-wrap flex-inline-align-center gap-35">
                 <button
-                  class="btn-ghost"
+                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer"
                   type="button"
                   :disabled="driveBackupBusy"
                   @click="openDriveBackupExportModal"
@@ -927,7 +921,7 @@
                   Export snapshot
                 </button>
                 <button
-                  class="btn-ghost"
+                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer"
                   type="button"
                   :disabled="driveBackupBusy"
                   @click="triggerImportDriveBackup"
@@ -952,27 +946,27 @@
     <Transition name="modal">
       <div
         v-if="showDriveBackupExportModal"
-        class="modal-overlay"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100"
         @click="closeDriveBackupExportModal"
       >
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
+        <div class="drivepage-modal-content w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>Export drive snapshot</h3>
-            <button class="modal-close" @click="closeDriveBackupExportModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closeDriveBackupExportModal">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
-            <p class="modal-desc">
+          <div class="drivepage-modal-body padding-150">
+            <p class="drivepage-modal-desc color-text-secondary margin-bottom-150">
               Set a password to encrypt your drive metadata backup for
               <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
             </p>
 
             <div class="drive-backup-form flex flex-column gap-75">
               <div class="drive-backup-field flex flex-column gap-35">
-                <label class="drive-backup-label">Password</label>
+                <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drive-backup-input"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPassword"
                   placeholder="Min 8 characters (recommended: long passphrase)"
@@ -981,9 +975,9 @@
               </div>
 
               <div class="drive-backup-field flex flex-column gap-35">
-                <label class="drive-backup-label">Confirm password</label>
+                <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Confirm password</label>
                 <input
-                  class="drive-backup-input"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPasswordConfirm"
                   placeholder="Repeat password"
@@ -992,7 +986,7 @@
                 />
               </div>
 
-              <label class="drive-backup-toggle">
+              <label class="drivepage-drive-backup-toggle flex-align-center gap-50 color-text-secondary fs-085rem">
                 <input
                   type="checkbox"
                   v-model="driveBackupExportShowPassword"
@@ -1005,15 +999,15 @@
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="plans-error margin-top-75">
-                <div class="plans-error-title">Backup failed</div>
-                <div class="plans-error-text">{{ driveBackupError }}</div>
+              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px">
+                <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Backup failed</div>
+                <div class="drivepage-plans-error-text color-text-secondary">{{ driveBackupError }}</div>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
             <button
-              class="btn-modal-secondary disabled-fade-60"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer"
               type="button"
               :disabled="driveBackupBusy"
               @click="closeDriveBackupExportModal"
@@ -1021,7 +1015,7 @@
               Cancel
             </button>
             <button
-              class="btn-modal-primary"
+              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer"
               type="button"
               :disabled="
                 driveBackupBusy ||
@@ -1043,18 +1037,18 @@
     <Transition name="modal">
       <div
         v-if="showDriveBackupImportModal"
-        class="modal-overlay"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100"
         @click="closeDriveBackupImportModal"
       >
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
+        <div class="drivepage-modal-content w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>Import drive snapshot</h3>
-            <button class="modal-close" @click="closeDriveBackupImportModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closeDriveBackupImportModal">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
-            <p class="modal-desc">
+          <div class="drivepage-modal-body padding-150">
+            <p class="drivepage-modal-desc color-text-secondary margin-bottom-150">
               This will replace your local drive metadata (CIDs, names, favourites) for
               <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
             </p>
@@ -1071,9 +1065,9 @@
               class="drive-backup-form flex flex-column gap-75 margin-top-100"
             >
               <div class="drive-backup-field flex flex-column gap-35">
-                <label class="drive-backup-label">Password</label>
+                <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drive-backup-input"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary"
                   :type="driveBackupImportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupImportPassword"
                   placeholder="Enter backup password"
@@ -1082,7 +1076,7 @@
                 />
               </div>
 
-              <label class="drive-backup-toggle">
+              <label class="drivepage-drive-backup-toggle flex-align-center gap-50 color-text-secondary fs-085rem">
                 <input
                   type="checkbox"
                   v-model="driveBackupImportShowPassword"
@@ -1091,9 +1085,9 @@
                 <span>Show password</span>
               </label>
 
-              <div v-if="driveBackupError" class="plans-error margin-top-75">
-                <div class="plans-error-title">Import failed</div>
-                <div class="plans-error-text">{{ driveBackupError }}</div>
+              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px">
+                <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Import failed</div>
+                <div class="drivepage-plans-error-text color-text-secondary">{{ driveBackupError }}</div>
               </div>
             </div>
 
@@ -1125,32 +1119,32 @@
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="plans-error margin-top-100"
+                class="drivepage-plans-error margin-top-100 flex flex-column border-radius-12px"
               >
-                <div class="plans-error-title">Different wallet</div>
-                <div class="plans-error-text">
+                <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Different wallet</div>
+                <div class="drivepage-plans-error-text color-text-secondary">
                   This snapshot was created for a different wallet. Importing it will still work,
                   but make sure you're restoring into the right profile.
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="plans-error margin-top-100">
-                <div class="plans-error-title">Older snapshot</div>
-                <div class="plans-error-text">
+              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error margin-top-100 flex flex-column border-radius-12px">
+                <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Older snapshot</div>
+                <div class="drivepage-plans-error-text color-text-secondary">
                   This snapshot looks older than your current local version (seq
                   {{ driveBackupRestoreDetails.localSeq }}).
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="plans-error margin-top-75">
-                <div class="plans-error-title">Import failed</div>
-                <div class="plans-error-text">{{ driveBackupError }}</div>
+              <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px">
+                <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Import failed</div>
+                <div class="drivepage-plans-error-text color-text-secondary">{{ driveBackupError }}</div>
               </div>
             </template>
           </div>
-          <div class="modal-footer">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
             <button
-              class="btn-modal-secondary disabled-fade-60"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer"
               type="button"
               :disabled="driveBackupBusy"
               @click="closeDriveBackupImportModal"
@@ -1158,7 +1152,7 @@
               Cancel
             </button>
             <button
-              class="btn-modal-primary"
+              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer"
               type="button"
               :disabled="
                 driveBackupBusy ||
@@ -1188,19 +1182,19 @@
     <Transition name="modal">
       <div
         v-if="showGatewayDetails"
-        class="modal-overlay"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100"
         @click="closeGatewayDetails"
       >
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
+        <div class="drivepage-modal-content w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>Subscription details</h3>
-            <button class="modal-close" @click="closeGatewayDetails">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closeGatewayDetails">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
-            <div v-if="gatewayDetailsLoading" class="permalink-loading">
-              <div class="drive-spinner" aria-busy="true"></div>
+          <div class="drivepage-modal-body padding-150">
+            <div v-if="gatewayDetailsLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full">
+              <div class="drivepage-drive-spinner size-36px border-radius-full" aria-busy="true"></div>
             </div>
 
             <template v-else>
@@ -1238,21 +1232,21 @@
                 </div>
                 <div
                   v-if="gatewayDetailsUsageError === 'password_required'"
-                  class="plans-error"
+                  class="drivepage-plans-error flex flex-column border-radius-12px"
                 >
-                  <div class="plans-error-title">Wallet locked</div>
-                  <div class="plans-error-text">
+                  <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Wallet locked</div>
+                  <div class="drivepage-plans-error-text color-text-secondary">
                     Unlock your Lumen identity to fetch usage from this cloud.
                   </div>
                   <button
-                    class="btn-ghost"
+                    class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer"
                     type="button"
                     @click="requestUnlock"
                   >
                     Unlock
                   </button>
                 </div>
-                <div v-else-if="gatewayDetailsUsageError" class="plans-error">
+                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px">
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="details-grid">
@@ -1308,18 +1302,18 @@
 
     <!-- Plans Modal -->
     <Transition name="modal">
-      <div v-if="showPlansModal" class="modal-overlay" @click="closePlansModal">
-        <div class="modal-content plans-modal" @click.stop>
-          <div class="modal-header">
+      <div v-if="showPlansModal" class="drivepage-modal-overlay flex-align-justify-center padding-100" @click="closePlansModal">
+        <div class="drivepage-modal-content drivepage-plans-modal w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>Cloud plans</h3>
-            <button class="modal-close" @click="closePlansModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closePlansModal">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
+          <div class="drivepage-modal-body padding-150">
 
-            <div v-if="plansLoading" class="permalink-loading">
-              <div class="drive-spinner" aria-busy="true"></div>
+            <div v-if="plansLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full">
+              <div class="drivepage-drive-spinner size-36px border-radius-full" aria-busy="true"></div>
             </div>
 
             <div v-else-if="plansError" class="permalink-success">
@@ -1330,33 +1324,30 @@
               <p>No plans available at the moment.</p>
             </div>
 
-            <div v-else class="plans-list">
+            <div v-else class="drivepage-plans-list flex flex-column flex-wrap-wrap gap-75">
               <div v-if="false">
-                <div v-for="plan in plans" :key="plan.id" class="plan-row">
-                  <div class="plan-main">
-                    <div class="plan-title-row">
-                      <span class="plan-name">{{ planDisplayName(plan) }}</span>
+                <div v-for="plan in plans" :key="plan.id" class="drivepage-plan-row flex flex-column gap-50 padding-100 border-radius-12px">
+                  <div class="drivepage-plan-main flex flex-column flex-1 gap-35">
+                    <div class="drivepage-plan-title-row flex-align-center-justify-space-between gap-50">
+                      <span class="drivepage-plan-name txt-weight-light color-text-primary">{{ planDisplayName(plan) }}</span>
                       <span
-                        class="plan-status-badge"
-                        :class="{
-                          active: planStatus(plan) === 'active',
-                          pending: planStatus(plan) === 'pending',
-                        }"
+                        class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary"
+                        :class="{ active: planStatus(plan) === 'active', pending: planStatus(plan) === 'pending', }"
                       >
                         {{ planStatusLabel(plan) }}
                       </span>
                     </div>
-                    <div class="plan-gw">
+                    <div class="drivepage-plan-gw color-text-secondary">
                       {{ plan.gatewayName }}
                       <template v-if="plan.gatewayEndpoint">
                         · {{ plan.gatewayEndpoint }}
                       </template>
                     </div>
                   </div>
-                  <div class="plan-meta">
-                    <div class="plan-meta-line">
-                      <span class="label">Storage</span>
-                      <span class="value">
+                  <div class="drivepage-plan-meta flex flex-column gap-25">
+                    <div class="drivepage-plan-meta-line flex-justify-space-between">
+                      <span class="drivepage-label">Storage</span>
+                      <span class="drivepage-value">
                         {{
                           plan.storageGbPerMonth
                             ? `${plan.storageGbPerMonth} GB / month`
@@ -1364,9 +1355,9 @@
                         }}
                       </span>
                     </div>
-                    <div class="plan-meta-line">
-                      <span class="label">Egress</span>
-                      <span class="value">
+                    <div class="drivepage-plan-meta-line flex-justify-space-between">
+                      <span class="drivepage-label">Egress</span>
+                      <span class="drivepage-value">
                         {{
                           plan.networkGbPerMonth
                             ? `${plan.networkGbPerMonth} GB / month`
@@ -1374,9 +1365,9 @@
                         }}
                       </span>
                     </div>
-                    <div class="plan-meta-line">
-                      <span class="label">Price</span>
-                      <span class="value">
+                    <div class="drivepage-plan-meta-line flex-justify-space-between">
+                      <span class="drivepage-label">Price</span>
+                      <span class="drivepage-value">
                         {{ formatPlanPrice(plan.priceUlmn) }}
                       </span>
                     </div>
@@ -1385,16 +1376,16 @@
               </div>
 
                <!-- Filters -->
-               <div class="plans-controls">
-                 <div class="plans-controls-row">
-                   <div class="plans-search-group plans-search-group-primary">
-                     <div class="plans-search-input">
-                       <Search :size="16" class="plans-search-ico" />
+               <div class="drivepage-plans-controls flex-align-center-justify-space-between flex-column gap-75">
+                 <div class="drivepage-plans-controls-row flex-align-center-justify-space-between gap-75 w-full">
+                   <div class="drivepage-plans-search-group drivepage-plans-search-group-primary flex-align-center gap-75 flex-1-1-auto">
+                     <div class="drivepage-plans-search-input flex-align-center gap-50 size-40px border-radius-10px flex-1-1-auto">
+                       <Search :size="16" class="drivepage-plans-search-ico color-text-secondary" />
                        <input
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="plans-filter-input"
+                         class="drivepage-plans-filter-input outline-none color-text-primary h-full"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1402,7 +1393,7 @@
 
                      <select
                        v-model="planRegion"
-                       class="plans-filter-select"
+                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none"
                        aria-label="Region filter"
                      >
                        <option value="">All regions</option>
@@ -1412,10 +1403,10 @@
                      </select>
                    </div>
 
-                   <div class="plans-search-group plans-search-group-sort">
+                   <div class="drivepage-plans-search-group drivepage-plans-search-group-sort flex-align-center gap-75 margin-left-auto">
                      <select
                        v-model="planSortBy"
-                       class="plans-filter-select"
+                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none"
                        aria-label="Sort by"
                      >
                        <option value="score-desc">Sort: Score (high-low)</option>
@@ -1425,22 +1416,22 @@
                    </div>
                  </div>
 
-                 <div class="plans-controls-row plans-controls-row-secondary">
-                   <label class="plans-filter-checkbox">
+                 <div class="drivepage-plans-controls-row drivepage-plans-controls-row-secondary flex-align-center-justify-space-between gap-75 w-full">
+                   <label class="drivepage-plans-filter-checkbox flex-align-center gap-35 color-text-secondary">
                      <input type="checkbox" v-model="planOnlineOnly" />
                      <span>Online only</span>
                    </label>
                  </div>
                </div>
 
-               <div v-if="!planGroups.length" class="plans-empty">
+               <div v-if="!planGroups.length" class="drivepage-plans-empty text-center">
                  <h4>No gateways match your filters</h4>
-                 <p class="plans-empty-muted">Try clearing filters or search.</p>
-                 <div class="plans-empty-actions">
+                 <p class="drivepage-plans-empty-muted color-text-secondary">Try clearing filters or search.</p>
+                 <div class="drivepage-plans-empty-actions flex-justify-center flex-wrap-wrap gap-50">
                    <button
                      v-if="planFilter"
                      type="button"
-                     class="btn-ghost"
+                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer"
                      @click="planFilter = ''"
                    >
                      Clear search
@@ -1448,63 +1439,63 @@
                    <button
                      v-if="hasPlanFilters"
                      type="button"
-                     class="btn-ghost"
+                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer"
                      @click="resetPlanFilters"
                    >
                      Reset filters
                    </button>
-                   <button type="button" class="btn-ghost" @click="openPlansModal">
+                   <button type="button" class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer" @click="openPlansModal">
                      Reload
                    </button>
                  </div>
                </div>
 
                <!-- Grouped by gateway -->
-               <div v-if="planGroups.length" class="plans-grid">
+               <div v-if="planGroups.length" class="drivepage-plans-grid flex flex-column gap-75">
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
-                   class="gateway-card"
+                   class="drivepage-gateway-card flex flex-column border-radius-10px gap-75"
                    :class="{ offline: !group.gateway.active }"
                  >
-                  <header class="gateway-card-header">
-                    <div class="gateway-title">
+                  <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-50">
+                    <div class="drivepage-gateway-title flex-align-center gap-50">
                       <span
-                        class="gateway-status-dot"
+                        class="drivepage-gateway-status-dot border-radius-full"
                         :class="group.gateway.active ? 'ok' : 'off'"
                       ></span>
                       <span
-                        class="gateway-name"
+                        class="drivepage-gateway-name txt-weight-light color-text-primary"
                         :title="planGatewayLabel(group.gateway)"
                       >
                         {{ planGatewayLabel(group.gateway) }}
                       </span>
                     </div>
-                    <div class="gateway-meta">
+                    <div class="drivepage-gateway-meta flex-justify-end flex-wrap-wrap">
                       <span
                         v-if="group.gateway.regions.length"
-                        class="gateway-region"
+                        class="drivepage-gateway-region flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary"
                         :title="formatRegionsTitle(group.gateway.regions)"
                       >
-                        <MapPin :size="14" class="gateway-region-ico" />
-                        <span class="gateway-region-text">{{
+                        <MapPin :size="14" class="drivepage-gateway-region-ico flex-0-0-auto" />
+                        <span class="drivepage-gateway-region-text">{{
                           formatRegionsLabel(group.gateway.regions)
                         }}</span>
                       </span>
-                      <span class="gateway-plan-chips">
+                      <span class="drivepage-gateway-plan-chips flex flex-wrap-wrap gap-50">
                         <span
                           v-for="plan in group.plans"
                           :key="plan.id + '-chip'"
-                          class="plan-chip"
+                          class="drivepage-plan-chip flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary"
                         >
-                          <span class="plan-chip-price">
+                          <span class="drivepage-plan-chip-price">
                             {{ formatPlanPriceShort(plan.priceUlmn) }}
                           </span>
                         </span>
                       </span>
                       <button
                         type="button"
-                        class="gateway-expand-btn"
+                        class="drivepage-gateway-expand-btn border-radius-full fs-075rem color-text-secondary cursor-pointer"
                         @click.stop="toggleGatewayExpanded(group.gateway.id)"
                       >
                         {{
@@ -1516,7 +1507,7 @@
                     </div>
                   </header>
 
-                  <div class="gateway-plans">
+                  <div class="drivepage-gateway-plans flex flex-column gap-75">
                     <div
                       v-if="isGatewayExpanded(group.gateway.id)"
                       class="gateway-plan-details"
@@ -1524,25 +1515,25 @@
                       <div
                         v-for="plan in group.plans"
                         :key="plan.id"
-                        class="plan-row"
+                        class="drivepage-plan-row flex flex-column gap-50 padding-100 border-radius-12px"
                       >
-                        <div class="plan-main">
-                          <div class="plan-title-row">
-                            <span class="plan-name">{{
+                        <div class="drivepage-plan-main flex flex-column flex-1 gap-35">
+                          <div class="drivepage-plan-title-row flex-align-center-justify-space-between gap-50">
+                            <span class="drivepage-plan-name txt-weight-light color-text-primary">{{
                               planDisplayName(plan)
                             }}</span>
                           </div>
-                          <div class="plan-gw">
+                          <div class="drivepage-plan-gw color-text-secondary">
                             {{ plan.gatewayName }}
                             <template v-if="plan.gatewayEndpoint">
                               · {{ plan.gatewayEndpoint }}
                             </template>
                           </div>
                         </div>
-                        <div class="plan-meta">
-                          <div class="plan-meta-line">
-                            <span class="label">Storage</span>
-                            <span class="value">
+                        <div class="drivepage-plan-meta flex flex-column gap-25">
+                          <div class="drivepage-plan-meta-line flex-justify-space-between">
+                            <span class="drivepage-label">Storage</span>
+                            <span class="drivepage-value">
                               {{
                                 plan.storageGbPerMonth
                                   ? `${plan.storageGbPerMonth} GB / month`
@@ -1550,9 +1541,9 @@
                               }}
                             </span>
                           </div>
-                          <div class="plan-meta-line">
-                            <span class="label">Egress</span>
-                            <span class="value">
+                          <div class="drivepage-plan-meta-line flex-justify-space-between">
+                            <span class="drivepage-label">Egress</span>
+                            <span class="drivepage-value">
                               {{
                                 plan.networkGbPerMonth
                                   ? `${plan.networkGbPerMonth} GB / month`
@@ -1560,29 +1551,26 @@
                               }}
                             </span>
                           </div>
-                          <div class="plan-meta-line">
-                            <span class="label">Price</span>
-                            <span class="value">
+                          <div class="drivepage-plan-meta-line flex-justify-space-between">
+                            <span class="drivepage-label">Price</span>
+                            <span class="drivepage-value">
                               {{ formatPlanPrice(plan.priceUlmn) }}
                             </span>
                           </div>
                         </div>
-                        <div class="plan-footer">
+                        <div class="drivepage-plan-footer flex-justify-end">
                           <button
                             v-if="planStatus(plan) === 'none'"
                             type="button"
-                            class="plan-status-badge"
+                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary"
                             @click.stop="openSubscribeModal(plan)"
                           >
                             {{ planStatusLabel(plan) }}
                           </button>
                           <span
                             v-else
-                            class="plan-status-badge"
-                            :class="{
-                              active: planStatus(plan) === 'active',
-                              pending: planStatus(plan) === 'pending',
-                            }"
+                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary"
+                            :class="{ active: planStatus(plan) === 'active', pending: planStatus(plan) === 'pending', }"
                           >
                             {{ planStatusLabel(plan) }}
                           </span>
@@ -1593,19 +1581,19 @@
                </article>
              </div>
 
-             <div v-if="planGroups.length" class="plans-pager">
+             <div v-if="planGroups.length" class="drivepage-plans-pager flex-align-center-justify-space-between flex-wrap-wrap gap-75 margin-top-100">
                <div class="plans-pager-side flex-align-center gap-50">
-                 <span class="plans-pager-text">
+                 <span class="drivepage-plans-pager-text color-text-secondary">
                    Showing {{ planPageStart + 1 }}-{{
                      Math.min(planPageEnd, planGroups.length)
                    }}
                    of {{ planGroups.length }}
                  </span>
                </div>
-               <div class="plans-pager-controls">
+               <div class="drivepage-plans-pager-controls flex-align-justify-center flex-wrap-wrap gap-35">
                  <button
                    type="button"
-                   class="plans-pager-btn disabled-fade-40"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer"
                    :disabled="planPage === 1"
                    @click="planPage = 1"
                  >
@@ -1613,18 +1601,18 @@
                  </button>
                  <button
                    type="button"
-                   class="plans-pager-btn disabled-fade-40"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer"
                    :disabled="planPage === 1"
                    @click="planPage--"
                  >
                    Prev
                  </button>
-                 <span class="plans-pager-text">
+                 <span class="drivepage-plans-pager-text color-text-secondary">
                    Page {{ planPage }} / {{ planTotalPages || 1 }}
                  </span>
                  <button
                    type="button"
-                   class="plans-pager-btn disabled-fade-40"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer"
                    :disabled="planPage === planTotalPages"
                    @click="planPage++"
                  >
@@ -1632,7 +1620,7 @@
                  </button>
                  <button
                    type="button"
-                   class="plans-pager-btn disabled-fade-40"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer"
                    :disabled="planPage === planTotalPages"
                    @click="planPage = planTotalPages"
                  >
@@ -1643,7 +1631,7 @@
                  <select
                    v-model.number="planPageSize"
                    aria-label="Rows per page"
-                   class="per-page-select"
+                   class="drivepage-per-page-select color-text-primary cursor-pointer outline-none"
                  >
                    <option :value="8">8 / page</option>
                    <option :value="16">16 / page</option>
@@ -1661,40 +1649,40 @@
     <Transition name="modal">
       <div
         v-if="showSubscribeModal && subscribePlan"
-        class="modal-overlay"
+        class="drivepage-modal-overlay flex-align-justify-center padding-100"
         @click="closeSubscribeModal"
       >
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
+        <div class="drivepage-modal-content w-full" @click.stop>
+          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150">
             <h3>Confirm subscription "{{ planDisplayName(subscribePlan) }}"</h3>
-            <button class="modal-close" @click="closeSubscribeModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer" @click="closeSubscribeModal">
               <X :size="20" />
             </button>
           </div>
-          <div class="modal-body">
-            <p class="modal-desc">
+          <div class="drivepage-modal-body padding-150">
+            <p class="drivepage-modal-desc color-text-secondary margin-bottom-150">
               Review the plan details and confirm your subscription.
             </p>
 
             <div class="permalink-result-box" v-if="subscribePlan">
-              <div class="plan-meta-line">
-                <span class="label">Gateway</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Gateway</span>
+                <span class="drivepage-value">
                   {{ subscribePlan.gatewayName }}
                   <template v-if="subscribePlan.gatewayEndpoint">
                     · {{ subscribePlan.gatewayEndpoint }}
                   </template>
                 </span>
               </div>
-              <div class="plan-meta-line">
-                <span class="label">Price / month</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Price / month</span>
+                <span class="drivepage-value">
                   {{ formatPlanPrice(subscribePlan.priceUlmn) }}
                 </span>
               </div>
-              <div class="plan-meta-line">
-                <span class="label">Storage</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Storage</span>
+                <span class="drivepage-value">
                   {{
                     subscribePlan.storageGbPerMonth
                       ? `${subscribePlan.storageGbPerMonth} GB / month`
@@ -1702,9 +1690,9 @@
                   }}
                 </span>
               </div>
-              <div class="plan-meta-line">
-                <span class="label">Egress</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Egress</span>
+                <span class="drivepage-value">
                   {{
                     subscribePlan.networkGbPerMonth
                       ? `${subscribePlan.networkGbPerMonth} GB / month`
@@ -1712,17 +1700,17 @@
                   }}
                 </span>
               </div>
-              <div class="plan-meta-line">
-                <span class="label">Duration</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Duration</span>
+                <span class="drivepage-value">
                   {{ subscribeMonths }} month{{
                     subscribeMonths > 1 ? "s" : ""
                   }}
                 </span>
               </div>
-              <div class="plan-meta-line">
-                <span class="label">Total</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Total</span>
+                <span class="drivepage-value">
                   {{
                     subscribeTotalPrice.toFixed(
                       subscribeTotalPrice >= 10 ? 0 : 2,
@@ -1731,9 +1719,9 @@
                   LMN
                 </span>
               </div>
-              <div class="plan-meta-line">
-                <span class="label">Balance</span>
-                <span class="value">
+              <div class="drivepage-plan-meta-line flex-justify-space-between">
+                <span class="drivepage-label">Balance</span>
+                <span class="drivepage-value">
                   <template v-if="subscribeBalance !== null">
                     {{
                       subscribeBalance.toFixed(subscribeBalance >= 10 ? 0 : 2)
@@ -1754,7 +1742,7 @@
               </p>
             </div>
 
-            <div v-if="subscribeError" class="fetch-error txt-xs margin-top-25">
+            <div v-if="subscribeError" class="drivepage-fetch-error txt-xs margin-top-25 color-error margin-top-100">
               {{ subscribeError }}
             </div>
 
@@ -1763,9 +1751,9 @@
               first time (PQC setup + block confirmation).
             </p>
           </div>
-          <div class="modal-footer">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75">
             <button
-              class="btn-modal-secondary disabled-fade-60"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer"
               type="button"
               @click="closeSubscribeModal"
               :disabled="subscribeBusy"
@@ -1773,7 +1761,7 @@
               Cancel
             </button>
             <button
-              class="btn-modal-primary"
+              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer"
               type="button"
               @click="confirmSubscribe"
               :disabled="
@@ -3115,7 +3103,7 @@ let hlsQueueProcessing = false;
 
 function readUrlBarUrl(): string {
   try {
-    const el = document.querySelector<HTMLInputElement>(".url-bar-input");
+    const el = document.querySelector<HTMLInputElement>(".navbar-url-bar-input");
     return String(el?.value || "");
   } catch {
     return "";
@@ -3127,7 +3115,7 @@ function isUrlBarUserEditing(): boolean {
 }
 
 function ensureUrlBarUserInputTracking() {
-  const el = document.querySelector<HTMLInputElement>(".url-bar-input");
+  const el = document.querySelector<HTMLInputElement>(".navbar-url-bar-input");
   if (!el) return;
   const anyEl: any = el;
   if (anyEl.__driveUrlBarTrackingAttached) return;
@@ -6635,2166 +6623,3 @@ async function reloadForActiveProfileChange() {
   void loadPinnedFiles();
 }
 </script>
-
-<style scoped>
-.hosting-panel {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.hosting-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.hosting-row.active {
-  background: var(--primary-a08);
-  border-color: var(--primary-a25);
-}
-
-.hosting-row:hover {
-  background: var(--primary-a08);
-  border-color: var(--primary-a25);
-}
-
-.hosting-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 10px 1fr auto;
-  align-items: center;
-  column-gap: 0.65rem;
-  row-gap: 0.3rem;
-  padding: 0.75rem 0.85rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: 12px;
-  color: var(--text-secondary);
-  text-align: left;
-  min-width: 0;
-}
-
-.hosting-title {
-  grid-column: 2;
-  grid-row: 1;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hosting-region {
-  grid-column: 3;
-  grid-row: 1;
-  justify-self: end;
-  align-self: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 7.5rem;
-}
-
-.hosting-dot {
-  grid-column: 1;
-  grid-row: 1;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ios-red);
-  box-shadow: 0 0 0 rgba(var(--ios-red-rgb), 0);
-}
-
-.hosting-dot.ok {
-  background: var(--ios-green);
-  box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35);
-}
-
-.hosting-dot.pending {
-  background: var(--ios-orange);
-  box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35);
-}
-
-.hosting-dot.off {
-  background: var(--ios-red);
-  box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.2);
-}
-
-.hosting-details {
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.hosting-details:hover {
-  background: var(--primary-a08);
-  border-color: var(--primary-a15);
-  color: var(--accent-primary);
-}
-
-.hosting-divider {
-  margin: 1rem 0.25rem 0.75rem;
-  height: 1px;
-  background: var(--border-color);
-}
-
-.hosting-subheader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.25rem;
-}
-
-.hosting-subheader-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.hosting-subheader-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  border: 1px solid var(--primary-a15);
-  background: var(--primary-a08);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-secondary);
-  cursor: pointer;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.hosting-subheader-action:hover {
-  background: var(--primary-a15);
-  border-color: var(--primary-a25);
-  color: var(--accent-primary);
-}
-
-.hosting-empty {
-  margin-top: 0.5rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 12px;
-  border: 1px dashed var(--border-light);
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  background: transparent;
-}
-
-.hosting-tags {
-  grid-column: 2 / -1;
-  grid-row: 2;
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  justify-self: start;
-  margin-left: 0;
-}
-
-.hosting-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  background: var(--primary-a08);
-  border: 1px solid var(--primary-a15);
-  color: var(--accent-secondary);
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.stats-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  color: var(--text-secondary);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.details-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-  margin: 0;
-  border-radius: 0;
-}
-
-.content-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.content-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.content-header p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0 0 0;
-}
-
-/* Warning Banner */
-.warning-banner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.875rem 1.25rem;
-  margin-bottom: 1.25rem;
-  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.1) 0%, rgba(var(--ios-orange-rgb), 0.05) 100%);
-  border: 1.5px solid rgba(var(--ios-orange-rgb), 0.3);
-  border-radius: 12px;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.warning-icon {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(var(--ios-orange-rgb), 0.15);
-  border-radius: 8px;
-  color: var(--ios-orange);
-}
-
-.warning-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.warning-content strong {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.warning-content span {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-/* Search & Filter Bar */
-.search-filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  max-width: 400px;
-  min-width: 200px;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  transition: all 0.2s ease;
-}
-
-.search-box:focus-within {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.search-box .search-icon {
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.search-box .search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  outline: none;
-  min-width: 0;
-}
-
-.search-box .search-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.clear-search {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: var(--fill-tertiary);
-  border-radius: 50%;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.clear-search:hover {
-  background: var(--fill-secondary);
-  color: var(--text-primary);
-}
-
-.file-count {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.per-page-select {
-  padding: 0.4rem 0.6rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.15s ease;
-}
-
-.per-page-select:hover {
-  border-color: var(--accent-primary);
-}
-
-.per-page-select:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a10);
-}
-
-.bulk-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
-  padding: 0.8rem 1rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
-  box-shadow: var(--shadow-sm);
-  flex-wrap: wrap;
-}
-
-.bulk-toolbar.active {
-  border-color: var(--primary-a30);
-  box-shadow: 0 0 0 3px var(--primary-a08);
-}
-
-.bulk-toolbar-checkbox {
-  flex-shrink: 0;
-}
-
-.bulk-toolbar-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-  min-width: 0;
-}
-
-.bulk-toolbar-copy strong {
-  font-size: 0.85rem;
-  color: var(--text-primary);
-}
-
-.bulk-toolbar-copy span {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.bulk-toolbar-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.bulk-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-height: 34px;
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.bulk-action-btn:hover:not(:disabled) {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a08);
-}
-
-
-.bulk-action-btn.danger {
-  color: var(--error-red);
-  border-color: rgba(var(--ios-red-rgb), 0.2);
-  background: rgba(var(--ios-red-rgb), 0.06);
-}
-
-.bulk-action-btn.danger:hover:not(:disabled) {
-  border-color: rgba(var(--ios-red-rgb), 0.38);
-  color: var(--error-red);
-  box-shadow: 0 0 0 3px rgba(var(--ios-red-rgb), 0.08);
-}
-
-.bulk-action-count {
-  min-width: 1.35rem;
-  height: 1.35rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.3rem;
-  border-radius: 999px;
-  background: var(--primary-a10);
-  color: var(--accent-primary);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.bulk-checkbox {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bulk-checkbox input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.bulk-checkbox span {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  transition: all 0.18s ease;
-  position: relative;
-}
-
-.bulk-checkbox input:hover + span {
-  border-color: var(--accent-primary);
-}
-
-.bulk-checkbox input:checked + span {
-  border-color: var(--accent-primary);
-  background: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.bulk-checkbox input:checked + span::after {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 2px;
-  width: 4px;
-  height: 8px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.hls-queue-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
-  box-shadow: var(--shadow-sm);
-}
-
-.hls-queue-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.hls-queue-actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.hls-queue-copy strong {
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.hls-queue-copy span {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.hls-queue-clear-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.hls-queue-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.hls-queue-action-btn:hover:not(:disabled) {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-
-.hls-queue-clear-btn:hover:not(:disabled) {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-
-.hls-queue-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.hls-queue-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.7rem 0.85rem;
-  border-radius: 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-light);
-}
-
-.hls-queue-item.status-converting {
-  border-color: var(--primary-a25);
-  background: var(--primary-a05);
-}
-
-.hls-queue-item.status-done {
-  border-color: rgba(var(--ios-green-rgb), 0.25);
-  background: rgba(var(--ios-green-rgb), 0.06);
-}
-
-.hls-queue-item.status-paused {
-  border-color: rgba(var(--ios-blue-rgb), 0.2);
-  background: rgba(var(--ios-blue-rgb), 0.05);
-}
-
-.hls-queue-item.status-failed {
-  border-color: rgba(var(--ios-red-rgb), 0.2);
-  background: rgba(var(--ios-red-rgb), 0.06);
-}
-
-.hls-queue-item.status-cancelled {
-  border-color: rgba(var(--ios-orange-rgb), 0.22);
-  background: rgba(var(--ios-orange-rgb), 0.06);
-}
-
-.hls-queue-item-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-  min-width: 0;
-}
-
-.hls-queue-item-name {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hls-queue-item-error {
-  font-size: 0.72rem;
-  color: var(--error-red);
-}
-
-.hls-queue-item-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-shrink: 0;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.hls-queue-item.status-done .hls-queue-item-status {
-  color: var(--ios-green);
-}
-
-.hls-queue-item.status-paused .hls-queue-item-status {
-  color: var(--accent-primary);
-}
-
-.hls-queue-item.status-failed .hls-queue-item-status {
-  color: var(--error-red);
-}
-
-.hls-queue-item.status-cancelled .hls-queue-item-status {
-  color: var(--ios-orange);
-}
-
-.hls-queue-more {
-  font-size: 0.74rem;
-  color: var(--text-secondary);
-}
-
-/* Pagination */
-.pagination-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem 0;
-  margin-top: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.page-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.page-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-
-.page-numbers {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.page-num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 0.5rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.page-num:hover {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-}
-
-.page-num.active {
-  background: var(--gradient-primary);
-  border-color: var(--accent-primary);
-  color: white;
-  font-weight: 600;
-}
-
-.page-ellipsis {
-  padding: 0 0.25rem;
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-}
-
-.page-info {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-left: 0.5rem;
-  white-space: nowrap;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.plans-filter-input {
-  width: 100%;
-  padding: 0.75rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-.plans-filter-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a10);
-  background: var(--bg-primary);
-}
-
-.plans-list {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.plan-row {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.plan-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.plan-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.plan-name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.plan-status-badge {
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-}
-
-.plan-status-badge.active {
-  background: var(--fill-success);
-  color: var(--ios-green);
-  border-color: var(--border-light);
-}
-
-.plan-status-badge.pending {
-  background: rgba(var(--ios-yellow-rgb), 0.15);
-  color: var(--ios-orange);
-  border-color: var(--border-light);
-}
-
-.plan-gw {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.plan-meta {
-  min-width: 170px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.plan-meta-line {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-}
-
-.plan-meta-line .label {
-  color: var(--text-secondary);
-}
-
-.plan-meta-line .value {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.plan-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.25rem;
-}
-
-/* Gateway plans modal */
-.plans-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
-  flex-direction: column;
-}
-
-.plans-search-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: nowrap;
-}
-
-.plans-controls-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  width: 100%;
-  flex-wrap: nowrap;
-}
-
-.plans-search-group-primary {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.plans-search-group-sort {
-  margin-left: auto;
-}
-
-.plans-controls-row-secondary {
-  justify-content: flex-end;
-}
-
-.plans-search-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  height: 40px;
-  padding: 0 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  flex: 1 1 auto;
-  min-width: 220px;
-}
-
-.plans-filter-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  height: 100%;
-  min-width: 140px;
-}
-
-.plans-search-ico {
-  color: var(--text-secondary);
-  opacity: 0.7;
-}
-
-.plans-filter-select {
-  height: 40px;
-  padding: 0 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  outline: none;
-  min-width: 180px;
-}
-
-.plans-filter-select:hover {
-  border-color: var(--accent-primary);
-}
-
-.plans-filter-select:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a10);
-}
-
-.plans-filter-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  user-select: none;
-}
-
-.plans-filter-checkbox input {
-  accent-color: var(--accent-primary);
-}
-
-@media (max-width: 720px) {
-  .plans-controls-row {
-    flex-wrap: wrap;
-  }
-
-  .plans-search-group {
-    flex-wrap: wrap;
-  }
-
-  .plans-search-group-sort {
-    margin-left: 0;
-  }
-}
-
-.plans-empty {
-  text-align: center;
-  padding: 1rem 0.5rem 0.5rem;
-}
-
-.plans-empty h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.plans-empty-muted {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.plans-error {
-  margin-top: 0.5rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ios-red-rgb), 0.25);
-  background: rgba(var(--ios-red-rgb), 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.plans-error-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.plans-error-text {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.plans-empty-actions {
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.plans-grid {
-  display: flex;
-  flex-direction: column;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-
-.plans-pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-}
-
-.plans-pager-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
-
-.plans-pager-text {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.plans-pager-btn {
-  border: 1px solid var(--border-color);
-  background: transparent;
-  border-radius: 10px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.plans-pager-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-
-.gateway-card {
-  padding: 0.9rem 1rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.gateway-card.offline {
-  opacity: 0.7;
-}
-
-.gateway-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.gateway-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.gateway-status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--ios-green);
-}
-
-.gateway-status-dot.off {
-  background: var(--ios-red);
-}
-
-.gateway-name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  max-width: 260px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gateway-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 0.75rem;
-  justify-content: flex-end;
-}
-
-.gateway-region {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.18rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  max-width: 220px;
-}
-
-.gateway-region-ico {
-  opacity: 0.7;
-  flex: 0 0 auto;
-}
-
-.gateway-region-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gateway-plans {
-  border-top: 1px solid var(--border-color);
-  padding-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.gateway-plan-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.plan-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.plan-chip.active {
-  border-color: var(--ios-green);
-  background: var(--fill-success);
-  color: var(--ios-green);
-}
-
-.plan-chip-price {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-.gateway-expand-btn {
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  padding: 0.2rem 0.7rem;
-  font-size: 0.75rem;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.gateway-expand-btn:hover {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-ghost {
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-ghost:hover {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.plans-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.plans-btn:hover {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.upload-btn,
-.upload-btn-large {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.upload-btn:hover,
-.upload-btn-large:hover {
-  background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
-  box-shadow: 0 6px 16px var(--primary-a40);
-  transform: translateY(-1px);
-}
-
-.upload-btn input,
-.upload-btn-large input {
-  display: none;
-}
-
-.upload-menu {
-  position: relative;
-  display: inline-flex;
-}
-
-.upload-dropdown {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 190px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  padding: 0.35rem;
-  z-index: 50;
-}
-
-.upload-dropdown-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: transparent;
-  border: none;
-  padding: 0.55rem 0.75rem;
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: left;
-  font: inherit;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  user-select: none;
-}
-
-.upload-dropdown-item:hover {
-  background: var(--bg-secondary);
-}
-
-.upload-dropdown-item input {
-  display: none;
-}
-
-.upload-btn-large {
-  padding: 1rem 1.75rem;
-}
-
-/* Upload Progress */
-.upload-progress {
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
-}
-
-/* Folder breadcrumb */
-.browse-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  margin-bottom: 0.75rem;
-}
-
-.browse-crumbs {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-width: 0;
-  flex-wrap: wrap;
-}
-
-.browse-crumbs .crumb {
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.browse-crumbs .crumb:hover {
-  color: var(--accent-primary);
-}
-
-.browse-crumbs .sep {
-  color: var(--text-secondary);
-}
-
-.progress-content {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.progress-actions {
-  margin-top: 0.35rem;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.progress-cancel-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border-radius: 8px;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-
-
-.progress-bar {
-  margin-top: 0.65rem;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--fill-secondary);
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  width: 0;
-  background: var(--accent-primary);
-  transition: width 0.2s ease;
-}
-
-.fetch-error {
-  color: var(--ios-red);
-  margin-top: 1rem;
-}
-
-
-.action-btn {
-  padding: 0.5rem 0.625rem;
-  border: none;
-  background: var(--fill-tertiary);
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.action-btn::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1px;
-  height: 14px;
-  background: var(--border-color);
-  opacity: 0.6;
-}
-
-.action-btn:last-child::after {
-  display: none;
-}
-
-.action-btn:hover {
-  background: var(--accent-primary);
-  color: #ffffff;
-  transform: scale(1.05);
-}
-
-.action-btn:active {
-  transform: scale(0.98);
-}
-
-.action-btn.danger {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--error-red);
-}
-
-.action-btn.danger:hover {
-  background: var(--error-red);
-  color: #ffffff;
-}
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  text-align: center;
-}
-
-.empty-icon {
-  width: 80px;
-  height: 80px;
-  background: var(--bg-secondary);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-tertiary);
-  margin-bottom: 1rem;
-}
-
-/* Detail Panel */
-.detail-panel {
-  width: 280px;
-  min-width: 280px;
-  max-width: 280px;
-  background: var(--bg-primary);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  margin: 0;
-  border-radius: 0;
-  flex-shrink: 0;
-  border-left: 1px solid var(--border-color);
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.close-btn {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-light);
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  border-radius: 8px;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.close-btn:hover {
-  background: rgba(var(--ios-red-rgb), 0.12);
-  border-color: rgba(var(--ios-red-rgb), 0.25);
-  color: var(--ios-red);
-}
-
-.detail-preview {
-  height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  margin-bottom: 1.25rem;
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
-  overflow: hidden;
-  border: 1px solid var(--border-light);
-}
-
-.detail-preview-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-}
-
-.detail-preview-video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-}
-
-.detail-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.info-label {
-  font-size: 0.65rem;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.info-value {
-  font-size: 0.8rem;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.name-input {
-  width: 100%;
-  padding: 0.55rem 0.65rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.name-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a15);
-  background: var(--bg-primary);
-}
-
-.info-value.cid {
-  font-family: "SF Mono", "Consolas", monospace;
-  font-size: 0.7rem;
-  word-break: break-all;
-  background: var(--bg-secondary);
-  padding: 0.35rem 0.5rem;
-  border-radius: 6px;
-  color: var(--accent-primary);
-}
-
-.detail-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: var(--text-secondary);
-}
-
-.detail-btn.primary {
-  background: var(--gradient-primary);
-  border: none;
-  color: white;
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
-
-.detail-btn.primary:hover {
-  background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px var(--primary-a40);
-}
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  z-index: 100;
-}
-
-.toast.error {
-  background: var(--ios-red);
-}
-
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.2s ease;
-}
-
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translate(-50%, 10px);
-}
-
-/* Drop Overlay */
-.drop-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-.drop-content {
-  text-align: center;
-  color: white;
-}
-
-/* List View */
-.files-list {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  flex: 1;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  min-height: 0;
-}
-
-.list-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.list-icon-header {
-  width: 32px;
-  flex-shrink: 0;
-}
-
-.list-select-header,
-.list-select-cell {
-  width: 24px;
-  min-width: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.list-name-header {
-  flex: 1;
-  min-width: 0;
-}
-
-.list-size-header {
-  width: 80px;
-  min-width: 80px;
-  text-align: right;
-}
-
-.list-date-header {
-  width: 180px;
-  min-width: 180px;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.list-actions-header {
-  width: 160px;
-  min-width: 160px;
-}
-
-.list-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 1rem;
-  cursor: pointer;
-  transition: all 0.1s;
-  border-bottom: 1px solid var(--hover-bg);
-  content-visibility: auto;
-  contain-intrinsic-size: 920px 56px;
-}
-
-.list-item:last-child {
-  border-bottom: none;
-}
-
-.list-item:hover {
-  background: var(--primary-a08);
-}
-
-.list-item.selected {
-  background: var(--fill-blue);
-}
-
-.list-item.checked {
-  background: var(--primary-a05);
-}
-
-.list-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.list-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.list-thumbnail-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-  background: var(--bg-secondary);
-  display: block;
-}
-
-.list-name {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.85rem;
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-primary);
-}
-
-.list-size {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  width: 80px;
-  min-width: 80px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.list-date {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  width: 180px;
-  min-width: 180px;
-  text-align: right;
-  flex-shrink: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.list-actions {
-  display: flex;
-  gap: 0.25rem;
-  width: 160px;
-  min-width: 160px;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-  flex-shrink: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-}
-
-.list-item:hover .list-actions {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.list-item.selected .list-actions,
-.list-item.checked .list-actions {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .detail-panel {
-    width: 260px;
-    min-width: 260px;
-    max-width: 260px;
-  }
-}
-
-@media (max-width: 900px) {
-  .detail-panel {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
-    margin: 0;
-    border-radius: 0;
-    z-index: 100;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-  }
-
-  .main-content {
-    padding: 1rem 1.25rem;
-  }
-}
-
-@media (max-width: 700px) {
-  .content-header h1 {
-    font-size: 1.25rem;
-  }
-
-  .content-header p {
-    display: none;
-  }
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-content {
-  background: var(--bg-primary);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-content.plans-modal {
-  max-width: 860px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: none;
-  background: var(--hover-bg);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: var(--border-color);
-  color: var(--text-primary);
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-desc {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-}
-
-.drive-backup-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.drive-backup-input {
-  width: 100%;
-  padding: 0.75rem 0.85rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-}
-
-.drive-backup-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a15);
-  background: var(--bg-primary);
-}
-
-.drive-backup-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  user-select: none;
-}
-
-.drive-backup-toggle input {
-  accent-color: var(--accent-primary);
-}
-
-.modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.btn-modal-primary {
-  flex: 1;
-  padding: 0.875rem;
-  border: none;
-  border-radius: 10px;
-  background: var(--gradient-primary);
-  color: white;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  border-bottom: 1px solid var(--separator);
-  position: relative;
-}
-
-.btn-modal-secondary {
-  flex: 1;
-  padding: 0.875rem;
-  border-radius: 10px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-modal-secondary:hover:not(:disabled) {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-
-.upload-path-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  resize: vertical;
-  outline: none;
-}
-
-.upload-path-textarea:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a15);
-}
-
-.permalink-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  width: 100%;
-  min-height: 220px;
-  vertical-align: middle;
-}
-
-.listing-loading {
-  flex: 1;
-  min-height: 280px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.drive-spinner {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 3px solid var(--fill-secondary);
-  border-top-color: var(--accent-primary);
-  animation: drive-spin 0.9s linear infinite;
-}
-
-@keyframes drive-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-</style>
