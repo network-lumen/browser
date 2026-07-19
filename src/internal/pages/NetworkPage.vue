@@ -900,7 +900,7 @@ onMounted(() => {
 }
 
 .tab-btn.active {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(var(--ios-indigo-rgb), 0.2);
   border-color: var(--ios-blue);
   color: var(--ios-blue);
   font-weight: 600;
@@ -974,7 +974,7 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ios-indigo) 0%, var(--ios-purple) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1075,8 +1075,8 @@ onMounted(() => {
 }
 
 .meta-value.has-txs {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.3);
+  background: var(--fill-success);
+  border-color: rgba(var(--ios-green-rgb), 0.3);
   color: var(--ios-green);
 }
 
