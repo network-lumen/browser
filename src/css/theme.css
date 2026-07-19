@@ -3601,3 +3601,64 @@ select.recurpay-input {
         height: 40px;
     }
 }
+
+/* MainScreen.vue */
+.main-shell {
+    position: relative;
+    min-height: 100vh;
+    background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
+                radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
+                linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
+}
+
+.favicon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    object-fit: cover;
+}
+
+.tab-icon {
+    min-width: 16px;
+    min-height: 16px;
+}
+
+.tab-spinner {
+    --spinner-size: 14px;
+    --spinner-stroke: 1.5px;
+}
+
+.tabs-header .mainscreen-tab {
+    position: relative;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.tabs-header {
+    position: relative;
+    z-index: 1000;
+    background: var(--bg-primary);
+    border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.tabs-header .mainscreen-tab.active {
+    background: var(--tab-active-bg);
+    z-index: 2;
+}
+
+.tabs-header .mainscreen-tab.active .mainscreen-tab-label {
+    color: var(--text-primary);
+}
+
+.tabs-header .mainscreen-tab.active :deep(.button-icon) {
+    color: var(--text-primary);
+}
+
+.add-tab-btn {
+    background: var(--fill-secondary);
+}
+
+.add-tab-btn:where(:hover, :focus-visible) {
+    background: var(--fill-primary);
+    color: var(--text-primary);
+}
