@@ -1,13 +1,13 @@
 <template>
-  <div class="web-page" :class="{ 'html-fullscreen': webviewHtmlFullscreen }">
-    <div v-if="isChromeWebStorePage" class="store-proxy">
-      <div class="store-proxy-card">
-        <h3>Chrome Web Store opens in Lumen Extensions</h3>
-        <p>
+  <div class="w-full h-full min-h-0 bg-tertiary overflow-hidden" :class="{ 'webpage-fullscreen': webviewHtmlFullscreen }">
+    <div v-if="isChromeWebStorePage" class="w-full h-full flex-align-justify-center padding-200 bg-primary">
+      <div class="webpage-store-proxy-card flex flex-column gap-87 text-center">
+        <h3 class="margin-0 fs-11rem color-text-primary">Chrome Web Store opens in Lumen Extensions</h3>
+        <p class="margin-0 color-text-secondary line-height-155">
           Lumen fetches Chrome Web Store metadata directly and imports extensions
           from the internal Extensions page.
         </p>
-        <button type="button" class="store-proxy-btn" @click="openChromeWebStoreImport">
+        <button type="button" class="webpage-store-proxy-btn border-none color-white cursor-pointer" @click="openChromeWebStoreImport">
           Open Extensions
         </button>
       </div>
@@ -15,7 +15,7 @@
     <webview
       v-else-if="currentBrowserUrl"
       ref="webviewRef"
-      class="webview"
+      class="webpage-webview w-full h-full border-none bg-primary"
       :src="currentBrowserUrl"
       partition="persist:lumen"
       allowpopups
@@ -33,7 +33,7 @@
       @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
       @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
     ></webview>
-    <div v-else class="empty"></div>
+    <div v-else class="w-full h-full border-none bg-primary"></div>
   </div>
 </template>
 
@@ -459,78 +459,3 @@ function syncNavFromWebview(rawUrl: string) {
  );
 </script>
 
-<style scoped>
-.web-page {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  background: var(--bg-tertiary);
-  overflow: hidden;
-}
-
-.web-page.html-fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  background: #000;
-}
-
-.web-page.html-fullscreen .webview {
-  width: 100vw;
-  height: 100vh;
-}
-
-.webview,
-.empty {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: var(--bg-primary);
-}
-
-.store-proxy {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: var(--bg-primary);
-}
-
-.store-proxy-card {
-  max-width: 520px;
-  padding: 1.5rem;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-xl);
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  text-align: center;
-}
-
-.store-proxy-card h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--text-primary);
-}
-
-.store-proxy-card p {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.55;
-}
-
-.store-proxy-btn {
-  align-self: center;
-  border: none;
-  border-radius: 999px;
-  padding: 0.7rem 1.1rem;
-  background: var(--accent-primary);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 600;
-}
-</style>
