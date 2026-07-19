@@ -28,6 +28,7 @@
 .margin-bottom-50 { margin-bottom: .5rem }
 .margin-bottom-75 { margin-bottom: .75rem }
 .margin-bottom-100 { margin-bottom: 1rem }
+.margin-bottom-125 { margin-bottom: 1.25rem }
 .margin-left-auto { margin-left: auto; }        /* left */
 .margin-left-25 { margin-left: .25rem; }
 .margin-left-50 { margin-left: .5rem; }
@@ -220,6 +221,7 @@
 .letter-spacing-005em { letter-spacing: 0.05em; }
 .letter-spacing-004em { letter-spacing: 0.04em; }
 .letter-spacing-008em { letter-spacing: 0.08em; }
+.letter-spacing-01em { letter-spacing: 0.1em; }
 .line-height-1 { line-height: 1; }
 .line-height-12 { line-height: 1.2; }
 .line-height-14 { line-height: 1.4; }
@@ -463,6 +465,36 @@
 }
 .fade-enter-from,
 .fade-leave-to {
+  opacity: 0;
+}
+
+/* Shared Vue <Transition name="fade-slide"> — fade + slight vertical slide */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* Shared Vue <Transition name="modal-fade"> — overlay fade + inner .modal-panel scale */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active .modal-panel,
+.modal-fade-leave-active .modal-panel {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.modal-fade-enter-from .modal-panel,
+.modal-fade-leave-to .modal-panel {
+  transform: scale(0.95);
   opacity: 0;
 }
 

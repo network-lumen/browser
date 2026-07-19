@@ -3,53 +3,53 @@
     <Transition name="modal-fade">
       <div
         v-if="visible"
-        class="password-modal-overlay"
+        class="overlay-scrim backdrop-blur-4px z-10000"
         @click.self="handleCancel"
       >
-        <div class="password-modal">
-          <div class="modal-header">
-            <LockKeyhole :size="24" class="modal-icon" />
+        <div class="modal-panel pwd-modal">
+          <div class="pwd-modal-header">
+            <LockKeyhole :size="24" class="color-primary" />
             <h3>Password Required</h3>
           </div>
-          
-          <p class="modal-message">
+
+          <p class="pwd-modal-message">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
-          
-          <div class="modal-form">
+
+          <div class="margin-bottom-125">
             <input
               ref="passwordInput"
               type="password"
-              class="password-input"
+              class="pwd-modal-input"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
               @keyup.enter="handleSubmit"
               @keyup.escape="handleCancel"
             />
-            
-            <div v-if="error" class="modal-error">
+
+            <div v-if="error" class="pwd-modal-error">
               {{ error }}
             </div>
           </div>
-          
-          <div class="modal-actions">
+
+          <div class="flex-align-center gap-75 flex-justify-end">
             <button
               v-if="cancelable !== false"
-              class="btn-secondary disabled-fade-50"
+              class="pwd-modal-btn-secondary disabled-fade-50"
               @click="handleCancel"
               :disabled="loading || busy"
             >
               Cancel
             </button>
-            <button 
-              class="btn-primary disabled-fade-50"
+            <button
+              class="pwd-modal-btn-primary disabled-fade-50"
               @click="handleSubmit"
               :disabled="loading || busy || !password"
             >
               <span v-if="loading">Verifying...</span>
-              <span v-else-if="busy" class="btn-primary-busy">
-                <span class="btn-spinner" aria-hidden="true"></span>
+              <span v-else-if="busy" class="flex-inline-align-center gap-50">
+                <span class="pwd-modal-spinner" aria-hidden="true"></span>
                 Working...
               </span>
               <span v-else>Confirm</span>
@@ -134,174 +134,3 @@ defineExpose({
   setLoading: (val: boolean) => { loading.value = val; }
 });
 </script>
-
-<style scoped>
-.password-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.password-modal {
-  background: var(--card-bg);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.75rem;
-  width: 100%;
-  max-width: 360px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.modal-icon {
-  color: var(--accent-primary);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.modal-message {
-  margin: 0 0 1.25rem 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.modal-form {
-  margin-bottom: 1.25rem;
-}
-
-.password-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--fill-tertiary);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: 10px;
-  font-size: 1rem;
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color 0.15s ease;
-  box-sizing: border-box;
-}
-
-.password-input:focus {
-  border-color: var(--accent-primary);
-}
-
-.password-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.password-input:disabled {
-  opacity: 0.6;
-}
-
-.modal-error {
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--fill-error);
-  border-radius: 8px;
-  color: var(--ios-red);
-  font-size: 0.85rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.btn-secondary {
-  padding: 0.6rem 1.25rem;
-  background: var(--fill-tertiary);
-  color: var(--text-primary);
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.btn-primary {
-  padding: 0.6rem 1.25rem;
-  background: var(--accent-primary);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.btn-primary-busy {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-spinner {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-top-color: rgba(255, 255, 255, 0.95);
-  animation: btn-spin 0.85s linear infinite;
-}
-
-@keyframes btn-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Transitions */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-fade-enter-active .password-modal,
-.modal-fade-leave-active .password-modal {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-from .password-modal,
-.modal-fade-leave-to .password-modal {
-  transform: scale(0.95);
-  opacity: 0;
-}
-</style>
