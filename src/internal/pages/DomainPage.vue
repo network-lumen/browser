@@ -1890,26 +1890,26 @@ void loadRawDomains();
 
 .pill-unknown {
   background: var(--bg-secondary);
-  border-color: #e5e7eb;
+  border-color: var(--border-color);
   color: var(--text-tertiary);
 }
 
 .pill-expired {
   background: var(--fill-error);
-  border-color: #fecaca;
+  border-color: rgba(var(--ios-red-rgb), 0.35);
   color: var(--ios-red);
 }
 
 .pill-soon,
 .pill-warn {
-  background: rgba(251, 191, 36, 0.15);
-  border-color: rgba(251, 191, 36, 0.3);
-  color: #fbbf24;
+  background: rgba(var(--ios-yellow-rgb), 0.15);
+  border-color: rgba(var(--ios-yellow-rgb), 0.3);
+  color: var(--ios-yellow);
 }
 
 .pill-ok {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.3);
+  background: var(--fill-success);
+  border-color: rgba(var(--ios-green-rgb), 0.3);
   color: var(--ios-green);
 }
 
@@ -1917,8 +1917,8 @@ void loadRawDomains();
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 2px solid rgba(148, 163, 184, 0.3);
-  border-top-color: var(--accent-color);
+  border: 2px solid var(--fill-secondary);
+  border-top-color: var(--accent-primary);
   animation: spin 0.7s linear infinite;
 }
 
@@ -2018,7 +2018,7 @@ void loadRawDomains();
   margin-bottom: 0.25rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
 .availability {
@@ -2062,7 +2062,7 @@ void loadRawDomains();
   border-radius: 10px;
   padding: 0.8rem 0.9rem;
   background: var(--gradient-primary);
-  color: var(--text-primary);
+  color: white;
   margin-bottom: 1rem;
 }
 
@@ -2104,7 +2104,7 @@ void loadRawDomains();
 }
 
 .icon-btn.danger {
-  border-color: #fecaca;
+  border-color: rgba(var(--ios-red-rgb), 0.35);
   background: var(--fill-error);
   color: var(--ios-red);
 }
@@ -2133,8 +2133,8 @@ void loadRawDomains();
   display: flex;
   gap: 0.75rem;
   padding: 0.875rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: var(--fill-error);
+  border: 1px solid rgba(var(--ios-red-rgb), 0.3);
   border-radius: 10px;
   margin: 1rem 0;
 }
@@ -2150,16 +2150,16 @@ void loadRawDomains();
 }
 
 .warning-content strong {
-  color: #ef4444;
+  color: var(--ios-red);
   font-weight: 600;
 }
 
 .btn.danger {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
 }
 
 .btn.danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 85%, black) 0%, color-mix(in srgb, var(--ios-red) 70%, black) 100%);
 }
 
 .form-hint {
