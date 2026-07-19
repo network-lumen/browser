@@ -2,10 +2,10 @@
   <div class="domain-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
-      <nav class="names-nav">
+      <nav class="domainpage-names-nav flex flex-column gap-35">
         <button
           type="button"
-          class="names-nav-item"
+          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary fs-085rem cursor-pointer text-left"
           :class="{ active: activeNameTab === 'lumen' }"
           @click="activeNameTab = 'lumen'"
         >
@@ -14,7 +14,7 @@
         </button>
         <button
           type="button"
-          class="names-nav-item"
+          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary fs-085rem cursor-pointer text-left"
           :class="{ active: activeNameTab === 'stable' }"
           @click="activeNameTab = 'stable'"
         >
@@ -25,25 +25,25 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
-      <header class="content-header">
+    <main class="domainpage-main flex-1 bg-secondary overflow-y-auto">
+      <header class="domainpage-content-header flex-align-center flex-justify-space-between margin-bottom-150">
         <div>
           <h1>{{ pageTitle }}</h1>
-          <p>{{ pageDescription }}</p>
+          <p class="color-text-secondary">{{ pageDescription }}</p>
         </div>
-        <div class="header-actions">
+        <div class="domainpage-header-actions flex gap-75">
           <template v-if="activeNameTab === 'lumen'">
-            <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
+            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
               <Plus :size="16" />
               <span>Buy domain</span>
             </button>
           </template>
           <template v-else>
-            <button class="btn secondary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="importStableLink">
+            <button class="domainpage-btn secondary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="importStableLink">
               <Upload :size="16" />
               <span>Import</span>
             </button>
-            <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
+            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
               <Plus :size="16" />
               <span>Generate</span>
             </button>
@@ -51,43 +51,43 @@
         </div>
       </header>
 
-      <section v-if="activeNameTab === 'lumen'" class="card">
+      <section v-if="activeNameTab === 'lumen'" class="domainpage-card">
 
 
-        <div v-if="error" class="empty error">
+        <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
           <p>{{ error }}</p>
         </div>
-        <div v-else-if="loading" class="empty">
-          <div class="spinner"></div>
+        <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
+          <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
           <p>Loading your domains...</p>
         </div>
-        <div v-else-if="!domains.length" class="empty hero">
-          <p class="hero-title">Get your name on Lumen</p>
-          <p class="hero-text">
+        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50">
+          <p class="domainpage-hero-title txt-weight-light margin-0">Get your name on Lumen</p>
+          <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
           </p>
-          <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
+          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="openRegisterModal">
             <Plus :size="16" />
             <span>Buy domain</span>
           </button>
         </div>
-        <ul v-else class="domains-list">
-          <li v-for="d in domains" :key="d.name" class="domain-row">
+        <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0">
+          <li v-for="d in domains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px">
             <div class="domain-main flex flex-column gap-15 min-w-0">
-              <span class="domain-name">{{ d.name }}</span>
+              <span class="domainpage-domain-name txt-weight-light color-text-primary">{{ d.name }}</span>
             </div>
-            <div class="domain-right">
+            <div class="domainpage-domain-right flex-align-center">
               <span
                 v-if="d.expireAtSeconds"
-                class="pill color-text-secondary fw-500 txt-sm cursor-pointer"
+                class="domainpage-pill border-radius-full color-text-secondary fw-500 txt-sm cursor-pointer"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >
                 {{ expiryText(d) }}
               </span>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Open lumen URL"
                 @click="openDomain(d)"
@@ -95,7 +95,7 @@
                 <ExternalLink :size="16" />
               </button>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Copy lumen URL"
                 @click="copyDomainUrl(d)"
@@ -103,7 +103,7 @@
                 <Copy :size="16" />
               </button>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Settings (preview only)"
                 @click="openSettingsModal(d)"
@@ -111,7 +111,7 @@
                 <Settings :size="16" />
               </button>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Transfer domain"
                 @click="openTransferModal(d)"
@@ -123,30 +123,30 @@
         </ul>
       </section>
 
-      <section v-else class="card">
-        <div v-if="rawDomainsLoading" class="empty">
-          <div class="spinner"></div>
+      <section v-else class="domainpage-card">
+        <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
+          <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
           <p>Loading stable links...</p>
         </div>
-        <div v-else-if="rawDomainsError" class="empty error">
+        <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
           <p>{{ rawDomainsError }}</p>
         </div>
-        <div v-else-if="!rawDomains.length" class="empty hero">
-          <p class="hero-title">Generate a stable link</p>
-          <p class="hero-text">
+        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50">
+          <p class="domainpage-hero-title txt-weight-light margin-0">Generate a stable link</p>
+          <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Stable links are cryptographic names backed by IPNS.
           </p>
-          <button class="btn primary txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
+          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="createStableLink">
             <Plus :size="16" />
             <span>Generate</span>
           </button>
         </div>
-        <ul v-else class="domains-list">
-          <li v-for="d in rawDomains" :key="d.name" class="domain-row">
+        <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0">
+          <li v-for="d in rawDomains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px">
             <div class="domain-main flex flex-column gap-15 min-w-0">
-              <div class="stable-link-label-row">
+              <div class="domainpage-stable-link-label-row flex-align-center gap-35">
                 <input
-                  class="stable-link-label-input"
+                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light"
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
@@ -156,15 +156,15 @@
                 />
                 <Check
                   v-if="renamingStableLinkName === d.name"
-                  class="stable-link-saving-icon"
+                  class="flex-0-0-auto color-success"
                   :size="14"
                 />
               </div>
-              <span class="domain-subtitle mono">{{ d.id || 'IPNS id unavailable' }}</span>
+              <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
-            <div class="domain-right">
+            <div class="domainpage-domain-right flex-align-center">
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Open stable link"
                 :disabled="!d.id"
@@ -173,7 +173,7 @@
                 <ExternalLink :size="16" />
               </button>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Copy stable link URL"
                 :disabled="!d.id"
@@ -182,7 +182,7 @@
                 <Copy :size="16" />
               </button>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Edit records"
                 :disabled="!d.name"
@@ -191,7 +191,7 @@
                 <Settings :size="16" />
               </button>
               <button
-                class="icon-btn"
+                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary"
                 type="button"
                 title="Export private key"
                 :disabled="!d.name"
@@ -200,7 +200,7 @@
                 <Download :size="16" />
               </button>
               <button
-                class="icon-btn danger"
+                class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer"
                 type="button"
                 title="Delete stable link"
                 :disabled="!d.name"
@@ -213,26 +213,26 @@
         </ul>
       </section>
 
-      <Transition name="fade">
-        <div v-if="stableLinkModalMode" class="modal-overlay" @click="closeStableLinkModal">
-          <div class="modal" @click.stop>
-            <header class="modal-header">
-              <h3>{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
-              <button class="modal-close" type="button" @click="closeStableLinkModal">
+      <Transition name="domainpage-fade">
+        <div v-if="stableLinkModalMode" class="overlay-scrim domainpage-modal-overlay" @click="closeStableLinkModal">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+              <h3 class="margin-0">{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeStableLinkModal">
                 <X :size="16" />
               </button>
             </header>
-            <form class="modal-body" @submit.prevent="confirmStableLinkModal">
-              <p class="modal-desc">
+            <form class="domainpage-modal-body overflow-y-auto flex-1" @submit.prevent="confirmStableLinkModal">
+              <p class="domainpage-modal-desc fs-085rem color-text-tertiary">
                 {{ stableLinkModalMode === 'import'
                   ? 'Choose a local private key file and attach it to this stable link name.'
                   : 'Create a new IPNS-backed stable link with a local private key.' }}
               </p>
-              <div class="form-group">
-                <label>Stable link name</label>
+              <div class="domainpage-form-group margin-bottom-100">
+                <label class="color-text-secondary">Stable link name</label>
                 <input
                   v-model="stableLinkNameDraft"
-                  class="form-input"
+                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary"
                   type="text"
                   autocomplete="off"
                   placeholder="my-link"
@@ -241,11 +241,11 @@
                 />
               </div>
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
                   Cancel
                 </button>
                 <button
-                  class="btn primary full txt-weight-light txt-sm cursor-pointer outline-none"
+                  class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
                   type="submit"
                   :disabled="stableLinkSaving || !stableLinkNameDraft.trim()"
                 >
@@ -253,7 +253,7 @@
                     <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
                     {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
                   </span>
-                  <span v-else class="spinner"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
                 </button>
               </div>
             </form>
@@ -261,52 +261,52 @@
         </div>
       </Transition>
 
-      <Transition name="fade">
-        <div v-if="showStableSettingsModal" class="modal-overlay" @click="closeStableSettingsModal">
-          <div class="modal" @click.stop>
-            <header class="modal-header">
-              <h3>Stable link records</h3>
-              <button class="modal-close" type="button" @click="closeStableSettingsModal">
+      <Transition name="domainpage-fade">
+        <div v-if="showStableSettingsModal" class="overlay-scrim domainpage-modal-overlay" @click="closeStableSettingsModal">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+              <h3 class="margin-0">Stable link records</h3>
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeStableSettingsModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="modal-body">
-              <p class="modal-desc">Publish resolver records for this stable link.</p>
-              <div class="info-card">
-                <div class="info-name">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
-                <div class="info-expiry mono">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
+            <div class="domainpage-modal-body overflow-y-auto flex-1">
+              <p class="domainpage-modal-desc fs-085rem color-text-tertiary">Publish resolver records for this stable link.</p>
+              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100">
+                <div class="domainpage-info-name txt-weight-light">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
+                <div class="domainpage-info-expiry mono">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
               </div>
 
-              <div class="form-group">
-                <label>Records (key / value)</label>
-                <div v-if="stableSettingsLoading" class="records-empty">
+              <div class="domainpage-form-group margin-bottom-100">
+                <label class="color-text-secondary">Records (key / value)</label>
+                <div v-if="stableSettingsLoading" class="domainpage-records-empty color-text-tertiary">
                   Loading records...
                 </div>
-                <div v-else-if="!stableSettingsRecords.length" class="records-empty">
+                <div v-else-if="!stableSettingsRecords.length" class="domainpage-records-empty color-text-tertiary">
                   No records yet. Add a target like <span class="mono">cid</span>, <span class="mono">ipfs</span>, or <span class="mono">ipns</span>.
                 </div>
-                <div v-else class="records-list">
+                <div v-else class="domainpage-records-list flex flex-column">
                   <div
-                    class="record-row"
+                    class="domainpage-record-row flex-align-center gap-35"
                     v-for="(r, idx) in stableSettingsRecords"
                     :key="idx"
                   >
                     <input
                       type="text"
-                      class="form-input key-input"
+                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary"
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
                       :disabled="stableSettingsSaving"
                     />
                     <input
                       type="text"
-                      class="form-input value-input"
+                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary"
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
                       :disabled="stableSettingsSaving"
                     />
                     <button
-                      class="icon-btn danger"
+                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer"
                       type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
@@ -316,21 +316,21 @@
                     </button>
                   </div>
                 </div>
-                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
                   Add record
                 </button>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
                   Cancel
                 </button>
-                <button class="btn primary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
+                <button class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
                   <span v-if="!stableSettingsSaving">
                     <Check :size="16" />
                     Save records
                   </span>
-                  <span v-else class="spinner"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
                 </button>
               </div>
             </div>
@@ -339,35 +339,35 @@
       </Transition>
 
       <!-- Register Domain Modal -->
-      <Transition name="fade">
-        <div v-if="showRegisterModal" class="modal-overlay" @click="closeRegisterModal">
-          <div class="modal" @click.stop>
-            <header class="modal-header">
-              <h3>Register domain</h3>
-              <button class="modal-close" type="button" @click="closeRegisterModal">
+      <Transition name="domainpage-fade">
+        <div v-if="showRegisterModal" class="overlay-scrim domainpage-modal-overlay" @click="closeRegisterModal">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+              <h3 class="margin-0">Register domain</h3>
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeRegisterModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="modal-body">
-              <p class="modal-desc">
+            <div class="domainpage-modal-body overflow-y-auto flex-1">
+              <p class="domainpage-modal-desc fs-085rem color-text-tertiary">
                 Register a new <span class="mono">.lmn</span> handle for the owner address.
               </p>
 
-              <div class="form-group">
-                <label>Domain</label>
-                <div class="domain-input-wrapper">
+              <div class="domainpage-form-group margin-bottom-100">
+                <label class="color-text-secondary">Domain</label>
+                <div class="domainpage-domain-input-wrapper flex-align-center gap-35">
                   <input
                     type="text"
-                    class="form-input domain-part"
+                    class="domainpage-form-input domainpage-domain-part w-full border-radius-10px fs-085rem color-text-primary"
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
                     @blur="refreshAvailability"
                   />
-                  <span class="dot-sep">.</span>
+                  <span class="domainpage-dot-sep txt-weight-light color-text-tertiary">.</span>
                   <input
                     type="text"
-                    class="form-input ext-part"
+                    class="domainpage-form-input domainpage-ext-part w-full border-radius-10px fs-085rem color-text-primary"
                     v-model="registerForm.ext"
                     placeholder="lmn"
                     @blur="refreshAvailability"
@@ -375,36 +375,36 @@
                 </div>
                 <div
                   v-if="registerForm.domainName"
-                  class="availability"
+                  class="domainpage-availability color-error"
                   :class="{ available: domainAvailable, 'badge-success': domainAvailable }"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Registration period</label>
-                <div class="period-static">Fixed at 1 year</div>
+              <div class="domainpage-form-group margin-bottom-100">
+                <label class="color-text-secondary">Registration period</label>
+                <div class="domainpage-period-static">Fixed at 1 year</div>
               </div>
 
-              <div class="price-box">
-                <div class="price-row total">
+              <div class="domainpage-price-box border-radius-10px">
+                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary">
                   <span>Total (1 year)</span>
-                  <span class="price">{{ dnsTotalFeeLabel }}</span>
+                  <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>
               </div>
 
               <button
-                class="btn primary full txt-weight-light txt-sm cursor-pointer outline-none"
+                class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
                 type="button"
                 @click="confirmRegister"
                 :disabled="!canRegister || registering"
               >
-                <span v-if="!registering" class="btn-label">
+                <span v-if="!registering" class="flex-inline-align-center gap-50">
                   <Plus :size="16" />
                   Register domain
                 </span>
-                <span v-else class="spinner"></span>
+                <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
               </button>
             </div>
           </div>
@@ -412,49 +412,49 @@
       </Transition>
 
       <!-- Settings Modal -->
-      <Transition name="fade">
-        <div v-if="showSettingsModal" class="modal-overlay" @click="closeSettingsModal">
-          <div class="modal" @click.stop>
-            <header class="modal-header">
-              <h3>Domain settings</h3>
-              <button class="modal-close" type="button" @click="closeSettingsModal">
+      <Transition name="domainpage-fade">
+        <div v-if="showSettingsModal" class="overlay-scrim domainpage-modal-overlay" @click="closeSettingsModal">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+              <h3 class="margin-0">Domain settings</h3>
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeSettingsModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="modal-body">
-              <p class="modal-desc">Edit resolver records for this domain.</p>
-              <div class="info-card">
-                <div class="info-name">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="info-expiry">
+            <div class="domainpage-modal-body overflow-y-auto flex-1">
+              <p class="domainpage-modal-desc fs-085rem color-text-tertiary">Edit resolver records for this domain.</p>
+              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100">
+                <div class="domainpage-info-name txt-weight-light">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="domainpage-info-expiry">
                   {{ selectedDomain ? expiryText(selectedDomain) : 'Expires: unknown' }}
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Records (key / value)</label>
-                <div v-if="!settingsRecords.length" class="records-empty">
+              <div class="domainpage-form-group margin-bottom-100">
+                <label class="color-text-secondary">Records (key / value)</label>
+                <div v-if="!settingsRecords.length" class="domainpage-records-empty color-text-tertiary">
                   No records yet. Add a new row below.
                 </div>
-                <div v-else class="records-list">
+                <div v-else class="domainpage-records-list flex flex-column">
                   <div
-                    class="record-row"
+                    class="domainpage-record-row flex-align-center gap-35"
                     v-for="(r, idx) in settingsRecords"
                     :key="idx"
                   >
                     <input
                       type="text"
-                      class="form-input key-input"
+                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary"
                       v-model="r.key"
                       placeholder="cid | ipns | txt | ..."
                     />
                     <input
                       type="text"
-                      class="form-input value-input"
+                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary"
                       v-model="r.value"
                       placeholder="Value"
                     />
                     <button
-                      class="icon-btn danger"
+                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer"
                       type="button"
                       @click="removeSettingsRecord(idx)"
                       title="Remove row"
@@ -463,31 +463,31 @@
                     </button>
                   </div>
                 </div>
-                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addSettingsRecord">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="addSettingsRecord">
                   Add record
                 </button>
               </div>
 
-              <div class="price-box">
-                <div class="price-row">
+              <div class="domainpage-price-box border-radius-10px">
+                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary">
                   <span>Cost</span>
-                  <span class="price">{{ settingsCostLabel }}</span>
+                  <span class="txt-weight-light">{{ settingsCostLabel }}</span>
                 </div>
-                <div class="price-row">
+                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary">
                   <span>Balance</span>
-                  <span class="price">{{ settingsWalletBalanceLabel }}</span>
+                  <span class="txt-weight-light">{{ settingsWalletBalanceLabel }}</span>
                 </div>
-                <p class="owner-hint" v-if="settingsInsufficientBalance">
+                <p class="domainpage-owner-hint fs-075rem color-text-tertiary" v-if="settingsInsufficientBalance">
                   You need at least {{ settingsCostLabel }} available to keep your PQC link active.
                 </p>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeSettingsModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeSettingsModal">
                   Cancel
                 </button>
                 <button
-                  class="btn primary full ghost txt-weight-light txt-sm cursor-pointer outline-none"
+                  class="domainpage-btn primary full ghost flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
                   type="button"
                   @click="saveSettings"
                   :disabled="!canSaveSettings || savingSettings"
@@ -496,7 +496,7 @@
                     <Settings :size="16" />
                     Save changes
                   </span>
-                  <span v-else class="spinner"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
                 </button>
               </div>
             </div>
@@ -505,49 +505,49 @@
       </Transition>
 
       <!-- Transfer Modal -->
-      <Transition name="fade">
-        <div v-if="showTransferModal" class="modal-overlay" @click="closeTransferModal">
-          <div class="modal" @click.stop>
-            <header class="modal-header">
-              <h3>Transfer domain</h3>
-              <button class="modal-close" type="button" @click="closeTransferModal">
+      <Transition name="domainpage-fade">
+        <div v-if="showTransferModal" class="overlay-scrim domainpage-modal-overlay" @click="closeTransferModal">
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden" @click.stop>
+            <header class="domainpage-modal-header flex-align-center flex-justify-space-between">
+              <h3 class="margin-0">Transfer domain</h3>
+              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px" type="button" @click="closeTransferModal">
                 <X :size="16" />
               </button>
             </header>
-            <div class="modal-body">
-              <p class="modal-desc">Transfer ownership of this domain to another address.</p>
+            <div class="domainpage-modal-body overflow-y-auto flex-1">
+              <p class="domainpage-modal-desc fs-085rem color-text-tertiary">Transfer ownership of this domain to another address.</p>
               
-              <div class="info-card">
-                <div class="info-name">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="info-expiry">
+              <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100">
+                <div class="domainpage-info-name txt-weight-light">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="domainpage-info-expiry">
                   {{ transferDomain ? expiryText(transferDomain) : 'Expires: unknown' }}
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>New Owner Address</label>
+              <div class="domainpage-form-group margin-bottom-100">
+                <label class="color-text-secondary">New Owner Address</label>
                 <input
                   type="text"
-                  class="form-input"
+                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary"
                   v-model="transferForm.newOwner"
                   placeholder="lumen1..."
                 />
-                <p class="form-hint">Enter the Lumen address of the new owner</p>
+                <p class="domainpage-form-hint fs-075rem color-text-tertiary margin-top-37">Enter the Lumen address of the new owner</p>
               </div>
 
-              <div class="warning-box">
-                <div class="warning-icon">⚠️</div>
-                <div class="warning-content">
-                  <strong>Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.
+              <div class="domainpage-warning-box flex border-radius-10px gap-75">
+                <div class="domainpage-warning-icon">⚠️</div>
+                <div class="domainpage-warning-content color-text-primary">
+                  <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.
                 </div>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="btn secondary full txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeTransferModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none" type="button" @click="closeTransferModal">
                   Cancel
                 </button>
                 <button
-                  class="btn primary full danger txt-weight-light txt-sm cursor-pointer outline-none"
+                  class="domainpage-btn primary full danger flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none"
                   type="button"
                   @click="confirmTransfer"
                   :disabled="!canTransfer || transferring"
@@ -556,7 +556,7 @@
                     <Send :size="16" />
                     Transfer domain
                   </span>
-                  <span v-else class="spinner"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
                 </button>
               </div>
             </div>
@@ -1629,542 +1629,3 @@ async function confirmTransfer() {
 void loadDomains();
 void loadRawDomains();
 </script>
-
-<style scoped>
-
-.names-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 0.9rem;
-}
-
-.names-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  width: 100%;
-  border: none;
-  border-radius: 10px;
-  padding: 0.6rem 0.7rem;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  cursor: pointer;
-  text-align: left;
-}
-
-.names-nav-item:hover,
-.names-nav-item.active {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
-.owner-hint {
-  margin-top: 0.35rem;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  font-size: 0.85rem;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.form-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--primary-a15);
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-  overflow-y: auto;
-}
-
-.content-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.content-header h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 650;
-  color: var(--text-primary);
-}
-
-.content-header p {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.05rem;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn.primary {
-  background: var(--gradient-primary);
-  color: #fff;
-}
-
-.btn.primary.ghost {
-  background: var(--card-bg);
-  border-color: var(--border-color);
-  color: var(--text-secondary);
-}
-
-.btn.secondary {
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  border-color: var(--border-color);
-}
-
-.btn.full {
-  width: 100%;
-  justify-content: center;
-}
-
-.btn.compact {
-  padding: 0.38rem 0.65rem;
-  font-size: 0.78rem;
-}
-
-.card {
-  background: var(--card-bg);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  padding: 1.25rem 1.5rem 1.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 2rem 1.5rem;
-  text-align: center;
-}
-
-.empty.error p {
-  color: var(--ios-red);
-}
-
-.hero-title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.hero-text {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-tertiary);
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-}
-
-.domains-list {
-  list-style: none;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.domain-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.65rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-}
-
-
-.domain-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.stable-link-label-row {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.stable-link-label-input {
-  width: min(260px, 100%);
-  min-width: 120px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.25rem 0.35rem;
-}
-
-.stable-link-label-input:hover,
-.stable-link-label-input:focus {
-  background: var(--card-bg);
-  border-color: var(--border-color);
-  outline: none;
-}
-
-.stable-link-saving-icon {
-  flex-shrink: 0;
-  color: var(--ios-green);
-}
-
-.domain-subtitle {
-  max-width: 520px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.domain-right {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.icon-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-secondary);
-}
-
-.pill {
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  border: 1px solid transparent;
-}
-
-.pill-unknown {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-tertiary);
-}
-
-.pill-expired {
-  background: var(--fill-error);
-  border-color: rgba(var(--ios-red-rgb), 0.35);
-  color: var(--ios-red);
-}
-
-.pill-soon,
-.pill-warn {
-  background: rgba(var(--ios-yellow-rgb), 0.15);
-  border-color: rgba(var(--ios-yellow-rgb), 0.3);
-  color: var(--ios-yellow);
-}
-
-.pill-ok {
-  background: var(--fill-success);
-  border-color: rgba(var(--ios-green-rgb), 0.3);
-  color: var(--ios-green);
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  border: 2px solid var(--fill-secondary);
-  border-top-color: var(--accent-primary);
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 40;
-}
-
-.modal {
-  background: var(--card-bg);
-  border-radius: 14px;
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.modal-close {
-  border: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--bg-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.modal-body {
-  padding: 1.1rem 1.25rem 1.25rem;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-.modal-desc {
-  margin: 0 0 0.8rem;
-  font-size: 0.85rem;
-  color: var(--text-tertiary);
-}
-
-.domain-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.domain-part {
-  flex: 1.2;
-}
-
-.ext-part {
-  flex: 0.8;
-}
-
-.dot-sep {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.25rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.availability {
-  margin-top: 0.45rem;
-  padding: 0.4rem 0.55rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.price-box {
-  margin: 0.5rem 0 1.1rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  padding: 0.55rem 0.75rem;
-  background: var(--bg-secondary);
-}
-
-.price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  padding: 0.25rem 0;
-  color: var(--text-primary);
-}
-
-.price-row.total {
-  border-top: 1px solid var(--border-color);
-  margin-top: 0.3rem;
-  padding-top: 0.4rem;
-  font-weight: 600;
-}
-
-.price {
-  font-weight: 600;
-}
-
-.info-card {
-  border-radius: 10px;
-  padding: 0.8rem 0.9rem;
-  background: var(--gradient-primary);
-  color: white;
-  margin-bottom: 1rem;
-}
-
-.info-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.info-expiry {
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-}
-
-.records-empty {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-  margin-bottom: 0.5rem;
-}
-
-.records-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 0.6rem;
-}
-
-.record-row {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.key-input {
-  flex: 0.9;
-}
-
-.value-input {
-  flex: 1.6;
-}
-
-.icon-btn.danger {
-  border-color: rgba(var(--ios-red-rgb), 0.35);
-  background: var(--fill-error);
-  color: var(--ios-red);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-@media (max-width: 960px) {
-  .domain-page {
-    flex-direction: column;
-  }
-
-  .main-content {
-    padding: 1.5rem;
-  }
-}
-
-.warning-box {
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.875rem;
-  background: var(--fill-error);
-  border: 1px solid rgba(var(--ios-red-rgb), 0.3);
-  border-radius: 10px;
-  margin: 1rem 0;
-}
-
-.warning-icon {
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.warning-content {
-  font-size: 0.8125rem;
-  color: var(--text-primary);
-}
-
-.warning-content strong {
-  color: var(--ios-red);
-  font-weight: 600;
-}
-
-.btn.danger {
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
-}
-
-.btn.danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 85%, black) 0%, color-mix(in srgb, var(--ios-red) 70%, black) 100%);
-}
-
-.form-hint {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  margin-top: 0.375rem;
-}
-</style>

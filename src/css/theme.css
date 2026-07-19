@@ -6710,3 +6710,354 @@ textarea.mygw-form-input {
         grid-template-columns: 1fr;
     }
 }
+
+/* DomainPage.vue */
+.domainpage-names-nav {
+    margin-bottom: 0.9rem;
+}
+
+.domainpage-names-nav-item {
+    gap: 0.65rem;
+    padding: 0.6rem 0.7rem;
+    background: transparent;
+}
+
+.domainpage-names-nav-item:hover,
+.domainpage-names-nav-item.active {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.domainpage-owner-hint {
+    margin-top: 0.35rem;
+}
+
+.domainpage-form-input {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.domainpage-form-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.domainpage-form-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--primary-a15);
+}
+
+.domainpage-main {
+    padding: 2rem 2.5rem;
+}
+
+.domainpage-content-header h1 {
+    font-size: 1.6rem;
+    font-weight: 650;
+}
+
+.domainpage-content-header p {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+
+.domainpage-btn {
+    padding: 0.6rem 1.05rem;
+    border: 1px solid transparent;
+}
+
+.domainpage-btn.primary {
+    background: var(--gradient-primary);
+    color: #fff;
+}
+
+.domainpage-btn.primary.ghost {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.domainpage-btn.secondary {
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.domainpage-btn.full {
+    width: 100%;
+    justify-content: center;
+}
+
+.domainpage-btn.danger {
+    background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
+}
+
+.domainpage-btn.danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 85%, black) 0%, color-mix(in srgb, var(--ios-red) 70%, black) 100%);
+}
+
+.domainpage-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.domainpage-empty {
+    padding: 2rem 1.5rem;
+}
+
+.domainpage-empty.error p {
+    color: var(--ios-red);
+}
+
+.domainpage-hero-title {
+    font-size: 1.05rem;
+}
+
+.domainpage-domains-list {
+    list-style: none;
+    margin: 0.75rem 0 0;
+}
+
+.domainpage-domain-row {
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.domainpage-domain-name {
+    font-size: 0.9rem;
+}
+
+.domainpage-stable-link-label-row {
+    min-width: 0;
+}
+
+.domainpage-stable-link-label-input {
+    width: min(260px, 100%);
+    min-width: 120px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.35rem;
+}
+
+.domainpage-stable-link-label-input:hover,
+.domainpage-stable-link-label-input:focus {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    outline: none;
+}
+
+.domainpage-domain-subtitle {
+    max-width: 520px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.domainpage-domain-right {
+    gap: 0.4rem;
+}
+
+.domainpage-icon-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+
+.domainpage-icon-btn.danger {
+    border-color: rgba(var(--ios-red-rgb), 0.35);
+    background: var(--fill-error);
+    color: var(--ios-red);
+}
+
+.domainpage-pill {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.7rem;
+    border: 1px solid transparent;
+}
+
+.domainpage-pill.pill-unknown {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-tertiary);
+}
+
+.domainpage-pill.pill-expired {
+    background: var(--fill-error);
+    border-color: rgba(var(--ios-red-rgb), 0.35);
+    color: var(--ios-red);
+}
+
+.domainpage-pill.pill-soon,
+.domainpage-pill.pill-warn {
+    background: rgba(var(--ios-yellow-rgb), 0.15);
+    border-color: rgba(var(--ios-yellow-rgb), 0.3);
+    color: var(--ios-yellow);
+}
+
+.domainpage-pill.pill-ok {
+    background: var(--fill-success);
+    border-color: rgba(var(--ios-green-rgb), 0.3);
+    color: var(--ios-green);
+}
+
+.domainpage-spinner {
+    border: 2px solid var(--fill-secondary);
+    border-top-color: var(--accent-primary);
+    animation: spin 0.7s linear infinite;
+}
+
+.domainpage-modal-overlay {
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 40;
+}
+
+.domainpage-modal {
+    background: var(--card-bg);
+    border-radius: 14px;
+    max-width: 480px;
+    max-height: 90vh;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.domainpage-modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.domainpage-modal-header h3 {
+    font-size: 1.05rem;
+}
+
+.domainpage-modal-close {
+    background: var(--bg-tertiary);
+}
+
+.domainpage-modal-body {
+    padding: 1.1rem 1.25rem 1.25rem;
+    min-height: 0;
+}
+
+.domainpage-modal-desc {
+    margin: 0 0 0.8rem;
+}
+
+.domainpage-domain-part {
+    flex: 1.2;
+}
+
+.domainpage-ext-part {
+    flex: 0.8;
+}
+
+.domainpage-dot-sep {
+    font-size: 0.9rem;
+}
+
+.domainpage-form-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.domainpage-availability {
+    margin-top: 0.45rem;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    background: var(--fill-error);
+}
+
+.domainpage-price-box {
+    margin: 0.5rem 0 1.1rem;
+    border: 1px solid var(--border-color);
+    padding: 0.55rem 0.75rem;
+    background: var(--bg-secondary);
+}
+
+.domainpage-price-row {
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+}
+
+.domainpage-price-row.total {
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.3rem;
+    padding-top: 0.4rem;
+    font-weight: 600;
+}
+
+.domainpage-info-card {
+    padding: 0.8rem 0.9rem;
+    background: var(--gradient-primary);
+}
+
+.domainpage-info-name {
+    font-size: 0.95rem;
+}
+
+.domainpage-info-expiry {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.domainpage-records-empty {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.domainpage-records-list {
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+}
+
+.domainpage-key-input {
+    flex: 0.9;
+}
+
+.domainpage-value-input {
+    flex: 1.6;
+}
+
+.domainpage-fade-enter-active,
+.domainpage-fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.domainpage-fade-enter-from,
+.domainpage-fade-leave-to {
+    opacity: 0;
+}
+
+.domainpage-warning-box {
+    padding: 0.875rem;
+    background: var(--fill-error);
+    border: 1px solid rgba(var(--ios-red-rgb), 0.3);
+    margin: 1rem 0;
+}
+
+.domainpage-warning-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.domainpage-warning-content {
+    font-size: 0.8125rem;
+}
+
+@media (max-width: 960px) {
+    .domain-page {
+        flex-direction: column;
+    }
+
+    .domainpage-main {
+        padding: 1.5rem;
+    }
+}
