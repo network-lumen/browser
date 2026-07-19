@@ -64,20 +64,20 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="walletpage-main-content flex flex-column flex-1 margin-0">
       <!-- Header -->
-      <header class="content-header">
+      <header class="walletpage-content-header flex-align-center-justify-space-between margin-bottom-150">
         <div>
           <h1>{{ getViewTitle() }}</h1>
           <p>{{ getViewDescription() }}</p>
         </div>
 
-        <div v-if="currentView !== 'dex'" class="header-actions">
-          <button class="action-btn primary" @click="connectWallet" v-if="!isConnected">
+        <div v-if="currentView !== 'dex'" class="walletpage-header-actions flex gap-75">
+          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
             <span>Connect Wallet</span>
           </button>
-          <button class="action-btn primary" @click="sendTransaction" v-else>
+          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer" @click="sendTransaction" v-else>
             <Send :size="16" />
             <span>Send</span>
           </button>
@@ -87,21 +87,21 @@
       <!-- Overview View -->
       <div v-if="currentView === 'overview'" class="overview-section flex flex-column gap-150">
         <!-- Balance Card -->
-        <div class="balance-card">
-          <div class="balance-header">
-            <span class="balance-label">Total Balance</span>
-            <button class="eye-btn" @click="showBalance = !showBalance">
+        <div class="walletpage-balance-card border-radius-20px padding-200">
+          <div class="walletpage-balance-header flex-align-center-justify-space-between margin-bottom-100">
+            <span class="walletpage-balance-label text-uppercase txt-weight-light">Total Balance</span>
+            <button class="walletpage-eye-btn flex-align-justify-center size-32px color-text-primary cursor-pointer" @click="showBalance = !showBalance">
               <Eye v-if="showBalance" :size="18" />
               <EyeOff v-else :size="18" />
             </button>
           </div>
-          <div class="balance-amount">
-            <span class="currency">LMN</span>
-            <span class="amount">
+          <div class="walletpage-balance-amount flex gap-75">
+            <span class="walletpage-currency txt-weight-light">LMN</span>
+            <span class="walletpage-amount txt-weight-strong">
               {{ showBalance ? balanceLabel : '••••••' }}
             </span>
           </div>
-          <div class="balance-change">
+          <div class="walletpage-balance-change flex-align-center gap-50 fw-500">
             <TrendingUp :size="14" />
             <span v-if="isConnected && !balanceError">On-chain balance</span>
             <span v-else-if="balanceError">Error loading balance</span>
@@ -110,27 +110,27 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="quick-actions">
-          <button class="quick-btn disabled-fade-50" @click="sendTransaction">
-            <div class="quick-icon send">
+        <div class="walletpage-quick-actions gap-100">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary" @click="sendTransaction">
+            <div class="walletpage-quick-icon send flex-align-justify-center size-56px">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </button>
-          <button class="quick-btn disabled-fade-50" @click="openReceiveModal">
-            <div class="quick-icon receive">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary" @click="openReceiveModal">
+            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </button>
-          <button class="quick-btn disabled-fade-50" disabled>
-            <div class="quick-icon swap disabled">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary" disabled>
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
-          <button class="quick-btn disabled-fade-50" disabled>
-            <div class="quick-icon buy disabled">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary" disabled>
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -138,10 +138,10 @@
         </div>
 
         <!-- Address + summary -->
-        <div class="info-section">
-          <div class="info-card">
-            <div class="info-label">Address</div>
-            <div class="info-value mono" :title="address || '-'">
+        <div class="walletpage-info-section flex flex-wrap-wrap gap-100">
+          <div class="walletpage-info-card flex-1">
+            <div class="walletpage-info-label text-uppercase color-text-tertiary">Address</div>
+            <div class="walletpage-info-value mono color-text-primary" :title="address || '-'">
               {{ address || '-' }}
             </div>
           </div>
@@ -149,76 +149,76 @@
       </div>
 
       <!-- Assets View -->
-      <div v-else-if="currentView === 'assets'" class="content-section">
-        <div class="section-header">
+      <div v-else-if="currentView === 'assets'" class="walletpage-content-section flex flex-column gap-150 w-full">
+        <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
           <h3>Cross-chain Assets</h3>
         </div>
-        <div class="empty-state" v-if="!isConnected">
-          <div class="empty-icon">
+        <div class="walletpage-empty-state margin-top-200 padding-200 text-center" v-if="!isConnected">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <Coins :size="32" />
           </div>
           <h3>Connect Your Wallet</h3>
           <p>Connect a wallet to view your assets across linked IBC chains.</p>
-          <button class="connect-btn" @click="connectWallet">
+          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer" @click="connectWallet">
             <Link :size="16" />
             <span>Connect Wallet</span>
           </button>
         </div>
-        <div v-else-if="assetsLoading && !assetRows.length" class="empty-state">
-          <div class="empty-icon">
+        <div v-else-if="assetsLoading && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <Coins :size="32" />
           </div>
           <h3>Loading assets…</h3>
           <p>Fetching balances on Lumen and linked IBC chains.</p>
         </div>
-        <div v-else-if="assetsError && !assetRows.length" class="empty-state">
-          <div class="empty-icon">
+        <div v-else-if="assetsError && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <AlertCircle :size="32" />
           </div>
           <h3>Unable to load assets</h3>
           <p>{{ assetsError }}</p>
         </div>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="info-banner warning margin-bottom-100">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary">
             <span>{{ assetsError }}</span>
           </div>
-          <div v-if="assetRows.length" class="assets-list rich-assets-list">
+          <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column margin-top-100 gap-75 gap-100">
             <div
               v-for="asset in assetRows"
               :key="asset.id"
-              class="asset-item asset-item-rich"
+              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-100"
             >
-              <div class="asset-main">
-                <div class="asset-icon" :class="asset.iconClass">
+              <div class="walletpage-asset-main flex-align-start gap-75 flex-1">
+                <div class="walletpage-asset-icon flex-align-justify-center size-40px border-radius-full txt-weight-light" :class="asset.iconClass">
                   <img
                     v-if="asset.iconUrl"
                     :src="asset.iconUrl"
                     :alt="`${asset.displayName} icon`"
-                    class="asset-icon-image"
+                    class="walletpage-asset-icon-image w-full h-full"
                     @error="handleAssetIconError(asset)"
                   />
                   <span v-else>{{ asset.iconText }}</span>
                 </div>
-                <div class="asset-info">
-                  <div class="asset-title-row">
-                    <span class="asset-name">{{ asset.displayName }}</span>
-                    <span class="asset-chain-pill">{{ asset.chainLabel }}</span>
+                <div class="walletpage-asset-info flex flex-column flex-1 gap-20">
+                  <div class="walletpage-asset-title-row flex-align-center flex-wrap-wrap gap-50">
+                    <span class="walletpage-asset-name fw-500 color-text-primary">{{ asset.displayName }}</span>
+                    <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary">{{ asset.chainLabel }}</span>
                   </div>
-                  <span class="asset-symbol">{{ asset.displaySymbol }}</span>
-                  <span class="asset-meta">{{ asset.addressLabel }}</span>
-                  <span v-if="asset.traceLabel" class="asset-meta">{{ asset.traceLabel }}</span>
-                  <span v-if="asset.routeLabel" class="asset-meta">{{ asset.routeLabel }}</span>
-                  <span v-if="asset.error" class="asset-meta error">{{ asset.error }}</span>
+                  <span class="walletpage-asset-symbol color-text-tertiary">{{ asset.displaySymbol }}</span>
+                  <span class="walletpage-asset-meta color-text-secondary">{{ asset.addressLabel }}</span>
+                  <span v-if="asset.traceLabel" class="walletpage-asset-meta color-text-secondary">{{ asset.traceLabel }}</span>
+                  <span v-if="asset.routeLabel" class="walletpage-asset-meta color-text-secondary">{{ asset.routeLabel }}</span>
+                  <span v-if="asset.error" class="walletpage-asset-meta error color-text-secondary">{{ asset.error }}</span>
                 </div>
               </div>
-              <div class="asset-side">
-                <div class="asset-balance balance-column">
+              <div class="walletpage-asset-side flex-align-end flex-column gap-75">
+                <div class="walletpage-asset-balance walletpage-balance-column text-right fw-500 color-text-primary flex-align-end flex-column gap-15">
                   <span class="asset-amount">{{ asset.displayAmount }}</span>
-                  <span class="asset-balance-symbol">{{ asset.displaySymbol }}</span>
+                  <span class="walletpage-asset-balance-symbol fs-075rem color-text-tertiary txt-weight-light">{{ asset.displaySymbol }}</span>
                 </div>
-                <div class="asset-actions">
+                <div class="walletpage-asset-actions flex-align-center flex-wrap-wrap gap-50">
                   <button
-                    class="action-icon asset-refresh-btn"
+                    class="walletpage-action-icon walletpage-asset-refresh-btn flex-align-justify-center color-text-secondary cursor-pointer"
                     @click="refreshAssetRow(asset)"
                     :disabled="assetRowRefreshingId === asset.id"
                     title="Refresh this asset"
@@ -227,7 +227,7 @@
                     <RefreshCw :size="14" :class="{ 'spin-icon': assetRowRefreshingId === asset.id }" />
                   </button>
                   <button
-                    class="action-icon copy-btn"
+                    class="walletpage-action-icon walletpage-copy-btn flex-align-justify-center color-text-secondary cursor-pointer"
                     @click="copyToClipboard(asset.ownerAddress, 'Address copied!')"
                     title="Copy chain address"
                     aria-label="Copy chain address"
@@ -235,7 +235,7 @@
                     <Copy :size="14" />
                   </button>
                   <button
-                    class="action-btn secondary asset-send-btn"
+                    class="walletpage-action-btn secondary walletpage-asset-send-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer"
                     @click="openAssetSendModal(asset)"
                     :disabled="!asset.sendEnabled"
                   >
@@ -243,7 +243,7 @@
                     <span>{{ asset.sendButtonLabel }}</span>
                   </button>
                   <button
-                    class="action-btn secondary asset-transfer-btn"
+                    class="walletpage-action-btn secondary walletpage-asset-transfer-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer"
                     @click="openAssetTransferModal(asset)"
                     :disabled="!asset.transferTargets.length || !asset.transferEnabled"
                   >
@@ -254,8 +254,8 @@
               </div>
             </div>
           </div>
-          <div v-else class="empty-state">
-            <div class="empty-icon">
+          <div v-else class="walletpage-empty-state margin-top-200 padding-200 text-center">
+            <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
               <Coins :size="32" />
             </div>
             <h3>No assets yet</h3>
@@ -265,8 +265,8 @@
       </div>
 
       <!-- DEX View -->
-      <div v-else-if="currentView === 'dex'" class="content-section">
-        <div v-if="dexError" class="info-banner warning margin-bottom-100">
+      <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-150 w-full">
+        <div v-if="dexError" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary">
           <span>{{ dexError }}</span>
         </div>
 
@@ -274,56 +274,56 @@
           <div
             v-for="dex in dexRows"
             :key="dex.key"
-            class="dex-item"
+            class="walletpage-dex-item"
             :class="`dex-item-${dex.status}`"
           >
-            <div class="dex-top">
+            <div class="walletpage-dex-top flex-justify-space-between gap-100">
               <button
                 type="button"
-                class="dex-summary-btn"
+                class="walletpage-dex-summary-btn flex-align-start gap-90 flex-1 padding-0 text-left cursor-pointer"
                 @click="toggleDexExpanded(dex.key)"
               >
-                <div class="dex-logo" :class="{ 'dex-logo-dark': dex.logoTheme === 'dark' }">
+                <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium" :class="{ 'dex-logo-dark': dex.logoTheme === 'dark' }">
                   <img
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
                     :alt="`${dex.name} logo`"
-                    class="dex-logo-image"
+                    class="walletpage-dex-logo-image margin-auto"
                     @error="handleDexLogoError(dex)"
                   />
                   <span v-else>{{ dex.iconText }}</span>
                 </div>
 
-                <div class="dex-main">
-                  <div class="dex-title-row">
-                    <span class="dex-name">{{ dex.name }}</span>
-                    <span class="asset-chain-pill">{{ dex.chainLabel }}</span>
-                    <span class="dex-status-badge" :class="`status-${dex.status}`">
+                <div class="walletpage-dex-main flex flex-column">
+                  <div class="walletpage-dex-title-row flex-align-center flex-wrap-wrap gap-50">
+                    <span class="walletpage-dex-name txt-weight-light color-text-primary">{{ dex.name }}</span>
+                    <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary">{{ dex.chainLabel }}</span>
+                    <span class="walletpage-dex-status-badge flex-inline-align-center border-radius-full txt-weight-medium" :class="`status-${dex.status}`">
                       {{ getDexStatusLabel(dex.status) }}
                     </span>
                   </div>
 
-                  <span v-if="dex.error" class="dex-meta error">{{ dex.error }}</span>
+                  <span v-if="dex.error" class="walletpage-dex-meta error color-text-tertiary">{{ dex.error }}</span>
                 </div>
               </button>
 
-              <div class="dex-side">
-                <div class="dex-actions">
+              <div class="walletpage-dex-side flex-align-end flex-column">
+                <div class="walletpage-dex-actions flex-align-center-justify-end flex-wrap-wrap gap-50">
                   <button
                     type="button"
-                    class="action-btn secondary dex-detail-toggle"
+                    class="walletpage-action-btn secondary walletpage-dex-detail-toggle flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer"
                     @click="toggleDexExpanded(dex.key)"
                   >
                     <ChevronDown
                       :size="16"
-                      class="dex-chevron"
+                      class="walletpage-dex-chevron"
                       :class="{ open: isDexExpanded(dex.key) }"
                     />
                     <span>{{ isDexExpanded(dex.key) ? 'Hide details' : 'Details' }}</span>
                   </button>
                   <button
                     type="button"
-                    class="action-btn primary dex-open-btn"
+                    class="walletpage-action-btn primary walletpage-dex-open-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer"
                     @click="openDexTab(dex.openUrl || dex.baseUrl)"
                   >
                     <ExternalLink :size="16" />
@@ -333,35 +333,35 @@
               </div>
             </div>
 
-            <div v-if="isDexExpanded(dex.key)" class="dex-details">
-              <div class="dex-detail-grid">
-                <div class="dex-detail-card compact">
-                  <span class="dex-detail-label">Trading pairs</span>
-                  <span class="dex-detail-value">{{ formatDexCount(dex.tradingPairsCount) }}</span>
+            <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details">
+              <div class="walletpage-dex-detail-grid gap-75">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase">Trading pairs</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="dex-detail-card compact">
-                  <span class="dex-detail-label">Liquidity pools</span>
-                  <span class="dex-detail-value">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase">Liquidity pools</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
-                <div class="dex-detail-card">
-                  <span class="dex-detail-label">24h price</span>
-                  <span class="dex-detail-value">{{ getDexPriceLabel(dex) }}</span>
+                <div class="walletpage-dex-detail-card flex flex-column gap-35">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase">24h price</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
-                <div class="dex-detail-card">
-                  <span class="dex-detail-label">24h volume</span>
-                  <span class="dex-detail-value">{{ getDexVolumeLabel(dex) }}</span>
+                <div class="walletpage-dex-detail-card flex flex-column gap-35">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase">24h volume</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
               </div>
 
-              <div v-if="dex.quickLinks.length" class="dex-links">
+              <div v-if="dex.quickLinks.length" class="walletpage-dex-links flex flex-wrap-wrap">
                 <button
                   v-for="link in dex.quickLinks"
                   :key="`${dex.key}:${link.label}:${link.url}`"
                   type="button"
-                  class="dex-link-chip"
+                  class="walletpage-dex-link-chip flex-inline-align-center gap-35 border-radius-full color-text-secondary cursor-pointer"
                   @click="openDexTab(link.url)"
                 >
                   <span>{{ link.label }}</span>
@@ -374,18 +374,18 @@
       </div>
 
         <!-- Transactions View -->
-        <div v-else-if="currentView === 'transactions'" class="content-section">
+        <div v-else-if="currentView === 'transactions'" class="walletpage-content-section flex flex-column gap-150 w-full">
 
-        <div class="section-header" v-if="activities.length > 0">
+        <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100" v-if="activities.length > 0">
           <h3>Recent Transactions</h3>
-          <div class="header-actions-group">
+          <div class="walletpage-header-actions-group flex-align-center flex-wrap-wrap gap-75">
             <div class="filter-group flex-align-center gap-50">
-              <select v-model="txFilterType" class="filter-select">
+              <select v-model="txFilterType" class="walletpage-filter-select color-text-primary cursor-pointer">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
                 <option value="receive">Receive</option>
               </select>
-              <select v-model="txFilterStatus" class="filter-select">
+              <select v-model="txFilterStatus" class="walletpage-filter-select color-text-primary cursor-pointer">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
@@ -394,39 +394,39 @@
                 v-model="txSearchQuery"
                 type="text"
                 placeholder="Search by hash..."
-                class="search-input"
+                class="walletpage-search-input color-text-primary"
               />
             </div>
-            <button class="action-btn secondary" @click="exportTransactions">
+            <button class="walletpage-action-btn secondary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer" @click="exportTransactions">
               <Download :size="16" />
               <span>Export CSV</span>
             </button>
           </div>
         </div>
 
-        <div class="empty-state" v-if="!isConnected || !address">
-          <div class="empty-icon">
+        <div class="walletpage-empty-state margin-top-200 padding-200 text-center" v-if="!isConnected || !address">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>No wallet connected</h3>
           <p>Connect a wallet to see your recent transactions.</p>
         </div>
 
-        <div v-else-if="activitiesLoading" class="empty-state">
-          <div class="empty-icon">
+        <div v-else-if="activitiesLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>Loading transactions…</h3>
           <p>Please wait while we fetch your recent activity from the indexer.</p>
         </div>
 
-        <div v-else-if="activitiesError" class="empty-state">
-          <div class="empty-icon">
+        <div v-else-if="activitiesError" class="walletpage-empty-state margin-top-200 padding-200 text-center">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>Unable to load transactions</h3>
           <p>{{ activitiesError }}</p>
-          <div class="info-banner warning margin-top-100 max-w-500px">
+          <div class="walletpage-info-banner warning margin-top-100 max-w-500px border-radius-10px margin-bottom-150 color-text-primary">
             <span>
               💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
               Your balance is still accurate and transactions are recorded on-chain.
@@ -434,13 +434,13 @@
           </div>
         </div>
 
-        <div v-else-if="!activities.length" class="empty-state">
-          <div class="empty-icon">
+        <div v-else-if="!activities.length" class="walletpage-empty-state margin-top-200 padding-200 text-center">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <ArrowLeftRight :size="32" />
           </div>
           <h3>No recent transactions</h3>
           <p>Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-          <div class="info-banner warning margin-top-100 max-w-600px">
+          <div class="walletpage-info-banner warning margin-top-100 max-w-600px border-radius-10px margin-bottom-150 color-text-primary">
             <div class="margin-bottom-75">
               <strong>💡 Why can't I see my transactions?</strong>
             </div>
@@ -466,12 +466,12 @@
           </div>
         </div>
 
-        <div v-else class="activities-list">
-          <div class="table-header">
+        <div v-else class="walletpage-activities-list flex flex-column border-radius-12px w-full">
+          <div class="walletpage-table-header gap-100 fs-075rem txt-weight-medium color-text-secondary text-uppercase w-full">
             <div class="col-type">Type</div>
             <div class="col-amount">Amount</div>
-            <div class="col-from flex-align-center gap-50">From</div>
-            <div class="col-to flex-align-center gap-50">To</div>
+            <div class="walletpage-col-from flex-align-center gap-50">From</div>
+            <div class="walletpage-col-to flex-align-center gap-50">To</div>
             <div class="col-hash flex-align-center gap-50">Hash</div>
             <div class="col-status">Status</div>
             <div class="col-time">Time</div>
@@ -480,10 +480,10 @@
           <div
             v-for="tx in enhancedActivities"
             :key="tx.id"
-            class="activity-row"
+            class="walletpage-activity-row gap-100"
           >
             <div class="col-type">
-              <div class="type-badge" :class="getActivityBadgeClass(tx)">
+              <div class="walletpage-type-badge flex-inline fs-075rem txt-weight-light" :class="getActivityBadgeClass(tx)">
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
                 <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
                 <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />
@@ -492,11 +492,11 @@
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
-                <div class="type-text">
+                <div class="walletpage-type-text flex flex-column">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
-                    class="type-sub"
+                    class="walletpage-type-sub fw-500 color-text-tertiary"
                     :title="tx.dnsName"
                   >{{ tx.dnsName }}</span>
                 </div>
@@ -504,18 +504,18 @@
             </div>
 
             <div class="col-amount">
-              <span class="amount-value" :class="tx.type">
+              <span class="walletpage-amount-value txt-weight-medium" :class="tx.type">
                 <template v-if="tx.amounts && tx.amounts.length && tx.amounts[0].amount">
                   {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount) / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} {{ formatDenom(tx.amounts[0].denom) }}
                 </template>
                 <template v-else>
-                  <span class="text-muted">N/A</span>
+                  <span class="walletpage-text-muted color-text-tertiary">N/A</span>
                 </template>
               </span>
             </div>
 
-            <div class="col-from flex-align-center gap-50">
-              <span class="address-value" :title="tx.from || '-'">
+            <div class="walletpage-col-from flex-align-center gap-50">
+              <span class="walletpage-address-value" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
                 </template>
@@ -523,12 +523,12 @@
                   {{ tx.from }}
                 </template>
                 <template v-else>
-                  <span class="text-muted">-</span>
+                  <span class="walletpage-text-muted color-text-tertiary">-</span>
                 </template>
               </span>
               <button
                 v-if="tx.from"
-                class="action-icon copy-btn"
+                class="walletpage-action-icon walletpage-copy-btn flex-align-justify-center color-text-secondary cursor-pointer"
                 @click.stop="copyToClipboard(tx.from, 'Address copied!')"
                 title="Copy address"
                 aria-label="Copy from address"
@@ -537,8 +537,8 @@
               </button>
             </div>
 
-            <div class="col-to flex-align-center gap-50">
-              <span class="address-value" :title="tx.to || '-'">
+            <div class="walletpage-col-to flex-align-center gap-50">
+              <span class="walletpage-address-value" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
                 </template>
@@ -546,12 +546,12 @@
                   {{ tx.to }}
                 </template>
                 <template v-else>
-                  <span class="text-muted">-</span>
+                  <span class="walletpage-text-muted color-text-tertiary">-</span>
                 </template>
               </span>
               <button
                 v-if="tx.to"
-                class="action-icon copy-btn"
+                class="walletpage-action-icon walletpage-copy-btn flex-align-justify-center color-text-secondary cursor-pointer"
                 @click.stop="copyToClipboard(tx.to, 'Address copied!')"
                 title="Copy address"
                 aria-label="Copy to address"
@@ -561,32 +561,32 @@
             </div>
 
             <div class="col-hash flex-align-center gap-50">
-              <span class="hash-value" :title="tx.txhash">
+              <span class="walletpage-hash-value color-text-secondary" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
               <button
-                class="action-icon explorer-btn"
+                class="walletpage-action-icon walletpage-explorer-btn flex-align-justify-center color-text-secondary cursor-pointer"
                 @click.stop="openTransactionTab(tx.txhash)"
                 title="Open in explorer"
                 aria-label="Open transaction in new tab"
               >
                 <ExternalLink :size="14" />
               </button>
-              <button class="action-icon copy-btn" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash">
+              <button class="walletpage-action-icon walletpage-copy-btn flex-align-justify-center color-text-secondary cursor-pointer" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash">
                 <Copy :size="14" />
               </button>
             </div>
 
             <div class="col-status">
-              <span class="status-badge" :class="(tx.code === undefined || tx.code === 0) ? 'success badge-success' : 'failed badge-error'">
+              <span class="walletpage-status-badge flex-inline-align-center fs-075rem txt-weight-light" :class="(tx.code === undefined || tx.code === 0) ? 'success badge-success' : 'failed badge-error'">
                 {{ (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed' }}
               </span>
             </div>
 
             <div class="col-time">
-              <span class="time-value">
+              <span class="walletpage-time-value flex flex-column color-text-primary fw-500">
                 {{ new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
-                <span class="time-hour">{{ new Date(tx.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}</span>
+                <span class="walletpage-time-hour fs-075rem color-text-tertiary txt-weight-normal">{{ new Date(tx.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}</span>
               </span>
             </div>
           </div>
@@ -594,62 +594,62 @@
       </div>
 
       <!-- Address Book View -->
-      <div v-else-if="currentView === 'addressbook'" class="content-section">
-        <div class="section-header">
+      <div v-else-if="currentView === 'addressbook'" class="walletpage-content-section flex flex-column gap-150 w-full">
+        <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
           <h3>Saved Addresses</h3>
-          <button class="action-btn primary" @click="openAddContactModal">
+          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer" @click="openAddContactModal">
             <Plus :size="16" />
             <span>Add Contact</span>
           </button>
         </div>
 
-        <div class="empty-state" v-if="!contacts.length && !contactsLoading">
-          <div class="empty-icon">
+        <div class="walletpage-empty-state margin-top-200 padding-200 text-center" v-if="!contacts.length && !contactsLoading">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <Users :size="32" />
           </div>
           <h3>No Contacts Yet</h3>
           <p>Add addresses you frequently send to for quick access.</p>
-          <button class="connect-btn" @click="openAddContactModal">
+          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer" @click="openAddContactModal">
             <Plus :size="16" />
             <span>Add First Contact</span>
           </button>
         </div>
 
-        <div v-else-if="contactsLoading" class="empty-state">
-          <div class="empty-icon">
+        <div v-else-if="contactsLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full">
             <Users :size="32" />
           </div>
           <h3>Loading contacts…</h3>
         </div>
 
-        <div v-else class="contacts-grid">
-          <div v-for="contact in contacts" :key="contact.id" class="contact-card">
-            <div class="contact-header">
-              <div class="contact-avatar">
+        <div v-else class="walletpage-contacts-grid gap-100 margin-top-150">
+          <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px padding-125">
+            <div class="walletpage-contact-header flex-align-center gap-87">
+              <div class="walletpage-contact-avatar flex-align-justify-center size-48px border-radius-circle txt-weight-medium">
                 {{ contact.name.charAt(0).toUpperCase() }}
               </div>
-              <div class="contact-info">
+              <div class="walletpage-contact-info flex-1">
                 <h4>{{ contact.name }}</h4>
-                <p class="contact-address" :title="contact.address">
+                <p class="walletpage-contact-address color-text-tertiary" :title="contact.address">
                   {{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}
                 </p>
               </div>
             </div>
-            <p class="contact-note" v-if="contact.note">{{ contact.note }}</p>
-            <div class="contact-actions">
-              <button class="contact-btn send" @click="sendToContact(contact)">
+            <p class="walletpage-contact-note color-text-secondary margin-bottom-87" v-if="contact.note">{{ contact.note }}</p>
+            <div class="walletpage-contact-actions flex flex-wrap-wrap gap-50">
+              <button class="walletpage-contact-btn send flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer" @click="sendToContact(contact)">
                 <Send :size="16" />
                 <span>Send</span>
               </button>
-              <button class="contact-btn copy" @click="copyToClipboard(contact.address, 'Address copied!')">
+              <button class="walletpage-contact-btn copy flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer" @click="copyToClipboard(contact.address, 'Address copied!')">
                 <Copy :size="16" />
                 <span>Copy</span>
               </button>
-              <button class="contact-btn edit" @click="editContact(contact)">
+              <button class="walletpage-contact-btn edit flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer" @click="editContact(contact)">
                 <Edit :size="16" />
                 <span>Edit</span>
               </button>
-              <button class="contact-btn delete" @click="deleteContact(contact)">
+              <button class="walletpage-contact-btn delete flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer" @click="deleteContact(contact)">
                 <Trash2 :size="16" />
                 <span>Delete</span>
               </button>
@@ -659,7 +659,7 @@
       </div>
 
       <!-- Recurring Payments View -->
-      <div v-else-if="currentView === 'recurring'" class="content-section recurring-section">
+      <div v-else-if="currentView === 'recurring'" class="walletpage-content-section walletpage-recurring-section flex flex-column gap-150 w-full padding-0 gap-0">
         <SubscriptionsView 
           ref="subscriptionsRef"
           @execute-payment="executeRecurringPayment"
@@ -671,31 +671,31 @@
 
     <!-- Asset Transfer Modal -->
     <Transition name="fade">
-      <div v-if="showAssetTransferModal" class="modal-overlay" @click="closeAssetTransferModal">
-        <div class="modal-content send-modal asset-transfer-modal" @click.stop>
-          <div class="modal-header">
+      <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100" @click="closeAssetTransferModal">
+        <div class="walletpage-modal-content send-modal asset-transfer-modal w-full" @click.stop>
+          <div class="walletpage-modal-header flex-align-center-justify-space-between">
             <div class="modal-title-wrapper flex-align-center gap-75">
-              <div class="modal-icon">
+              <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px">
                 <ArrowLeftRight :size="20" />
               </div>
               <h3>IBC Transfer</h3>
             </div>
-            <button class="modal-close" @click="closeAssetTransferModal">
+            <button class="walletpage-modal-close flex-align-justify-center size-36px border-radius-10px color-text-secondary cursor-pointer" @click="closeAssetTransferModal">
               <X :size="18" />
             </button>
           </div>
-          <div class="modal-body" v-if="assetTransferContext">
-            <div class="info-banner">
+          <div class="walletpage-modal-body padding-150" v-if="assetTransferContext">
+            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary">
               <span>
                 Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
               </span>
             </div>
 
-            <div class="form-group">
+            <div class="walletpage-form-group margin-bottom-125">
               <label>Asset</label>
-              <div class="input-wrapper readonly">
+              <div class="walletpage-input-wrapper readonly">
                 <input
-                  class="form-input"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary"
                   type="text"
                   :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
                   readonly
@@ -703,17 +703,17 @@
               </div>
             </div>
 
-            <div class="asset-modal-grid">
-              <div class="form-group">
+            <div class="walletpage-asset-modal-grid gap-100">
+              <div class="walletpage-form-group margin-bottom-125">
                 <label>From chain</label>
-                <div class="input-wrapper readonly">
-                  <input class="form-input" type="text" :value="assetTransferContext.chainLabel" readonly />
+                <div class="walletpage-input-wrapper readonly">
+                  <input class="walletpage-form-input w-full border-radius-10px color-text-primary" type="text" :value="assetTransferContext.chainLabel" readonly />
                 </div>
               </div>
-              <div class="form-group">
+              <div class="walletpage-form-group margin-bottom-125">
                 <label>To chain</label>
-                <div class="input-wrapper">
-                  <select class="form-input form-select" v-model="assetTransferForm.destinationKey">
+                <div class="walletpage-input-wrapper">
+                  <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer" v-model="assetTransferForm.destinationKey">
                     <option
                       v-for="target in assetTransferContext.transferTargets"
                       :key="target.key"
@@ -726,71 +726,71 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="walletpage-form-group margin-bottom-125">
               <label>From address</label>
-              <div class="input-wrapper readonly">
-                <input class="form-input" type="text" :value="assetTransferContext.ownerAddress" readonly />
+              <div class="walletpage-input-wrapper readonly">
+                <input class="walletpage-form-input w-full border-radius-10px color-text-primary" type="text" :value="assetTransferContext.ownerAddress" readonly />
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Recipient <span class="required">*</span></label>
-              <div class="input-wrapper">
+            <div class="walletpage-form-group margin-bottom-125">
+              <label>Recipient <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper">
                 <input
-                  class="form-input"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary"
                   type="text"
                   v-model="assetTransferForm.recipient"
                   :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'"
                 />
               </div>
-              <div v-if="selectedAssetTransferTarget" class="field-hint">
+              <div v-if="selectedAssetTransferTarget" class="walletpage-field-hint color-text-secondary">
                 Default wallet on destination: {{ selectedAssetTransferTarget.defaultRecipient }}
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Amount <span class="required">*</span></label>
-              <div class="input-wrapper amount-input">
+            <div class="walletpage-form-group margin-bottom-125">
+              <label>Amount <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper walletpage-amount-input">
                 <input
-                  class="form-input"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary"
                   type="text"
                   inputmode="decimal"
                   v-model="assetTransferForm.amount"
                   placeholder="0.000000"
                   @input="validateAssetTransferAmountInput"
                 />
-                <span class="input-suffix">{{ assetTransferContext.displaySymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary">{{ assetTransferContext.displaySymbol }}</span>
               </div>
-              <div class="balance-hint">
+              <div class="walletpage-balance-hint color-text-secondary">
                 Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
               </div>
             </div>
 
-            <div class="tx-summary">
-              <div class="summary-header">
+            <div class="walletpage-tx-summary margin-top-150 margin-bottom-150 border-radius-12px padding-0">
+              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase">
                 <span>Transfer Summary</span>
               </div>
-              <div class="summary-row">
+              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary">
                 <span>Route</span>
-                <span class="summary-value">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
               </div>
-              <div class="summary-row">
+              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary">
                 <span>Source chain</span>
-                <span class="summary-value">{{ assetTransferContext.chainLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ assetTransferContext.chainLabel }}</span>
               </div>
-              <div class="summary-row total">
+              <div class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary">
                 <span>Destination chain</span>
-                <span class="summary-value">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
               </div>
             </div>
 
             <button
-              class="btn-modal-primary disabled-fade-50"
+              class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer"
               @click="confirmAssetTransfer"
               :disabled="!canSubmitAssetTransfer || assetTransferSending"
             >
               <ArrowLeftRight :size="18" v-if="!assetTransferSending" />
-              <span class="spinner" v-else></span>
+              <span class="walletpage-spinner ring-spinner-sm border-radius-circle" v-else></span>
               <span>{{ assetTransferSending ? 'Transferring...' : 'IBC Transfer' }}</span>
             </button>
           </div>
@@ -800,21 +800,21 @@
 
     <!-- Send Modal -->
     <Transition name="fade">
-      <div v-if="showSendModal" class="modal-overlay" @click="closeSendModal">
-        <div class="modal-content send-modal" @click.stop>
-          <div class="modal-header">
+      <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100" @click="closeSendModal">
+        <div class="walletpage-modal-content send-modal w-full" @click.stop>
+          <div class="walletpage-modal-header flex-align-center-justify-space-between">
             <div class="modal-title-wrapper flex-align-center gap-75">
-              <div class="modal-icon">
+              <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px">
                 <Send :size="20" />
               </div>
               <h3>{{ sendModalTitle }}</h3>
             </div>
-            <button class="modal-close" @click="closeSendModal">
+            <button class="walletpage-modal-close flex-align-justify-center size-36px border-radius-10px color-text-secondary cursor-pointer" @click="closeSendModal">
               <X :size="18" />
             </button>
           </div>
-          <div class="modal-body">
-            <div class="info-banner">
+          <div class="walletpage-modal-body padding-150">
+            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary">
               <span v-if="sendAssetContext">
                 <template v-if="isIbcSend">
                   Move this asset from {{ sendSourceChainLabel }} to another linked chain over IBC.
@@ -828,36 +828,36 @@
                 After that, transactions are confirmed within ~6 seconds.</span>
             </div>
 
-            <div class="form-group">
+            <div class="walletpage-form-group margin-bottom-125">
               <label>From</label>
-              <div class="input-wrapper readonly">
-                <input class="form-input" type="text" :value="sendSourceAddress" readonly />
+              <div class="walletpage-input-wrapper readonly">
+                <input class="walletpage-form-input w-full border-radius-10px color-text-primary" type="text" :value="sendSourceAddress" readonly />
               </div>
-              <div class="field-hint">Chain: {{ sendSourceChainLabel }}</div>
+              <div class="walletpage-field-hint color-text-secondary">Chain: {{ sendSourceChainLabel }}</div>
             </div>
 
-            <div class="form-group">
+            <div class="walletpage-form-group margin-bottom-125">
               <label>Asset</label>
-              <div class="input-wrapper readonly">
-                <input class="form-input" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly />
+              <div class="walletpage-input-wrapper readonly">
+                <input class="walletpage-form-input w-full border-radius-10px color-text-primary" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly />
               </div>
             </div>
 
-            <div v-if="!sendAssetContext" class="form-group">
+            <div v-if="!sendAssetContext" class="walletpage-form-group margin-bottom-125">
               <label>Send to</label>
-              <div class="input-wrapper">
-                <select class="form-input form-select" v-model="sendTargetMode">
+              <div class="walletpage-input-wrapper">
+                <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer" v-model="sendTargetMode">
                   <option value="lumen">On the current chain</option>
                   <option value="ibc">Across IBC to another chain</option>
                 </select>
               </div>
             </div>
 
-            <div v-if="isIbcSend" class="form-group">
-              <label>IBC route <span class="required">*</span></label>
-              <div class="input-wrapper">
+            <div v-if="isIbcSend" class="walletpage-form-group margin-bottom-125">
+              <label>IBC route <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper">
                 <select
-                  class="form-input form-select"
+                  class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer"
                   v-model="ibcForm.sourceChannel"
                   :disabled="ibcChannelsLoading || !ibcChannels.length"
                 >
@@ -873,27 +873,27 @@
                   </option>
                 </select>
               </div>
-              <div v-if="selectedIbcChannel" class="field-hint">
+              <div v-if="selectedIbcChannel" class="walletpage-field-hint color-text-secondary">
                 Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
                 <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
               </div>
-              <div v-else-if="ibcChannelsError" class="field-hint error">
+              <div v-else-if="ibcChannelsError" class="walletpage-field-hint error color-text-secondary">
                 {{ ibcChannelsError }}
               </div>
             </div>
 
-            <div class="form-group">
-              <label>{{ isIbcSend ? 'Destination address' : 'Recipient' }} <span class="required">*</span></label>
-              <div class="input-wrapper-relative">
-                <div class="input-wrapper">
+            <div class="walletpage-form-group margin-bottom-125">
+              <label>{{ isIbcSend ? 'Destination address' : 'Recipient' }} <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper-relative">
+                <div class="walletpage-input-wrapper">
                   <input 
-                    class="form-input" 
+                    class="walletpage-form-input w-full border-radius-10px color-text-primary" 
                     type="text" 
                     v-model="sendForm.recipient" 
                     :placeholder="sendRecipientPlaceholder"
                   />
                   <button 
-                    class="input-action-btn" 
+                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer" 
                     @click="openQrScanner"
                     type="button"
                     title="Scan QR Code"
@@ -902,7 +902,7 @@
                   </button>
                   <button 
                     v-if="contacts.length > 0" 
-                    class="input-action-btn" 
+                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer" 
                     @click="showContactPicker = !showContactPicker"
                     type="button"
                     title="Select from contacts"
@@ -910,24 +910,24 @@
                     <Users :size="16" />
                   </button>
                 </div>
-                <div v-if="showContactPicker" class="contact-picker">
-                  <div class="picker-header">
+                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px">
+                  <div class="walletpage-picker-header flex-align-center-justify-space-between txt-weight-light color-text-primary">
                     <span>Select Contact</span>
-                    <button class="picker-close hover-fill-primary" @click="showContactPicker = false">
+                    <button class="walletpage-picker-close hover-fill-primary flex-align-center color-text-tertiary cursor-pointer" @click="showContactPicker = false">
                       <X :size="14" />
                     </button>
                   </div>
-                  <div class="picker-list">
+                  <div class="walletpage-picker-list">
                     <button 
                       v-for="contact in contacts" 
                       :key="contact.id"
-                      class="picker-item"
+                      class="walletpage-picker-item flex-align-center gap-75 w-full text-left cursor-pointer"
                       @click="selectContactForSend(contact)"
                     >
-                      <div class="picker-avatar">{{ contact.name.charAt(0).toUpperCase() }}</div>
-                      <div class="picker-info">
-                        <span class="picker-name">{{ contact.name }}</span>
-                        <span class="picker-address">{{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}</span>
+                      <div class="walletpage-picker-avatar flex-align-justify-center size-36px border-radius-circle txt-weight-medium">{{ contact.name.charAt(0).toUpperCase() }}</div>
+                      <div class="walletpage-picker-info flex flex-column flex-1 gap-25">
+                        <span class="walletpage-picker-name txt-weight-light color-text-primary">{{ contact.name }}</span>
+                        <span class="walletpage-picker-address fs-075rem color-text-tertiary">{{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}</span>
                       </div>
                     </button>
                   </div>
@@ -935,57 +935,57 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Amount ({{ sendAssetSymbol }}) <span class="required">*</span></label>
-              <div class="input-wrapper amount-input">
+            <div class="walletpage-form-group margin-bottom-125">
+              <label>Amount ({{ sendAssetSymbol }}) <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper walletpage-amount-input">
                 <input 
-                  class="form-input" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary" 
                   type="text" 
                   inputmode="decimal"
                   v-model="sendForm.amount"
                   placeholder="0.000000"
                   @input="validateAmountInput"
                 />
-                <span class="input-suffix">{{ sendAssetSymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary">{{ sendAssetSymbol }}</span>
               </div>
-              <div class="balance-hint" v-if="sendAvailableLabel">
+              <div class="walletpage-balance-hint color-text-secondary" v-if="sendAvailableLabel">
                 Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
               </div>
             </div>
 
-            <div class="tx-summary">
-              <div class="summary-header">
+            <div class="walletpage-tx-summary margin-top-150 margin-bottom-150 border-radius-12px padding-0">
+              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase">
                 <span>{{ isIbcSend ? 'Transfer Summary' : 'Transaction Summary' }}</span>
               </div>
-              <div class="summary-row">
+              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary">
                 <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
-                <span class="summary-value">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="!isIbcSend" class="summary-row">
+              <div v-if="!isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary">
                 <span>Chain</span>
-                <span class="summary-value">{{ sendSourceChainLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSourceChainLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="summary-row">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary">
                 <span>Tax</span>
-                <span class="summary-value tax">{{ sendSummary.taxLabel }}</span>
+                <span class="walletpage-summary-value tax txt-weight-light color-text-primary">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="summary-row total">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary">
                 <span>Receiver net</span>
-                <span class="summary-value">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="isIbcSend" class="summary-row">
+              <div v-if="isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary">
                 <span>Route</span>
-                <span class="summary-value">{{ sendSummary.routeLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.routeLabel }}</span>
               </div>
-              <div v-if="isIbcSend" class="summary-row total">
+              <div v-if="isIbcSend" class="walletpage-summary-row total flex-align-center-justify-space-between color-text-secondary">
                 <span>Destination chain</span>
-                <span class="summary-value">{{ sendSummary.destinationChain }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-text-primary">{{ sendSummary.destinationChain }}</span>
               </div>
             </div>
 
-            <button class="btn-modal-primary disabled-fade-50" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
+            <button class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
               <Send :size="18" v-if="!sendingTransaction" />
-              <span class="spinner" v-else></span>
+              <span class="walletpage-spinner ring-spinner-sm border-radius-circle" v-else></span>
               <span>{{ sendPrimaryActionLabel }}</span>
             </button>
           </div>
@@ -995,42 +995,42 @@
 
     <!-- Receive Modal -->
     <Transition name="fade">
-      <div v-if="showReceiveModal" class="modal-overlay" @click="closeReceiveModal">
-        <div class="modal-content receive-modal" @click.stop>
-          <div class="modal-header">
+      <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100" @click="closeReceiveModal">
+        <div class="walletpage-modal-content receive-modal w-full" @click.stop>
+          <div class="walletpage-modal-header flex-align-center-justify-space-between">
             <div class="modal-title-wrapper flex-align-center gap-75">
-              <div class="modal-icon receive">
+              <div class="walletpage-modal-icon receive flex-align-justify-center size-40px border-radius-10px">
                 <ArrowDownLeft :size="20" />
               </div>
               <h3>Receive LMN</h3>
             </div>
-            <button class="modal-close" @click="closeReceiveModal">
+            <button class="walletpage-modal-close flex-align-justify-center size-36px border-radius-10px color-text-secondary cursor-pointer" @click="closeReceiveModal">
               <X :size="18" />
             </button>
           </div>
-          <div class="modal-body">
-            <div class="info-banner">
+          <div class="walletpage-modal-body padding-150">
+            <div class="walletpage-info-banner border-radius-10px margin-bottom-150 color-text-primary">
               <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
             </div>
 
-            <div class="qr-section">
-              <div class="qr-wrapper">
+            <div class="walletpage-qr-section flex-justify-center">
+              <div class="walletpage-qr-wrapper padding-125">
                 <img 
                   v-if="qrCodeDataUrl" 
                   :src="qrCodeDataUrl"
                   alt="QR Code"
-                  class="qr-image"
+                  class="walletpage-qr-image"
                 />
-                <div v-else class="qr-placeholder">
-                  <div class="qr-loading">Generating QR Code...</div>
+                <div v-else class="walletpage-qr-placeholder flex-align-justify-center color-text-tertiary">
+                  <div class="walletpage-qr-loading flex-align-center gap-50 color-text-secondary">Generating QR Code...</div>
                 </div>
               </div>
             </div>
 
-            <div class="address-box">
-              <div class="address-label">Your Wallet Address</div>
-              <div class="address-value">{{ address || '-' }}</div>
-              <button class="btn-copy-address disabled-fade-50" type="button" @click="copyAddressWithToast" :disabled="!address">
+            <div class="walletpage-address-box border-radius-12px padding-125">
+              <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase">Your Wallet Address</div>
+              <div class="walletpage-address-value">{{ address || '-' }}</div>
+              <button class="walletpage-btn-copy-address disabled-fade-50 flex-align-justify-center w-full border-radius-10px txt-weight-light color-primary gap-50 cursor-pointer" type="button" @click="copyAddressWithToast" :disabled="!address">
                 <Copy :size="16" />
                 <span>Copy Address</span>
               </button>
@@ -1042,25 +1042,25 @@
 
     <!-- Add/Edit Contact Modal -->
     <Transition name="fade">
-      <div v-if="showContactModal" class="modal-overlay" @click="closeContactModal">
-        <div class="modal-content contact-modal" @click.stop>
-          <div class="modal-header">
+      <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100" @click="closeContactModal">
+        <div class="walletpage-modal-content walletpage-contact-modal w-full" @click.stop>
+          <div class="walletpage-modal-header flex-align-center-justify-space-between">
             <div class="modal-title-wrapper flex-align-center gap-75">
-              <div class="modal-icon">
+              <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px">
                 <Users :size="20" />
               </div>
               <h3>{{ editingContact ? 'Edit Contact' : 'Add Contact' }}</h3>
             </div>
-            <button class="modal-close" @click="closeContactModal">
+            <button class="walletpage-modal-close flex-align-justify-center size-36px border-radius-10px color-text-secondary cursor-pointer" @click="closeContactModal">
               <X :size="18" />
             </button>
           </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Name <span class="required">*</span></label>
-              <div class="input-wrapper">
+          <div class="walletpage-modal-body padding-150">
+            <div class="walletpage-form-group margin-bottom-125">
+              <label>Name <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper">
                 <input 
-                  class="form-input" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary" 
                   type="text" 
                   v-model="contactForm.name" 
                   placeholder="Enter contact name" 
@@ -1068,11 +1068,11 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Address <span class="required">*</span></label>
-              <div class="input-wrapper">
+            <div class="walletpage-form-group margin-bottom-125">
+              <label>Address <span class="walletpage-required color-error">*</span></label>
+              <div class="walletpage-input-wrapper">
                 <input 
-                  class="form-input" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary" 
                   type="text" 
                   v-model="contactForm.address" 
                   placeholder="lmn1..." 
@@ -1081,11 +1081,11 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="walletpage-form-group margin-bottom-125">
               <label>Note (optional)</label>
-              <div class="input-wrapper">
+              <div class="walletpage-input-wrapper">
                 <textarea 
-                  class="form-input form-textarea" 
+                  class="walletpage-form-input walletpage-form-textarea w-full border-radius-10px color-text-primary" 
                   v-model="contactForm.note" 
                   placeholder="Add a note about this contact"
                   rows="3"
@@ -1094,12 +1094,12 @@
             </div>
 
             <button 
-              class="btn-modal-primary disabled-fade-50" 
+              class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer" 
               @click="saveContact" 
               :disabled="!contactForm.name || !contactForm.address || savingContact"
             >
               <Check :size="18" v-if="!savingContact" />
-              <span class="spinner" v-else></span>
+              <span class="walletpage-spinner ring-spinner-sm border-radius-circle" v-else></span>
               <span>{{ savingContact ? 'Saving...' : (editingContact ? 'Update Contact' : 'Add Contact') }}</span>
             </button>
           </div>
@@ -1117,31 +1117,31 @@
 
     <!-- Delete Confirmation Modal -->
     <Transition name="fade">
-      <div v-if="showDeleteConfirmModal" class="modal-overlay" @click="cancelDeleteContact">
-        <div class="modal-content delete-confirm-modal" @click.stop>
-          <div class="modal-header">
+      <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100" @click="cancelDeleteContact">
+        <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full" @click.stop>
+          <div class="walletpage-modal-header flex-align-center-justify-space-between">
             <div class="modal-title-wrapper flex-align-center gap-75">
-              <div class="modal-icon delete">
+              <div class="walletpage-modal-icon delete flex-align-justify-center size-40px border-radius-10px">
                 <Trash2 :size="20" />
               </div>
               <h3>Delete Contact</h3>
             </div>
-            <button class="modal-close" @click="cancelDeleteContact">
+            <button class="walletpage-modal-close flex-align-justify-center size-36px border-radius-10px color-text-secondary cursor-pointer" @click="cancelDeleteContact">
               <X :size="18" />
             </button>
           </div>
-          <div class="modal-body">
-            <p class="confirm-message">
+          <div class="walletpage-modal-body padding-150">
+            <p class="walletpage-confirm-message color-text-primary">
               Are you sure you want to delete <strong>{{ contactToDelete?.name }}</strong>?
             </p>
-            <p class="confirm-submessage">
+            <p class="walletpage-confirm-submessage color-text-tertiary margin-bottom-150">
               This action cannot be undone.
             </p>
-            <div class="modal-actions">
-              <button class="btn-modal-secondary" @click="cancelDeleteContact">
+            <div class="walletpage-modal-actions flex gap-75 margin-top-150">
+              <button class="walletpage-btn-modal-secondary flex-align-justify-center flex-1 border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-50" @click="cancelDeleteContact">
                 Cancel
               </button>
-              <button class="btn-modal-danger" @click="confirmDeleteContact">
+              <button class="walletpage-btn-modal-danger flex-align-justify-center flex-1 border-radius-10px txt-weight-light cursor-pointer gap-50" @click="confirmDeleteContact">
                 <Trash2 :size="18" />
                 <span>Delete</span>
               </button>
@@ -4295,1852 +4295,3 @@ function exportTransactions() {
   showToast('Transactions exported!', 'success');
 }
 </script>
-
-<style scoped>
-.text-muted {
-  color: var(--text-tertiary);
-  font-style: italic;
-}
-
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 2rem 2.5rem;
-  background: var(--bg-secondary);
-  margin: 0;
-  border-radius: 0;
-}
-
-.content-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.content-header h1 {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.content-header p {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  border-radius: 10px;
-  padding: 0.625rem 1.125rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.action-btn.secondary {
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  border-color: var(--border-color);
-}
-
-.action-btn.secondary:hover {
-  background: var(--bg-secondary);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.action-btn.primary {
-  background: var(--gradient-primary);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(var(--ios-blue-rgb), 0.4);
-}
-
-.action-btn.primary:hover {
-  box-shadow: 0 8px 25px rgba(var(--ios-blue-rgb), 0.5);
-  transform: translateY(-2px);
-}
-
-.balance-card {
-  background: var(--gradient-primary);
-  border-radius: 20px;
-  padding: 2rem;
-  color: white;
-  box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.3), 0 5px 15px rgba(var(--ios-blue-rgb), 0.2);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.balance-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.balance-card::after {
-  content: '';
-  position: absolute;
-  bottom: -30%;
-  left: -10%;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.balance-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.balance-label {
-  font-size: 0.8125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 600;
-}
-
-.eye-btn {
-  border: none;
-  background: var(--bg-tertiary);
-  backdrop-filter: blur(10px);
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.eye-btn:hover {
-  background: var(--card-bg);
-  transform: scale(1.05);
-}
-
-.balance-amount {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.currency {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.amount {
-  font-size: 3rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.balance-change {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
-}
-
-.quick-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-}
-
-.quick-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.5rem 1rem;
-  border-radius: 16px;
-  border: 2px solid var(--border-color);
-  background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  position: relative;
-  overflow: hidden;
-}
-
-.quick-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.1) 0%, rgba(var(--ios-blue-rgb), 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.quick-btn:not(:disabled):hover::before {
-  opacity: 1;
-}
-
-.quick-btn:not(:disabled):hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.25);
-  border-color: rgba(var(--ios-blue-rgb), 0.5);
-}
-
-.quick-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 20px rgba(var(--ios-blue-rgb), 0.3);
-  transition: all 0.3s ease;
-}
-
-.quick-icon.send {
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.quick-icon.receive {
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.quick-icon.swap {
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.quick-icon.buy {
-  background: var(--gradient-primary);
-  color: white;
-}
-
-.quick-icon.disabled {
-  background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
-  color: white;
-  opacity: 0.6;
-}
-
-.info-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.info-card {
-  flex: 1;
-  min-width: 260px;
-  background: var(--card-bg);
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--border-color);
-}
-
-.info-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-tertiary);
-  margin-bottom: 0.25rem;
-}
-
-.info-value {
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.info-value.mono {
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  word-break: break-all;
-}
-
-.content-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.recurring-section {
-  padding: 0;
-  gap: 0;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.header-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.filter-select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-select:hover {
-  border-color: var(--primary, var(--accent-primary));
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: var(--primary, var(--accent-primary));
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.search-input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  min-width: 200px;
-  transition: all 0.2s;
-}
-
-.search-input:hover {
-  border-color: var(--primary, var(--accent-primary));
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--primary, var(--accent-primary));
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.search-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.empty-state {
-  margin-top: 2rem;
-  padding: 2rem;
-  border-radius: 1rem;
-  background: var(--bg-secondary);
-  border: 1px dashed var(--border-color);
-  text-align: center;
-}
-
-.empty-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 1rem;
-  border-radius: 999px;
-  background: var(--bg-secondary);
-  color: var(--accent-secondary);
-}
-
-.empty-state h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.05rem;
-}
-
-.empty-state p {
-  margin: 0 0 1rem;
-  font-size: 0.9rem;
-  color: var(--text-tertiary);
-}
-
-.connect-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  border: none;
-  background: var(--accent-secondary);
-  color: white;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.assets-list {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.rich-assets-list {
-  gap: 1rem;
-}
-
-.asset-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1rem;
-  border-radius: 0.9rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-}
-
-.asset-item-rich {
-  align-items: stretch;
-  gap: 1rem;
-}
-
-.asset-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: white;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.asset-icon.lmn {
-  background: var(--accent-secondary);
-}
-
-.asset-icon.remote {
-  background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue));
-}
-
-.asset-icon-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  background: white;
-}
-
-.asset-main {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.asset-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-}
-
-.asset-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.asset-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.asset-chain-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-}
-
-.asset-symbol {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-}
-
-.asset-meta {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.asset-meta.error {
-  color: var(--ios-red);
-}
-
-.asset-balance {
-  text-align: right;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.balance-column {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-}
-
-.asset-balance-symbol {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-weight: 600;
-}
-
-.asset-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.asset-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.asset-send-btn,
-.asset-transfer-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.asset-modal-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.spin-icon {
-  animation: spin 0.9s linear infinite;
-}
-
-.dex-item {
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  background: var(--card-bg);
-  overflow: hidden;
-}
-
-.dex-item-online {
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-}
-
-.dex-item-degraded {
-  border-color: rgba(var(--ios-orange-rgb), 0.35);
-}
-
-.dex-item-error {
-  border-color: rgba(var(--ios-red-rgb), 0.28);
-}
-
-.dex-top {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-}
-
-.dex-summary-btn {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  text-align: left;
-  color: inherit;
-  cursor: pointer;
-}
-
-.dex-logo {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--accent-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.dex-logo-dark {
-  background: #111827;
-  border-color: rgba(17, 24, 39, 0.65);
-}
-
-.dex-logo-image {
-  width: 74%;
-  height: 74%;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-  margin: auto;
-  background: transparent;
-}
-
-.dex-main {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.28rem;
-}
-
-.dex-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.dex-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.dex-status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.22rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  border: 1px solid transparent;
-}
-
-.dex-status-badge.status-idle,
-.dex-status-badge.status-loading {
-  background: rgba(var(--ios-blue-rgb), 0.1);
-  color: var(--ios-blue);
-  border-color: rgba(var(--ios-blue-rgb), 0.16);
-}
-
-.dex-status-badge.status-online {
-  background: rgba(var(--ios-green-rgb), 0.12);
-  color: var(--ios-green);
-  border-color: rgba(var(--ios-green-rgb), 0.16);
-}
-
-.dex-status-badge.status-degraded {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-  border-color: rgba(var(--ios-orange-rgb), 0.18);
-}
-
-.dex-status-badge.status-error {
-  background: rgba(var(--ios-red-rgb), 0.12);
-  color: var(--ios-red);
-  border-color: rgba(var(--ios-red-rgb), 0.18);
-}
-
-.dex-meta {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-}
-
-.dex-meta.error {
-  color: var(--ios-red);
-}
-
-.dex-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-.dex-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.dex-detail-toggle,
-.dex-open-btn {
-  justify-content: center;
-}
-
-.dex-chevron {
-  transition: transform 0.2s ease;
-}
-
-.dex-chevron.open {
-  transform: rotate(180deg);
-}
-
-.dex-details {
-  border-top: 1px solid var(--border-light);
-  background: var(--bg-secondary);
-  padding: 1rem 1.25rem 1.25rem;
-}
-
-.dex-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.dex-detail-card {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.9rem 1rem;
-  border-radius: 0.9rem;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-}
-
-.dex-detail-card.compact {
-  padding: 0.65rem 0.8rem;
-  gap: 0.2rem;
-}
-
-.dex-detail-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.dex-detail-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dex-detail-card.compact .dex-detail-label {
-  font-size: 0.64rem;
-}
-
-.dex-detail-card.compact .dex-detail-value {
-  font-size: 0.82rem;
-}
-
-.dex-links {
-  margin-top: 0.9rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-
-.dex-link-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.dex-link-chip:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  background: var(--primary-a10);
-}
-
-/* Transaction List */
-.activities-list {
-  display: flex;
-  flex-direction: column;
-  background: var(--card-bg, white);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
-  width: 100%;
-}
-
-.table-header {
-  display: grid;
-  grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
-  gap: 1rem;
-  padding: 0.875rem 1.25rem;
-  background: var(--bg-secondary);
-  border-bottom: 2px solid var(--border-color);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.table-header > div,
-.activity-row > div {
-  min-width: 0;
-}
-
-.activity-row {
-  display: grid;
-  grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-light);
-  align-items: center;
-  transition: all 0.2s ease;
-}
-
-.activity-row:hover {
-  background: var(--hover-bg);
-  border-left: 3px solid var(--accent-primary);
-  padding-left: calc(1.25rem - 3px);
-}
-
-.activity-row:last-child {
-  border-bottom: none;
-}
-
-.type-badge {
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 0.375rem;
-  padding: 0.375rem 0.625rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.type-badge.dns-update {
-  background: rgba(var(--ios-purple-rgb), 0.1);
-  color: var(--ios-purple);
-}
-
-.type-badge.dns-transfer {
-  background: rgba(var(--ios-blue-rgb), 0.1);
-  color: var(--ios-blue);
-}
-
-.type-badge.dns-register {
-  background: rgba(var(--ios-orange-rgb), 0.1);
-  color: var(--ios-orange);
-}
-
-.type-badge.withdraw-rewards {
-  background: rgba(var(--ios-yellow-rgb), 0.1);
-  color: var(--ios-yellow);
-}
-
-.type-badge.publish-release {
-  background: rgba(var(--ios-indigo-rgb), 0.12);
-  color: var(--ios-indigo);
-}
-
-.type-badge.send {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--ios-red);
-}
-
-.type-badge.receive {
-  background: rgba(var(--ios-green-rgb), 0.1);
-  color: var(--ios-green);
-}
-
-.type-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 0;
-  line-height: 1.1;
-}
-
-.type-sub {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 140px;
-}
-
-.amount-value {
-  font-size: 0.875rem;
-  font-weight: 700;
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-}
-
-.amount-value.send {
-  color: var(--ios-red);
-}
-
-.amount-value.receive {
-  color: var(--ios-green);
-}
-
-.address-value,
-.hash-value {
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-}
-
-.col-from .address-value,
-.col-to .address-value {
-  flex: 0 1 auto;
-  min-width: 0;
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hash-value {
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-}
-
-.time-value {
-  font-size: 0.8125rem;
-  color: var(--text-primary);
-  font-weight: 500;
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.time-hour {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-weight: 400;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.375rem 0.625rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-
-.action-icon {
-  padding: 0.375rem;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.action-icon:hover {
-  background: var(--hover-bg);
-  transform: scale(1.05);
-}
-
-.action-icon:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.action-icon:disabled:hover {
-  background: var(--card-bg);
-  transform: none;
-}
-
-.action-icon.asset-refresh-btn:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.action-icon.copy-btn:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.action-icon.explorer-btn:hover {
-  border-color: var(--ios-purple);
-  color: var(--ios-purple);
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-content {
-  background: var(--bg-primary);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(15, 23, 42, 0.05);
-}
-
-.modal-header {
-  padding: 1.5rem 1.5rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.modal-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--gradient-primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.modal-close {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: var(--hover-bg);
-  border-color: var(--border-color);
-  color: var(--text-secondary);
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.info-banner {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.875rem 1rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  line-height: 1.5;
-}
-
-.info-banner.warning {
-  background: rgba(var(--ios-orange-rgb), 0.1);
-  border-color: rgba(var(--ios-orange-rgb), 0.3);
-  color: var(--text-primary);
-}
-
-.info-banner ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-}
-
-.info-banner li {
-  margin: 0.25rem 0;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.required {
-  color: var(--ios-red);
-}
-
-.input-wrapper-relative {
-  position: relative;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.input-wrapper.readonly {
-  opacity: 0.7;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  border: 2px solid var(--border-color);
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  background: var(--card-bg);
-  transition: all 0.2s ease;
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-}
-
-.form-select {
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-
-.form-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-.form-input:read-only {
-  background: var(--bg-secondary);
-  cursor: not-allowed;
-}
-
-.amount-input .form-input {
-  padding-right: 4rem;
-}
-
-.input-suffix {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  pointer-events: none;
-}
-
-.balance-hint {
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-}
-
-.field-hint {
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-}
-
-.field-hint.error {
-  color: var(--ios-red);
-}
-
-.tx-summary {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  padding: 0;
-  background: var(--bg-secondary);
-  overflow: hidden;
-}
-
-.summary-header {
-  padding: 0.875rem 1rem;
-  background: var(--hover-bg);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.summary-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.9375rem;
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-secondary);
-}
-
-.summary-row:last-child {
-  border-bottom: none;
-}
-
-.summary-row.total {
-  background: var(--bg-secondary);
-  border-top: 2px solid var(--border-color);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.summary-value {
-  font-weight: 600;
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-  color: var(--text-primary);
-}
-
-.summary-value.tax {
-  color: var(--ios-orange);
-}
-
-.btn-modal-primary {
-  width: 100%;
-  border: none;
-  border-radius: 12px;
-  padding: 0.875rem 1.25rem;
-  background: var(--gradient-primary);
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px var(--primary-a25);
-}
-
-.btn-modal-primary:hover:not(:disabled) {
-  background: var(--gradient-primary-hover);
-  box-shadow: 0 6px 16px var(--primary-a30);
-  transform: translateY(-1px);
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.qr-section {
-  display: flex;
-  justify-content: center;
-  margin: 1.5rem 0;
-}
-
-.qr-wrapper {
-  padding: 1.25rem;
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.qr-image {
-  width: 240px;
-  height: 240px;
-  display: block;
-  border-radius: 8px;
-}
-
-.qr-placeholder {
-  width: 240px;
-  height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  color: var(--text-tertiary);
-  font-size: 0.875rem;
-}
-
-.qr-loading {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-}
-
-.qr-loading::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--text-tertiary);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-.address-box {
-  border-radius: 12px;
-  border: 2px solid var(--border-color);
-  padding: 1.25rem;
-  background: var(--bg-secondary);
-  margin-bottom: 0;
-}
-
-.address-label {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.address-box .address-value {
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.9375rem;
-  word-break: break-all;
-  margin-bottom: 1rem;
-  padding: 0.875rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-primary);
-  line-height: 1.6;
-}
-
-.btn-copy-address {
-  width: 100%;
-  border-radius: 10px;
-  border: 2px solid var(--accent-primary);
-  background: var(--card-bg);
-  padding: 0.75rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--accent-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-copy-address:hover:not(:disabled) {
-  background: var(--hover-bg);
-  border-color: var(--accent-secondary);
-  color: var(--accent-secondary);
-}
-
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* Address Book Styles */
-.contacts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.contact-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.2s ease;
-}
-
-.contact-card:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px var(--primary-a15);
-}
-
-.contact-header {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  margin-bottom: 0.75rem;
-}
-
-.contact-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--gradient-primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.contact-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.contact-info h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem 0;
-}
-
-.contact-address {
-  font-size: 0.8125rem;
-  color: var(--text-tertiary);
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.contact-note {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.875rem;
-  line-height: 1.5;
-}
-
-.contact-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.contact-btn {
-  flex: 1;
-  min-width: 70px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.contact-btn:hover {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.contact-btn.send {
-  background: var(--gradient-primary);
-  color: white;
-  border-color: transparent;
-}
-
-.contact-btn.send:hover {
-  background: var(--gradient-primary-hover);
-  color: white;
-}
-
-.contact-btn.delete:hover {
-  background: var(--fill-error);
-  border-color: var(--ios-red);
-  color: var(--ios-red);
-}
-
-.contact-modal {
-  max-width: 480px;
-}
-
-.delete-confirm-modal {
-  max-width: 420px;
-}
-
-.modal-icon.delete {
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%);
-}
-
-.confirm-message {
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  line-height: 1.5;
-}
-
-.confirm-submessage {
-  font-size: 0.875rem;
-  color: var(--text-tertiary);
-  margin-bottom: 1.5rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.btn-modal-secondary {
-  flex: 1;
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-modal-secondary:hover {
-  background: var(--hover-bg);
-  border-color: var(--accent-primary);
-}
-
-.btn-modal-danger {
-  flex: 1;
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%);
-  color: white;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 15px rgba(var(--ios-red-rgb), 0.3);
-}
-
-.btn-modal-danger:hover {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 80%, black) 0%, color-mix(in srgb, var(--ios-red) 60%, black) 100%);
-  box-shadow: 0 6px 20px rgba(var(--ios-red-rgb), 0.4);
-  transform: translateY(-1px);
-}
-
-.form-textarea {
-  resize: vertical;
-  font-family: inherit;
-  min-height: 80px;
-}
-
-.input-action-btn {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 0.5rem;
-  border: none;
-  background: var(--hover-bg);
-  color: var(--text-secondary);
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.input-action-btn + .input-action-btn {
-  right: 3.5rem;
-}
-
-.input-action-btn:hover {
-  background: var(--accent-primary);
-  color: white;
-}
-
-.contact-picker {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 0.5rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  z-index: 100;
-  overflow: hidden;
-}
-
-.picker-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.picker-close {
-  padding: 0.25rem;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-
-.picker-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.picker-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.picker-item:last-child {
-  border-bottom: none;
-}
-
-.picker-item:hover {
-  background: var(--hover-bg);
-}
-
-.picker-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--gradient-primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.picker-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.picker-name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.picker-address {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-family: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
-}
-
-@media (max-width: 900px) {
-  .content-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .header-actions {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .asset-item-rich {
-    flex-direction: column;
-  }
-
-  .asset-side {
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .balance-column {
-    align-items: flex-start;
-  }
-
-  .asset-actions {
-    justify-content: flex-start;
-  }
-
-  .asset-modal-grid {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .dex-top {
-    flex-direction: column;
-  }
-
-  .dex-side {
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .dex-actions {
-    justify-content: flex-start;
-  }
-
-  .dex-detail-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .dex-summary-btn {
-    flex-direction: column;
-  }
-
-  .dex-actions {
-    width: 100%;
-  }
-
-  .dex-detail-toggle,
-  .dex-open-btn {
-    flex: 1;
-  }
-
-  .dex-detail-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
