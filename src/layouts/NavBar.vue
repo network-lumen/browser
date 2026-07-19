@@ -1561,7 +1561,7 @@ onBeforeUnmount(() => {
 }
 
 .nav-btn.is-active {
-  color: #FFD60A;
+  color: var(--ios-yellow);
 }
 
 /* ===== URL BAR ===== */
@@ -1621,7 +1621,7 @@ onBeforeUnmount(() => {
 }
 
 .url-bar-action.is-active {
-  color: #FFD60A;
+  color: var(--ios-yellow);
 }
 
 /* ===== QUICK ACTIONS ===== */
@@ -1744,7 +1744,7 @@ onBeforeUnmount(() => {
 }
 
 .extension-action-btn.danger:hover:not(:disabled) {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--error-red);
 }
 
@@ -1973,7 +1973,7 @@ onBeforeUnmount(() => {
 }
 
 .profile-row-delete:hover {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--error-red);
 }
 
@@ -2201,8 +2201,8 @@ onBeforeUnmount(() => {
 .export-error {
   margin-top: 0.625rem;
   padding: 0.5rem 0.625rem;
-  background: rgba(255, 59, 48, 0.1);
-  border: 0.5px solid rgba(255, 59, 48, 0.25);
+  background: rgba(var(--ios-red-rgb), 0.1);
+  border: 0.5px solid rgba(var(--ios-red-rgb), 0.25);
   border-radius: var(--border-radius-sm);
   color: var(--error-red);
   font-size: 12px;
@@ -2242,7 +2242,7 @@ onBeforeUnmount(() => {
 }
 
 .export-btn.confirm.danger {
-  background: var(--ios-red, #ff3b30);
+  background: var(--ios-red);
 }
 
 .import-modal {
