@@ -450,10 +450,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .qr-label { letter-spacing: 0.5px; }
 .qr-value-box { max-height: 120px; }
-@media (max-width: 640px) {
-  .qr-scanner-modal { max-width: 100%; border-radius: 16px 16px 0 0; }
-  .qr-scan-frame { width: 200px; height: 200px; }
-}
 
 /* PasswordPromptModal.vue */
 .pwd-modal-input { transition: border-color 0.15s ease; box-sizing: border-box; }
@@ -487,13 +483,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   margin: 0;
 }
 .release-update .meta li + li { margin-top: 6px; }
-@media (max-width: 600px) {
-  .release-update {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-  }
-}
+
 .release-prompt-notes-overlay, .searchpage-modal-overlay {
   -webkit-backdrop-filter: blur(4px);
 }
@@ -718,10 +708,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   .history-header, .history-toolbar, .history-item { flex-direction: column; align-items: stretch; }
   .history-item-meta, .history-header-actions { justify-content: flex-start; margin-left: 0; }
 }
-@media (max-width: 640px) {
-  .history-main { padding: 0.85rem; }
-  .history-header, .history-toolbar, .history-group, .history-empty-card { border-radius: 20px; }
-}
 
 /* ExtensionPage.vue */
 
@@ -753,14 +739,7 @@ select.recurpay-input { background-image: none; }
 }
 .recurpay-btn.secondary { background: var(--bg-tertiary); border: 1px solid var(--border-color); }
 .recurpay-btn.secondary:hover, .walletpage-eye-btn:hover { background: var(--card-bg); }
-@media (max-width: 640px) {
-  .recurpay-modal {
-    max-width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
-  }
-  .recurpay-row, .walletpage-dex-detail-grid { grid-template-columns: 1fr; }
-}
+
 
 /* WalletOnboardingModal.vue */
 .walletonboard-modal { max-width: 560px; }
@@ -873,12 +852,7 @@ select.recurpay-input { background-image: none; }
 .subview-action-btn.pause:hover { background: rgba(var(--ios-orange-rgb), 0.15); color: var(--ios-orange); }
 .subview-action-btn.resume:hover { background: var(--fill-success); color: var(--ios-green); }
 .subview-modal-content { max-height: 80vh; }
-@media (max-width: 768px) {
-  .subview-header { flex-direction: column; gap: 16px; }
-  .subview-payments-grid, .explorer-charts-section, .explorer-recent-activity { grid-template-columns: 1fr; }
-  .subview-filters { flex-direction: column; width: 100%; }
-  .subview-filter-select { width: 100%; }
-}
+
 
 /* HomePage.vue */
 .homepage-all-pages-list { padding-bottom: 0.25rem; animation: homepage-fade-down 0.18s ease-out; }
@@ -964,10 +938,6 @@ select.recurpay-input { background-image: none; }
   .homepage-main { padding: 1.5rem; }
   .homepage-actions-grid, .walletpage-asset-modal-grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 700px) {
-  .homepage-main, .homepage-action-card { padding: 1rem; }
-  .homepage-action-icon { width: 40px; height: 40px; }
-}
 
 /* MainScreen.vue */
 .main-shell {
@@ -1003,9 +973,6 @@ select.recurpay-input { background-image: none; }
 @media (max-width: 1400px) {
   .netpage-main-grid { grid-template-columns: 1fr 1fr; }
   .netpage-left-column { grid-column: 1 / -1; }
-}
-@media (max-width: 768px) {
-  .netpage-main-grid { grid-template-columns: 1fr; padding: 1rem; }
 }
 .netpage-info-card:hover, .gwpage-private-gateway-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -1056,17 +1023,7 @@ select.recurpay-input { background-image: none; }
   background: var(--fill-tertiary);
   border: 1px solid var(--border-color);
 }
-@media (max-width: 700px) {
-  .help-page, .gateways-page, .dao-page, .settingspage-settings-page, .settingspage-data-folder-input-row {
-    flex-direction: column;
-  }
-  .helppage-main, .gwpage-main, .daopage-main { margin: 0 0.5rem 0.5rem 0.5rem; padding: 1.5rem; }
-  .helppage-actions-grid, .helppage-steps-grid, .helppage-features-grid, .helppage-contact-grid,
-  .gwpage-manage-grid, .gwpage-modal-body {
-    grid-template-columns: 1fr;
-  }
-  .helppage-hero-features { flex-direction: column; gap: 0.75rem; }
-}
+
 .helppage-hero-section { background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%); }
 .helppage-hero-section.small { padding: 1.5rem; }
 .helppage-gradient-text {
@@ -1158,9 +1115,6 @@ select.recurpay-input { background-image: none; }
   border-top-color: var(--accent-primary);
   margin: 0 auto 1rem;
   animation: spin 0.8s linear infinite;
-}
-@media (max-width: 700px) {
-
 }
 .gwpage-private-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 
@@ -1275,54 +1229,13 @@ select.recurpay-input { background-image: none; }
   .newtab-hero-copy { max-width: 34rem; }
   .newtab-quick-links { width: min(880px, 100%); gap: 0.5rem; }
 }
-@media (max-height: 760px) {
-  .newtab-page { padding-top: 1rem; padding-bottom: 1.25rem; }
-  .newtab-shell { gap: 0.85rem; }
-  .newtab-hero, .newtab-shortcuts-panel { border-radius: 24px; padding: 1rem; }
-  .newtab-hero { padding: 1.5rem 1rem 1rem; }
-  .newtab-hero-copy { max-width: 32rem; }
-  .newtab-hero-copy h1 { font-size: clamp(2.3rem, 9vh, 3.7rem); }
-  .newtab-hero-copy p { margin-top: 0.6rem; font-size: 0.95rem; }
-  .newtab-omnibox { margin-top: 0.95rem; padding: 0.75rem 0.82rem; }
-  .newtab-quick-links { margin-top: 0.75rem; }
-}
-@media (max-height: 680px) {
-  .newtab-page { padding-top: 0.85rem; }
-  .newtab-hero { padding-top: 1.2rem; padding-bottom: 0.9rem; }
-  .newtab-hero-copy h1 { font-size: clamp(2.05rem, 8vh, 3.2rem); }
-  .newtab-hero-copy p { font-size: 0.9rem; }
-  .newtab-omnibox { margin-top: 0.8rem; }
-}
 @media (max-width: 1180px) {
   .newtab-shortcuts-head-actions { width: 100%; justify-content: flex-start; }
 }
 @media (max-width: 900px) {
   .newtab-shortcut-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-@media (max-width: 720px) {
-  .newtab-page { padding: 0.85rem 0.75rem 1.2rem; }
-  .newtab-hero, .newtab-shortcuts-panel { border-radius: 22px; padding: 0.95rem; }
-  .newtab-hero { padding: 1.9rem 0.95rem; }
-  .newtab-shortcuts-head { flex-direction: column; }
-  .newtab-omnibox { flex-wrap: wrap; border-radius: 24px; }
-  .newtab-omnibox-submit { width: 100%; }
-  .newtab-shortcut-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .newtab-history-preview-list { grid-template-columns: 1fr; }
-  .newtab-history-preview-item { flex-wrap: wrap; align-items: flex-start; }
-  .newtab-history-preview-time {
-    width: calc(100% - 3.75rem);
-    margin-left: 3.75rem;
-    padding-left: 0;
-  }
-  .newtab-shortcut-card { min-height: 0; }
-}
-@media (max-width: 520px) {
-  .newtab-hero-copy h1 { font-size: 2.45rem; }
-  .newtab-hero-copy p { font-size: 0.92rem; }
-  .newtab-quick-links, .newtab-shortcut-card-actions { justify-content: flex-start; }
-  .newtab-quick-link { flex: 1 1 calc(50% - 0.5rem); justify-content: center; }
-  .newtab-shortcut-grid { grid-template-columns: 1fr; }
-}
+
 
 /* DaoPage.vue */
 .daopage-spinner { border-top-color: var(--accent-primary); }
@@ -1376,9 +1289,6 @@ select.recurpay-input { background-image: none; }
 }
 .daopage-vote-icon.against { background: var(--card-bg); color: var(--ios-red); }
 .daopage-vote-icon.abstain { background: var(--card-bg); color: var(--text-tertiary); }
-@media (max-width: 700px) {
-
-}
 
 /* LumenSiteModalHost.vue */
 .sitemodal-overlay { background: rgba(0, 0, 0, 0.55); }
@@ -1820,13 +1730,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* About Card */
 .settingspage-about-card { padding: 3rem; border: 1px solid var(--border-color, transparent); }
 
-/* Responsive */
-@media (max-width: 700px) {
-  .settingspage-main-content { padding: 1.5rem; }
-  .settingspage-setting-item { flex-direction: column; gap: 1rem; }
-  .settingspage-data-folder-control { min-width: 0; width: 100%; }
-  .settingspage-data-folder-input { width: 100%; }
-}
+
 
 /* Security Section Styles */
 
@@ -2223,9 +2127,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-tx-status-popup.explorer-processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
 .explorer-tx-status-popup.success { border: 2px solid rgba(var(--ios-green-rgb), 0.5); }
 .explorer-tx-status-popup.error { border: 2px solid var(--ios-red); }
-@media (max-width: 768px) {
-  .explorer-page { flex-direction: column; }
-}
+
 
 /* SearchPage.vue */
 .searchpage-search-page { padding: 2rem 1.5rem 5rem; }
@@ -2292,9 +2194,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-help-header { padding-top: 1.15rem; }
 .searchpage-help-body { padding: 1rem 1.25rem 1.25rem; max-height: min(72vh, 720px); }
-@media (max-width: 760px) {
-  .searchpage-help-grid { grid-template-columns: 1fr; }
-}
+
 .searchpage-help-card { padding: 0.95rem 1rem 1rem; }
 .searchpage-help-h3 { font-weight: 850; }
 .searchpage-help-callout-icon { margin-top: 0.05rem; }
@@ -2544,11 +2444,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-skeleton-title { height: 1.125rem; width: 60%; }
 .searchpage-skeleton-url { height: 0.875rem; width: 40%; }
 .searchpage-skeleton-desc { height: 2.5rem; width: 85%; }
-@media (max-width: 640px) {
-  .hero { margin-top: 12vh; }
-  .searchpage-brand { font-size: 2.1rem; }
-  .searchpage-search-btn { display: none; }
-}
+
 
 /* WalletPage.vue */
 .walletpage-text-muted { font-style: italic; }
@@ -2787,11 +2683,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   .walletpage-asset-actions { justify-content: flex-start; }
   .walletpage-dex-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 640px) {
-  .walletpage-dex-summary-btn { flex-direction: column; }
-  .walletpage-dex-actions { width: 100%; }
-  .walletpage-dex-detail-toggle, .walletpage-dex-open-btn { flex: 1; }
-}
 
 /* DrivePage.vue */
 .drivepage-hosting-row { transition: background 0.15s ease, border-color 0.15s ease; }
@@ -2930,9 +2821,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-plans-search-input { padding: 0 0.75rem; min-width: 220px; }
 .drivepage-plans-filter-select { padding: 0 0.75rem; }
 .drivepage-plans-filter-checkbox-input, .drivepage-drive-backup-toggle-input { accent-color: var(--accent-primary); }
-@media (max-width: 720px) {
-  .drivepage-plans-controls-row, .drivepage-plans-search-group { flex-wrap: wrap; }
-}
+
 .drivepage-plans-empty { padding: 1rem 0.5rem 0.5rem; }
 .drivepage-plans-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .drivepage-gateway-card { box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); }
@@ -3022,34 +2911,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .drivepage-list-item.selected { background: var(--fill-blue); }
 .drivepage-list-item.checked { background: var(--primary-a05); }
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .drivepage-detail-panel {
-    width: 260px;
-    min-width: 260px;
-    max-width: 260px;
-  }
-}
-@media (max-width: 900px) {
-  .drivepage-detail-panel {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
-    border-radius: 0;
-    z-index: 100;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-  }
-  .drivepage-main-content { padding: 1rem 1.25rem; }
-}
-@media (max-width: 700px) {
-  .drivepage-content-header h1 { font-size: 1.25rem; }
-  .drivepage-content-header p { display: none; }
-}
 
 /* Modal Styles */
 .drivepage-modal-content.drivepage-plans-modal { max-width: 860px; }
