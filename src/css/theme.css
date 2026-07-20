@@ -2811,15 +2811,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-left: 1px solid var(--border-color);
 }
 .drivepage-detail-preview-image, .drivepage-detail-preview-video { object-fit: contain; }
-.drivepage-info-value.drivepage-cid {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  word-break: break-all;
-  background: var(--bg-secondary);
-  padding: 0.35rem 0.5rem;
-  border-radius: 6px;
-  color: var(--accent-primary);
-}
 .drivepage-detail-btn.primary {
   background: var(--gradient-primary);
   border: none;
