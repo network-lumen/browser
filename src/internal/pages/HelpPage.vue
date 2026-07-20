@@ -72,12 +72,12 @@
       <div v-if="currentView === 'discover'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25 overflow-x-hidden">
         <div class="discover flex flex-column gap-125">
           <!-- Hero Section -->
-          <section class="helppage-hero-section padding-200 border-radius-lg text-center border-default shadow-sm">
+          <section class="helppage-hero-section padding-200 border-radius-lg text-center border-default shadow-sm padding-150">
             <div class="helppage-hero-content margin-bottom-150">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem letter-spacing-n002">Welcome to <span class="helppage-gradient-text bg-gradient-primary">Lumen</span></h2>
               <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
-            <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center">
+            <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-200">
               <div class="helppage-feature-point flex gap-75 text-left flex-align-start">
                 <div class="helppage-point-icon fs-15rem line-height-1">🌐</div>
                 <div class="helppage-point-text flex flex-column gap-15">
@@ -226,7 +226,7 @@
       <div v-else-if="currentView === 'domains'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25 overflow-x-hidden">
         <div class="discover flex flex-column gap-125">
           <!-- Hero -->
-          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm">
+          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm padding-150">
             <div class="helppage-hero-content margin-bottom-150">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem letter-spacing-n002">Publish Your <span class="helppage-gradient-text bg-gradient-primary">Website</span></h2>
               <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
@@ -286,7 +286,7 @@
       <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25 overflow-x-hidden">
         <div class="discover flex flex-column gap-125">
           <!-- Hero -->
-          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm">
+          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm padding-150">
             <div class="helppage-hero-content margin-bottom-150">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem letter-spacing-n002">Create Your <span class="helppage-gradient-text bg-gradient-primary">First Website</span></h2>
               <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
@@ -348,7 +348,7 @@
       <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1 overflow-y-auto padding-right-25 overflow-x-hidden">
         <div class="discover flex flex-column gap-125">
           <!-- Hero -->
-          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm">
+          <section class="helppage-hero-section small padding-200 border-radius-lg text-center border-default shadow-sm padding-150">
             <div class="helppage-hero-content margin-bottom-150">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong margin-0 fs-175rem letter-spacing-n002">Get <span class="helppage-gradient-text bg-gradient-primary">Help</span></h2>
               <p class="helppage-hero-subtitle color-text-secondary fs-16px line-height-15">Connect with our community and get support</p>

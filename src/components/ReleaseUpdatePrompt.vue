@@ -15,7 +15,7 @@
         Change notes
       </button>
 
-      <ul class="meta color-text-secondary txt-xs margin-top-25">
+      <ul class="meta color-text-secondary txt-xs margin-top-25 padding-0">
         <li><strong>Platform:</strong> {{ latest.platform }}</li>
         <li><strong>Channel:</strong> {{ latest.channel }}</li>
         <li><strong>Artifact:</strong> {{ latest.artifact.kind }}</li>

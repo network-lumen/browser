@@ -74,17 +74,17 @@
 
       <section v-else class="relpage-grid flex-1 overflow-hidden gap-100 grid min-h-0">
         <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary padding-75 min-h-0">
-          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75">
+          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75 padding-25-25-75-25">
             <span>Releases</span>
             <span class="relpage-muted color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
           </div>
 
-          <div v-if="loading" class="relpage-panel-loading flex-align-justify-center gap-50 color-text-secondary">
+          <div v-if="loading" class="relpage-panel-loading flex-align-justify-center gap-50 color-text-secondary padding-150-50">
             <UiSpinner size="sm" />
             <span>Loading releases…</span>
           </div>
 
-          <div v-else-if="!filteredReleases.length" class="relpage-panel-empty flex-align-justify-center gap-50 color-text-secondary">No releases found.</div>
+          <div v-else-if="!filteredReleases.length" class="relpage-panel-empty flex-align-justify-center gap-50 color-text-secondary padding-150-50">No releases found.</div>
 
           <button
             v-for="r in filteredReleases"
@@ -98,7 +98,7 @@
               <div class="relpage-row-top flex-align-center gap-50">
                 <span class="relpage-row-id color-text-tertiary fs-085rem">#{{ r.id }}</span>
                 <span class="relpage-row-version txt-weight-medium color-text-primary">{{ r.version }}</span>
-                <span class="relpage-chip border-radius-full fs-12px border-1-light bg-secondary" :class="statusClass(r)">{{ r.status }}</span>
+                <span class="relpage-chip border-radius-full fs-12px border-1-light bg-secondary padding-20-55" :class="statusClass(r)">{{ r.status }}</span>
               </div>
               <div class="relpage-row-sub relpage-muted flex-align-center gap-50 color-text-tertiary fw-500 fs-13px margin-top-25">
                 <span>{{ r.channel }}</span>
@@ -113,7 +113,7 @@
         </article>
 
         <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary padding-75 min-h-0" v-if="selectedRelease">
-          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75">
+          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75 padding-25-25-75-25">
             <span>Release #{{ selectedRelease.id }}</span>
             <span class="relpage-muted color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
           </div>
@@ -131,7 +131,7 @@
             <div class="relpage-kv">
               <div class="relpage-k fs-075rem color-text-tertiary">Status</div>
               <div class="relpage-v color-text-primary fs-14px margin-top-25">
-                <span class="relpage-chip border-radius-full fs-12px border-1-light bg-secondary" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
+                <span class="relpage-chip border-radius-full fs-12px border-1-light bg-secondary padding-20-55" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
               </div>
             </div>
             <div class="relpage-kv">
@@ -181,11 +181,11 @@
         </article>
 
         <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary padding-75 min-h-0" v-else>
-          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75">
+          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-75 padding-25-25-75-25">
             <span>Details</span>
             <span class="relpage-muted color-text-tertiary fw-500">Select a release</span>
           </div>
-          <div class="relpage-panel-empty flex-align-justify-center gap-50 color-text-secondary">Pick a release from the list.</div>
+          <div class="relpage-panel-empty flex-align-justify-center gap-50 color-text-secondary padding-150-50">Pick a release from the list.</div>
         </article>
       </section>
     </main>
@@ -246,7 +246,7 @@
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">
-          <div class="relpage-import-box margin-bottom-100 border-radius-16px border-1 bg-primary">
+          <div class="relpage-import-box margin-bottom-100 border-radius-16px border-1 bg-primary padding-90-90-25-90">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Import from GitHub release</h3>
               <button

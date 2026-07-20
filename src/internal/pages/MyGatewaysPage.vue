@@ -89,12 +89,12 @@
             </button>
           </div>
 
-          <div v-if="whitelistLoading" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-400-200">
+          <div v-if="whitelistLoading" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-400-200 padding-200-100">
             <div class="mygw-spinner border-radius-full size-40px border-3"></div>
             <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Loading whitelist...</p>
           </div>
 
-          <div v-else-if="whitelist.length === 0" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-400-200">
+          <div v-else-if="whitelist.length === 0" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-400-200 padding-200-100">
             <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">No users in whitelist yet. Add wallet addresses to grant access.</p>
           </div>
 
@@ -144,19 +144,19 @@
           </button>
         </div>
 
-        <div v-if="loading" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
+        <div v-if="loading" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200 padding-200-100">
           <div class="mygw-spinner border-radius-full size-40px border-3"></div>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Loading gateways...</p>
         </div>
 
-        <div v-else-if="error" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
+        <div v-else-if="error" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200 padding-200-100">
           <AlertCircle :size="48" class="color-error margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">Error Loading Gateways</h2>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">{{ error }}</p>
           <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="loadGateways">Try Again</button>
         </div>
 
-        <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
+        <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200 padding-200-100">
           <Server :size="48" class="color-text-tertiary margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">No Gateways Yet</h2>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Create your first private gateway to get started</p>
@@ -181,15 +181,15 @@
             <div class="mygw-gateway-info flex flex-column gap-50 margin-bottom-100">
               <div class="mygw-info-row flex gap-50 fs-14px">
                 <span class="mygw-info-label color-text-secondary fw-500 min-w-60px">URL:</span>
-                <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.url }}</span>
+                <span class="mygw-info-value mono break-all color-text-primary fs-80rem">{{ gateway.url }}</span>
               </div>
               <div class="mygw-info-row flex gap-50 fs-14px">
                 <span class="mygw-info-label color-text-secondary fw-500 min-w-60px">ID:</span>
-                <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.id }}</span>
+                <span class="mygw-info-value mono break-all color-text-primary fs-80rem">{{ gateway.id }}</span>
               </div>
               <div class="mygw-info-row flex gap-50 fs-14px">
                 <span class="mygw-info-label color-text-secondary fw-500 min-w-60px">Created:</span>
-                <span class="mygw-info-value break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
+                <span class="mygw-info-value break-all color-text-primary fs-80rem">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>
 

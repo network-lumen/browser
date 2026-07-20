@@ -26,7 +26,7 @@
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ address.address }}</code>
@@ -38,11 +38,11 @@
               </button>
             </div>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Account Number:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Sequence:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.sequence }}</span>
           </div>

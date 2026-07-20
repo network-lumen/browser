@@ -1,6 +1,6 @@
 <template>
   <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'ipfspage-ipfs-page--bare': isBareHtmlView }">
-    <main class="ipfspage-main-content flex flex-column flex-1 padding-150 overflow-auto">
+    <main class="ipfspage-main-content flex flex-column flex-1 padding-150 overflow-auto padding-0">
       <header v-if="!isBareHtmlView" class="ipfspage-content-header flex-align-start gap-100 margin-bottom-100 flex-justify-end">
         <div class="ipfspage-header-actions flex gap-50">
           <button
@@ -68,7 +68,7 @@
       </div>
 
       <template v-else>
-        <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center">
+        <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center padding-300-200">
           <div class="ipfspage-welcome-content text-center max-w-600px">
             <h2 class="ipfspage-welcome-content-h2 fs-175rem txt-weight-light color-text-primary margin-bottom-75">IPFS Content Viewer</h2>
             <p>View and download content from IPFS using CIDs.</p>

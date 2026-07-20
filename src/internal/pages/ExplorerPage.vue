@@ -98,20 +98,20 @@
       <!-- Stats Bar -->
       <div class="explorer-stats-bar gap-100 margin-bottom-200 grid">
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Latest Block</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ formatNumber(latestBlock) }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Latest Block</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ formatNumber(latestBlock) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ formatNumber(txHistoryTotal) }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Txs (last {{ txHistoryWindow }} blocks)</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Validators</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ validatorCount }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Validators</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ validatorCount }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Avg Block Time</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ avgBlockTimeLabel }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Avg Block Time</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
@@ -232,7 +232,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75 min-h-160px">
-                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px">
+                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px fs-62rem">
                     <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
@@ -241,12 +241,12 @@
                   <div class="explorer-proposer-stats w-full margin-top-37">
                     <div class="explorer-proposer-stat-group gap-50 w-full grid">
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
-                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Block</span>
-                        <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Block</span>
+                        <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                       </div>
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
-                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Block Time</span>
-                        <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ avgBlockTimeLabelShort }}</span>
+                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Block Time</span>
+                        <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ avgBlockTimeLabelShort }}</span>
                       </div>
                     </div>
                   </div>
@@ -359,7 +359,7 @@
             <div class="explorer-table-body flex flex-column overflow-y-auto">
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
-                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline hover-color-accent-secondary" @click="navigateToBlock(block.height)">
+                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline hover-color-accent-secondary gap-25" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -369,7 +369,7 @@
                 </div>
                 <div class="explorer-td td-proposer flex-align-center fs-13px fs-14px">
                   <div class="explorer-proposer-info flex-align-center gap-35">
-                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px">
+                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px fs-62rem">
                       <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
@@ -378,7 +378,7 @@
                 </div>
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click.stop="navigateToBlock(block.height)" title="View block details">
-                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4">{{ block.hash }}</code>
+                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4 padding-18-37 fs-62rem">{{ block.hash }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -392,7 +392,7 @@
                   </button>
                 </div>
                 <div class="explorer-td td-txs flex-align-center fs-13px fs-14px">
-                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px fs-11px padding-25-4" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
+                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px fs-11px padding-25-4 padding-18-37 fs-75rem" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
@@ -406,7 +406,7 @@
 
         <!-- Transactions View -->
         <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card">
-          <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100 border-bottom-1 flex-justify-space-between">
+          <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100 border-bottom-1 flex-justify-space-between padding-150-150-100">
             <div class="explorer-header-content">
               <h2 class="explorer-transactions-header-h2 fs-15rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Transactions</h2>
               <p class="explorer-transactions-subtitle color-text-tertiary margin-0 fs-14px">Latest transactions on the lumen-mainnet</p>
@@ -458,7 +458,7 @@
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4">{{ shortenHash(tx.hash) }}</code>
+                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4 padding-18-37 fs-62rem">{{ shortenHash(tx.hash) }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -653,7 +653,7 @@
                   type="number" 
                   v-model="stakeAmount" 
                   :placeholder="`0.0`"
-                  class="explorer-stake-input w-full color-text-primary txt-weight-light bg-secondary border-1 border-radius-8px fs-15px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="explorer-stake-input w-full color-text-primary txt-weight-light bg-secondary border-1 border-radius-8px fs-15px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow padding-75-400-75-100"
                   step="0.000001"
                   min="0"
                 />
@@ -734,7 +734,7 @@
                       </button>
                     </div>
                   </div>
-                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 hover-lift-1" @click="closeStakeModal">Close</button>
+                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 hover-lift-1 padding-62-200" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->
