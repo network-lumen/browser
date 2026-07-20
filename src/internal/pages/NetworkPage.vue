@@ -138,7 +138,7 @@
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill excellent netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03"></div>
                 </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">Synced</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px min-w-70px">Synced</span>
               </div>
             </div>
 
@@ -148,7 +148,7 @@
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill h-full border-radius-4px transition-width-03" :class="validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal'" :style="{ width: validatorPercent + '%' }"></div>
                 </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ validatorPercent.toFixed(0) }}%</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px min-w-70px">{{ validatorPercent.toFixed(0) }}%</span>
               </div>
             </div>
 
@@ -158,7 +158,7 @@
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
                 </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ blockTimeStatus }}</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px min-w-70px">{{ blockTimeStatus }}</span>
               </div>
             </div>
 
@@ -168,7 +168,7 @@
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 netpage-indicator-fill-good"></div>
                 </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ peers }}</span>
+                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px min-w-70px">{{ peers }}</span>
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@
         <section class="netpage-data-table flex flex-column h-full bg-card border-1 border-radius-14px padding-125-150">
           <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px margin-0 margin-bottom-100">Recent Blocks</h2>
           <div class="netpage-blocks-list flex flex-column gap-50 margin-top-100 flex-1">
-            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02 padding-87-100 hover-bg-tertiary" v-for="block in recentBlocks" :key="block.height">
+            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02 padding-87-100 hover-bg-tertiary min-h-64px" v-for="block in recentBlocks" :key="block.height">
               <div class="netpage-block-left flex-align-center gap-87 flex-1 min-w-0">
                 <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px fs-13px txt-weight-medium color-white overflow-hidden border-2-white-a15" :title="block.validator">
                   <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
@@ -234,7 +234,7 @@
                 <div class="netpage-block-meta flex flex-column flex-align-end gap-35 flex-justify-center">
                   <div class="meta-item flex-align-center gap-50">
                     <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase fs-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px fs-13px padding-0-50 h-22px" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px fs-13px padding-0-50 h-22px min-w-30px" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="netpage-meta-time flex-align-center color-text-secondary gap-35 fs-075rem line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">

@@ -53,7 +53,7 @@
         <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100 border-default bg-card shadow-sm border-radius-24px">
           <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between">
             <h2 class="color-text-primary margin-0 history-group-head-h2 fs-16px">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span padding-0-50 bg-fill-secondary fs-12px">{{ group.entries.length }}</span>
+            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span padding-0-50 bg-fill-secondary fs-12px min-w-27rem-badge">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">

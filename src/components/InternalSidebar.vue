@@ -1,5 +1,5 @@
 <template>
-  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg">
+  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg min-w-240px">
     <div class="lumen-sidebar-header flex gap-62 margin-bottom-100 flex-inline-align-center padding-50-62">
       <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm shadow-primary">
         <component :is="icon" :size="20" />
@@ -25,7 +25,7 @@
       <div v-if="renderedFavouriteEntries.length" class="sidebar-section margin-top-100 padding-top-75">
         <div class="sidebar-section-header flex-align-center-justify-space-between gap-50 margin-bottom-50 padding-0-50">
           <div class="sidebar-section-title color-text-tertiary fs-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
-          <div class="sidebar-section-count bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full fs-11px txt-weight-medium padding-0-50">{{ renderedFavouriteEntries.length }}</div>
+          <div class="sidebar-section-count bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full fs-11px txt-weight-medium padding-0-50 min-w-24rem-badge">{{ renderedFavouriteEntries.length }}</div>
         </div>
         <div class="sidebar-favs flex flex-column gap-35">
           <div

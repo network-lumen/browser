@@ -180,15 +180,15 @@
 
             <div class="mygw-gateway-info flex flex-column gap-50 margin-bottom-100">
               <div class="mygw-info-row flex gap-50 fs-14px">
-                <span class="mygw-info-label color-text-secondary fw-500">URL:</span>
+                <span class="mygw-info-label color-text-secondary fw-500 min-w-60px">URL:</span>
                 <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.url }}</span>
               </div>
               <div class="mygw-info-row flex gap-50 fs-14px">
-                <span class="mygw-info-label color-text-secondary fw-500">ID:</span>
+                <span class="mygw-info-label color-text-secondary fw-500 min-w-60px">ID:</span>
                 <span class="mygw-info-value mono break-all color-text-primary">{{ gateway.id }}</span>
               </div>
               <div class="mygw-info-row flex gap-50 fs-14px">
-                <span class="mygw-info-label color-text-secondary fw-500">Created:</span>
+                <span class="mygw-info-label color-text-secondary fw-500 min-w-60px">Created:</span>
                 <span class="mygw-info-value break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>

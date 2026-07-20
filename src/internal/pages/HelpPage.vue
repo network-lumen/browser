@@ -397,7 +397,7 @@
       <div v-else-if="currentView === 'docs'" class="helppage-content-area helppage-docs-content-area flex flex-column overflow-hidden flex-1 overflow-y-auto padding-right-25 overflow-x-hidden">
         <div class="discover helppage-docs-discover flex flex-column gap-125 flex-1 min-h-0">
           <iframe
-            class="helppage-doc-frame w-full h-full border-radius-lg block border-default shadow-sm bg-card"
+            class="helppage-doc-frame w-full h-full border-radius-lg block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
             title="window.lumen API Reference"
             loading="lazy"

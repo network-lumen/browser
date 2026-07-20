@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar flex-align-center gap-75 padding-50-75 bg-primary border-bottom-default">
+  <header class="navbar flex-align-center gap-75 padding-50-75 bg-primary border-bottom-default min-h-52px">
     <!-- Navigation Controls -->
     <div class="navbar-nav-controls flex-align-center gap-25">
       <button
@@ -190,7 +190,7 @@
 
       <div
         v-if="showProfileMenu"
-        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0"
+        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0 min-w-260px"
         role="menu"
       >
         <ActiveProfileCard
@@ -262,7 +262,7 @@
   <!-- Export Options Modal -->
   <Teleport to="body">
     <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4" @click.self="cancelExportModal">
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Export Profile</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelExportModal">&times;</button>
@@ -348,7 +348,7 @@
   <!-- Import Modal -->
   <Teleport to="body">
     <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4" @click.self="cancelImportModal">
-      <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl">
+      <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Import profile</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelImportModal">&times;</button>
@@ -431,7 +431,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
@@ -441,7 +441,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -451,7 +451,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -493,7 +493,7 @@
   <!-- Import Password Modal (for encrypted backups) -->
   <Teleport to="body">
     <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4" @click.self="cancelImportPasswordModal">
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Encrypted Backup</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelImportPasswordModal">&times;</button>
@@ -541,7 +541,7 @@
       class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4"
       @click.self="cancelDeleteProfileModal"
     >
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Delete profile?</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelDeleteProfileModal">&times;</button>
@@ -573,7 +573,7 @@
       class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4"
       @click.self="dismissPqcLinkedModal"
     >
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Post-quantum security enabled</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="dismissPqcLinkedModal">&times;</button>

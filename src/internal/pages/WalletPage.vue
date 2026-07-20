@@ -139,7 +139,7 @@
 
         <!-- Address + summary -->
         <div class="walletpage-info-section flex flex-wrap-wrap gap-100">
-          <div class="walletpage-info-card flex-1 bg-card border-radius-16px padding-100-125 border-1">
+          <div class="walletpage-info-card flex-1 bg-card border-radius-16px padding-100-125 border-1 min-w-260px">
             <div class="walletpage-info-label text-uppercase color-text-tertiary fs-13px letter-spacing-008em margin-bottom-25">Address</div>
             <div class="mono break-all color-text-primary fs-14px" :title="address || '-'">
               {{ address || '-' }}
@@ -394,7 +394,7 @@
                 v-model="txSearchQuery"
                 type="text"
                 placeholder="Search by hash..."
-                class="walletpage-search-input color-text-primary padding-50-75 border-1 border-radius-8px bg-card fs-14px transition-all-02 focus-outline-none focus-ring focus-shadow"
+                class="walletpage-search-input color-text-primary padding-50-75 border-1 border-radius-8px bg-card fs-14px transition-all-02 focus-outline-none focus-ring focus-shadow min-w-200px"
               />
             </div>
             <button class="walletpage-action-btn secondary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125" @click="exportTransactions">
@@ -637,19 +637,19 @@
             </div>
             <p class="walletpage-contact-note color-text-secondary margin-bottom-87 fs-14px line-height-15" v-if="contact.note">{{ contact.note }}</p>
             <div class="walletpage-contact-actions flex flex-wrap-wrap gap-50">
-              <button class="walletpage-contact-btn send flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent" @click="sendToContact(contact)">
+              <button class="walletpage-contact-btn send flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent min-w-70px" @click="sendToContact(contact)">
                 <Send :size="16" />
                 <span>Send</span>
               </button>
-              <button class="walletpage-contact-btn copy flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent" @click="copyToClipboard(contact.address, 'Address copied!')">
+              <button class="walletpage-contact-btn copy flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent min-w-70px" @click="copyToClipboard(contact.address, 'Address copied!')">
                 <Copy :size="16" />
                 <span>Copy</span>
               </button>
-              <button class="walletpage-contact-btn edit flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent" @click="editContact(contact)">
+              <button class="walletpage-contact-btn edit flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent min-w-70px" @click="editContact(contact)">
                 <Edit :size="16" />
                 <span>Edit</span>
               </button>
-              <button class="walletpage-contact-btn delete flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent" @click="deleteContact(contact)">
+              <button class="walletpage-contact-btn delete flex-align-justify-center flex-1 color-text-secondary fw-500 cursor-pointer padding-50-75 border-1 border-radius-8px bg-primary fs-13px gap-35 transition-all-02 hover-bg-hover hover-border-accent hover-color-accent min-w-70px" @click="deleteContact(contact)">
                 <Trash2 :size="16" />
                 <span>Delete</span>
               </button>

@@ -231,8 +231,8 @@
                 </div>
               </div>
               <div class="explorer-chart-container">
-                <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75">
-                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30">
+                <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75 min-h-160px">
+                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px">
                     <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
@@ -337,7 +337,7 @@
                   v-model="blockHeightFilter"
                   type="number"
                   placeholder="Filter by height..."
-                  class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px"
                 />
               </div>
               <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success bg-ios-green-a1 border-1-ios-green-a30 padding-25-4" :class="{ active: autoRefresh }">
@@ -369,7 +369,7 @@
                 </div>
                 <div class="explorer-td td-proposer flex-align-center fs-13px fs-14px">
                   <div class="explorer-proposer-info flex-align-center gap-35">
-                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30">
+                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px">
                       <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
@@ -428,7 +428,7 @@
                 v-model="txHashFilter"
                 type="text"
                 placeholder="Filter by hash..."
-                class="explorer-hash-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="explorer-hash-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px"
               />
             </div>
           </div>
@@ -702,7 +702,7 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200 fixed bg-primary border-radius-16px top-half left-half shadow-modal-strong" :class="txStatus">
+            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200 fixed bg-primary border-radius-16px top-half left-half shadow-modal-strong min-w-400px" :class="txStatus">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-150 text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-100 w-full">

@@ -187,8 +187,8 @@
           </div>
           <div v-else class="members-list flex flex-column gap-50">
             <div class="daopage-member-item flex-align-center gap-100 padding-100 border-radius-12px border-1 transition-all-02" v-for="(member, index) in members" :key="member.address">
-              <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-tertiary border-radius-6px fs-075rem">{{ index + 1 }}</div>
-              <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary" :class="{ 'has-image': member.avatar }">
+              <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-tertiary border-radius-6px fs-075rem min-w-24px">{{ index + 1 }}</div>
+              <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary min-w-40px" :class="{ 'has-image': member.avatar }">
                 <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" />
                 <span v-else>{{ member.moniker.charAt(0).toUpperCase() }}</span>
               </div>
