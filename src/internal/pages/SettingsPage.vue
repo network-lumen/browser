@@ -178,7 +178,7 @@
                 v-model="brightness"
                 class="settingspage-brightness-slider flex-1 outline-none border-radius-4px bg-border"
               />
-              <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary">{{ brightness }}%</span>
+              <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary min-w-45px">{{ brightness }}%</span>
             </div>
           </div>
         </div>
@@ -298,7 +298,7 @@
               <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap bg-secondary border-1 padding-25">
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary min-w-140px"
                   :class="{ 'active bg-card color-primary': ipfsConnectivityMode === 'light' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('light')"
@@ -307,7 +307,7 @@
                 </button>
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary min-w-140px"
                   :class="{ 'active bg-card color-primary': ipfsConnectivityMode === 'normal' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('normal')"
@@ -316,7 +316,7 @@
                 </button>
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary min-w-140px"
                   :class="{ 'active bg-card color-primary': ipfsConnectivityMode === 'high' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('high')"
@@ -865,7 +865,7 @@
                 Override the default folder used by the Lumen binary for IPFS, profiles, logs and app metadata.
               </span>
             </div>
-            <div class="settingspage-setting-control settingspage-data-folder-control flex-align-center flex-justify-end">
+            <div class="settingspage-setting-control settingspage-data-folder-control flex-align-center flex-justify-end min-w-420px">
               <div class="settingspage-data-folder-input-row flex-align-center-justify-end gap-50 w-full">
                 <input
                   type="text"
@@ -1062,7 +1062,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px h-22px padding-0-50 bg-ios-blue-a15">{{ gatewayIds.length }}</span>
+                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px h-22px padding-0-50 bg-ios-blue-a15 min-w-22px">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc fs-085rem color-text-secondary margin-0 margin-bottom-100">Add gateway IDs to use for private content delivery</p>
 
@@ -1120,7 +1120,7 @@
                     v-model="gatewayTimeout"
                     class="settingspage-brightness-slider flex-1 outline-none border-radius-4px bg-border"
                   />
-                  <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary">{{ gatewayTimeout / 1000 }}s</span>
+                  <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary min-w-45px">{{ gatewayTimeout / 1000 }}s</span>
                 </div>
               </div>
 

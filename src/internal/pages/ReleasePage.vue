@@ -36,7 +36,7 @@
       </header>
 
       <section class="relpage-toolbar flex flex-wrap-wrap margin-bottom-100 flex-align-end gap-90-100" aria-label="Filters">
-        <div class="relpage-filter flex flex-column gap-35">
+        <div class="relpage-filter flex flex-column gap-35 min-w-220px">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Channel</label>
           <select v-model="channelFilter" class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow" :disabled="loading">
             <option value="all">All</option>
@@ -44,7 +44,7 @@
           </select>
         </div>
 
-        <div class="relpage-filter grow flex flex-column gap-35 relpage-filter-grow">
+        <div class="relpage-filter grow flex flex-column gap-35 relpage-filter-grow min-w-260px min-w-220px">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Search</label>
           <input
             v-model.trim="searchTerm"

@@ -110,7 +110,7 @@
               <Plus :size="18" />
               <span>Upload</span>
             </button>
-            <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1 padding-25 z-50 right-0" @click.stop>
+            <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1 padding-25 z-50 right-0 min-w-190px" @click.stop>
               <button
                 class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
                 type="button"
@@ -148,7 +148,7 @@
 
       <!-- Search and Filter Bar -->
       <div class="drivepage-search-filter-bar flex-align-center-justify-space-between flex-wrap-wrap gap-100 margin-bottom-100">
-        <div class="drivepage-search-box flex-align-center gap-50 flex-1 border-radius-10px padding-50-75 bg-primary border-1 transition-all-02 focus-within-border-accent focus-within-ring">
+        <div class="drivepage-search-box flex-align-center gap-50 flex-1 border-radius-10px padding-50-75 bg-primary border-1 transition-all-02 focus-within-border-accent focus-within-ring max-w-400px min-w-200px">
           <svg class="drivepage-search-icon color-text-tertiary flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
@@ -192,7 +192,7 @@
         </div>
         <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap margin-left-auto gap-50">
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px"
             type="button"
             :disabled="!selectedLocalCount"
             @click="clearLocalSelection"
@@ -201,17 +201,17 @@
           </button>
           <button
             v-if="canBulkConvertSelectedLocal"
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px"
             type="button"
             @click="convertSelectedLocalToHls"
           >
             Convert to HLS
-            <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium fs-12px bg-primary-a10 padding-0 padding-right-25 padding-left-25">
+            <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium fs-12px bg-primary-a10 padding-0 padding-right-25 padding-left-25 min-w-135rem-badge">
               {{ selectedLocalConvertibleCount }}
             </span>
           </button>
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -243,7 +243,7 @@
         </div>
       </div>
 
-      <div v-if="browseLoading" class="drivepage-listing-loading flex-align-justify-center flex-1">
+      <div v-if="browseLoading" class="drivepage-listing-loading flex-align-justify-center flex-1 min-h-280px">
         <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
       </div>
 
@@ -436,7 +436,7 @@
         </div>
       </div>
 
-      <div v-if="showSavedListSpinner" class="drivepage-listing-loading flex-align-justify-center flex-1">
+      <div v-if="showSavedListSpinner" class="drivepage-listing-loading flex-align-justify-center flex-1 min-h-280px">
         <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
       </div>
 
@@ -448,7 +448,7 @@
       >
         <!-- List Header -->
         <div class="drivepage-list-header flex-align-center gap-75 txt-weight-light text-uppercase color-text-secondary padding-75-100 bg-secondary border-bottom-1 fs-11px letter-spacing-005em top-0 z-1">
-          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header flex flex-inline-align-center flex-justify-center flex-shrink-0">
+          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
             <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative" title="Select visible entries">
               <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 margin-0 cursor-pointer"
                 type="checkbox"
@@ -460,9 +460,9 @@
           </div>
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
           <span class="drivepage-list-name-header flex-1 min-w-0">Name</span>
-          <span class="drivepage-list-size-header w-80px text-right">Size</span>
+          <span class="drivepage-list-size-header w-80px text-right min-w-80px">Size</span>
           <span class="drivepage-list-date-header text-right nowrap overflow-hidden txt-overflow-ellipsis min-w-180px">Date Added</span>
-          <div class="drivepage-list-actions-header"></div>
+          <div class="drivepage-list-actions-header min-w-160px"></div>
         </div>
         <!-- List Items -->
         <div
@@ -472,7 +472,7 @@
           @click="handleEntryClick(file)"
           :class="{ selected: selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
-          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell flex flex-inline-align-center flex-justify-center flex-shrink-0" @click.stop>
+          <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px" @click.stop>
             <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative">
               <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 margin-0 cursor-pointer"
                 type="checkbox"
@@ -521,11 +521,11 @@
             />
           </div>
           <span class="drivepage-list-name flex-1 fs-085rem fw-500 color-text-primary min-w-0 overflow-hidden txt-overflow-ellipsis nowrap">{{ file.name }}</span>
-          <span class="drivepage-list-size color-text-secondary w-80px text-right fs-13px flex-shrink-0">{{ formatSize(file.size) }}</span>
+          <span class="drivepage-list-size color-text-secondary w-80px text-right fs-13px flex-shrink-0 min-w-80px">{{ formatSize(file.size) }}</span>
           <span class="drivepage-list-date color-text-secondary text-right fs-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap">
+          <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px">
             <button
               v-if="!isBrowsing && isDirEntry(file)"
               class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
@@ -1344,7 +1344,7 @@
                       </template>
                     </div>
                   </div>
-                  <div class="drivepage-plan-meta flex flex-column gap-25">
+                  <div class="drivepage-plan-meta flex flex-column gap-25 min-w-170px">
                     <div class="drivepage-plan-meta-line flex-justify-space-between fs-12px">
                       <span class="drivepage-label color-text-secondary">Storage</span>
                       <span class="drivepage-value fw-500 color-text-primary">
@@ -1379,13 +1379,13 @@
                <div class="drivepage-plans-controls flex-align-center-justify-space-between flex-column gap-75 margin-top-75 margin-bottom-50 padding-bottom-50 border-bottom-1">
                  <div class="drivepage-plans-controls-row flex-align-center-justify-space-between gap-75 w-full flex-wrap-nowrap">
                    <div class="drivepage-plans-search-group drivepage-plans-search-group-primary flex-align-center gap-75 flex-1-1-auto min-w-0 flex-wrap-nowrap">
-                     <div class="drivepage-plans-search-input flex-align-center gap-50 size-40px border-radius-10px flex-1-1-auto border-1 bg-secondary padding-0 padding-right-75 padding-left-75">
+                     <div class="drivepage-plans-search-input flex-align-center gap-50 size-40px border-radius-10px flex-1-1-auto border-1 bg-secondary padding-0 padding-right-75 padding-left-75 min-w-220px">
                        <Search :size="16" class="drivepage-plans-search-ico color-text-secondary opacity-70" />
                        <input
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 fs-14px bg-secondary border-none bg-transparent padding-75-87 focus-outline-none focus-border-accent focus-bg-primary focus-ring focus-shadow"
+                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 fs-14px bg-secondary border-none bg-transparent padding-75-87 focus-outline-none focus-border-accent focus-bg-primary focus-ring focus-shadow min-w-140px"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1530,7 +1530,7 @@
                             </template>
                           </div>
                         </div>
-                        <div class="drivepage-plan-meta flex flex-column gap-25">
+                        <div class="drivepage-plan-meta flex flex-column gap-25 min-w-170px">
                           <div class="drivepage-plan-meta-line flex-justify-space-between fs-12px">
                             <span class="drivepage-label color-text-secondary">Storage</span>
                             <span class="drivepage-value fw-500 color-text-primary">

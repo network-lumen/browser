@@ -174,7 +174,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light border-radius-22px"
+            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light border-radius-22px min-h-150px"
             :class="{
               pinned: entry.pinned,
               'is-dragging': draggingShortcutId === entry.id,

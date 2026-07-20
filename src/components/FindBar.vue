@@ -17,7 +17,7 @@
       @keydown="onInputKeydown"
     />
 
-    <div class="findbar-count color-text-secondary text-right fs-12px cursor-select-none" :class="{ 'findbar-count--muted': !query }" aria-live="polite">
+    <div class="findbar-count color-text-secondary text-right fs-12px cursor-select-none min-w-52px" :class="{ 'findbar-count--muted': !query }" aria-live="polite">
       {{ countText }}
     </div>
 

@@ -1,5 +1,5 @@
 <template>
-  <section class="main-shell flex flex-column w-full h-full relative">
+  <section class="main-shell flex flex-column w-full h-full relative min-h-100vh">
     <UiToast />
     <div class="app overflow-hidden">
       <div
@@ -17,7 +17,7 @@
           @click="onTabClick(t.id)"
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
-            <div class="tab-icon flex-align-justify-center border-radius-circle size-100">
+            <div class="tab-icon flex-align-justify-center border-radius-circle size-100 min-w-16px min-h-16px">
               <UiSpinner v-if="t.loading" size="sm" class="tab-spinner color-gray-blue" />
               <img
                 v-else-if="t.favicon"

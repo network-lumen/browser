@@ -10,12 +10,12 @@
       <h1 class="fs-28px txt-weight-light color-text-primary margin-0">Address Details</h1>
     </div>
 
-    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100">
+    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100 min-h-300px">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading address data...</p>
     </div>
 
-    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100">
+    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100 min-h-300px">
       <p class="color-error chaindetail-error-p fs-16px">{{ error }}</p>
     </div>
 
