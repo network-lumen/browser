@@ -440,7 +440,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .qr-value-box { max-height: 120px; }
 
 /* PasswordPromptModal.vue */
-.pwd-modal-input { transition: border-color 0.15s ease; box-sizing: border-box; }
 .pwd-modal-input:focus, .drivepage-per-page-select:hover, .drivepage-bulk-checkbox input:hover + span,
 .drivepage-plans-filter-select:hover {
   border-color: var(--accent-primary);
@@ -450,10 +449,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .settingspage-btn-primary:hover:not(:disabled), .settingspage-btn-danger:hover:not(:disabled),
 .searchpage-badge-more {
   opacity: 0.85;
-}
-.pwd-modal-spinner {
-  border-top-color: rgba(255, 255, 255, 0.95);
-  animation: spin 0.85s linear infinite;
 }
 
 /* ReleaseUpdatePrompt.vue */
@@ -1259,10 +1254,6 @@ select.recurpay-input { background-image: none; }
 .walletpage-asset-meta.error, .walletpage-dex-meta.error, .walletpage-amount-value.send,
 .walletpage-field-hint.error {
   color: var(--ios-red);
-}
-.sitemodal-spinner {
-  border-top-color: rgba(255, 255, 255, 1);
-  animation: spin 0.8s linear infinite;
 }
 @keyframes sitemodal-pin-progress-slide {
   0% { transform: translateX(-120%); }
@@ -2438,10 +2429,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-summary-value.tax, .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
 }
-.walletpage-btn-modal-primary { box-shadow: 0 4px 12px var(--primary-a25); }
-.walletpage-btn-modal-primary:hover:not(:disabled) {
-  box-shadow: 0 6px 16px var(--primary-a30);
-}
 .walletpage-spinner {
   border-top-color: white;
   animation: spin 0.6s linear infinite;
@@ -2485,18 +2472,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--fill-error);
   border-color: var(--ios-red);
   color: var(--ios-red);
-}
-.walletpage-contact-modal { max-width: 480px; }
-.walletpage-modal-icon.delete {
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%);
-}
-.walletpage-btn-modal-danger {
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%);
-  box-shadow: 0 4px 15px rgba(var(--ios-red-rgb), 0.3);
-}
-.walletpage-btn-modal-danger:hover {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 80%, black) 0%, color-mix(in srgb, var(--ios-red) 60%, black) 100%);
-  box-shadow: 0 6px 20px rgba(var(--ios-red-rgb), 0.4);
 }
 .walletpage-input-action-btn { right: 0.75rem; transform: translateY(-50%); }
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
