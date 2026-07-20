@@ -8,7 +8,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: activeView === 'status' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': activeView === 'status' }"
             @click="activeView = 'status'"
           >
             <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -20,7 +20,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: activeView === 'params' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': activeView === 'params' }"
             @click="activeView = 'params'"
           >
             <SlidersHorizontal :size="18" />

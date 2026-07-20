@@ -11,7 +11,7 @@
         :key="r.key"
         type="button"
         class="lsb-item lsb-item--compact border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-        :class="{ active: r.key === activeKey }"
+        :class="{ 'active bg-gradient-primary color-white shadow-primary': r.key === activeKey }"
         @click="openRoute(r.key)"
       >
         <component :is="iconFor(r.key)" :size="16" />

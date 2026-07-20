@@ -8,7 +8,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: true }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': true }"
           >
             <List :size="18" />
             <span>My gateways</span>

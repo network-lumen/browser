@@ -175,7 +175,7 @@
         </div>
       </div>
 
-      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar flex-align-center flex-wrap-wrap margin-bottom-100 gap-87 border-radius-14px border-1 shadow-sm padding-75-100" :class="{ active: selectedLocalCount > 0 }">
+      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar flex-align-center flex-wrap-wrap margin-bottom-100 gap-87 border-radius-14px border-1 shadow-sm padding-75-100" :class="{ 'active border-color-primary-a30': selectedLocalCount > 0 }">
         <label class="drivepage-bulk-checkbox drivepage-bulk-toolbar-checkbox flex-inline-align-justify-center ring-spinner-sm flex-shrink-0 relative" title="Select visible entries">
           <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 margin-0 cursor-pointer"
             type="checkbox"
@@ -732,7 +732,7 @@
       <div class="detail-actions flex flex-column gap-50">
         <button
           v-if="!isDirEntry(selectedFile)"
-          class="drivepage-detail-btn primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary padding-75 border-1 bg-primary fs-13px transition-all-02"
+          class="drivepage-detail-btn primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-white padding-75 border-none bg-gradient-primary fs-13px transition-all-02"
           @click="downloadFile(selectedFile)"
         >
           <Download :size="16" />

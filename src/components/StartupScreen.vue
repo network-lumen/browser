@@ -17,7 +17,7 @@
           <div class="startup-msg-subtitle color-text-secondary fs-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px shadow-primary padding-62-100 fw-650" type="button" :disabled="busy" @click="restartAll">
+          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px shadow-primary padding-62-100 fw-650 border-color-transparent" type="button" :disabled="busy" @click="restartAll">
             Retry
           </button>
         </div>

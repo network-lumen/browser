@@ -363,7 +363,7 @@
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary fs-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 padding-62-75"
-              :class="{ active: importMode === 'file' }"
+              :class="{ 'active bg-primary-a08 border-color-accent color-text-primary': importMode === 'file' }"
               @click="setImportMode('file')"
             >
               Via file
@@ -371,7 +371,7 @@
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary fs-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 padding-62-75"
-              :class="{ active: importMode === 'manual' }"
+              :class="{ 'active bg-primary-a08 border-color-accent color-text-primary': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
               Manual

@@ -9,7 +9,7 @@
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn color-white"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >

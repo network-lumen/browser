@@ -317,11 +317,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: var(--hover-bg);
   color: var(--text-primary);
 }
-.lsb-item.active {
-  background: var(--gradient-primary);
-  color: #fff;
-  box-shadow: var(--shadow-primary);
-}
 .lsb-item.active svg, .card-interactive:hover::before, .navbar-profile-row:hover .navbar-profile-row-delete,
 .explorer-table-row:hover .explorer-copy-icon-btn, .explorer-td-hash:hover .explorer-copy-icon-btn,
 .explorer-tx-hash-link:hover svg, .searchpage-search-btn:hover::before, .searchpage-result-card:hover::before,
@@ -357,7 +352,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .startup-mark { letter-spacing: -0.03em; }
 .startup-center { margin: auto auto 30px auto; padding: 28px 22px; }
 .startup-btn { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
-.startup-btn-primary, .ipfspage-btn-primary { border-color: transparent; }
 .startup-btn:active:not(:disabled) { transform: translateY(1px); }
 .startup-btn:disabled, .gwpage-btn-primary:disabled { opacity: 0.6; cursor: default; }
 
@@ -728,7 +722,7 @@ select.recurpay-input { background-image: none; }
   color: #fff;
 }
 .recurpay-btn.secondary { background: var(--bg-tertiary); border: 1px solid var(--border-color); }
-.recurpay-btn.secondary:hover, .walletpage-eye-btn:hover { background: var(--card-bg); }
+.recurpay-btn.secondary:hover, .walletpage-eye-btn:hover, .daopage-vote-icon-against, .daopage-vote-icon-abstain { background: var(--card-bg); }
 
 
 /* WalletOnboardingModal.vue */
@@ -778,7 +772,6 @@ select.recurpay-input { background-image: none; }
 .extensions-store-btn-install-hero-btn {
   min-width: 168px;
   min-height: 46px;
-  color: #fff;
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
   box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
 }
@@ -1019,10 +1012,9 @@ select.recurpay-input { background-image: none; }
   background-clip: text;
 }
 .helppage-hero-features { gap: 2rem; }
-.helppage-action-icon-drive, .helppage-contact-icon-website { background: var(--fill-blue); color: var(--ios-blue); }
+.helppage-action-icon-drive, .helppage-contact-icon-website, .drivepage-list-item.selected { background: var(--fill-blue); }
 .helppage-action-icon-domain, .helppage-contact-icon-discord {
   background: rgba(var(--ios-purple-rgb), 0.15);
-  color: var(--ios-purple);
 }
 .helppage-steps-grid { grid-template-columns: repeat(3, 1fr); }
 .helppage-step-card .helppage-step-number {
@@ -1262,8 +1254,6 @@ select.recurpay-input { background-image: none; }
   border-color: var(--accent-primary);
   background: var(--card-bg);
 }
-.daopage-vote-icon-against { background: var(--card-bg); color: var(--ios-red); }
-.daopage-vote-icon-abstain { background: var(--card-bg); color: var(--text-tertiary); }
 
 /* LumenSiteModalHost.vue */
 .sitemodal-overlay { background: rgba(0, 0, 0, 0.55); }
@@ -1595,12 +1585,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--ios-red);
 }
 .navbar-import-modal { width: min(560px, 92vw); }
-.navbar-import-mode-btn.active {
-  background: var(--primary-a08);
-  border-color: var(--accent-primary);
-  color: var(--text-primary);
-  box-shadow: 0 0 0 1px var(--primary-a20) inset;
-}
+.navbar-import-mode-btn.active { box-shadow: 0 0 0 1px var(--primary-a20) inset; }
 .navbar-import-textarea { resize: vertical; min-height: 84px; }
 
 
@@ -1620,11 +1605,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Theme Selector */
 .settingspage-theme-option:hover { background: var(--hover-bg, var(--primary-a10)); }
-.settingspage-theme-option.active {
-  background: var(--card-bg);
-  color: var(--accent-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
+.settingspage-theme-option.active { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); }
 .settingspage-network-mode-option, .drivepage-plans-filter-input { min-width: 140px; }
 
 /* Toggle */
@@ -2449,7 +2430,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-quick-icon { box-shadow: 0 8px 20px rgba(var(--ios-blue-rgb), 0.3); }
 .walletpage-quick-icon-disabled {
   background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
-  color: #fff;
   opacity: 0.6;
 }
 .walletpage-info-card { min-width: 260px; }
@@ -2527,7 +2507,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-info-banner-warning {
   background: rgba(var(--ios-orange-rgb), 0.1);
   border-color: rgba(var(--ios-orange-rgb), 0.3);
-  color: var(--text-primary);
 }
 .walletpage-info-banner-ul { list-style-type: disc; }
 .walletpage-form-select { appearance: none; -webkit-appearance: none; }
@@ -2669,7 +2648,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Search & Filter Bar */
 .drivepage-search-box { max-width: 400px; min-width: 200px; }
 .drivepage-bulk-toolbar { background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
-.drivepage-bulk-toolbar.active { border-color: var(--primary-a30); box-shadow: 0 0 0 3px var(--primary-a08); }
+.drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
 .drivepage-bulk-action-btn { min-height: 34px; }
 .drivepage-bulk-action-btn:hover:not(:disabled) {
   box-shadow: 0 0 0 3px var(--primary-a10);
@@ -2804,12 +2783,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-left: 1px solid var(--border-color);
 }
 .drivepage-detail-preview-image, .drivepage-detail-preview-video { object-fit: contain; }
-.drivepage-detail-btn.primary {
-  background: var(--gradient-primary);
-  border: none;
-  color: #fff;
-  box-shadow: 0 4px 12px var(--primary-a30);
-}
+.drivepage-detail-btn.primary { box-shadow: 0 4px 12px var(--primary-a30); }
 
 /* Toast */
 .drivepage-toast-enter-from, .drivepage-toast-leave-to { opacity: 0; transform: translate(-50%, 10px); }
@@ -2828,7 +2802,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   content-visibility: auto;
   contain-intrinsic-size: 920px 56px;
 }
-.drivepage-list-item.selected { background: var(--fill-blue); }
 .drivepage-list-item.checked { background: var(--primary-a05); }
 
 /* Modal Styles */
