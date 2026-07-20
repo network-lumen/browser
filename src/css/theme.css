@@ -842,9 +842,6 @@ select.recurpay-input { background-image: none; }
 .homepage-no-profile-sub, .searchpage-site-domain { opacity: 0.9; }
 .homepage-action-card:disabled { opacity: 0.55; cursor: not-allowed; }
 .homepage-actions-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-.homepage-empty-grid {
-  grid-column: 1 / -1;
-}
 .homepage-empty-grid.is-drag-over, .homepage-empty-btn:hover {
   border-color: var(--accent-primary);
   background: var(--primary-a08);
@@ -1044,7 +1041,8 @@ select.recurpay-input { background-image: none; }
 .navbar-import-mode-switch, .walletpage-asset-modal-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.gwpage-form-group.full, .gwpage-modal-body .gwpage-form-group:nth-child(4), .searchpage-help-note {
+.gwpage-form-group.full, .gwpage-modal-body .gwpage-form-group:nth-child(4), .searchpage-help-note,
+.homepage-empty-grid {
   grid-column: 1 / -1;
 }
 .gwpage-form-label, .relpage-filter-label, .relpage-test-label { letter-spacing: 0.06em; }
@@ -1204,7 +1202,7 @@ select.recurpay-input { background-image: none; }
 }
 .daopage-progress-yes { background: linear-gradient(90deg, var(--ios-teal), var(--ios-green)); }
 .daopage-modal-content.large { max-width: 640px; }
-.daopage-form-textarea, .drivepage-upload-path-textarea { resize: vertical; }
+.daopage-form-textarea, .drivepage-upload-path-textarea, .navbar-import-textarea { resize: vertical; }
 .daopage-btn-modal-primary:disabled, .relpage-btn-primary:disabled, .relpage-btn-secondary:disabled,
 .walletpage-action-icon:disabled {
   opacity: 0.6;
@@ -1545,7 +1543,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .navbar-import-modal { width: min(560px, 92vw); }
 .navbar-import-mode-btn.active { box-shadow: 0 0 0 1px var(--primary-a20) inset; }
-.navbar-import-textarea { resize: vertical; }
 
 
 /* Main Content */
