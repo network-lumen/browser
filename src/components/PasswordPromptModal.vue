@@ -27,11 +27,11 @@
     <template #footer>
       <UiButton variant="secondary" v-if="cancelable !== false"
         @click="handleCancel"
-        :disabled="loading || busy" class="pwd-modal-btn-secondary disabled-fade-50">
+        :disabled="loading || busy" class="disabled-fade-50">
         Cancel
       </UiButton>
       <UiButton variant="primary" @click="handleSubmit"
-        :disabled="loading || busy || !password" class="pwd-modal-btn-primary disabled-fade-50">
+        :disabled="loading || busy || !password" class="disabled-fade-50">
         <span v-if="loading">Verifying...</span>
         <span v-else-if="busy" class="flex-inline-align-center gap-50">
           <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45 spinner-white" aria-hidden="true"></span>

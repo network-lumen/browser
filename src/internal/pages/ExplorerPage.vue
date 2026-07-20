@@ -89,7 +89,7 @@
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
           />
-          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="explorer-search-btn disabled-fade-50">
+          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="disabled-fade-50">
             Search
           </UiButton>
         </div>
@@ -260,7 +260,7 @@
             <UiCard padding="none" :shadow="false" class="explorer-activity-column padding-125 shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Blocks</h3>
-                <UiButton variant="primary" @click="currentView = 'blocks'" class="explorer-view-all-btn">View All →</UiButton>
+                <UiButton variant="primary" @click="currentView = 'blocks'">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-75">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="explorer-activity-item cursor-pointer flex-align-center gap-75 padding-75 bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
@@ -290,7 +290,7 @@
             <UiCard padding="none" :shadow="false" class="explorer-activity-column padding-125 shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Transactions</h3>
-                <UiButton variant="primary" @click="currentView = 'transactions'" class="explorer-view-all-btn">View All →</UiButton>
+                <UiButton variant="primary" @click="currentView = 'transactions'">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-75">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="explorer-activity-item cursor-pointer flex-align-center gap-75 padding-75 bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
@@ -569,18 +569,19 @@
                   <span class="explorer-uptime-value txt-weight-light color-text-secondary fs-14px">{{ getUptimeLabel(validator.address) }}</span>
                 </div>
                 <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center fs-13px fs-14px">
-                  <button 
-                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue border-radius-border-radius-xs background-ios-gray-4-disabled shadow-0-1-3-ios-blue-a2 shadow-0-3-10-ios-blue-a3-hover-not-disabled" 
+                  <UiButton
+                    variant="primary"
+                    size="sm"
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
-                    <svg class="explorer-action-btn-svg flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <circle cx="12" cy="12" r="10"/>
                       <line x1="12" y1="8" x2="12" y2="16"/>
                       <line x1="8" y1="12" x2="16" y2="12"/>
                     </svg>
                     Manage
-                  </button>
+                  </UiButton>
                 </div>
               </div>
             </div>
@@ -738,19 +739,20 @@
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
                     <p class="word-wrap-break fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                   </div>
-                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150 hover-lift-1 shadow-0-4-12-ios-indigo-a3-hover" @click="txStatus = 'idle'">Try Again</button>
+                  <UiButton variant="primary" class="margin-top-50" @click="txStatus = 'idle'">Try Again</UiButton>
                 </div>
               </div>
             </div>
 
-            <button 
-              class="explorer-confirm-btn disabled-fade-40 w-full border-radius-sm txt-weight-light cursor-pointer padding-87 border-none color-white bg-ios-blue shadow-0-2-8-ios-blue-a25 shadow-0-4-16-ios-blue-a35-hover-not-disabled"
-              @click="() => confirmStakeAction()" 
+            <UiButton
+              variant="primary"
+              block
+              @click="() => confirmStakeAction()"
               :disabled="!canConfirm || isProcessingTx"
             >
               <span v-if="!isProcessingTx">Confirm {{ currentStakeAction }}</span>
               <span v-else>Processing...</span>
-            </button>
+            </UiButton>
           </div>
     </UiModal>
 

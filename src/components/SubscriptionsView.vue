@@ -84,7 +84,7 @@
         <Calendar :size="48" class="subview-empty-icon color-text-tertiary margin-bottom-100" />
         <h3 class="color-text-primary fs-18px subview-empty-state-h3 margin-0 margin-bottom-50">No Recurring Payments</h3>
         <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">Schedule automatic payments for subscriptions, bills, and more</p>
-        <UiButton variant="primary" @click="showCreateModal = true" class="subview-btn outline-none">
+        <UiButton variant="primary" @click="showCreateModal = true" class="outline-none">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
         </UiButton>

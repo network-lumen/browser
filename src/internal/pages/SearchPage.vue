@@ -26,14 +26,15 @@
             placeholder="Search the network"
             @keydown.enter.prevent="submit"
           />
-          <button
-            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer border-none bg-accent color-white fs-15px relative overflow-hidden padding-75-150 transition-all-02 shadow-0-2-8-rgba-0-0-0-0-1 shadow-0-4-16-rgba-0-0-0-0-15-hover-not-disabled"
+          <UiButton
+            variant="primary"
+            class="searchpage-search-btn disabled-fade-50"
             type="button"
             @click="submit"
             :disabled="loading"
           >
             Search
-          </button>
+          </UiButton>
         </div>
       </div>
 
@@ -81,7 +82,7 @@
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100">
         <UiButton variant="primary" type="button"
           :disabled="loadingPrevious"
-          @click="loadPrevious" class="searchpage-load-more-btn disabled-fade-60">
+          @click="loadPrevious" class="disabled-fade-60">
           <template v-if="loadingPrevious">Loading previous…</template>
           <template v-else>Previous results</template>
         </UiButton>
@@ -344,7 +345,7 @@
       <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center padding-125-0-50">
         <UiButton variant="primary" type="button"
           :disabled="loadingMore || loadingPrevious"
-          @click="loadMore" class="searchpage-load-more-btn disabled-fade-60">
+          @click="loadMore" class="disabled-fade-60">
           <template v-if="loadingMore">Loading…</template>
           <template v-else>More results</template>
         </UiButton>

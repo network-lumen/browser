@@ -73,19 +73,19 @@
         </div>
 
         <div v-if="currentView !== 'dex'" class="walletpage-header-actions flex gap-75">
-          <UiButton variant="primary" @click="connectWallet" v-if="!isConnected" class="walletpage-action-btn">
+          <UiButton variant="primary" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
             <span>Connect Wallet</span>
           </UiButton>
-          <UiButton variant="primary" @click="subscriptionsRef?.openCreateModal()" v-else-if="currentView === 'recurring'" class="walletpage-action-btn">
+          <UiButton variant="primary" @click="subscriptionsRef?.openCreateModal()" v-else-if="currentView === 'recurring'">
             <Plus :size="16" />
             <span>New Payment</span>
           </UiButton>
-          <UiButton variant="primary" @click="openAddContactModal" v-else-if="currentView === 'addressbook'" class="walletpage-action-btn">
+          <UiButton variant="primary" @click="openAddContactModal" v-else-if="currentView === 'addressbook'">
             <Plus :size="16" />
             <span>Add Contact</span>
           </UiButton>
-          <UiButton variant="primary" @click="sendTransaction" v-else class="walletpage-action-btn">
+          <UiButton variant="primary" @click="sendTransaction" v-else>
             <Send :size="16" />
             <span>Send</span>
           </UiButton>
@@ -167,10 +167,10 @@
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Connect Your Wallet</h3>
           <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Connect a wallet to view your assets across linked IBC chains.</p>
-          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white padding-62-100" @click="connectWallet">
+          <UiButton variant="primary" @click="connectWallet">
             <Link :size="16" />
             <span>Connect Wallet</span>
-          </button>
+          </UiButton>
         </div>
         <div v-else-if="assetsLoading && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
@@ -237,12 +237,12 @@
                     <Copy :size="14" />
                   </UiButton>
                   <UiButton variant="secondary" @click="openAssetSendModal(asset)"
-                    :disabled="!asset.sendEnabled" class="walletpage-action-btn walletpage-asset-send-btn">
+                    :disabled="!asset.sendEnabled">
                     <Send :size="16" />
                     <span>{{ asset.sendButtonLabel }}</span>
                   </UiButton>
                   <UiButton variant="secondary" @click="openAssetTransferModal(asset)"
-                    :disabled="!asset.transferTargets.length || !asset.transferEnabled" class="walletpage-action-btn walletpage-asset-transfer-btn">
+                    :disabled="!asset.transferTargets.length || !asset.transferEnabled">
                     <ArrowLeftRight :size="16" />
                     <span>{{ asset.transferButtonLabel }}</span>
                   </UiButton>
@@ -307,7 +307,7 @@
                 <div class="walletpage-dex-actions flex-align-center-justify-end flex-wrap-wrap gap-50">
                   <UiButton variant="secondary" type="button"
                    
-                    @click="toggleDexExpanded(dex.key)" class="walletpage-action-btn walletpage-dex-detail-toggle">
+                    @click="toggleDexExpanded(dex.key)">
                     <ChevronDown
                       :size="16"
                       class="walletpage-dex-chevron"
@@ -317,7 +317,7 @@
                   </UiButton>
                   <UiButton variant="primary" type="button"
                    
-                    @click="openDexTab(dex.openUrl || dex.baseUrl)" class="walletpage-action-btn walletpage-dex-open-btn">
+                    @click="openDexTab(dex.openUrl || dex.baseUrl)">
                     <ExternalLink :size="16" />
                     <span>Open DEX</span>
                   </UiButton>
@@ -387,7 +387,7 @@
                 class="walletpage-search-input color-text-primary padding-50-75 border-1 border-radius-8px bg-card fs-14px transition-all-02 focus-outline-none focus-ring focus-shadow min-w-200px"
               />
             </div>
-            <UiButton variant="secondary" @click="exportTransactions" class="walletpage-action-btn">
+            <UiButton variant="secondary" @click="exportTransactions">
               <Download :size="16" />
               <span>Export CSV</span>
             </UiButton>
@@ -582,10 +582,10 @@
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No Contacts Yet</h3>
           <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Add addresses you frequently send to for quick access.</p>
-          <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white padding-62-100" @click="openAddContactModal">
+          <UiButton variant="primary" @click="openAddContactModal">
             <Plus :size="16" />
             <span>Add First Contact</span>
-          </button>
+          </UiButton>
         </div>
 
         <div v-else-if="contactsLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">

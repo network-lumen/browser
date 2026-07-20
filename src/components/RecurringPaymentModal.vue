@@ -51,7 +51,7 @@
                 class="recurpay-input flex-1 bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
-                title="Scan QR Code" class="recurpay-input-btn">
+                title="Scan QR Code">
                 <QrCode :size="16" />
               </UiButton>
             </div>
@@ -160,9 +160,9 @@
         </div>
 
     <template #footer>
-      <UiButton variant="secondary" @click="$emit('close')" class="recurpay-btn disabled-fade-50">Cancel</UiButton>
+      <UiButton variant="secondary" @click="$emit('close')" class="disabled-fade-50">Cancel</UiButton>
       <UiButton variant="primary" @click="handleSubmit"
-        :disabled="!isFormValid" class="recurpay-btn disabled-fade-50">
+        :disabled="!isFormValid" class="disabled-fade-50">
         <Check :size="16" />
         <span>{{ isEditing ? 'Update Payment' : 'Schedule Payment' }}</span>
       </UiButton>

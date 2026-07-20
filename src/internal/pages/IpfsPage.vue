@@ -7,7 +7,7 @@
            
             type="button"
             @click="openIndexHtml"
-            :disabled="!navigate" class="ipfspage-plans-btn disabled-fade-50">
+            :disabled="!navigate" class="disabled-fade-50">
             <span>Open website</span>
           </UiButton>
           <UiButton variant="primary" v-if="isDir && masterM3u8Entry"
@@ -15,12 +15,13 @@
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
-            title="Play HLS video" class="ipfspage-plans-btn disabled-fade-50">
+            title="Play HLS video" class="disabled-fade-50">
             <Play :size="16" />
             <span>Play video</span>
           </UiButton>
-          <button
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all padding-62-100 hover-bg-primary hover-border-accent"
+          <UiButton
+            variant="secondary"
+            class="ipfspage-plans-btn disabled-fade-50"
             type="button"
             @click="openSaveModal"
             :class="{ 'ipfspage-save-active': saved }"
@@ -32,17 +33,17 @@
             <Check v-if="saved" :size="16" />
             <Save v-else :size="16" />
             <span>{{ saved ? "Saved" : saving ? "Saving..." : "Save" }}</span>
-          </button>
+          </UiButton>
           <UiButton variant="primary" type="button"
             @click="copyLink"
-            :disabled="!rootCid" class="ipfspage-plans-btn disabled-fade-50">
+            :disabled="!rootCid" class="disabled-fade-50">
             <Copy :size="16" />
             <span>Copy link</span>
           </UiButton>
           <UiButton variant="primary" type="button"
             @click="download"
             v-if="!isPreviewUnavailable"
-            :disabled="!canDownload" class="ipfspage-plans-btn disabled-fade-50">
+            :disabled="!canDownload" class="disabled-fade-50">
             <Download :size="16" />
             <span>Download</span>
           </UiButton>
@@ -250,21 +251,21 @@
           </div>
 
           <template #footer>
-            <UiButton variant="secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning" class="ipfspage-btn-secondary disabled-fade-60">
+            <UiButton variant="secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning" class="disabled-fade-60">
               Cancel
             </UiButton>
-            <UiButton variant="secondary" v-if="savePinCanPause" type="button" @click="pauseSavePinJob" class="ipfspage-btn-secondary disabled-fade-60">
+            <UiButton variant="secondary" v-if="savePinCanPause" type="button" @click="pauseSavePinJob" class="disabled-fade-60">
               Pause
             </UiButton>
-            <UiButton variant="secondary" v-if="savePinCanResume" type="button" @click="resumeSavePinJob" class="ipfspage-btn-secondary disabled-fade-60">
+            <UiButton variant="secondary" v-if="savePinCanResume" type="button" @click="resumeSavePinJob" class="disabled-fade-60">
               Resume
             </UiButton>
-            <UiButton variant="danger" v-if="savePinCanStop" type="button" @click="cancelSavePinJob" class="ipfspage-btn-danger disabled-fade-60">
+            <UiButton variant="danger" v-if="savePinCanStop" type="button" @click="cancelSavePinJob" class="disabled-fade-60">
               Stop
             </UiButton>
             <UiButton variant="primary" type="button"
               :disabled="savePreparing || savePinIsRunning"
-              @click="confirmSaveToDrive" class="ipfspage-btn-primary disabled-fade-60">
+              @click="confirmSaveToDrive" class="disabled-fade-60">
               {{ savePinJobId ? (savePinCanResume ? "Resume save" : (savePinIsRunning ? "Saving..." : "Save")) : (saving ? "Saving..." : "Save") }}
             </UiButton>
           </template>
