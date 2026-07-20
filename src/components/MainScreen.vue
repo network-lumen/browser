@@ -21,7 +21,7 @@
               <UiSpinner v-if="t.loading" size="sm" class="tab-spinner color-gray-blue" />
               <img
                 v-else-if="t.favicon"
-                class="favicon border-radius-4px object-fit-cover"
+                class="favicon border-radius-4px object-fit-cover w-16px h-16px"
                 :src="t.favicon"
                 alt=""
                 draggable="false"

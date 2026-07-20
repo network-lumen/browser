@@ -59,7 +59,7 @@
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between padding-80-15">
               <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-75" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px fs-12px letter-spacing-008em border-default bg-fill-secondary" :class="`tone-${entry.kind}`">
+                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px fs-12px letter-spacing-008em border-default bg-fill-secondary w-270" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}
                 </span>
 
@@ -89,12 +89,12 @@
       </div>
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
-        <div class="history-empty-card padding-150 text-center border-default bg-card shadow-sm border-radius-24px">
+        <div class="history-empty-card padding-150 text-center border-default bg-card shadow-sm border-radius-24px w-min-560px-full">
           <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary w-325 h-325 margin-0 margin-bottom-87">
             <HistoryIcon :size="22" />
           </div>
           <h3 class="color-text-primary margin-0 history-empty-card-h3 fs-18px">{{ emptyTitle }}</h3>
-          <p class="color-text-secondary history-empty-card-p line-height-155 margin-0 margin-x-auto margin-top-75">{{ emptyCopy }}</p>
+          <p class="color-text-secondary history-empty-card-p line-height-155 margin-0 margin-x-auto margin-top-75 max-w-3400">{{ emptyCopy }}</p>
           <div class="history-empty-actions flex-align-center margin-top-100 flex-justify-center gap-62 flex-wrap-wrap">
             <button
               v-if="!historyEnabled"

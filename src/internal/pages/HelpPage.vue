@@ -154,21 +154,21 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">How Lumen Works</h3>
             <div class="helppage-steps-grid gap-100 grid">
               <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
+                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 fs-16px margin-0 margin-bottom-25">Blockchain Names</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Domain names are stored on the blockchain - no central authority can take them away.</p>
                 </div>
               </div>
               <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
+                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 fs-16px margin-0 margin-bottom-25">Distributed Storage</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
                 </div>
               </div>
               <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
+                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 fs-16px margin-0 margin-bottom-25">Verified Access</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Every piece of content is cryptographically verified for authenticity.</p>
@@ -182,7 +182,7 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Key Features</h3>
             <div class="helppage-features-grid gap-100 grid">
               <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Globe :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -191,7 +191,7 @@
                 </div>
               </div>
               <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Database :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -200,7 +200,7 @@
                 </div>
               </div>
               <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Server :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -209,7 +209,7 @@
                 </div>
               </div>
               <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0">
+                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Wallet :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -237,7 +237,7 @@
           <div class="tutorial-steps flex flex-column gap-100">
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Upload to Drive</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Go to Drive, upload a file or folder, then click <strong>Share</strong> to get a Lumen link.</p>
@@ -249,7 +249,7 @@
 
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Buy Your Domain</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Go to Domains, click <strong>Buy domain</strong>, choose a name like <code>yourname.lmn</code>.</p>
@@ -261,7 +261,7 @@
 
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Link Domain to Content</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">In Domain settings, add a record with <code>Key: cid</code> and <code>Value: your-content-hash</code>.</p>
@@ -269,7 +269,7 @@
 
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Visit Your Site</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Type <code>lumen://yourname.lmn</code> in the address bar to access your decentralized website!</p>
@@ -297,7 +297,7 @@
           <div class="tutorial-steps flex flex-column gap-100">
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Build Your Website</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.</p>
@@ -305,7 +305,7 @@
 
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Upload It to Drive</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Open Drive, upload that folder, then copy its Lumen link — that's your content's address.</p>
@@ -317,7 +317,7 @@
 
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Get a Domain</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.</p>
@@ -329,7 +329,7 @@
 
             <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
-                <div class="helppage-step-number flex-align-justify-center size-40px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Link Your Domain to Your Content</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.</p>

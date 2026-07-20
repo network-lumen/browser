@@ -6,7 +6,7 @@
       </div>
 
       <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md padding-250-225">
+        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md padding-250-225 max-w-2400">
           <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
             <Tag :size="26" />
           </div>
@@ -19,7 +19,7 @@
       </div>
 
       <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md padding-250-225">
+        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md padding-250-225 max-w-2400">
           <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
             <FileQuestion :size="26" />
           </div>

@@ -65,7 +65,7 @@
               }}</span>
               <span
                 v-if="sub.regionLabel"
-                class="drivepage-hosting-region txt-weight-medium color-text-tertiary fs-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center"
+                class="drivepage-hosting-region txt-weight-medium color-text-tertiary fs-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center max-w-750"
                 :title="sub.regionTitle"
               >
                 {{ sub.regionLabel }}
@@ -182,7 +182,7 @@
             :checked="allVisibleLocalEntriesSelected"
             @change="handleVisibleLocalSelectionChange"
           />
-          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02"></span>
+          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px"></span>
         </label>
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong fs-085rem color-text-primary">{{ selectedLocalCount }} selected</strong>
@@ -227,16 +227,16 @@
           Back
         </button>
         <div class="drivepage-browse-crumbs flex-align-center flex-wrap-wrap gap-35 min-w-0">
-          <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap" type="button" @click="exitBrowse">
+          <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap max-w-220px" type="button" @click="exitBrowse">
             {{ browseHostingLabel }}
           </button>
           <span class="drivepage-sep color-text-secondary">/</span>
-          <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap" type="button" @click="openBrowseAt('')">
+          <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap max-w-220px" type="button" @click="openBrowseAt('')">
             {{ browseRootLabel }}
           </button>
           <template v-for="c in browseCrumbs" :key="c.path">
             <span class="drivepage-sep color-text-secondary">/</span>
-            <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap" type="button" @click="openBrowseAt(c.path)">
+            <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap max-w-220px" type="button" @click="openBrowseAt(c.path)">
               {{ c.label }}
             </button>
           </template>
@@ -455,14 +455,14 @@
                 :checked="allVisibleLocalEntriesSelected"
                 @change="handleVisibleLocalSelectionChange"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px"></span>
             </label>
           </div>
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
           <span class="drivepage-list-name-header flex-1 min-w-0">Name</span>
           <span class="drivepage-list-size-header w-80px text-right min-w-80px">Size</span>
-          <span class="drivepage-list-date-header text-right nowrap overflow-hidden txt-overflow-ellipsis min-w-180px">Date Added</span>
-          <div class="drivepage-list-actions-header min-w-160px"></div>
+          <span class="drivepage-list-date-header text-right nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">Date Added</span>
+          <div class="drivepage-list-actions-header min-w-160px w-160px"></div>
         </div>
         <!-- List Items -->
         <div
@@ -479,7 +479,7 @@
                 :checked="isLocalFileSelected(file)"
                 @change.stop="handleLocalFileSelectionChange(file, $event)"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px"></span>
             </label>
           </div>
           <div class="drivepage-list-icon flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0" :class="getFileTypeClass(file)">
@@ -522,10 +522,10 @@
           </div>
           <span class="drivepage-list-name flex-1 fs-085rem fw-500 color-text-primary min-w-0 overflow-hidden txt-overflow-ellipsis nowrap">{{ file.name }}</span>
           <span class="drivepage-list-size color-text-secondary w-80px text-right fs-13px flex-shrink-0 min-w-80px">{{ formatSize(file.size) }}</span>
-          <span class="drivepage-list-date color-text-secondary text-right fs-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px">{{
+          <span class="drivepage-list-date color-text-secondary text-right fs-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px">
+          <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <button
               v-if="!isBrowsing && isDirEntry(file)"
               class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
@@ -658,7 +658,7 @@
     </main>
 
     <!-- File Detail Panel -->
-    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column padding-150 margin-0 bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px">
+    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column padding-150 margin-0 bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px w-280px max-w-280px">
       <div class="drivepage-detail-header flex-align-center-justify-space-between margin-bottom-125">
         <h3 class="txt-sm txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}
@@ -1303,7 +1303,7 @@
     <!-- Plans Modal -->
     <Transition name="modal">
       <div v-if="showPlansModal" class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0" @click="closePlansModal">
-        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px drivepage-modal-content-drivepage-plans-modal" @click.stop>
+        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px drivepage-modal-content-drivepage-plans-modal max-w-860px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Cloud plans</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closePlansModal">
@@ -1465,7 +1465,7 @@
                         :class="group.gateway.active ? 'ok' : 'off'"
                       ></span>
                       <span
-                        class="drivepage-gateway-name txt-weight-light color-text-primary fs-14px nowrap overflow-hidden txt-overflow-ellipsis"
+                        class="drivepage-gateway-name txt-weight-light color-text-primary fs-14px nowrap overflow-hidden txt-overflow-ellipsis max-w-260px"
                         :title="planGatewayLabel(group.gateway)"
                       >
                         {{ planGatewayLabel(group.gateway) }}
@@ -1474,7 +1474,7 @@
                     <div class="drivepage-gateway-meta flex-justify-end flex-wrap-wrap gap-25-75">
                       <span
                         v-if="group.gateway.regions.length"
-                        class="drivepage-gateway-region flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary padding-18-55"
+                        class="drivepage-gateway-region flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary padding-18-55 max-w-220px"
                         :title="formatRegionsTitle(group.gateway.regions)"
                       >
                         <MapPin :size="14" class="drivepage-gateway-region-ico flex-0-0-auto opacity-70" />

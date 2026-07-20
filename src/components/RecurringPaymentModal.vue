@@ -149,6 +149,7 @@
               <input
                 v-model="form.reminderEnabled"
                 type="checkbox"
+                class="w-18px h-18px cursor-pointer"
               />
               <span class="color-text-primary">Enable payment reminders</span>
             </label>

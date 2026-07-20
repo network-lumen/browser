@@ -160,7 +160,7 @@
                 </div>
               </div>
               <div class="explorer-chart-container">
-                <canvas ref="txHistoryChart"></canvas>
+                <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
               </div>
             </div>
 
@@ -169,7 +169,7 @@
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
               <div class="explorer-chart-container">
-                <div class="explorer-chart-donut-wrapper relative margin-0 margin-x-auto margin-bottom-75">
+                <div class="explorer-chart-donut-wrapper relative margin-0 margin-x-auto margin-bottom-75 w-100px h-100px">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ bondedRatioLabel }}</div>
@@ -200,7 +200,7 @@
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
               <div class="explorer-chart-container">
-                <div class="explorer-chart-donut-wrapper relative margin-0 margin-x-auto margin-bottom-75">
+                <div class="explorer-chart-donut-wrapper relative margin-0 margin-x-auto margin-bottom-75 w-100px h-100px">
                   <canvas ref="votingPowerChart" width="120" height="120"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ topValidatorsPower.length }}</div>
@@ -233,7 +233,7 @@
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75 min-h-160px">
                   <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px">
-                    <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
+                    <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
                   <div class="explorer-proposer-name txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ latestProposer.moniker }}</div>
@@ -275,7 +275,7 @@
                   <div class="explorer-activity-content flex-1 min-w-0">
                     <div class="explorer-activity-title txt-weight-light color-text-primary fs-14px margin-bottom-25">#{{ formatNumber(block.height) }}</div>
                     <div class="explorer-activity-meta flex-align-center fs-075rem color-text-tertiary gap-50">
-                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="explorer-proposer-mini-avatar border-radius-circle object-fit-cover" :alt="block.proposer" />
+                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="explorer-proposer-mini-avatar border-radius-circle object-fit-cover w-16px h-16px" :alt="block.proposer" />
                       <span>{{ block.proposer }}</span>
                     </div>
                   </div>
@@ -321,7 +321,7 @@
         <!-- Blocks View -->
         <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between padding-0 padding-top-100 padding-right-150 padding-bottom-75 padding-left-150">
-            <div class="explorer-header-content">
+            <div class="explorer-header-content flex-1 min-w-200px">
               <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Blocks</h2>
               <p class="explorer-blocks-subtitle fs-075rem color-text-tertiary margin-0">View all blocks on the lumen-mainnet</p>
             </div>
@@ -347,7 +347,7 @@
             </div>
           </div>
 
-          <div class="explorer-blocks-table">
+          <div class="explorer-blocks-table w-full">
             <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
@@ -360,7 +360,7 @@
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-25" @click="navigateToBlock(block.height)">
-                    <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -369,8 +369,8 @@
                 </div>
                 <div class="explorer-td td-proposer flex-align-center fs-13px fs-14px">
                   <div class="explorer-proposer-info flex-align-center gap-35">
-                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px fs-62rem">
-                      <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
+                    <div class="explorer-proposer-avatar flex-align-justify-center size-24px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden flex-shrink-0 border-2-primary-a30 min-w-24px fs-62rem">
+                      <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
                     <span class="explorer-proposer-name txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ block.proposer }}</span>
@@ -407,7 +407,7 @@
         <!-- Transactions View -->
         <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100 border-bottom-1 flex-justify-space-between padding-150-150-100">
-            <div class="explorer-header-content">
+            <div class="explorer-header-content flex-1 min-w-200px">
               <h2 class="explorer-transactions-header-h2 fs-15rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Transactions</h2>
               <p class="explorer-transactions-subtitle color-text-tertiary margin-0 fs-14px">Latest transactions on the lumen-mainnet</p>
             </div>
@@ -441,7 +441,7 @@
             <p>No recent transactions</p>
           </div>
 
-          <div v-else class="explorer-transactions-table">
+          <div v-else class="explorer-transactions-table w-full">
             <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
@@ -546,7 +546,7 @@
                   <span class="explorer-changes-value txt-weight-light fs-14px">—</span>
                 </div>
                 <div class="explorer-td td-cumulative flex-align-center fs-13px fs-14px">
-                  <div class="explorer-cumulative-container flex-align-justify-center relative">
+                  <div class="explorer-cumulative-container flex-align-justify-center relative w-50px">
                     <svg class="explorer-circular-progress block" width="50" height="50" viewBox="0 0 50 50">
                       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle 
@@ -702,14 +702,14 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200 fixed bg-primary border-radius-16px top-half left-half shadow-modal-strong min-w-400px" :class="txStatus">
+            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200 fixed bg-primary border-radius-16px top-half left-half shadow-modal-strong min-w-400px max-w-90vw" :class="txStatus">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-150 text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-100 w-full">
                   <div class="explorer-tx-spinner size-48px border-radius-circle border-4-color"></div>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
-                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
+                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                   </div>
                 </div>
 
@@ -721,7 +721,7 @@
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
-                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
+                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full margin-top-75 padding-75 bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block fs-11px color-text-tertiary margin-bottom-25 text-uppercase letter-spacing-005em">Transaction Hash:</small>
                       <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02 hover-border-accent hover-bg-primary-a08" @click="viewTransaction(txHash)">
@@ -745,7 +745,7 @@
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
-                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
+                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                   </div>
                   <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150 hover-lift-1" @click="txStatus = 'idle'">Try Again</button>
                 </div>

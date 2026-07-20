@@ -146,7 +146,7 @@
             <div class="domain-main flex flex-column gap-15 min-w-0">
               <div class="domainpage-stable-link-label-row flex-align-center gap-35 min-w-0">
                 <input
-                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px min-w-120px padding-25-4"
+                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px min-w-120px padding-25-4 w-min-260px-full"
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
@@ -241,11 +241,11 @@
                 />
               </div>
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
                   Cancel
                 </button>
                 <button
-                  class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100"
+                  class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center"
                   type="submit"
                   :disabled="stableLinkSaving || !stableLinkNameDraft.trim()"
                 >
@@ -316,16 +316,16 @@
                     </button>
                   </div>
                 </div>
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
                   Add record
                 </button>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
                   Cancel
                 </button>
-                <button class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
+                <button class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
                   <span v-if="!stableSettingsSaving">
                     <Check :size="16" />
                     Save records
@@ -395,7 +395,7 @@
               </div>
 
               <button
-                class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100"
+                class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center"
                 type="button"
                 @click="confirmRegister"
                 :disabled="!canRegister || registering"
@@ -463,7 +463,7 @@
                     </button>
                   </div>
                 </div>
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" @click="addSettingsRecord">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" @click="addSettingsRecord">
                   Add record
                 </button>
               </div>
@@ -483,11 +483,11 @@
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" @click="closeSettingsModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" @click="closeSettingsModal">
                   Cancel
                 </button>
                 <button
-                  class="domainpage-btn primary full ghost flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100"
+                  class="domainpage-btn primary full ghost flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center"
                   type="button"
                   @click="saveSettings"
                   :disabled="!canSaveSettings || savingSettings"
@@ -543,11 +543,11 @@
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100" type="button" @click="closeTransferModal">
+                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center" type="button" @click="closeTransferModal">
                   Cancel
                 </button>
                 <button
-                  class="domainpage-btn primary full danger flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100"
+                  class="domainpage-btn primary full danger flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center"
                   type="button"
                   @click="confirmTransfer"
                   :disabled="!canTransfer || transferring"

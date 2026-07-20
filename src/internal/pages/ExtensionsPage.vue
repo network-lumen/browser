@@ -3,7 +3,7 @@
     <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-100 border-bottom-1-slate-a16">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1">{{ headerTitle }}</h1>
-        <p class="extensions-store-copy-p margin-0 margin-top-37" v-if="headerDescription">{{ headerDescription }}</p>
+        <p class="extensions-store-copy-p margin-0 margin-top-37 max-w-760px" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">

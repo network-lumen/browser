@@ -73,7 +73,7 @@
         <!-- Stats Grid -->
         <div class="daopage-stats-grid margin-bottom-150 gap-100 grid">
           <div class="daopage-stat-card flex-align-center gap-100 padding-125 border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary">
+            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <FileText :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -82,7 +82,7 @@
             </div>
           </div>
           <div class="daopage-stat-card flex-align-center gap-100 padding-125 border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary">
+            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <Users :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -91,7 +91,7 @@
             </div>
           </div>
           <div class="daopage-stat-card flex-align-center gap-100 padding-125 border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary">
+            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <Wallet :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -189,7 +189,7 @@
             <div class="daopage-member-item flex-align-center gap-100 padding-100 border-radius-12px border-1 transition-all-02" v-for="(member, index) in members" :key="member.address">
               <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-tertiary border-radius-6px fs-075rem min-w-24px">{{ index + 1 }}</div>
               <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary min-w-40px" :class="{ 'has-image': member.avatar }">
-                <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" />
+                <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" class="w-full h-full object-fit-cover border-radius-full" />
                 <span v-else>{{ member.moniker.charAt(0).toUpperCase() }}</span>
               </div>
               <div class="daopage-member-info flex flex-column flex-1">
@@ -206,7 +206,7 @@
     <!-- Create Proposal Modal -->
     <Transition name="fade">
       <div v-if="showCreateProposalModal" class="overlay-scrim z-1000 padding-100" @click="closeCreateProposalModal">
-        <div class="daopage-modal-content large w-full overflow-y-auto border-radius-16px shadow-modal max-h-90vh max-w-520px" @click.stop>
+        <div class="daopage-modal-content large w-full overflow-y-auto border-radius-16px shadow-modal max-h-90vh max-w-520px max-w-640px" @click.stop>
           <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
             <h3 class="margin-0 txt-weight-light color-text-primary daopage-modal-header-h3 fs-125rem">Create Proposal</h3>
             <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px border-radius-8px bg-hover transition-all-02 hover-color-text-primary" @click="closeCreateProposalModal">

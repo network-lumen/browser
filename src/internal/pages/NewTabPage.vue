@@ -107,13 +107,13 @@
     </Teleport>
 
     <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
-      <div class="newtab-glow newtab-glow--left border-radius-full absolute opacity-55 bg-ios-blue-a18"></div>
-      <div class="newtab-glow newtab-glow--right border-radius-full absolute opacity-55 bg-ios-indigo-a12"></div>
+      <div class="newtab-glow newtab-glow--left border-radius-full absolute opacity-55 bg-ios-blue-a18 w-2800"></div>
+      <div class="newtab-glow newtab-glow--right border-radius-full absolute opacity-55 bg-ios-indigo-a12 w-2800"></div>
     </div>
 
-    <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative z-1">
+    <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative z-1 w-min-1040px-full">
       <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 padding-125">
-        <div class="newtab-hero-copy text-center margin-0-auto">
+        <div class="newtab-hero-copy text-center margin-0-auto max-w-4000">
           <h1 class="color-text-primary margin-0 newtab-hero-copy-h1">Search Lumen</h1>
           <p class="color-text-secondary newtab-hero-copy-p fs-16px line-height-155 margin-0 margin-x-auto margin-top-85">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
@@ -136,7 +136,7 @@
           </button>
         </form>
 
-        <div class="newtab-quick-links flex flex-wrap-wrap flex-justify-center margin-0 margin-x-auto margin-top-100">
+        <div class="newtab-quick-links flex flex-wrap-wrap flex-justify-center margin-0 margin-x-auto margin-top-100 w-min-980px-full">
           <button
             v-for="link in quickLinks"
             :key="link.url"
@@ -187,7 +187,7 @@
             @dragend="onShortcutDragEnd"
           >
             <button class="newtab-shortcut-card-main flex w-full border-none bg-transparent color-text-primary cursor-pointer flex-1 text-left flex-align-start gap-75" type="button" @click="openTarget(entry.url, $event)">
-              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">
+              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
               <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-20">
@@ -262,7 +262,7 @@
             class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02 hover-lift-1 hover-bg-fill-tertiary"
             @click="openTarget(entry.url, $event)"
           >
-            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">
+            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :class="`tone-${entry.kind}`">
               {{ entry.monogram }}
             </span>
             <span class="newtab-history-preview-copy flex flex-column flex-1 min-w-0 gap-2px">
