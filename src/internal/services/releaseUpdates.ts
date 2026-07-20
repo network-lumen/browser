@@ -2,6 +2,7 @@ import { computed, ref } from 'vue';
 import pkg from '../../../package.json';
 import { addToast } from '../../stores/toastStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard } from '../../composables/useClipboard';
 
 type LatestPayload = {
   version: string;
@@ -229,13 +230,7 @@ async function openExternalAndSnooze(url: string) {
   }
 
   if (!opened) {
-    let copied = false;
-    try {
-      await navigator.clipboard.writeText(url);
-      copied = true;
-    } catch {
-      copied = false;
-    }
+    const copied = await copyToClipboard(url);
     addToast('warning', copied ? 'Could not open download link. URL copied to clipboard.' : 'Could not open download link.');
   }
 

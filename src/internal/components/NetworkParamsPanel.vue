@@ -75,20 +75,14 @@
     </div>
   </section>
 
-  <Transition name="netparams-toast">
-    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light fixed padding-75-125 shadow-primary-lg z-100 bottom-200 left-half">
-      <Check :size="16" />
-      {{ toast }}
-    </div>
-  </Transition>
 </template>
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { useToast } from '../../composables/useToast';
 import {
-  Check,
   ChevronDown,
   ChevronRight,
   Copy,
@@ -223,13 +217,10 @@ const loadingAll = computed(() => sections.value.some((s) => s.loading));
 const hasAnyData = computed(() => sections.value.some((s) => s.data));
 const fatalError = ref('');
 
-const toast = ref('');
-let toastTimer: number | null = null;
+const toastApi = useToast();
 
 function showToast(message: string) {
-  toast.value = message;
-  if (toastTimer != null) window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => (toast.value = ''), 1400);
+  toastApi.success(message);
 }
 
 function toggleSection(id: string) {

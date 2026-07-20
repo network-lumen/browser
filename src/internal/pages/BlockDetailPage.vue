@@ -124,6 +124,7 @@ import UiButton from '../../ui/UiButton.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 const loading = ref(true);
 const error = ref('');
@@ -206,12 +207,7 @@ function formatNumber(num: number): string {
 }
 
 async function copyToClipboard(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    console.log('Copied to clipboard');
-  } catch (err) {
-    console.error('Failed to copy:', err);
-  }
+  await copyToClipboardShared(text);
 }
 
 function navigateToTransaction(hash: string) {

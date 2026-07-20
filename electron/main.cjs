@@ -1853,12 +1853,12 @@ ipcMain.on('window:mode', (_evt, mode) => {
   }
 });
 
-ipcMain.handle('window:open-main', async () => {
+ipcMain.handle('window:open-main', async (event) => {
+  const splash = browserWindowForWebContents(event.sender);
   const main = createMainWindow();
   try { main.focus(); } catch {}
-  const current = BrowserWindow.getFocusedWindow();
-  if (current && current !== main) {
-    try { current.close(); } catch {}
+  if (splash && splash !== main) {
+    try { splash.close(); } catch {}
   }
   return true;
 });

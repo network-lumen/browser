@@ -60,6 +60,7 @@ import { computed } from 'vue';
 import { Copy, ArrowUpRight } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';
 import { profilesState, activeProfileId } from '../internal/profilesStore';
+import { copyToClipboard } from '../composables/useClipboard';
 
 const profiles = profilesState;
 
@@ -78,11 +79,7 @@ const shortAddress = computed(() => {
 
 async function copyAddress() {
   const v = address.value;
-  if (!v || !navigator.clipboard || !navigator.clipboard.writeText) return;
-  try {
-    await navigator.clipboard.writeText(v);
-  } catch {
-    // ignore copy errors
-  }
+  if (!v) return;
+  await copyToClipboard(v);
 }
 </script>

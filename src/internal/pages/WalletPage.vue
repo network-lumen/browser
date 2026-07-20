@@ -1049,6 +1049,7 @@ import UiModal from '../../ui/UiModal.vue';
 import UiButton from '../../ui/UiButton.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
@@ -2419,13 +2420,9 @@ function validateAmountInput(event: Event) {
   input.value = value;
 }
 
-function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(message, 'success');
-  }).catch((err) => {
-    console.error('Failed to copy:', err);
-    showToast('Failed to copy', 'error');
-  });
+async function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {
+  const ok = await copyToClipboardShared(text);
+  showToast(ok ? message : 'Failed to copy', ok ? 'success' : 'error');
 }
 
 function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') {
@@ -4004,13 +4001,8 @@ function closeReceiveModal() {
 
 async function copyAddressWithToast() {
   if (!address.value) return;
-  try {
-    await navigator.clipboard.writeText(address.value);
-    showToast('Address copied to clipboard!', 'success');
-  } catch (err) {
-    console.error('Failed to copy:', err);
-    showToast('Failed to copy', 'error');
-  }
+  const ok = await copyToClipboardShared(address.value);
+  showToast(ok ? 'Address copied to clipboard!' : 'Failed to copy', ok ? 'success' : 'error');
 }
 
 // Address Book Functions

@@ -774,6 +774,7 @@ import { LayoutGrid } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 const toast = useToast();
 const lumen = useInternalLumen();
@@ -1884,13 +1885,13 @@ watch(stakePercentage, (newVal) => {
   setStakePercentage(newVal);
 });
 
-function copyToClipboard(text: string, label: string = 'Text') {
-  navigator.clipboard.writeText(text).then(() => {
+async function copyToClipboard(text: string, label: string = 'Text') {
+  const ok = await copyToClipboardShared(text);
+  if (ok) {
     toast.success(`${label} copied to clipboard`);
-  }).catch(err => {
-    console.error('Failed to copy:', err);
+  } else {
     toast.error('Failed to copy to clipboard');
-  });
+  }
 }
 
 function initializeCharts() {
