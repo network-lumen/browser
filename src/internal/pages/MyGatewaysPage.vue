@@ -20,7 +20,7 @@
         </div>
       </header>
 
-      <div class="mygw-content-area flex-1 overflow-y-auto">
+      <div class="mygw-content-area flex-1 min-h-0 overflow-y-auto">
         <!-- Embedded Server Card -->
         <div class="mygw-server-card bg-card border-2 border-radius-16px transition-all-03 padding-175" :class="{ active: embeddedServerRunning }">
           <div class="mygw-server-card-header flex-align-center gap-125 margin-bottom-150">

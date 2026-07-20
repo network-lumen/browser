@@ -77,6 +77,14 @@
             <Link :size="16" />
             <span>Connect Wallet</span>
           </UiButton>
+          <UiButton variant="primary" @click="subscriptionsRef?.openCreateModal()" v-else-if="currentView === 'recurring'" class="walletpage-action-btn">
+            <Plus :size="16" />
+            <span>New Payment</span>
+          </UiButton>
+          <UiButton variant="primary" @click="openAddContactModal" v-else-if="currentView === 'addressbook'" class="walletpage-action-btn">
+            <Plus :size="16" />
+            <span>Add Contact</span>
+          </UiButton>
           <UiButton variant="primary" @click="sendTransaction" v-else class="walletpage-action-btn">
             <Send :size="16" />
             <span>Send</span>
@@ -111,25 +119,25 @@
 
         <!-- Quick Actions -->
         <div class="walletpage-quick-actions gap-100 grid">
-          <UiButton variant="primary" @click="sendTransaction" class="walletpage-quick-btn disabled-fade-50">
+          <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </UiButton>
-          <UiButton variant="primary" @click="openReceiveModal" class="walletpage-quick-btn disabled-fade-50">
+          <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </UiButton>
-          <UiButton variant="primary" disabled class="walletpage-quick-btn disabled-fade-50">
+          <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
-          <UiButton variant="primary" disabled class="walletpage-quick-btn disabled-fade-50">
+          <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <CreditCard :size="20" />
             </div>
@@ -508,8 +516,7 @@
                   <span class="walletpage-text-muted color-text-tertiary">-</span>
                 </template>
               </span>
-              <UiButton variant="secondary" v-if="tx.from"
-               
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.from"
                 @click.stop="copyToClipboard(tx.from, 'Address copied!')"
                 title="Copy address"
                 aria-label="Copy from address" class="walletpage-action-icon walletpage-copy-btn background-card-bg-disabled-hover">
@@ -529,8 +536,7 @@
                   <span class="walletpage-text-muted color-text-tertiary">-</span>
                 </template>
               </span>
-              <UiButton variant="secondary" v-if="tx.to"
-               
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.to"
                 @click.stop="copyToClipboard(tx.to, 'Address copied!')"
                 title="Copy address"
                 aria-label="Copy to address" class="walletpage-action-icon walletpage-copy-btn background-card-bg-disabled-hover">
@@ -542,12 +548,12 @@
               <span class="walletpage-hash-value color-text-secondary fs-13px mono" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
-              <UiButton variant="secondary" @click.stop="openTransactionTab(tx.txhash)"
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="openTransactionTab(tx.txhash)"
                 title="Open in explorer"
                 aria-label="Open transaction in new tab" class="walletpage-action-icon walletpage-explorer-btn background-card-bg-disabled-hover">
                 <ExternalLink :size="14" />
               </UiButton>
-              <UiButton variant="secondary" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="walletpage-action-icon walletpage-copy-btn background-card-bg-disabled-hover">
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="walletpage-action-icon walletpage-copy-btn background-card-bg-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -570,14 +576,6 @@
 
       <!-- Address Book View -->
       <div v-else-if="currentView === 'addressbook'" class="walletpage-content-section flex flex-column gap-150 w-full max-w-full">
-        <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
-          <h3 class="walletpage-section-header-h3 margin-0 fs-16px txt-weight-light color-text-primary">Saved Addresses</h3>
-          <UiButton variant="primary" @click="openAddContactModal">
-            <Plus :size="16" />
-            <span>Add Contact</span>
-          </UiButton>
-        </div>
-
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color" v-if="!contacts.length && !contactsLoading">
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <Users :size="32" />
@@ -841,7 +839,7 @@
                     :placeholder="sendRecipientPlaceholder" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
                   <UiButton variant="secondary" @click="openQrScanner"
                     type="button"
-                    title="Scan QR Code" class="walletpage-input-action-btn">
+                    title="Scan QR Code" class="walletpage-input-action-btn absolute top-half">
                     <QrCode :size="16" />
                   </UiButton>
                   <button 

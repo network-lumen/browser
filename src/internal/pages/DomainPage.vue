@@ -25,7 +25,7 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="domainpage-main flex-1 bg-secondary overflow-y-auto padding-200-250">
+    <main class="domainpage-main flex-1 min-w-0 bg-secondary overflow-y-auto padding-200-250">
       <header class="domainpage-content-header flex-align-center flex-justify-space-between margin-bottom-150">
         <div>
           <h1 class="domainpage-content-header-h1 fw-650 fs-160rem">{{ pageTitle }}</h1>
@@ -203,13 +203,13 @@
                   :disabled="stableLinkSaving"
                   autofocus class="domainpage-form-input focus-outline-none focus-ring focus-shadow" />
               </div>
-              <div class="modal-actions flex flex-column gap-50">
+              <div class="modal-actions flex flex-justify-end gap-50">
                 <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="domainpage-btn outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="primary" type="submit"
                   :disabled="stableLinkSaving || !stableLinkNameDraft.trim()" class="domainpage-btn outline-none">
-                  <span v-if="!stableLinkSaving">
+                  <span v-if="!stableLinkSaving" class="flex-inline-align-center gap-50">
                     <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
                     {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
                   </span>
@@ -264,12 +264,12 @@
                 </UiButton>
               </div>
 
-              <div class="modal-actions flex flex-column gap-50">
+              <div class="modal-actions flex flex-justify-end gap-50">
                 <UiButton variant="secondary" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving" class="domainpage-btn outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading" class="domainpage-btn outline-none">
-                  <span v-if="!stableSettingsSaving">
+                  <span v-if="!stableSettingsSaving" class="flex-inline-align-center gap-50">
                     <Check :size="16" />
                     Save records
                   </span>
@@ -282,10 +282,6 @@
       <!-- Register Domain Modal -->
       <UiModal :model-value="showRegisterModal" title="Register domain" panel-class="max-w-500px" @update:model-value="closeRegisterModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
-              <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">
-                Register a new <span class="mono">.lmn</span> handle for the owner address.
-              </p>
-
               <div class="domainpage-form-group margin-bottom-100">
                 <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Domain</label>
                 <div class="domainpage-domain-input-wrapper flex-align-center gap-35">
@@ -304,16 +300,16 @@
                 </div>
                 <div
                   v-if="registerForm.domainName"
-                  class="domainpage-availability color-error margin-top-50 border-radius-8px fs-13px bg-fill-error padding-50-62"
-                  :class="{ available: domainAvailable, 'badge-success': domainAvailable }"
+                  class="domainpage-availability margin-top-50 border-radius-8px fs-13px padding-50-62"
+                  :class="domainAvailable ? 'color-success badge-success' : 'color-error bg-fill-error'"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
                 </div>
               </div>
 
-              <div class="domainpage-form-group margin-bottom-100">
-                <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Registration period</label>
-                <div class="domainpage-period-static">Fixed at 1 year</div>
+              <div class="domainpage-form-group margin-bottom-100 flex-align-center-justify-space-between">
+                <label class="color-text-secondary domainpage-form-group-label fs-13px">Registration period</label>
+                <span class="domainpage-period-static color-text-primary fs-13px txt-weight-medium">1 year</span>
               </div>
 
               <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
@@ -338,7 +334,6 @@
       <!-- Settings Modal -->
       <UiModal :model-value="showSettingsModal" title="Domain settings" panel-class="max-w-500px" @update:model-value="closeSettingsModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
-              <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Edit resolver records for this domain.</p>
               <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary padding-75-87">
                 <div class="domainpage-info-name txt-weight-light fs-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
                 <div class="domainpage-info-expiry fs-13px margin-top-25">
@@ -391,14 +386,14 @@
                 </p>
               </div>
 
-              <div class="modal-actions flex flex-column gap-50">
+              <div class="modal-actions flex flex-justify-end gap-50">
                 <UiButton variant="secondary" type="button" @click="closeSettingsModal" class="domainpage-btn outline-none">
                   Cancel
                 </UiButton>
-                <UiButton variant="secondary" type="button"
+                <UiButton variant="primary" type="button"
                   @click="saveSettings"
                   :disabled="!canSaveSettings || savingSettings" class="domainpage-btn outline-none">
-                  <span v-if="!savingSettings">
+                  <span v-if="!savingSettings" class="flex-inline-align-center gap-50">
                     <Settings :size="16" />
                     Save changes
                   </span>
@@ -436,14 +431,14 @@
                 </div>
               </div>
 
-              <div class="modal-actions flex flex-column gap-50">
+              <div class="modal-actions flex flex-justify-end gap-50">
                 <UiButton variant="secondary" type="button" @click="closeTransferModal" class="domainpage-btn outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="danger" type="button"
                   @click="confirmTransfer"
                   :disabled="!canTransfer || transferring" class="domainpage-btn outline-none">
-                  <span v-if="!transferring">
+                  <span v-if="!transferring" class="flex-inline-align-center gap-50">
                     <Send :size="16" />
                     Transfer domain
                   </span>

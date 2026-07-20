@@ -10,17 +10,17 @@
         </div>
 
         <div class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px margin-top-50 border-1-transparent" :class="{ active: hosting.kind === 'local' }">
-          <UiButton variant="secondary" type="button"
-            @click="selectHosting('local')" class="drivepage-hosting-main grid">
+          <UiButton variant="none" type="button"
+            @click="selectHosting('local')" class="drivepage-hosting-main grid flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left padding-50-62">
             <span
               class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
             <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
           </UiButton>
-          <UiButton variant="secondary" type="button"
+          <UiButton variant="icon" icon-radius-class="border-radius-sm"
             @click.stop="openLocalDetails"
-            title="Local details" class="drivepage-hosting-details size-32px">
+            title="Local details" class="drivepage-hosting-details flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
           </UiButton>
         </div>
@@ -29,8 +29,8 @@
 
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between margin-top-25">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase fs-11px letter-spacing-005em">Subscriptions</span>
-          <UiButton variant="secondary" type="button"
-            @click="openPlansModal" class="drivepage-hosting-subheader-action background-primary-a15-hover">
+          <UiButton variant="none" type="button"
+            @click="openPlansModal" class="drivepage-hosting-subheader-action bg-transparent border-none cursor-pointer color-primary fs-11px fw-500 padding-25-50 border-radius-sm background-primary-a15-hover">
             Cloud
           </UiButton>
         </div>
@@ -45,8 +45,8 @@
           class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px margin-top-50 border-1-transparent"
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
-          <UiButton variant="secondary" type="button"
-              @click="selectGateway(sub.gatewayId)" class="drivepage-hosting-main grid">
+          <UiButton variant="none" type="button"
+              @click="selectGateway(sub.gatewayId)" class="drivepage-hosting-main grid flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left padding-50-62">
               <span class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
               <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
@@ -64,9 +64,9 @@
                 }}</span>
               </span>
           </UiButton>
-          <UiButton variant="secondary" type="button"
+          <UiButton variant="icon" icon-radius-class="border-radius-sm"
             @click.stop="openGatewayDetails(sub.gatewayId)"
-            title="Subscription details" class="drivepage-hosting-details size-32px">
+            title="Subscription details" class="drivepage-hosting-details flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
           </UiButton>
         </div>
@@ -3291,7 +3291,7 @@ function closeGatewayDetails() {
 
 async function getActiveProfileId(): Promise<string | null> {
   try {
-    const profileId = await profiles_lumen_api.getActive().id;
+    const profileId = (await profiles_lumen_api.getActive())?.id;
     return profileId ? String(profileId || "").trim() : null;
   } catch {
     return null;

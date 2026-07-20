@@ -1,16 +1,5 @@
 <template>
   <div class="subview margin-0-auto padding-150 max-w-1200px">
-    <div class="subview-header flex-justify-space-between flex-align-start flex-wrap-wrap margin-bottom-200">
-      <div>
-        <h2 class="color-text-primary txt-weight-medium fs-24px">Recurring Payments & Subscriptions</h2>
-        <p class="color-text-secondary margin-0 fs-14px">Manage your scheduled automatic payments</p>
-      </div>
-      <UiButton variant="primary" @click="showCreateModal = true" class="subview-btn outline-none">
-        <Plus :size="16" />
-        <span>New Payment</span>
-      </UiButton>
-    </div>
-
     <!-- Payment Reminders -->
     <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px padding-125 margin-bottom-150 bg-ios-orange-a15">
       <h3 class="flex-align-center gap-50 color-text-primary fs-16px subview-reminders-section-h3 margin-0 margin-bottom-100">
@@ -451,7 +440,8 @@ function formatRelativeDate(date: Date): string {
 }
 
 defineExpose({
-  loadData
+  loadData,
+  openCreateModal: () => { showCreateModal.value = true; }
 });
 </script>
 
