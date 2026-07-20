@@ -34,7 +34,6 @@
 /* flex-wrap */
 .flex-wrap-wrap { flex-wrap: wrap; }
 /* flex-direction */
-.flex-row { flex-direction: row; }
 .flex-column { flex-direction: column; }
 
 /* flex grow / basis helpers */
