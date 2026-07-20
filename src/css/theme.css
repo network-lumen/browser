@@ -552,7 +552,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* Smooth Transitions */
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
-.chaindetail-back-btn:hover, .drivepage-upload-btn, .drivepage-upload-btn-large, .daopage-btn-modal-primary:hover, .explorer-search-btn:hover:not(:disabled) { box-shadow: 0 4px 12px var(--primary-a30); }
+.chaindetail-back-btn:hover, .drivepage-upload-btn, .drivepage-upload-btn-large, .daopage-btn-modal-primary:hover, .explorer-search-btn:hover:not(:disabled), .drivepage-detail-btn.primary { box-shadow: 0 4px 12px var(--primary-a30); }
 .chaindetail-card { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
 .chaindetail-card-header-h2 { letter-spacing: 0.025em; }
 .chaindetail-row { grid-template-columns: 180px 1fr; padding: 0.875rem 0; }
@@ -1193,7 +1193,6 @@ select.recurpay-input { background-image: none; }
 .newtab-onboarding-overlay, .newtab-shortcut-modal-overlay { background: rgba(2, 6, 23, 0.56); z-index: 20; }
 .newtab-onboarding-modal, .newtab-shortcut-modal { width: min(34rem, 100%); }
 .newtab-shortcut-modal { width: min(32rem, 100%); }
-.newtab-shortcut-field input:focus { border-color: var(--primary-a50); box-shadow: 0 0 0 3px var(--primary-a10); }
 @media (max-width: 1040px) {
   .newtab-page { padding-inline: 0.85rem; }
   .newtab-hero { padding: 2rem 1rem; }
@@ -1329,10 +1328,6 @@ select.recurpay-input { background-image: none; }
 .mygw-btn-start {
   background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
   box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
-}
-.mygw-btn-start:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
 }
 .mygw-btn-stop {
   background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
@@ -1593,9 +1588,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Settings Section */
 .settingspage-setting-item { transition: all var(--transition-fast); }
-.settingspage-setting-item:hover {
-  box-shadow: var(--shadow-sm);
-}
 .settingspage-profile-row { transition: background var(--transition-fast); }
 .settingspage-profile-row.active { background: rgba(var(--ios-blue-rgb), 0.12); }
 .settingspage-input-control { width: 150px; }
@@ -1713,12 +1705,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   margin-bottom: 2rem;
 }
 .ipfspage-viewer { min-height: 360px; }
-.ipfspage-viewer--bare {
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  min-height: 0;
-}
 .ipfspage-viewer--document { display: block; min-width: 0; }
 .ipfspage-media { max-width: 100%; }
 .ipfspage-embed { height: 75vh; }
@@ -1784,10 +1770,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Main Content */
 
 /* Search Section */
-.explorer-search-container:focus-within, .drivepage-search-box:focus-within {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
 
 /* Stats Bar */
 .explorer-stat-value {
@@ -1893,7 +1875,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-chart-card {
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  min-height: 220px;
 }
 .explorer-chart-container canvas { width: 100%; height: 120px; }
 .explorer-chart-donut-wrapper {
@@ -1962,11 +1943,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   cursor: not-allowed;
   background: var(--ios-gray-4);
 }
-.explorer-copy-notification {
-  right: 2rem;
-  box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
-  animation: slideInUp 0.3s ease;
-}
+.explorer-copy-notification { right: 2rem; animation: slideInUp 0.3s ease; }
 @keyframes slideInUp {
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
@@ -2650,9 +2627,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-bulk-toolbar { background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
 .drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
 .drivepage-bulk-action-btn { min-height: 34px; }
-.drivepage-bulk-action-btn:hover:not(:disabled) {
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
 .drivepage-bulk-action-btn.danger {
   color: var(--error-red);
   border-color: rgba(var(--ios-red-rgb), 0.2);
@@ -2783,7 +2757,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-left: 1px solid var(--border-color);
 }
 .drivepage-detail-preview-image, .drivepage-detail-preview-video { object-fit: contain; }
-.drivepage-detail-btn.primary { box-shadow: 0 4px 12px var(--primary-a30); }
 
 /* Toast */
 .drivepage-toast-enter-from, .drivepage-toast-leave-to { opacity: 0; transform: translate(-50%, 10px); }
@@ -2807,7 +2780,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Modal Styles */
 .drivepage-modal-content-drivepage-plans-modal { max-width: 860px; }
 .drivepage-modal-footer { padding: 1rem 1.5rem 1.5rem; }
-.drivepage-permalink-loading { min-height: 220px; }
 .drivepage-listing-loading { min-height: 280px; }
 .drivepage-drive-spinner {
   border-top-color: var(--accent-primary);

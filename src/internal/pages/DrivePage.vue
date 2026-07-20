@@ -148,7 +148,7 @@
 
       <!-- Search and Filter Bar -->
       <div class="drivepage-search-filter-bar flex-align-center-justify-space-between flex-wrap-wrap gap-100 margin-bottom-100">
-        <div class="drivepage-search-box flex-align-center gap-50 flex-1 border-radius-10px padding-50-75 bg-primary border-1 transition-all-02">
+        <div class="drivepage-search-box flex-align-center gap-50 flex-1 border-radius-10px padding-50-75 bg-primary border-1 transition-all-02 focus-within-border-accent focus-within-ring">
           <svg class="drivepage-search-icon color-text-tertiary flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
@@ -192,7 +192,7 @@
         </div>
         <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap margin-left-auto gap-50">
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled"
             type="button"
             :disabled="!selectedLocalCount"
             @click="clearLocalSelection"
@@ -201,7 +201,7 @@
           </button>
           <button
             v-if="canBulkConvertSelectedLocal"
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent"
+            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled"
             type="button"
             @click="convertSelectedLocalToHls"
           >
@@ -211,7 +211,7 @@
             </span>
           </button>
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -1193,7 +1193,7 @@
             </button>
           </div>
           <div class="drivepage-modal-body padding-150">
-            <div v-if="gatewayDetailsLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle">
+            <div v-if="gatewayDetailsLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle min-h-220px">
               <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
             </div>
 
@@ -1312,7 +1312,7 @@
           </div>
           <div class="drivepage-modal-body padding-150">
 
-            <div v-if="plansLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle">
+            <div v-if="plansLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle min-h-220px">
               <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
             </div>
 
