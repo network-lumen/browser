@@ -48,7 +48,8 @@ const DEFAULT_EXCLUDE = new Set([
   'block',
   'transaction',
   'tx',
-  'address'
+  'address',
+  'extension'
 ]);
 
 const DEFAULT_ORDER = [

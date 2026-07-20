@@ -1,9 +1,5 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
-    <div class="margin-bottom-200">
-      <h1 class="fs-28px txt-weight-light color-text-primary margin-0">Transaction Details</h1>
-    </div>
-
     <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100 min-h-300px">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading transaction data...</p>

@@ -64,6 +64,12 @@ function isLikelyDomainHost(host: string): boolean {
   return h.includes('.');
 }
 
+function shortenHash(hash: string): string {
+  const h = String(hash || '').trim();
+  if (h.length <= 14) return h;
+  return `${h.slice(0, 6)}...${h.slice(-6)}`;
+}
+
 function parseInternalKey(rawUrl: string): string {
   const s = String(rawUrl || '').trim();
   if (!s) return 'home';
@@ -126,6 +132,14 @@ export function getInternalTitle(rawUrl: string): string {
   if (key === 'extension') {
     const routeInfo = parseExtensionTabUrl(rawUrl);
     if (routeInfo?.name) return routeInfo.name;
+  }
+  if (key === 'block') {
+    const match = asString.match(/\/block\/(\d+)/i);
+    if (match) return `Block details ${match[1]}`;
+  }
+  if (key === 'transaction' || key === 'tx') {
+    const match = asString.match(/\/(?:transaction|tx)\/([A-F0-9]+)/i);
+    if (match) return `Tx ${shortenHash(match[1])}`;
   }
   const route = INTERNAL_ROUTES[key];
   if (route) return route.title;

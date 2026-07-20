@@ -238,7 +238,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* Table row hover effect */
 
 /* ========== INTERNAL SIDEBAR NAVIGATION (lsb-*) ========== */
-.lsb-item:hover, .button-icon:where(:hover, :focus-visible), .hover-fill-primary:hover,
+.lsb-item:hover:not(.active), .button-icon:where(:hover, :focus-visible), .hover-fill-primary:hover,
 .hover-fill-primary-enabled:hover:not(:disabled), .domainpage-names-nav-item:hover,
 .domainpage-names-nav-item.active {
   background: var(--hover-bg);
@@ -955,6 +955,7 @@ select.recurpay-input { background-image: none; }
 
 /* MyGatewaysPage.vue */
 .my-gateways-page { height: 100vh; }
+.mygw-content-area { padding-top: 2px; }
 .mygw-server-card { margin-bottom: 2.5rem; }
 .mygw-server-card.active {
   border-color: var(--ios-green);
@@ -1919,6 +1920,30 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-input-action-btn { right: 0.75rem; transform: translateY(-50%); }
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
 /* DrivePage.vue */
+/* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
+.details-grid { display: flex; flex-direction: column; }
+.details-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.details-row:last-child { border-bottom: none; }
+.details-label { color: var(--text-secondary); font-size: 0.875rem; }
+.details-value { color: var(--text-primary); font-size: 0.9375rem; font-weight: 500; }
+.details-value.ok { color: var(--ios-green); }
+.details-value.off { color: var(--ios-red); }
+.details-section { margin-top: 1.25rem; }
+.details-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.details-section-header h4 { margin: 0; font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); }
 .drivepage-hosting-row { transition: background 0.15s ease, border-color 0.15s ease; }
 .drivepage-hosting-row.active, .drivepage-hosting-row:hover {
   background: var(--primary-a08);

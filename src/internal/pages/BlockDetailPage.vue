@@ -1,9 +1,5 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
-    <div class="blockdetail-header bg-primary border-bottom-1 padding-200-200-150">
-      <h1 class="color-text-primary txt-weight-medium margin-0 blockdetail-header-h1 fs-175rem letter-spacing-n002">Block Details</h1>
-    </div>
-
     <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-100 padding-400-200">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading block data...</p>
