@@ -69,7 +69,7 @@
       <header class="walletpage-content-header flex-align-center-justify-space-between margin-bottom-150">
         <div>
           <h1 class="walletpage-content-header-h1 margin-0 txt-weight-light color-text-primary">{{ getViewTitle() }}</h1>
-          <p class="walletpage-content-header-p fs-14px color-text-secondary">{{ getViewDescription() }}</p>
+          <p class="walletpage-content-header-p fs-14px color-text-secondary margin-0 margin-top-25">{{ getViewDescription() }}</p>
         </div>
 
         <div v-if="currentView !== 'dex'" class="walletpage-header-actions flex gap-75">
@@ -111,25 +111,25 @@
 
         <!-- Quick Actions -->
         <div class="walletpage-quick-actions gap-100 grid">
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden" @click="sendTransaction">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" @click="sendTransaction">
             <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden" @click="openReceiveModal">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" @click="openReceiveModal">
             <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden" disabled>
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
             <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden" disabled>
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
             <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03">
               <CreditCard :size="20" />
             </div>
@@ -157,8 +157,8 @@
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Coins :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">Connect Your Wallet</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">Connect a wallet to view your assets across linked IBC chains.</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Connect Your Wallet</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Connect a wallet to view your assets across linked IBC chains.</p>
           <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white padding-62-100" @click="connectWallet">
             <Link :size="16" />
             <span>Connect Wallet</span>
@@ -168,15 +168,15 @@
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Coins :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">Loading assets…</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">Fetching balances on Lumen and linked IBC chains.</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Loading assets…</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Fetching balances on Lumen and linked IBC chains.</p>
         </div>
         <div v-else-if="assetsError && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <AlertCircle :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">Unable to load assets</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">{{ assetsError }}</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Unable to load assets</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">{{ assetsError }}</p>
         </div>
         <div v-else>
           <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
@@ -258,8 +258,8 @@
             <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
               <Coins :size="32" />
             </div>
-            <h3 class="walletpage-empty-state-h3 fs-16px">No assets yet</h3>
-            <p class="walletpage-empty-state-p fs-14px color-text-tertiary">No balances were found on Lumen or the linked IBC chains.</p>
+            <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No assets yet</h3>
+            <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">No balances were found on Lumen or the linked IBC chains.</p>
           </div>
         </div>
       </div>
@@ -408,24 +408,24 @@
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">No wallet connected</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">Connect a wallet to see your recent transactions.</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No wallet connected</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Connect a wallet to see your recent transactions.</p>
         </div>
 
         <div v-else-if="activitiesLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">Loading transactions…</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">Please wait while we fetch your recent activity from the indexer.</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Loading transactions…</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Please wait while we fetch your recent activity from the indexer.</p>
         </div>
 
         <div v-else-if="activitiesError" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary">
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">Unable to load transactions</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">{{ activitiesError }}</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Unable to load transactions</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">{{ activitiesError }}</p>
           <div class="walletpage-info-banner warning margin-top-100 max-w-500px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
             <span>
               💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
@@ -438,8 +438,8 @@
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <ArrowLeftRight :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">No recent transactions</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No recent transactions</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
           <div class="walletpage-info-banner warning margin-top-100 max-w-600px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
             <div class="margin-bottom-75">
               <strong>💡 Why can't I see my transactions?</strong>
@@ -607,8 +607,8 @@
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Users :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">No Contacts Yet</h3>
-          <p class="walletpage-empty-state-p fs-14px color-text-tertiary">Add addresses you frequently send to for quick access.</p>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No Contacts Yet</h3>
+          <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Add addresses you frequently send to for quick access.</p>
           <button class="walletpage-connect-btn flex-inline-align-center border-radius-full fs-085rem cursor-pointer gap-35 border-none color-white padding-62-100" @click="openAddContactModal">
             <Plus :size="16" />
             <span>Add First Contact</span>
@@ -619,7 +619,7 @@
           <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
             <Users :size="32" />
           </div>
-          <h3 class="walletpage-empty-state-h3 fs-16px">Loading contacts…</h3>
+          <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Loading contacts…</h3>
         </div>
 
         <div v-else class="walletpage-contacts-grid gap-100 margin-top-150 grid">
@@ -629,7 +629,7 @@
                 {{ contact.name.charAt(0).toUpperCase() }}
               </div>
               <div class="walletpage-contact-info flex-1 min-w-0">
-                <h4 class="walletpage-contact-info-h4 fs-16px txt-weight-light color-text-primary">{{ contact.name }}</h4>
+                <h4 class="walletpage-contact-info-h4 fs-16px txt-weight-light color-text-primary margin-0 margin-bottom-25">{{ contact.name }}</h4>
                 <p class="walletpage-contact-address color-text-tertiary fs-13px overflow-hidden txt-overflow-ellipsis nowrap mono" :title="contact.address">
                   {{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}
                 </p>
@@ -671,7 +671,7 @@
 
     <!-- Asset Transfer Modal -->
     <Transition name="fade">
-      <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000" @click="closeAssetTransferModal">
+      <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeAssetTransferModal">
         <div class="walletpage-modal-content send-modal asset-transfer-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -759,7 +759,7 @@
                   placeholder="0.000000"
                   @input="validateAssetTransferAmountInput"
                 />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none top-half">{{ assetTransferContext.displaySymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none top-half right-100">{{ assetTransferContext.displaySymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary margin-top-50 fs-13px">
                 Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
@@ -800,7 +800,7 @@
 
     <!-- Send Modal -->
     <Transition name="fade">
-      <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000" @click="closeSendModal">
+      <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeSendModal">
         <div class="walletpage-modal-content send-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -910,7 +910,7 @@
                     <Users :size="16" />
                   </button>
                 </div>
-                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full margin-top-50 bg-card border-1 overflow-hidden z-100">
+                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full margin-top-50 bg-card border-1 overflow-hidden z-100 left-0 right-0">
                   <div class="walletpage-picker-header flex-align-center-justify-space-between txt-weight-light color-text-primary padding-75-100 bg-secondary border-bottom-1 fs-14px">
                     <span>Select Contact</span>
                     <button class="walletpage-picker-close hover-fill-primary flex-align-center color-text-tertiary cursor-pointer padding-25 border-none bg-transparent border-radius-4px transition-all-02" @click="showContactPicker = false">
@@ -946,7 +946,7 @@
                   placeholder="0.000000"
                   @input="validateAmountInput"
                 />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none top-half">{{ sendAssetSymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute fs-14px cursor-events-none top-half right-100">{{ sendAssetSymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary margin-top-50 fs-13px" v-if="sendAvailableLabel">
                 Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
@@ -995,7 +995,7 @@
 
     <!-- Receive Modal -->
     <Transition name="fade">
-      <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000" @click="closeReceiveModal">
+      <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeReceiveModal">
         <div class="walletpage-modal-content receive-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -1042,7 +1042,7 @@
 
     <!-- Add/Edit Contact Modal -->
     <Transition name="fade">
-      <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000" @click="closeContactModal">
+      <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeContactModal">
         <div class="walletpage-modal-content walletpage-contact-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -1117,8 +1117,8 @@
 
     <!-- Delete Confirmation Modal -->
     <Transition name="fade">
-      <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000" @click="cancelDeleteContact">
-        <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
+      <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="cancelDeleteContact">
+        <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh max-w-420px" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon delete flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">

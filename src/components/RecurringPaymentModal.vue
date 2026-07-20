@@ -1,5 +1,5 @@
 <template>
-  <div class="recurpay-overlay overlay-scrim z-9999 backdrop-blur-4px padding-125" @click="$emit('close')">
+  <div class="recurpay-overlay overlay-scrim z-9999 backdrop-blur-4px padding-125 bg-black-a75" @click="$emit('close')">
     <div class="recurpay-modal bg-primary w-full flex flex-column overflow-hidden border-radius-16px shadow-modal max-w-600px max-h-90vh" @click.stop>
       <div class="recurpay-header flex-align-center-justify-space-between padding-150 border-bottom-1">
         <h2 class="flex-align-center margin-0 color-text-primary fs-20px txt-weight-light recurpay-header-h2 gap-75">
@@ -14,7 +14,7 @@
       <div class="recurpay-body flex-1 overflow-y-auto padding-150">
         <!-- Basic Information -->
         <div class="recurpay-section margin-bottom-200">
-          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50">Payment Details</h3>
+          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">Payment Details</h3>
 
           <div class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Payment Name <span class="required color-error">*</span></label>
@@ -52,7 +52,7 @@
 
         <!-- Payment Configuration -->
         <div class="recurpay-section margin-bottom-200">
-          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50">Payment Configuration</h3>
+          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">Payment Configuration</h3>
 
           <div class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Recipient Address <span class="required color-error">*</span></label>
@@ -85,7 +85,7 @@
                   placeholder="0.000000"
                   class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit"
                 />
-                <span class="currency absolute top-half fs-14px txt-weight-light color-text-secondary cursor-events-none">LMN</span>
+                <span class="currency absolute top-half fs-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>
             </div>
 
@@ -139,7 +139,7 @@
 
         <!-- Reminder Settings -->
         <div class="recurpay-section margin-bottom-200">
-          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50">
+          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">
             <Bell :size="18" />
             <span>Payment Reminders</span>
           </h3>
@@ -168,7 +168,7 @@
 
         <!-- Payment Summary -->
         <div class="recurpay-summary border-radius-12px padding-125 color-white">
-          <h4 class="margin-0 fs-16px txt-weight-light recurpay-summary-h4">Payment Summary</h4>
+          <h4 class="margin-0 fs-16px txt-weight-light recurpay-summary-h4 margin-bottom-100">Payment Summary</h4>
           <div class="recurpay-summary-row flex-align-center-justify-space-between">
             <span>Amount per payment:</span>
             <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>

@@ -102,7 +102,7 @@
               <div class="txdetail-item-type color-text-primary txt-weight-light fs-14px">{{ event.type }}</div>
               <div class="txdetail-event-attributes flex flex-column gap-50 margin-top-75">
                 <div class="flex gap-50 fs-12px" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
-                  <span class="txdetail-attr-key color-text-secondary txt-weight-light">{{ attr.key }}:</span>
+                  <span class="txdetail-attr-key color-text-secondary txt-weight-light min-w-120px">{{ attr.key }}:</span>
                   <span class="color-text-primary break-all">{{ attr.value }}</span>
                 </div>
               </div>

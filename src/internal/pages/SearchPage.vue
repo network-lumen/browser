@@ -7,7 +7,7 @@
   >
           <button
         type="button"
-        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2"
+        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2 transition-lift-015"
         title="How search works"
         aria-label="How search works"
         @click="openHowSearchWorks"
@@ -18,7 +18,7 @@
       <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md">
+        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
@@ -29,7 +29,7 @@
             @keydown.enter.prevent="submit"
           />
           <button
-            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer border-none bg-accent color-white fs-15px relative overflow-hidden padding-75-150"
+            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer border-none bg-accent color-white fs-15px relative overflow-hidden padding-75-150 transition-all-02"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -41,7 +41,7 @@
 
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62 margin-top-75">
         <button
-          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15"
+          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -77,7 +77,7 @@
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
-      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center">
+      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100">
         <button
           class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015"
           type="button"
@@ -105,8 +105,8 @@
           <Search :size="48" />
         </div>
         <div class="searchpage-empty-content">
-          <h3 class="searchpage-empty-title fs-125rem txt-weight-medium color-text-primary">No results found</h3>
-          <p class="searchpage-empty-subtitle fs-15px color-text-secondary line-height-15">
+          <h3 class="searchpage-empty-title fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-50">No results found</h3>
+          <p class="searchpage-empty-subtitle fs-15px color-text-secondary line-height-15 margin-0 margin-bottom-150">
             <template v-if="q.trim()">
               We couldn't find anything matching "<strong>{{ q }}</strong>"
             </template>
@@ -143,7 +143,7 @@
         >
           <button
             type="button"
-            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2"
+            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50"
             :class="{ 'searchpage-saved': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -169,7 +169,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35"
+                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -187,9 +187,9 @@
                   @load="onThumbLoad(r, $event)"
                   @error="onThumbError(r)"
                 />
-                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute padding-50-62">
+                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute padding-50-62 left-0 right-0 bottom-0">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62"
+                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62 backdrop-blur-8 cursor-events-auto"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
@@ -249,7 +249,7 @@
             type="button" 
             @click="openResult(r)"
           >
-            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px" :class="`searchpage-icon-${r.kind}`">
+            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :class="`searchpage-icon-${r.kind}`">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -259,7 +259,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35"
+                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 w-200 backdrop-blur-8"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -312,7 +312,7 @@
               <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500 fs-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap margin-0 padding-50-62"
+                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap margin-0 padding-50-62 bg-primary-a06"
                 :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -340,7 +340,7 @@
                 >
               </div>
             </div>
-            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto margin-top-25" />
+            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto margin-top-25 transition-all-03" />
           </button>
         </li>
       </ul>
@@ -363,7 +363,7 @@
     <Transition name="searchpage-modal">
       <div
         v-if="showHowSearchWorks"
-        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35 z-100"
+        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35 z-100 backdrop-blur-4"
         role="dialog"
         aria-modal="true"
         aria-label="How search works"
@@ -399,7 +399,7 @@
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62 padding-75-87">
+                <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62 padding-75-87 bg-ios-indigo-a08">
                   <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto opacity-85" />
                   <div class="searchpage-help-callout-text color-text-secondary line-height-145 fs-14px">
                     Local-only content on your machine stays private and won’t appear in network

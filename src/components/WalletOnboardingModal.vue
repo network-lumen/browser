@@ -20,7 +20,7 @@
 
         <div class="walletonboard-body flex-1 overflow-y-auto padding-200">
           <div v-if="step === 'intro'" class="walletonboard-step">
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px">
+            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="txt-sm txt-weight-strong margin-0">Important: No one can recover your wallet</p>
@@ -76,13 +76,13 @@
               />
             </div>
 
-            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px">
+            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ passwordError }}
             </div>
           </div>
 
           <div v-else-if="step === 'profile-name'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -103,13 +103,13 @@
               />
             </div>
 
-            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px">
+            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ profileNameError }}
             </div>
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -145,7 +145,7 @@
           </div>
 
           <div v-else-if="step === 'backup'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm margin-0">Password set successfully!</p>
             </div>
@@ -154,7 +154,7 @@
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px">
+            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="txt-xs margin-0">
@@ -164,11 +164,11 @@
               </div>
             </div>
 
-            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px">
+            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ backupError }}
             </div>
 
-            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success margin-top-50 color-text-primary padding-75 bg-fill-success border-radius-6px">
+            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success margin-top-50 color-text-primary padding-75 bg-fill-success border-radius-6px border-1-ios-green-a30">
               {{ backupSuccess }}
             </div>
           </div>

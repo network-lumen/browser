@@ -11,7 +11,7 @@
         <p class="color-text-secondary txt-xs margin-0">Current version: {{ currentVersion || 'n/a' }}</p>
       </header>
 
-      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline margin-top-25 padding-0 fs-085rem" type="button" @click="notesOpen = true">
+      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline margin-top-25 padding-0 fs-085rem color-text-link" type="button" @click="notesOpen = true">
         Change notes
       </button>
 
@@ -56,7 +56,7 @@
 
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-10000" @click.self="notesOpen = false">
+      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-10000 backdrop-blur-4" @click.self="notesOpen = false">
         <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden">
           <div class="release-prompt-notes-head flex-align-center-justify-space-between gap-100 padding-75-87">
             <h3 class="release-prompt-notes-title color-text-primary margin-0 fs-16px">Change notes</h3>

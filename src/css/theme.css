@@ -400,8 +400,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .lumen-sidebar {
   min-width: 240px;
   max-width: 240px;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
   border-right: 0.5px solid var(--border-color);
 }
@@ -440,7 +438,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* FindBar.vue */
 .findbar {
   top: 10px;
-  right: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 .findbar-input { width: 220px; }
@@ -452,66 +449,35 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .findbar-count--muted { opacity: 0.55; }
 
 /* QrScanner.vue */
-.qr-scanner-wrapper, .drivepage-modal-overlay {
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-.qr-scanner-overlay { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
 .qr-close-btn, .searchpage-image-card-btn { background: none; }
 .qr-close-btn:hover, .subview-close-btn:hover { background: var(--fill-tertiary); color: var(--text-primary); }
 .qr-camera-container {
-  background: #000;
   aspect-ratio: 1;
   max-height: 400px;
 }
-.qr-camera-canvas { left: 0; }
 .qr-scan-frame {
-  left: 50%;
   transform: translate(-50%, -50%);
   width: 250px;
   height: 250px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 .qr-corner { border: 3px solid var(--accent-primary); }
 .qr-corner-top-left {
-  top: -3px;
-  left: -3px;
-  border-right: none;
-  border-bottom: none;
   border-top-left-radius: 12px;
 }
 .qr-corner-top-right {
-  top: -3px;
-  right: -3px;
-  border-left: none;
-  border-bottom: none;
   border-top-right-radius: 12px;
 }
 .qr-corner-bottom-left {
-  bottom: -3px;
-  left: -3px;
-  border-right: none;
-  border-top: none;
   border-bottom-left-radius: 12px;
 }
 .qr-corner-bottom-right {
-  bottom: -3px;
-  right: -3px;
-  border-left: none;
-  border-top: none;
   border-bottom-right-radius: 12px;
 }
 .qr-scan-instruction {
-  bottom: 20px;
-  left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
 }
 .qr-error-state, .qr-success-state, .subview-empty-state.small { padding: 40px 20px; }
-.qr-error-state-h4, .qr-success-state-h4, .subview-empty-state-h3 { margin: 0 0 8px 0; }
-.qr-error-state-p, .subview-empty-state-p { margin: 0 0 24px 0; }
 .qr-retry-btn:hover, .qr-btn-primary:hover, .recurpay-btn.primary:hover:not(:disabled),
 .subview-btn.primary:hover, .walletpage-asset-icon.lmn, .walletpage-connect-btn {
   background: var(--accent-secondary);
@@ -531,11 +497,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* PasswordPromptModal.vue */
-.pwd-modal {
-  padding: 1.75rem;
-  max-width: 360px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
 .pwd-modal-input { transition: border-color 0.15s ease; box-sizing: border-box; }
 .pwd-modal-input:focus, .drivepage-per-page-select:hover, .drivepage-bulk-checkbox input:hover + span,
 .drivepage-plans-filter-select:hover {
@@ -561,7 +522,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   bottom: 24px;
   right: 24px;
 }
-.release-prompt-notes-link { color: var(--text-link); text-underline-offset: 2px; }
+.release-prompt-notes-link { text-underline-offset: 2px; }
 .meta {
   list-style: none;
   padding: 0;
@@ -576,7 +537,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   }
 }
 .release-prompt-notes-overlay, .searchpage-modal-overlay {
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 .release-prompt-notes-modal { width: min(720px, 92vw); max-height: min(70vh, 600px); }
@@ -585,14 +545,11 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* UiToast.vue */
 .toast-container {
-  bottom: 20px;
   right: 20px;
   z-index: 99999;
   max-width: 380px;
 }
 .toast {
-  pointer-events: auto;
-  min-width: 280px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -610,7 +567,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .toast-info .toast-icon, .searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
 .toast-title { line-height: 1.3; }
 .toast-message { user-select: text; }
-.toast-action { width: 20px; margin: -2px -4px -2px 0; }
+.toast-action { margin: -2px -4px -2px 0; }
 .toast-action:hover, .recurpay-close-btn:hover, .subview-reminder-dismiss:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
@@ -633,9 +590,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: var(--fill-success);
 }
 .badge-error, .searchpage-type-pdf { background: var(--fill-error); }
-.badge-warning, .subview-reminders-section, .subview-reminder-icon, .drivepage-warning-icon {
-  background: rgba(var(--ios-orange-rgb), 0.15);
-}
 
 /* Card Styles */
 
@@ -715,7 +669,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* TransactionDetailPage.vue messages/events */
 .txdetail-item-data-pre { overflow-x: auto; word-wrap: break-word; }
-.txdetail-attr-key, .explorer-filter-select { min-width: 120px; }
 
 /* BlockDetailPage.vue */
 .blockdetail-header, .walletonboard-header { padding: 2rem 2rem 1.5rem; }
@@ -741,8 +694,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   box-shadow: 0 2px 8px var(--primary-a15);
   transform: translateY(-1px);
 }
-.blockdetail-tx-icon, .searchpage-result-icon { background: var(--gradient-secondary); }
-.blockdetail-tx-status-success, .navbar-profile-menu-message, .ipfspage-modal-close { padding: 0.25rem 0.5rem; }
+.blockdetail-tx-status-success, .navbar-profile-menu-message, .ipfspage-modal-close, .explorer-refresh-indicator { padding: 0.25rem 0.5rem; }
 
 /* AddressDetailPage.vue */
 .addrdetail-status-badge, .explorer-height-number, .explorer-blocks-view .explorer-proposer-name,
@@ -763,11 +715,9 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   width: 100vw;
   height: 100vh;
 }
-.webpage-store-proxy-btn { align-self: center; }
 
 /* ExtensionPopupHost.vue */
 .extension-popup-shell {
-  right: 12px;
   width: min(420px, calc(100vw - 24px));
   height: min(760px, calc(100vh - 24px));
   max-height: calc(100vh - 24px);
@@ -786,17 +736,11 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .extension-popup-close:hover { background: rgba(15, 23, 42, 0.92); }
 
 /* NetworkParamsPanel.vue */
-.netparams-header-p { margin: 0.35rem 0 0; }
-.netparams-endpoint-pill, .walletpage-delete-confirm-modal { max-width: 420px; }
 .netparams-btn:hover:enabled, .netparams-icon-btn:hover:enabled, .relpage-btn-secondary:hover:enabled,
 .drivepage-hosting-details:hover {
   background: var(--primary-a08);
   border-color: var(--primary-a15);
   color: var(--accent-primary);
-}
-.netparams-fatal-error, .gwpage-inline-error {
-  border: 1px solid rgba(var(--ios-red-rgb), 0.25);
-  background: rgba(var(--ios-red-rgb), 0.08);
 }
 .netparams-status-badge { padding: 0.15rem 0.5rem; }
 .netparams-status-badge.ok, .relpage-chip.success {
@@ -818,8 +762,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .netparams-json-block { max-height: 420px; }
 .spinning { animation: spin 1s linear infinite; }
 .netparams-toast, .drivepage-toast {
-  bottom: 2rem;
-  left: 50%;
   transform: translateX(-50%);
 }
 .netparams-toast-enter-active, .netparams-toast-leave-active, .gwpage-toast-transition-enter-active,
@@ -833,30 +775,23 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* HistoryPage.vue */
-.history-header, .history-toolbar, .history-empty-card, .history-group { border-radius: 24px; }
 .history-header { padding: 1.2rem 1.25rem; }
 .history-copy-h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
 .history-copy p, .helppage-hero-subtitle, .searchpage-help-p { margin: 0.5rem 0 0; }
-.history-mode-btn, .history-clear-btn, .history-open-btn {
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-}
 .history-mode-btn:hover, .history-clear-btn:hover:not(:disabled), .history-open-btn:hover, .newtab-btn:hover,
 .newtab-omnibox-submit:hover, .newtab-shortcut-action:hover, .newtab-quick-link:hover {
   transform: translateY(-1px);
 }
-.history-banner { border: 1px solid rgba(var(--ios-orange-rgb), 0.16); background: rgba(var(--ios-orange-rgb), 0.08); }
+.history-banner { border: 1px solid rgba(var(--ios-orange-rgb), 0.16); }
 .history-group-head { padding: 0 0.1rem 0.7rem; }
 .history-group-head-span { min-width: 1.7rem; height: 1.7rem; }
 .history-item { padding: 0.8rem 0.15rem; border-top: 1px solid var(--separator); }
 .history-list .history-item:first-child { border-top: none; }
 .history-item-main, .walletpage-dex-summary-btn { color: inherit; }
 .history-item-avatar { width: 2.7rem; height: 2.7rem; }
-.history-item-remove, .newtab-shortcut-action, .newtab-shortcut-modal-close { width: 2rem; }
 .history-item-remove:hover, .subview-action-btn.delete:hover { background: var(--fill-error); color: var(--ios-red); }
 .history-empty-card { width: min(560px, 100%); }
 .history-empty-icon {
-  width: 3.25rem;
-  height: 3.25rem;
   margin: 0 auto 0.9rem;
 }
 .history-empty-card-p { margin: 0.7rem auto 0; max-width: 34rem; }
@@ -874,8 +809,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .transition-bounce { transition: var(--transition-bounce); }
 
 /* RecurringPaymentModal.vue */
-.recurpay-overlay, .subview-modal-overlay { background: rgba(0, 0, 0, 0.75); }
-.recurpay-section-h3, .recurpay-summary-h4, .subview-reminders-section-h3 { margin: 0 0 16px 0; }
 .recurpay-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 textarea.recurpay-input { resize: vertical; min-height: 60px; }
 .recurpay-input[type="date"], .recurpay-input[type="number"], select.recurpay-input { color-scheme: light dark; }
@@ -889,7 +822,7 @@ select.recurpay-input { background-image: none; }
 .recurpay-row, .walletonboard-info-cards, .relpage-detail-grid, .explorer-proposer-stat-group {
   grid-template-columns: 1fr 1fr;
 }
-.currency, .sitemodal-input-suffix { right: 12px; transform: translateY(-50%); }
+.currency, .sitemodal-input-suffix, .walletpage-input-suffix { transform: translateY(-50%); }
 .recurpay-amount-input .recurpay-input { padding-right: 50px; }
 .recurpay-checkbox-label input[type="checkbox"] {
   width: 18px;
@@ -921,10 +854,8 @@ select.recurpay-input { background-image: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 .walletonboard-warning-box {
-  background: rgba(var(--ios-orange-rgb), 0.15);
   border: 1px solid rgba(var(--ios-orange-rgb), 0.3);
 }
-.walletonboard-success-box, .walletonboard-success-message { border: 1px solid rgba(var(--ios-green-rgb), 0.3); }
 .walletonboard-success-box-large, .mygw-empty-state.small, .settingspage-empty-gateway-ids { padding: 2rem 1rem; }
 .walletonboard-info-card:hover {
   border-color: var(--accent-primary);
@@ -934,7 +865,6 @@ select.recurpay-input { background-image: none; }
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1);
 }
-.walletonboard-error-message { border: 1px solid rgba(var(--ios-red-rgb), 0.3); }
 .walletonboard-footer { padding: 1.5rem 2rem; }
 .walletonboard-btn-primary:hover:not(:disabled) { background: var(--gradient-primary-hover); }
 .walletonboard-transition-enter-active, .walletonboard-transition-leave-active { transition: opacity 0.3s ease; }
@@ -961,7 +891,6 @@ select.recurpay-input { background-image: none; }
 .extensions-store-header { padding: 20px 24px 16px; border-bottom: 1px solid rgba(148, 163, 184, 0.16); }
 .extensions-store-copy-h1 { color: #f8fafc; }
 .extensions-store-copy-p {
-  margin: 6px 0 0;
   max-width: 760px;
   color: rgba(226, 232, 240, 0.78);
 }
@@ -1000,8 +929,6 @@ select.recurpay-input { background-image: none; }
 
 /* SitePage.vue */
 .sitepage-domain-empty-card { max-width: 24rem; padding: 2.5rem 2.25rem; }
-.sitepage-domain-empty-icon { width: 3.25rem; height: 3.25rem; }
-.sitepage-domain-empty-card-p { margin: 0 0 0.75rem; }
 .sitepage-inline-link {
   display: inline;
   font: inherit;
@@ -1010,10 +937,8 @@ select.recurpay-input { background-image: none; }
 .sitepage-inline-link:hover, .gwpage-manage-link:hover { opacity: 0.8; }
 .sitepage-hls-error, .ipfspage-hls-error {
   left: 1rem;
-  right: 1rem;
   bottom: 1rem;
   border: 1px solid rgba(var(--ios-red-rgb), 0.35);
-  background: rgba(var(--ios-red-rgb), 0.12);
   backdrop-filter: blur(6px);
 }
 
@@ -1076,7 +1001,6 @@ select.recurpay-input { background-image: none; }
 .homepage-toggle-pages { margin: 0.5rem 0; }
 .homepage-no-profile-banner {
   border: 0.5px solid rgba(var(--ios-yellow-rgb), 0.4);
-  background: rgba(var(--ios-yellow-rgb), 0.08);
 }
 .homepage-no-profile-sub, .searchpage-site-domain { opacity: 0.9; }
 .homepage-action-card:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -1091,7 +1015,7 @@ select.recurpay-input { background-image: none; }
   border-color: var(--accent-primary);
   background: var(--primary-a08);
 }
-.homepage-action-card { backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); }
+.homepage-action-card { -webkit-backdrop-filter: var(--backdrop-blur); }
 .homepage-action-card:hover .homepage-remove-card-btn, .drivepage-list-item:hover .drivepage-list-actions,
 .drivepage-list-item.selected .drivepage-list-actions, .drivepage-list-item.checked .drivepage-list-actions {
   opacity: 1;
@@ -1243,11 +1167,7 @@ select.recurpay-input { background-image: none; }
 /* HelpPage.vue */
 .helppage-docs-grid { grid-template-columns: 1fr; }
 .helppage-doc-frame { min-height: 520px; }
-.helppage-discover-ico { border: 1px solid rgba(var(--ios-blue-rgb), 0.18); }
-.helppage-discover-card-p, .gwpage-content-header-p, .domainpage-content-header-p,
-.walletpage-content-header-p {
-  margin: 0.25rem 0 0;
-}
+.helppage-discover-ico, .ipfspage-pin-progress-card { border: 1px solid rgba(var(--ios-blue-rgb), 0.18); }
 .helppage-discover-card code {
   font-family: var(--font-mono);
   font-size: 0.85em;
@@ -1257,14 +1177,6 @@ select.recurpay-input { background-image: none; }
   border: 1px solid var(--border-color);
 }
 .helppage-discover-note { border: 1px solid rgba(var(--ios-blue-rgb), 0.14); }
-.helppage-content-header-p, .daopage-content-header-p, .settingspage-content-header-p,
-.drivepage-content-header-p {
-  margin: 0.25rem 0 0 0;
-}
-.helppage-step-content-h4, .helppage-contact-info-h4, .helppage-feature-content-h4,
-.explorer-transactions-header-h2, .walletpage-contact-info-h4 {
-  margin: 0 0 0.25rem 0;
-}
 @media (max-width: 700px) {
   .help-page, .gateways-page, .dao-page, .settingspage-settings-page, .settingspage-data-folder-input-row {
     flex-direction: column;
@@ -1322,7 +1234,6 @@ select.recurpay-input { background-image: none; }
   font-size: 0.85rem;
   flex-shrink: 0;
 }
-.helppage-tutorial-step-p { margin: 0 0 0.75rem 0; }
 .helppage-contact-grid { grid-template-columns: repeat(1, 1fr); }
 .helppage-contact-icon.github, .settingspage-status-disabled, .searchpage-icon-link, .searchpage-type-txt,
 .searchpage-type-link {
@@ -1348,10 +1259,8 @@ select.recurpay-input { background-image: none; }
 }
 .gwpage-form-label, .relpage-filter-label, .relpage-test-label { letter-spacing: 0.06em; }
 .gwpage-form-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px var(--primary-a15); }
-.gwpage-status-dot { background: var(--text-tertiary); }
 .gwpage-inline-success {
   border: 1px solid rgba(var(--ios-green-rgb), 0.25);
-  background: rgba(var(--ios-green-rgb), 0.08);
 }
 .gwpage-modal-header, .searchpage-modal-header { padding: 1.25rem 1.25rem 0.75rem; }
 .gwpage-modal-title, .domainpage-hero-title, .domainpage-modal-header h3, .searchpage-modal-title {
@@ -1361,8 +1270,6 @@ select.recurpay-input { background-image: none; }
 .gwpage-modal-actions, .walletpage-dex-details { padding: 1rem 1.25rem 1.25rem; }
 .gwpage-icon-btn, .searchpage-icon-btn, .sitemodal-icon { height: 34px; }
 .gwpage-toast {
-  bottom: 2rem;
-  left: 50%;
   transform: translateX(-50%);
   z-index: 110;
 }
@@ -1383,9 +1290,6 @@ select.recurpay-input { background-image: none; }
 @media (max-width: 700px) {
 
 }
-.gwpage-manage-link, .settingspage-about-link, .explorer-height-link, .settingspage-info-box-a {
-  text-decoration: none;
-}
 .gwpage-private-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .gwpage-private-gateway-card:hover {
   border-color: var(--ios-blue);
@@ -1402,17 +1306,14 @@ select.recurpay-input { background-image: none; }
   width: 28rem;
   height: 28rem;
   filter: blur(36px);
-  opacity: 0.55;
 }
 .newtab-glow--left {
   top: -14rem;
   left: -10rem;
-  background: rgba(var(--ios-blue-rgb), 0.18);
 }
 .newtab-glow--right {
   top: 2rem;
   right: -12rem;
-  background: rgba(var(--ios-indigo-rgb), 0.12);
 }
 .newtab-shell { width: min(1040px, 100%); }
 .newtab-hero, .newtab-shortcuts-panel, .newtab-onboarding-modal, .newtab-shortcut-modal {
@@ -1465,7 +1366,6 @@ select.recurpay-input { background-image: none; }
 }
 .newtab-hero-hint {
   margin: 1rem auto 0;
-  background: rgba(var(--ios-orange-rgb), 0.08);
   border: 1px solid rgba(var(--ios-orange-rgb), 0.14);
 }
 .newtab-shortcuts-head h2, .newtab-shortcut-modal-head h2, .newtab-shortcuts-empty h3 {
@@ -1503,7 +1403,7 @@ select.recurpay-input { background-image: none; }
   white-space: nowrap;
 }
 .newtab-onboarding-overlay, .newtab-shortcut-modal-overlay { background: rgba(2, 6, 23, 0.56); z-index: 20; }
-.newtab-onboarding-modal, .newtab-shortcut-modal { width: min(34rem, 100%); border-radius: 24px; }
+.newtab-onboarding-modal, .newtab-shortcut-modal { width: min(34rem, 100%); }
 .newtab-shortcut-modal { width: min(32rem, 100%); }
 .newtab-shortcut-field input:focus { border-color: var(--primary-a50); box-shadow: 0 0 0 4px var(--primary-a12); }
 @media (max-width: 1040px) {
@@ -1572,7 +1472,6 @@ select.recurpay-input { background-image: none; }
 }
 .daopage-proposal-status.deposit { background: rgba(var(--ios-yellow-rgb), 0.15); color: var(--ios-orange); }
 .daopage-proposal-status.unknown { background: var(--bg-secondary); color: var(--text-secondary); }
-.daopage-info-card-h3, .settingspage-about-card-h2 { margin: 0 0 0.5rem 0; }
 .daopage-member-rank, .explorer-proposer-avatar { min-width: 24px; }
 .daopage-member-avatar { min-width: 40px; }
 .daopage-member-avatar.has-image { background: transparent; }
@@ -1646,7 +1545,6 @@ select.recurpay-input { background-image: none; }
 .sitemodal-body { padding: 14px 16px 6px; }
 .sitemodal-actions { padding: 12px 16px 16px; }
 .sitemodal-info-banner { border: var(--border-width) solid rgba(var(--ios-blue-rgb), 0.25); }
-.sitemodal-perm-v { max-width: 360px; }
 .sitemodal-records-toggle { padding: 2px 0; }
 .sitemodal-records-toggle svg { transition: transform 0.16s ease; }
 .sitemodal-records-toggle svg.open, .walletpage-dex-chevron.open { transform: rotate(180deg); }
@@ -1660,7 +1558,6 @@ select.recurpay-input { background-image: none; }
 }
 .sitemodal-pin-progress-card {
   border: var(--border-width) solid rgba(var(--ios-blue-rgb), 0.18);
-  background: rgba(var(--ios-blue-rgb), 0.06);
 }
 .sitemodal-pin-progress-fill, .ipfspage-pin-progress-fill { border-radius: inherit; transition: width 0.2s ease; }
 .sitemodal-pin-progress-fill.indeterminate {
@@ -1673,7 +1570,6 @@ select.recurpay-input { background-image: none; }
   color: var(--ios-red);
 }
 .sitemodal-spinner {
-  border: 2px solid rgba(255, 255, 255, 0.5);
   border-top-color: rgba(255, 255, 255, 1);
   animation: spin 0.8s linear infinite;
 }
@@ -1685,8 +1581,7 @@ select.recurpay-input { background-image: none; }
 
 /* MyGatewaysPage.vue */
 .my-gateways-page { height: 100vh; }
-.mygw-header-text-h1, .mygw-empty-state-h2, .walletpage-empty-state-h3, .searchpage-empty-title { margin: 0 0 0.5rem; }
-.mygw-server-card { padding: 1.75rem; margin-bottom: 2.5rem; }
+.mygw-server-card { margin-bottom: 2.5rem; }
 .mygw-server-card.active {
   border-color: var(--ios-green);
   background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
@@ -1696,8 +1591,7 @@ select.recurpay-input { background-image: none; }
   background: rgba(var(--ios-green-rgb), 0.15);
   color: var(--ios-green);
 }
-.mygw-server-info-h3 { margin: 0 0 0.25rem; }
-.mygw-status-dot { background: var(--text-tertiary); animation: mygw-pulse 2s ease-in-out infinite; }
+.mygw-status-dot { animation: mygw-pulse 2s ease-in-out infinite; }
 @keyframes mygw-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -1737,10 +1631,8 @@ select.recurpay-input { background-image: none; }
   cursor: not-allowed;
   transform: none !important;
 }
-.mygw-empty-state-p, .searchpage-empty-subtitle { margin: 0 0 1.5rem; }
 .mygw-spinner { border-top-color: var(--ios-blue); animation: spin 0.8s linear infinite; }
 .mygw-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
-.mygw-gateway-card { transition: all 0.25s ease; }
 .mygw-gateway-card:hover {
   border-color: var(--ios-blue);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -1756,10 +1648,8 @@ select.recurpay-input { background-image: none; }
   border: 1px solid rgba(var(--ios-red-rgb), 0.2);
 }
 .mygw-btn-danger:hover:not(:disabled) { background: rgba(var(--ios-red-rgb), 0.15); }
-.mygw-modal-overlay, .navbar-export-modal-overlay { backdrop-filter: blur(4px); }
 .mygw-modal-content.small, .searchpage-empty-content { max-width: 400px; }
 .mygw-modal-description {
-  background: rgba(var(--ios-blue-rgb), 0.1);
   border: 1px solid rgba(var(--ios-blue-rgb), 0.2);
 }
 .mygw-form-input:focus {
@@ -1799,7 +1689,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* ReleasePage.vue */
-.relpage-header-left-p { margin: 0.35rem 0 0 0; }
 .relpage-btn-primary, .relpage-btn-secondary {
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
@@ -1823,9 +1712,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
 }
-.relpage-detail-actions { margin: 0.5rem 0 1rem; }
 .relpage-modal-overlay {
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 2000;
 }
@@ -1865,7 +1752,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .domainpage-empty { padding: 2rem 1.5rem; }
 .domainpage-stable-link-label-input {
   width: min(260px, 100%);
-  min-width: 120px;
   padding: 0.25rem 0.35rem;
 }
 .domainpage-stable-link-label-input:hover, .domainpage-stable-link-label-input:focus {
@@ -1899,7 +1785,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .domainpage-modal-body { padding: 1.1rem 1.25rem 1.25rem; }
 .domainpage-domain-part { flex: 1.2; }
 .domainpage-ext-part { flex: 0.8; }
-.domainpage-price-box { margin: 0.5rem 0 1.1rem; }
 .domainpage-price-row { padding: 0.25rem 0; }
 .domainpage-price-row.total {
   border-top: 1px solid var(--border-color);
@@ -1913,7 +1798,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-fade-leave-active {
   transition: opacity 0.15s ease;
 }
-.domainpage-warning-box { border: 1px solid rgba(var(--ios-red-rgb), 0.3); margin: 1rem 0; }
+.domainpage-warning-box { margin: 1rem 0; }
 @media (max-width: 960px) {
   .domain-page { flex-direction: column; }
   .domainpage-main { padding: 1.5rem; }
@@ -1944,7 +1829,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* ===== EXTENSIONS ===== */
 .navbar-extensions-section { margin-left: -0.5rem; }
 .navbar-extensions-menu {
-  right: 0;
   top: calc(100% + 6px);
   width: 340px;
   max-width: min(92vw, 340px);
@@ -1977,7 +1861,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transition: transform 0.15s ease;
 }
 .navbar-extension-toggle input:checked + .navbar-extension-toggle-slider::after { transform: translateX(14px); }
-.navbar-extension-toggle input:disabled + .navbar-extension-toggle-slider { opacity: 0.5; }
+.navbar-extension-toggle input:disabled + .navbar-extension-toggle-slider, .searchpage-result-open { opacity: 0.5; }
 .navbar-extensions-menu-hint { padding: 0.875rem 0.5rem; }
 .navbar-extensions-menu-message { padding: 0 0.125rem; }
 
@@ -1989,7 +1873,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* ===== PROFILE MENU ===== */
 .navbar-profile-menu {
-  right: 0;
   top: calc(100% + 6px);
   min-width: 260px;
   max-width: 300px;
@@ -2016,7 +1899,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* ===== EXPORT MODAL ===== */
 .navbar-export-modal {
-  box-shadow: var(--shadow-2xl);
   min-width: 360px;
   max-width: 90vw;
 }
@@ -2026,7 +1908,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   accent-color: var(--accent-primary);
 }
 .navbar-export-field-label { letter-spacing: 0.03em; }
-.navbar-export-error { border: 0.5px solid rgba(var(--ios-red-rgb), 0.25); color: var(--error-red); }
+.navbar-export-error { border: 0.5px solid rgba(var(--ios-red-rgb), 0.25); }
 .navbar-export-btn.cancel {
   background: var(--bg-secondary);
   border: 0.5px solid var(--border-color);
@@ -2048,7 +1930,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--text-primary);
   box-shadow: 0 0 0 1px var(--primary-a20) inset;
 }
-.navbar-import-source-btn { min-width: 180px; }
 .navbar-import-textarea { resize: vertical; min-height: 84px; }
 
 /* SettingsPage.vue */
@@ -2071,7 +1952,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .settingspage-profile-row { transition: background var(--transition-fast); }
 .settingspage-profile-row.active { background: rgba(var(--ios-blue-rgb), 0.12); }
 .settingspage-profile-badge {
-  background: rgba(var(--ios-blue-rgb), 0.18);
   border: 1px solid rgba(var(--ios-blue-rgb), 0.25);
 }
 .settingspage-input-control { width: 150px; }
@@ -2143,8 +2023,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* About Card */
 .settingspage-about-card { padding: 3rem; border: 1px solid var(--border-color, transparent); }
-.settingspage-version { margin: 0 0 1rem 0; }
-.settingspage-description { margin: 0 0 1.5rem 0; }
 
 /* Responsive */
 @media (max-width: 700px) {
@@ -2162,9 +2040,8 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-color: var(--ios-green);
   background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
 }
-.settingspage-count-badge { min-width: 22px; background: rgba(var(--ios-blue-rgb), 0.15); }
+.settingspage-count-badge { min-width: 22px; }
 .settingspage-gateway-id-item:hover { border-color: var(--ios-blue); }
-.settingspage-empty-gateway-ids-p { margin: 0.5rem 0 0.25rem; }
 .settingspage-icon-btn-small:hover { background: rgba(var(--ios-red-rgb), 0.15); color: var(--ios-red); }
 .settingspage-info-box {
   background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.08) 0%, rgba(var(--ios-blue-rgb), 0.02) 100%);
@@ -2183,10 +2060,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-btn-secondary:hover:not(:disabled) {
   background: var(--hover-bg, var(--bg-secondary));
   color: var(--text-primary);
-}
-.ipfspage-pin-progress-card {
-  border: 1px solid rgba(var(--ios-blue-rgb), 0.18);
-  background: rgba(var(--ios-blue-rgb), 0.08);
 }
 .ipfspage-pin-progress-fill.indeterminate {
   width: 42% !important;
@@ -2383,16 +2256,10 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Blocks View - Compact Layout */
 .explorer-blocks-header { padding: 1rem 1.5rem 0.75rem; }
-.explorer-blocks-header-h2 { margin: 0 0 0.125rem 0; }
 .explorer-height-filter-input, .explorer-hash-filter-input { min-width: 150px; }
 .explorer-filter-select:hover, .explorer-height-filter-input:hover, .explorer-hash-filter-input:hover,
 .walletpage-filter-select:hover, .walletpage-search-input:hover {
   border-color: var(--primary, var(--accent-primary));
-}
-.explorer-refresh-indicator {
-  padding: 0.25rem 0.5rem;
-  background: rgba(var(--ios-green-rgb), 0.1);
-  border: 1px solid rgba(var(--ios-green-rgb), 0.3);
 }
 .explorer-blocks-view .explorer-table-header {
   display: grid;
@@ -2449,7 +2316,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   margin: 0 auto 0.75rem;
 }
 .explorer-chart-donut-wrapper canvas { width: 100px !important; height: 100px !important; }
-.explorer-chart-center-label { left: 50%; transform: translate(-50%, -50%); }
+.explorer-chart-center-label { transform: translate(-50%, -50%); }
 .explorer-block-proposer-info { min-height: 160px; }
 .explorer-proposer-avatar { border: 2px solid var(--primary-a30); }
 .explorer-proposer-label { letter-spacing: 0.02em; }
@@ -2475,7 +2342,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   opacity: 0.7;
 }
 .explorer-activity-icon { background: var(--primary-a10); }
-.explorer-tx-type-mini { background: rgba(var(--ios-blue-rgb), 0.1); }
 
 /* Validators Table Styles */
 .explorer-table-header {
@@ -2501,7 +2367,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-cumulative-container { width: 50px; height: 50px; }
 .explorer-circular-progress { filter: none; }
 .explorer-action-btn {
-  background: var(--ios-blue);
   border-radius: var(--border-radius-xs);
   transition: all var(--transition-base);
   letter-spacing: -0.022em;
@@ -2522,7 +2387,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .explorer-copy-icon-btn:hover { background: var(--hover-bg); color: var(--accent-primary); }
 .explorer-copy-notification {
-  bottom: 2rem;
   right: 2rem;
   box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4);
   animation: slideInUp 0.3s ease;
@@ -2534,15 +2398,10 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Stake Modal Styles */
 .explorer-modal-overlay {
-  left: 0;
-  right: 0;
-  bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
 }
 .explorer-stake-modal {
   border-radius: var(--border-radius-2xl);
-  max-width: 420px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
   animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2556,7 +2415,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px var(--primary-a08);
 }
-.explorer-input-suffix { right: 1rem; }
 .explorer-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -2589,7 +2447,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--accent-primary);
 }
 .explorer-confirm-btn {
-  background: var(--ios-blue);
   font-size: var(--fs-base);
   letter-spacing: -0.022em;
   transition: all var(--transition-base);
@@ -2602,9 +2459,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Transaction Status Popup */
 .explorer-tx-status-popup {
-  left: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   z-index: 10001;
   min-width: 400px;
   max-width: 90vw;
@@ -2684,14 +2539,13 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   width: min(820px, 100%);
   padding: 0.85rem 1rem 0.85rem 1.25rem;
   border: 2px solid transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .searchpage-search-box:focus-within {
   border-color: var(--ios-blue);
   box-shadow: var(--shadow-focus);
   transform: translateY(-2px);
 }
-.searchpage-search-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+.searchpage-search-btn { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 .searchpage-search-btn::before {
   content: "";
   position: absolute;
@@ -2708,7 +2562,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-help-icon-btn {
   top: 0.75rem;
   right: 0.75rem;
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .searchpage-help-icon-btn:hover {
   background: var(--bg-secondary);
@@ -2725,7 +2578,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-help-h3 { font-weight: 850; }
 .searchpage-help-callout {
   border: 1px solid rgba(var(--ios-indigo-rgb), 0.18);
-  background: rgba(var(--ios-indigo-rgb), 0.08);
 }
 .searchpage-help-callout-icon { margin-top: 0.05rem; }
 .searchpage-help-list-li { margin: 0.45rem 0; }
@@ -2758,7 +2610,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   flex: 0 0 auto;
   margin-top: 0.05rem;
 }
-.searchpage-pill { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); }
+.searchpage-pill { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); }
 .searchpage-pill svg { flex-shrink: 0; transition: transform 0.2s ease; }
 .searchpage-pill:disabled {
   opacity: 0.4;
@@ -2792,7 +2644,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Load more */
 .searchpage-load-more-bar { padding: 1.25rem 0 0.5rem; }
-.searchpage-load-more-bar--top { padding: 0 0 1rem; }
 .searchpage-load-more-sentinel { height: 1px; }
 .searchpage-load-more-btn:hover:not(:disabled), .walletpage-btn-modal-secondary:hover,
 .drivepage-page-num:hover {
@@ -2902,24 +2753,17 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transition: filter 180ms ease, transform 180ms ease;
 }
 .searchpage-safe-thumb-overlay {
-  left: 0;
-  right: 0;
-  bottom: 0;
   background: linear-gradient( 180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.55) );
 }
 .searchpage-safe-thumb-reveal {
   color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  pointer-events: auto;
 }
 .searchpage-safe-thumb-reveal:hover { background: rgba(0, 0, 0, 0.45); }
 .searchpage-safe-thumb-hide {
   top: 0.4rem;
   right: 0.4rem;
   z-index: 3;
-  width: 2rem;
   color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
 }
 .searchpage-safe-thumb-hide:hover { background: rgba(0, 0, 0, 0.5); }
 .searchpage-safe-thumb-hide--compact {
@@ -2944,7 +2788,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-image-badge-more { padding: 0.25rem 0.4rem; cursor: help; }
 .searchpage-image-save-btn {
   top: 0.5rem;
-  right: 0.5rem;
   background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
   backdrop-filter: blur(6px);
 }
@@ -2973,8 +2816,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   -webkit-box-orient: vertical;
 }
 .searchpage-result-desc--placeholder { font-style: italic; opacity: 0.6; }
-.searchpage-result-desc--code { background: var(--primary-a06); border: 1px solid var(--primary-a12); }
-.searchpage-result-open { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0.5; }
+.searchpage-result-desc--code { border: 1px solid var(--primary-a12); }
 .searchpage-result-card:hover .searchpage-result-open {
   color: var(--accent-primary);
   transform: translate(4px, -4px) scale(1.1);
@@ -3059,7 +2901,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-quick-btn {
   padding: 1.5rem 1rem;
   backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .walletpage-quick-btn::before {
   content: '';
@@ -3093,7 +2934,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .walletpage-search-input { min-width: 200px; }
 .walletpage-empty-icon { margin: 0 auto 1rem; }
-.walletpage-empty-state-p { margin: 0 0 1rem; }
 .walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
 .walletpage-asset-icon-image { background: white; }
 .walletpage-spin-icon { animation: spin 0.9s linear infinite; }
@@ -3168,7 +3008,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-action-icon:hover { background: var(--hover-bg); transform: scale(1.05); }
 .walletpage-action-icon:disabled:hover { background: var(--card-bg); transform: none; }
 .walletpage-action-icon.walletpage-explorer-btn:hover { border-color: var(--ios-purple); color: var(--ios-purple); }
-.walletpage-modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+.walletpage-modal-overlay { background: rgba(15, 23, 42, 0.6); }
 .walletpage-modal-content { box-shadow: 0 20px 60px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(15, 23, 42, 0.05); }
 .walletpage-modal-header { padding: 1.5rem 1.5rem 1.25rem; }
 .walletpage-modal-close:hover {
@@ -3186,7 +3026,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-form-select { appearance: none; -webkit-appearance: none; }
 .walletpage-form-input:read-only { background: var(--bg-secondary); cursor: not-allowed; }
 .walletpage-amount-input .walletpage-form-input { padding-right: 4rem; }
-.walletpage-input-suffix { right: 1rem; transform: translateY(-50%); }
 .walletpage-summary-row.total {
   background: var(--bg-secondary);
   border-top: 2px solid var(--border-color);
@@ -3267,8 +3106,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-input-action-btn { right: 0.75rem; transform: translateY(-50%); }
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
 .walletpage-contact-picker {
-  left: 0;
-  right: 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 .walletpage-picker-list { max-height: 300px; }
@@ -3302,13 +3139,11 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   grid-column: 3;
   grid-row: 1;
   justify-self: end;
-  align-self: center;
   max-width: 7.5rem;
 }
 .drivepage-hosting-dot {
   grid-column: 1;
   grid-row: 1;
-  background: var(--ios-red);
   box-shadow: 0 0 0 rgba(var(--ios-red-rgb), 0);
 }
 .drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
@@ -3343,14 +3178,13 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Search & Filter Bar */
 .drivepage-search-box { max-width: 400px; min-width: 200px; }
-.drivepage-clear-search { width: 20px; }
 .drivepage-per-page-select:focus, .drivepage-plans-filter-select:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 2px var(--primary-a10);
 }
 .drivepage-bulk-toolbar { background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
 .drivepage-bulk-toolbar.active { border-color: var(--primary-a30); box-shadow: 0 0 0 3px var(--primary-a08); }
-.drivepage-bulk-action-btn { min-height: 34px; transition: all 0.18s ease; }
+.drivepage-bulk-action-btn { min-height: 34px; }
 .drivepage-bulk-action-btn:hover:not(:disabled) {
   border-color: var(--accent-primary);
   color: var(--accent-primary);
@@ -3376,7 +3210,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   width: 18px;
   height: 18px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  transition: all 0.18s ease;
 }
 .drivepage-bulk-checkbox input:checked + span {
   border-color: var(--accent-primary);
@@ -3395,7 +3228,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transform: rotate(45deg);
 }
 .drivepage-hls-queue-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
-.drivepage-hls-queue-clear-btn, .drivepage-hls-queue-action-btn { transition: all 0.18s ease; }
 .drivepage-hls-queue-item.status-converting { border-color: var(--primary-a25); background: var(--primary-a05); }
 .drivepage-hls-queue-item.status-done {
   border-color: rgba(var(--ios-green-rgb), 0.25);
@@ -3444,13 +3276,12 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Gateway plans modal */
 .drivepage-plans-search-group, .drivepage-plans-controls-row { flex-wrap: nowrap; }
 .drivepage-plans-search-input { padding: 0 0.75rem; min-width: 220px; }
-.drivepage-plans-filter-select { padding: 0 0.75rem; min-width: 180px; }
+.drivepage-plans-filter-select { padding: 0 0.75rem; }
 .drivepage-plans-filter-checkbox-input, .drivepage-drive-backup-toggle-input { accent-color: var(--accent-primary); }
 @media (max-width: 720px) {
   .drivepage-plans-controls-row, .drivepage-plans-search-group { flex-wrap: wrap; }
 }
 .drivepage-plans-empty { padding: 1rem 0.5rem 0.5rem; }
-.drivepage-plans-error { border: 1px solid rgba(var(--ios-red-rgb), 0.25); background: rgba(var(--ios-red-rgb), 0.06); }
 .drivepage-plans-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .drivepage-gateway-card { box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); }
 .drivepage-gateway-name { max-width: 260px; }
@@ -3480,7 +3311,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .drivepage-upload-dropdown {
   top: calc(100% + 0.5rem);
-  right: 0;
   min-width: 190px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
@@ -3492,7 +3322,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Folder breadcrumb */
 .drivepage-crumb { max-width: 220px; }
 .drivepage-progress-bar-fill { transition: width 0.2s ease; }
-.drivepage-action-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
 .drivepage-action-btn::after {
   content: "";
   position: absolute;
@@ -3516,7 +3345,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Detail Panel */
 .drivepage-detail-panel {
   width: 280px;
-  min-width: 280px;
   max-width: 280px;
   border-left: 1px solid var(--border-color);
 }
@@ -3553,7 +3381,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-list-header { position: sticky; }
 .drivepage-list-select-header, .drivepage-list-select-cell { width: 24px; min-width: 24px; }
 .drivepage-list-size-header, .drivepage-list-size { min-width: 80px; }
-.drivepage-list-date-header, .drivepage-list-date { width: 180px; min-width: 180px; }
+.drivepage-list-date-header, .drivepage-list-date { width: 180px; }
 .drivepage-list-actions-header { width: 160px; min-width: 160px; }
 .drivepage-list-item {
   transition: all 0.1s;
@@ -3601,11 +3429,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-modal-content.drivepage-plans-modal { max-width: 860px; }
 .drivepage-modal-footer { padding: 1rem 1.5rem 1.5rem; }
 .drivepage-btn-modal-primary {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-bottom: 1px solid var(--separator);
 }
-.drivepage-btn-modal-secondary { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-.drivepage-permalink-loading { min-height: 220px; vertical-align: middle; }
+.drivepage-permalink-loading { min-height: 220px; }
 .drivepage-listing-loading { min-height: 280px; }
 .drivepage-drive-spinner {
   border: 3px solid var(--fill-secondary);

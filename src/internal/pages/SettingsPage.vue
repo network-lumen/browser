@@ -110,7 +110,7 @@
       <header class="settingspage-content-header margin-bottom-200">
         <div>
           <h1 class="settingspage-content-header-h1 fs-175rem txt-weight-medium color-text-primary margin-0">{{ getViewTitle() }}</h1>
-          <p class="settingspage-content-header-p fs-14px color-text-secondary">{{ getViewDescription() }}</p>
+          <p class="settingspage-content-header-p fs-14px color-text-secondary margin-0 margin-top-25">{{ getViewDescription() }}</p>
         </div>
       </header>
 
@@ -381,7 +381,7 @@
                 <LockKeyhole :size="16" />
                 Lock Now
               </button>
-              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex padding-25-75">
+              <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex padding-25-75 bg-ios-orange-a15">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
@@ -621,7 +621,7 @@
               <div class="settingspage-profile-row-main flex flex-column gap-20 min-w-0">
                 <div class="settingspage-profile-row-title flex-align-center gap-50 min-w-0">
                   <span class="settingspage-profile-title txt-weight-light color-text-primary fs-14px overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px padding-0-50">Active</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px padding-0-50 bg-ios-blue-a18">Active</span>
                 </div>
                 <span class="settingspage-profile-id fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
               </div>
@@ -1062,7 +1062,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px h-22px padding-0-50">{{ gatewayIds.length }}</span>
+                <span class="settingspage-count-badge flex-inline-align-justify-center fs-075rem txt-weight-light color-ios-blue border-radius-10px h-22px padding-0-50 bg-ios-blue-a15">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc fs-085rem color-text-secondary margin-0 margin-bottom-100">Add gateway IDs to use for private content delivery</p>
 
@@ -1082,7 +1082,7 @@
                     <line x1="6" y1="6" x2="6.01" y2="6"></line>
                     <line x1="6" y1="18" x2="6.01" y2="18"></line>
                   </svg>
-                  <p class="settingspage-empty-gateway-ids-p fs-14px fw-500 color-text-secondary">No gateway IDs configured</p>
+                  <p class="settingspage-empty-gateway-ids-p fs-14px fw-500 color-text-secondary margin-0 margin-top-50 margin-bottom-25">No gateway IDs configured</p>
                   <span class="settingspage-empty-gateway-ids-span fs-085rem">Add your first gateway ID below</span>
                 </div>
 
@@ -1150,7 +1150,7 @@
               </svg>
               <div>
                 <strong class="settingspage-info-box-strong block fs-14px color-text-primary margin-bottom-25">Need to create a gateway?</strong>
-                <p class="settingspage-info-box-p fs-085rem color-text-secondary margin-0 line-height-15">Visit <a class="settingspage-info-box-a color-ios-blue fw-500" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
+                <p class="settingspage-info-box-p fs-085rem color-text-secondary margin-0 line-height-15">Visit <a class="settingspage-info-box-a color-ios-blue fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
               </div>
             </div>
           </template>
@@ -1165,25 +1165,25 @@
               <Hexagon :size="32" />
             </div>
           </div>
-          <h2 class="settingspage-about-card-h2 fs-15rem txt-weight-medium color-text-primary">Lumen Browser</h2>
-          <p class="settingspage-version fs-14px color-text-secondary">Version {{ appVersion }}</p>
-          <p class="settingspage-description fs-14px color-text-secondary">The Decentralized Internet Stack</p>
+          <h2 class="settingspage-about-card-h2 fs-15rem txt-weight-medium color-text-primary margin-0 margin-bottom-50">Lumen Browser</h2>
+          <p class="settingspage-version fs-14px color-text-secondary margin-0 margin-bottom-100">Version {{ appVersion }}</p>
+          <p class="settingspage-description fs-14px color-text-secondary margin-0 margin-bottom-150">The Decentralized Internet Stack</p>
           <div class="settingspage-about-links flex gap-100">
             <a
               href="https://lumen-browser.com/"
-              class="settingspage-about-link color-primary fw-500 fs-14px"
+              class="settingspage-about-link color-primary fw-500 fs-14px hover-underline"
               @click.prevent="openInNewTabSafe('https://lumen-browser.com/')"
               >Website</a
             >
             <a
               href="https://github.com/network-lumen"
-              class="settingspage-about-link color-primary fw-500 fs-14px"
+              class="settingspage-about-link color-primary fw-500 fs-14px hover-underline"
               @click.prevent="openInNewTabSafe('https://github.com/network-lumen')"
               >GitHub</a
             >
             <a
               href="lumen://help"
-              class="settingspage-about-link color-primary fw-500 fs-14px"
+              class="settingspage-about-link color-primary fw-500 fs-14px hover-underline"
               @click.prevent="openInNewTabSafe('lumen://help')"
               >Documentation</a
             >

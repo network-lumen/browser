@@ -171,7 +171,7 @@
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
-                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half">
+                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ bondedRatioLabel }}</div>
                     <div class="explorer-center-label color-text-tertiary fs-11px margin-top-25">Bonded</div>
                   </div>
@@ -202,7 +202,7 @@
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative">
                   <canvas ref="votingPowerChart" width="120" height="120"></canvas>
-                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half">
+                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ topValidatorsPower.length }}</div>
                     <div class="explorer-center-label color-text-tertiary fs-11px margin-top-25">Active</div>
                   </div>
@@ -303,7 +303,7 @@
                   <div class="explorer-activity-content flex-1 min-w-0">
                     <div class="explorer-activity-title txt-weight-light color-text-primary fs-14px margin-bottom-25">{{ shortenHash(tx.hash) }}</div>
                     <div class="explorer-activity-meta flex-align-center fs-075rem color-text-tertiary gap-50">
-                      <span class="explorer-tx-type-mini color-primary txt-weight-light text-uppercase border-radius-4px fs-10px padding-0-50">{{ tx.type }}</span>
+                      <span class="explorer-tx-type-mini color-primary txt-weight-light text-uppercase border-radius-4px fs-10px padding-0-50 bg-ios-blue-a1">{{ tx.type }}</span>
                     </div>
                   </div>
                   <div class="explorer-activity-side flex-align-end flex-column gap-25">
@@ -322,12 +322,12 @@
         <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card">
           <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between">
             <div class="explorer-header-content">
-              <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary">Blocks</h2>
+              <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Blocks</h2>
               <p class="explorer-blocks-subtitle fs-075rem color-text-tertiary margin-0">View all blocks on the lumen-mainnet</p>
             </div>
             <div class="explorer-header-actions flex flex-inline-align-center gap-75 flex-wrap-wrap">
               <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
-                <select v-model="blockFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02">
+                <select v-model="blockFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px">
                   <option value="all">All Blocks</option>
                   <option value="recent">Recent (Last 100)</option>
                   <option value="with-txs">With Transactions</option>
@@ -340,7 +340,7 @@
                   class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02"
                 />
               </div>
-              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success" :class="{ active: autoRefresh }">
+              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success bg-ios-green-a1 border-1-ios-green-a30" :class="{ active: autoRefresh }">
                 <span class="explorer-pulse-dot border-radius-circle w-8px h-8px"></span>
                 Live
               </span>
@@ -359,7 +359,7 @@
             <div class="explorer-table-body flex flex-column overflow-y-auto">
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
-                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02" @click="navigateToBlock(block.height)">
+                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -408,18 +408,18 @@
         <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card">
           <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100 border-bottom-1 flex-justify-space-between">
             <div class="explorer-header-content">
-              <h2 class="explorer-transactions-header-h2 fs-15rem txt-weight-medium color-text-primary">Transactions</h2>
+              <h2 class="explorer-transactions-header-h2 fs-15rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Transactions</h2>
               <p class="explorer-transactions-subtitle color-text-tertiary margin-0 fs-14px">Latest transactions on the lumen-mainnet</p>
             </div>
             <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
-              <select v-model="txTypeFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02">
+              <select v-model="txTypeFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
                 <option value="delegate">Delegate</option>
                 <option value="vote">Vote</option>
                 <option value="other">Other</option>
               </select>
-              <select v-model="txStatusFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02">
+              <select v-model="txStatusFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
@@ -570,7 +570,7 @@
                 </div>
                 <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center fs-13px fs-14px">
                   <button 
-                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px" 
+                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue" 
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
@@ -590,7 +590,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light fixed padding-75-125 color-white border-radius-8px fs-14px bg-ios-green z-9999">
+    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light fixed padding-75-125 color-white border-radius-8px fs-14px bg-ios-green z-9999 bottom-200">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -598,8 +598,8 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000" @click="closeStakeModal">
-      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct" @click.stop>
+    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4" @click="closeStakeModal">
+      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct max-w-420px" @click.stop>
         <div class="explorer-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
           <h3 class="explorer-modal-header-h3 fs-18px txt-weight-medium color-text-primary margin-0">Manage Stake with {{ selectedValidator?.moniker }}</h3>
           <button class="explorer-close-btn hover-fill-primary flex-align-justify-center size-32px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px fs-15rem transition-all-02" @click="closeStakeModal">×</button>
@@ -657,7 +657,7 @@
                   step="0.000001"
                   min="0"
                 />
-                <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute fs-14px">LMN</span>
+                <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute fs-14px right-100">LMN</span>
               </div>
               <div class="explorer-amount-slider flex flex-column gap-50">
                 <input 
@@ -702,7 +702,7 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200 fixed bg-primary border-radius-16px top-half" :class="txStatus">
+            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup padding-200 fixed bg-primary border-radius-16px top-half left-half shadow-modal-strong" :class="txStatus">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-150 text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-100 w-full">
@@ -753,7 +753,7 @@
             </div>
 
             <button 
-              class="explorer-confirm-btn disabled-fade-40 w-full border-radius-sm txt-weight-light cursor-pointer padding-87 border-none color-white"
+              class="explorer-confirm-btn disabled-fade-40 w-full border-radius-sm txt-weight-light cursor-pointer padding-87 border-none color-white bg-ios-blue"
               @click="() => confirmStakeAction()" 
               :disabled="!canConfirm || isProcessingTx"
             >

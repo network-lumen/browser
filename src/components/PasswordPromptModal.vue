@@ -6,7 +6,7 @@
         class="overlay-scrim backdrop-blur-4px z-10000"
         @click.self="handleCancel"
       >
-        <div class="modal-panel pwd-modal bg-card border-default w-full border-radius-16px">
+        <div class="modal-panel pwd-modal bg-card border-default w-full border-radius-16px padding-175 max-w-360px shadow-modal-strong">
           <div class="pwd-modal-header flex-align-center gap-75 margin-bottom-75">
             <LockKeyhole :size="24" class="color-primary" />
             <h3 class="color-text-primary margin-0 txt-weight-light pwd-modal-header-h3 fs-18px">Password Required</h3>

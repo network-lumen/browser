@@ -23,8 +23,8 @@
       <header class="gwpage-content-header flex-align-start flex-justify-space-between">
         <div>
           <h1 class="color-text-primary txt-weight-medium margin-0 gwpage-content-header-h1 fs-175rem">My gateways</h1>
-          <p class="color-text-secondary gwpage-content-header-p fs-14px">Register and update on-chain gateway settings.</p>
-          <p v-if="gatewayParams" class="gwpage-content-fees color-text-tertiary fs-12px margin-top-37 gwpage-content-header-p fs-14px">
+          <p class="color-text-secondary gwpage-content-header-p fs-14px margin-0 margin-top-25">Register and update on-chain gateway settings.</p>
+          <p v-if="gatewayParams" class="gwpage-content-fees color-text-tertiary fs-12px margin-top-37 gwpage-content-header-p fs-14px margin-0 margin-top-25">
             Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
           </p>
         </div>
@@ -54,14 +54,14 @@
         <div v-if="privateGateways.length > 0" class="gwpage-private-gateways-section">
           <div class="gwpage-section-header flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light margin-0 gwpage-section-header-h2 fs-125rem">Private Gateways</h2>
-            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="gwpage-manage-link color-ios-blue fs-14px transition-opacity-02">
+            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="gwpage-manage-link color-ios-blue fs-14px transition-opacity-02 hover-underline">
               Manage Private Gateways →
             </a>
           </div>
           <div class="gwpage-private-gateways-grid grid">
             <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card bg-card border-1 transition-all-02">
               <div class="gwpage-private-gateway-header flex-align-center margin-bottom-75">
-                <div class="gwpage-status-dot w-10px h-10px" :class="{ ok: gw.status === 'active' }"></div>
+                <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge fs-11px letter-spacing-005em padding-25-75">Private</span>
               </div>
               <h3 class="gwpage-private-gateway-name color-text-primary fs-16px margin-0 margin-bottom-50">{{ gw.name }}</h3>
@@ -110,7 +110,7 @@
             <section v-for="gw in myGateways" :key="gw.id" class="gwpage-manage-card bg-primary border-1 border-radius-16px">
               <header class="gwpage-manage-card-head flex-align-center-justify-space-between">
                 <div class="gwpage-manage-card-title flex-align-center gap-62 min-w-0">
-                  <div class="gwpage-status-dot w-10px h-10px" :class="{ ok: gw.active }"></div>
+                  <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.active }"></div>
                   <span class="gwpage-manage-card-name color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px" :title="gw.endpoint || `Gateway #${gw.id}`">
                     {{ gw.endpoint || `Gateway #${gw.id}` }}
                   </span>
@@ -162,10 +162,10 @@
                 </div>
               </div>
 
-              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error margin-top-75 padding-75">
+              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
                 {{ editMap[gw.id].error }}
               </div>
-              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono margin-top-75 padding-75">
+              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08">
                 tx: {{ editMap[gw.id].txhash }}
               </div>
 
@@ -239,10 +239,10 @@
                     <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="Optional memo" />
                   </div>
 
-                  <div v-if="registerState.error" class="gwpage-inline-error margin-top-75 padding-75">
+                  <div v-if="registerState.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
                     {{ registerState.error }}
                   </div>
-                  <div v-if="registerState.txhash" class="gwpage-inline-success mono margin-top-75 padding-75">
+                  <div v-if="registerState.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08">
                     tx: {{ registerState.txhash }}
                   </div>
                 </div>
@@ -266,7 +266,7 @@
           </Transition>
 
           <Transition name="gwpage-toast-transition">
-            <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md fixed padding-75-125 shadow-primary-lg bg-gradient-primary color-white" :class="toast.kind">
+            <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md fixed padding-75-125 shadow-primary-lg bg-gradient-primary color-white bottom-200 left-half" :class="toast.kind">
               {{ toast.message }}
             </div>
           </Transition>

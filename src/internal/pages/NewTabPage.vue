@@ -8,7 +8,7 @@
       aria-labelledby="lumen-onboarding-title"
       aria-describedby="lumen-onboarding-desc"
     >
-      <div class="newtab-onboarding-modal border-1-light padding-125" @click.stop>
+      <div class="newtab-onboarding-modal border-1-light padding-125 border-radius-24px" @click.stop>
         <div class="flex-align-start gap-100 margin-bottom-100">
           <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary" aria-hidden="true">
             <Hexagon :size="22" />
@@ -42,7 +42,7 @@
         aria-labelledby="shortcut-modal-title"
         @click.self="closeShortcutModal"
       >
-        <div class="newtab-shortcut-modal border-1-light padding-125">
+        <div class="newtab-shortcut-modal border-1-light padding-125 border-radius-24px">
           <div class="newtab-shortcut-modal-head flex-align-start flex-justify-space-between gap-100">
             <div>
               <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcut</div>
@@ -51,7 +51,7 @@
               </h2>
             </div>
             <button
-              class="newtab-shortcut-modal-close flex-inline-align-justify-center border-none cursor-pointer h-200 border-radius-full color-text-secondary bg-fill-tertiary"
+              class="newtab-shortcut-modal-close flex-inline-align-justify-center border-none cursor-pointer h-200 border-radius-full color-text-secondary bg-fill-tertiary w-200"
               type="button"
               aria-label="Close shortcut editor"
               @click="closeShortcutModal"
@@ -107,8 +107,8 @@
     </Teleport>
 
     <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
-      <div class="newtab-glow newtab-glow--left border-radius-full absolute"></div>
-      <div class="newtab-glow newtab-glow--right border-radius-full absolute"></div>
+      <div class="newtab-glow newtab-glow--left border-radius-full absolute opacity-55 bg-ios-blue-a18"></div>
+      <div class="newtab-glow newtab-glow--right border-radius-full absolute opacity-55 bg-ios-indigo-a12"></div>
     </div>
 
     <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative z-1">
@@ -150,7 +150,7 @@
           </button>
         </div>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760 bg-ios-orange-a08">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
@@ -198,7 +198,7 @@
 
             <div class="newtab-shortcut-card-actions flex flex-wrap-wrap gap-35">
               <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200"
                 type="button"
                 :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
                 @click.stop="togglePinned(entry.id, entry.pinned)"
@@ -206,7 +206,7 @@
                 <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
               </button>
               <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200"
                 type="button"
                 title="Edit shortcut"
                 @click.stop="beginEditShortcut(entry)"
@@ -214,7 +214,7 @@
                 <Pencil :size="14" />
               </button>
               <button
-                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary"
+                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200"
                 type="button"
                 title="Remove shortcut"
                 @click.stop="removeFavouriteById(entry.id)"

@@ -1,6 +1,6 @@
 <template>
-  <div class="qr-scanner-wrapper fixed top-0 z-10000">
-    <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125" @click="$emit('close')">
+  <div class="qr-scanner-wrapper fixed top-0 z-10000 left-0 right-0 bottom-0">
+    <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125 bg-black-a75 backdrop-blur-4" @click="$emit('close')">
       <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
         <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
           <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>
@@ -11,23 +11,23 @@
 
         <div class="qr-scanner-content padding-150">
           <!-- Camera View -->
-          <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden">
+          <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden bg-black">
             <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
-            <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0"></canvas>
-            <div class="qr-scan-frame border-radius-12px absolute top-half">
-              <div class="qr-corner qr-corner-top-left absolute w-30px h-30px"></div>
-              <div class="qr-corner qr-corner-top-right absolute w-30px h-30px"></div>
-              <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px"></div>
-              <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px"></div>
+            <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0 left-0"></canvas>
+            <div class="qr-scan-frame border-radius-12px absolute top-half left-half border-2-white-a50">
+              <div class="qr-corner qr-corner-top-left absolute w-30px h-30px border-right-none border-bottom-none top-n3px left-n3px"></div>
+              <div class="qr-corner qr-corner-top-right absolute w-30px h-30px border-left-none border-bottom-none top-n3px right-n3px"></div>
+              <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px"></div>
+              <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px border-left-none border-top-none bottom-n3px right-n3px"></div>
             </div>
-            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute padding-50-100">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute padding-50-100 bottom-20px left-half backdrop-blur-8">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
           <div v-if="error" class="qr-error-state text-center">
             <AlertCircle :size="48" class="qr-error-icon color-error margin-bottom-100" />
-            <h4 class="color-text-primary qr-error-state-h4 fs-20px txt-weight-light">{{ error }}</h4>
-            <p v-if="error.includes('permission')" class="color-text-secondary fs-14px qr-error-state-p">
+            <h4 class="color-text-primary qr-error-state-h4 fs-20px txt-weight-light margin-0 margin-bottom-50">{{ error }}</h4>
+            <p v-if="error.includes('permission')" class="color-text-secondary fs-14px qr-error-state-p margin-0 margin-bottom-150">
               Please allow camera access in your browser settings
             </p>
             <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500 gap-50 bg-accent border-radius-8px padding-62-125 transition-bg-02" @click="initializeScanner">
@@ -39,7 +39,7 @@
           <!-- Success State -->
           <div v-if="scannedData" class="qr-success-state text-center">
             <CheckCircle :size="48" class="qr-success-icon color-success margin-bottom-100" />
-            <h4 class="color-text-primary qr-success-state-h4 fs-20px txt-weight-light">QR Code Scanned</h4>
+            <h4 class="color-text-primary qr-success-state-h4 fs-20px txt-weight-light margin-0 margin-bottom-50">QR Code Scanned</h4>
 
             <div class="qr-scanned-data text-left bg-secondary border-radius-8px padding-100">
               <div class="qr-data-type">

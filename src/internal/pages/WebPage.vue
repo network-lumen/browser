@@ -7,7 +7,7 @@
           Lumen fetches Chrome Web Store metadata directly and imports extensions
           from the internal Extensions page.
         </p>
-        <button type="button" class="webpage-store-proxy-btn border-none color-white cursor-pointer border-radius-full txt-weight-light bg-accent padding-75-100" @click="openChromeWebStoreImport">
+        <button type="button" class="webpage-store-proxy-btn border-none color-white cursor-pointer border-radius-full txt-weight-light bg-accent padding-75-100 align-self-center" @click="openChromeWebStoreImport">
           Open Extensions
         </button>
       </div>

@@ -16,10 +16,10 @@
       <header class="relpage-content-header flex-align-start flex-justify-space-between gap-100 flex-wrap-wrap margin-bottom-100">
         <div class="relpage-header-left">
           <h1 class="margin-0 txt-weight-strong color-text-primary relpage-header-left-h1 fs-175rem">Releases</h1>
-          <p class="relpage-header-left-p color-text-secondary fs-14px" v-if="allowed">Publisher access enabled for the active profile.</p>
-          <p class="relpage-header-left-p color-text-secondary fs-14px" v-else-if="loading">Checking publisher permissions…</p>
-          <p class="relpage-header-left-p color-text-secondary fs-14px" v-else>Publisher access required.</p>
-          <p v-if="pendingTtlSeconds" class="relpage-header-meta color-text-tertiary fs-13px relpage-header-left-p color-text-secondary fs-14px">
+          <p class="relpage-header-left-p color-text-secondary fs-14px margin-0 margin-top-37" v-if="allowed">Publisher access enabled for the active profile.</p>
+          <p class="relpage-header-left-p color-text-secondary fs-14px margin-0 margin-top-37" v-else-if="loading">Checking publisher permissions…</p>
+          <p class="relpage-header-left-p color-text-secondary fs-14px margin-0 margin-top-37" v-else>Publisher access required.</p>
+          <p v-if="pendingTtlSeconds" class="relpage-header-meta color-text-tertiary fs-13px relpage-header-left-p color-text-secondary fs-14px margin-0 margin-top-37">
             Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
           </p>
         </div>
@@ -118,7 +118,7 @@
             <span class="relpage-muted color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
           </div>
 
-          <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75">
+          <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75 margin-0 margin-top-50 margin-bottom-100">
             <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </button>
@@ -190,7 +190,7 @@
       </section>
     </main>
 
-    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35" @click.self="closeDaoModal">
+    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4" @click.self="closeDaoModal">
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Send to DAO</h2>
@@ -238,7 +238,7 @@
       </div>
     </div>
 
-    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35" @click.self="closePublishModal">
+    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4" @click.self="closePublishModal">
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Publish release</h2>

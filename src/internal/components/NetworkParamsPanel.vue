@@ -3,11 +3,11 @@
     <header class="netparams-header flex margin-bottom-125 flex-wrap-wrap gap-100 flex-align-start flex-justify-space-between">
       <div>
         <h1 class="color-text-primary txt-weight-strong margin-0 netparams-header-h1 fs-15rem">Params</h1>
-        <p class="color-text-secondary netparams-header-p fs-14px">Live view of the blockchain parameters (fetched from the REST API).</p>
+        <p class="color-text-secondary netparams-header-p fs-14px margin-0 margin-top-37">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
       <div class="netparams-header-actions flex flex-wrap-wrap gap-75 flex-inline-align-center">
-        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary gap-50 border-radius-full padding-50-75 border-1" :title="restBase">
+        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary gap-50 border-radius-full padding-50-75 border-1 max-w-420px" :title="restBase">
           <span class="netparams-pill-label color-text-tertiary txt-weight-strong text-uppercase fs-12px letter-spacing-005em">REST</span>
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap fs-12px">{{ restBase }}</span>
         </div>
@@ -24,7 +24,7 @@
       </div>
     </header>
 
-    <div v-if="fatalError" class="netparams-fatal-error color-text-primary padding-125 border-radius-16px">
+    <div v-if="fatalError" class="netparams-fatal-error color-text-primary padding-125 border-radius-16px border-1-ios-red-a25 bg-ios-red-a08">
       <p class="netparams-fatal-title margin-0 txt-weight-strong">Unable to fetch params</p>
       <p class="netparams-fatal-desc color-text-secondary fs-14px margin-0 margin-top-37">{{ fatalError }}</p>
     </div>
@@ -76,7 +76,7 @@
   </section>
 
   <Transition name="netparams-toast">
-    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light fixed padding-75-125 shadow-primary-lg z-100">
+    <div v-if="toast" class="netparams-toast flex-align-center bg-gradient-primary color-white gap-50 border-radius-10px fs-085rem txt-weight-light fixed padding-75-125 shadow-primary-lg z-100 bottom-200 left-half">
       <Check :size="16" />
       {{ toast }}
     </div>

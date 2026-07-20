@@ -15,14 +15,14 @@
     <main class="mygw-main flex-1 flex flex-column overflow-hidden bg-secondary padding-200-250">
       <header class="mygw-content-header margin-bottom-200">
         <div class="mygw-header-text">
-          <h1 class="txt-weight-medium color-text-primary mygw-header-text-h1 fs-32px">My Private Gateways</h1>
+          <h1 class="txt-weight-medium color-text-primary mygw-header-text-h1 fs-32px margin-0 margin-bottom-50">My Private Gateways</h1>
           <p class="color-text-secondary margin-0 mygw-header-text-p fs-15px">Manage your private IPFS gateways for secure content delivery</p>
         </div>
       </header>
 
       <div class="mygw-content-area flex-1 overflow-y-auto">
         <!-- Embedded Server Card -->
-        <div class="mygw-server-card bg-card border-2 border-radius-16px transition-all-03" :class="{ active: embeddedServerRunning }">
+        <div class="mygw-server-card bg-card border-2 border-radius-16px transition-all-03 padding-175" :class="{ active: embeddedServerRunning }">
           <div class="mygw-server-card-header flex-align-center gap-125 margin-bottom-150">
             <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03">
               <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -39,12 +39,12 @@
               </svg>
             </div>
             <div class="mygw-server-info flex-1">
-              <h3 class="fs-11rem txt-weight-light color-text-primary mygw-server-info-h3">Embedded Gateway Server</h3>
+              <h3 class="fs-11rem txt-weight-light color-text-primary mygw-server-info-h3 margin-0 margin-bottom-25">Embedded Gateway Server</h3>
               <p v-if="embeddedServerRunning" class="mygw-server-url margin-0 fs-14px color-ios-blue mono">{{ embeddedServerUrl }}</p>
               <p v-else class="mygw-server-status-text color-text-secondary margin-0 fs-14px">Start your personal gateway server</p>
             </div>
             <div class="mygw-server-status-badge flex-align-center gap-50 fw-500 color-text-secondary border-radius-20px padding-50-100 bg-fill-tertiary fs-14px transition-all-03" :class="{ running: embeddedServerRunning }">
-              <span class="mygw-status-dot border-radius-circle w-8px h-8px"></span>
+              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
           </div>
@@ -91,11 +91,11 @@
 
           <div v-if="whitelistLoading" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-400-200">
             <div class="mygw-spinner border-radius-full size-40px border-3"></div>
-            <p class="mygw-empty-state-p fs-14px color-text-secondary">Loading whitelist...</p>
+            <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Loading whitelist...</p>
           </div>
 
           <div v-else-if="whitelist.length === 0" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-400-200">
-            <p class="mygw-empty-state-p fs-14px color-text-secondary">No users in whitelist yet. Add wallet addresses to grant access.</p>
+            <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">No users in whitelist yet. Add wallet addresses to grant access.</p>
           </div>
 
           <div v-else class="mygw-whitelist-table overflow-hidden bg-card border-radius-14px border-15">
@@ -146,20 +146,20 @@
 
         <div v-if="loading" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
           <div class="mygw-spinner border-radius-full size-40px border-3"></div>
-          <p class="mygw-empty-state-p fs-14px color-text-secondary">Loading gateways...</p>
+          <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Loading gateways...</p>
         </div>
 
         <div v-else-if="error" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
           <AlertCircle :size="48" class="color-error margin-bottom-100" />
-          <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem">Error Loading Gateways</h2>
-          <p class="mygw-empty-state-p fs-14px color-text-secondary">{{ error }}</p>
+          <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">Error Loading Gateways</h2>
+          <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">{{ error }}</p>
           <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="loadGateways">Try Again</button>
         </div>
 
         <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
           <Server :size="48" class="color-text-tertiary margin-bottom-100" />
-          <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem">No Gateways Yet</h2>
-          <p class="mygw-empty-state-p fs-14px color-text-secondary">Create your first private gateway to get started</p>
+          <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">No Gateways Yet</h2>
+          <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Create your first private gateway to get started</p>
           <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02" @click="openCreateModal">
             <Plus :size="18" />
             Create Gateway
@@ -167,10 +167,10 @@
         </div>
 
         <div v-else class="mygw-gateways-grid gap-125 grid">
-          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150 bg-card border-radius-14px border-15">
+          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150 bg-card border-radius-14px border-15 transition-all-02">
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between margin-bottom-100">
               <div class="mygw-gateway-title flex-align-center gap-50">
-                <div class="mygw-status-dot border-radius-circle w-8px h-8px" :class="{ active: gateway.status === 'active' }"></div>
+                <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary" :class="{ active: gateway.status === 'active' }"></div>
                 <h3 class="fs-11rem txt-weight-light color-text-primary margin-0">{{ gateway.name }}</h3>
               </div>
               <span class="mygw-gateway-badge fw-500 border-radius-12px text-capitalize fs-075rem padding-25-75" :class="`badge-${gateway.status}`">
@@ -209,7 +209,7 @@
 
       <!-- Create/Edit Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showModal" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeModal">
+        <div v-if="showModal" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeModal">
           <div class="mygw-modal-content bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">{{ editingGateway ? 'Edit External Gateway' : 'Add External Gateway' }}</h2>
@@ -217,7 +217,7 @@
             </div>
 
             <div class="mygw-modal-body flex-1 overflow-y-auto padding-150">
-              <p class="mygw-modal-description color-text-secondary margin-bottom-150 border-radius-8px padding-75-100 fs-14px line-height-15">
+              <p class="mygw-modal-description color-text-secondary margin-bottom-150 border-radius-8px padding-75-100 fs-14px line-height-15 bg-ios-blue-a1">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
@@ -271,7 +271,7 @@
 
       <!-- Delete Confirmation Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeDeleteConfirm">
+        <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeDeleteConfirm">
           <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">Delete Gateway</h2>
@@ -297,7 +297,7 @@
 
       <!-- Whitelist Add/Edit Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showWhitelistModal" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeWhitelistModal">
+        <div v-if="showWhitelistModal" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeWhitelistModal">
           <div class="mygw-modal-content bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
@@ -355,7 +355,7 @@
 
       <!-- Whitelist Remove Confirmation Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay" @click="closeWhitelistDeleteConfirm">
+        <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeWhitelistDeleteConfirm">
           <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">Remove User</h2>
