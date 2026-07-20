@@ -153,7 +153,7 @@
           No extensions installed yet.
         </div>
 
-        <div class="navbar-extensions-menu-actions flex flex-column gap-50 margin-top-62 padding-top-50">
+        <div class="navbar-extensions-menu-actions flex flex-column gap-50 margin-top-62 padding-top-50 border-top-05-border-light">
           <UiButton
             variant="none"
             class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015"
@@ -228,7 +228,7 @@
             : 'No profiles yet.' }}
         </div>
 
-        <div class="navbar-profile-menu-actions flex flex-column gap-2px margin-top-50 padding-top-50">
+        <div class="navbar-profile-menu-actions flex flex-column gap-2px margin-top-50 padding-top-50 border-top-05-border-light">
           <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click.stop="onCreateProfileClick">
             New profile…
           </UiButton>
@@ -239,10 +239,10 @@
             Import profile…
           </UiButton>
 
-          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37 padding-top-50 gap-35">
+          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37 padding-top-50 gap-35 border-top-05-border-light">
             <input v-model="newProfileName" type="text" class="navbar-profile-create-input w-full border-radius-sm color-text-primary fs-13px fw-500 padding-50-62 border-default bg-fill-primary focus-outline-none focus-border-accent" placeholder="Profile name" />
             <div class="navbar-profile-create-actions flex gap-35">
-              <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 primary w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click="confirmCreateProfile">
+              <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 primary w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015 color-white" @click="confirmCreateProfile">
                 Create
               </UiButton>
               <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click="cancelCreateProfile">

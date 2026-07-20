@@ -10,7 +10,7 @@
     >
       <div class="newtab-onboarding-modal border-1-light padding-125 border-radius-24px" @click.stop>
         <div class="flex-align-start gap-100 margin-bottom-100">
-          <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary" aria-hidden="true">
+          <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-brand-logo-radius" aria-hidden="true">
             <Hexagon :size="22" />
           </div>
           <div class="newtab-onboarding-text">
@@ -112,13 +112,13 @@
     </div>
 
     <div class="newtab-shell flex flex-column margin-0-auto gap-100 relative z-1 w-min-1040px-full">
-      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 padding-125">
+      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 padding-125 border-radius-28px">
         <div class="newtab-hero-copy text-center margin-0-auto max-w-4000">
           <h1 class="color-text-primary margin-0 newtab-hero-copy-h1">Search Lumen</h1>
           <p class="color-text-secondary newtab-hero-copy-p fs-16px line-height-155 margin-0 margin-x-auto margin-top-85">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light w-min-760 padding-75-87" @submit.prevent="submitOmnibox">
+        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light w-min-760 padding-75-87 border-color-primary-a50-focus-within" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -156,7 +156,7 @@
         </div>
       </section>
 
-      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 padding-125">
+      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 padding-125 border-radius-28px">
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-100">
           <div>
             <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcuts</div>
@@ -239,7 +239,7 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="newtab-shortcuts-panel newtab-history-preview-panel padding-top-100 padding-bottom-100 border-1-light relative overflow-hidden flex-shrink-0 padding-125"
+        class="newtab-shortcuts-panel newtab-history-preview-panel padding-top-100 padding-bottom-100 border-1-light relative overflow-hidden flex-shrink-0 padding-125 border-radius-28px"
       >
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-100">
           <div>

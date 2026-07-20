@@ -34,7 +34,7 @@
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Hash:</span>
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-75">
               <code class="flex-1 blockdetail-hash-value-code padding-50-75 border-1 border-radius-6px fs-13px mono break-all">{{ block.hash }}</code>
-              <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25" @click="copyToClipboard(block.hash)" title="Copy hash">
+              <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25 hover-border-accent hover-color-accent" @click="copyToClipboard(block.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -108,7 +108,7 @@
               <div class="flex-1 min-w-0">
                 <div class="blockdetail-tx-hash flex-align-center gap-50 margin-bottom-50">
                   <code class="flex-1 border-radius-sm blockdetail-tx-hash-code padding-50-62 bg-card border-default fs-075rem mono break-all">{{ tx.hash }}</code>
-                  <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25" @click.stop="copyToClipboard(tx.hash)">
+                  <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25 hover-border-accent hover-color-accent" @click.stop="copyToClipboard(tx.hash)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>

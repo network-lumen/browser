@@ -26,7 +26,7 @@
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Transaction Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Transaction Hash:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ transaction.hash }}</code>
@@ -38,7 +38,7 @@
               </button>
             </div>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Status:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">
               <span :class="['chaindetail-status-badge', transaction.success ? 'badge-success' : 'badge-error']">
@@ -46,25 +46,25 @@
               </span>
             </span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Block Height:</span>
             <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary fs-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Time:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ transaction.time }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Gas Used:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ formatNumber(transaction.gasUsed) }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Gas Wanted:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ formatNumber(transaction.gasWanted) }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0">
+          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Fee:</span>
             <span class="chaindetail-value color-text-primary fs-14px break-all">{{ transaction.fee }}</span>
           </div>

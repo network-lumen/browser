@@ -36,7 +36,7 @@
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between margin-top-25">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase fs-11px letter-spacing-005em">Subscriptions</span>
           <button
-            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08 border-1-primary-a15 color-accent-secondary transition-colors-015 padding-25-75 hover-color-accent"
+            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08 border-1-primary-a15 color-accent-secondary transition-colors-015 padding-25-75 hover-color-accent border-color-primary-a25-hover"
             type="button"
             @click="openPlansModal"
           >
@@ -211,7 +211,7 @@
             </span>
           </button>
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px color-error-red color-error-red-hover-not-disabled"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -528,14 +528,14 @@
           <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <button
               v-if="!isBrowsing && isDirEntry(file)"
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
               title="Details"
               @click.stop="openEntryDetails(file)"
             >
               <TableProperties :size="14" />
             </button>
             <button
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
               title="Download"
               @click.stop="downloadFile(file)"
             >
@@ -543,7 +543,7 @@
             </button>
             <button
               v-if="!isDirEntry(file) && isVideoFile(file.name)"
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
               title="Convert to HLS"
               :disabled="converting || uploading"
               @click.stop="convertToHls(file)"
@@ -551,14 +551,14 @@
               <Clapperboard :size="14" />
             </button>
             <button
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
+              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
               title="Share"
               @click.stop="copyLumenLinkFor(file)"
             >
               <Share2 :size="14" />
             </button>
             <button
-              class="drivepage-action-btn danger flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105"
+              class="drivepage-action-btn danger flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
               title="Remove"
               @click.stop="removeFile(file)"
             >
@@ -658,7 +658,7 @@
     </main>
 
     <!-- File Detail Panel -->
-    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column padding-150 margin-0 bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px w-280px max-w-280px">
+    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column padding-150 margin-0 bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px w-280px max-w-280px border-left-1-border-color">
       <div class="drivepage-detail-header flex-align-center-justify-space-between margin-bottom-125">
         <h3 class="txt-sm txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}

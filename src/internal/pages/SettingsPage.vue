@@ -194,7 +194,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
                 <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="showSexualContent" />
-                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
           </div>
@@ -206,7 +206,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
                 <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="showViolentContent" />
-                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
           </div>
@@ -218,7 +218,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
                 <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="showDisturbingImagery" />
-                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
           </div>
@@ -244,7 +244,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
                 <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" :checked="historyEnabled" @change="onHistoryToggleChange" />
-                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
           </div>
@@ -1020,7 +1020,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <label class="settingspage-toggle size-48px relative inline-block">
                 <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="privateCloudEnabled" />
-                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
           </div>
@@ -1039,7 +1039,7 @@
                 <div class="settingspage-setting-control flex-align-center">
                   <label class="settingspage-toggle size-48px relative inline-block">
                     <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="preferPrivateGateways" />
-                    <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                    <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
                   </label>
                 </div>
               </div>
@@ -1052,7 +1052,7 @@
                 <div class="settingspage-setting-control flex-align-center">
                   <label class="settingspage-toggle size-48px relative inline-block">
                     <input class="settingspage-toggle-input opacity-0 w-0" type="checkbox" v-model="fallbackToDAO" />
-                    <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02"></span>
+                    <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
                   </label>
                 </div>
               </div>
@@ -1159,7 +1159,7 @@
 
       <!-- About View -->
       <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
-        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card padding-300">
+        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card padding-300 border-1-border-color">
           <div class="settingspage-about-logo margin-bottom-150">
             <div class="flex-align-justify-center size-64px border-radius-xl bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />

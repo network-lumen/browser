@@ -124,7 +124,7 @@
                       <button class="mygw-btn-icon flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px border-1 border-radius-8px transition-all-02 hover-bg-hover hover-color-text-primary hover-border-ios-blue" @click="editWhitelistEntry(entry)" title="Edit display name">
                         <Edit2 :size="14" />
                       </button>
-                      <button class="mygw-btn-icon danger flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px border-1 border-radius-8px transition-all-02 hover-bg-hover hover-color-text-primary hover-border-ios-blue" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
+                      <button class="mygw-btn-icon danger flex-align-justify-center bg-transparent cursor-pointer color-text-secondary size-32px border-1 border-radius-8px transition-all-02 hover-bg-hover hover-color-text-primary hover-border-ios-blue border-color-ios-red-hover hover-color-error" @click="confirmRemoveFromWhitelist(entry)" title="Remove">
                         <Trash2 :size="14" />
                       </button>
                     </div>
