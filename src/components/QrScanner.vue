@@ -4,7 +4,7 @@
       <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
         <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
           <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>
-          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02 hover-bg-fill-tertiary hover-color-text-primary" @click="$emit('close')" aria-label="Close">
+          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02 hover-bg-fill-tertiary hover-color-text-primary background-none" @click="$emit('close')" aria-label="Close">
             <X :size="24" />
           </button>
         </div>
@@ -20,7 +20,7 @@
               <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px border-3-accent-primary"></div>
               <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px border-left-none border-top-none bottom-n3px right-n3px border-3-accent-primary"></div>
             </div>
-            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute padding-50-100 bottom-20px left-half backdrop-blur-8">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute padding-50-100 bottom-20px left-half backdrop-blur-8 background-rgba-0-0-0-0-6">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->

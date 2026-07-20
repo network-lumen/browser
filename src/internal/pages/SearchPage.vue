@@ -41,7 +41,7 @@
 
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62 margin-top-75">
         <button
-          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active"
+          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -155,7 +155,7 @@
           </button>
           <button
             type="button"
-            class="searchpage-image-card-btn w-full padding-0 cursor-pointer border-none block"
+            class="searchpage-image-card-btn w-full padding-0 cursor-pointer border-none block background-none"
             @click="openResult(r)"
             :title="r.url"
           >
@@ -169,7 +169,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92"
+                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -189,7 +189,7 @@
                 />
                 <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute padding-50-62 left-0 right-0 bottom-0">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62 backdrop-blur-8 cursor-events-auto color-white-a92"
+                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62 backdrop-blur-8 cursor-events-auto color-white-a92 background-rgba-0-0-0-0-45-hover"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
@@ -259,7 +259,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 backdrop-blur-8 color-white-a92 w-165"
+                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 backdrop-blur-8 color-white-a92 w-165 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >

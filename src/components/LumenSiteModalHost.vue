@@ -1,6 +1,6 @@
 <template>
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'permission'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click.stop>
+    <div v-if="current && modalType === 'permission'" class="overlay-scrim sitemodal-overlay padding-100 z-9999 background-rgba-0-0-0-0-55" @click.stop>
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -47,7 +47,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'sendToken'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closeSend(false)">
+    <div v-if="current && modalType === 'sendToken'" class="overlay-scrim sitemodal-overlay padding-100 z-9999 background-rgba-0-0-0-0-55" @click="closeSend(false)">
       <div class="sitemodal-content sitemodal-send bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -119,7 +119,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'pin'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closePin(false)">
+    <div v-if="current && modalType === 'pin'" class="overlay-scrim sitemodal-overlay padding-100 z-9999 background-rgba-0-0-0-0-55" @click="closePin(false)">
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -214,7 +214,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'stableLink'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closeStableLink(false)">
+    <div v-if="current && modalType === 'stableLink'" class="overlay-scrim sitemodal-overlay padding-100 z-9999 background-rgba-0-0-0-0-55" @click="closeStableLink(false)">
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
@@ -308,7 +308,7 @@
   </Transition>
 
   <Transition name="sitemodal-fade">
-    <div v-if="current && modalType === 'stableLinkSetup'" class="overlay-scrim sitemodal-overlay padding-100 z-9999" @click="closeStableLinkSetup(false)">
+    <div v-if="current && modalType === 'stableLinkSetup'" class="overlay-scrim sitemodal-overlay padding-100 z-9999 background-rgba-0-0-0-0-55" @click="closeStableLinkSetup(false)">
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">

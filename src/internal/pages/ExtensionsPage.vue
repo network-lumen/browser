@@ -9,7 +9,7 @@
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px color-hex-e2e8f0"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px color-hex-e2e8f0 background-rgba-30-41-59-0-92"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,14 +18,14 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px padding-75-87 color-hex-dbeafe" :class="{ error: statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px padding-75-87 color-hex-dbeafe background-rgba-37-99-235-0-18" :class="{ error: statusError }">
       {{ statusMessage }}
     </div>
 
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-22px"
+      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-22px background-hex-ffffff"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"

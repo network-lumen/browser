@@ -36,7 +36,7 @@
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between margin-top-25">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase fs-11px letter-spacing-005em">Subscriptions</span>
           <button
-            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08 border-1-primary-a15 color-accent-secondary transition-colors-015 padding-25-75 hover-color-accent border-color-primary-a25-hover"
+            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08 border-1-primary-a15 color-accent-secondary transition-colors-015 padding-25-75 hover-color-accent border-color-primary-a25-hover background-primary-a15-hover"
             type="button"
             @click="openPlansModal"
           >
@@ -211,7 +211,7 @@
             </span>
           </button>
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px color-error-red color-error-red-hover-not-disabled"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px color-error-red color-error-red-hover-not-disabled bg-ios-red-a06"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -558,7 +558,7 @@
               <Share2 :size="14" />
             </button>
             <button
-              class="drivepage-action-btn danger flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
+              class="drivepage-action-btn danger flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover background-error-red-hover"
               title="Remove"
               @click.stop="removeFile(file)"
             >
@@ -768,7 +768,7 @@
     </Transition>
 
     <!-- Drop Overlay
-    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-50">
+    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-50 background-rgba-0-0-0-0-8">
       <div class="drivepage-drop-content text-center color-white">
         <Upload :size="48" />
         <p class="txt-md txt-weight-strong margin-top-25">
