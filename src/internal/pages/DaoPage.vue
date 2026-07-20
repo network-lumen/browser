@@ -55,7 +55,7 @@
       <header class="daopage-content-header flex-align-start flex-justify-space-between margin-bottom-150">
         <div>
           <h1 class="txt-weight-medium color-text-primary margin-0 daopage-content-header-h1 fs-175rem">{{ getViewTitle() }}</h1>
-          <p class="color-text-secondary daopage-content-header-p fs-14px">{{ getViewDescription() }}</p>
+          <p class="color-text-secondary daopage-content-header-p fs-14px margin-0 margin-top-25">{{ getViewDescription() }}</p>
         </div>
         <button v-if="currentView === 'proposals'" class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light padding-75-125 bg-gradient-primary fs-14px transition-all-02" @click="openCreateProposalModal">
           <Plus :size="18" />
@@ -133,7 +133,7 @@
         <!-- Voting View -->
         <div v-else-if="currentView === 'voting'" class="daopage-content-area flex-1 overflow-y-auto">
           <div class="daopage-info-card text-center padding-200 bg-card border-radius-16px">
-            <h3 class="txt-weight-light color-text-secondary daopage-info-card-h3 fs-16px">Active Voting Proposals</h3>
+            <h3 class="txt-weight-light color-text-secondary daopage-info-card-h3 fs-16px margin-0 margin-bottom-50">Active Voting Proposals</h3>
             <p class="daopage-voting-desc color-text-secondary margin-0 fs-14px">Select a proposal from the Proposals tab to vote</p>
           </div>
           <div class="proposals-list flex flex-column gap-100 margin-top-100">

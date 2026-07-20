@@ -3,7 +3,7 @@
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
     <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
-      <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between border-default bg-card shadow-sm">
+      <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between border-default bg-card shadow-sm border-radius-24px">
         <div class="history-copy">
           <h1 class="color-text-primary margin-0 history-copy-h1">History</h1>
         </div>
@@ -11,7 +11,7 @@
         <div class="history-header-actions flex-align-center gap-62 flex-wrap-wrap">
           <button
             type="button"
-            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium"
+            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015"
             :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-50 padding-75-100 txt-weight-medium"
+            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -31,7 +31,7 @@
         </div>
       </header>
 
-      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-75 border-default bg-card shadow-sm padding-87-100">
+      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-75 border-default bg-card shadow-sm padding-87-100 border-radius-24px">
         <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-62 bg-fill-tertiary padding-75-100">
           <Search :size="17" />
           <input
@@ -45,12 +45,12 @@
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px padding-87-100">
+      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px padding-87-100 bg-ios-orange-a08">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 
       <div v-if="groupedEntries.length" class="flex flex-column gap-90">
-        <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100 border-default bg-card shadow-sm">
+        <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100 border-default bg-card shadow-sm border-radius-24px">
           <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between">
             <h2 class="color-text-primary margin-0 history-group-head-h2 fs-16px">{{ group.label }}</h2>
             <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span padding-0-50 bg-fill-secondary fs-12px">{{ group.entries.length }}</span>
@@ -76,7 +76,7 @@
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px transition-all-015"
+                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px transition-all-015 w-200"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
@@ -89,8 +89,8 @@
       </div>
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
-        <div class="history-empty-card padding-150 text-center border-default bg-card shadow-sm">
-          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary">
+        <div class="history-empty-card padding-150 text-center border-default bg-card shadow-sm border-radius-24px">
+          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary w-325 h-325">
             <HistoryIcon :size="22" />
           </div>
           <h3 class="color-text-primary margin-0 history-empty-card-h3 fs-18px">{{ emptyTitle }}</h3>
@@ -99,13 +99,13 @@
             <button
               v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium"
+              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015"
               @click="setHistoryEnabled(true)"
             >
               <Power :size="15" />
               <span>Turn on history</span>
             </button>
-            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer bg-gradient-primary shadow-primary border-radius-full gap-50 padding-75-100 txt-weight-medium" @click="openNewTab">
+            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer bg-gradient-primary shadow-primary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015" @click="openNewTab">
               <ArrowUpRight :size="14" />
               <span>Open new tab</span>
             </button>

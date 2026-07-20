@@ -23,11 +23,11 @@
           <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Site</span>
-              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis">{{ siteLabel }}</span>
+              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ siteLabel }}</span>
             </div>
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75" v-if="actionKind">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Action</span>
-              <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis">{{ actionKind }}</span>
+              <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ actionKind }}</span>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@
             <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">Amount (LMN) <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
-              <span class="sitemodal-input-suffix fs-12px color-text-secondary absolute top-half">LMN</span>
+              <span class="sitemodal-input-suffix fs-12px color-text-secondary absolute top-half right-12px">LMN</span>
             </div>
             <div class="sitemodal-balance-hint fs-12px color-text-secondary margin-top-37" v-if="balanceUlmn !== null">
               Available: {{ balanceLmnDisplay }} LMN
@@ -110,7 +110,7 @@
             Cancel
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitSend" :disabled="!canSend">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="sending"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="sending"></span>
             <span>{{ sending ? 'Sending...' : 'Send' }}</span>
           </button>
         </div>
@@ -155,11 +155,11 @@
           <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Target</span>
-              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis">{{ pinTargetDisplay }}</span>
+              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ pinTargetDisplay }}</span>
             </div>
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px margin-top-75 padding-62-75">
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px margin-top-75 padding-62-75 bg-ios-blue-a06">
             <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-75 margin-bottom-50">
               <span class="sitemodal-pin-progress-status fs-12px text-uppercase txt-weight-medium color-ios-blue letter-spacing-004em">{{ pinStatusLabel }}</span>
               <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter fs-12px color-text-secondary">{{ pinProgressCounter }}</span>
@@ -205,7 +205,7 @@
             Stop
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="pinning"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="pinning"></span>
             <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
           </button>
         </div>
@@ -271,7 +271,7 @@
           <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Live</span>
-              <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
+              <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
             </div>
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Records</span>
@@ -297,7 +297,7 @@
             Cancel
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="stableLinkSaving"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="stableLinkSaving"></span>
             <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
             <Save v-else :size="16" />
             <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
@@ -346,7 +346,7 @@
             Cancel
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px" v-if="stableLinkSetupLoading"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="stableLinkSetupLoading"></span>
             <Link v-else :size="16" />
             <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
           </button>

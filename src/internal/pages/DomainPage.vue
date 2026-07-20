@@ -29,7 +29,7 @@
       <header class="domainpage-content-header flex-align-center flex-justify-space-between margin-bottom-150">
         <div>
           <h1 class="domainpage-content-header-h1 fw-650">{{ pageTitle }}</h1>
-          <p class="color-text-secondary domainpage-content-header-p fs-14px">{{ pageDescription }}</p>
+          <p class="color-text-secondary domainpage-content-header-p fs-14px margin-0 margin-top-25">{{ pageDescription }}</p>
         </div>
         <div class="domainpage-header-actions flex gap-75">
           <template v-if="activeNameTab === 'lumen'">
@@ -146,7 +146,7 @@
             <div class="domain-main flex flex-column gap-15 min-w-0">
               <div class="domainpage-stable-link-label-row flex-align-center gap-35 min-w-0">
                 <input
-                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px"
+                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px min-w-120px"
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
@@ -387,7 +387,7 @@
                 <div class="domainpage-period-static">Fixed at 1 year</div>
               </div>
 
-              <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75">
+              <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
                 <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
@@ -468,7 +468,7 @@
                 </button>
               </div>
 
-              <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75">
+              <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
                 <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px">
                   <span>Cost</span>
                   <span class="txt-weight-light">{{ settingsCostLabel }}</span>
@@ -535,7 +535,7 @@
                 <p class="domainpage-form-hint fs-075rem color-text-tertiary margin-top-37">Enter the Lumen address of the new owner</p>
               </div>
 
-              <div class="domainpage-warning-box flex border-radius-10px gap-75 padding-87 bg-fill-error">
+              <div class="domainpage-warning-box flex border-radius-10px gap-75 padding-87 bg-fill-error border-1-ios-red-a30">
                 <div class="domainpage-warning-icon fs-125rem flex-shrink-0">⚠️</div>
                 <div class="domainpage-warning-content color-text-primary fs-13px">
                   <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.

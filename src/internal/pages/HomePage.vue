@@ -31,7 +31,7 @@
 
     <!-- Main Content -->
     <main class="homepage-main flex-1 flex flex-column margin-0 min-w-0 overflow-y-auto padding-125-150 bg-secondary border-radius-0">
-      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md margin-bottom-100 padding-75-100">
+      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md margin-bottom-100 padding-75-100 bg-ios-yellow-a08">
         <div class="homepage-no-profile-title txt-weight-light fs-13px">No profile found</div>
         <div class="homepage-no-profile-sub fs-12px margin-top-25">Create one using the button in the top right.</div>
       </div>
@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur"
             :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur"
             :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"

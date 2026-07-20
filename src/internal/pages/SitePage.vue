@@ -7,11 +7,11 @@
 
       <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
         <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md">
-          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft">
+          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
             <Tag :size="26" />
           </div>
           <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This domain belongs to no one</h2>
-          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
           <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light bg-gradient-primary fs-15px shadow-primary transition-smooth padding-75-150" type="button" @click="goToBuyDomain">
             <span>Buy this domain</span>
           </button>
@@ -20,12 +20,12 @@
 
       <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
         <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md">
-          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft">
+          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
             <FileQuestion :size="26" />
           </div>
           <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This content isn't available right now</h2>
-          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15">The content couldn't be found. Please try again later.</p>
-          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15">
+          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">The content couldn't be found. Please try again later.</p>
+          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">
             If this is your site,
             <button type="button" class="sitepage-inline-link padding-0 border-none bg-transparent color-primary underline cursor-pointer txt-weight-light" @click="goToCreateWebsiteDocs">read the setup guide</button>.
           </p>
@@ -41,7 +41,7 @@
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="sitepage-hls-error absolute fs-14px cursor-events-none padding-75-87">
+          <div v-if="hlsError" class="sitepage-hls-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12">
             {{ hlsError }}
           </div>
         </template>

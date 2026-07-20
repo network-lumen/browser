@@ -12,8 +12,8 @@
     </div>
 
     <!-- Payment Reminders -->
-    <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px padding-125 margin-bottom-150">
-      <h3 class="flex-align-center gap-50 color-text-primary fs-16px subview-reminders-section-h3">
+    <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px padding-125 margin-bottom-150 bg-ios-orange-a15">
+      <h3 class="flex-align-center gap-50 color-text-primary fs-16px subview-reminders-section-h3 margin-0 margin-bottom-100">
         <Bell :size="18" />
         <span>Upcoming Payments</span>
       </h3>
@@ -23,7 +23,7 @@
           :key="reminder.id"
           class="subview-reminder-card flex-align-center gap-75 bg-card padding-75 border-radius-8px shadow-sm"
         >
-          <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-40px color-warning">
+          <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-40px color-warning bg-ios-orange-a15">
             <AlertCircle :size="20" />
           </div>
           <div class="flex-1">
@@ -49,7 +49,7 @@
         </div>
       </div>
       <div class="subview-stat-card flex-align-center border-radius-12px gap-100 padding-125 bg-card border-1">
-        <div class="subview-stat-icon paused badge-warning color-warning flex-align-justify-center size-48px border-radius-12px">
+        <div class="subview-stat-icon paused badge-warning color-warning flex-align-justify-center size-48px border-radius-12px bg-ios-orange-a15">
           <PauseCircle :size="20" />
         </div>
         <div>
@@ -93,8 +93,8 @@
       <!-- Empty State -->
       <div v-if="filteredPayments.length === 0" class="subview-empty-state text-center">
         <Calendar :size="48" class="subview-empty-icon color-text-tertiary margin-bottom-100" />
-        <h3 class="color-text-primary fs-18px subview-empty-state-h3">No Recurring Payments</h3>
-        <p class="color-text-secondary subview-empty-state-p">Schedule automatic payments for subscriptions, bills, and more</p>
+        <h3 class="color-text-primary fs-18px subview-empty-state-h3 margin-0 margin-bottom-50">No Recurring Payments</h3>
+        <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">Schedule automatic payments for subscriptions, bills, and more</p>
         <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px padding-62-125" @click="showCreateModal = true">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
@@ -203,7 +203,7 @@
 
     <!-- Payment History Modal -->
     <Transition name="fade">
-      <div v-if="showHistoryModal" class="subview-modal-overlay overlay-scrim z-9999 backdrop-blur-4px" @click="showHistoryModal = false">
+      <div v-if="showHistoryModal" class="subview-modal-overlay overlay-scrim z-9999 backdrop-blur-4px bg-black-a75" @click="showHistoryModal = false">
         <div class="subview-modal-content bg-card w-full flex flex-column overflow-hidden border-radius-12px max-w-500px" @click.stop>
           <div class="subview-modal-header flex-align-center-justify-space-between padding-125 border-bottom-1">
             <h3 class="flex-align-center gap-50 color-text-primary margin-0 fs-18px">
@@ -216,7 +216,7 @@
           </div>
           <div class="subview-modal-body flex-1 overflow-y-auto padding-125">
             <div v-if="selectedPaymentHistory.length === 0" class="subview-empty-state small text-center">
-              <p class="color-text-secondary subview-empty-state-p">No payment history yet</p>
+              <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">No payment history yet</p>
             </div>
             <div v-else class="flex flex-column gap-75">
               <div
