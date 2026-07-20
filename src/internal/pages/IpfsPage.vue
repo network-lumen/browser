@@ -85,7 +85,7 @@
         </div>
 
         <div v-else-if="isDir" class="dir-wrap">
-          <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-35">
+          <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-35 padding-0 padding-top-50 padding-bottom-50">
             <button
               class="ipfspage-crumb disabled-fade-60 padding-0 cursor-pointer color-text-primary fs-085rem border-none bg-transparent"
               type="button"
@@ -249,7 +249,7 @@
         <div class="ipfspage-modal border-radius-16px border-1 bg-primary overflow-hidden" @click.stop>
           <header class="ipfspage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-87-100">
             <h3 class="ipfspage-modal-header-h3 margin-0 fs-16px fw-650 color-text-primary">Save to Drive</h3>
-            <button class="ipfspage-modal-close color-text-secondary cursor-pointer border-none bg-transparent fs-125rem line-height-1" type="button" @click="closeSaveModal">
+            <button class="ipfspage-modal-close color-text-secondary cursor-pointer border-none bg-transparent fs-125rem line-height-1 padding-25-4" type="button" @click="closeSaveModal">
               <span>×</span>
             </button>
           </header>

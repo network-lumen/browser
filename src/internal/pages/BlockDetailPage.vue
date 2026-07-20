@@ -26,11 +26,11 @@
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Height:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.height }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Hash:</span>
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-75">
               <code class="flex-1 blockdetail-hash-value-code padding-50-75 border-1 border-radius-6px fs-13px mono break-all">{{ block.hash }}</code>
@@ -42,7 +42,7 @@
               </button>
             </div>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Proposer:</span>
             <div class="flex-align-center gap-75">
               <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium fs-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
@@ -56,11 +56,11 @@
               <span class="color-text-primary fs-15px txt-weight-light">{{ block.proposer }}</span>
             </div>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Time:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.time }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Transactions:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.txs }}</span>
           </div>
@@ -73,19 +73,19 @@
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Data</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Chain ID:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.chainId || 'lumen-mainnet' }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Block Size:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ calculateBlockSize(block) }} KB</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Gas Used:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ formatNumber(block.gasUsed || 0) }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100">
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Gas Limit:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ formatNumber(block.gasLimit || 0) }}</span>
           </div>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="flex-align-center gap-100 fs-13px">
                   <span class="color-text-secondary fw-500">{{ tx.type }}</span>
-                  <span class="blockdetail-tx-status-success flex-align-center gap-25 color-success txt-weight-light bg-fill-success border-radius-4px">✓ Success</span>
+                  <span class="blockdetail-tx-status-success flex-align-center gap-25 color-success txt-weight-light bg-fill-success border-radius-4px padding-25-4">✓ Success</span>
                 </div>
               </div>
             </div>

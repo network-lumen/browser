@@ -22,7 +22,7 @@
     <div v-else-if="transaction" class="flex flex-column gap-150">
       <!-- Transaction Overview Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Transaction Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
@@ -73,7 +73,7 @@
 
       <!-- Messages Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="transaction.messages && transaction.messages.length > 0">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Messages ({{ transaction.messages.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
@@ -93,7 +93,7 @@
 
       <!-- Events Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="transaction.events && transaction.events.length > 0">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Events ({{ transaction.events.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
@@ -113,7 +113,7 @@
 
       <!-- Raw Data Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Raw Transaction Data</h2>
         </div>
         <div class="chaindetail-card-body padding-150">

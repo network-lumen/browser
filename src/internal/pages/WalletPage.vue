@@ -124,13 +124,13 @@
             <span>Receive</span>
           </button>
           <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
           <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -154,7 +154,7 @@
           <h3 class="walletpage-section-header-h3 margin-0 fs-16px txt-weight-light color-text-primary">Cross-chain Assets</h3>
         </div>
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color" v-if="!isConnected">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <Coins :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Connect Your Wallet</h3>
@@ -165,21 +165,21 @@
           </button>
         </div>
         <div v-else-if="assetsLoading && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <Coins :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Loading assets…</h3>
           <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Fetching balances on Lumen and linked IBC chains.</p>
         </div>
         <div v-else-if="assetsError && !assetRows.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <AlertCircle :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Unable to load assets</h3>
           <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">{{ assetsError }}</p>
         </div>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100 walletpage-info-banner-warning">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column margin-top-100 gap-75 gap-100">
@@ -255,7 +255,7 @@
             </div>
           </div>
           <div v-else class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-            <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+            <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
               <Coins :size="32" />
             </div>
             <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No assets yet</h3>
@@ -266,7 +266,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-150 w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
+        <div v-if="dexError" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100 walletpage-info-banner-warning">
           <span>{{ dexError }}</span>
         </div>
 
@@ -333,14 +333,14 @@
               </div>
             </div>
 
-            <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary border-top-1-light">
+            <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary border-top-1-light padding-100-125-125">
               <div class="walletpage-dex-detail-grid gap-75 grid">
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100 walletpage-dex-detail-card-compact padding-62-75">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">Trading pairs</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100 walletpage-dex-detail-card-compact padding-62-75">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">Liquidity pools</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
@@ -405,7 +405,7 @@
         </div>
 
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color" v-if="!isConnected || !address">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <ArrowLeftRight :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No wallet connected</h3>
@@ -413,7 +413,7 @@
         </div>
 
         <div v-else-if="activitiesLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <ArrowLeftRight :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Loading transactions…</h3>
@@ -421,12 +421,12 @@
         </div>
 
         <div v-else-if="activitiesError" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <ArrowLeftRight :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Unable to load transactions</h3>
           <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">{{ activitiesError }}</p>
-          <div class="walletpage-info-banner warning margin-top-100 max-w-500px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
+          <div class="walletpage-info-banner warning margin-top-100 max-w-500px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100 walletpage-info-banner-warning">
             <span>
               💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. 
               Your balance is still accurate and transactions are recorded on-chain.
@@ -435,12 +435,12 @@
         </div>
 
         <div v-else-if="!activities.length" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <ArrowLeftRight :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No recent transactions</h3>
           <p class="walletpage-empty-state-p fs-14px color-text-tertiary margin-0 margin-bottom-100">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-          <div class="walletpage-info-banner warning margin-top-100 max-w-600px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100">
+          <div class="walletpage-info-banner warning margin-top-100 max-w-600px border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100 walletpage-info-banner-warning">
             <div class="margin-bottom-75">
               <strong>💡 Why can't I see my transactions?</strong>
             </div>
@@ -448,9 +448,9 @@
               All Lumen Network RPC nodes currently have transaction indexing disabled. This means:
             </div>
             <ul class="text-left margin-top-50 margin-bottom-75 margin-left-150 walletpage-info-banner-ul padding-left-150">
-              <li class="walletpage-info-banner-li">Your balance is still accurate and updated</li>
-              <li class="walletpage-info-banner-li">All transactions are recorded on-chain</li>
-              <li class="walletpage-info-banner-li">Transaction history cannot be queried via API</li>
+              <li class="walletpage-info-banner-li margin-0 margin-top-25 margin-bottom-25">Your balance is still accurate and updated</li>
+              <li class="walletpage-info-banner-li margin-0 margin-top-25 margin-bottom-25">All transactions are recorded on-chain</li>
+              <li class="walletpage-info-banner-li margin-0 margin-top-25 margin-bottom-25">Transaction history cannot be queried via API</li>
             </ul>
             <div class="margin-top-75">
               <strong>Alternative:</strong> Use a block explorer to view your transaction history:
@@ -604,7 +604,7 @@
         </div>
 
         <div class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color" v-if="!contacts.length && !contactsLoading">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <Users :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">No Contacts Yet</h3>
@@ -616,7 +616,7 @@
         </div>
 
         <div v-else-if="contactsLoading" class="walletpage-empty-state margin-top-200 padding-200 text-center border-radius-16px bg-secondary border-1-dashed-color">
-          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary">
+          <div class="walletpage-empty-icon flex-align-justify-center size-48px border-radius-full bg-secondary color-accent-secondary margin-0 margin-x-auto margin-bottom-100">
             <Users :size="32" />
           </div>
           <h3 class="walletpage-empty-state-h3 fs-16px margin-0 margin-bottom-50">Loading contacts…</h3>
@@ -1013,7 +1013,7 @@
               <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
             </div>
 
-            <div class="walletpage-qr-section flex-justify-center">
+            <div class="walletpage-qr-section flex-justify-center margin-0 margin-top-150 margin-bottom-150">
               <div class="walletpage-qr-wrapper padding-125 bg-card border-2 border-radius-16px">
                 <img 
                   v-if="qrCodeDataUrl" 

@@ -31,7 +31,7 @@
           </button>
         </div>
 
-        <div class="drivepage-hosting-divider bg-border"></div>
+        <div class="drivepage-hosting-divider bg-border margin-0 margin-top-100 margin-right-25 margin-bottom-75 margin-left-25"></div>
 
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between margin-top-25">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase fs-11px letter-spacing-005em">Subscriptions</span>
@@ -206,7 +206,7 @@
             @click="convertSelectedLocalToHls"
           >
             Convert to HLS
-            <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium fs-12px bg-primary-a10">
+            <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium fs-12px bg-primary-a10 padding-0 padding-right-25 padding-left-25">
               {{ selectedLocalConvertibleCount }}
             </span>
           </button>
@@ -222,7 +222,7 @@
       </div>
 
       <!-- Breadcrumb (folders) -->
-      <div v-if="isBrowsing" class="drivepage-browse-bar flex-align-center gap-75 margin-bottom-75">
+      <div v-if="isBrowsing" class="drivepage-browse-bar flex-align-center gap-75 margin-bottom-75 padding-0 padding-top-50 padding-bottom-50">
         <button class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary" type="button" @click="exitBrowse">
           Back
         </button>
@@ -569,7 +569,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="drivepage-pagination-bar flex-align-justify-center flex-wrap-wrap gap-50 margin-top-50">
+      <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="drivepage-pagination-bar flex-align-justify-center flex-wrap-wrap gap-50 margin-top-50 padding-0 padding-top-100 padding-bottom-100">
         <button 
           class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
           :disabled="currentPage === 1"
@@ -593,7 +593,7 @@
         
         <div class="drivepage-page-numbers flex-align-center gap-25">
           <template v-for="(page, idx) in pageNumbers" :key="idx">
-            <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary fs-085rem">...</span>
+            <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary fs-085rem padding-0 padding-right-25 padding-left-25">...</span>
             <button 
               v-else
               class="drivepage-page-num flex-align-justify-center size-32px color-text-primary fs-085rem fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px padding-0-50 hover-bg-hover hover-border-accent" 
@@ -1303,7 +1303,7 @@
     <!-- Plans Modal -->
     <Transition name="modal">
       <div v-if="showPlansModal" class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0" @click="closePlansModal">
-        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
+        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px drivepage-modal-content-drivepage-plans-modal" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Cloud plans</h3>
             <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closePlansModal">
@@ -1379,7 +1379,7 @@
                <div class="drivepage-plans-controls flex-align-center-justify-space-between flex-column gap-75 margin-top-75 margin-bottom-50 padding-bottom-50 border-bottom-1">
                  <div class="drivepage-plans-controls-row flex-align-center-justify-space-between gap-75 w-full flex-wrap-nowrap">
                    <div class="drivepage-plans-search-group drivepage-plans-search-group-primary flex-align-center gap-75 flex-1-1-auto min-w-0 flex-wrap-nowrap">
-                     <div class="drivepage-plans-search-input flex-align-center gap-50 size-40px border-radius-10px flex-1-1-auto border-1 bg-secondary">
+                     <div class="drivepage-plans-search-input flex-align-center gap-50 size-40px border-radius-10px flex-1-1-auto border-1 bg-secondary padding-0 padding-right-75 padding-left-75">
                        <Search :size="16" class="drivepage-plans-search-ico color-text-secondary opacity-70" />
                        <input
                          v-model.trim="planFilter"
@@ -1393,7 +1393,7 @@
 
                      <select
                        v-model="planRegion"
-                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow"
+                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow padding-0 padding-right-75 padding-left-75"
                        aria-label="Region filter"
                      >
                        <option value="">All regions</option>
@@ -1406,7 +1406,7 @@
                    <div class="drivepage-plans-search-group drivepage-plans-search-group-sort flex-align-center gap-75 margin-left-auto flex-wrap-nowrap">
                      <select
                        v-model="planSortBy"
-                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow"
+                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow padding-0 padding-right-75 padding-left-75"
                        aria-label="Sort by"
                      >
                        <option value="score-desc">Sort: Score (high-low)</option>
@@ -1424,7 +1424,7 @@
                  </div>
                </div>
 
-               <div v-if="!planGroups.length" class="drivepage-plans-empty text-center">
+               <div v-if="!planGroups.length" class="drivepage-plans-empty text-center padding-0 padding-top-100 padding-right-50 padding-bottom-50 padding-left-50">
                  <h4 class="drivepage-plans-empty-h4 fs-15px txt-weight-light color-text-primary margin-bottom-25">No gateways match your filters</h4>
                  <p class="drivepage-plans-empty-muted color-text-secondary fs-13px">Try clearing filters or search.</p>
                  <div class="drivepage-plans-empty-actions flex-justify-center flex-wrap-wrap gap-50 margin-top-50">

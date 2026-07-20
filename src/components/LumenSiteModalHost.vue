@@ -31,7 +31,7 @@
             </div>
           </div>
         </div>
-        <div class="sitemodal-actions flex flex-justify-end gap-62">
+        <div class="sitemodal-actions flex flex-justify-end gap-62 padding-0 padding-top-75 padding-right-100 padding-bottom-100 padding-left-100">
           <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="denyPermission">
             Deny
           </button>
@@ -105,7 +105,7 @@
             </div>
           </div>
         </div>
-        <div class="sitemodal-actions flex flex-justify-end gap-62">
+        <div class="sitemodal-actions flex flex-justify-end gap-62 padding-0 padding-top-75 padding-right-100 padding-bottom-100 padding-left-100">
           <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closeSend(false)" :disabled="sending">
             Cancel
           </button>
@@ -176,7 +176,7 @@
             </div>
           </div>
         </div>
-        <div class="sitemodal-actions flex flex-justify-end gap-62">
+        <div class="sitemodal-actions flex flex-justify-end gap-62 padding-0 padding-top-75 padding-right-100 padding-bottom-100 padding-left-100">
           <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closePin(false)" :disabled="pinIsRunning">
             Cancel
           </button>
@@ -292,7 +292,7 @@
             The stable link URL will be copied after it is attached to this live.
           </p>
         </div>
-        <div class="sitemodal-actions flex flex-justify-end gap-62">
+        <div class="sitemodal-actions flex flex-justify-end gap-62 padding-0 padding-top-75 padding-right-100 padding-bottom-100 padding-left-100">
           <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
             Cancel
           </button>
@@ -341,7 +341,7 @@
             Previous live settings will be loaded from this link if records are available.
           </p>
         </div>
-        <div class="sitemodal-actions flex flex-justify-end gap-62">
+        <div class="sitemodal-actions flex flex-justify-end gap-62 padding-0 padding-top-75 padding-right-100 padding-bottom-100 padding-left-100">
           <button class="sitemodal-btn-secondary border-none border-radius-10px cursor-pointer txt-weight-light color-text-primary bg-fill-tertiary padding-62-75" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
             Cancel
           </button>

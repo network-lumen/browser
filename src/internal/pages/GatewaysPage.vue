@@ -80,7 +80,7 @@
           </div>
         </div>
 
-        <div v-if="!hasProfile" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px">
+        <div v-if="!hasProfile" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
           <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">No active profile</h2>
           <p class="gwpage-empty-sub color-text-secondary fs-14px">
             Select or create a profile to manage gateways.
@@ -88,18 +88,18 @@
         </div>
 
         <div v-else class="manage-wrap flex flex-column gap-100">
-          <div v-if="gatewaysLoading" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px">
-            <div class="gwpage-spinner border-3"></div>
+          <div v-if="gatewaysLoading" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
+            <div class="gwpage-spinner border-3 margin-0 margin-x-auto margin-bottom-100"></div>
             <p class="gwpage-empty-sub color-text-secondary fs-14px">Loading gateways…</p>
           </div>
 
-          <div v-else-if="gatewaysError" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px">
+          <div v-else-if="gatewaysError" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
             <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">Unable to load gateways</h2>
             <p class="gwpage-empty-sub color-text-secondary fs-14px">{{ gatewaysError }}</p>
             <button class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary" @click="refreshManage">Try again</button>
           </div>
 
-          <div v-else-if="!myGateways.length" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px">
+          <div v-else-if="!myGateways.length" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
             <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">No gateways yet</h2>
             <p class="gwpage-empty-sub color-text-secondary fs-14px">
               Use “Create gateway” to register your first gateway.
@@ -247,7 +247,7 @@
                   </div>
                 </div>
 
-                <div class="gwpage-modal-actions flex flex-justify-end border-top-1-light">
+                <div class="gwpage-modal-actions flex flex-justify-end border-top-1-light padding-100-125-125">
                   <button type="button" class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary" @click="closeCreateModal" :disabled="registerState.busy">
                     Cancel
                   </button>

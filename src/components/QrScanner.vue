@@ -41,7 +41,7 @@
             <CheckCircle :size="48" class="qr-success-icon color-success margin-bottom-100" />
             <h4 class="color-text-primary qr-success-state-h4 fs-20px txt-weight-light margin-0 margin-bottom-50">QR Code Scanned</h4>
 
-            <div class="qr-scanned-data text-left bg-secondary border-radius-8px padding-100">
+            <div class="qr-scanned-data text-left bg-secondary border-radius-8px padding-100 margin-0 margin-top-150 margin-bottom-150">
               <div class="qr-data-type">
                 <span class="qr-label color-text-secondary block fs-12px txt-weight-light text-uppercase margin-bottom-25">Type:</span>
                 <span class="qr-value color-text-primary fs-14px fw-500">{{ detectedType }}</span>

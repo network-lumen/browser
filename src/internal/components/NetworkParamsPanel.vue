@@ -40,7 +40,7 @@
           <div class="netparams-section-title flex flex-column gap-25 min-w-0">
             <div class="netparams-title-row flex-align-center gap-62 min-w-0">
               <span class="netparams-section-name color-text-primary txt-weight-strong fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.title }}</span>
-              <span class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong fs-12px border-1-light" :class="statusClass(s)">
+              <span class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong fs-12px border-1-light padding-25-4" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>

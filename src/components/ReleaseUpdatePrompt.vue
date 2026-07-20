@@ -60,7 +60,7 @@
         <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden">
           <div class="release-prompt-notes-head flex-align-center-justify-space-between gap-100 padding-75-87">
             <h3 class="release-prompt-notes-title color-text-primary margin-0 fs-16px">Change notes</h3>
-            <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer fs-15rem line-height-1" @click="notesOpen = false">&times;</button>
+            <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer fs-15rem line-height-1 padding-25-4" @click="notesOpen = false">&times;</button>
           </div>
           <pre class="release-prompt-notes-body color-text-primary bg-primary margin-0 padding-87 overflow-auto fs-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
         </div>

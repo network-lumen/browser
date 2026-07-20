@@ -169,19 +169,19 @@
         <!-- Payment Summary -->
         <div class="recurpay-summary border-radius-12px padding-125 color-white bg-gradient-brand">
           <h4 class="margin-0 fs-16px txt-weight-light recurpay-summary-h4 margin-bottom-100">Payment Summary</h4>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50">
             <span>Amount per payment:</span>
             <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50">
             <span>Frequency:</span>
             <strong class="txt-weight-light">{{ frequencyLabel }}</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2" v-if="form.startDate">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50" v-if="form.startDate">
             <span>First payment:</span>
             <strong class="txt-weight-light">{{ formatDate(form.startDate) }}</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2" v-if="estimatedTotal">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50" v-if="estimatedTotal">
             <span>{{ estimatedTotalLabel }}:</span>
             <strong class="txt-weight-light">{{ estimatedTotal }} LMN</strong>
           </div>

@@ -2,7 +2,7 @@
   <div class="home-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
-      <button type="button" class="homepage-toggle-pages w-full flex-align-center-justify-space-between gap-50 cursor-pointer color-text-secondary border-radius-sm fs-13px fw-500 padding-50-75 border-default bg-secondary transition-all-015 hover-bg-hover hover-border-primary-a30 hover-color-text-primary" @click="showAllPages = !showAllPages">
+      <button type="button" class="homepage-toggle-pages w-full flex-align-center-justify-space-between gap-50 cursor-pointer color-text-secondary border-radius-sm fs-13px fw-500 padding-50-75 border-default bg-secondary transition-all-015 hover-bg-hover hover-border-primary-a30 hover-color-text-primary margin-0 margin-top-50 margin-bottom-50" @click="showAllPages = !showAllPages">
         <span>All pages</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </button>

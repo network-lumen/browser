@@ -115,7 +115,7 @@
       <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 padding-125">
         <div class="newtab-hero-copy text-center margin-0-auto">
           <h1 class="color-text-primary margin-0 newtab-hero-copy-h1">Search Lumen</h1>
-          <p class="color-text-secondary newtab-hero-copy-p fs-16px line-height-155">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
+          <p class="color-text-secondary newtab-hero-copy-p fs-16px line-height-155 margin-0 margin-x-auto margin-top-85">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
         <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light w-min-760 padding-75-87" @submit.prevent="submitOmnibox">
@@ -136,7 +136,7 @@
           </button>
         </form>
 
-        <div class="newtab-quick-links flex flex-wrap-wrap gap-50 flex-justify-center">
+        <div class="newtab-quick-links flex flex-wrap-wrap gap-50 flex-justify-center margin-0 margin-x-auto margin-top-100">
           <button
             v-for="link in quickLinks"
             :key="link.url"
@@ -150,7 +150,7 @@
           </button>
         </div>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760 bg-ios-orange-a08 border-1-ios-orange-a14">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760 bg-ios-orange-a08 border-1-ios-orange-a14 margin-0 margin-x-auto margin-top-100">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
@@ -174,7 +174,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light"
+            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light border-radius-22px"
             :class="{
               pinned: entry.pinned,
               'is-dragging': draggingShortcutId === entry.id,

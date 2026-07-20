@@ -801,3 +801,7 @@
 .hover-bg-fill-secondary:hover { background: var(--fill-secondary); }
 .hover-bg-fill-tertiary:hover { background: var(--fill-tertiary); }
 .focus-ring:focus { box-shadow: 0 0 0 3px var(--primary-a10); }
+.border-radius-22px { border-radius: 22px; }
+.padding-100-125-125 { padding: 1rem 1.25rem 1.25rem; }
+.padding-125-175 { padding: 1.25rem 1.75rem; }
+.padding-25-4 { padding: 0.25rem 0.4rem; }

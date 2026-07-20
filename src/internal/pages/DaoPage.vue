@@ -250,13 +250,13 @@
             </div>
 
             <div class="daopage-proposal-requirements margin-bottom-150 border-radius-10px padding-100 bg-card border-1-ios-blue-a3">
-              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px">
+              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px padding-0 padding-top-50 padding-bottom-50">
                 <svg class="daopage-requirement-item-svg flex-shrink-0 color-primary" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>
                 </svg>
                 <span>Minimum 1000 LMN required to submit</span>
               </div>
-              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px">
+              <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px padding-0 padding-top-50 padding-bottom-50">
                 <svg class="daopage-requirement-item-svg flex-shrink-0 color-primary" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>
                 </svg>
@@ -310,7 +310,7 @@
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
                 <input type="radio" name="vote" value="against" v-model="voteChoice" />
                 <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px border-2 bg-card transition-all-02">
-                  <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px">
+                  <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-against">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM15 13.59L13.59 15L10 11.41L6.41 15L5 13.59L8.59 10L5 6.41L6.41 5L10 8.59L13.59 5L15 6.41L11.41 10L15 13.59Z"/>
                     </svg>
@@ -325,7 +325,7 @@
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
                 <input type="radio" name="vote" value="abstain" v-model="voteChoice" />
                 <div class="daopage-vote-option-content flex-align-center gap-100 padding-100 border-radius-10px border-2 bg-card transition-all-02">
-                  <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px">
+                  <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-abstain">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
                       <line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="2"/>
