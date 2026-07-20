@@ -319,7 +319,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .lsb-item.active {
   background: var(--gradient-primary);
-  color: white;
+  color: #fff;
   box-shadow: var(--shadow-primary);
 }
 .lsb-item.active svg, .card-interactive:hover::before, .navbar-profile-row:hover .navbar-profile-row-delete,
@@ -720,7 +720,7 @@ select.recurpay-input { background-image: none; }
 .recurpay-input-btn:hover, .explorer-time-filter-btn.active, .searchpage-image-save-btn.searchpage-saved {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
-  color: white;
+  color: #fff;
 }
 .recurpay-row, .walletonboard-info-cards, .relpage-detail-grid, .explorer-proposer-stat-group {
   grid-template-columns: 1fr 1fr;
@@ -735,7 +735,7 @@ select.recurpay-input { background-image: none; }
 .recurpay-summary-row { padding: 8px 0; }
 .recurpay-btn.primary, .explorer-tab-btn.active, .walletpage-input-action-btn:hover {
   background: var(--accent-primary);
-  color: white;
+  color: #fff;
 }
 .recurpay-btn.secondary { background: var(--bg-tertiary); border: 1px solid var(--border-color); }
 .recurpay-btn.secondary:hover, .walletpage-eye-btn:hover { background: var(--card-bg); }
@@ -783,12 +783,12 @@ select.recurpay-input { background-image: none; }
 }
 .extensions-store-header-actions { flex: 1 1 420px; }
 .extensions-store-btn { color: #e2e8f0; background: rgba(30, 41, 59, 0.92); }
-.extensions-store-btn.primary { color: #ffffff; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.extensions-store-btn.import-btn { color: #ffffff; background: linear-gradient(135deg, #0f766e, #0ea5e9); }
+.extensions-store-btn.primary { color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.extensions-store-btn.import-btn { color: #fff; background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .extensions-store-btn.install-hero-btn {
   min-width: 168px;
   min-height: 46px;
-  color: #ffffff;
+  color: #fff;
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
   box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
 }
@@ -865,7 +865,7 @@ select.recurpay-input { background-image: none; }
 .homepage-page-item.dragging { opacity: 0.4; cursor: grabbing; }
 .homepage-page-item.drag-over {
   background: var(--accent-primary);
-  color: white;
+  color: #fff;
   transform: translateX(4px);
 }
 .homepage-page-item:hover, .explorer-tx-hash-link:hover {
@@ -898,16 +898,16 @@ select.recurpay-input { background-image: none; }
 .homepage-remove-card-btn:hover, .searchpage-image-save-btn.searchpage-saved:hover {
   background: var(--error-red);
   border-color: var(--error-red);
-  color: white;
+  color: #fff;
 }
 .homepage-action-card:hover .homepage-action-icon { transform: scale(1.03); }
 .homepage-action-icon.drive {
   background: linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%);
-  color: white;
+  color: #fff;
 }
 .homepage-action-icon.wallet {
   background: linear-gradient(135deg, var(--ios-orange) 0%, var(--ios-yellow) 100%);
-  color: white;
+  color: #fff;
 }
 .homepage-action-icon.explorer, .homepage-action-icon.staking, .homepage-action-icon.gateways,
 .homepage-action-icon.search {
@@ -1043,7 +1043,7 @@ select.recurpay-input { background-image: none; }
   height: 36px;
   border-radius: 10px;
   background: var(--gradient-primary);
-  color: white;
+  color: #fff;
   font-weight: 700;
   font-size: 1rem;
   flex-shrink: 0;
@@ -1064,7 +1064,7 @@ select.recurpay-input { background-image: none; }
   height: 28px;
   border-radius: 8px;
   background: var(--gradient-primary);
-  color: white;
+  color: #fff;
   font-weight: 700;
   font-size: 0.85rem;
   flex-shrink: 0;
@@ -2247,7 +2247,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-pill.active {
   background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
   border-color: transparent;
-  color: white;
+  color: #fff;
   font-weight: 700;
   box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.3);
 }
@@ -2511,7 +2511,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-quick-icon { box-shadow: 0 8px 20px rgba(var(--ios-blue-rgb), 0.3); }
 .walletpage-quick-icon.disabled {
   background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
-  color: white;
+  color: #fff;
   opacity: 0.6;
 }
 .walletpage-info-card { min-width: 260px; }
@@ -2648,10 +2648,10 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-contact-card:hover { box-shadow: 0 4px 12px var(--primary-a15); }
 .walletpage-contact-btn.send {
   background: var(--gradient-primary);
-  color: white;
+  color: #fff;
   border-color: transparent;
 }
-.walletpage-contact-btn.send:hover { background: var(--gradient-primary-hover); color: white; }
+.walletpage-contact-btn.send:hover { background: var(--gradient-primary-hover); color: #fff; }
 .walletpage-contact-btn.delete:hover {
   background: var(--fill-error);
   border-color: var(--ios-red);
@@ -2800,7 +2800,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-page-num.active {
   background: var(--gradient-primary);
   border-color: var(--accent-primary);
-  color: white;
+  color: #fff;
   font-weight: 600;
 }
 .drivepage-plan-row { flex-basis: 100%; }
@@ -2863,9 +2863,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   opacity: 0.6;
 }
 .drivepage-action-btn:hover {
-  color: #ffffff;
+  color: #fff;
 }
-.drivepage-action-btn.danger:hover { background: var(--error-red); color: #ffffff; }
+.drivepage-action-btn.danger:hover { background: var(--error-red); color: #fff; }
 
 /* Empty State */
 
@@ -2888,7 +2888,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-detail-btn.primary {
   background: var(--gradient-primary);
   border: none;
-  color: white;
+  color: #fff;
   box-shadow: 0 4px 12px var(--primary-a30);
 }
 
