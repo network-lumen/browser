@@ -1,9 +1,9 @@
 <template>
   <div class="margin-top-87 padding-top-75 border-top-light">
-    <button type="button" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full gap-50 fs-13px fw-500 text-left padding-50-62 transition-all-015 flex-justify-space-between border-default bg-secondary hover-bg-hover hover-border-primary-a30 hover-color-text-primary" @click="open = !open">
+    <UiButton variant="none" type="button" @click="open = !open" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center-justify-space-between gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015">
       <span class="txt-weight-light">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
-    </button>
+    </UiButton>
 
     <div v-if="open" class="margin-top-37 flex flex-column gap-2px">
       <button
@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../ui/UiButton.vue';
 import { computed, inject, ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
 import {

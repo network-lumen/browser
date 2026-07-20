@@ -12,15 +12,15 @@
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap fs-12px">{{ restBase }}</span>
         </div>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015 hover-bg-primary-a08 hover-color-accent" type="button" @click="copyAll" :disabled="!hasAnyData">
+        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn disabled-fade-60">
           <Copy :size="16" />
           Copy all
-        </button>
+        </UiButton>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015 hover-bg-primary-a08 hover-color-accent" type="button" @click="refreshAll" :disabled="loadingAll">
+        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="netparams-btn disabled-fade-60">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
-        </button>
+        </UiButton>
       </div>
     </header>
 
@@ -84,6 +84,7 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../../ui/UiButton.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {

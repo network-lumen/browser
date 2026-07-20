@@ -3,26 +3,22 @@
     <main class="ipfspage-main-content flex flex-column flex-1 padding-150 overflow-auto">
       <header v-if="!isBareHtmlView" class="ipfspage-content-header flex-align-start gap-100 margin-bottom-100 flex-justify-end">
         <div class="ipfspage-header-actions flex gap-50">
-          <button
-            v-if="isDir && indexHtmlEntry"
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all padding-62-100 hover-bg-primary hover-border-accent"
+          <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
+           
             type="button"
             @click="openIndexHtml"
-            :disabled="!navigate"
-          >
+            :disabled="!navigate" class="ipfspage-plans-btn disabled-fade-50">
             <span>Open website</span>
-          </button>
-          <button
-            v-if="isDir && masterM3u8Entry"
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all padding-62-100 hover-bg-primary hover-border-accent"
+          </UiButton>
+          <UiButton variant="primary" v-if="isDir && masterM3u8Entry"
+           
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
-            title="Play HLS video"
-          >
+            title="Play HLS video" class="ipfspage-plans-btn disabled-fade-50">
             <Play :size="16" />
             <span>Play video</span>
-          </button>
+          </UiButton>
           <button
             class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all padding-62-100 hover-bg-primary hover-border-accent"
             type="button"
@@ -37,31 +33,25 @@
             <Save v-else :size="16" />
             <span>{{ saved ? "Saved" : saving ? "Saving..." : "Save" }}</span>
           </button>
-          <button
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all padding-62-100 hover-bg-primary hover-border-accent"
-            type="button"
+          <UiButton variant="primary" type="button"
             @click="copyLink"
-            :disabled="!rootCid"
-          >
+            :disabled="!rootCid" class="ipfspage-plans-btn disabled-fade-50">
             <Copy :size="16" />
             <span>Copy link</span>
-          </button>
-          <button
-            class="ipfspage-plans-btn disabled-fade-50 flex-inline-align-center gap-50 border-radius-sm color-text-primary fs-085rem cursor-pointer border-default bg-card transition-smooth-all padding-62-100 hover-bg-primary hover-border-accent"
-            type="button"
+          </UiButton>
+          <UiButton variant="primary" type="button"
             @click="download"
             v-if="!isPreviewUnavailable"
-            :disabled="!canDownload"
-          >
+            :disabled="!canDownload" class="ipfspage-plans-btn disabled-fade-50">
             <Download :size="16" />
             <span>Download</span>
-          </button>
+          </UiButton>
         </div>
       </header>
 
-      <div v-if="loading" class="ipfspage-loading-wrap flex-align-center gap-75 padding-100 border-radius-lg border-default bg-card">
+      <UiCard padding="none" :shadow="false" v-if="loading" class="ipfspage-loading-wrap flex-align-center gap-75 padding-100">
         <UiSpinner size="md" />
-      </div>
+      </UiCard>
 
       <div v-else-if="error" class="ipfspage-error-wrap padding-100 border-radius-lg color-error bg-fill-error border-width-ios-red-a35">
         {{ error }}
@@ -72,12 +62,12 @@
           <div class="ipfspage-welcome-content text-center max-w-600px">
             <h2 class="ipfspage-welcome-content-h2 fs-175rem txt-weight-light color-text-primary margin-bottom-75">IPFS Content Viewer</h2>
             <p>View and download content from IPFS using CIDs.</p>
-            <div class="ipfspage-welcome-example border-radius-lg padding-150 margin-bottom-200 bg-card border-default">
+            <UiCard padding="none" :shadow="false" class="ipfspage-welcome-example padding-150 margin-bottom-200">
               <p class="ipfspage-example-label fw-500 color-text-secondary fs-14px margin-bottom-75">Example:</p>
               <code class="ipfspage-welcome-example-code block bg-card border-default border-radius-8px padding-75-100 mono fs-14px color-primary break-all"
                 >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
               >
-            </div>
+            </UiCard>
             <p class="ipfspage-welcome-hint color-text-tertiary fs-14px">
               Enter an IPFS CID in the address bar to view content.
             </p>
@@ -86,28 +76,22 @@
 
         <div v-else-if="isDir" class="dir-wrap">
           <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-35 padding-0 padding-top-50 padding-bottom-50">
-            <button
-              class="ipfspage-crumb disabled-fade-60 padding-0 cursor-pointer color-text-primary fs-085rem border-none bg-transparent"
-              type="button"
+            <UiButton variant="primary" type="button"
               @click="openDirRoot"
-              :disabled="!navigate"
-            >
+              :disabled="!navigate" class="ipfspage-crumb disabled-fade-60">
               /
-            </button>
+            </UiButton>
             <template v-for="(c, idx) in crumbs" :key="c.path">
               <span v-if="idx > 0" class="ipfspage-sep color-text-secondary">/</span>
-              <button
-                class="ipfspage-crumb disabled-fade-60 padding-0 cursor-pointer color-text-primary fs-085rem border-none bg-transparent"
-                type="button"
+              <UiButton variant="primary" type="button"
                 @click="openDirCrumb(idx)"
-                :disabled="!navigate"
-              >
+                :disabled="!navigate" class="ipfspage-crumb disabled-fade-60">
                 {{ c.label }}
-              </button>
+              </UiButton>
             </template>
           </div>
 
-          <div v-if="!entries.length" class="ipfspage-empty-dir padding-100 border-radius-lg color-text-secondary border-default bg-card">Empty folder.</div>
+          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="ipfspage-empty-dir padding-100 color-text-secondary">Empty folder.</UiCard>
 
           <div v-else class="ipfspage-dir-table border-radius-lg border-default overflow-hidden">
             <div
@@ -128,20 +112,14 @@
                 {{ it.size != null ? formatSize(it.size) : "-" }}
               </div>
               <div class="ipfspage-dir-actions flex-justify-end gap-50">
-                <button
-                  class="ipfspage-btn-ghost color-text-primary border-radius-sm cursor-pointer border-default bg-card fs-13px padding-50-62 hover-bg-primary hover-border-accent"
-                  type="button"
-                  @click.stop="copyLinkFor(it)"
-                >
+                <UiButton variant="primary" type="button"
+                  @click.stop="copyLinkFor(it)" class="ipfspage-btn-ghost">
                   Copy link
-                </button>
-                <button
-                  class="ipfspage-btn-ghost color-text-primary border-radius-sm cursor-pointer border-default bg-card fs-13px padding-50-62 hover-bg-primary hover-border-accent"
-                  type="button"
-                  @click.stop="openEntry(it)"
-                >
+                </UiButton>
+                <UiButton variant="primary" type="button"
+                  @click.stop="openEntry(it)" class="ipfspage-btn-ghost">
                   Open
-                </button>
+                </UiButton>
               </div>
             </div>
           </div>
@@ -238,33 +216,16 @@
       </template>
     </main>
 
-    <Transition name="ipfspage-fade">
-      <div
-        v-if="showSaveModal"
-        class="ipfspage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-slate-a45"
-        role="dialog"
-        aria-modal="true"
-        @click="closeSaveModal"
-      >
-        <div class="ipfspage-modal border-radius-16px border-1 bg-primary overflow-hidden w-min-520px-92vw shadow-modal" @click.stop>
-          <header class="ipfspage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-87-100">
-            <h3 class="ipfspage-modal-header-h3 margin-0 fs-16px fw-650 color-text-primary">Save to Drive</h3>
-            <button class="ipfspage-modal-close color-text-secondary cursor-pointer border-none bg-transparent fs-125rem line-height-1 padding-25-4" type="button" @click="closeSaveModal">
-              <span>×</span>
-            </button>
-          </header>
-
-          <div class="ipfspage-modal-body flex flex-column padding-100 gap-50">
+    <UiModal :model-value="showSaveModal" title="Save to Drive" panel-class="w-min-520px-92vw" @update:model-value="closeSaveModal">
+          <div class="flex flex-column gap-50">
             <label class="ipfspage-modal-label fs-085rem txt-weight-light color-text-primary" for="save-name">Name</label>
-            <input
-              id="save-name"
+            <UiInput radius-class="border-radius-12px" :focus-ring="false" id="save-name"
               v-model="saveNameDraft"
-              class="ipfspage-modal-input w-full border-radius-12px color-text-primary outline-none border-1 bg-primary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow"
-              type="text"
+             
+             
               :placeholder="saveNamePlaceholder"
               :disabled="savePreparing || saving"
-              @keydown.enter.prevent="confirmSaveToDrive"
-            />
+              @keydown.enter.prevent="confirmSaveToDrive" class="ipfspage-modal-input focus-ring focus-outline-none focus-shadow" />
 
             <div v-if="saveModalError" class="ipfspage-modal-error fs-085rem color-error margin-top-25">
               {{ saveModalError }}
@@ -288,35 +249,34 @@
             </div>
           </div>
 
-          <footer class="ipfspage-modal-actions flex-justify-end gap-75 padding-87-100 border-top-1">
-            <button class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 hover-color-text-primary hover-bg-primary hover-border-accent inline-flex flex-inline-align-center gap-50 padding-75-125 border-radius-10px fs-15px fw-500 transition-all-02" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
+          <template #footer>
+            <UiButton variant="secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning" class="ipfspage-btn-secondary disabled-fade-60">
               Cancel
-            </button>
-            <button v-if="savePinCanPause" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 hover-color-text-primary hover-bg-primary hover-border-accent inline-flex flex-inline-align-center gap-50 padding-75-125 border-radius-10px fs-15px fw-500 transition-all-02" type="button" @click="pauseSavePinJob">
+            </UiButton>
+            <UiButton variant="secondary" v-if="savePinCanPause" type="button" @click="pauseSavePinJob" class="ipfspage-btn-secondary disabled-fade-60">
               Pause
-            </button>
-            <button v-if="savePinCanResume" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 hover-color-text-primary hover-bg-primary hover-border-accent inline-flex flex-inline-align-center gap-50 padding-75-125 border-radius-10px fs-15px fw-500 transition-all-02" type="button" @click="resumeSavePinJob">
+            </UiButton>
+            <UiButton variant="secondary" v-if="savePinCanResume" type="button" @click="resumeSavePinJob" class="ipfspage-btn-secondary disabled-fade-60">
               Resume
-            </button>
-            <button v-if="savePinCanStop" class="ipfspage-btn-danger disabled-fade-60 color-error border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 bg-ios-red-a10" type="button" @click="cancelSavePinJob">
+            </UiButton>
+            <UiButton variant="danger" v-if="savePinCanStop" type="button" @click="cancelSavePinJob" class="ipfspage-btn-danger disabled-fade-60">
               Stop
-            </button>
-            <button
-              class="ipfspage-btn-primary disabled-fade-60 bg-gradient-primary color-white border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 border-color-transparent"
-              type="button"
+            </UiButton>
+            <UiButton variant="primary" type="button"
               :disabled="savePreparing || savePinIsRunning"
-              @click="confirmSaveToDrive"
-            >
+              @click="confirmSaveToDrive" class="ipfspage-btn-primary disabled-fade-60">
               {{ savePinJobId ? (savePinCanResume ? "Resume save" : (savePinIsRunning ? "Saving..." : "Save")) : (saving ? "Saving..." : "Save") }}
-            </button>
-          </footer>
-        </div>
-      </div>
-    </Transition>
+            </UiButton>
+          </template>
+    </UiModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiModal from '../../ui/UiModal.vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
  import {
   computed,

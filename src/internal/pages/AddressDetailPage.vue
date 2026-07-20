@@ -1,12 +1,12 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
     <div class="margin-bottom-200">
-      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary transition-smooth-all hover-lift-2" @click="goBack">
+      <UiButton variant="ghost" @click="goBack" class="chaindetail-back-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         Back to Explorer
-      </button>
+      </UiButton>
       <h1 class="fs-28px txt-weight-light color-text-primary margin-0">Address Details</h1>
     </div>
 
@@ -30,12 +30,12 @@
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ address.address }}</code>
-              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02 padding-25 hover-bg-accent hover-border-accent" @click="copyToClipboard(address.address)" title="Copy address">
+              <UiButton variant="secondary" @click="copyToClipboard(address.address)" title="Copy address" class="chaindetail-copy-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-              </button>
+              </UiButton>
             </div>
           </div>
           <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
@@ -139,6 +139,7 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../../ui/UiButton.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';

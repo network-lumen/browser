@@ -5,15 +5,13 @@
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
-          <button
-        type="button"
-        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2 transition-lift-015 hover-bg-secondary hover-color-text-primary hover-lift-1 hover-shadow-md"
+          <UiButton variant="secondary" type="button"
+       
         title="How search works"
         aria-label="How search works"
-        @click="openHowSearchWorks"
-      >
+        @click="openHowSearchWorks" class="searchpage-help-icon-btn size-36px">
         <HelpCircle :size="18" />
-      </button>
+      </UiButton>
     <section class="hero flex-column flex-inline-align-center gap-150 w-full relative flex z-1">
       <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900 fs-350rem">Lumen</div>
 
@@ -40,33 +38,36 @@
       </div>
 
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62 margin-top-75">
-        <button
-          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-0-1-4-rgba-0-0-0-0-05 shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+        <UiButton
+          variant="tag"
+          class="searchpage-pill pill-sites fw-500 txt-sm border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
         >
           <Globe :size="16" />
           Sites
-        </button>
-        <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-0-1-4-rgba-0-0-0-0-05 shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+        </UiButton>
+        <UiButton
+          variant="tag"
+          class="searchpage-pill fw-500 txt-sm border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
         >
           <Image :size="16" />
           Images
-        </button>
-        <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-0-1-4-rgba-0-0-0-0-05 shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+        </UiButton>
+        <UiButton
+          variant="tag"
+          class="searchpage-pill fw-500 txt-sm border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
         >
           <Compass :size="16" />
           Explore everything
-        </button>
+        </UiButton>
       </div>
 
 
@@ -78,15 +79,12 @@
       </div>
 
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100">
-        <button
-          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
-          type="button"
+        <UiButton variant="primary" type="button"
           :disabled="loadingPrevious"
-          @click="loadPrevious"
-        >
+          @click="loadPrevious" class="searchpage-load-more-btn disabled-fade-60">
           <template v-if="loadingPrevious">Loading previous…</template>
           <template v-else>Previous results</template>
-        </button>
+        </UiButton>
       </div>
 
       <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-87 padding-0 margin-0 list-style-none gap-100">
@@ -135,12 +133,10 @@
       </div>
 
       <div v-else-if="selectedType === 'image'" class="searchpage-image-grid gap-100 grid">
-        <div
-          v-for="(r, idx) in imageResults"
+        <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
-          class="searchpage-image-card border-radius-xl border-default bg-card overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover"
-          :data-result-index="idx"
-        >
+         
+          :data-result-index="idx" class="searchpage-image-card overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
             class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
@@ -233,7 +229,7 @@
               >
             </div>
           </div>
-        </div>
+        </UiCard>
       </div>
 
       <ul v-else class="searchpage-result-list list-style-none padding-0 margin-0 flex flex-column gap-100">
@@ -346,51 +342,30 @@
       </ul>
 
       <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center padding-125-0-50">
-        <button
-          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
-          type="button"
+        <UiButton variant="primary" type="button"
           :disabled="loadingMore || loadingPrevious"
-          @click="loadMore"
-        >
+          @click="loadMore" class="searchpage-load-more-btn disabled-fade-60">
           <template v-if="loadingMore">Loading…</template>
           <template v-else>More results</template>
-        </button>
+        </UiButton>
       </div>
 
       <div ref="paginationSentinel" class="searchpage-load-more-sentinel w-full" aria-hidden="true"></div>
     </section>
 
-    <Transition name="searchpage-modal">
-      <div
-        v-if="showHowSearchWorks"
-        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35 z-100 backdrop-blur-4px"
-        role="dialog"
-        aria-modal="true"
-        aria-label="How search works"
-        @click="closeHowSearchWorks"
-      >
-        <div class="searchpage-modal-content searchpage-help-modal border-radius-18px bg-primary border-1 overflow-hidden relative shadow-primary-lg w-min-760" @click.stop>
-          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between border-bottom-1-light padding-125-125-75 padding-top-115">
-            <div class="searchpage-help-header-left flex-align-start gap-87 min-w-0">
-              <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
-                <HelpCircle :size="18" />
-              </div>
-              <div>
-                <h2 class="searchpage-modal-title margin-0 txt-weight-strong color-text-primary">How search works</h2>
-                <p class="searchpage-modal-sub color-text-secondary fs-085rem margin-0 margin-top-25">Indexing, ranking, and how to get discovered.</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              class="searchpage-icon-btn hover-fill-primary-enabled searchpage-help-close flex-inline-align-justify-center border-radius-10px color-text-secondary cursor-pointer flex-0-0-auto border-1-light bg-transparent w-34px h-34px transition-colors-015"
-              aria-label="Close"
-              @click="closeHowSearchWorks"
-            >
-              <X :size="18" />
-            </button>
-          </header>
-
-          <div class="searchpage-help-body color-text-primary overflow-y-auto padding-100-125-125">
+    <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760" @update:model-value="closeHowSearchWorks">
+      <template #header>
+        <div class="searchpage-help-header-left flex-align-start gap-87 min-w-0">
+          <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
+            <HelpCircle :size="18" />
+          </div>
+          <div>
+            <h2 class="searchpage-modal-title margin-0 txt-weight-strong color-text-primary">How search works</h2>
+            <p class="searchpage-modal-sub color-text-secondary fs-085rem margin-0 margin-top-25">Indexing, ranking, and how to get discovered.</p>
+          </div>
+        </div>
+      </template>
+          <div class="searchpage-help-body color-text-primary">
             <div class="searchpage-help-grid grid gap-90-100">
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm padding-0 padding-top-100 padding-right-100 padding-bottom-100 padding-left-100">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">What gets indexed</h3>
@@ -463,14 +438,15 @@
               </p>
             </div>
           </div>
-        </div>
-      </div>
-    </Transition>
+    </UiModal>
 
   </main>
 </template>
 
 <script setup lang="ts">
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiModal from '../../ui/UiModal.vue';
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -495,7 +471,6 @@ import {
   ExternalLink,
   Sparkles,
   HelpCircle,
-  X,
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";

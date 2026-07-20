@@ -33,20 +33,20 @@
         </div>
         <div class="domainpage-header-actions flex gap-75">
           <template v-if="activeNameTab === 'lumen'">
-            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 color-white bg-gradient-primary" type="button" @click="openRegisterModal">
+            <UiButton variant="primary" type="button" @click="openRegisterModal" class="domainpage-btn outline-none">
               <Plus :size="16" />
               <span>Buy domain</span>
-            </button>
+            </UiButton>
           </template>
           <template v-else>
-            <button class="domainpage-btn secondary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 border-color-border-color color-text-secondary bg-card" type="button" @click="importStableLink">
+            <UiButton variant="secondary" type="button" @click="importStableLink" class="domainpage-btn outline-none">
               <Upload :size="16" />
               <span>Import</span>
-            </button>
-            <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 color-white bg-gradient-primary" type="button" @click="createStableLink">
+            </UiButton>
+            <UiButton variant="primary" type="button" @click="createStableLink" class="domainpage-btn outline-none">
               <Plus :size="16" />
               <span>Generate</span>
-            </button>
+            </UiButton>
           </template>
         </div>
       </header>
@@ -67,10 +67,10 @@
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
           </p>
-          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 color-white bg-gradient-primary" type="button" @click="openRegisterModal">
+          <UiButton variant="primary" type="button" @click="openRegisterModal" class="domainpage-btn outline-none">
             <Plus :size="16" />
             <span>Buy domain</span>
-          </button>
+          </UiButton>
         </div>
         <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0 list-style-none margin-0 margin-top-75">
           <li v-for="d in domains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary padding-62-75">
@@ -86,38 +86,26 @@
               >
                 {{ expiryText(d) }}
               </span>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 title="Open lumen URL"
-                @click="openDomain(d)"
-              >
+                @click="openDomain(d)" class="domainpage-icon-btn">
                 <ExternalLink :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Copy lumen URL"
-                @click="copyDomainUrl(d)"
-              >
+                @click="copyDomainUrl(d)" class="domainpage-icon-btn">
                 <Copy :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Settings (preview only)"
-                @click="openSettingsModal(d)"
-              >
+                @click="openSettingsModal(d)" class="domainpage-icon-btn">
                 <Settings :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Transfer domain"
-                @click="openTransferModal(d)"
-              >
+                @click="openTransferModal(d)" class="domainpage-icon-btn">
                 <Send :size="16" />
-              </button>
+              </UiButton>
             </div>
           </li>
         </ul>
@@ -136,10 +124,10 @@
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Stable links are cryptographic names backed by IPNS.
           </p>
-          <button class="domainpage-btn primary flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 color-white bg-gradient-primary" type="button" @click="createStableLink">
+          <UiButton variant="primary" type="button" @click="createStableLink" class="domainpage-btn outline-none">
             <Plus :size="16" />
             <span>Generate</span>
-          </button>
+          </UiButton>
         </div>
         <ul v-else class="domainpage-domains-list flex flex-column gap-50 padding-0 list-style-none margin-0 margin-top-75">
           <li v-for="d in rawDomains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary padding-62-75">
@@ -163,65 +151,42 @@
               <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
             <div class="domainpage-domain-right flex-align-center gap-35">
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 title="Open stable link"
                 :disabled="!d.id"
-                @click="openRawDomain(d)"
-              >
+                @click="openRawDomain(d)" class="domainpage-icon-btn">
                 <ExternalLink :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Copy stable link URL"
                 :disabled="!d.id"
-                @click="copyRawDomainUrl(d)"
-              >
+                @click="copyRawDomainUrl(d)" class="domainpage-icon-btn">
                 <Copy :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Edit records"
                 :disabled="!d.name"
-                @click="openStableSettingsModal(d)"
-              >
+                @click="openStableSettingsModal(d)" class="domainpage-icon-btn">
                 <Settings :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn flex-align-justify-center border-radius-full cursor-pointer color-text-secondary border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Export private key"
                 :disabled="!d.name"
-                @click="exportStableLink(d)"
-              >
+                @click="exportStableLink(d)" class="domainpage-icon-btn">
                 <Download :size="16" />
-              </button>
-              <button
-                class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer border-1 bg-tertiary w-30px h-30px"
-                type="button"
+              </UiButton>
+              <UiButton variant="danger" type="button"
                 title="Delete stable link"
                 :disabled="!d.name"
-                @click="deleteStableLink(d)"
-              >
+                @click="deleteStableLink(d)" class="domainpage-icon-btn">
                 <Trash2 :size="16" />
-              </button>
+              </UiButton>
             </div>
           </li>
         </ul>
       </section>
 
-      <Transition name="domainpage-fade">
-        <div v-if="stableLinkModalMode" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeStableLinkModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
-              <h3 class="margin-0">{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeStableLinkModal">
-                <X :size="16" />
-              </button>
-            </header>
+      <UiModal :model-value="!!stableLinkModalMode" :title="stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link'" panel-class="max-w-500px" @update:model-value="closeStableLinkModal">
             <form class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125" @submit.prevent="confirmStableLinkModal">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">
                 {{ stableLinkModalMode === 'import'
@@ -230,46 +195,31 @@
               </p>
               <div class="domainpage-form-group margin-bottom-100">
                 <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Stable link name</label>
-                <input
-                  v-model="stableLinkNameDraft"
-                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
-                  type="text"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" v-model="stableLinkNameDraft"
+                 
+                 
                   autocomplete="off"
                   placeholder="my-link"
                   :disabled="stableLinkSaving"
-                  autofocus
-                />
+                  autofocus class="domainpage-form-input focus-outline-none focus-ring focus-shadow" />
               </div>
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-text-secondary bg-card" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal">
+                <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="domainpage-btn outline-none">
                   Cancel
-                </button>
-                <button
-                  class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center color-white bg-gradient-primary"
-                  type="submit"
-                  :disabled="stableLinkSaving || !stableLinkNameDraft.trim()"
-                >
+                </UiButton>
+                <UiButton variant="primary" type="submit"
+                  :disabled="stableLinkSaving || !stableLinkNameDraft.trim()" class="domainpage-btn outline-none">
                   <span v-if="!stableLinkSaving">
                     <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
                     {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
                   </span>
                   <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
-                </button>
+                </UiButton>
               </div>
             </form>
-          </div>
-        </div>
-      </Transition>
+      </UiModal>
 
-      <Transition name="domainpage-fade">
-        <div v-if="showStableSettingsModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeStableSettingsModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
-              <h3 class="margin-0">Stable link records</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeStableSettingsModal">
-                <X :size="16" />
-              </button>
-            </header>
+      <UiModal :model-value="showStableSettingsModal" title="Stable link records" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Publish resolver records for this stable link.</p>
               <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary padding-75-87">
@@ -291,63 +241,46 @@
                     v-for="(r, idx) in stableSettingsRecords"
                     :key="idx"
                   >
-                    <input
-                      type="text"
-                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                     
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
-                      :disabled="stableSettingsSaving"
-                    />
-                    <input
-                      type="text"
-                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow" />
+                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                     
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
-                      :disabled="stableSettingsSaving"
-                    />
-                    <button
-                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer border-1 bg-tertiary w-30px h-30px"
-                      type="button"
+                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow" />
+                    <UiButton variant="danger" type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
-                      :disabled="stableSettingsSaving"
-                    >
+                      :disabled="stableSettingsSaving" class="domainpage-icon-btn">
                       <X :size="14" />
-                    </button>
+                    </UiButton>
                   </div>
                 </div>
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-text-secondary bg-card" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving">
+                <UiButton variant="secondary" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving" class="domainpage-btn outline-none">
                   Add record
-                </button>
+                </UiButton>
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-text-secondary bg-card" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving">
+                <UiButton variant="secondary" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving" class="domainpage-btn outline-none">
                   Cancel
-                </button>
-                <button class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center color-white bg-gradient-primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading">
+                </UiButton>
+                <UiButton variant="primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading" class="domainpage-btn outline-none">
                   <span v-if="!stableSettingsSaving">
                     <Check :size="16" />
                     Save records
                   </span>
                   <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
-                </button>
+                </UiButton>
               </div>
             </div>
-          </div>
-        </div>
-      </Transition>
+      </UiModal>
 
       <!-- Register Domain Modal -->
-      <Transition name="domainpage-fade">
-        <div v-if="showRegisterModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeRegisterModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
-              <h3 class="margin-0">Register domain</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeRegisterModal">
-                <X :size="16" />
-              </button>
-            </header>
+      <UiModal :model-value="showRegisterModal" title="Register domain" panel-class="max-w-500px" @update:model-value="closeRegisterModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">
                 Register a new <span class="mono">.lmn</span> handle for the owner address.
@@ -356,22 +289,18 @@
               <div class="domainpage-form-group margin-bottom-100">
                 <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Domain</label>
                 <div class="domainpage-domain-input-wrapper flex-align-center gap-35">
-                  <input
-                    type="text"
-                    class="domainpage-form-input domainpage-domain-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                   
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
-                    @blur="refreshAvailability"
-                  />
+                    @blur="refreshAvailability" class="domainpage-form-input domainpage-domain-part focus-outline-none focus-ring focus-shadow" />
                   <span class="domainpage-dot-sep txt-weight-light color-text-tertiary fs-14px">.</span>
-                  <input
-                    type="text"
-                    class="domainpage-form-input domainpage-ext-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                   
                     v-model="registerForm.ext"
                     placeholder="lmn"
-                    @blur="refreshAvailability"
-                  />
+                    @blur="refreshAvailability" class="domainpage-form-input domainpage-ext-part focus-outline-none focus-ring focus-shadow" />
                 </div>
                 <div
                   v-if="registerForm.domainName"
@@ -394,33 +323,20 @@
                 </div>
               </div>
 
-              <button
-                class="domainpage-btn primary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center color-white bg-gradient-primary"
-                type="button"
+              <UiButton variant="primary" type="button"
                 @click="confirmRegister"
-                :disabled="!canRegister || registering"
-              >
+                :disabled="!canRegister || registering" class="domainpage-btn outline-none">
                 <span v-if="!registering" class="flex-inline-align-center gap-50">
                   <Plus :size="16" />
                   Register domain
                 </span>
                 <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
-              </button>
+              </UiButton>
             </div>
-          </div>
-        </div>
-      </Transition>
+      </UiModal>
 
       <!-- Settings Modal -->
-      <Transition name="domainpage-fade">
-        <div v-if="showSettingsModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeSettingsModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
-              <h3 class="margin-0">Domain settings</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeSettingsModal">
-                <X :size="16" />
-              </button>
-            </header>
+      <UiModal :model-value="showSettingsModal" title="Domain settings" panel-class="max-w-500px" @update:model-value="closeSettingsModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Edit resolver records for this domain.</p>
               <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary padding-75-87">
@@ -441,31 +357,24 @@
                     v-for="(r, idx) in settingsRecords"
                     :key="idx"
                   >
-                    <input
-                      type="text"
-                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                     
                       v-model="r.key"
-                      placeholder="cid | ipns | txt | ..."
-                    />
-                    <input
-                      type="text"
-                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                      placeholder="cid | ipns | txt | ..." class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow" />
+                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                     
                       v-model="r.value"
-                      placeholder="Value"
-                    />
-                    <button
-                      class="domainpage-icon-btn danger flex-align-justify-center border-radius-full cursor-pointer border-1 bg-tertiary w-30px h-30px"
-                      type="button"
+                      placeholder="Value" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow" />
+                    <UiButton variant="danger" type="button"
                       @click="removeSettingsRecord(idx)"
-                      title="Remove row"
-                    >
+                      title="Remove row" class="domainpage-icon-btn">
                       <X :size="14" />
-                    </button>
+                    </UiButton>
                   </div>
                 </div>
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-text-secondary bg-card" type="button" @click="addSettingsRecord">
+                <UiButton variant="secondary" type="button" @click="addSettingsRecord" class="domainpage-btn outline-none">
                   Add record
-                </button>
+                </UiButton>
               </div>
 
               <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
@@ -483,37 +392,24 @@
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-text-secondary bg-card" type="button" @click="closeSettingsModal">
+                <UiButton variant="secondary" type="button" @click="closeSettingsModal" class="domainpage-btn outline-none">
                   Cancel
-                </button>
-                <button
-                  class="domainpage-btn primary full ghost flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-white color-text-secondary bg-gradient-primary bg-card"
-                  type="button"
+                </UiButton>
+                <UiButton variant="secondary" type="button"
                   @click="saveSettings"
-                  :disabled="!canSaveSettings || savingSettings"
-                >
+                  :disabled="!canSaveSettings || savingSettings" class="domainpage-btn outline-none">
                   <span v-if="!savingSettings">
                     <Settings :size="16" />
                     Save changes
                   </span>
                   <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
-                </button>
+                </UiButton>
               </div>
             </div>
-          </div>
-        </div>
-      </Transition>
+      </UiModal>
 
       <!-- Transfer Modal -->
-      <Transition name="domainpage-fade">
-        <div v-if="showTransferModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeTransferModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
-            <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
-              <h3 class="margin-0">Transfer domain</h3>
-              <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeTransferModal">
-                <X :size="16" />
-              </button>
-            </header>
+      <UiModal :model-value="showTransferModal" title="Transfer domain" panel-class="max-w-500px" @update:model-value="closeTransferModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Transfer ownership of this domain to another address.</p>
               
@@ -526,12 +422,10 @@
 
               <div class="domainpage-form-group margin-bottom-100">
                 <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">New Owner Address</label>
-                <input
-                  type="text"
-                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" :focus-ring="false" type="text"
+                 
                   v-model="transferForm.newOwner"
-                  placeholder="lumen1..."
-                />
+                  placeholder="lumen1..." class="domainpage-form-input focus-outline-none focus-ring focus-shadow" />
                 <p class="domainpage-form-hint fs-075rem color-text-tertiary margin-top-37">Enter the Lumen address of the new owner</p>
               </div>
 
@@ -543,32 +437,30 @@
               </div>
 
               <div class="modal-actions flex flex-column gap-50">
-                <button class="domainpage-btn secondary full flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center border-color-border-color color-text-secondary bg-card" type="button" @click="closeTransferModal">
+                <UiButton variant="secondary" type="button" @click="closeTransferModal" class="domainpage-btn outline-none">
                   Cancel
-                </button>
-                <button
-                  class="domainpage-btn primary full danger flex-inline-align-center gap-50 border-radius-10px fs-085rem fw-500 txt-weight-light txt-sm cursor-pointer outline-none border-1-transparent padding-62-100 w-full flex-justify-center color-white bg-gradient-primary"
-                  type="button"
+                </UiButton>
+                <UiButton variant="danger" type="button"
                   @click="confirmTransfer"
-                  :disabled="!canTransfer || transferring"
-                >
+                  :disabled="!canTransfer || transferring" class="domainpage-btn outline-none">
                   <span v-if="!transferring">
                     <Send :size="16" />
                     Transfer domain
                   </span>
                   <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
-                </button>
+                </UiButton>
               </div>
             </div>
-          </div>
-        </div>
-      </Transition>
+      </UiModal>
     </main>
 
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiModal from '../../ui/UiModal.vue';
 import { computed, inject, ref, watch, watchEffect } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {

@@ -2,10 +2,10 @@
   <div class="home-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
-      <button type="button" class="homepage-toggle-pages w-full flex-align-center-justify-space-between gap-50 cursor-pointer color-text-secondary border-radius-sm fs-13px fw-500 padding-50-75 border-default bg-secondary transition-all-015 hover-bg-hover hover-border-primary-a30 hover-color-text-primary margin-0 margin-top-50 margin-bottom-50" @click="showAllPages = !showAllPages">
+      <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="homepage-toggle-pages flex-justify-space-between">
         <span>All pages</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
-      </button>
+      </UiButton>
 
       <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-25 padding-bottom-25">
         <button
@@ -53,9 +53,9 @@
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
             <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
-            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500 border-default bg-card transition-all-015 padding-45-75 border-radius-full" type="button" @click.stop="restoreMySpaceDefaults">
+            <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults" class="homepage-empty-btn">
               Restore defaults
-            </button>
+            </UiButton>
           </div>
           <button
             v-for="key in mySpaceCards"
@@ -104,9 +104,9 @@
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
             <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
-            <button class="homepage-empty-btn cursor-pointer color-text-primary margin-top-37 fs-12px fw-500 border-default bg-card transition-all-015 padding-45-75 border-radius-full" type="button" @click.stop="restoreLumenDefaults">
+            <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults" class="homepage-empty-btn">
               Restore defaults
-            </button>
+            </UiButton>
           </div>
           <button
             v-for="key in lumenCards"
@@ -144,6 +144,7 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../../ui/UiButton.vue';
 import { inject, computed, ref, watch } from 'vue';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);

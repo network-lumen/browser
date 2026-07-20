@@ -1,15 +1,6 @@
 <template>
-  <div class="qr-scanner-wrapper fixed top-0 z-10000 left-0 right-0 bottom-0">
-    <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125 bg-black-a75 backdrop-blur-4px" @click="$emit('close')">
-      <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
-        <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
-          <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>
-          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02 hover-bg-fill-tertiary hover-color-text-primary background-none" @click="$emit('close')" aria-label="Close">
-            <X :size="24" />
-          </button>
-        </div>
-
-        <div class="qr-scanner-content padding-150">
+  <UiModal :model-value="true" :title="title" panel-class="w-full max-w-500px max-h-90vh" @update:model-value="$emit('close')">
+        <div class="qr-scanner-content">
           <!-- Camera View -->
           <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden bg-black">
             <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
@@ -53,26 +44,26 @@
             </div>
 
             <div class="qr-action-buttons flex-justify-center gap-75">
-              <button class="qr-btn qr-btn-secondary color-text-primary bg-fill-tertiary border-default flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02 padding-62-125" @click="scanAgain">
+              <UiButton variant="secondary" @click="scanAgain" class="qr-btn qr-btn-secondary">
                 <QrCode :size="16" />
                 <span>Scan Again</span>
-              </button>
-              <button class="qr-btn qr-btn-primary color-white flex-inline-align-center fs-14px fw-500 cursor-pointer gap-50 border-none border-radius-8px transition-all-02 bg-accent padding-62-125" @click="handleUseScannedData">
+              </UiButton>
+              <UiButton variant="primary" @click="handleUseScannedData" class="qr-btn qr-btn-primary">
                 <Check :size="16" />
                 <span>Use This</span>
-              </button>
+              </UiButton>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { BrowserMultiFormatReader } from '@zxing/library';
-import { X, AlertCircle, CheckCircle, RefreshCw, QrCode, Check } from 'lucide-vue-next';
+import { AlertCircle, CheckCircle, RefreshCw, QrCode, Check } from 'lucide-vue-next';
 
 interface Props {
   title?: string;

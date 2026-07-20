@@ -10,38 +10,29 @@
         </div>
 
         <div class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px margin-top-50 border-1-transparent" :class="{ active: hosting.kind === 'local' }">
-          <button
-            class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left grid flex-inline-align-center border-none bg-transparent min-w-0 padding-75-87"
-            type="button"
-            @click="selectHosting('local')"
-          >
+          <UiButton variant="secondary" type="button"
+            @click="selectHosting('local')" class="drivepage-hosting-main grid">
             <span
               class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
             <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
-          </button>
-          <button
-            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015 hover-bg-primary-a08 hover-color-accent"
-            type="button"
+          </UiButton>
+          <UiButton variant="secondary" type="button"
             @click.stop="openLocalDetails"
-            title="Local details"
-          >
+            title="Local details" class="drivepage-hosting-details size-32px">
             <TableProperties :size="16" />
-          </button>
+          </UiButton>
         </div>
 
         <div class="drivepage-hosting-divider bg-border margin-0 margin-top-100 margin-right-25 margin-bottom-75 margin-left-25"></div>
 
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between margin-top-25">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase fs-11px letter-spacing-005em">Subscriptions</span>
-          <button
-            class="drivepage-hosting-subheader-action flex-inline-align-justify-center gap-35 fs-075rem txt-weight-medium cursor-pointer border-radius-full bg-primary-a08 border-1-primary-a15 color-accent-secondary transition-colors-015 padding-25-75 hover-color-accent border-color-primary-a25-hover background-primary-a15-hover"
-            type="button"
-            @click="openPlansModal"
-          >
+          <UiButton variant="secondary" type="button"
+            @click="openPlansModal" class="drivepage-hosting-subheader-action background-primary-a15-hover">
             Cloud
-          </button>
+          </UiButton>
         </div>
 
         <div v-if="!subscriptionRows.length" class="drivepage-hosting-empty border-radius-12px fs-075rem color-text-tertiary margin-top-50 bg-transparent padding-75-87 border-1-dashed-light">
@@ -54,11 +45,8 @@
           class="drivepage-hosting-row flex-align-center gap-50 border-radius-12px margin-top-50 border-1-transparent"
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
-          <button
-              class="drivepage-hosting-main flex-1 cursor-pointer border-radius-12px color-text-secondary text-left grid flex-inline-align-center border-none bg-transparent min-w-0 padding-75-87"
-              type="button"
-              @click="selectGateway(sub.gatewayId)"
-            >
+          <UiButton variant="secondary" type="button"
+              @click="selectGateway(sub.gatewayId)" class="drivepage-hosting-main grid">
               <span class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
               <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
@@ -75,15 +63,12 @@
                   p
                 }}</span>
               </span>
-          </button>
-          <button
-            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015 hover-bg-primary-a08 hover-color-accent"
-            type="button"
+          </UiButton>
+          <UiButton variant="secondary" type="button"
             @click.stop="openGatewayDetails(sub.gatewayId)"
-            title="Subscription details"
-          >
+            title="Subscription details" class="drivepage-hosting-details size-32px">
             <TableProperties :size="16" />
-          </button>
+          </UiButton>
         </div>
       </div>
     </InternalSidebar>
@@ -100,31 +85,25 @@
         <div class="drivepage-header-actions flex-align-center flex-wrap-wrap gap-75">
 
 
-          <button class="drivepage-plans-btn flex-inline-align-center border-radius-full color-text-secondary cursor-pointer gap-35 border-1 bg-secondary fs-13px transition-all-02 padding-50-100 hover-border-color hover-color-text-primary hover-bg-primary" type="button" @click="openPlansModal">
+          <UiButton variant="secondary" type="button" @click="openPlansModal" class="drivepage-plans-btn">
             <Database :size="16" />
             <span>Cloud</span>
-          </button>
+          </UiButton>
 
           <div class="drivepage-upload-menu flex-inline relative" @click.stop>
-            <button class="drivepage-upload-btn inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 shadow-0-6-16-primary-a40-hover" type="button" @click="toggleUploadMenu">
+            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn">
               <Plus :size="18" />
               <span>Upload</span>
-            </button>
+            </UiButton>
             <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1 padding-25 z-50 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-12" @click.stop>
-              <button
-                class="drivepage-upload-dropdown-item font-inherit flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
-                type="button"
-                @click="openFilePicker"
-              >
+              <UiButton variant="none" type="button"
+                @click="openFilePicker" class="drivepage-upload-dropdown-item w-full text-left flex-justify-start border-none bg-transparent cursor-pointer color-text-primary fs-13px fw-500 border-radius-sm padding-50-62 transition-all-015">
                 Upload files
-              </button>
-              <button
-                class="drivepage-upload-dropdown-item font-inherit flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
-                type="button"
-                @click="openFolderPicker"
-              >
+              </UiButton>
+              <UiButton variant="none" type="button"
+                @click="openFolderPicker" class="drivepage-upload-dropdown-item w-full text-left flex-justify-start border-none bg-transparent cursor-pointer color-text-primary fs-13px fw-500 border-radius-sm padding-50-62 transition-all-015">
                 Upload folder
-              </button>
+              </UiButton>
             </div>
 
           </div>
@@ -160,9 +139,9 @@
             placeholder="Search files..."
             @input="currentPage = 1"
           />
-          <button v-if="searchQuery" class="drivepage-clear-search flex-align-justify-center border-radius-circle color-text-secondary cursor-pointer border-none bg-fill-tertiary transition-all-015 h-20px w-20px hover-bg-fill-secondary hover-color-text-primary" @click="searchQuery = ''; currentPage = 1">
+          <UiButton variant="secondary" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1" class="drivepage-clear-search">
             <X :size="14" />
-          </button>
+          </UiButton>
         </div>
         <div class="filter-info flex-align-center gap-75">
           <span class="drivepage-file-count color-text-secondary fs-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
@@ -191,54 +170,46 @@
           </span>
         </div>
         <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap margin-left-auto gap-50">
-          <button
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px"
-            type="button"
+          <UiButton variant="secondary" type="button"
             :disabled="!selectedLocalCount"
-            @click="clearLocalSelection"
-          >
+            @click="clearLocalSelection" class="drivepage-bulk-action-btn disabled-fade-45">
             Clear
-          </button>
-          <button
-            v-if="canBulkConvertSelectedLocal"
-            class="drivepage-bulk-action-btn disabled-fade-45 flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px"
+          </UiButton>
+          <UiButton variant="primary" v-if="canBulkConvertSelectedLocal"
+           
             type="button"
-            @click="convertSelectedLocalToHls"
-          >
+            @click="convertSelectedLocalToHls" class="drivepage-bulk-action-btn disabled-fade-45">
             Convert to HLS
             <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium fs-12px bg-primary-a10 padding-0 padding-right-25 padding-left-25 min-w-135rem-badge">
               {{ selectedLocalConvertibleCount }}
             </span>
-          </button>
-          <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px color-error-red color-error-red-hover-not-disabled bg-ios-red-a06 shadow-0-0-0-3-ios-red-a08-hover-not-disabled"
-            type="button"
+          </UiButton>
+          <UiButton variant="danger" type="button"
             :disabled="!canBulkRemoveSelectedLocal"
-            @click="removeSelectedLocalFiles"
-          >
+            @click="removeSelectedLocalFiles" class="drivepage-bulk-action-btn disabled-fade-45">
             Remove selected
-          </button>
+          </UiButton>
         </div>
       </div>
 
       <!-- Breadcrumb (folders) -->
       <div v-if="isBrowsing" class="drivepage-browse-bar flex-align-center gap-75 margin-bottom-75 padding-0 padding-top-50 padding-bottom-50">
-        <button class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary" type="button" @click="exitBrowse">
+        <UiButton variant="secondary" type="button" @click="exitBrowse" class="drivepage-btn-ghost">
           Back
-        </button>
+        </UiButton>
         <div class="drivepage-browse-crumbs flex-align-center flex-wrap-wrap gap-35 min-w-0">
-          <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap max-w-220px" type="button" @click="exitBrowse">
+          <UiButton variant="ghost" type="button" @click="exitBrowse" class="drivepage-crumb nowrap">
             {{ browseHostingLabel }}
-          </button>
+          </UiButton>
           <span class="drivepage-sep color-text-secondary">/</span>
-          <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap max-w-220px" type="button" @click="openBrowseAt('')">
+          <UiButton variant="ghost" type="button" @click="openBrowseAt('')" class="drivepage-crumb nowrap">
             {{ browseRootLabel }}
-          </button>
+          </UiButton>
           <template v-for="c in browseCrumbs" :key="c.path">
             <span class="drivepage-sep color-text-secondary">/</span>
-            <button class="drivepage-crumb border-none bg-transparent padding-0 cursor-pointer color-text-primary fs-085rem overflow-hidden txt-overflow-ellipsis nowrap max-w-220px" type="button" @click="openBrowseAt(c.path)">
+            <UiButton variant="ghost" type="button" @click="openBrowseAt(c.path)" class="drivepage-crumb nowrap">
               {{ c.label }}
-            </button>
+            </UiButton>
           </template>
         </div>
       </div>
@@ -264,14 +235,11 @@
               </template>
             </span>
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
-              <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 @click="cancelUpload(key)"
-                :disabled="upload?.uploadingCanceling"
-              >
+                :disabled="upload?.uploadingCanceling" class="drivepage-progress-cancel-btn disabled-fade-60">
                 {{ upload?.uploadingCanceling ? "Cancelling..." : "Cancel" }}
-              </button>
+              </UiButton>
             </div>
           </div>
         </div>
@@ -315,24 +283,18 @@
               {{ convertingStatusText }}
             </span>
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
-              <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 @click="pauseHlsQueue"
-                :disabled="convertingCanceling || convertingPauseRequested"
-              >
+                :disabled="convertingCanceling || convertingPauseRequested" class="drivepage-progress-cancel-btn disabled-fade-60">
                 {{
                   convertingPauseRequested ? "Pausing..." : "Pause"
                 }}
-              </button>
-              <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 @click="cancelHlsConversion"
-                :disabled="convertingCanceling || convertingPauseRequested"
-              >
+                :disabled="convertingCanceling || convertingPauseRequested" class="drivepage-progress-cancel-btn disabled-fade-60">
                 {{ convertingCanceling ? "Cancelling..." : "Cancel" }}
-              </button>
+              </UiButton>
             </div>
           </div>
         </div>
@@ -351,33 +313,26 @@
             <span class="drivepage-hls-queue-copy-span fs-075rem color-text-secondary">{{ hlsQueueSummaryText() }}</span>
           </div>
           <div class="drivepage-hls-queue-actions flex-inline-align-center flex-wrap-wrap gap-50 flex-justify-end">
-            <button
-              v-if="hlsQueueCanPause"
-              class="drivepage-hls-queue-action-btn disabled-fade-45 flex-inline-align-center color-text-secondary border-radius-10px txt-weight-light cursor-pointer gap-35 border-1 bg-primary padding-50-75 fs-12px transition-all-02"
+            <UiButton variant="secondary" v-if="hlsQueueCanPause"
+             
               type="button"
               @click="pauseHlsQueue"
-              :disabled="convertingPauseRequested"
-            >
+              :disabled="convertingPauseRequested" class="drivepage-hls-queue-action-btn disabled-fade-45">
               <Pause :size="14" />
               <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
-            </button>
-            <button
-              v-if="hlsQueueCanResume"
-              class="drivepage-hls-queue-action-btn disabled-fade-45 flex-inline-align-center color-text-secondary border-radius-10px txt-weight-light cursor-pointer gap-35 border-1 bg-primary padding-50-75 fs-12px transition-all-02"
+            </UiButton>
+            <UiButton variant="secondary" v-if="hlsQueueCanResume"
+             
               type="button"
-              @click="resumeHlsQueue"
-            >
+              @click="resumeHlsQueue" class="drivepage-hls-queue-action-btn disabled-fade-45">
               <Play :size="14" />
               <span>Resume</span>
-            </button>
-            <button
-              class="drivepage-hls-queue-clear-btn disabled-fade-45 color-text-secondary border-radius-10px txt-weight-light cursor-pointer border-1 bg-primary padding-50-75 fs-12px transition-all-02"
-              type="button"
+            </UiButton>
+            <UiButton variant="secondary" type="button"
               @click="clearHlsQueue"
-              :disabled="!hlsQueue.length"
-            >
+              :disabled="!hlsQueue.length" class="drivepage-hls-queue-clear-btn disabled-fade-45">
               {{ converting ? "Clear finished" : "Clear queue" }}
-            </button>
+            </UiButton>
           </div>
         </div>
 
@@ -417,14 +372,11 @@
               {{ archiveDownloadStatusText }}
             </span>
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
-              <button
-                class="drivepage-progress-cancel-btn disabled-fade-60 hover-fill-primary color-text-secondary fs-075rem cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 padding-45-75"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 @click="cancelHlsArchiveDownload"
-                :disabled="archiveDownloadCanceling"
-              >
+                :disabled="archiveDownloadCanceling" class="drivepage-progress-cancel-btn disabled-fade-60">
                 {{ archiveDownloadCanceling ? "Cancelling..." : "Cancel" }}
-              </button>
+              </UiButton>
             </div>
           </div>
         </div>
@@ -526,70 +478,49 @@
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
           <div class="drivepage-list-actions flex-justify-end gap-25 flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
-            <button
-              v-if="!isBrowsing && isDirEntry(file)"
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
+            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="padding-25" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
-              @click.stop="openEntryDetails(file)"
-            >
+              @click.stop="openEntryDetails(file)" class="drivepage-action-btn">
               <TableProperties :size="14" />
-            </button>
-            <button
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
-              title="Download"
-              @click.stop="downloadFile(file)"
-            >
+            </UiButton>
+            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="padding-25" title="Download"
+              @click.stop="downloadFile(file)" class="drivepage-action-btn">
               <Download :size="14" />
-            </button>
-            <button
-              v-if="!isDirEntry(file) && isVideoFile(file.name)"
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
+            </UiButton>
+            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="padding-25" v-if="!isDirEntry(file) && isVideoFile(file.name)"
               title="Convert to HLS"
               :disabled="converting || uploading"
-              @click.stop="convertToHls(file)"
-            >
+              @click.stop="convertToHls(file)" class="drivepage-action-btn">
               <Clapperboard :size="14" />
-            </button>
-            <button
-              class="drivepage-action-btn flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover"
-              title="Share"
-              @click.stop="copyLumenLinkFor(file)"
-            >
+            </UiButton>
+            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="padding-25" title="Share"
+              @click.stop="copyLumenLinkFor(file)" class="drivepage-action-btn">
               <Share2 :size="14" />
-            </button>
-            <button
-              class="drivepage-action-btn danger flex-inline-align-justify-center cursor-pointer color-text-primary padding-50-62 border-none bg-fill-tertiary border-radius-6px relative transition-all-02 hover-bg-accent hover-scale-105 color-hex-fff-hover background-error-red-hover"
-              title="Remove"
-              @click.stop="removeFile(file)"
-            >
+            </UiButton>
+            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="padding-25" title="Remove"
+              @click.stop="removeFile(file)" class="drivepage-action-btn danger background-error-red-hover">
               <Trash2 :size="14" />
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
 
       <!-- Pagination -->
       <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="drivepage-pagination-bar flex-align-justify-center flex-wrap-wrap gap-50 margin-top-50 padding-0 padding-top-100 padding-bottom-100">
-        <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
-          :disabled="currentPage === 1"
+        <UiButton variant="secondary" :disabled="currentPage === 1"
           @click="currentPage = 1"
-          title="First page"
-        >
+          title="First page" class="drivepage-page-btn disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
           </svg>
-        </button>
-        <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
-          :disabled="currentPage === 1"
+        </UiButton>
+        <UiButton variant="secondary" :disabled="currentPage === 1"
           @click="currentPage--"
-          title="Previous page"
-        >
+          title="Previous page" class="drivepage-page-btn disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-        </button>
+        </UiButton>
         
         <div class="drivepage-page-numbers flex-align-center gap-25">
           <template v-for="(page, idx) in pageNumbers" :key="idx">
@@ -605,26 +536,20 @@
           </template>
         </div>
         
-        <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
-          :disabled="currentPage === totalPages"
+        <UiButton variant="secondary" :disabled="currentPage === totalPages"
           @click="currentPage++"
-          title="Next page"
-        >
+          title="Next page" class="drivepage-page-btn disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
-        </button>
-        <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
-          :disabled="currentPage === totalPages"
+        </UiButton>
+        <UiButton variant="secondary" :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
-          title="Last page"
-        >
+          title="Last page" class="drivepage-page-btn disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
           </svg>
-        </button>
+        </UiButton>
         
         <span class="drivepage-page-info color-text-secondary fs-13px margin-left-50 nowrap">
           {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }} of {{ filteredFiles.length }}
@@ -646,14 +571,11 @@
               : "Click Upload to add files"
           }}
         </p>
-        <button
-          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 padding-100-175 shadow-0-6-16-primary-a40-hover"
-          type="button"
-          @click="openFilePicker"
-        >
+        <UiButton variant="primary" type="button"
+          @click="openFilePicker" class="drivepage-upload-btn-large">
           <Upload :size="20" />
           <span>Choose files to upload</span>
-        </button>
+        </UiButton>
       </div>
     </main>
 
@@ -706,15 +628,13 @@
       <div class="drivepage-detail-info flex flex-column gap-100 margin-bottom-125">
         <div class="info-row flex flex-column gap-20">
           <span class="drivepage-info-label color-text-tertiary text-uppercase fs-10px letter-spacing-005em">Name</span>
-          <input
-            v-if="canRenameSelected"
-            class="drivepage-info-value drivepage-name-input color-text-primary fw-500 w-full border-radius-10px fs-085rem fs-13px border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+          <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="fs-085rem" padding-class="padding-50-62" :focus-ring="false" v-if="canRenameSelected"
+           
             v-model.trim="renameDraft"
-            type="text"
+           
             placeholder="Unknown"
             @keyup.enter="saveSelectedName"
-            @blur="saveSelectedName"
-          />
+            @blur="saveSelectedName" class="drivepage-info-value drivepage-name-input fw-500 fs-13px focus-outline-none focus-ring focus-bg-primary focus-shadow" />
           <span v-else class="drivepage-info-value color-text-primary fw-500 fs-13px">{{ selectedFile.name }}</span>
         </div>
         <div class="info-row flex flex-column gap-20">
@@ -730,32 +650,28 @@
       </div>
 
       <div class="detail-actions flex flex-column gap-50">
-        <button
-          v-if="!isDirEntry(selectedFile)"
-          class="drivepage-detail-btn primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-white padding-75 border-none bg-gradient-primary fs-13px transition-all-02 shadow-0-6-16-primary-a40-hover"
-          @click="downloadFile(selectedFile)"
-        >
+        <UiButton variant="primary" v-if="!isDirEntry(selectedFile)"
+         
+          @click="downloadFile(selectedFile)" class="drivepage-detail-btn">
           <Download :size="16" />
           Download
-        </button>
-        <button
-          v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
-          class="drivepage-detail-btn hover-fill-primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary padding-75 border-1 bg-primary fs-13px transition-all-02"
+        </UiButton>
+        <UiButton variant="secondary" v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
+         
           :disabled="converting || uploading"
           @click="convertSelectedToHls"
-          title="Convert to HLS (creates a new CID)"
-        >
+          title="Convert to HLS (creates a new CID)" class="drivepage-detail-btn">
           <Clapperboard :size="16" />
           Convert to HLS
-        </button>
-        <button class="drivepage-detail-btn hover-fill-primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary padding-75 border-1 bg-primary fs-13px transition-all-02" @click="copyLumenLinkFor(selectedFile)">
+        </UiButton>
+        <UiButton variant="secondary" @click="copyLumenLinkFor(selectedFile)" class="drivepage-detail-btn">
           <Share2 :size="16" />
           Share
-        </button>
-        <button class="drivepage-detail-btn hover-fill-primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-text-secondary padding-75 border-1 bg-primary fs-13px transition-all-02" @click="openInIpfs(selectedFile)">
+        </UiButton>
+        <UiButton variant="secondary" @click="openInIpfs(selectedFile)" class="drivepage-detail-btn">
           <ExternalLink :size="16" />
           Open
-        </button>
+        </UiButton>
       </div>
     </aside>
 
@@ -778,80 +694,38 @@
     </div> -->
 
     <!-- Upload Path Modal (fallback for environments without a working file picker) -->
-    <Transition name="modal">
-      <div
-        v-if="showUploadPathModal"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0"
-        @click="closeUploadPathModal"
-      >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">{{ uploadPathMode === "folder" ? "Upload folder" : "Upload files" }}</h3>
-            <button
-              class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary"
-              type="button"
-              @click="closeUploadPathModal"
-            >
-              <X :size="20" />
-            </button>
-          </div>
-
-          <div class="drivepage-modal-body padding-150">
+    <UiModal :model-value="showUploadPathModal" :title="uploadPathMode === 'folder' ? 'Upload folder' : 'Upload files'" panel-class="w-full max-w-520px" @update:model-value="closeUploadPathModal">
             <p class="drivepage-modal-desc color-text-secondary margin-bottom-150 fs-14px">
               Paste {{ uploadPathMode === "folder" ? "folder" : "file" }} path{{
                 uploadPathMode === "folder" ? "" : "s"
               }}
               (one per line).
             </p>
-            <textarea
-              v-model="uploadPathText"
-              class="drivepage-upload-path-textarea w-full border-radius-12px color-text-primary outline-none padding-75 border-1 bg-secondary fs-14px mono focus-border-accent focus-ring focus-outline-none focus-shadow"
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" padding-class="padding-75" :focus-ring="false" v-model="uploadPathText"
+             
               rows="5"
               :placeholder="
                 uploadPathMode === 'folder'
                   ? '/root/my-folder'
                   : '/root/my-file.txt'
-              "
-            ></textarea>
-          </div>
+              " class="drivepage-upload-path-textarea mono focus-ring focus-outline-none focus-shadow"></UiInput>
 
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
-            <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
-              type="button"
-              @click="closeUploadPathModal"
-              :disabled="uploadPathBusy"
-            >
-              Cancel
-            </button>
-            <button
-              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer padding-87 border-none bg-gradient-primary color-white fs-15px relative transition-all-02 border-bottom-1-separator"
-              type="button"
-              :disabled="uploadPathBusy"
-            >
-              <UiSpinner v-if="uploadPathBusy" size="sm" />
-              <span>{{ uploadPathBusy ? "Uploading..." : "Upload" }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+            <template #footer>
+              <UiButton variant="secondary" type="button"
+                @click="closeUploadPathModal"
+                :disabled="uploadPathBusy" class="drivepage-btn-modal-secondary disabled-fade-60">
+                Cancel
+              </UiButton>
+              <UiButton variant="primary" type="button"
+                :disabled="uploadPathBusy" class="drivepage-btn-modal-primary">
+                <UiSpinner v-if="uploadPathBusy" size="sm" />
+                <span>{{ uploadPathBusy ? "Uploading..." : "Upload" }}</span>
+              </UiButton>
+            </template>
+    </UiModal>
 
     <!-- Local Details Modal -->
-    <Transition name="modal">
-      <div
-        v-if="showLocalDetails"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0"
-        @click="closeLocalDetails"
-      >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Local drive</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeLocalDetails">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="drivepage-modal-body padding-150">
+    <UiModal :model-value="showLocalDetails" title="Local drive" panel-class="w-full max-w-520px" @update:model-value="closeLocalDetails">
 
             <div class="details-grid">
               <div class="details-row">
@@ -912,22 +786,16 @@
               </div>
 
               <div class="drivepage-details-actions margin-top-75 flex-wrap-wrap flex-inline-align-center gap-35">
-                <button
-                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
-                  type="button"
+                <UiButton variant="secondary" type="button"
                   :disabled="driveBackupBusy"
-                  @click="openDriveBackupExportModal"
-                >
+                  @click="openDriveBackupExportModal" class="drivepage-btn-ghost">
                   Export snapshot
-                </button>
-                <button
-                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
-                  type="button"
+                </UiButton>
+                <UiButton variant="secondary" type="button"
                   :disabled="driveBackupBusy"
-                  @click="triggerImportDriveBackup"
-                >
+                  @click="triggerImportDriveBackup" class="drivepage-btn-ghost">
                   Import snapshot
-                </button>
+                </UiButton>
                 <input
                   ref="driveBackupImportInput"
                   type="file"
@@ -937,26 +805,10 @@
                 />
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    </UiModal>
 
     <!-- Export Snapshot Modal -->
-    <Transition name="modal">
-      <div
-        v-if="showDriveBackupExportModal"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0"
-        @click="closeDriveBackupExportModal"
-      >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Export drive snapshot</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeDriveBackupExportModal">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="drivepage-modal-body padding-150">
+    <UiModal :model-value="showDriveBackupExportModal" title="Export drive snapshot" panel-class="w-full max-w-520px" @update:model-value="closeDriveBackupExportModal">
             <p class="drivepage-modal-desc color-text-secondary margin-bottom-150 fs-14px">
               Set a password to encrypt your drive metadata backup for
               <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
@@ -986,14 +838,7 @@
                 />
               </div>
 
-              <label class="drivepage-drive-backup-toggle flex-align-center gap-50 color-text-secondary fs-085rem cursor-select-none">
-                <input class="drivepage-drive-backup-toggle-input"
-                  type="checkbox"
-                  v-model="driveBackupExportShowPassword"
-                  :disabled="driveBackupBusy"
-                />
-                <span>Show password</span>
-              </label>
+              <UiCheckbox v-model="driveBackupExportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
               <p class="txt-xs color-gray-blue margin-0 margin-top-75">
                 If you lose the password, this backup cannot be recovered.
@@ -1004,50 +849,28 @@
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">{{ driveBackupError }}</div>
               </div>
             </div>
-          </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
-            <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
-              type="button"
-              :disabled="driveBackupBusy"
-              @click="closeDriveBackupExportModal"
-            >
-              Cancel
-            </button>
-            <button
-              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer padding-87 border-none bg-gradient-primary color-white fs-15px relative transition-all-02 border-bottom-1-separator"
-              type="button"
-              :disabled="
-                driveBackupBusy ||
-                !driveBackupExportPassword ||
-                driveBackupExportPassword.length < 8 ||
-                driveBackupExportPassword !== driveBackupExportPasswordConfirm
-              "
-              @click="confirmDriveBackupExport"
-            >
-              <UiSpinner v-if="driveBackupBusy" size="sm" />
-              <span>{{ driveBackupBusy ? "Exporting..." : "Export" }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+            <template #footer>
+              <UiButton variant="secondary" type="button"
+                :disabled="driveBackupBusy"
+                @click="closeDriveBackupExportModal" class="drivepage-btn-modal-secondary disabled-fade-60">
+                Cancel
+              </UiButton>
+              <UiButton variant="primary" type="button"
+                :disabled="
+                  driveBackupBusy ||
+                  !driveBackupExportPassword ||
+                  driveBackupExportPassword.length < 8 ||
+                  driveBackupExportPassword !== driveBackupExportPasswordConfirm
+                "
+                @click="confirmDriveBackupExport" class="drivepage-btn-modal-primary">
+                <UiSpinner v-if="driveBackupBusy" size="sm" />
+                <span>{{ driveBackupBusy ? "Exporting..." : "Export" }}</span>
+              </UiButton>
+            </template>
+    </UiModal>
 
     <!-- Import Snapshot Modal -->
-    <Transition name="modal">
-      <div
-        v-if="showDriveBackupImportModal"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0"
-        @click="closeDriveBackupImportModal"
-      >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Import drive snapshot</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeDriveBackupImportModal">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="drivepage-modal-body padding-150">
+    <UiModal :model-value="showDriveBackupImportModal" title="Import drive snapshot" panel-class="w-full max-w-520px" @update:model-value="closeDriveBackupImportModal">
             <p class="drivepage-modal-desc color-text-secondary margin-bottom-150 fs-14px">
               This will replace your local drive metadata (CIDs, names, favourites) for
               <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
@@ -1076,14 +899,7 @@
                 />
               </div>
 
-              <label class="drivepage-drive-backup-toggle flex-align-center gap-50 color-text-secondary fs-085rem cursor-select-none">
-                <input class="drivepage-drive-backup-toggle-input"
-                  type="checkbox"
-                  v-model="driveBackupImportShowPassword"
-                  :disabled="driveBackupBusy"
-                />
-                <span>Show password</span>
-              </label>
+              <UiCheckbox v-model="driveBackupImportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
               <div v-if="driveBackupError" class="drivepage-plans-error margin-top-75 flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87 border-1-ios-red-a25 bg-ios-red-a06">
                 <div class="drivepage-plans-error-title fs-085rem txt-weight-light color-text-primary">Import failed</div>
@@ -1141,58 +957,36 @@
                 <div class="drivepage-plans-error-text color-text-secondary fs-13px">{{ driveBackupError }}</div>
               </div>
             </template>
-          </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
-            <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
-              type="button"
-              :disabled="driveBackupBusy"
-              @click="closeDriveBackupImportModal"
-            >
-              Cancel
-            </button>
-            <button
-              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer padding-87 border-none bg-gradient-primary color-white fs-15px relative transition-all-02 border-bottom-1-separator"
-              type="button"
-              :disabled="
-                driveBackupBusy ||
-                !pendingDriveBackupImport ||
-                (!driveBackupRestoreDetails &&
-                  (!driveBackupImportPassword || driveBackupImportPassword.length < 8))
-              "
-              @click="driveBackupRestoreDetails ? confirmDriveBackupRestore() : decryptDriveBackupImport()"
-            >
-              <UiSpinner v-if="driveBackupBusy" size="sm" />
-              <span>{{
-                driveBackupBusy
-                  ? driveBackupRestoreDetails
-                    ? "Restoring..."
-                    : "Decrypting..."
-                  : driveBackupRestoreDetails
-                    ? "Restore"
-                    : "Decrypt"
-              }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+            <template #footer>
+              <UiButton variant="secondary" type="button"
+                :disabled="driveBackupBusy"
+                @click="closeDriveBackupImportModal" class="drivepage-btn-modal-secondary disabled-fade-60">
+                Cancel
+              </UiButton>
+              <UiButton variant="primary" type="button"
+                :disabled="
+                  driveBackupBusy ||
+                  !pendingDriveBackupImport ||
+                  (!driveBackupRestoreDetails &&
+                    (!driveBackupImportPassword || driveBackupImportPassword.length < 8))
+                "
+                @click="driveBackupRestoreDetails ? confirmDriveBackupRestore() : decryptDriveBackupImport()" class="drivepage-btn-modal-primary">
+                <UiSpinner v-if="driveBackupBusy" size="sm" />
+                <span>{{
+                  driveBackupBusy
+                    ? driveBackupRestoreDetails
+                      ? "Restoring..."
+                      : "Decrypting..."
+                    : driveBackupRestoreDetails
+                      ? "Restore"
+                      : "Decrypt"
+                }}</span>
+              </UiButton>
+            </template>
+    </UiModal>
 
     <!-- Subscription Details Modal -->
-    <Transition name="modal">
-      <div
-        v-if="showGatewayDetails"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0"
-        @click="closeGatewayDetails"
-      >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Subscription details</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeGatewayDetails">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="drivepage-modal-body padding-150">
+    <UiModal :model-value="showGatewayDetails" title="Subscription details" panel-class="w-full max-w-520px" @update:model-value="closeGatewayDetails">
             <div v-if="gatewayDetailsLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle min-h-220px">
               <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
             </div>
@@ -1238,13 +1032,10 @@
                   <div class="drivepage-plans-error-text color-text-secondary fs-13px">
                     Unlock your Lumen identity to fetch usage from this cloud.
                   </div>
-                  <button
-                    class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
-                    type="button"
-                    @click="requestUnlock"
-                  >
+                  <UiButton variant="secondary" type="button"
+                    @click="requestUnlock" class="drivepage-btn-ghost">
                     Unlock
-                  </button>
+                  </UiButton>
                 </div>
                 <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px margin-top-50 gap-50 padding-75-87 border-1-ios-red-a25 bg-ios-red-a06">
                   {{ gatewayDetailsUsageError }}
@@ -1295,21 +1086,10 @@
                 </div>
               </div>
             </template>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    </UiModal>
 
     <!-- Plans Modal -->
-    <Transition name="modal">
-      <div v-if="showPlansModal" class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0" @click="closePlansModal">
-        <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px drivepage-modal-content-drivepage-plans-modal max-w-860px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Cloud plans</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closePlansModal">
-              <X :size="20" />
-            </button>
-          </div>
+    <UiModal :model-value="showPlansModal" title="Cloud plans" panel-class="drivepage-plans-modal w-full max-w-860px" @update:model-value="closePlansModal">
           <div class="drivepage-modal-body padding-150">
 
             <div v-if="plansLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle min-h-220px">
@@ -1417,10 +1197,7 @@
                  </div>
 
                  <div class="drivepage-plans-controls-row drivepage-plans-controls-row-secondary flex-align-center-justify-space-between gap-75 w-full flex-justify-end flex-wrap-nowrap">
-                   <label class="drivepage-plans-filter-checkbox flex-align-center gap-35 color-text-secondary fs-13px cursor-select-none">
-                     <input class="drivepage-plans-filter-checkbox-input" type="checkbox" v-model="planOnlineOnly" />
-                     <span>Online only</span>
-                   </label>
+                   <UiCheckbox v-model="planOnlineOnly">Online only</UiCheckbox>
                  </div>
                </div>
 
@@ -1428,25 +1205,21 @@
                  <h4 class="drivepage-plans-empty-h4 fs-15px txt-weight-light color-text-primary margin-bottom-25">No gateways match your filters</h4>
                  <p class="drivepage-plans-empty-muted color-text-secondary fs-13px">Try clearing filters or search.</p>
                  <div class="drivepage-plans-empty-actions flex-justify-center flex-wrap-wrap gap-50 margin-top-50">
-                   <button
-                     v-if="planFilter"
+                   <UiButton variant="secondary" v-if="planFilter"
                      type="button"
-                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
-                     @click="planFilter = ''"
-                   >
+                    
+                     @click="planFilter = ''" class="drivepage-btn-ghost">
                      Clear search
-                   </button>
-                   <button
-                     v-if="hasPlanFilters"
+                   </UiButton>
+                   <UiButton variant="secondary" v-if="hasPlanFilters"
                      type="button"
-                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
-                     @click="resetPlanFilters"
-                   >
+                    
+                     @click="resetPlanFilters" class="drivepage-btn-ghost">
                      Reset filters
-                   </button>
-                   <button type="button" class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary" @click="openPlansModal">
+                   </UiButton>
+                   <UiButton variant="secondary" type="button" @click="openPlansModal" class="drivepage-btn-ghost">
                      Reload
-                   </button>
+                   </UiButton>
                  </div>
                </div>
 
@@ -1493,17 +1266,15 @@
                           </span>
                         </span>
                       </span>
-                      <button
-                        type="button"
-                        class="drivepage-gateway-expand-btn border-radius-full fs-075rem color-text-secondary cursor-pointer border-1 bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
-                        @click.stop="toggleGatewayExpanded(group.gateway.id)"
-                      >
+                      <UiButton variant="secondary" type="button"
+                       
+                        @click.stop="toggleGatewayExpanded(group.gateway.id)" class="drivepage-gateway-expand-btn">
                         {{
                           isGatewayExpanded(group.gateway.id)
                             ? "Hide details"
                             : "Show details"
                         }}
-                      </button>
+                      </UiButton>
                     </div>
                   </header>
 
@@ -1559,14 +1330,12 @@
                           </div>
                         </div>
                         <div class="drivepage-plan-footer flex-justify-end margin-top-25">
-                          <button
-                            v-if="planStatus(plan) === 'none'"
+                          <UiButton variant="secondary" v-if="planStatus(plan) === 'none'"
                             type="button"
-                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
-                            @click.stop="openSubscribeModal(plan)"
-                          >
+                           
+                            @click.stop="openSubscribeModal(plan)" class="drivepage-plan-status-badge">
                             {{ planStatusLabel(plan) }}
-                          </button>
+                          </UiButton>
                           <span
                             v-else
                             class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
@@ -1591,41 +1360,33 @@
                  </span>
                </div>
                <div class="drivepage-plans-pager-controls flex-align-justify-center flex-wrap-wrap gap-35">
-                 <button
-                   type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
+                 <UiButton variant="secondary" type="button"
+                  
                    :disabled="planPage === 1"
-                   @click="planPage = 1"
-                 >
+                   @click="planPage = 1" class="drivepage-plans-pager-btn disabled-fade-40">
                    ⟪
-                 </button>
-                 <button
-                   type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
+                 </UiButton>
+                 <UiButton variant="secondary" type="button"
+                  
                    :disabled="planPage === 1"
-                   @click="planPage--"
-                 >
+                   @click="planPage--" class="drivepage-plans-pager-btn disabled-fade-40">
                    Prev
-                 </button>
+                 </UiButton>
                  <span class="drivepage-plans-pager-text color-text-secondary fs-13px nowrap">
                    Page {{ planPage }} / {{ planTotalPages || 1 }}
                  </span>
-                 <button
-                   type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
+                 <UiButton variant="secondary" type="button"
+                  
                    :disabled="planPage === planTotalPages"
-                   @click="planPage++"
-                 >
+                   @click="planPage++" class="drivepage-plans-pager-btn disabled-fade-40">
                    Next
-                 </button>
-                 <button
-                   type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
+                 </UiButton>
+                 <UiButton variant="secondary" type="button"
+                  
                    :disabled="planPage === planTotalPages"
-                   @click="planPage = planTotalPages"
-                 >
+                   @click="planPage = planTotalPages" class="drivepage-plans-pager-btn disabled-fade-40">
                    ⟫
-                 </button>
+                 </UiButton>
                </div>
                <div class="plans-pager-side flex-align-center gap-50">
                  <select
@@ -1641,25 +1402,10 @@
              </div>
            </div>
          </div>
-       </div>
-     </div>
-    </Transition>
+     </UiModal>
 
     <!-- Subscribe Plan Modal -->
-    <Transition name="modal">
-      <div
-        v-if="showSubscribeModal && subscribePlan"
-        class="drivepage-modal-overlay flex-align-justify-center padding-100 fixed top-0 bg-black-a50 z-1000 left-0 right-0 bottom-0"
-        @click="closeSubscribeModal"
-      >
-        <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
-          <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-            <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Confirm subscription "{{ planDisplayName(subscribePlan) }}"</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeSubscribeModal">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="drivepage-modal-body padding-150">
+    <UiModal :model-value="!!(showSubscribeModal && subscribePlan)" :title='`Confirm subscription "${planDisplayName(subscribePlan)}"`' panel-class="w-full max-w-520px" @update:model-value="closeSubscribeModal">
             <p class="drivepage-modal-desc color-text-secondary margin-bottom-150 fs-14px">
               Review the plan details and confirm your subscription.
             </p>
@@ -1750,36 +1496,29 @@
               Submitting on-chain transaction… This can take ~1–2 minutes the
               first time (PQC setup + block confirmation).
             </p>
-          </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
-            <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
-              type="button"
-              @click="closeSubscribeModal"
-              :disabled="subscribeBusy"
-            >
-              Cancel
-            </button>
-            <button
-              class="drivepage-btn-modal-primary flex-1 border-radius-10px fw-500 cursor-pointer padding-87 border-none bg-gradient-primary color-white fs-15px relative transition-all-02 border-bottom-1-separator"
-              type="button"
-              @click="confirmSubscribe"
-              :disabled="
-                subscribeBusy || hasInsufficientFunds || !subscribePlan
-              "
-            >
-              <UiSpinner v-if="subscribeBusy" size="sm" />
-              <span>{{ subscribeBusy ? "Submitting..." : "Confirm" }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+            <template #footer>
+              <UiButton variant="secondary" type="button"
+                @click="closeSubscribeModal"
+                :disabled="subscribeBusy" class="drivepage-btn-modal-secondary disabled-fade-60">
+                Cancel
+              </UiButton>
+              <UiButton variant="primary" type="button"
+                @click="confirmSubscribe"
+                :disabled="
+                  subscribeBusy || hasInsufficientFunds || !subscribePlan
+                " class="drivepage-btn-modal-primary">
+                <UiSpinner v-if="subscribeBusy" size="sm" />
+                <span>{{ subscribeBusy ? "Submitting..." : "Confirm" }}</span>
+              </UiButton>
+            </template>
+    </UiModal>
 
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiButton from '../../ui/UiButton.vue';
 
 import { uploadFolderToLocal, uploadFileToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -1839,6 +1578,8 @@ import {
   MapPin,
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import UiCheckbox from "../../ui/UiCheckbox.vue";
+import UiModal from "../../ui/UiModal.vue";
 import InternalSidebar from "../../components/InternalSidebar.vue";
 import {
   localIpfsGatewayBase,
@@ -3904,8 +3645,8 @@ function planStatusLabel(plan: PlanView): string {
   }
 }
 
-function planDisplayName(plan: PlanView): string {
-  return plan.planId?.split(":").pop() || "Plan";
+function planDisplayName(plan: PlanView | null): string {
+  return plan?.planId?.split(":").pop() || "Plan";
 }
 
 function formatPlanPrice(ulmn: number): string {

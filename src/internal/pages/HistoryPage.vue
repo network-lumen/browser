@@ -89,34 +89,34 @@
       </div>
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
-        <div class="history-empty-card padding-150 text-center border-default bg-card shadow-sm border-radius-24px w-min-560px-full">
+        <UiCard padding="none" :shadow="false" radius="24px" class="history-empty-card padding-150 text-center shadow-sm w-min-560px-full">
           <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary w-325 h-325 margin-0 margin-bottom-87">
             <HistoryIcon :size="22" />
           </div>
           <h3 class="color-text-primary margin-0 history-empty-card-h3 fs-18px">{{ emptyTitle }}</h3>
           <p class="color-text-secondary history-empty-card-p line-height-155 margin-0 margin-x-auto margin-top-75 max-w-3400">{{ emptyCopy }}</p>
           <div class="history-empty-actions flex-align-center margin-top-100 flex-justify-center gap-62 flex-wrap-wrap">
-            <button
-              v-if="!historyEnabled"
+            <UiButton variant="secondary" v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1"
-              @click="setHistoryEnabled(true)"
-            >
+             
+              @click="setHistoryEnabled(true)" class="history-mode-btn active badge-success">
               <Power :size="15" />
               <span>Turn on history</span>
-            </button>
-            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer bg-gradient-primary shadow-primary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1" @click="openNewTab">
+            </UiButton>
+            <UiButton variant="primary" type="button" @click="openNewTab" class="history-open-btn">
               <ArrowUpRight :size="14" />
               <span>Open new tab</span>
-            </button>
+            </UiButton>
           </div>
-        </div>
+        </UiCard>
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, ref } from "vue";
 import {
   ArrowUpRight,

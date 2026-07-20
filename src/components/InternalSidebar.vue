@@ -33,7 +33,7 @@
             :key="entry.id"
             class="sidebar-fav-item flex gap-35"
           >
-            <button class="sidebar-fav-hit hover-fill-primary bg-transparent border-none color-text-secondary cursor-pointer flex-align-center flex-1 w-full border-radius-sm text-left min-w-0 gap-62 transition-all-015 padding-50-62" @click="openFavourite(entry.url, $event)">
+            <UiButton variant="secondary" @click="openFavourite(entry.url, $event)" class="sidebar-fav-hit">
               <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto fs-11px txt-weight-strong letter-spacing-008em border-1-light w-30px h-30px" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
@@ -41,15 +41,12 @@
                 <span class="sidebar-fav-title color-text-primary fs-13px txt-weight-light block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
                 <span class="sidebar-fav-subtitle color-text-tertiary fs-11px block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
-            </button>
-            <button
-              class="sidebar-fav-remove hover-fill-primary border-none bg-transparent color-text-tertiary cursor-pointer border-radius-10px transition-all-015 w-30px"
-              type="button"
+            </UiButton>
+            <UiButton variant="primary" type="button"
               title="Remove shortcut"
-              @click.stop="removeFavouriteById(entry.id)"
-            >
+              @click.stop="removeFavouriteById(entry.id)" class="sidebar-fav-remove">
               <X :size="13" />
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
@@ -65,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../ui/UiButton.vue';
  import { computed, inject } from 'vue';
  import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../internal/profilesStore';

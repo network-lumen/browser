@@ -24,14 +24,14 @@
           </p>
         </div>
         <div class="relpage-header-actions flex-inline-align-center gap-75 flex-wrap-wrap flex-0-0-auto">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100 hover-bg-primary-a08 hover-color-accent" :disabled="loading" @click="refreshAll">
+          <UiButton variant="secondary" type="button" :disabled="loading" @click="refreshAll" class="relpage-btn-secondary">
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
-          </button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2 hover-shadow-primary-lg" :disabled="loading || !allowed" @click="openPublishModal">
+          </UiButton>
+          <UiButton variant="primary" type="button" :disabled="loading || !allowed" @click="openPublishModal" class="relpage-btn-primary">
             <Plus :size="18" />
             <span>Publish release</span>
-          </button>
+          </UiButton>
         </div>
       </header>
 
@@ -46,25 +46,17 @@
 
         <div class="relpage-filter grow flex flex-column gap-35 relpage-filter-grow min-w-260px min-w-220px">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Search</label>
-          <input
-            v-model.trim="searchTerm"
-            class="relpage-form-input w-full fs-085rem color-text-primary border-radius-12px border-1 bg-primary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
+          <UiInput radius-class="border-radius-12px" font-size-class="fs-085rem" :focus-ring="false" v-model.trim="searchTerm"
+           
             placeholder="Version, publisher, ID…"
-            :disabled="loading"
-          />
+            :disabled="loading" class="relpage-form-input focus-outline-none focus-ring focus-shadow" />
         </div>
 
         <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-75 flex-wrap-wrap border-radius-14px border-1 bg-primary padding-50-75" aria-label="Update test tools">
           <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Update test</span>
-          <label class="relpage-test-check flex-inline-align-center color-text-secondary gap-35 fs-13px">
-            <input type="checkbox" v-model="testMode.forcePrompt" @change="applyTestMode" :disabled="loading" />
-            <span>Force prompt</span>
-          </label>
-          <label class="relpage-test-check flex-inline-align-center color-text-secondary gap-35 fs-13px">
-            <input type="checkbox" v-model="testMode.allowUnvalidatedStable" @change="applyTestMode" :disabled="loading" />
-            <span>Allow pending (stable)</span>
-          </label>
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100 hover-bg-primary-a08 hover-color-accent" @click="pollNow" :disabled="loading">Re-check</button>
+          <UiCheckbox v-model="testMode.forcePrompt" :disabled="loading" @update:modelValue="applyTestMode">Force prompt</UiCheckbox>
+          <UiCheckbox v-model="testMode.allowUnvalidatedStable" :disabled="loading" @update:modelValue="applyTestMode">Allow pending (stable)</UiCheckbox>
+          <UiButton variant="secondary" type="button" @click="pollNow" :disabled="loading" class="relpage-btn-secondary">Re-check</UiButton>
         </div>
       </section>
 
@@ -119,12 +111,12 @@
           </div>
 
           <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75 margin-0 margin-top-50 margin-bottom-100">
-            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2 hover-shadow-primary-lg" :disabled="submittingDao" @click="openDaoModal('validate')">
+            <UiButton variant="primary" type="button" :disabled="submittingDao" @click="openDaoModal('validate')" class="relpage-btn-primary">
               Send to DAO (validate)
-            </button>
-            <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100 hover-bg-primary-a08 hover-color-accent" :disabled="submittingDao" @click="openDaoModal('reject')">
+            </UiButton>
+            <UiButton variant="secondary" type="button" :disabled="submittingDao" @click="openDaoModal('reject')" class="relpage-btn-secondary">
               Send to DAO (reject)
-            </button>
+            </UiButton>
           </div>
 
           <div class="relpage-detail-grid gap-75 margin-bottom-100 grid">
@@ -190,14 +182,8 @@
       </section>
     </main>
 
-    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4px" @click.self="closeDaoModal">
-      <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg w-min-900px-96vw">
-        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
-          <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Send to DAO</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px h-34px hover-bg-hover hover-border-color hover-color-text-primary transition-colors-015" @click="closeDaoModal">×</button>
-        </div>
-
-        <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">
+    <UiModal :model-value="daoModalOpen" title="Send to DAO" panel-class="w-min-900px-96vw" @update:model-value="closeDaoModal">
+        <div class="relpage-modal-body flex flex-column gap-75">
           <div class="relpage-form-grid gap-75 grid">
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Action</span>
@@ -208,65 +194,54 @@
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Deposit (LMN)</span>
-              <input v-model.trim="daoForm.depositLmn" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="0" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="relpage-input focus-outline-none focus-ring focus-shadow" />
             </label>
           </div>
 
           <label class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Title</span>
-            <input v-model.trim="daoForm.title" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" />
+            <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="daoForm.title" class="relpage-input focus-outline-none focus-ring focus-shadow" />
           </label>
 
           <label class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Summary</span>
-            <textarea v-model="daoForm.summary" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" rows="3" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model="daoForm.summary" rows="3" class="relpage-input focus-outline-none focus-ring focus-shadow" />
           </label>
 
           <label v-if="daoForm.kind === 'reject'" class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Reason (optional)</span>
-            <textarea v-model="daoForm.reason" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" rows="3" placeholder="Why should this release be rejected?" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="relpage-input focus-outline-none focus-ring focus-shadow" />
           </label>
         </div>
 
-        <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75 border-top-1-light">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100 hover-bg-primary-a08 hover-color-accent" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2 hover-shadow-primary-lg" @click="submitDaoProposal" :disabled="submittingDao">
+        <template #footer>
+          <UiButton variant="secondary" type="button" @click="closeDaoModal" :disabled="submittingDao" class="relpage-btn-secondary">Cancel</UiButton>
+          <UiButton variant="primary" type="button" @click="submitDaoProposal" :disabled="submittingDao" class="relpage-btn-primary">
             <span v-if="submittingDao" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
-          </button>
-        </div>
-      </div>
-    </div>
+          </UiButton>
+        </template>
+    </UiModal>
 
-    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4px" @click.self="closePublishModal">
-      <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg w-min-900px-96vw">
-        <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
-          <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Publish release</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px h-34px hover-bg-hover hover-border-color hover-color-text-primary transition-colors-015" @click="closePublishModal">×</button>
-        </div>
-
-        <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">
+    <UiModal :model-value="publishModalOpen" title="Publish release" panel-class="w-min-900px-96vw" @update:model-value="closePublishModal">
+        <div class="relpage-modal-body flex flex-column gap-75">
           <div class="relpage-import-box margin-bottom-100 border-radius-16px border-1 bg-primary padding-90-90-25-90">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Import from GitHub release</h3>
-              <button
-                type="button"
-                class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650 padding-75-100 padding-50-75 hover-bg-primary-a08 hover-color-accent"
+              <UiButton variant="secondary" type="button"
+               
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
-                @click="importFromGithubRelease"
-              >
+                @click="importFromGithubRelease" class="relpage-btn-secondary relpage-btn-sm">
                 <span v-if="importingGithub" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Importing…</span>
                 <span v-else>Auto-fill</span>
-              </button>
+              </UiButton>
             </div>
 
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">GitHub release URL</span>
-              <input
-                v-model.trim="githubReleaseUrl"
-                class="relpage-input mono w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow"
-                placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8"
-              />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="githubReleaseUrl"
+               
+                placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
               <span class="relpage-muted fs-075rem color-text-tertiary fw-500">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
             </label>
           </div>
@@ -274,7 +249,7 @@
           <div class="relpage-form-grid gap-75 grid">
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Version</span>
-              <input v-model.trim="draft.version" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="0.1.9" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="relpage-input focus-outline-none focus-ring focus-shadow" />
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Channel</span>
@@ -284,27 +259,24 @@
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Supersedes (IDs)</span>
-              <input v-model.trim="draft.supersedes" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="12, 13" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="relpage-input focus-outline-none focus-ring focus-shadow" />
             </label>
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Emergency flag</span>
-              <label class="relpage-checkbox-row flex-align-center color-text-secondary gap-50 fs-085rem">
-                <input type="checkbox" v-model="draft.emergencyOk" />
-                <span>Allow emergency rollout</span>
-              </label>
+              <UiCheckbox v-model="draft.emergencyOk">Allow emergency rollout</UiCheckbox>
             </label>
           </div>
 
           <label class="relpage-field flex flex-column gap-35">
             <span class="relpage-label fs-075rem color-text-tertiary">Release notes</span>
-            <textarea v-model="draft.notes" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" rows="4" placeholder="Changelog, highlights, etc." />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="relpage-input focus-outline-none focus-ring focus-shadow" />
             <span class="relpage-muted fs-075rem color-text-tertiary fw-500">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
           </label>
 
           <div class="relpage-artifacts-builder">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Artifacts</h3>
-              <button type="button" class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650 padding-75-100 padding-50-75 hover-bg-primary-a08 hover-color-accent" @click="addArtifact">Add artifact</button>
+              <UiButton variant="secondary" type="button" @click="addArtifact" class="relpage-btn-secondary relpage-btn-sm">Add artifact</UiButton>
             </div>
 
             <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="relpage-artifact-draft border-radius-12px border-1-light padding-75 margin-top-75 bg-primary">
@@ -323,54 +295,57 @@
               <div class="relpage-form-grid gap-75 grid">
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">Platform</span>
-                  <input v-model.trim="a.platform" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="windows-amd64" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">Kind</span>
-                  <input v-model.trim="a.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="browser" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
               </div>
 
               <div class="relpage-form-grid gap-75 grid">
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">CID</span>
-                  <input v-model.trim="a.cid" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="Optional" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">SHA-256</span>
-                  <input v-model.trim="a.sha256Hex" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="64 hex chars" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
                 <label class="relpage-field flex flex-column gap-35">
                   <span class="relpage-label fs-075rem color-text-tertiary">Size (bytes)</span>
-                  <input v-model.trim="a.size" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" placeholder="123456" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
               </div>
 
               <label class="relpage-field flex flex-column gap-35">
                 <span class="relpage-label fs-075rem color-text-tertiary">URLs (one per line)</span>
-                <textarea v-model="a.urlsText" class="relpage-input mono w-full border-radius-md color-text-primary txt-md border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-shadow" rows="3" placeholder="https://example.com/file.exe" />
+                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="padding-50-62" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
               </label>
             </div>
           </div>
         </div>
 
-        <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75 border-top-1-light">
-          <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100 hover-bg-primary-a08 hover-color-accent" @click="closePublishModal" :disabled="submitting">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2 hover-shadow-primary-lg" @click="submitRelease" :disabled="submitting">
+        <template #footer>
+          <UiButton variant="secondary" type="button" @click="closePublishModal" :disabled="submitting" class="relpage-btn-secondary">Cancel</UiButton>
+          <UiButton variant="primary" type="button" @click="submitRelease" :disabled="submitting" class="relpage-btn-primary">
             <span v-if="submitting" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>
-          </button>
-        </div>
-      </div>
-    </div>
+          </UiButton>
+        </template>
+    </UiModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiModal from '../../ui/UiModal.vue';
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue';
 import { Plus, RefreshCw, Rocket } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import UiCheckbox from '../../ui/UiCheckbox.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';

@@ -1,34 +1,30 @@
 <template>
-  <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="active" class="overlay-scrim backdrop-blur-6px z-10000" @click.stop>
-        <div class="w-min-520px-92vw bg-card border-default border-radius-18px padding-125 padding-bottom-100 shadow-panel-lg color-text-primary">
-          <div class="flex-align-start flex-justify-space-between gap-100 margin-bottom-100">
-            <div>
-              <div class="fs-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
-              <div class="fs-19px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
-            </div>
-          </div>
-
-          <div class="h-12px border-radius-full bg-fill-tertiary overflow-hidden">
-            <div class="h-full border-radius-full bg-gradient-primary transition-width-018s" :style="{ width: `${percent}%` }"></div>
-          </div>
-          <div class="margin-top-50 flex-justify-space-between fs-085rem color-text-secondary">
-            <span v-if="bytesLabel">{{ bytesLabel }}</span>
-            <span v-if="percentKnown">{{ percent }}%</span>
-          </div>
-
-          <div v-if="errorLabel" class="margin-top-85 padding-75 border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-75">
-            {{ errorLabel }}
-            <button type="button" class="bg-fill-secondary border-default border-radius-10px color-text-primary padding-45-75 cursor-pointer hover-bg-fill-primary" @click="clearError">Close</button>
-          </div>
-        </div>
+  <UiModal :model-value="active" panel-class="w-min-520px-92vw color-text-primary" :closable="false" @update:model-value="() => {}">
+    <div class="flex-align-start flex-justify-space-between gap-100 margin-bottom-100">
+      <div>
+        <div class="fs-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
+        <div class="fs-19px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+
+    <div class="h-12px border-radius-full bg-fill-tertiary overflow-hidden">
+      <div class="h-full border-radius-full bg-gradient-primary transition-width-018s" :style="{ width: `${percent}%` }"></div>
+    </div>
+    <div class="margin-top-50 flex-justify-space-between fs-085rem color-text-secondary">
+      <span v-if="bytesLabel">{{ bytesLabel }}</span>
+      <span v-if="percentKnown">{{ percent }}%</span>
+    </div>
+
+    <div v-if="errorLabel" class="margin-top-85 padding-75 border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-75">
+      {{ errorLabel }}
+      <UiButton variant="secondary" type="button" @click="clearError">Close</UiButton>
+    </div>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import UiModal from '../ui/UiModal.vue';
+import UiButton from '../ui/UiButton.vue';
 import { computed } from 'vue';
 import { useReleaseUpdates } from '../internal/services/releaseUpdates';
 

@@ -264,7 +264,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* UiButton.vue variants */
 .button-ghost, .button-cta { border: 1px solid var(--border-color); }
-.button-ghost:where(:hover, :focus-visible), .helppage-step-action:hover, .daopage-member-item:hover,
+.button-ghost:where(:hover, :focus-visible), .daopage-member-item:hover,
 .mygw-whitelist-table thead, .mygw-whitelist-table tbody tr:hover, .relpage-row:hover,
 .navbar-extensions-store-link:hover:not(:disabled), .navbar-profile-row:hover,
 .navbar-profile-menu-action:hover, .navbar-export-option:hover, .navbar-import-source-btn:hover,
@@ -803,6 +803,8 @@ select.recurpay-input { background-image: none; }
 /* NewTabPage.vue */
 .newtab-page {
   background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .newtab-glow {
   height: 28rem;
@@ -1159,6 +1161,8 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Settings Section */
 .settingspage-setting-item { transition: all var(--transition-fast); }
+/* Gives the first card's hover-lift room to breathe so its top border isn't clipped by the scroll container. */
+.setting-group { padding-top: 2px; }
 .settingspage-profile-row { transition: background var(--transition-fast); }
 .settingspage-profile-row.active { background: rgba(var(--ios-blue-rgb), 0.12); }
 

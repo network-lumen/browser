@@ -6,20 +6,20 @@
       </div>
 
       <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md padding-250-225 max-w-2400">
+        <UiCard padding="none" :shadow="false" class="sitepage-domain-empty-card flex flex-column flex-align-center text-center gap-35 shadow-md padding-250-225 max-w-2400">
           <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
             <Tag :size="26" />
           </div>
           <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This domain belongs to no one</h2>
           <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
-          <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light bg-gradient-primary fs-15px shadow-primary transition-smooth padding-75-150 hover-bg-gradient-hover hover-shadow-primary-lg hover-lift-2" type="button" @click="goToBuyDomain">
+          <UiButton variant="primary" type="button" @click="goToBuyDomain" class="sitepage-buy-btn">
             <span>Buy this domain</span>
-          </button>
-        </div>
+          </UiButton>
+        </UiCard>
       </div>
 
       <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <div class="sitepage-domain-empty-card flex flex-column flex-align-center text-center border-radius-lg gap-35 border-default bg-card shadow-md padding-250-225 max-w-2400">
+        <UiCard padding="none" :shadow="false" class="sitepage-domain-empty-card flex flex-column flex-align-center text-center gap-35 shadow-md padding-250-225 max-w-2400">
           <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
             <FileQuestion :size="26" />
           </div>
@@ -27,9 +27,9 @@
           <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">The content couldn't be found. Please try again later.</p>
           <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">
             If this is your site,
-            <button type="button" class="sitepage-inline-link font-inherit padding-0 border-none bg-transparent color-primary underline cursor-pointer txt-weight-light" @click="goToCreateWebsiteDocs">read the setup guide</button>.
+            <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="sitepage-inline-link underline color-primary cursor-pointer">read the setup guide</UiButton>.
           </p>
-        </div>
+        </UiCard>
       </div>
 
       <div v-else class="sitepage-viewer flex-1 min-h-0 overflow-hidden relative">
@@ -73,6 +73,8 @@
 </template>
 
 <script setup lang="ts">
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { FileQuestion, Tag } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
