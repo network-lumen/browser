@@ -169,7 +169,7 @@
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
               <div class="explorer-chart-container">
-                <div class="explorer-chart-donut-wrapper relative">
+                <div class="explorer-chart-donut-wrapper relative margin-0 margin-x-auto margin-bottom-75">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ bondedRatioLabel }}</div>
@@ -200,7 +200,7 @@
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
               <div class="explorer-chart-container">
-                <div class="explorer-chart-donut-wrapper relative">
+                <div class="explorer-chart-donut-wrapper relative margin-0 margin-x-auto margin-bottom-75">
                   <canvas ref="votingPowerChart" width="120" height="120"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
                     <div class="explorer-center-value txt-weight-medium color-text-primary fs-125rem">{{ topValidatorsPower.length }}</div>
@@ -320,7 +320,7 @@
 
         <!-- Blocks View -->
         <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card">
-          <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between">
+          <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between padding-0 padding-top-100 padding-right-150 padding-bottom-75 padding-left-150">
             <div class="explorer-header-content">
               <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Blocks</h2>
               <p class="explorer-blocks-subtitle fs-075rem color-text-tertiary margin-0">View all blocks on the lumen-mainnet</p>
@@ -340,7 +340,7 @@
                   class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
                 />
               </div>
-              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success bg-ios-green-a1 border-1-ios-green-a30" :class="{ active: autoRefresh }">
+              <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success bg-ios-green-a1 border-1-ios-green-a30 padding-25-4" :class="{ active: autoRefresh }">
                 <span class="explorer-pulse-dot border-radius-circle w-8px h-8px"></span>
                 Live
               </span>
@@ -348,7 +348,7 @@
           </div>
 
           <div class="explorer-blocks-table">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
               <div class="th th-hash">HASH</div>
@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline hover-color-accent-secondary" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -378,7 +378,7 @@
                 </div>
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click.stop="navigateToBlock(block.height)" title="View block details">
-                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono">{{ block.hash }}</code>
+                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4">{{ block.hash }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -392,7 +392,7 @@
                   </button>
                 </div>
                 <div class="explorer-td td-txs flex-align-center fs-13px fs-14px">
-                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px fs-11px" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
+                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px fs-11px padding-25-4" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
@@ -442,7 +442,7 @@
           </div>
 
           <div v-else class="explorer-transactions-table">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
               <div class="th th-result">Result</div>
@@ -452,13 +452,13 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175">
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono">{{ shortenHash(tx.hash) }}</code>
+                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4">{{ shortenHash(tx.hash) }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -505,7 +505,7 @@
           </div>
 
           <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden shadow-subtle">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
               <div class="th th-voting-power">VOTING POWER %</div>
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175">
                 <div class="explorer-td td-rank flex-align-center fs-13px fs-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary fs-15px">{{ index + 1 }}</span>
                 </div>
@@ -631,7 +631,7 @@
 
           <div class="stake-form flex flex-column gap-125">
             <!-- Withdraw Rewards - No amount needed -->
-            <div v-if="currentStakeAction === 'Withdraw'" class="explorer-withdraw-info">
+            <div v-if="currentStakeAction === 'Withdraw'" class="explorer-withdraw-info padding-0 padding-top-50 padding-bottom-50">
               <div class="explorer-withdraw-notice flex-align-start gap-75 padding-100 border-radius-10px bg-primary-a08 border-1-primary-a15">
                 <svg class="explorer-withdraw-notice-svg flex-shrink-0 color-primary margin-top-25" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
@@ -659,7 +659,7 @@
                 />
                 <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute fs-14px right-100">LMN</span>
               </div>
-              <div class="explorer-amount-slider flex flex-column gap-50">
+              <div class="explorer-amount-slider flex flex-column gap-50 padding-0 padding-top-50 padding-bottom-50">
                 <input 
                   type="range" 
                   v-model="stakePercentage" 

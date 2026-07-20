@@ -86,7 +86,7 @@
       </button>
 
       <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0" role="menu">
-        <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em">Extensions</div>
+        <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em padding-0 padding-right-50 padding-bottom-50 padding-left-50">Extensions</div>
 
         <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-35 overflow-y-auto padding-right-25">
           <div
@@ -222,7 +222,7 @@
           </ul>
         </div>
 
-        <div v-else class="navbar-profile-menu-hint fs-12px color-text-tertiary text-center">
+        <div v-else class="navbar-profile-menu-hint fs-12px color-text-tertiary text-center padding-0 padding-top-75 padding-right-50 padding-bottom-75 padding-left-50">
           {{ isGuestOnly
             ? 'Guest mode active. Create or import a profile to get started.'
             : 'No profiles yet.' }}
@@ -251,7 +251,7 @@
             </div>
           </div>
 
-          <div v-if="profileMessage" class="navbar-profile-menu-message margin-top-37 fs-12px color-text-tertiary">
+          <div v-if="profileMessage" class="navbar-profile-menu-message margin-top-37 fs-12px color-text-tertiary padding-25-4">
             {{ profileMessage }}
           </div>
         </div>
@@ -333,10 +333,10 @@
           </div>
           
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelExportModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelExportModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="confirmExportProfile">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmExportProfile">
               Export {{ exportEncrypted ? '(Encrypted)' : '' }}
             </UiButton>
           </div>
@@ -472,12 +472,12 @@
           </div>
 
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelImportModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportModal">
               Cancel
             </UiButton>
             <UiButton
               variant="none"
-              class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100"
+              class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none"
               :disabled="importBusy"
               @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
             >
@@ -522,10 +522,10 @@
           </div>
           
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelImportPasswordModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportPasswordModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="confirmImportEncrypted">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmImportEncrypted">
               Import
             </UiButton>
           </div>
@@ -554,10 +554,10 @@
           </p>
 
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="cancelDeleteProfileModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelDeleteProfileModal">
               Cancel
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="confirmDeleteProfile">
+            <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmDeleteProfile">
               Delete
             </UiButton>
           </div>
@@ -586,10 +586,10 @@
           </p>
 
           <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="dismissPqcLinkedModal">
+            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="dismissPqcLinkedModal">
               Ignore
             </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100" @click="exportAfterPqcLinked">
+            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="exportAfterPqcLinked">
               Export
             </UiButton>
           </div>

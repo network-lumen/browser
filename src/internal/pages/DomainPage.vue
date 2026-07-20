@@ -146,7 +146,7 @@
             <div class="domain-main flex flex-column gap-15 min-w-0">
               <div class="domainpage-stable-link-label-row flex-align-center gap-35 min-w-0">
                 <input
-                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px min-w-120px"
+                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent fs-14px min-w-120px padding-25-4"
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
@@ -535,7 +535,7 @@
                 <p class="domainpage-form-hint fs-075rem color-text-tertiary margin-top-37">Enter the Lumen address of the new owner</p>
               </div>
 
-              <div class="domainpage-warning-box flex border-radius-10px gap-75 padding-87 bg-fill-error border-1-ios-red-a30">
+              <div class="domainpage-warning-box flex border-radius-10px gap-75 padding-87 bg-fill-error border-1-ios-red-a30 margin-0 margin-top-100 margin-bottom-100">
                 <div class="domainpage-warning-icon fs-125rem flex-shrink-0">⚠️</div>
                 <div class="domainpage-warning-content color-text-primary fs-13px">
                   <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.

@@ -107,7 +107,7 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Get Started</h3>
             <div class="helppage-actions-grid gap-75 grid">
               <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
-                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
+                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-drive">
                   <FolderOpen :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
@@ -117,7 +117,7 @@
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
               <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
-                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
+                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain">
                   <Link2 :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
@@ -358,7 +358,7 @@
           <!-- Contact Cards -->
           <div class="helppage-contact-grid gap-100 grid">
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
-              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0">
+              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord">
                 <MessageCircle :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">
@@ -380,7 +380,7 @@
             </button>
 
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
-              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0">
+              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-website">
                 <Globe :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">

@@ -72,8 +72,8 @@
 
     </section>
 
-    <section v-if="touched" class="searchpage-results relative z-1">
-      <div class="searchpage-meta flex-align-center-justify-space-between gap-100 margin-bottom-100">
+    <section v-if="touched" class="searchpage-results relative z-1 padding-0 padding-right-50 padding-bottom-50 padding-left-50">
+      <div class="searchpage-meta flex-align-center-justify-space-between gap-100 margin-bottom-100 padding-0 padding-right-25 padding-left-25">
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
@@ -127,7 +127,7 @@
             <span class="searchpage-suggestion-label txt-weight-light color-text-secondary fs-13px block margin-bottom-50">Try:</span>
             <ul class="searchpage-suggestion-list margin-0 color-text-secondary fs-14px">
               <li>Using different keywords</li>
-              <li>Searching for a domain (e.g., <code class="searchpage-suggestion-list-code fs-13px bg-primary-a08 border-radius-4px color-primary">example.lmn</code>)</li>
+              <li>Searching for a domain (e.g., <code class="searchpage-suggestion-list-code fs-13px bg-primary-a08 border-radius-4px color-primary padding-25-4">example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
             </ul>
           </div>
@@ -222,12 +222,12 @@
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
-                class="searchpage-image-badge border-radius-full color-primary fs-11px line-height-1 bg-primary-a08 nowrap border-1-primary-a15"
+                class="searchpage-image-badge border-radius-full color-primary fs-11px line-height-1 bg-primary-a08 nowrap border-1-primary-a15 padding-25-4"
                 >{{ b }}</span
               >
               <span
                 v-if="r.badges.length > 4"
-                class="searchpage-image-badge-more border-radius-full color-text-secondary txt-weight-light fs-11px line-height-1 bg-tertiary border-1 nowrap"
+                class="searchpage-image-badge-more border-radius-full color-text-secondary txt-weight-light fs-11px line-height-1 bg-tertiary border-1 nowrap padding-25-4"
                 :title="r.badges.slice(4).join(', ')"
                 >+{{ r.badges.length - 4 }}</span
               >
@@ -288,7 +288,7 @@
               <div class="searchpage-result-header flex-align-center gap-50 margin-bottom-25">
                 <span
                   v-if="r.kind !== 'site'"
-                  class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase fs-11px letter-spacing-004em border-radius-4px"
+                  class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase fs-11px letter-spacing-004em border-radius-4px padding-25-4"
                   :class="typeBadgeClass(r)"
                 >
                   {{ typeBadgeLabel(r) }}
@@ -329,12 +329,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20"
+                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 padding-25-4"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20"
+                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 padding-25-4"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
@@ -390,9 +390,9 @@
             </button>
           </header>
 
-          <div class="searchpage-help-body color-text-primary overflow-y-auto">
+          <div class="searchpage-help-body color-text-primary overflow-y-auto padding-100-125-125">
             <div class="searchpage-help-grid grid gap-90-100">
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm padding-0 padding-top-100 padding-right-100 padding-bottom-100 padding-left-100">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">What gets indexed</h3>
                 <p class="searchpage-help-p color-text-secondary line-height-145">
                   Search results come from content indexed in the Lumen Cloud. When content is
@@ -408,7 +408,7 @@
                 </div>
               </section>
 
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm padding-0 padding-top-100 padding-right-100 padding-bottom-100 padding-left-100">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">How to get indexed</h3>
                 <ol class="searchpage-help-steps flex flex-column padding-0 color-text-secondary list-style-none gap-50 line-height-145 margin-0 margin-top-50">
                   <li class="searchpage-help-steps-li flex gap-62">
@@ -429,32 +429,32 @@
                 </ol>
               </section>
 
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm padding-0 padding-top-100 padding-right-100 padding-bottom-100 padding-left-100">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">How queries work</h3>
                 <ul class="searchpage-help-list padding-0 color-text-secondary list-style-none line-height-145 margin-0 margin-top-50">
-                  <li class="searchpage-help-list-li relative padding-left-100">
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
                   </li>
-                  <li class="searchpage-help-list-li relative padding-left-100">
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50">
                     Very short queries can behave like “Explore” (show recent content) instead of
                     strict keyword matching.
                   </li>
-                  <li class="searchpage-help-list-li relative padding-left-100">
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50">
                     Tabs switch mode: <strong>Sites</strong>, <strong>Images</strong>, or
                     <strong>Explore everything</strong>.
                   </li>
                 </ul>
               </section>
 
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm">
+              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm padding-0 padding-top-100 padding-right-100 padding-bottom-100 padding-left-100">
                 <h3 class="searchpage-help-h3 margin-0 color-text-primary fs-15px letter-spacing-n001">How results are ranked</h3>
                 <ul class="searchpage-help-list padding-0 color-text-secondary list-style-none line-height-145 margin-0 margin-top-50">
-                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
-                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
-                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Popularity</strong>: signals like views and saves.</li>
-                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
-                  <li class="searchpage-help-list-li relative padding-left-100"><strong>Verified sites</strong>: linked domains can be boosted.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50"><strong>Popularity</strong>: signals like views and saves.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
+                  <li class="searchpage-help-list-li relative padding-left-100 margin-0 margin-top-50 margin-bottom-50"><strong>Verified sites</strong>: linked domains can be boosted.</li>
                 </ul>
               </section>
 

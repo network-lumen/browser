@@ -44,7 +44,7 @@
           </select>
         </div>
 
-        <div class="relpage-filter grow flex flex-column gap-35">
+        <div class="relpage-filter grow flex flex-column gap-35 relpage-filter-grow">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Search</label>
           <input
             v-model.trim="searchTerm"
@@ -197,7 +197,7 @@
           <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px hover-bg-hover hover-border-color hover-color-text-primary" @click="closeDaoModal">×</button>
         </div>
 
-        <div class="relpage-modal-body flex flex-column gap-75">
+        <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">
           <div class="relpage-form-grid gap-75 grid">
             <label class="relpage-field flex flex-column gap-35">
               <span class="relpage-label fs-075rem color-text-tertiary">Action</span>
@@ -245,7 +245,7 @@
           <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px hover-bg-hover hover-border-color hover-color-text-primary" @click="closePublishModal">×</button>
         </div>
 
-        <div class="relpage-modal-body flex flex-column gap-75">
+        <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">
           <div class="relpage-import-box margin-bottom-100 border-radius-16px border-1 bg-primary">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Import from GitHub release</h3>

@@ -446,7 +446,7 @@
                 @keyup.enter="setSecurityPassword"
               />
             </div>
-            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
+            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem padding-0 padding-top-50 padding-bottom-50">
               {{ securityError }}
             </div>
             <button 
@@ -500,10 +500,10 @@
                 @keyup.enter="changeSecurityPassword"
               />
             </div>
-            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
+            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem padding-0 padding-top-50 padding-bottom-50">
               {{ securityError }}
             </div>
-            <div v-if="securitySuccess" class="settingspage-security-success color-success fs-085rem">
+            <div v-if="securitySuccess" class="settingspage-security-success color-success fs-085rem padding-0 padding-top-50 padding-bottom-50">
               {{ securitySuccess }}
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
@@ -547,7 +547,7 @@
               :disabled="securityLoading"
               @keyup.enter="removeSecurityPassword"
             />
-            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem">
+            <div v-if="securityError" class="settingspage-security-error color-error fs-085rem padding-0 padding-top-50 padding-bottom-50">
               {{ securityError }}
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
@@ -651,7 +651,7 @@
               <input
                 v-model="renameProfileDraft"
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
                 placeholder="Enter a display name"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @keyup.enter="saveProfileDisplayName"
@@ -776,7 +776,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
                 v-model="localGatewayDraft"
                 placeholder="http://127.0.0.1:8080"
               />
@@ -796,7 +796,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
                 v-model="ipfsApiDraft"
                 placeholder="http://127.0.0.1:5001"
               />
@@ -1007,7 +1007,7 @@
       <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Main Enable Toggle -->
-          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1" :class="{ active: privateCloudEnabled }">
+          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 settingspage-setting-item-settingspage-featured" :class="{ active: privateCloudEnabled }">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
@@ -1090,7 +1090,7 @@
                   <input
                     v-model="newGatewayId"
                     type="text"
-                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />

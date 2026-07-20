@@ -22,7 +22,7 @@
     <div v-else-if="address" class="flex flex-column gap-150">
       <!-- Address Overview Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
@@ -51,7 +51,7 @@
 
       <!-- Balances Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Balances</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
@@ -77,7 +77,7 @@
 
       <!-- Delegations Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="address.delegations && address.delegations.length > 0">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Delegations ({{ address.delegations.length }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
@@ -102,7 +102,7 @@
 
       <!-- Recent Transactions Card -->
       <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Recent Transactions</h2>
         </div>
         <div class="chaindetail-card-body padding-150">

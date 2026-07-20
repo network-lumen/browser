@@ -90,11 +90,11 @@
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
         <div class="history-empty-card padding-150 text-center border-default bg-card shadow-sm border-radius-24px">
-          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary w-325 h-325">
+          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary w-325 h-325 margin-0 margin-bottom-87">
             <HistoryIcon :size="22" />
           </div>
           <h3 class="color-text-primary margin-0 history-empty-card-h3 fs-18px">{{ emptyTitle }}</h3>
-          <p class="color-text-secondary history-empty-card-p line-height-155">{{ emptyCopy }}</p>
+          <p class="color-text-secondary history-empty-card-p line-height-155 margin-0 margin-x-auto margin-top-75">{{ emptyCopy }}</p>
           <div class="history-empty-actions flex-align-center margin-top-100 flex-justify-center gap-62 flex-wrap-wrap">
             <button
               v-if="!historyEnabled"

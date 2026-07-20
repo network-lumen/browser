@@ -42,27 +42,27 @@
 
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Metrics</span>
-          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
+          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="color-text-secondary fw-500">Block Height</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(blockHeight) }}</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
+          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="color-text-secondary fw-500">Validators</span>
             <span class="color-text-primary txt-weight-light">{{ validators.active }}/{{ validators.total }}</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
+          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="color-text-secondary fw-500">Block Time</span>
             <span class="color-text-primary txt-weight-light">{{ blockTime.toFixed(2) }}s</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
+          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="color-text-secondary fw-500">Throughput</span>
             <span class="color-text-primary txt-weight-light">{{ tps.toFixed(1) }} tx/s</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
+          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="color-text-secondary fw-500">Blocks/Hour</span>
             <span class="color-text-primary txt-weight-light">{{ blocksPerHour }}</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px">
+          <div class="netpage-metric-item flex-align-center-justify-space-between fs-13px padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="color-text-secondary fw-500">24h Volume</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(txVolume24h) }}</span>
           </div>
@@ -70,23 +70,23 @@
 
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Node Info</span>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Chain ID</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">lumen-1</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Network</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">Mainnet</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">SDK</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">v0.47.0</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Peers</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">{{ peers }}</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Uptime</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">{{ uptime }}</span>
           </div>
@@ -166,7 +166,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Peer Connections</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03"></div>
+                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 netpage-indicator-fill-good"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px">{{ peers }}</span>
               </div>
