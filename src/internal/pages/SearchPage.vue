@@ -363,7 +363,7 @@
     <Transition name="searchpage-modal">
       <div
         v-if="showHowSearchWorks"
-        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35 z-100 backdrop-blur-4"
+        class="searchpage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-black-a35 z-100 backdrop-blur-4px"
         role="dialog"
         aria-modal="true"
         aria-label="How search works"

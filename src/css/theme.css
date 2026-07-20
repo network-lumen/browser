@@ -812,9 +812,6 @@ select.recurpay-input { background-image: none; }
 }
 .subview-empty-state { padding: 60px 20px; }
 .subview-payments-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-.subview-payment-card:hover {
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.15);
-}
 .subview-payment-card.paused { opacity: 0.7; background: var(--bg-secondary); }
 .subview-payment-status.completed, .gwpage-private-badge {
   background: rgba(var(--ios-indigo-rgb), 0.15);
@@ -853,7 +850,6 @@ select.recurpay-input { background-image: none; }
   border-color: var(--accent-primary);
   background: var(--primary-a08);
 }
-.homepage-action-card { -webkit-backdrop-filter: var(--backdrop-blur); }
 .homepage-action-card:hover .homepage-remove-card-btn, .drivepage-list-item:hover .drivepage-list-actions,
 .drivepage-list-item.selected .drivepage-list-actions, .drivepage-list-item.checked .drivepage-list-actions {
   opacity: 1;
@@ -1839,10 +1835,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
-.explorer-chart-card {
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-}
 .explorer-chart-container canvas { width: 100%; height: 120px; }
 .explorer-chart-donut-wrapper {
   width: 100px;
@@ -1864,10 +1856,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   align-items: center;
 }
 .explorer-live-dot { animation: pulse 2s infinite; }
-.explorer-activity-column, .explorer-validators-table {
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-}
 .explorer-view-all-btn:hover, .walletpage-input-wrapper.readonly, .drivepage-gateway-card.offline {
   opacity: 0.7;
 }
@@ -2498,7 +2486,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Address Book Styles */
 .walletpage-contacts-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-.walletpage-contact-card:hover { box-shadow: 0 4px 12px var(--primary-a15); }
 .walletpage-contact-btn.send {
   background: var(--gradient-primary);
   color: #fff;

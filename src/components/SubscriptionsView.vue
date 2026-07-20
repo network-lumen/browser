@@ -106,7 +106,7 @@
         <div
           v-for="payment in filteredPayments"
           :key="payment.id"
-          class="subview-payment-card border-radius-12px border-2 padding-125 transition-all-02 hover-border-accent"
+          class="subview-payment-card border-radius-12px border-2 padding-125 transition-all-02 hover-border-accent hover-shadow-primary-a15"
           :class="payment.status"
         >
           <div class="subview-payment-header flex-align-start flex-justify-space-between margin-bottom-75">

@@ -1,6 +1,6 @@
 <template>
   <div class="qr-scanner-wrapper fixed top-0 z-10000 left-0 right-0 bottom-0">
-    <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125 bg-black-a75 backdrop-blur-4" @click="$emit('close')">
+    <div class="qr-scanner-overlay flex-align-justify-center absolute inset-0 padding-125 bg-black-a75 backdrop-blur-4px" @click="$emit('close')">
       <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
         <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
           <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>

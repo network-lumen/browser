@@ -261,7 +261,7 @@
 
   <!-- Export Options Modal -->
   <Teleport to="body">
-    <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4" @click.self="cancelExportModal">
+    <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelExportModal">
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Export Profile</h3>
@@ -347,7 +347,7 @@
 
   <!-- Import Modal -->
   <Teleport to="body">
-    <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4" @click.self="cancelImportModal">
+    <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelImportModal">
       <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Import profile</h3>
@@ -492,7 +492,7 @@
 
   <!-- Import Password Modal (for encrypted backups) -->
   <Teleport to="body">
-    <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4" @click.self="cancelImportPasswordModal">
+    <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelImportPasswordModal">
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Encrypted Backup</h3>
@@ -538,7 +538,7 @@
   <Teleport to="body">
     <div
       v-if="showDeleteProfileModal"
-      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4"
+      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px"
       @click.self="cancelDeleteProfileModal"
     >
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
@@ -570,7 +570,7 @@
   <Teleport to="body">
     <div
       v-if="showPqcLinkedModal"
-      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4"
+      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px"
       @click.self="dismissPqcLinkedModal"
     >
       <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
