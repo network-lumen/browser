@@ -22,7 +22,7 @@
               v-model="form.name"
               type="text"
               placeholder="e.g., Netflix Subscription"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
             />
           </div>
 
@@ -31,14 +31,14 @@
             <textarea
               v-model="form.description"
               placeholder="Optional notes about this payment"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               rows="2"
             ></textarea>
           </div>
 
           <div class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Category</label>
-            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent">
+            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -61,7 +61,7 @@
                 v-model="form.recipient"
                 type="text"
                 placeholder="lumen1..."
-                class="recurpay-input flex-1 bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+                class="recurpay-input flex-1 bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
               <button
                 class="recurpay-input-btn cursor-pointer flex-align-justify-center color-text-primary bg-tertiary border-1 border-radius-8px transition-all-02 padding-62-100"
@@ -83,7 +83,7 @@
                   step="0.000001"
                   min="0"
                   placeholder="0.000000"
-                  class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent padding-right-50px"
+                  class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent padding-right-50px shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
                 />
                 <span class="currency absolute top-half fs-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>
@@ -91,7 +91,7 @@
 
             <div class="recurpay-group margin-bottom-100">
               <label class="block color-text-primary recurpay-group-label margin-bottom-25">Frequency <span class="required color-error">*</span></label>
-              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent">
+              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -109,7 +109,7 @@
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
             </div>
 
@@ -119,7 +119,7 @@
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
             </div>
           </div>
@@ -131,7 +131,7 @@
               type="number"
               min="1"
               placeholder="Leave empty for unlimited"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
             />
             <p class="recurpay-hint color-text-secondary fs-12px margin-0 margin-top-37">Payment will stop after this many successful transactions</p>
           </div>
@@ -157,7 +157,7 @@
 
           <div v-if="form.reminderEnabled" class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Remind me (days before payment)</label>
-            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent">
+            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>

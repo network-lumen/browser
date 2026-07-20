@@ -73,11 +73,11 @@
         </div>
 
         <div v-if="currentView !== 'dex'" class="walletpage-header-actions flex gap-75">
-          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125 color-white bg-gradient-primary" @click="connectWallet" v-if="!isConnected">
+          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125 color-white bg-gradient-primary shadow-0-4-15-ios-blue-a4 shadow-0-8-25-ios-blue-a5-hover" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
             <span>Connect Wallet</span>
           </button>
-          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125 color-white bg-gradient-primary" @click="sendTransaction" v-else>
+          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125 color-white bg-gradient-primary shadow-0-4-15-ios-blue-a4 shadow-0-8-25-ios-blue-a5-hover" @click="sendTransaction" v-else>
             <Send :size="16" />
             <span>Send</span>
           </button>
@@ -111,26 +111,26 @@
 
         <!-- Quick Actions -->
         <div class="walletpage-quick-actions gap-100 grid">
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" @click="sendTransaction">
-            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100 shadow-0-20-40-ios-blue-a25-not-disabled-hover" @click="sendTransaction">
+            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" @click="openReceiveModal">
-            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100 shadow-0-20-40-ios-blue-a25-not-disabled-hover" @click="openReceiveModal">
+            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" disabled>
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100 shadow-0-20-40-ios-blue-a25-not-disabled-hover" disabled>
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" disabled>
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100 shadow-0-20-40-ios-blue-a25-not-disabled-hover" disabled>
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary shadow-0-8-20-ios-blue-a3">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -323,7 +323,7 @@
                   </button>
                   <button
                     type="button"
-                    class="walletpage-action-btn primary walletpage-dex-open-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 flex-justify-center padding-62-125 color-white bg-gradient-primary"
+                    class="walletpage-action-btn primary walletpage-dex-open-btn flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 flex-justify-center padding-62-125 color-white bg-gradient-primary shadow-0-4-15-ios-blue-a4 shadow-0-8-25-ios-blue-a5-hover"
                     @click="openDexTab(dex.openUrl || dex.baseUrl)"
                   >
                     <ExternalLink :size="16" />
@@ -597,7 +597,7 @@
       <div v-else-if="currentView === 'addressbook'" class="walletpage-content-section flex flex-column gap-150 w-full max-w-full">
         <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
           <h3 class="walletpage-section-header-h3 margin-0 fs-16px txt-weight-light color-text-primary">Saved Addresses</h3>
-          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125 color-white bg-gradient-primary" @click="openAddContactModal">
+          <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125 color-white bg-gradient-primary shadow-0-4-15-ios-blue-a4 shadow-0-8-25-ios-blue-a5-hover" @click="openAddContactModal">
             <Plus :size="16" />
             <span>Add Contact</span>
           </button>
@@ -778,7 +778,7 @@
                 <span>Source chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ assetTransferContext.chainLabel }}</span>
               </div>
-              <div class="walletpage-summary-row total flex-align-center-justify-space-between fs-15px border-bottom-1 padding-87-100 color-text-primary border-top-2-border-color bg-secondary">
+              <div class="walletpage-summary-row txt-weight-medium flex-align-center-justify-space-between fs-15px border-bottom-1 padding-87-100 color-text-primary border-top-2-border-color bg-secondary">
                 <span>Destination chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
               </div>
@@ -910,14 +910,14 @@
                     <Users :size="16" />
                   </button>
                 </div>
-                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full margin-top-50 bg-card border-1 overflow-hidden z-100 left-0 right-0">
+                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full margin-top-50 bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-0-8-24-rgba-0-0-0-0-15">
                   <div class="walletpage-picker-header flex-align-center-justify-space-between txt-weight-light color-text-primary padding-75-100 bg-secondary border-bottom-1 fs-14px">
                     <span>Select Contact</span>
                     <button class="walletpage-picker-close hover-fill-primary flex-align-center color-text-tertiary cursor-pointer padding-25 border-none bg-transparent border-radius-4px transition-all-02" @click="showContactPicker = false">
                       <X :size="14" />
                     </button>
                   </div>
-                  <div class="walletpage-picker-list overflow-y-auto">
+                  <div class="max-h-300px overflow-y-auto">
                     <button 
                       v-for="contact in contacts" 
                       :key="contact.id"
@@ -969,7 +969,7 @@
                 <span>Tax</span>
                 <span class="walletpage-summary-value tax txt-weight-light color-text-primary mono">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row total flex-align-center-justify-space-between fs-15px border-bottom-1 padding-87-100 color-text-primary border-top-2-border-color bg-secondary">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row txt-weight-medium flex-align-center-justify-space-between fs-15px border-bottom-1 padding-87-100 color-text-primary border-top-2-border-color bg-secondary">
                 <span>Receiver net</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
               </div>
@@ -977,7 +977,7 @@
                 <span>Route</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.routeLabel }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row total flex-align-center-justify-space-between fs-15px border-bottom-1 padding-87-100 color-text-primary border-top-2-border-color bg-secondary">
+              <div v-if="isIbcSend" class="walletpage-summary-row txt-weight-medium flex-align-center-justify-space-between fs-15px border-bottom-1 padding-87-100 color-text-primary border-top-2-border-color bg-secondary">
                 <span>Destination chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.destinationChain }}</span>
               </div>
@@ -1014,7 +1014,7 @@
             </div>
 
             <div class="walletpage-qr-section flex-justify-center margin-0 margin-top-150 margin-bottom-150">
-              <div class="walletpage-qr-wrapper padding-125 bg-card border-2 border-radius-16px">
+              <div class="walletpage-qr-wrapper padding-125 bg-card border-2 border-radius-16px shadow-0-4-12-rgba-0-0-0-0-05">
                 <img 
                   v-if="qrCodeDataUrl" 
                   :src="qrCodeDataUrl"

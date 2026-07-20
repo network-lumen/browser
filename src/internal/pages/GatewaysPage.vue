@@ -59,7 +59,7 @@
             </a>
           </div>
           <div class="gwpage-private-gateways-grid grid">
-            <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card bg-card border-1 transition-all-02 hover-border-ios-blue hover-lift-2">
+            <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card bg-card border-1 transition-all-02 hover-border-ios-blue hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
               <div class="gwpage-private-gateway-header flex-align-center margin-bottom-75">
                 <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge fs-11px letter-spacing-005em padding-25-75">Private</span>

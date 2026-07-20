@@ -51,7 +51,7 @@
         </div>
       </header>
 
-      <section v-if="activeNameTab === 'lumen'" class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150">
+      <section v-if="activeNameTab === 'lumen'" class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150 shadow-0-10-30-rgba-0-0-0-0-1">
 
 
         <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
@@ -123,7 +123,7 @@
         </ul>
       </section>
 
-      <section v-else class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150">
+      <section v-else class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150 shadow-0-10-30-rgba-0-0-0-0-1">
         <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
           <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
           <p>Loading stable links...</p>
@@ -388,7 +388,7 @@
               </div>
 
               <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
-                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0 padding-top-40 border-top-1">
+                <div class="domainpage-price-row total margin-top-25 flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0 padding-top-40 border-top-1">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>

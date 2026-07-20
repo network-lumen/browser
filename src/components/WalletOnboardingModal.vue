@@ -1,7 +1,7 @@
 <template>
   <Transition name="walletonboard-transition">
     <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50 z-10000" @click="handleOverlayClick">
-      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct max-w-560px" @click.stop>
+      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct max-w-560px shadow-0-24-48-rgba-0-0-0-0-2" @click.stop>
         <div class="walletonboard-header text-center border-bottom-default padding-200-200-150">
           <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />
@@ -32,14 +32,14 @@
             </div>
 
             <div class="walletonboard-info-cards gap-100 grid">
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent">
+              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a1-hover">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Set a Password</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
                   Protect your wallet with a strong password
                 </p>
               </div>
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent">
+              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a1-hover">
                 <Download :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Backup Your Wallet</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
