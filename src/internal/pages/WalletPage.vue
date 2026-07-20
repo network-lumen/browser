@@ -8,7 +8,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'overview' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
             <Wallet :size="18" />
@@ -17,7 +17,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'assets' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'assets' }"
             @click="currentView = 'assets'"
           >
             <Coins :size="18" />
@@ -26,7 +26,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'dex' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'dex' }"
             @click="currentView = 'dex'"
           >
             <LayoutDashboard :size="18" />
@@ -35,7 +35,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'transactions' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
             <ArrowLeftRight :size="18" />
@@ -44,7 +44,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'recurring' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'recurring' }"
             @click="currentView = 'recurring'"
           >
             <Calendar :size="18" />
@@ -53,7 +53,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'addressbook' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'addressbook' }"
             @click="currentView = 'addressbook'"
           >
             <Users :size="18" />
@@ -124,13 +124,13 @@
             <span>Receive</span>
           </button>
           <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
           <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>

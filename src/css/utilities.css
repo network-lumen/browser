@@ -806,3 +806,11 @@
 .padding-100-125-125 { padding: 1rem 1.25rem 1.25rem; }
 .padding-125-175 { padding: 1.25rem 1.75rem; }
 .padding-25-4 { padding: 0.25rem 0.4rem; }
+.border-color-accent { border-color: var(--accent-primary); }
+.border-color-primary-a30 { border-color: var(--primary-a30); }
+.border-color-transparent { border-color: transparent; }
+.border-color-ios-green { border-color: var(--ios-green); }
+.border-color-1 { border-color: var(--border-color); }
+.border-color-primary-a25 { border-color: var(--primary-a25); }
+.border-color-ios-blue { border-color: var(--ios-blue); }
+.border-color-ios-red { border-color: var(--ios-red); }

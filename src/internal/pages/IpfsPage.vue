@@ -302,7 +302,7 @@
               Stop
             </button>
             <button
-              class="ipfspage-btn-primary disabled-fade-60 bg-gradient-primary color-white border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100"
+              class="ipfspage-btn-primary disabled-fade-60 bg-gradient-primary color-white border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 border-color-transparent"
               type="button"
               :disabled="savePreparing || savePinIsRunning"
               @click="confirmSaveToDrive"

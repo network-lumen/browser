@@ -8,7 +8,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'appearance' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
             <Palette :size="18" />
@@ -17,7 +17,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'content' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'content' }"
             @click="currentView = 'content'"
           >
             <EyeOff :size="18" />
@@ -26,7 +26,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'network' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'network' }"
             @click="currentView = 'network'"
           >
             <Globe :size="18" />
@@ -35,7 +35,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'privacy' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
             <Shield :size="18" />
@@ -44,7 +44,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'security' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'security' }"
             @click="currentView = 'security'"
           >
             <Lock :size="18" />
@@ -53,7 +53,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'profiles' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
             <User :size="18" />
@@ -62,7 +62,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'privatecloud' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privatecloud' }"
             @click="currentView = 'privatecloud'"
           >
             <Cloud :size="18" />
@@ -75,7 +75,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'troubleshooting' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'troubleshooting' }"
             @click="currentView = 'troubleshooting'"
           >
             <AlertTriangle :size="18" />
@@ -84,7 +84,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'advanced' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
             <Code2 :size="18" />
@@ -93,7 +93,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'about' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'about' }"
             @click="currentView = 'about'"
           >
             <Info :size="18" />
@@ -126,7 +126,7 @@
               <div class="settingspage-theme-selector flex gap-50 border-radius-10px bg-secondary border-1 padding-25">
                 <button 
                   class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 hover-color-text-primary"
-                  :class="{ active: theme === 'light' }"
+                  :class="{ 'active bg-card color-primary': theme === 'light' }"
                   @click="setTheme('light')"
                 >
                   <Sun :size="18" />
@@ -134,7 +134,7 @@
                 </button>
                 <button 
                   class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 hover-color-text-primary"
-                  :class="{ active: theme === 'dark' }"
+                  :class="{ 'active bg-card color-primary': theme === 'dark' }"
                   @click="setTheme('dark')"
                 >
                   <Moon :size="18" />
@@ -142,7 +142,7 @@
                 </button>
                 <button 
                   class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 hover-color-text-primary"
-                  :class="{ active: theme === 'system' }"
+                  :class="{ 'active bg-card color-primary': theme === 'system' }"
                   @click="setTheme('system')"
                 >
                   <Monitor :size="18" />
@@ -299,7 +299,7 @@
                 <button
                   type="button"
                   class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
-                  :class="{ active: ipfsConnectivityMode === 'light' }"
+                  :class="{ 'active bg-card color-primary': ipfsConnectivityMode === 'light' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('light')"
                 >
@@ -308,7 +308,7 @@
                 <button
                   type="button"
                   class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
-                  :class="{ active: ipfsConnectivityMode === 'normal' }"
+                  :class="{ 'active bg-card color-primary': ipfsConnectivityMode === 'normal' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('normal')"
                 >
@@ -317,7 +317,7 @@
                 <button
                   type="button"
                   class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
-                  :class="{ active: ipfsConnectivityMode === 'high' }"
+                  :class="{ 'active bg-card color-primary': ipfsConnectivityMode === 'high' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('high')"
                 >

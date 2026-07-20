@@ -8,7 +8,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'discover' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'discover' }"
             @click="setView('discover')"
           >
             <Sparkles :size="18" />
@@ -17,7 +17,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'domains' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'domains' }"
             @click="setView('domains')"
           >
             <Link2 :size="18" />
@@ -30,7 +30,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'publish' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'publish' }"
             @click="setView('publish')"
           >
             <Rocket :size="18" />
@@ -39,7 +39,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'contact' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'contact' }"
             @click="setView('contact')"
           >
             <MessageCircle :size="18" />
@@ -48,7 +48,7 @@
           <button
             type="button"
             class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
-            :class="{ active: currentView === 'docs' }"
+            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'docs' }"
             @click="setView('docs')"
           >
             <BookOpen :size="18"/>
@@ -107,7 +107,7 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Get Started</h3>
             <div class="helppage-actions-grid gap-75 grid">
               <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
-                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-drive">
+                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-drive color-ios-blue">
                   <FolderOpen :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
@@ -117,7 +117,7 @@
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
               <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
-                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain">
+                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain color-ios-purple">
                   <Link2 :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
@@ -358,7 +358,7 @@
           <!-- Contact Cards -->
           <div class="helppage-contact-grid gap-100 grid">
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
-              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord">
+              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord color-ios-purple">
                 <MessageCircle :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">
@@ -380,7 +380,7 @@
             </button>
 
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
-              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-website">
+              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-website color-ios-blue">
                 <Globe :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">
