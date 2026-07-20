@@ -149,7 +149,7 @@
       </div>
 
       <!-- Assets View -->
-      <div v-else-if="currentView === 'assets'" class="walletpage-content-section flex flex-column gap-150 w-full">
+      <div v-else-if="currentView === 'assets'" class="walletpage-content-section flex flex-column gap-150 w-full max-w-full">
         <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
           <h3 class="walletpage-section-header-h3 margin-0 fs-16px txt-weight-light color-text-primary">Cross-chain Assets</h3>
         </div>
@@ -265,7 +265,7 @@
       </div>
 
       <!-- DEX View -->
-      <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-150 w-full">
+      <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-150 w-full max-w-full">
         <div v-if="dexError" class="walletpage-info-banner warning margin-bottom-100 border-radius-10px margin-bottom-150 color-text-primary bg-secondary border-1 fs-14px line-height-15 padding-87-100 walletpage-info-banner-warning">
           <span>{{ dexError }}</span>
         </div>
@@ -288,7 +288,7 @@
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
                     :alt="`${dex.name} logo`"
-                    class="walletpage-dex-logo-image margin-auto block bg-transparent"
+                    class="walletpage-dex-logo-image margin-auto block bg-transparent w-74pct"
                     @error="handleDexLogoError(dex)"
                   />
                   <span v-else>{{ dex.iconText }}</span>
@@ -374,7 +374,7 @@
       </div>
 
         <!-- Transactions View -->
-        <div v-else-if="currentView === 'transactions'" class="walletpage-content-section flex flex-column gap-150 w-full">
+        <div v-else-if="currentView === 'transactions'" class="walletpage-content-section flex flex-column gap-150 w-full max-w-full">
 
         <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100" v-if="activities.length > 0">
           <h3 class="walletpage-section-header-h3 margin-0 fs-16px txt-weight-light color-text-primary">Recent Transactions</h3>
@@ -496,7 +496,7 @@
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
-                    class="walletpage-type-sub fw-500 color-text-tertiary fs-11px overflow-hidden txt-overflow-ellipsis nowrap"
+                    class="walletpage-type-sub fw-500 color-text-tertiary fs-11px overflow-hidden txt-overflow-ellipsis nowrap max-w-140px"
                     :title="tx.dnsName"
                   >{{ tx.dnsName }}</span>
                 </div>
@@ -594,7 +594,7 @@
       </div>
 
       <!-- Address Book View -->
-      <div v-else-if="currentView === 'addressbook'" class="walletpage-content-section flex flex-column gap-150 w-full">
+      <div v-else-if="currentView === 'addressbook'" class="walletpage-content-section flex flex-column gap-150 w-full max-w-full">
         <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
           <h3 class="walletpage-section-header-h3 margin-0 fs-16px txt-weight-light color-text-primary">Saved Addresses</h3>
           <button class="walletpage-action-btn primary flex-inline-align-center gap-62 border-radius-10px fw-500 cursor-pointer fs-14px border-1-transparent transition-all-02 padding-62-125" @click="openAddContactModal">
@@ -659,7 +659,7 @@
       </div>
 
       <!-- Recurring Payments View -->
-      <div v-else-if="currentView === 'recurring'" class="walletpage-content-section walletpage-recurring-section flex flex-column gap-150 w-full padding-0 gap-0">
+      <div v-else-if="currentView === 'recurring'" class="walletpage-content-section walletpage-recurring-section flex flex-column gap-150 w-full padding-0 gap-0 max-w-full">
         <SubscriptionsView 
           ref="subscriptionsRef"
           @execute-payment="executeRecurringPayment"

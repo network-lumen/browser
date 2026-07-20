@@ -1,5 +1,5 @@
 <template>
-  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg min-w-240px">
+  <aside class="lumen-sidebar color-text-primary flex flex-column padding-100 flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg min-w-240px max-w-240px">
     <div class="lumen-sidebar-header flex gap-62 margin-bottom-100 flex-inline-align-center padding-50-62">
       <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm shadow-primary">
         <component :is="icon" :size="20" />

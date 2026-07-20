@@ -155,7 +155,7 @@
           <img
             v-if="viewKind === 'image'"
             :src="contentUrl"
-            class="ipfspage-media img border-radius-12px border-1 bg-primary max-h-75vh"
+            class="ipfspage-media img border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
             alt=""
             @error="onMediaError"
           />
@@ -164,7 +164,7 @@
             <video
               ref="videoEl"
               :src="videoSrc"
-              class="ipfspage-media border-radius-12px border-1 bg-primary max-h-75vh"
+              class="ipfspage-media border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
               controls
               playsinline
             ></video>

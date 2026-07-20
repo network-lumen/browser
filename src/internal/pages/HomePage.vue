@@ -72,7 +72,7 @@
             :disabled="!hasProfiles && ['drive', 'domain', 'wallet'].includes(key)"
           >
             <div
-              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105"
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px"
               @click.stop="removeMySpaceCard(key)"
               title="Remove card"
             >
@@ -122,7 +122,7 @@
             @click="handleCardClick($event, key)"
           >
             <div
-              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105"
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px"
               @click.stop="removeLumenCard(key)"
               title="Remove card"
             >

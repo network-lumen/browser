@@ -1,5 +1,5 @@
 <template>
-  <div class="subview margin-0-auto padding-150">
+  <div class="subview margin-0-auto padding-150 max-w-1200px">
     <div class="subview-header flex-justify-space-between flex-align-start flex-wrap-wrap margin-bottom-200">
       <div>
         <h2 class="color-text-primary txt-weight-medium fs-24px">Recurring Payments & Subscriptions</h2>

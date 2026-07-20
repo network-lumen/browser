@@ -156,7 +156,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Block Production</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
+                  <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px min-w-70px">{{ blockTimeStatus }}</span>
               </div>
@@ -166,7 +166,7 @@
               <div class="netpage-health-label color-text-secondary margin-bottom-87 fw-500 text-uppercase fs-11px letter-spacing-005em">Peer Connections</div>
               <div class="netpage-health-indicator flex-align-center gap-100">
                 <div class="netpage-indicator-bar flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 netpage-indicator-fill-good"></div>
+                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 netpage-indicator-fill-good w-70pct"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right fs-15px min-w-70px">{{ peers }}</span>
               </div>

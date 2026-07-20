@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed padding-100">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed padding-100 w-min-380px-92vw">
       <header class="flex flex-column gap-10">
         <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em margin-0">
           Update available
@@ -57,7 +57,7 @@
   <Teleport to="body">
     <Transition name="fade">
       <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-10000 backdrop-blur-4px" @click.self="notesOpen = false">
-        <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden">
+        <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden w-min-720px-92vw">
           <div class="release-prompt-notes-head flex-align-center-justify-space-between gap-100 padding-75-87">
             <h3 class="release-prompt-notes-title color-text-primary margin-0 fs-16px">Change notes</h3>
             <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer fs-15rem line-height-1 padding-25-4" @click="notesOpen = false">&times;</button>

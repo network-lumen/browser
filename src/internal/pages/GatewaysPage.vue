@@ -143,7 +143,7 @@
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Active</label>
                   <label class="gwpage-toggle flex-inline-align-center">
-                    <input v-model="editMap[gw.id].active" type="checkbox" />
+                    <input v-model="editMap[gw.id].active" type="checkbox" class="w-16px h-16px" />
                     <span class="gwpage-toggle-ui hidden"></span>
                   </label>
                 </div>

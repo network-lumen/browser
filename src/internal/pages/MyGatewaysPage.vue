@@ -272,7 +272,7 @@
       <!-- Delete Confirmation Modal -->
       <Transition name="mygw-modal">
         <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4px" @click="closeDeleteConfirm">
-          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
+          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct max-w-400px" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">Delete Gateway</h2>
               <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px border-radius-8px fs-15rem transition-all-02" @click="closeDeleteConfirm">×</button>
@@ -356,7 +356,7 @@
       <!-- Whitelist Remove Confirmation Modal -->
       <Transition name="mygw-modal">
         <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4px" @click="closeWhitelistDeleteConfirm">
-          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
+          <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct max-w-400px" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">Remove User</h2>
               <button class="mygw-icon-btn hover-fill-primary flex-align-justify-center bg-transparent border-none cursor-pointer color-text-secondary size-32px border-radius-8px fs-15rem transition-all-02" @click="closeWhitelistDeleteConfirm">×</button>

@@ -18,7 +18,7 @@
       <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900 fs-350rem">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03 padding-85-100-85-125">
+        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03 padding-85-100-85-125 w-min-820px-full">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
@@ -72,7 +72,7 @@
 
     </section>
 
-    <section v-if="touched" class="searchpage-results relative z-1 padding-0 padding-right-50 padding-bottom-50 padding-left-50">
+    <section v-if="touched" class="searchpage-results relative z-1 padding-0 padding-right-50 padding-bottom-50 padding-left-50 w-min-920px-full">
       <div class="searchpage-meta flex-align-center-justify-space-between gap-100 margin-bottom-100 padding-0 padding-right-25 padding-left-25">
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
@@ -93,9 +93,9 @@
         <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-100 border-radius-xl border-default bg-card padding-125-150">
           <div class="searchpage-skeleton-icon border-radius-lg flex-shrink-0 w-52px h-52px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
-            <div class="searchpage-skeleton-title border-radius-6px"></div>
-            <div class="searchpage-skeleton-url border-radius-6px margin-top-62"></div>
-            <div class="searchpage-skeleton-desc border-radius-6px margin-top-62"></div>
+            <div class="searchpage-skeleton-title border-radius-6px w-60pct"></div>
+            <div class="searchpage-skeleton-url border-radius-6px margin-top-62 w-40pct"></div>
+            <div class="searchpage-skeleton-desc border-radius-6px margin-top-62 w-85pct"></div>
           </div>
         </li>
       </ul>
@@ -104,7 +104,7 @@
         <div class="searchpage-empty-icon flex-align-justify-center w-80px border-radius-circle color-text-tertiary margin-bottom-150 bg-secondary">
           <Search :size="48" />
         </div>
-        <div class="searchpage-empty-content">
+        <div class="searchpage-empty-content max-w-400px">
           <h3 class="searchpage-empty-title fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-50">No results found</h3>
           <p class="searchpage-empty-subtitle fs-15px color-text-secondary line-height-15 margin-0 margin-bottom-150">
             <template v-if="q.trim()">
@@ -259,7 +259,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 w-200 backdrop-blur-8 color-white-a92"
+                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 backdrop-blur-8 color-white-a92 w-165"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >

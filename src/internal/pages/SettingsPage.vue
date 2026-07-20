@@ -169,7 +169,7 @@
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Brightness</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust screen brightness ({{ brightness }}%)</span>
             </div>
-            <div class="settingspage-setting-control settingspage-brightness-control flex-align-center gap-100 w-full">
+            <div class="settingspage-setting-control settingspage-brightness-control flex-align-center gap-100 w-full max-w-320px">
               <Sun :size="16" class="settingspage-brightness-icon color-text-secondary flex-shrink-0" />
               <input 
                 type="range" 
@@ -429,7 +429,7 @@
               <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">New Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-150px"
                 v-model="newPassword"
                 placeholder="Enter password (min 8 characters)"
                 :disabled="securityLoading"
@@ -439,7 +439,7 @@
               <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">Confirm Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-150px"
                 v-model="confirmPassword"
                 placeholder="Confirm password"
                 :disabled="securityLoading"
@@ -473,7 +473,7 @@
               <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">Current Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-150px"
                 v-model="currentPassword"
                 placeholder="Enter current password"
                 :disabled="securityLoading"
@@ -483,7 +483,7 @@
               <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">New Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-150px"
                 v-model="newPassword"
                 placeholder="Enter new password (min 8 characters)"
                 :disabled="securityLoading"
@@ -493,7 +493,7 @@
               <label class="settingspage-form-label fw-500 color-text-secondary fs-13px">Confirm New Password</label>
               <input 
                 type="password" 
-                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-150px"
                 v-model="confirmPassword"
                 placeholder="Confirm new password"
                 :disabled="securityLoading"
@@ -541,7 +541,7 @@
             <p class="settingspage-security-confirm-box-p margin-0 fs-14px color-text-primary">Enter your current password to disable protection:</p>
             <input 
               type="password" 
-              class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+              class="settingspage-input-control fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-150px"
               v-model="removePasswordInput"
               placeholder="Current password"
               :disabled="securityLoading"
@@ -612,7 +612,7 @@
               :class="{ active: p.id === activeProfileId }"
             >
               <input
-                class="settingspage-profile-checkbox"
+                class="settingspage-profile-checkbox w-16px h-16px"
                 type="checkbox"
                 :value="p.id"
                 v-model="selectedProfileIds"
@@ -651,7 +651,7 @@
               <input
                 v-model="renameProfileDraft"
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide w-320px"
                 placeholder="Enter a display name"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @keyup.enter="saveProfileDisplayName"
@@ -776,7 +776,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide w-320px"
                 v-model="localGatewayDraft"
                 placeholder="http://127.0.0.1:8080"
               />
@@ -796,7 +796,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <input
                 type="text"
-                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
+                class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide w-320px"
                 v-model="ipfsApiDraft"
                 placeholder="http://127.0.0.1:5001"
               />
@@ -869,7 +869,7 @@
               <div class="settingspage-data-folder-input-row flex-align-center-justify-end gap-50 w-full">
                 <input
                   type="text"
-                  class="settingspage-input-control settingspage-data-folder-input fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
+                  class="settingspage-input-control settingspage-data-folder-input fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px w-min-520px-full"
                   v-model="lumenDataFolderDraft"
                   :placeholder="defaultUserDataPath || 'D:\\Lumen'"
                   :disabled="lumenDataFolderBusy"
@@ -1090,7 +1090,7 @@
                   <input
                     v-model="newGatewayId"
                     type="text"
-                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide"
+                    class="settingspage-input-control settingspage-wide fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px settingspage-input-control-settingspage-wide w-320px"
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />

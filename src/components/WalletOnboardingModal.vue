@@ -1,7 +1,7 @@
 <template>
   <Transition name="walletonboard-transition">
     <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50 z-10000" @click="handleOverlayClick">
-      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct" @click.stop>
+      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct max-w-560px" @click.stop>
         <div class="walletonboard-header text-center border-bottom-default padding-200-200-150">
           <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />

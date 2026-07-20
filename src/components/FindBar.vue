@@ -10,7 +10,7 @@
     <input
       ref="inputEl"
       v-model="query"
-      class="findbar-input outline-none color-text-primary border-radius-10px fs-13px border-default bg-primary h-30px padding-0-50"
+      class="findbar-input outline-none color-text-primary border-radius-10px fs-13px border-default bg-primary h-30px padding-0-50 w-220px"
       type="text"
       placeholder="Find in page"
       autocomplete="off"

@@ -85,7 +85,7 @@
         <Puzzle :size="16" />
       </button>
 
-      <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0" role="menu">
+      <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px" role="menu">
         <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em padding-0 padding-right-50 padding-bottom-50 padding-left-50">Extensions</div>
 
         <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-35 overflow-y-auto padding-right-25">
@@ -184,13 +184,13 @@
     <div class="navbar-profile-section appregion-no-drag relative">
       <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full hover-bg-hover hover-border-color padding-35-62-35-35" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
-        <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">{{ activeProfileDisplay }}</span>
+        <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary margin-left-n12" />
       </button>
 
       <div
         v-if="showProfileMenu"
-        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0 min-w-260px"
+        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0 min-w-260px max-w-300px"
         role="menu"
       >
         <ActiveProfileCard
@@ -215,7 +215,7 @@
                 <span class="navbar-profile-row-name fs-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </button>
 
-              <button type="button" class="navbar-profile-row-delete flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="navbar-profile-row-delete flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
@@ -262,7 +262,7 @@
   <!-- Export Options Modal -->
   <Teleport to="body">
     <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelExportModal">
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Export Profile</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelExportModal">&times;</button>
@@ -293,7 +293,7 @@
             </div>
             
             <label class="navbar-export-option margin-top-75 flex-align-center gap-50 cursor-pointer border-radius-sm padding-50-62">
-              <input type="checkbox" v-model="exportEncrypted" />
+              <input type="checkbox" v-model="exportEncrypted" class="w-16px h-16px" />
               <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Also encrypt the backup file with this password</span>
             </label>
           </div>
@@ -301,7 +301,7 @@
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
             <label class="navbar-export-option flex-align-center gap-50 cursor-pointer border-radius-sm padding-50-62">
-              <input type="checkbox" v-model="exportEncrypted" />
+              <input type="checkbox" v-model="exportEncrypted" class="w-16px h-16px" />
               <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Encrypt backup with password</span>
             </label>
             
@@ -348,7 +348,7 @@
   <!-- Import Modal -->
   <Teleport to="body">
     <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelImportModal">
-      <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
+      <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw w-min-560px-92vw">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Import profile</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelImportModal">&times;</button>
@@ -493,7 +493,7 @@
   <!-- Import Password Modal (for encrypted backups) -->
   <Teleport to="body">
     <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelImportPasswordModal">
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Encrypted Backup</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelImportPasswordModal">&times;</button>
@@ -541,7 +541,7 @@
       class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px"
       @click.self="cancelDeleteProfileModal"
     >
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Delete profile?</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelDeleteProfileModal">&times;</button>
@@ -573,7 +573,7 @@
       class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px"
       @click.self="dismissPqcLinkedModal"
     >
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px">
+      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
         <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
           <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Post-quantum security enabled</h3>
           <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="dismissPqcLinkedModal">&times;</button>
