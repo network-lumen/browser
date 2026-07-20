@@ -346,13 +346,13 @@
                 </div>
 
                 <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
-                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em fs-64rem">24h price</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap fs-82rem">{{ getDexPriceLabel(dex) }}</span>
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">24h price</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
                 <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
-                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em fs-64rem">24h volume</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap fs-82rem">{{ getDexVolumeLabel(dex) }}</span>
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">24h volume</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
               </div>
 
@@ -515,7 +515,7 @@
             </div>
 
             <div class="walletpage-col-from flex-align-center gap-50">
-              <span class="walletpage-address-value mono fs-13px color-text-secondary padding-87 fs-93rem" :title="tx.from || '-'">
+              <span class="walletpage-address-value mono fs-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full overflow-hidden txt-overflow-ellipsis nowrap" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
                 </template>
@@ -538,7 +538,7 @@
             </div>
 
             <div class="walletpage-col-to flex-align-center gap-50">
-              <span class="walletpage-address-value mono fs-13px color-text-secondary padding-87 fs-93rem" :title="tx.to || '-'">
+              <span class="walletpage-address-value mono fs-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full overflow-hidden txt-overflow-ellipsis nowrap" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
                 </template>
@@ -752,7 +752,7 @@
               <label class="walletpage-form-group-label block fs-14px txt-weight-light color-text-primary margin-bottom-50">Amount <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper walletpage-amount-input relative">
                 <input
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono focus-outline-none focus-border-accent focus-ring focus-shadow padding-right-4rem"
                   type="text"
                   inputmode="decimal"
                   v-model="assetTransferForm.amount"
@@ -939,8 +939,8 @@
               <label class="walletpage-form-group-label block fs-14px txt-weight-light color-text-primary margin-bottom-50">Amount ({{ sendAssetSymbol }}) <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper walletpage-amount-input relative">
                 <input 
-                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono focus-outline-none focus-border-accent focus-ring focus-shadow" 
-                  type="text" 
+                  class="walletpage-form-input w-full border-radius-10px color-text-primary padding-75-100 border-2 fs-15px bg-card transition-all-02 mono focus-outline-none focus-border-accent focus-ring focus-shadow padding-right-4rem"
+                  type="text"
                   inputmode="decimal"
                   v-model="sendForm.amount"
                   placeholder="0.000000"

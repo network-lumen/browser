@@ -84,7 +84,7 @@
                 <span class="txdetail-item-index color-text-tertiary fs-075rem">#{{ Number(index) + 1 }}</span>
               </div>
               <div class="txdetail-item-data">
-                <pre class="bg-primary color-text-primary padding-100 margin-0 txdetail-item-data-pre border-1 border-radius-6px mono fs-075rem pre-wrap">{{ JSON.stringify(msg.value, null, 2) }}</pre>
+                <pre class="bg-primary color-text-primary padding-100 margin-0 txdetail-item-data-pre border-1 border-radius-6px mono fs-075rem pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
             </div>
           </div>

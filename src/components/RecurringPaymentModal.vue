@@ -83,7 +83,7 @@
                   step="0.000001"
                   min="0"
                   placeholder="0.000000"
-                  class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent"
+                  class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent padding-right-50px"
                 />
                 <span class="currency absolute top-half fs-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>

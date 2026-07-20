@@ -98,20 +98,20 @@
       <!-- Stats Bar -->
       <div class="explorer-stats-bar gap-100 margin-bottom-200 grid">
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Latest Block</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ formatNumber(latestBlock) }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Latest Block</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ formatNumber(latestBlock) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ formatNumber(txHistoryTotal) }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Txs (last {{ txHistoryWindow }} blocks)</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Validators</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ validatorCount }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Validators</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ validatorCount }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-25 padding-125 border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px fs-68rem">Avg Block Time</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem fs-93rem">{{ avgBlockTimeLabel }}</span>
+          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 fs-13px">Avg Block Time</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary fs-15rem">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
@@ -123,7 +123,7 @@
 
       <template v-else>
         <!-- Overview View -->
-        <div v-if="currentView === 'overview'" class="explorer-content-area border-radius-12px bg-transparent">
+        <div v-if="currentView === 'overview'" class="explorer-content-area border-radius-12px bg-transparent overflow-visible">
           <!-- Section Header -->
           <div class="explorer-overview-header margin-bottom-150 text-center">
             <h1 class="explorer-overview-header-h1 fs-175rem txt-weight-medium color-text-primary margin-bottom-25">Network Overview</h1>
@@ -232,7 +232,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75 min-h-160px">
-                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px fs-62rem">
+                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30 min-w-24px">
                     <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
@@ -319,7 +319,7 @@
         </div>
 
         <!-- Blocks View -->
-        <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card">
+        <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between padding-0 padding-top-100 padding-right-150 padding-bottom-75 padding-left-150">
             <div class="explorer-header-content">
               <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Blocks</h2>
@@ -359,7 +359,7 @@
             <div class="explorer-table-body flex flex-column overflow-y-auto">
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
-                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline hover-color-accent-secondary gap-25" @click="navigateToBlock(block.height)">
+                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-25" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -378,7 +378,7 @@
                 </div>
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click.stop="navigateToBlock(block.height)" title="View block details">
-                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4 padding-18-37 fs-62rem">{{ block.hash }}</code>
+                    <code class="explorer-hash-code color-text-secondary bg-secondary border-radius-4px mono padding-18-37 fs-62rem">{{ block.hash }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -392,7 +392,7 @@
                   </button>
                 </div>
                 <div class="explorer-td td-txs flex-align-center fs-13px fs-14px">
-                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px fs-11px padding-25-4 padding-18-37 fs-75rem" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
+                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px padding-18-37 fs-75rem" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
@@ -405,7 +405,7 @@
         </div>
 
         <!-- Transactions View -->
-        <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card">
+        <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-100 border-bottom-1 flex-justify-space-between padding-150-150-100">
             <div class="explorer-header-content">
               <h2 class="explorer-transactions-header-h2 fs-15rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Transactions</h2>
@@ -458,7 +458,7 @@
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <code class="explorer-hash-code color-text-secondary fs-11px bg-secondary border-radius-4px mono padding-25-4 padding-18-37 fs-62rem">{{ shortenHash(tx.hash) }}</code>
+                    <code class="explorer-hash-code color-text-secondary bg-secondary border-radius-4px mono padding-18-37 fs-62rem">{{ shortenHash(tx.hash) }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -498,7 +498,7 @@
         </div>
 
         <!-- Validators View -->
-        <div v-else-if="currentView === 'validators'" class="explorer-content-area explorer-validators-view border-radius-12px padding-200 bg-transparent">
+        <div v-else-if="currentView === 'validators'" class="explorer-content-area explorer-validators-view border-radius-12px padding-200 bg-transparent overflow-visible">
           <div class="explorer-validators-header margin-bottom-200">
             <h2 class="explorer-validators-header-h2 fs-175rem txt-weight-medium color-text-primary margin-bottom-50">Active Validators</h2>
             <p class="explorer-validators-subtitle color-text-tertiary fs-14px">{{ validators.length }} validators securing the network</p>

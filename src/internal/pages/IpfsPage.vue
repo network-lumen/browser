@@ -1,6 +1,6 @@
 <template>
   <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'ipfspage-ipfs-page--bare': isBareHtmlView }">
-    <main class="ipfspage-main-content flex flex-column flex-1 padding-150 overflow-auto padding-0">
+    <main class="ipfspage-main-content flex flex-column flex-1 padding-150 overflow-auto">
       <header v-if="!isBareHtmlView" class="ipfspage-content-header flex-align-start gap-100 margin-bottom-100 flex-justify-end">
         <div class="ipfspage-header-actions flex gap-50">
           <button
