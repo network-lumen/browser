@@ -77,7 +77,7 @@
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
-      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100 padding-125-0-50">
+      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100">
         <button
           class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
           type="button"
@@ -125,7 +125,7 @@
           </p>
           <div class="searchpage-empty-suggestions text-left border-radius-md padding-100-125 bg-secondary">
             <span class="searchpage-suggestion-label txt-weight-light color-text-secondary fs-13px block margin-bottom-50">Try:</span>
-            <ul class="searchpage-suggestion-list margin-0 color-text-secondary fs-14px">
+            <ul class="searchpage-suggestion-list margin-0 color-text-secondary fs-14px padding-left-125">
               <li>Using different keywords</li>
               <li>Searching for a domain (e.g., <code class="searchpage-suggestion-list-code fs-13px bg-primary-a08 border-radius-4px color-primary padding-25-4">example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
@@ -244,8 +244,8 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue hover-shadow-primary hover-bg-card padding-0 gap-0" 
-            :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue hover-shadow-primary hover-bg-card"
+            :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image padding-0 gap-0' : '' ]"
             type="button" 
             @click="openResult(r)"
           >
@@ -370,7 +370,7 @@
         @click="closeHowSearchWorks"
       >
         <div class="searchpage-modal-content searchpage-help-modal border-radius-18px bg-primary border-1 overflow-hidden relative shadow-primary-lg w-min-760" @click.stop>
-          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between border-bottom-1-light padding-125-125-75">
+          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between border-bottom-1-light padding-125-125-75 padding-top-115">
             <div class="searchpage-help-header-left flex-align-start gap-87 min-w-0">
               <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
                 <HelpCircle :size="18" />

@@ -7,7 +7,7 @@
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </button>
 
-      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-25">
+      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-25 padding-bottom-25">
         <button
           v-for="key in allRoutes"
           :key="key"

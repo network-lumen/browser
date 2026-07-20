@@ -388,7 +388,7 @@
               </div>
 
               <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
-                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0">
+                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0 padding-top-40">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>

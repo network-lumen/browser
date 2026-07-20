@@ -647,7 +647,7 @@
           }}
         </p>
         <button
-          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 padding-100-175"
+          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 padding-100-175"
           type="button"
           @click="openFilePicker"
         >
