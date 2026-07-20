@@ -38,7 +38,7 @@
         :value="urlField"
         @input="onInput"
         type="text"
-        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px border-default bg-secondary transition-all-02 focus-outline-none focus-bg-primary focus-border-accent focus-ring focus-shadow"
+        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px border-default bg-secondary transition-all-02 focus-outline-none focus-bg-primary focus-border-accent focus-ring focus-shadow padding-50-275-50-225"
         placeholder="Search or enter a URL"
         @keydown.enter="onEnter"
       />
@@ -149,7 +149,7 @@
           </div>
         </div>
 
-        <div v-else class="navbar-extensions-menu-hint text-center fs-12px color-text-tertiary">
+        <div v-else class="navbar-extensions-menu-hint text-center fs-12px color-text-tertiary padding-87-50">
           No extensions installed yet.
         </div>
 
@@ -173,7 +173,7 @@
             <ExternalLink :size="13" />
           </button>
 
-          <div v-if="extensionsMessage" class="navbar-extensions-menu-message fs-12px color-text-tertiary">
+          <div v-if="extensionsMessage" class="navbar-extensions-menu-message fs-12px color-text-tertiary padding-0-12">
             {{ extensionsMessage }}
           </div>
         </div>
@@ -182,7 +182,7 @@
 
     <!-- Profile -->
     <div class="navbar-profile-section appregion-no-drag relative">
-      <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full hover-bg-hover hover-border-color" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
+      <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full hover-bg-hover hover-border-color padding-35-62-35-35" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
         <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary margin-left-n12" />

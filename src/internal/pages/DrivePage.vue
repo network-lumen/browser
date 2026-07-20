@@ -647,7 +647,7 @@
           }}
         </p>
         <button
-          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02"
+          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 padding-100-175"
           type="button"
           @click="openFilePicker"
         >
@@ -815,7 +815,7 @@
             ></textarea>
           </div>
 
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
@@ -1005,7 +1005,7 @@
               </div>
             </div>
           </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
@@ -1142,7 +1142,7 @@
               </div>
             </template>
           </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
@@ -1331,7 +1331,7 @@
                     <div class="drivepage-plan-title-row flex-align-center-justify-space-between gap-50">
                       <span class="drivepage-plan-name txt-weight-light color-text-primary fs-15px">{{ planDisplayName(plan) }}</span>
                       <span
-                        class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1"
+                        class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
                         :class="{ active: planStatus(plan) === 'active', pending: planStatus(plan) === 'pending', }"
                       >
                         {{ planStatusLabel(plan) }}
@@ -1471,10 +1471,10 @@
                         {{ planGatewayLabel(group.gateway) }}
                       </span>
                     </div>
-                    <div class="drivepage-gateway-meta flex-justify-end flex-wrap-wrap">
+                    <div class="drivepage-gateway-meta flex-justify-end flex-wrap-wrap gap-25-75">
                       <span
                         v-if="group.gateway.regions.length"
-                        class="drivepage-gateway-region flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary"
+                        class="drivepage-gateway-region flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary padding-18-55"
                         :title="formatRegionsTitle(group.gateway.regions)"
                       >
                         <MapPin :size="14" class="drivepage-gateway-region-ico flex-0-0-auto opacity-70" />
@@ -1486,7 +1486,7 @@
                         <span
                           v-for="plan in group.plans"
                           :key="plan.id + '-chip'"
-                          class="drivepage-plan-chip flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary"
+                          class="drivepage-plan-chip flex-inline-align-center gap-35 border-radius-full fs-075rem color-text-secondary border-1 bg-secondary padding-25-60"
                         >
                           <span class="drivepage-plan-chip-price mono">
                             {{ formatPlanPriceShort(plan.priceUlmn) }}
@@ -1562,14 +1562,14 @@
                           <button
                             v-if="planStatus(plan) === 'none'"
                             type="button"
-                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1"
+                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
                             @click.stop="openSubscribeModal(plan)"
                           >
                             {{ planStatusLabel(plan) }}
                           </button>
                           <span
                             v-else
-                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1"
+                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
                             :class="{ active: planStatus(plan) === 'active', pending: planStatus(plan) === 'pending', }"
                           >
                             {{ planStatusLabel(plan) }}
@@ -1751,7 +1751,7 @@
               first time (PQC setup + block confirmation).
             </p>
           </div>
-          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
+          <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1 padding-100-150-150">
             <button
               class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"

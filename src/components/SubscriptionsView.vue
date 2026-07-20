@@ -130,15 +130,15 @@
           </div>
 
           <div class="subview-payment-details margin-bottom-100">
-            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px">
+            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px padding-6px-0">
               <span class="color-text-secondary">Next Payment:</span>
               <span class="subview-detail-value color-text-primary fw-500">{{ formatDate(payment.nextPaymentDate) }}</span>
             </div>
-            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px">
+            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px padding-6px-0">
               <span class="color-text-secondary">Recipient:</span>
               <span class="subview-detail-value color-text-primary mono fs-12px fw-500">{{ formatAddress(payment.recipient) }}</span>
             </div>
-            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px">
+            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px padding-6px-0">
               <span class="color-text-secondary">Success Rate:</span>
               <span class="subview-detail-value color-text-primary fw-500">
                 {{ payment.totalPayments > 0

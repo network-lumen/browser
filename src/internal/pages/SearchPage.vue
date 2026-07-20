@@ -1,7 +1,7 @@
 <template>
   <main
     ref="scrollRoot"
-    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden"
+    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden padding-200-150-500"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
@@ -15,10 +15,10 @@
         <HelpCircle :size="18" />
       </button>
     <section class="hero flex-column flex-inline-align-center gap-150 w-full relative flex z-1">
-      <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900">Lumen</div>
+      <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900 fs-350rem">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03">
+        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03 padding-85-100-85-125">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
@@ -77,7 +77,7 @@
         <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
       </div>
 
-      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100">
+      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100 padding-125-0-50">
         <button
           class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
           type="button"
@@ -100,7 +100,7 @@
         </li>
       </ul>
 
-      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center bg-card border-2-dashed-color">
+      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center bg-card border-2-dashed-color padding-300-200">
         <div class="searchpage-empty-icon flex-align-justify-center w-80px border-radius-circle color-text-tertiary margin-bottom-150 bg-secondary">
           <Search :size="48" />
         </div>
@@ -217,7 +217,7 @@
               <Image :size="18" />
             </div>
           </button>
-          <div class="searchpage-image-meta flex-align-center gap-50 flex-justify-start">
+          <div class="searchpage-image-meta flex-align-center gap-50 flex-justify-start padding-75-75-90">
             <div v-if="r.badges?.length" class="searchpage-image-tags flex flex-wrap-wrap gap-35 flex-1 min-w-0">
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
@@ -244,7 +244,7 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue hover-shadow-primary hover-bg-card" 
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue hover-shadow-primary hover-bg-card padding-0 gap-0" 
             :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
             type="button" 
             @click="openResult(r)"
@@ -284,7 +284,7 @@
               />
               <component v-else :is="iconFor(r)" :size="20" />
             </div>
-            <div class="searchpage-result-body flex-1-1-auto min-w-0">
+            <div class="searchpage-result-body flex-1-1-auto min-w-0 padding-125-150">
               <div class="searchpage-result-header flex-align-center gap-50 margin-bottom-25">
                 <span
                   v-if="r.kind !== 'site'"
@@ -329,12 +329,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 padding-25-4"
+                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 padding-25-4 fs-56rem"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 padding-25-4"
+                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 padding-25-4 fs-56rem"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
@@ -345,7 +345,7 @@
         </li>
       </ul>
 
-      <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center">
+      <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center padding-125-0-50">
         <button
           class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
           type="button"
@@ -370,7 +370,7 @@
         @click="closeHowSearchWorks"
       >
         <div class="searchpage-modal-content searchpage-help-modal border-radius-18px bg-primary border-1 overflow-hidden relative shadow-primary-lg w-min-760" @click.stop>
-          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between border-bottom-1-light">
+          <header class="searchpage-modal-header searchpage-help-header flex-align-start gap-100 flex-justify-space-between border-bottom-1-light padding-125-125-75">
             <div class="searchpage-help-header-left flex-align-start gap-87 min-w-0">
               <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
                 <HelpCircle :size="18" />

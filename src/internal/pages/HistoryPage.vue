@@ -3,7 +3,7 @@
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
     <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
-      <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between border-default bg-card shadow-sm border-radius-24px">
+      <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between border-default bg-card shadow-sm border-radius-24px padding-120-125">
         <div class="history-copy">
           <h1 class="color-text-primary margin-0 history-copy-h1">History</h1>
         </div>
@@ -51,13 +51,13 @@
 
       <div v-if="groupedEntries.length" class="flex flex-column gap-90">
         <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100 border-default bg-card shadow-sm border-radius-24px">
-          <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between">
+          <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between padding-0-10-70">
             <h2 class="color-text-primary margin-0 history-group-head-h2 fs-16px">{{ group.label }}</h2>
             <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span padding-0-50 bg-fill-secondary fs-12px min-w-27rem-badge">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
-            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between">
+            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between padding-80-15">
               <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-75" type="button" @click="openEntry(entry.url)">
                 <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px fs-12px letter-spacing-008em border-default bg-fill-secondary" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}

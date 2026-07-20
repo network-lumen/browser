@@ -68,7 +68,7 @@
       <!-- Header -->
       <header class="walletpage-content-header flex-align-center-justify-space-between margin-bottom-150">
         <div>
-          <h1 class="walletpage-content-header-h1 margin-0 txt-weight-light color-text-primary">{{ getViewTitle() }}</h1>
+          <h1 class="walletpage-content-header-h1 margin-0 txt-weight-light color-text-primary fs-135rem">{{ getViewTitle() }}</h1>
           <p class="walletpage-content-header-p fs-14px color-text-secondary margin-0 margin-top-25">{{ getViewDescription() }}</p>
         </div>
 
@@ -97,7 +97,7 @@
           </div>
           <div class="walletpage-balance-amount flex gap-75 flex-align-baseline margin-bottom-75">
             <span class="walletpage-currency txt-weight-light fs-18px">LMN</span>
-            <span class="walletpage-amount txt-weight-strong letter-spacing-n002">
+            <span class="walletpage-amount txt-weight-strong letter-spacing-n002 fs-300rem">
               {{ showBalance ? balanceLabel : '••••••' }}
             </span>
           </div>
@@ -111,25 +111,25 @@
 
         <!-- Quick Actions -->
         <div class="walletpage-quick-actions gap-100 grid">
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" @click="sendTransaction">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" @click="sendTransaction">
             <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" @click="openReceiveModal">
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" @click="openReceiveModal">
             <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" disabled>
             <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </button>
-          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03" disabled>
+          <button class="walletpage-quick-btn disabled-fade-50 flex-align-center flex-column gap-75 cursor-pointer txt-weight-light color-text-primary border-radius-16px border-2 bg-card fs-14px relative overflow-hidden transition-all-03 padding-150-100" disabled>
             <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white">
               <CreditCard :size="20" />
             </div>
@@ -202,7 +202,7 @@
                 <div class="walletpage-asset-info flex flex-column flex-1 gap-20 min-w-0">
                   <div class="walletpage-asset-title-row flex-align-center flex-wrap-wrap gap-50">
                     <span class="walletpage-asset-name fw-500 color-text-primary fs-14px">{{ asset.displayName }}</span>
-                    <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary bg-secondary border-1 fs-12px">{{ asset.chainLabel }}</span>
+                    <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary bg-secondary border-1 fs-12px padding-20-55">{{ asset.chainLabel }}</span>
                   </div>
                   <span class="walletpage-asset-symbol color-text-tertiary fs-13px">{{ asset.displaySymbol }}</span>
                   <span class="walletpage-asset-meta color-text-secondary fs-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.addressLabel }}</span>
@@ -297,8 +297,8 @@
                 <div class="walletpage-dex-main flex flex-column min-w-0 gap-25">
                   <div class="walletpage-dex-title-row flex-align-center flex-wrap-wrap gap-50">
                     <span class="walletpage-dex-name txt-weight-light color-text-primary fs-16px">{{ dex.name }}</span>
-                    <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary bg-secondary border-1 fs-12px">{{ dex.chainLabel }}</span>
-                    <span class="walletpage-dex-status-badge flex-inline-align-center border-radius-full txt-weight-medium fs-12px border-1-transparent" :class="`status-${dex.status}`">
+                    <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary bg-secondary border-1 fs-12px padding-20-55">{{ dex.chainLabel }}</span>
+                    <span class="walletpage-dex-status-badge flex-inline-align-center border-radius-full txt-weight-medium fs-12px border-1-transparent padding-22-55" :class="`status-${dex.status}`">
                       {{ getDexStatusLabel(dex.status) }}
                     </span>
                   </div>
@@ -335,24 +335,24 @@
 
             <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary border-top-1-light padding-100-125-125">
               <div class="walletpage-dex-detail-grid gap-75 grid">
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100 walletpage-dex-detail-card-compact padding-62-75">
-                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">Trading pairs</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ formatDexCount(dex.tradingPairsCount) }}</span>
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100 walletpage-dex-detail-card-compact padding-62-75 gap-20">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em fs-64rem">Trading pairs</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap fs-82rem">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100 walletpage-dex-detail-card-compact padding-62-75">
-                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">Liquidity pools</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
-                </div>
-
-                <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
-                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">24h price</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexPriceLabel(dex) }}</span>
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100 walletpage-dex-detail-card-compact padding-62-75 gap-20">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em fs-64rem">Liquidity pools</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap fs-82rem">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
                 <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
-                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em">24h volume</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexVolumeLabel(dex) }}</span>
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em fs-64rem">24h price</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap fs-82rem">{{ getDexPriceLabel(dex) }}</span>
+                </div>
+
+                <div class="walletpage-dex-detail-card flex flex-column gap-35 min-w-0 border-radius-14px border-1 bg-card padding-87-100">
+                  <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase fs-12px letter-spacing-004em fs-64rem">24h volume</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary fs-15px overflow-hidden txt-overflow-ellipsis nowrap fs-82rem">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
               </div>
 
@@ -515,7 +515,7 @@
             </div>
 
             <div class="walletpage-col-from flex-align-center gap-50">
-              <span class="walletpage-address-value mono fs-13px color-text-secondary" :title="tx.from || '-'">
+              <span class="walletpage-address-value mono fs-13px color-text-secondary padding-87 fs-93rem" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
                 </template>
@@ -538,7 +538,7 @@
             </div>
 
             <div class="walletpage-col-to flex-align-center gap-50">
-              <span class="walletpage-address-value mono fs-13px color-text-secondary" :title="tx.to || '-'">
+              <span class="walletpage-address-value mono fs-13px color-text-secondary padding-87 fs-93rem" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
                 </template>
@@ -673,7 +673,7 @@
     <Transition name="fade">
       <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeAssetTransferModal">
         <div class="walletpage-modal-content send-modal asset-transfer-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
-          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
+          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-150-150-125">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
                 <ArrowLeftRight :size="20" />
@@ -802,7 +802,7 @@
     <Transition name="fade">
       <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeSendModal">
         <div class="walletpage-modal-content send-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
-          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
+          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-150-150-125">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
                 <Send :size="20" />
@@ -997,7 +997,7 @@
     <Transition name="fade">
       <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeReceiveModal">
         <div class="walletpage-modal-content receive-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
-          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
+          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-150-150-125">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon receive flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
                 <ArrowDownLeft :size="20" />
@@ -1029,7 +1029,7 @@
 
             <div class="walletpage-address-box border-radius-12px padding-125 border-2 bg-secondary">
               <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase fs-14px margin-bottom-75 letter-spacing-005em">Your Wallet Address</div>
-              <div class="walletpage-address-value mono fs-13px color-text-secondary">{{ address || '-' }}</div>
+              <div class="walletpage-address-value mono fs-13px color-text-secondary padding-87 fs-93rem">{{ address || '-' }}</div>
               <button class="walletpage-btn-copy-address disabled-fade-50 flex-align-justify-center w-full border-radius-10px txt-weight-light color-primary gap-50 cursor-pointer bg-card padding-75 fs-15px transition-all-02 hover-bg-hover hover-color-accent-secondary" type="button" @click="copyAddressWithToast" :disabled="!address">
                 <Copy :size="16" />
                 <span>Copy Address</span>
@@ -1044,7 +1044,7 @@
     <Transition name="fade">
       <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeContactModal">
         <div class="walletpage-modal-content walletpage-contact-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
-          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
+          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-150-150-125">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
                 <Users :size="20" />
@@ -1119,7 +1119,7 @@
     <Transition name="fade">
       <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="cancelDeleteContact">
         <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh max-w-420px" @click.stop>
-          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
+          <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-150-150-125">
             <div class="modal-title-wrapper flex-align-center gap-75">
               <div class="walletpage-modal-icon delete flex-align-justify-center size-40px border-radius-10px bg-gradient-danger color-white">
                 <Trash2 :size="20" />

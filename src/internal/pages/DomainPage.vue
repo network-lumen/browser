@@ -28,7 +28,7 @@
     <main class="domainpage-main flex-1 bg-secondary overflow-y-auto padding-200-250">
       <header class="domainpage-content-header flex-align-center flex-justify-space-between margin-bottom-150">
         <div>
-          <h1 class="domainpage-content-header-h1 fw-650">{{ pageTitle }}</h1>
+          <h1 class="domainpage-content-header-h1 fw-650 fs-160rem">{{ pageTitle }}</h1>
           <p class="color-text-secondary domainpage-content-header-p fs-14px margin-0 margin-top-25">{{ pageDescription }}</p>
         </div>
         <div class="domainpage-header-actions flex gap-75">
@@ -51,17 +51,17 @@
         </div>
       </header>
 
-      <section v-if="activeNameTab === 'lumen'" class="domainpage-card bg-card border-radius-16px border-1">
+      <section v-if="activeNameTab === 'lumen'" class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150">
 
 
-        <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
+        <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
           <p>{{ error }}</p>
         </div>
-        <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
+        <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
           <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
           <p>Loading your domains...</p>
         </div>
-        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1">
+        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1 padding-200-150">
           <p class="domainpage-hero-title txt-weight-light margin-0">Get your name on Lumen</p>
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Register a new domain and open it as
@@ -80,7 +80,7 @@
             <div class="domainpage-domain-right flex-align-center gap-35">
               <span
                 v-if="d.expireAtSeconds"
-                class="domainpage-pill border-radius-full color-text-secondary fw-500 txt-sm cursor-pointer fs-11px border-1-transparent"
+                class="domainpage-pill border-radius-full color-text-secondary fw-500 txt-sm cursor-pointer fs-11px border-1-transparent padding-25-60"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >
@@ -123,15 +123,15 @@
         </ul>
       </section>
 
-      <section v-else class="domainpage-card bg-card border-radius-16px border-1">
-        <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
+      <section v-else class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150">
+        <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
           <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
           <p>Loading stable links...</p>
         </div>
-        <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
+        <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
           <p>{{ rawDomainsError }}</p>
         </div>
-        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1">
+        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1 padding-200-150">
           <p class="domainpage-hero-title txt-weight-light margin-0">Generate a stable link</p>
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Stable links are cryptographic names backed by IPNS.
@@ -222,7 +222,7 @@
                 <X :size="16" />
               </button>
             </header>
-            <form class="domainpage-modal-body overflow-y-auto flex-1 min-h-0" @submit.prevent="confirmStableLinkModal">
+            <form class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125" @submit.prevent="confirmStableLinkModal">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">
                 {{ stableLinkModalMode === 'import'
                   ? 'Choose a local private key file and attach it to this stable link name.'
@@ -270,7 +270,7 @@
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Publish resolver records for this stable link.</p>
               <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary padding-75-87">
                 <div class="domainpage-info-name txt-weight-light fs-15px">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
@@ -348,7 +348,7 @@
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">
                 Register a new <span class="mono">.lmn</span> handle for the owner address.
               </p>
@@ -388,7 +388,7 @@
               </div>
 
               <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
-                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px">
+                <div class="domainpage-price-row total flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>
@@ -421,7 +421,7 @@
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Edit resolver records for this domain.</p>
               <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary padding-75-87">
                 <div class="domainpage-info-name txt-weight-light fs-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
@@ -469,11 +469,11 @@
               </div>
 
               <div class="domainpage-price-box border-radius-10px border-1 bg-secondary padding-50-75 margin-0 margin-top-50 margin-bottom-100">
-                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px">
+                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0">
                   <span>Cost</span>
                   <span class="txt-weight-light">{{ settingsCostLabel }}</span>
                 </div>
-                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px">
+                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary fs-13px padding-25-0">
                   <span>Balance</span>
                   <span class="txt-weight-light">{{ settingsWalletBalanceLabel }}</span>
                 </div>
@@ -514,7 +514,7 @@
                 <X :size="16" />
               </button>
             </header>
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0">
+            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 padding-110-125-125">
               <p class="domainpage-modal-desc fs-085rem color-text-tertiary margin-0 margin-bottom-75">Transfer ownership of this domain to another address.</p>
               
               <div class="domainpage-info-card border-radius-10px color-white margin-bottom-100 bg-gradient-primary padding-75-87">

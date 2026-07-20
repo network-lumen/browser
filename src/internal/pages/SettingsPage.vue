@@ -1075,7 +1075,7 @@
                     </button>
                   </div>
                 </div>
-                <div v-else class="settingspage-empty-gateway-ids flex-align-center flex-column text-center color-text-tertiary">
+                <div v-else class="settingspage-empty-gateway-ids flex-align-center flex-column text-center color-text-tertiary padding-200-100">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-30 margin-bottom-50">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                     <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -1159,7 +1159,7 @@
 
       <!-- About View -->
       <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
-        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card">
+        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card padding-300">
           <div class="settingspage-about-logo margin-bottom-150">
             <div class="flex-align-justify-center size-64px border-radius-xl bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />

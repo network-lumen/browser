@@ -2,7 +2,7 @@
   <Transition name="walletonboard-transition">
     <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50 z-10000" @click="handleOverlayClick">
       <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct" @click.stop>
-        <div class="walletonboard-header text-center border-bottom-default">
+        <div class="walletonboard-header text-center border-bottom-default padding-200-200-150">
           <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
             <Shield :size="32" class="color-primary" />
           </div>
@@ -174,7 +174,7 @@
           </div>
 
           <div v-else-if="step === 'complete'" class="walletonboard-step">
-            <div class="walletonboard-success-box-large text-center">
+            <div class="walletonboard-success-box-large text-center padding-200-100">
               <CheckCircle :size="48" class="color-success" />
               <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">All Set!</h3>
               <p class="txt-sm color-gray-blue margin-top-50 margin-0">
@@ -194,7 +194,7 @@
           </div>
         </div>
 
-        <div class="walletonboard-footer flex gap-100 flex-justify-end border-top-default">
+        <div class="walletonboard-footer flex gap-100 flex-justify-end border-top-default padding-150-200">
           <button
             v-if="step === 'intro' && !requiresProfileCreation"
             class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"

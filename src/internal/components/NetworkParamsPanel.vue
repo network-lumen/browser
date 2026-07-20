@@ -61,7 +61,7 @@
           </div>
         </button>
 
-        <div v-if="s.open" class="netparams-section-body bg-secondary border-top-1-light">
+        <div v-if="s.open" class="netparams-section-body bg-secondary border-top-1-light padding-85-125-125">
           <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary gap-75">
             <UiSpinner size="sm" />
             <span>Loading…</span>

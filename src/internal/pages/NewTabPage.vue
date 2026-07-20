@@ -1,5 +1,5 @@
 <template>
-  <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden">
+  <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden padding-150-100-200">
     <div
       v-if="showOnboarding"
       class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
@@ -136,7 +136,7 @@
           </button>
         </form>
 
-        <div class="newtab-quick-links flex flex-wrap-wrap gap-50 flex-justify-center margin-0 margin-x-auto margin-top-100">
+        <div class="newtab-quick-links flex flex-wrap-wrap flex-justify-center margin-0 margin-x-auto margin-top-100">
           <button
             v-for="link in quickLinks"
             :key="link.url"

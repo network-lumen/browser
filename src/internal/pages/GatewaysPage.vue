@@ -117,7 +117,7 @@
                   <span class="gwpage-manage-card-id mono color-text-tertiary fs-12px">#{{ gw.id }}</span>
                 </div>
                 <div class="manage-card-badges">
-                  <span class="gwpage-badge fs-11px" :class="gw.active ? 'badge-success' : 'gwpage-badge-warn'">
+                  <span class="gwpage-badge fs-11px padding-20-60" :class="gw.active ? 'badge-success' : 'gwpage-badge-warn'">
                     {{ gw.active ? 'Active' : 'Inactive' }}
                   </span>
                 </div>
@@ -198,7 +198,7 @@
               @click="closeCreateModal"
             >
               <div class="gwpage-modal-content overflow-hidden bg-primary border-1 shadow-primary-lg w-min-760" @click.stop>
-                <div class="gwpage-modal-header flex-align-start flex-justify-space-between border-bottom-1-light">
+                <div class="gwpage-modal-header flex-align-start flex-justify-space-between border-bottom-1-light padding-125-125-75">
                   <div>
                     <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
                     <p class="gwpage-modal-sub color-text-secondary margin-0 margin-top-25">Register a new gateway for the active profile.</p>
@@ -208,7 +208,7 @@
                   </button>
                 </div>
 
-                <div class="gwpage-modal-body grid gap-90-100">
+                <div class="gwpage-modal-body grid gap-90-100 padding-100-125-25">
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
                     <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="gateway.city" />

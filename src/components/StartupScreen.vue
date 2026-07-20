@@ -8,11 +8,11 @@
     </header>
 
     <main class="startup-body h-auto flex flex-1-1-auto min-h-0">
-      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-87">
+      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-87 padding-28px-22px">
         <div class="ring-spinner ring-spinner-lg" aria-label="Loading"></div>
       </div>
 
-      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-87">
+      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-87 padding-28px-22px">
         <div>
           <div class="startup-msg-subtitle color-text-secondary fs-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}

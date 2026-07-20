@@ -13,7 +13,7 @@
             <X :size="18" />
           </button>
         </div>
-        <div class="sitemodal-body">
+        <div class="sitemodal-body padding-14px-16px-6px">
           <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75">
             <span>
               Allow this website to open Lumen action modals?
@@ -21,11 +21,11 @@
           </div>
 
           <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Site</span>
               <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ siteLabel }}</span>
             </div>
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75" v-if="actionKind">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0" v-if="actionKind">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Action</span>
               <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ actionKind }}</span>
             </div>
@@ -60,7 +60,7 @@
             <X :size="18" />
           </button>
         </div>
-        <div class="sitemodal-body">
+        <div class="sitemodal-body padding-14px-16px-6px">
           <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
@@ -132,7 +132,7 @@
             <X :size="18" />
           </button>
         </div>
-        <div class="sitemodal-body">
+        <div class="sitemodal-body padding-14px-16px-6px">
           <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
@@ -153,7 +153,7 @@
           </div>
 
           <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Target</span>
               <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ pinTargetDisplay }}</span>
             </div>
@@ -227,7 +227,7 @@
             <X :size="18" />
           </button>
         </div>
-        <div class="sitemodal-body">
+        <div class="sitemodal-body padding-14px-16px-6px">
           <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
@@ -269,13 +269,13 @@
           </div>
 
           <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Live</span>
               <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
             </div>
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
               <span class="sitemodal-perm-k fs-12px color-text-secondary">Records</span>
-              <button class="sitemodal-records-toggle flex-inline-align-center border-none bg-transparent color-text-primary cursor-pointer fs-13px gap-35" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
+              <button class="sitemodal-records-toggle flex-inline-align-center border-none bg-transparent color-text-primary cursor-pointer fs-13px gap-35 padding-2px-0" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" :class="{ open: stableLinkRecordsExpanded }" />
               </button>
@@ -321,7 +321,7 @@
             <X :size="18" />
           </button>
         </div>
-        <div class="sitemodal-body">
+        <div class="sitemodal-body padding-14px-16px-6px">
           <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
