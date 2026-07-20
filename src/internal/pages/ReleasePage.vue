@@ -190,7 +190,7 @@
       </section>
     </main>
 
-    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4" @click.self="closeDaoModal">
+    <div v-if="daoModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4px" @click.self="closeDaoModal">
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Send to DAO</h2>
@@ -238,7 +238,7 @@
       </div>
     </div>
 
-    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4" @click.self="closePublishModal">
+    <div v-if="publishModalOpen" class="overlay-scrim relpage-modal-overlay padding-100 bg-black-a35 backdrop-blur-4px" @click.self="closePublishModal">
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Publish release</h2>

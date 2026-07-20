@@ -209,7 +209,7 @@
 
       <!-- Create/Edit Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showModal" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeModal">
+        <div v-if="showModal" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4px" @click="closeModal">
           <div class="mygw-modal-content bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">{{ editingGateway ? 'Edit External Gateway' : 'Add External Gateway' }}</h2>
@@ -271,7 +271,7 @@
 
       <!-- Delete Confirmation Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeDeleteConfirm">
+        <div v-if="showDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4px" @click="closeDeleteConfirm">
           <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">Delete Gateway</h2>
@@ -297,7 +297,7 @@
 
       <!-- Whitelist Add/Edit Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showWhitelistModal" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeWhitelistModal">
+        <div v-if="showWhitelistModal" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4px" @click="closeWhitelistModal">
           <div class="mygw-modal-content bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">{{ editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist' }}</h2>
@@ -355,7 +355,7 @@
 
       <!-- Whitelist Remove Confirmation Modal -->
       <Transition name="mygw-modal">
-        <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4" @click="closeWhitelistDeleteConfirm">
+        <div v-if="showWhitelistDeleteConfirm" class="overlay-scrim z-1000 mygw-modal-overlay backdrop-blur-4px" @click="closeWhitelistDeleteConfirm">
           <div class="mygw-modal-content small bg-card overflow-hidden flex flex-column border-radius-16px max-w-500px max-h-90vh w-90pct" @click.stop>
             <div class="mygw-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
               <h2 class="txt-weight-light color-text-primary margin-0 mygw-modal-header-h2 fs-125rem">Remove User</h2>

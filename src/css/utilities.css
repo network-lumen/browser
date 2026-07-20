@@ -626,9 +626,8 @@
 .opacity-55 { opacity: 0.55; }
 .align-self-center { align-self: center; }
 .cursor-events-auto { pointer-events: auto; }
-.backdrop-blur { backdrop-filter: var(--backdrop-blur); }
-.backdrop-blur-4 { backdrop-filter: blur(4px); }
-.backdrop-blur-8 { backdrop-filter: blur(8px); }
+.backdrop-blur { backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); }
+.backdrop-blur-8 { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .bg-black { background: #000; }
 .bg-black-a75 { background: rgba(0, 0, 0, 0.75); }
 .bg-ios-orange-a08 { background: rgba(var(--ios-orange-rgb), 0.08); }
@@ -773,6 +772,7 @@
 .hover-shadow-sm:hover { box-shadow: var(--shadow-sm); }
 .shadow-ios-green-lg { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
 .hover-shadow-ios-green-lg:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
+.hover-shadow-primary-a15:hover { box-shadow: 0 4px 12px var(--primary-a15); }
 .hover-lift-2-enabled:hover:not(:disabled) { transform: translateY(-2px); }
 .min-h-220px { min-height: 220px; }
 .min-h-100vh { min-height: 100vh; }

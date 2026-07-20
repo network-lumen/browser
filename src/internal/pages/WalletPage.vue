@@ -623,7 +623,7 @@
         </div>
 
         <div v-else class="walletpage-contacts-grid gap-100 margin-top-150 grid">
-          <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px padding-125 bg-card border-1 transition-all-02 hover-border-accent">
+          <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px padding-125 bg-card border-1 transition-all-02 hover-border-accent hover-shadow-primary-a15">
             <div class="walletpage-contact-header flex-align-center gap-87 margin-bottom-75">
               <div class="walletpage-contact-avatar flex-align-justify-center size-48px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-125rem flex-shrink-0">
                 {{ contact.name.charAt(0).toUpperCase() }}
@@ -671,7 +671,7 @@
 
     <!-- Asset Transfer Modal -->
     <Transition name="fade">
-      <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeAssetTransferModal">
+      <div v-if="showAssetTransferModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeAssetTransferModal">
         <div class="walletpage-modal-content send-modal asset-transfer-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -800,7 +800,7 @@
 
     <!-- Send Modal -->
     <Transition name="fade">
-      <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeSendModal">
+      <div v-if="showSendModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeSendModal">
         <div class="walletpage-modal-content send-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -995,7 +995,7 @@
 
     <!-- Receive Modal -->
     <Transition name="fade">
-      <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeReceiveModal">
+      <div v-if="showReceiveModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeReceiveModal">
         <div class="walletpage-modal-content receive-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -1042,7 +1042,7 @@
 
     <!-- Add/Edit Contact Modal -->
     <Transition name="fade">
-      <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="closeContactModal">
+      <div v-if="showContactModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="closeContactModal">
         <div class="walletpage-modal-content walletpage-contact-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
@@ -1117,7 +1117,7 @@
 
     <!-- Delete Confirmation Modal -->
     <Transition name="fade">
-      <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4" @click="cancelDeleteContact">
+      <div v-if="showDeleteConfirmModal" class="walletpage-modal-overlay flex-align-justify-center padding-100 fixed inset-0 z-1000 backdrop-blur-4px" @click="cancelDeleteContact">
         <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh max-w-420px" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">

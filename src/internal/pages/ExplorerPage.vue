@@ -132,7 +132,7 @@
 
           <!-- Charts Section -->
           <div class="explorer-charts-section gap-75 grid">
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-50">
@@ -164,7 +164,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
@@ -195,7 +195,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
@@ -222,7 +222,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
+            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light bg-fill-success fs-13px padding-45-75">
@@ -257,7 +257,7 @@
 
           <!-- Recent Activity -->
           <div class="explorer-recent-activity gap-75 grid margin-top-75">
-            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle">
+            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Blocks</h3>
                 <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'blocks'">View All →</button>
@@ -287,7 +287,7 @@
               </div>
             </div>
 
-            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle">
+            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Transactions</h3>
                 <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'transactions'">View All →</button>
@@ -504,7 +504,7 @@
             <p class="explorer-validators-subtitle color-text-tertiary fs-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
-          <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden shadow-subtle">
+          <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden shadow-subtle backdrop-blur">
             <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
@@ -598,7 +598,7 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4" @click="closeStakeModal">
+    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4px" @click="closeStakeModal">
       <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct max-w-420px" @click.stop>
         <div class="explorer-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
           <h3 class="explorer-modal-header-h3 fs-18px txt-weight-medium color-text-primary margin-0">Manage Stake with {{ selectedValidator?.moniker }}</h3>
