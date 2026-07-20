@@ -1,6 +1,6 @@
 <template>
   <div class="extension-page absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
-    <div v-if="error" class="extension-status extension-status-error w-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
+    <div v-if="error" class="extension-status extension-status-error w-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82 color-hex-ffb4b4">
       {{ error }}
     </div>
     <div
@@ -11,7 +11,7 @@
     </div>
     <div
       v-else-if="!extensionGuestPreloadUrl"
-      class="extension-status extension-status-error w-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82"
+      class="extension-status extension-status-error w-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82 color-hex-ffb4b4"
     >
       Extension guest preload is unavailable.
     </div>
@@ -21,7 +21,7 @@
     <webview
       v-else-if="webviewMountUrl"
       ref="webviewRef"
-      class="extension-webview flex-1 w-full h-full bg-dark-111"
+      class="extension-webview flex-1 w-full h-full bg-dark-111 border-0"
       :src="webviewMountUrl"
       :preload="extensionGuestPreloadUrl"
       partition="persist:lumen"

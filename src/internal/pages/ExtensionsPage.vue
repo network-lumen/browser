@@ -2,14 +2,14 @@
   <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
     <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-100 border-bottom-1-slate-a16">
       <div class="extensions-store-copy">
-        <h1 class="extensions-store-copy-h1">{{ headerTitle }}</h1>
-        <p class="extensions-store-copy-p margin-0 margin-top-37 max-w-760px" v-if="headerDescription">{{ headerDescription }}</p>
+        <h1 class="extensions-store-copy-h1 color-hex-f8fafc">{{ headerTitle }}</h1>
+        <p class="extensions-store-copy-p margin-0 margin-top-37 max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px color-hex-e2e8f0"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px padding-75-87" :class="{ error: statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px padding-75-87 color-hex-dbeafe" :class="{ error: statusError }">
       {{ statusMessage }}
     </div>
 
@@ -43,10 +43,10 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px gap-87 line-height-145">
-      <span><strong class="txt-weight-light extensions-store-footnote-strong">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
-      <span><strong class="txt-weight-light extensions-store-footnote-strong">Lumen install:</strong> installation is handled by Lumen.</span>
-      <span><strong class="txt-weight-light extensions-store-footnote-strong">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px gap-87 line-height-145 color-rgba-148-163-184-0-88">
+      <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Lumen install:</strong> installation is handled by Lumen.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
     </footer>
   </div>
 </template>

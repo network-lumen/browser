@@ -58,7 +58,7 @@
         </div>
       </div>
       <div class="subview-stat-card flex-align-center border-radius-12px gap-100 padding-125 bg-card border-1">
-        <div class="subview-stat-icon total flex-align-justify-center size-48px border-radius-12px">
+        <div class="subview-stat-icon total flex-align-justify-center size-48px border-radius-12px color-accent-secondary">
           <DollarSign :size="20" />
         </div>
         <div>
@@ -166,7 +166,7 @@
             </button>
             <button
               v-if="payment.status === 'active'"
-              class="subview-action-btn pause flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
+              class="subview-action-btn pause flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary color-ios-orange-hover"
               @click="pausePayment(payment.id)"
               title="Pause"
             >
@@ -174,14 +174,14 @@
             </button>
             <button
               v-else-if="payment.status === 'paused'"
-              class="subview-action-btn resume flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
+              class="subview-action-btn resume flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary color-ios-green-hover"
               @click="resumePayment(payment.id)"
               title="Resume"
             >
               <PlayCircle :size="16" />
             </button>
             <button
-              class="subview-action-btn delete flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
+              class="subview-action-btn delete flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary hover-color-error"
               @click="confirmDelete(payment)"
               title="Delete"
             >

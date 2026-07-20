@@ -190,7 +190,7 @@
       </div>
 
       <div class="recurpay-footer flex flex-justify-end gap-75 padding-125-150 border-top-1">
-        <button class="recurpay-btn secondary disabled-fade-50 flex-inline-align-center cursor-pointer bg-tertiary color-text-primary border-none fw-500 fs-14px gap-50 border-radius-8px transition-all-02 padding-62-125" @click="$emit('close')">Cancel</button>
+        <button class="recurpay-btn secondary disabled-fade-50 flex-inline-align-center cursor-pointer bg-tertiary color-text-primary fw-500 fs-14px gap-50 border-radius-8px transition-all-02 padding-62-125 border-1" @click="$emit('close')">Cancel</button>
         <button
           class="recurpay-btn primary disabled-fade-50 flex-inline-align-center cursor-pointer color-white border-none fw-500 fs-14px gap-50 border-radius-8px transition-all-02 padding-62-125"
           @click="handleSubmit"

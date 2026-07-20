@@ -14,7 +14,7 @@
           </button>
         </div>
         <div class="sitemodal-body padding-14px-16px-6px">
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25">
             <span>
               Allow this website to open Lumen action modals?
             </span>
@@ -61,11 +61,11 @@
           </button>
         </div>
         <div class="sitemodal-body padding-14px-16px-6px">
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
 
-          <div v-if="sendError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75">{{ sendError }}</div>
+          <div v-if="sendError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ sendError }}</div>
 
           <div class="sitemodal-form-group">
             <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">From</label>
@@ -133,10 +133,10 @@
           </button>
         </div>
         <div class="sitemodal-body padding-14px-16px-6px">
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="pinError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75">{{ pinError }}</div>
+          <div v-if="pinError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ pinError }}</div>
 
           <div class="sitemodal-form-group">
             <label>Name <span class="color-error">*</span></label>
@@ -159,7 +159,7 @@
             </div>
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px margin-top-75 padding-62-75 bg-ios-blue-a06">
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px margin-top-75 padding-62-75 bg-ios-blue-a06 border-width-ios-blue-a18">
             <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-75 margin-bottom-50">
               <span class="sitemodal-pin-progress-status fs-12px text-uppercase txt-weight-medium color-ios-blue letter-spacing-004em">{{ pinStatusLabel }}</span>
               <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter fs-12px color-text-secondary">{{ pinProgressCounter }}</span>
@@ -228,16 +228,16 @@
           </button>
         </div>
         <div class="sitemodal-body padding-14px-16px-6px">
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75">{{ stableLinkError }}</div>
+          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ stableLinkError }}</div>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-25 padding-25 margin-bottom-75 bg-fill-tertiary">
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent border-0" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent border-0" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
               Create new
             </button>
           </div>
@@ -322,10 +322,10 @@
           </button>
         </div>
         <div class="sitemodal-body padding-14px-16px-6px">
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75">{{ stableLinkSetupError }}</div>
+          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ stableLinkSetupError }}</div>
           <div class="sitemodal-form-group">
             <label>Live link</label>
             <div class="sitemodal-input-wrapper relative">

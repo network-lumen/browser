@@ -5,13 +5,13 @@
         <X :size="14" />
       </button>
 
-      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
+      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82 color-hex-ffb4b4">
         {{ error }}
       </div>
       <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
         Preparing extension…
       </div>
-      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
+      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82 color-hex-ffb4b4">
         Extension guest preload is unavailable.
       </div>
       <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
@@ -20,7 +20,7 @@
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
-        class="extension-popup-webview w-full h-full bg-dark-111"
+        class="extension-popup-webview w-full h-full bg-dark-111 border-0"
         :src="webviewMountUrl"
         :preload="extensionGuestPreloadUrl"
         partition="persist:lumen"

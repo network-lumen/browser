@@ -63,7 +63,7 @@
         <UiSpinner size="md" />
       </div>
 
-      <div v-else-if="error" class="ipfspage-error-wrap padding-100 border-radius-lg color-error bg-fill-error">
+      <div v-else-if="error" class="ipfspage-error-wrap padding-100 border-radius-lg color-error bg-fill-error border-width-ios-red-a35">
         {{ error }}
       </div>
 

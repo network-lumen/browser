@@ -144,7 +144,7 @@
             >
               <div class="daopage-proposal-header flex-align-center flex-justify-space-between margin-bottom-75">
                 <span class="daopage-proposal-id color-text-secondary fs-13px">#{{ proposal.id }}</span>
-                <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem padding-25-75">Voting</span>
+                <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem padding-25-75 color-accent-secondary">Voting</span>
               </div>
               <h3 class="daopage-proposal-title color-text-primary fs-11rem txt-weight-light margin-0 margin-bottom-50">{{ proposal.title }}</h3>
               <div class="daopage-proposal-footer flex-align-center flex-justify-space-between">
@@ -288,7 +288,7 @@
           <div class="daopage-modal-body padding-150">
             <div class="daopage-proposal-title-card flex-align-center flex-justify-space-between margin-bottom-150 border-radius-12px padding-150 bg-gradient-primary">
               <h4 class="margin-0 txt-weight-light daopage-proposal-title-card-h4 fs-18px color-white">{{ selectedProposal?.title || 'Proposal Title' }}</h4>
-              <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem padding-25-75">Active</span>
+              <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem padding-25-75 color-accent-secondary">Active</span>
             </div>
 
             <div class="daopage-vote-options flex flex-column gap-75 margin-bottom-150">

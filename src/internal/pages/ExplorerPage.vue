@@ -570,7 +570,7 @@
                 </div>
                 <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center fs-13px fs-14px">
                   <button 
-                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue" 
+                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue border-radius-border-radius-xs" 
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
@@ -599,7 +599,7 @@
 
     <!-- Stake Management Modal -->
     <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4px" @click="closeStakeModal">
-      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct max-w-420px" @click.stop>
+      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct max-w-420px border-radius-border-radius-2xl" @click.stop>
         <div class="explorer-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
           <h3 class="explorer-modal-header-h3 fs-18px txt-weight-medium color-text-primary margin-0">Manage Stake with {{ selectedValidator?.moniker }}</h3>
           <button class="explorer-close-btn hover-fill-primary flex-align-justify-center size-32px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px fs-15rem transition-all-02" @click="closeStakeModal">×</button>

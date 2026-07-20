@@ -70,23 +70,23 @@
 
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Node Info</span>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150 border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Chain ID</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">lumen-1</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150 border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Network</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">Mainnet</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150 border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">SDK</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">v0.47.0</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150 border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Peers</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">{{ peers }}</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150">
+          <div class="netpage-node-detail flex-align-center-justify-space-between fs-075rem transition-all-02 hover-bg-hover padding-0 padding-top-50 padding-right-150 padding-bottom-50 padding-left-150 border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 fs-11px">Uptime</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light fs-075rem mono">{{ uptime }}</span>
           </div>
@@ -214,7 +214,7 @@
         <section class="netpage-data-table flex flex-column h-full bg-card border-1 border-radius-14px padding-125-150">
           <h2 class="netpage-section-title color-text-primary txt-weight-light fs-18px margin-0 margin-bottom-100">Recent Blocks</h2>
           <div class="netpage-blocks-list flex flex-column gap-50 margin-top-100 flex-1">
-            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02 padding-87-100 hover-bg-tertiary min-h-64px" v-for="block in recentBlocks" :key="block.height">
+            <div class="netpage-block-card flex-align-center-justify-space-between cursor-pointer bg-secondary border-1 border-radius-10px transition-all-02 padding-87-100 hover-bg-tertiary min-h-64px border-color-accent-color-hover" v-for="block in recentBlocks" :key="block.height">
               <div class="netpage-block-left flex-align-center gap-87 flex-1 min-w-0">
                 <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px fs-13px txt-weight-medium color-white overflow-hidden border-2-white-a15" :title="block.validator">
                   <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
