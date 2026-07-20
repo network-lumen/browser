@@ -21,7 +21,7 @@
 
     <div v-else-if="block" class="blockdetail-content flex flex-column gap-150 bg-secondary padding-200">
       <!-- Block Overview Card -->
-      <div class="blockdetail-card bg-primary border-radius-12px border-1 overflow-hidden">
+      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Overview</h2>
         </div>
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Block Data Card -->
-      <div class="blockdetail-card bg-primary border-radius-12px border-1 overflow-hidden">
+      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Data</h2>
         </div>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Transactions Card -->
-      <div class="blockdetail-card bg-primary border-radius-12px border-1 overflow-hidden" v-if="block.txs > 0">
+      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden" v-if="block.txs > 0">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
         </div>

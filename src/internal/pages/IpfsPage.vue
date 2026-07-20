@@ -246,7 +246,7 @@
         aria-modal="true"
         @click="closeSaveModal"
       >
-        <div class="ipfspage-modal border-radius-16px border-1 bg-primary overflow-hidden" @click.stop>
+        <div class="ipfspage-modal border-radius-16px border-1 bg-primary overflow-hidden w-min-520px-92vw shadow-modal" @click.stop>
           <header class="ipfspage-modal-header flex-align-center-justify-space-between border-bottom-1 padding-87-100">
             <h3 class="ipfspage-modal-header-h3 margin-0 fs-16px fw-650 color-text-primary">Save to Drive</h3>
             <button class="ipfspage-modal-close color-text-secondary cursor-pointer border-none bg-transparent fs-125rem line-height-1 padding-25-4" type="button" @click="closeSaveModal">
