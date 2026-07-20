@@ -4,7 +4,7 @@
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
-            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px bg-fill-blue">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
               <Shield :size="18" />
             </div>
             <h3>Permission required</h3>
@@ -51,7 +51,7 @@
       <div class="sitemodal-content sitemodal-send bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
-            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px bg-fill-blue">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
               <Send :size="18" />
             </div>
             <h3>Send LMN</h3>
@@ -110,7 +110,7 @@
             Cancel
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitSend" :disabled="!canSend">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="sending"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="sending"></span>
             <span>{{ sending ? 'Sending...' : 'Send' }}</span>
           </button>
         </div>
@@ -123,7 +123,7 @@
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
-            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px bg-fill-blue">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
               <Save :size="18" />
             </div>
             <h3>Save to Drive</h3>
@@ -205,7 +205,7 @@
             Stop
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="pinning"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="pinning"></span>
             <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
           </button>
         </div>
@@ -218,7 +218,7 @@
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
-            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px bg-fill-blue">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
               <Link :size="18" />
             </div>
             <h3>Choose or create a stable link for your live</h3>
@@ -297,7 +297,7 @@
             Cancel
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="stableLinkSaving"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSaving"></span>
             <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
             <Save v-else :size="16" />
             <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
@@ -312,7 +312,7 @@
       <div class="sitemodal-content bg-card border-radius-12px overflow-auto w-min-520px-92vw max-h-100vh-32px shadow-modal" @click.stop>
         <div class="sitemodal-header flex-align-center flex-justify-space-between border-bottom-default padding-87-100">
           <div class="sitemodal-title-wrapper flex-align-center gap-62">
-            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px bg-fill-blue">
+            <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
               <Link :size="18" />
             </div>
             <h3>Select a live link</h3>
@@ -346,7 +346,7 @@
             Cancel
           </button>
           <button class="sitemodal-btn-primary border-none border-radius-10px cursor-pointer txt-weight-light color-white bg-gradient-primary padding-62-75" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50" v-if="stableLinkSetupLoading"></span>
+            <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSetupLoading"></span>
             <Link v-else :size="16" />
             <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
           </button>

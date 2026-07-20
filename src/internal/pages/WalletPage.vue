@@ -785,7 +785,7 @@
             </div>
 
             <button
-              class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer border-none bg-gradient-primary color-white fs-16px transition-all-02 padding-75-125 hover-lift-1 hover-bg-gradient-hover"
+              class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer border-none bg-gradient-primary color-white fs-16px transition-all-02 padding-75-125 hover-lift-1 hover-bg-gradient-hover shadow-primary-a25 hover-shadow-primary-a30-lg"
               @click="confirmAssetTransfer"
               :disabled="!canSubmitAssetTransfer || assetTransferSending"
             >
@@ -983,7 +983,7 @@
               </div>
             </div>
 
-            <button class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer border-none bg-gradient-primary color-white fs-16px transition-all-02 padding-75-125 hover-lift-1 hover-bg-gradient-hover" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
+            <button class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer border-none bg-gradient-primary color-white fs-16px transition-all-02 padding-75-125 hover-lift-1 hover-bg-gradient-hover shadow-primary-a25 hover-shadow-primary-a30-lg" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction">
               <Send :size="18" v-if="!sendingTransaction" />
               <span class="walletpage-spinner ring-spinner-sm border-radius-circle border-2-white-a3" v-else></span>
               <span>{{ sendPrimaryActionLabel }}</span>
@@ -1094,7 +1094,7 @@
             </div>
 
             <button 
-              class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer border-none bg-gradient-primary color-white fs-16px transition-all-02 padding-75-125 hover-lift-1 hover-bg-gradient-hover" 
+              class="walletpage-btn-modal-primary disabled-fade-50 flex-align-justify-center w-full border-radius-12px txt-weight-light gap-62 cursor-pointer border-none bg-gradient-primary color-white fs-16px transition-all-02 padding-75-125 hover-lift-1 hover-bg-gradient-hover shadow-primary-a25 hover-shadow-primary-a30-lg" 
               @click="saveContact" 
               :disabled="!contactForm.name || !contactForm.address || savingContact"
             >
@@ -1121,7 +1121,7 @@
         <div class="walletpage-modal-content walletpage-delete-confirm-modal w-full bg-primary border-radius-16px overflow-y-auto max-w-500px max-h-90vh max-w-420px" @click.stop>
           <div class="walletpage-modal-header flex-align-center-justify-space-between border-bottom-1">
             <div class="modal-title-wrapper flex-align-center gap-75">
-              <div class="walletpage-modal-icon delete flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
+              <div class="walletpage-modal-icon delete flex-align-justify-center size-40px border-radius-10px bg-gradient-danger color-white">
                 <Trash2 :size="20" />
               </div>
               <h3 class="walletpage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Delete Contact</h3>
@@ -1141,7 +1141,7 @@
               <button class="walletpage-btn-modal-secondary flex-align-justify-center flex-1 border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-50 padding-75-125 border-1 bg-secondary fs-15px transition-all-02 hover-bg-hover hover-border-accent" @click="cancelDeleteContact">
                 Cancel
               </button>
-              <button class="walletpage-btn-modal-danger flex-align-justify-center flex-1 border-radius-10px txt-weight-light cursor-pointer gap-50 padding-75-125 border-none color-white fs-15px transition-all-02 hover-lift-1" @click="confirmDeleteContact">
+              <button class="walletpage-btn-modal-danger flex-align-justify-center flex-1 border-radius-10px txt-weight-light cursor-pointer gap-50 padding-75-125 border-none color-white fs-15px transition-all-02 hover-lift-1 bg-gradient-danger shadow-danger-a30 hover-bg-gradient-danger-deep hover-shadow-danger-a40" @click="confirmDeleteContact">
                 <Trash2 :size="18" />
                 <span>Delete</span>
               </button>

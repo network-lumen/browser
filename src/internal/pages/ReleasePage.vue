@@ -194,7 +194,7 @@
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Send to DAO</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px hover-bg-hover hover-border-color hover-color-text-primary" @click="closeDaoModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px h-34px hover-bg-hover hover-border-color hover-color-text-primary transition-colors-015" @click="closeDaoModal">×</button>
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">
@@ -242,7 +242,7 @@
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Publish release</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px hover-bg-hover hover-border-color hover-color-text-primary" @click="closePublishModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px h-34px hover-bg-hover hover-border-color hover-color-text-primary transition-colors-015" @click="closePublishModal">×</button>
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75 padding-0 padding-top-75 padding-bottom-75">

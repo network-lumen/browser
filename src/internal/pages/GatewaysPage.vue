@@ -203,7 +203,7 @@
                     <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
                     <p class="gwpage-modal-sub color-text-secondary margin-0 margin-top-25">Register a new gateway for the active profile.</p>
                   </div>
-                  <button type="button" class="gwpage-icon-btn disabled-fade-60 hover-fill-primary-enabled bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer border-1-light line-height-1 w-34px transition-colors-015" @click="closeCreateModal" :disabled="registerState.busy">
+                  <button type="button" class="gwpage-icon-btn disabled-fade-60 hover-fill-primary-enabled bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer border-1-light line-height-1 w-34px h-34px transition-colors-015" @click="closeCreateModal" :disabled="registerState.busy">
                     ×
                   </button>
                 </div>

@@ -382,7 +382,7 @@
             </div>
             <button
               type="button"
-              class="searchpage-icon-btn hover-fill-primary-enabled searchpage-help-close flex-inline-align-justify-center border-radius-10px color-text-secondary cursor-pointer flex-0-0-auto border-1-light bg-transparent w-34px transition-colors-015"
+              class="searchpage-icon-btn hover-fill-primary-enabled searchpage-help-close flex-inline-align-justify-center border-radius-10px color-text-secondary cursor-pointer flex-0-0-auto border-1-light bg-transparent w-34px h-34px transition-colors-015"
               aria-label="Close"
               @click="closeHowSearchWorks"
             >

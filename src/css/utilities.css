@@ -774,6 +774,14 @@
 .shadow-ios-green-lg { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
 .hover-shadow-ios-green-lg:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
 .hover-shadow-primary-a15:hover { box-shadow: 0 4px 12px var(--primary-a15); }
+.shadow-primary-a25 { box-shadow: 0 4px 12px var(--primary-a25); }
+.hover-shadow-primary-a30-lg:hover:not(:disabled) { box-shadow: 0 6px 16px var(--primary-a30); }
+.bg-gradient-danger { background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 80%, black) 100%); }
+.shadow-danger-a30 { box-shadow: 0 4px 15px rgba(var(--ios-red-rgb), 0.3); }
+.hover-bg-gradient-danger-deep:hover { background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 80%, black) 0%, color-mix(in srgb, var(--ios-red) 60%, black) 100%); }
+.hover-shadow-danger-a40:hover { box-shadow: 0 6px 20px rgba(var(--ios-red-rgb), 0.4); }
+.spinner-white { border-top-color: rgba(255, 255, 255, 0.95); animation: spin 0.85s linear infinite; }
+.h-34px { height: 34px; }
 .hover-lift-2-enabled:hover:not(:disabled) { transform: translateY(-2px); }
 .min-h-220px { min-height: 220px; }
 .min-h-100vh { min-height: 100vh; }

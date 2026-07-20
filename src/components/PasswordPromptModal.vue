@@ -20,7 +20,7 @@
             <input
               ref="passwordInput"
               type="password"
-              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px padding-75-100 fs-16px disabled-fade-60"
+              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px padding-75-100 fs-16px disabled-fade-60 transition-colors-015"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
@@ -49,7 +49,7 @@
             >
               <span v-if="loading">Verifying...</span>
               <span v-else-if="busy" class="flex-inline-align-center gap-50">
-                <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45" aria-hidden="true"></span>
+                <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45 spinner-white" aria-hidden="true"></span>
                 Working...
               </span>
               <span v-else>Confirm</span>
