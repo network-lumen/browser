@@ -330,6 +330,7 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 interface Gateway {
   id: string;
@@ -548,8 +549,8 @@ async function viewApiKey() {
     
     if (result.ok && result.apiKey) {
       // Copy to clipboard
-      await navigator.clipboard.writeText(result.apiKey);
-      
+      await copyToClipboardShared(result.apiKey);
+
       toast.success(
         'API Key copied to clipboard!',
         { 
@@ -589,8 +590,8 @@ async function toggleEmbeddedServer() {
         
         // Copy API key to clipboard
         try {
-          await navigator.clipboard.writeText(result.apiKey);
-          
+          await copyToClipboardShared(result.apiKey);
+
           // Show success notification
           toast.success(
             `Server running at ${result.url}`,

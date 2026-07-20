@@ -216,7 +216,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* Badge Styles */
 
 /* Card with hover effect */
-.drivepage-toast-enter-active, .drivepage-toast-leave-active { transition: all 0.2s ease; }
 
 /* Score badges like in the image */
 
@@ -506,13 +505,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .netparams-json-block { max-height: 420px; }
 .spinning { animation: spin 1s linear infinite; }
-.netparams-toast, .drivepage-toast {
-  transform: translateX(-50%);
-}
-.netparams-toast-enter-active, .netparams-toast-leave-active, .gwpage-toast-transition-enter-active,
-.gwpage-toast-transition-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
 
 /* HistoryPage.vue */
 .history-copy-h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
@@ -783,12 +775,6 @@ select.recurpay-input { background-image: none; }
 }
 .gwpage-modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .gwpage-icon-btn, .searchpage-icon-btn, .sitemodal-icon { height: 34px; }
-.gwpage-toast {
-  transform: translateX(-50%);
-  z-index: 110;
-}
-.gwpage-toast.error { background: rgba(var(--ios-red-rgb), 0.9); }
-.gwpage-toast.info { background: rgba(var(--ios-blue-rgb), 0.9); }
 .gwpage-modal-transition-enter-active, .gwpage-modal-transition-leave-active, .searchpage-modal-enter-active,
 .searchpage-modal-leave-active {
   transition: opacity 0.18s ease;
@@ -1151,7 +1137,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   accent-color: var(--accent-primary);
 }
 .navbar-export-field-label { letter-spacing: 0.03em; }
-.navbar-export-btn.confirm.danger, .drivepage-gateway-status-dot.off, .drivepage-toast.error,
+.navbar-export-btn.confirm.danger, .drivepage-gateway-status-dot.off,
 .settingspage-btn-danger {
   background: var(--ios-red);
 }

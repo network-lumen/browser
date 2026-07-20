@@ -542,6 +542,7 @@
 .min-w-32px { min-width: 32px; }
 .margin-top-62 { margin-top: 0.625rem; }
 .padding-0-50 { padding: 0 0.5rem; }
+.padding-25-50 { padding: 0.25rem 0.5rem; }
 .padding-25-75 { padding: 0.25rem 0.75rem; }
 .padding-62-75 { padding: 0.625rem 0.75rem; }
 .padding-62-100 { padding: 0.625rem 1rem; }

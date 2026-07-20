@@ -1,7 +1,7 @@
 <template>
   <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="startup-card flex flex-column w-full h-full shadow-none overflow-hidden">
     <header class="startup-head flex-align-center gap-75 padding-62 border-bottom-default">
-      <div class="startup-mark bg-gradient-primary color-white flex-align-justify-center flex-0-0-auto fs-18px border-radius-14px w-42px h-42px fw-900" aria-hidden="true">L</div>
+      <img :src="logoUrl" alt="" class="startup-mark flex-0-0-auto border-radius-14px w-42px h-42px" aria-hidden="true" />
       <div class="min-w-0">
         <div class="startup-title fs-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
       </div>
@@ -36,6 +36,7 @@ import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';
 import { ref, onMounted } from 'vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
+import logoUrl from '../img/logo.png';
 
 type Phase = 'starting' | 'retrying' | 'error' | 'ready';
 
@@ -44,10 +45,6 @@ const emit = defineEmits<{ (e: 'ready'): void }>();
 const phase = ref<Phase>('starting');
 const errorText = ref('');
 const busy = ref(false);
-
-// TEMP (debug): keep the splash visible long enough to inspect styling.
-const MIN_VISIBLE_MS = 5000;
-let bootStartedAt = 0;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -71,15 +68,11 @@ async function pollOnce(): Promise<boolean> {
 async function bootSequence() {
   phase.value = 'starting';
   errorText.value = '';
-  bootStartedAt = Date.now();
 
   let tries = 15;
   while (tries-- > 0) {
     const ok = await pollOnce();
     if (ok) {
-      const elapsed = Date.now() - bootStartedAt;
-      const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
-      if (remaining) await sleep(remaining);
       emit('ready');
       return;
     }

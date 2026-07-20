@@ -675,14 +675,6 @@
       </div>
     </aside>
 
-    <!-- Toast -->
-    <Transition name="drivepage-toast">
-      <div v-if="toast" class="drivepage-toast flex-align-center gap-50 border-radius-10px fw-500 fixed padding-75-125 bg-gradient-primary color-white fs-13px z-100 bottom-200 left-half" :class="toastType">
-        <component :is="toastIcon" :size="16" />
-        {{ toast }}
-      </div>
-    </Transition>
-
     <!-- Drop Overlay
     <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-50 background-rgba-0-0-0-0-8">
       <div class="drivepage-drop-content text-center color-white">
@@ -1568,8 +1560,6 @@ import {
   BookOpen,
   Folder,
   File,
-  CheckCircle,
-  AlertCircle,
   Pause,
   Play,
   LayoutGrid,
@@ -1598,6 +1588,7 @@ import {
   setFavouriteEntriesForProfile,
 } from "../favouritesStore";
 import JSZip from "jszip";
+import { useToast } from "../../composables/useToast";
 
 interface DriveFile {
   cid: string;
@@ -1693,8 +1684,6 @@ const uploadPathMode = ref<"files" | "folder">("files");
 const uploadPathText = ref("");
 const uploadPathBusy = ref(false);
 
-const toast = ref("");
-const toastType = ref<"success" | "error">("success");
 
 
 
@@ -1704,7 +1693,7 @@ const publicGatewayPropagationFailed = computed(() =>
   ),
 );
 
-
+const toastApi = useToast();
 
 
 const convertingStatusLabel = computed(() => {
@@ -2779,10 +2768,6 @@ const gatewayDetailsBandwidthUsed = computed(() => {
   const n = Number(raw);
   return Number.isFinite(n) && n >= 0 ? formatSize(n) : "-";
 });
-
-const toastIcon = computed(() =>
-  toastType.value === "success" ? CheckCircle : AlertCircle,
-);
 
 function readInjectedTabUrl(): string {
   const v: any = currentTabUrl;
@@ -6280,11 +6265,8 @@ function formatDate(ts: number): string {
 }
 
 function showToast(msg: string, type: "success" | "error" = "success") {
-  toast.value = msg;
-  toastType.value = type;
-  setTimeout(() => {
-    toast.value = "";
-  }, 2500);
+  if (type === "error") toastApi.error(msg);
+  else toastApi.success(msg);
 }
 
 function compactError(err: string, maxLen = 120) {

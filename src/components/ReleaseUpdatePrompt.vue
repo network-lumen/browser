@@ -66,6 +66,7 @@ import UiModal from '../ui/UiModal.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { formatReleaseSize, useReleaseUpdates } from '../internal/services/releaseUpdates';
 import { addToast } from '../stores/toastStore';
+import { copyToClipboard } from '../composables/useClipboard';
 
 const { latest, shouldPrompt, currentVersion, updateNow, remindLater, busy, updateProgress } = useReleaseUpdates();
 
@@ -111,12 +112,8 @@ const busyLabel = computed(() => {
 async function copySha() {
   const value = shaFull.value;
   if (!value) return;
-  try {
-    await navigator.clipboard.writeText(value);
-    addToast('success', 'SHA-256 copied');
-  } catch {
-    addToast('error', 'Copy failed');
-  }
+  const ok = await copyToClipboard(value);
+  addToast(ok ? 'success' : 'error', ok ? 'SHA-256 copied' : 'Copy failed');
 }
 
 function onUpdate() {

@@ -233,11 +233,6 @@
             </template>
           </UiModal>
 
-          <Transition name="gwpage-toast-transition">
-            <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md fixed padding-75-125 shadow-primary-lg bg-gradient-primary color-white bottom-200 left-half" :class="toast.kind">
-              {{ toast.message }}
-            </div>
-          </Transition>
         </div>
       </div>
     </main>
@@ -252,6 +247,7 @@ import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { useToast } from '../../composables/useToast';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -328,21 +324,10 @@ const registerState = reactive({
   txhash: ''
 });
 
-const toast = reactive({
-  show: false,
-  message: '',
-  kind: 'success' as 'success' | 'error' | 'info'
-});
-let toastTimer: ReturnType<typeof setTimeout> | null = null;
+const toastApi = useToast();
 
-function notify(message: string, kind: 'success' | 'error' | 'info' = 'success', ms = 2200) {
-  toast.show = true;
-  toast.message = message;
-  toast.kind = kind;
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.show = false;
-  }, ms);
+function notify(message: string, kind: 'success' | 'error' | 'info' = 'success') {
+  toastApi[kind](message);
 }
 
 const myGateways = computed(() => {
