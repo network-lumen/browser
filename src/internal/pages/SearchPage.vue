@@ -18,7 +18,7 @@
       <div class="searchpage-brand bg-gradient-primary relative margin-bottom-50 letter-spacing-n002 fw-900 fs-350rem">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03 padding-85-100-85-125 w-min-820px-full border-color-ios-blue-focus-within border-2-transparent">
+        <div class="searchpage-search-box flex-align-center gap-75 border-radius-full bg-card shadow-md transition-all-03 padding-85-100-85-125 w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
@@ -29,7 +29,7 @@
             @keydown.enter.prevent="submit"
           />
           <button
-            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer border-none bg-accent color-white fs-15px relative overflow-hidden padding-75-150 transition-all-02"
+            class="searchpage-search-btn disabled-fade-50 txt-weight-light border-radius-full cursor-pointer border-none bg-accent color-white fs-15px relative overflow-hidden padding-75-150 transition-all-02 shadow-0-2-8-rgba-0-0-0-0-1 shadow-0-4-16-rgba-0-0-0-0-15-hover-not-disabled"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -41,7 +41,7 @@
 
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-62 margin-top-75">
         <button
-          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active"
+          class="searchpage-pill pill-sites color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-0-1-4-rgba-0-0-0-0-05 shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -50,7 +50,7 @@
           Sites
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-0-1-4-rgba-0-0-0-0-05 shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -59,7 +59,7 @@
           Images
         </button>
         <button
-          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active"
+          class="searchpage-pill color-text-secondary fw-500 txt-sm cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-0-1-4-rgba-0-0-0-0-05 shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -138,7 +138,7 @@
         <div
           v-for="(r, idx) in imageResults"
           :key="r.id"
-          class="searchpage-image-card border-radius-xl border-default bg-card overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover"
+          class="searchpage-image-card border-radius-xl border-default bg-card overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover"
           :data-result-index="idx"
         >
           <button
@@ -400,7 +400,7 @@
                   keywords.
                 </p>
                 <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62 padding-75-87 bg-ios-indigo-a08 border-1-ios-indigo-a18">
-                  <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto opacity-85" />
+                  <Sparkles :size="16" class="margin-top-05 color-text-primary flex-0-0-auto opacity-85" />
                   <div class="searchpage-help-callout-text color-text-secondary line-height-145 fs-14px">
                     Local-only content on your machine stays private and won’t appear in network
                     search.

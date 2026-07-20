@@ -1,5 +1,5 @@
 <template>
-  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen': webviewHtmlFullscreen }">
+  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen fixed': webviewHtmlFullscreen }">
     <main class="sitepage-main flex-1 flex flex-column overflow-hidden min-h-0 padding-0">
       <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />
@@ -27,7 +27,7 @@
           <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">The content couldn't be found. Please try again later.</p>
           <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">
             If this is your site,
-            <button type="button" class="sitepage-inline-link padding-0 border-none bg-transparent color-primary underline cursor-pointer txt-weight-light" @click="goToCreateWebsiteDocs">read the setup guide</button>.
+            <button type="button" class="sitepage-inline-link font-inherit padding-0 border-none bg-transparent color-primary underline cursor-pointer txt-weight-light" @click="goToCreateWebsiteDocs">read the setup guide</button>.
           </p>
         </div>
       </div>

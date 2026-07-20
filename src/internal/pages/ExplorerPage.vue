@@ -236,7 +236,7 @@
                     <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div class="explorer-proposer-name txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ latestProposer.moniker }}</div>
+                  <div class="margin-top-0 fs-075rem txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ latestProposer.moniker }}</div>
                   <div class="explorer-proposer-label color-text-tertiary text-center fs-11px">Latest Block Proposer</div>
                   <div class="explorer-proposer-stats w-full margin-top-37">
                     <div class="explorer-proposer-stat-group gap-50 w-full grid">
@@ -319,7 +319,7 @@
         </div>
 
         <!-- Blocks View -->
-        <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view border-radius-12px bg-transparent bg-card overflow-visible">
+        <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view fs-075rem border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-100 relative bg-card border-bottom-1 flex-justify-space-between padding-0 padding-top-100 padding-right-150 padding-bottom-75 padding-left-150">
             <div class="explorer-header-content flex-1 min-w-200px">
               <h2 class="explorer-blocks-header-h2 fs-125rem txt-weight-medium color-text-primary margin-0 margin-bottom-25">Blocks</h2>
@@ -364,7 +364,7 @@
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
-                    <span class="explorer-height-number txt-weight-light fs-14px">{{ formatNumber(block.height) }}</span>
+                    <span class="txt-weight-light fs-075rem">{{ formatNumber(block.height) }}</span>
                   </div>
                 </div>
                 <div class="explorer-td td-proposer flex-align-center fs-13px fs-14px">
@@ -373,7 +373,7 @@
                       <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
-                    <span class="explorer-proposer-name txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ block.proposer }}</span>
+                    <span class="margin-top-0 fs-075rem txt-weight-medium color-text-primary text-center fs-13px fs-16px">{{ block.proposer }}</span>
                   </div>
                 </div>
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
@@ -384,7 +384,7 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
+                  <button class="explorer-copy-icon-btn opacity-0 flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -397,7 +397,7 @@
                   </span>
                 </div>
                 <div class="explorer-td td-time flex-align-center fs-13px fs-14px">
-                  <span class="explorer-time-text fs-075rem color-text-secondary">{{ formatTimeAgo(block.time) }}</span>
+                  <span class="fs-075rem color-text-secondary">{{ formatTimeAgo(block.time) }}</span>
                 </div>
               </div>
             </div>
@@ -464,7 +464,7 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
+                  <button class="explorer-copy-icon-btn opacity-0 flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -490,7 +490,7 @@
                   <span class="explorer-fee-amount fs-075rem color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
                 </div>
                 <div class="explorer-td td-time flex-align-center fs-13px fs-14px">
-                  <span class="explorer-time-text fs-075rem color-text-secondary">{{ formatTimeAgo(tx.time) }}</span>
+                  <span class="fs-075rem color-text-secondary">{{ formatTimeAgo(tx.time) }}</span>
                 </div>
               </div>
             </div>
@@ -570,7 +570,7 @@
                 </div>
                 <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center fs-13px fs-14px">
                   <button 
-                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue border-radius-border-radius-xs background-ios-gray-4-disabled" 
+                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue border-radius-border-radius-xs background-ios-gray-4-disabled shadow-0-1-3-ios-blue-a2 shadow-0-3-10-ios-blue-a3-hover-not-disabled" 
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
@@ -709,7 +709,7 @@
                   <div class="explorer-tx-spinner size-48px border-radius-circle border-4-color"></div>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
-                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
+                    <p class="word-wrap-break fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                   </div>
                 </div>
 
@@ -721,7 +721,7 @@
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
-                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
+                    <p class="word-wrap-break fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full margin-top-75 padding-75 bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block fs-11px color-text-tertiary margin-bottom-25 text-uppercase letter-spacing-005em">Transaction Hash:</small>
                       <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02 hover-border-accent hover-bg-primary-a08" @click="viewTransaction(txHash)">
@@ -734,7 +734,7 @@
                       </button>
                     </div>
                   </div>
-                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 hover-lift-1 padding-62-200" @click="closeStakeModal">Close</button>
+                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 hover-lift-1 padding-62-200 shadow-0-4-12-ios-indigo-a3-hover" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->
@@ -745,15 +745,15 @@
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
-                    <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
+                    <p class="word-wrap-break fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                   </div>
-                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150 hover-lift-1" @click="txStatus = 'idle'">Try Again</button>
+                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150 hover-lift-1 shadow-0-4-12-ios-indigo-a3-hover" @click="txStatus = 'idle'">Try Again</button>
                 </div>
               </div>
             </div>
 
             <button 
-              class="explorer-confirm-btn disabled-fade-40 w-full border-radius-sm txt-weight-light cursor-pointer padding-87 border-none color-white bg-ios-blue"
+              class="explorer-confirm-btn disabled-fade-40 w-full border-radius-sm txt-weight-light cursor-pointer padding-87 border-none color-white bg-ios-blue shadow-0-2-8-ios-blue-a25 shadow-0-4-16-ios-blue-a35-hover-not-disabled"
               @click="() => confirmStakeAction()" 
               :disabled="!canConfirm || isProcessingTx"
             >

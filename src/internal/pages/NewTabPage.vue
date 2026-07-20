@@ -118,7 +118,7 @@
           <p class="color-text-secondary newtab-hero-copy-p fs-16px line-height-155 margin-0 margin-x-auto margin-top-85">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light w-min-760 padding-75-87 border-color-primary-a50-focus-within" @submit.prevent="submitOmnibox">
+        <form class="newtab-omnibox flex-align-center gap-75 border-radius-full border-1-light w-min-760 padding-75-87 border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -174,7 +174,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light border-radius-22px min-h-150px"
+            class="newtab-shortcut-card flex flex-column gap-75 relative padding-87 border-1-light border-radius-22px min-h-150px shadow-0-12-24-rgba-15-23-42-0-05"
             :class="{
               pinned: entry.pinned,
               'is-dragging': draggingShortcutId === entry.id,

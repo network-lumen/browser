@@ -21,7 +21,7 @@
 
     <div v-else-if="address" class="flex flex-column gap-150">
       <!-- Address Overview Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Address Overview</h2>
         </div>
@@ -50,7 +50,7 @@
       </div>
 
       <!-- Balances Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Balances</h2>
         </div>
@@ -76,7 +76,7 @@
       </div>
 
       <!-- Delegations Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="address.delegations && address.delegations.length > 0">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="address.delegations && address.delegations.length > 0">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Delegations ({{ address.delegations.length }})</h2>
         </div>
@@ -101,13 +101,13 @@
       </div>
 
       <!-- Recent Transactions Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Recent Transactions</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-100">
-            <div class="addrdetail-tx-item flex-align-center gap-100 padding-100 bg-primary border-1 border-radius-8px transition-all-02 hover-lift-2" v-for="(tx, index) in address.transactions" :key="index">
+            <div class="addrdetail-tx-item flex-align-center gap-100 padding-100 bg-primary border-1 border-radius-8px transition-all-02 hover-lift-2 shadow-0-4-8-rgba-0-0-0-0-1-hover" v-for="(tx, index) in address.transactions" :key="index">
               <div class="addrdetail-tx-icon flex-align-justify-center size-32px border-radius-circle color-text-secondary bg-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -123,7 +123,7 @@
                 </div>
               </div>
               <div class="flex-align-center">
-                <span :class="['addrdetail-status-badge flex-inline-align-justify-center', tx.success ? 'badge-success' : 'badge-error']">
+                <span :class="['fs-075rem flex-inline-align-justify-center', tx.success ? 'badge-success' : 'badge-error']">
                   {{ tx.success ? '✓' : '✗' }}
                 </span>
               </div>

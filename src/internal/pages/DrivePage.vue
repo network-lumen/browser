@@ -16,7 +16,7 @@
             @click="selectHosting('local')"
           >
             <span
-              class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red"
+              class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
             <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
@@ -59,7 +59,7 @@
               type="button"
               @click="selectGateway(sub.gatewayId)"
             >
-              <span class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red" :class="sub.statusDot"></span>
+              <span class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
               <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
@@ -106,20 +106,20 @@
           </button>
 
           <div class="drivepage-upload-menu flex-inline relative" @click.stop>
-            <button class="drivepage-upload-btn inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02" type="button" @click="toggleUploadMenu">
+            <button class="drivepage-upload-btn inline-flex flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 shadow-0-6-16-primary-a40-hover" type="button" @click="toggleUploadMenu">
               <Plus :size="18" />
               <span>Upload</span>
             </button>
-            <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1 padding-25 z-50 right-0 min-w-190px" @click.stop>
+            <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1 padding-25 z-50 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-12" @click.stop>
               <button
-                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
+                class="drivepage-upload-dropdown-item font-inherit flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
                 type="button"
                 @click="openFilePicker"
               >
                 Upload files
               </button>
               <button
-                class="drivepage-upload-dropdown-item flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
+                class="drivepage-upload-dropdown-item font-inherit flex-align-center-justify-space-between w-full border-radius-10px cursor-pointer text-left fs-085rem color-text-primary bg-transparent border-none cursor-select-none padding-50-75"
                 type="button"
                 @click="openFolderPicker"
               >
@@ -211,7 +211,7 @@
             </span>
           </button>
           <button
-            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px color-error-red color-error-red-hover-not-disabled bg-ios-red-a06"
+            class="drivepage-bulk-action-btn disabled-fade-45 danger flex-inline-align-justify-center border-radius-10px color-text-primary txt-weight-light cursor-pointer gap-35 border-1 bg-primary fs-13px padding-50-75 transition-all-02 hover-border-accent hover-color-accent hover-ring-enabled min-h-34px color-error-red color-error-red-hover-not-disabled bg-ios-red-a06 shadow-0-0-0-3-ios-red-a08-hover-not-disabled"
             type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles"
@@ -447,7 +447,7 @@
         class="drivepage-files-list flex flex-column flex-1 border-radius-12px overflow-y-auto bg-primary border-1 shadow-sm min-h-0"
       >
         <!-- List Header -->
-        <div class="drivepage-list-header flex-align-center gap-75 txt-weight-light text-uppercase color-text-secondary padding-75-100 bg-secondary border-bottom-1 fs-11px letter-spacing-005em top-0 z-1">
+        <div class="sticky flex-align-center gap-75 txt-weight-light text-uppercase color-text-secondary padding-75-100 bg-secondary border-bottom-1 fs-11px letter-spacing-005em top-0 z-1">
           <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
             <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative" title="Select visible entries">
               <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 margin-0 cursor-pointer"
@@ -647,7 +647,7 @@
           }}
         </p>
         <button
-          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 padding-100-175"
+          class="drivepage-upload-btn-large margin-top-50 inline-flex flex-inline-align-center gap-50 bg-gradient-primary color-white border-none border-radius-10px fs-14px fw-500 cursor-pointer transition-all-02 padding-100-175 shadow-0-6-16-primary-a40-hover"
           type="button"
           @click="openFilePicker"
         >
@@ -674,7 +674,7 @@
           v-if="isImageFile(selectedFile.name)"
           :src="getImageSrc(selectedFile)"
           :alt="selectedFile.name"
-          class="drivepage-detail-preview-image w-full h-full border-radius-12px"
+          class="object-fit-contain w-full h-full border-radius-12px"
           decoding="async"
           @error="() => selectedFile && onImageError(selectedFile)"
         />
@@ -682,7 +682,7 @@
         <video
           v-else-if="isVideoFile(selectedFile.name)"
           :src="getGatewayUrl(contentTargetFor(selectedFile))"
-          class="drivepage-detail-preview-video w-full h-full border-radius-12px"
+          class="object-fit-contain w-full h-full border-radius-12px"
           controls
           muted
           playsinline
@@ -691,7 +691,7 @@
           v-else-if="isHlsEntry(selectedFile)"
           :src="videoPosterFor(selectedFile) || ''"
           :alt="selectedFile.name"
-          class="drivepage-detail-preview-image w-full h-full border-radius-12px"
+          class="object-fit-contain w-full h-full border-radius-12px"
           decoding="async"
         />
         <!-- Show icon for other files -->
@@ -732,7 +732,7 @@
       <div class="detail-actions flex flex-column gap-50">
         <button
           v-if="!isDirEntry(selectedFile)"
-          class="drivepage-detail-btn primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-white padding-75 border-none bg-gradient-primary fs-13px transition-all-02"
+          class="drivepage-detail-btn primary flex-align-justify-center gap-50 border-radius-10px fw-500 cursor-pointer color-white padding-75 border-none bg-gradient-primary fs-13px transition-all-02 shadow-0-6-16-primary-a40-hover"
           @click="downloadFile(selectedFile)"
         >
           <Download :size="16" />
@@ -1455,7 +1455,7 @@
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
-                   class="drivepage-gateway-card flex flex-column border-radius-10px gap-75 border-1 bg-primary padding-87-100"
+                   class="drivepage-gateway-card flex flex-column border-radius-10px gap-75 border-1 bg-primary padding-87-100 shadow-0-4-12-rgba-15-23-42-0-04"
                    :class="{ offline: !group.gateway.active }"
                  >
                   <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-50">

@@ -83,7 +83,7 @@
         <div v-if="embeddedServerRunning" class="mygw-whitelist-section border-top-1 padding-top-200">
           <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
             <h2 class="txt-weight-light color-text-primary margin-0 mygw-section-header-h2 fs-125rem">Whitelist Management</h2>
-            <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary hover-lift-2" @click="openWhitelistModal">
+            <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary hover-lift-2 shadow-0-2-8-ios-blue-a3 shadow-0-4-12-ios-blue-a4-hover" @click="openWhitelistModal">
               <Plus :size="18" />
               Add User
             </button>
@@ -138,7 +138,7 @@
         <!-- External Gateways Section -->
         <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
           <h2 class="txt-weight-light color-text-primary margin-0 mygw-section-header-h2 fs-125rem">External Gateways</h2>
-          <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary hover-lift-2" @click="openCreateModal">
+          <button type="button" class="mygw-btn-add flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary hover-lift-2 shadow-0-2-8-ios-blue-a3 shadow-0-4-12-ios-blue-a4-hover" @click="openCreateModal">
             <Plus :size="18" />
             Add Gateway
           </button>
@@ -160,14 +160,14 @@
           <Server :size="48" class="color-text-tertiary margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">No Gateways Yet</h2>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Create your first private gateway to get started</p>
-          <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1" @click="openCreateModal">
+          <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1 shadow-0-4-12-ios-blue-a3-hover-not-disabled" @click="openCreateModal">
             <Plus :size="18" />
             Create Gateway
           </button>
         </div>
 
         <div v-else class="mygw-gateways-grid gap-125 grid">
-          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150 bg-card border-radius-14px border-15 transition-all-02 hover-border-ios-blue">
+          <div v-for="gateway in gateways" :key="gateway.id" class="mygw-gateway-card padding-150 bg-card border-radius-14px border-15 transition-all-02 hover-border-ios-blue shadow-0-8-24-rgba-0-0-0-0-08-hover">
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between margin-bottom-100">
               <div class="mygw-gateway-title flex-align-center gap-50">
                 <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary" :class="{ active: gateway.status === 'active' }"></div>
@@ -261,7 +261,7 @@
               <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="closeModal" :disabled="saving">
                 Cancel
               </button>
-              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1" @click="saveGateway" :disabled="saving || !isFormValid">
+              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1 shadow-0-4-12-ios-blue-a3-hover-not-disabled" @click="saveGateway" :disabled="saving || !isFormValid">
                 {{ saving ? 'Saving...' : (editingGateway ? 'Update' : 'Create') }}
               </button>
             </div>
@@ -345,7 +345,7 @@
               <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="closeWhitelistModal" :disabled="whitelistSaving">
                 Cancel
               </button>
-              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
+              <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1 shadow-0-4-12-ios-blue-a3-hover-not-disabled" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
                 {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
               </button>
             </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
     <div class="blockdetail-header bg-primary border-bottom-1 padding-200-200-150">
-      <button class="blockdetail-back-btn flex-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 txt-weight-light border-radius-8px fs-14px transition-all-02 hover-lift-1 shadow-primary-xs" @click="goBack">
+      <button class="blockdetail-back-btn flex-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 txt-weight-light border-radius-8px fs-14px transition-all-02 hover-lift-1 shadow-primary-xs shadow-0-4-8-primary-a30-hover" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -21,7 +21,7 @@
 
     <div v-else-if="block" class="blockdetail-content flex flex-column gap-150 bg-secondary padding-200">
       <!-- Block Overview Card -->
-      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden">
+      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Overview</h2>
         </div>
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Block Data Card -->
-      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden">
+      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Data</h2>
         </div>
@@ -93,13 +93,13 @@
       </div>
 
       <!-- Transactions Card -->
-      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden" v-if="block.txs > 0">
+      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="block.txs > 0">
         <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
-            <div class="blockdetail-tx-item flex gap-100 cursor-pointer border-radius-md flex-align-start padding-100-125 bg-card border-default shadow-xs transition-smooth-all hover-border-accent hover-lift-1" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
+            <div class="blockdetail-tx-item flex gap-100 cursor-pointer border-radius-md flex-align-start padding-100-125 bg-card border-default shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
               <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-md color-ios-blue min-w-32px bg-gradient-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>

@@ -313,10 +313,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* FindBar.vue */
 .findbar {
   top: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-.findbar-input:focus-visible {
-  box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.25);
 }
 .findbar-count--muted { opacity: 0.55; }
 
@@ -372,7 +368,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* ReleaseUpdatePrompt.vue */
 .release-update {
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18);
   z-index: 9998;
   bottom: 24px;
   right: 24px;
@@ -424,10 +419,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .badge-error, .searchpage-type-pdf { background: var(--fill-error); }
 
-/* Card Styles */
-
-/* Input Styles */
-
 /* Badge Variants */
 .badge-lime {
   background: var(--lime-a10);
@@ -435,31 +426,19 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   border: 1px solid var(--lime-a20);
 }
 
-/* Icon Containers */
-
-/* Pill/Tab Styles */
-
-/* Glow Effects */
-
-
-/* Hover Lift */
-
-/* Focus Ring */
-
-/* Smooth Transitions */
-
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
 .chaindetail-back-btn:hover, .drivepage-upload-btn, .drivepage-upload-btn-large, .daopage-btn-modal-primary:hover, .explorer-search-btn:hover:not(:disabled), .drivepage-detail-btn.primary { box-shadow: 0 4px 12px var(--primary-a30); }
-.chaindetail-card { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: box-shadow 0.2s; }
-.chaindetail-card:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); }
+.chaindetail-card { transition: box-shadow 0.2s; }
 .chaindetail-card-header-h2 { letter-spacing: 0.025em; }
 .chaindetail-row { grid-template-columns: 180px 1fr; }
+
 .chaindetail-row:last-child, .blockdetail-row:last-child, .recurpay-summary-row:last-child,
 .mygw-whitelist-table tbody tr:last-child td, .ipfspage-dir-row:last-child, .explorer-table-row:last-child,
 .walletpage-activity-row:last-child, .walletpage-summary-row:last-child, .walletpage-picker-item:last-child,
 .drivepage-list-item:last-child {
   border-bottom: none;
 }
+
 .chaindetail-row:hover {
   margin: 0 -0.5rem;
   padding-left: 0.5rem;
@@ -475,30 +454,15 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   font-size: 0.75rem;
 }
 
-/* TransactionDetailPage.vue messages/events */
-.txdetail-item-data-pre { word-wrap: break-word; }
-
 /* BlockDetailPage.vue */
-.blockdetail-back-btn:hover { box-shadow: 0 4px 8px var(--primary-a30); }
 .blockdetail-content { min-height: calc(100vh - 200px); }
 .blockdetail-row:hover {
   margin: 0 -1.5rem;
 }
 .blockdetail-label { flex: 0 0 180px; }
-.blockdetail-tx-item:hover {
-  box-shadow: 0 2px 8px var(--primary-a15);
-}
-
-/* AddressDetailPage.vue */
-.addrdetail-status-badge, .explorer-height-number, .explorer-blocks-view .explorer-proposer-name,
-.explorer-blocks-view .explorer-time-text {
-  font-size: 0.75rem;
-}
-.addrdetail-tx-item:hover { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
 
 /* WebPage.vue */
 .webpage-fullscreen, .sitepage-fullscreen {
-  position: fixed;
   inset: 0;
   z-index: 2147483647;
   background: #000;
@@ -514,7 +478,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   width: min(420px, calc(100vw - 24px));
   height: min(760px, calc(100vh - 24px));
   max-height: calc(100vh - 24px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 .extension-popup-close {
   top: 8px;
@@ -550,11 +513,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .gwpage-toast-transition-leave-active {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
-.netparams-toast-enter-from, .netparams-toast-leave-to, .gwpage-toast-transition-enter-from,
-.gwpage-toast-transition-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(8px);
-}
 
 /* HistoryPage.vue */
 .history-copy-h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
@@ -566,7 +524,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* ExtensionPage.vue */
 
 /* RecurringPaymentModal.vue */
-.recurpay-input:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 textarea.recurpay-input { resize: vertical; min-height: 60px; }
 .recurpay-input[type="date"], .recurpay-input[type="number"], select.recurpay-input { color-scheme: light dark; }
 .recurpay-input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
@@ -588,27 +545,8 @@ select.recurpay-input { background-image: none; }
 
 
 /* WalletOnboardingModal.vue */
-.walletonboard-content { box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2); }
 .walletonboard-step { animation: walletonboard-fade-in 0.3s ease-in-out; }
-.walletonboard-info-card:hover {
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.1);
-}
-.walletonboard-transition-enter-active, .walletonboard-transition-leave-active { transition: opacity 0.3s ease; }
-.walletonboard-transition-enter-from, .walletonboard-transition-leave-to, .gwpage-modal-transition-enter-from,
-.gwpage-modal-transition-leave-to, .sitemodal-fade-enter-from, .sitemodal-fade-leave-to,
-.mygw-modal-enter-from, .mygw-modal-leave-to, .domainpage-fade-enter-from, .domainpage-fade-leave-to,
-.ipfspage-fade-enter-from, .ipfspage-fade-leave-to, .explorer-copy-icon-btn, .searchpage-modal-enter-from,
-.searchpage-modal-leave-to {
-  opacity: 0;
-}
-.walletonboard-transition-enter-active .walletonboard-content,
-.walletonboard-transition-leave-active .walletonboard-content {
-  transition: transform 0.3s ease;
-}
-.walletonboard-transition-enter-from .walletonboard-content,
-.walletonboard-transition-leave-to .walletonboard-content {
-  transform: scale(0.95) translateY(20px);
-}
+
 
 /* ExtensionsPage.vue (Chrome Web Store host — always-dark, theme-independent) */
 .extensions-store-page {
@@ -619,7 +557,6 @@ select.recurpay-input { background-image: none; }
 .extensions-store-btn.primary { color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
 .extensions-store-btn-install-hero-btn {
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
-  box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
 }
 .extensions-store-status {
   margin: 0 24px 14px;
@@ -633,7 +570,6 @@ select.recurpay-input { background-image: none; }
 /* SitePage.vue */
 .sitepage-inline-link {
   display: inline;
-  font: inherit;
   text-underline-offset: 2px;
 }
 .sitepage-inline-link:hover, .gwpage-manage-link:hover { opacity: 0.8; }
@@ -747,9 +683,6 @@ select.recurpay-input { background-image: none; }
 /* NetworkPage.vue */
 .netpage-node-detail:hover { border-left-color: var(--accent-color); }
 .netpage-main-grid { grid-template-columns: 320px 1fr 380px; align-items: start; }
-.netpage-info-card:hover, .gwpage-private-gateway-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 .netpage-health-grid, .helppage-actions-grid, .helppage-features-grid, .explorer-charts-section,
 .explorer-recent-activity {
   grid-template-columns: repeat(2, 1fr);
@@ -766,11 +699,9 @@ select.recurpay-input { background-image: none; }
 .netpage-chart-container, .drivepage-detail-preview { height: 160px; }
 .netpage-block-card:hover {
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .netpage-validator-avatar {
   background: linear-gradient(135deg, var(--ios-indigo) 0%, var(--ios-purple) 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 .netpage-meta-value.has-txs, .domainpage-pill.pill-ok {
   background: var(--fill-success);
@@ -914,7 +845,6 @@ select.recurpay-input { background-image: none; }
 .newtab-omnibox {
   margin: 1.2rem auto 0;
   background: color-mix(in srgb, var(--card-bg) 90%, transparent);
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
 .newtab-omnibox:focus-within {
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08), 0 0 0 4px var(--primary-a12);
@@ -935,7 +865,6 @@ select.recurpay-input { background-image: none; }
 .newtab-shortcut-grid { grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); }
 .newtab-shortcut-card {
   background: color-mix(in srgb, var(--card-bg) 92%, transparent);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
 }
 .newtab-shortcut-card.pinned {
   border-color: rgba(var(--ios-blue-rgb), 0.18);
@@ -1053,8 +982,6 @@ select.recurpay-input { background-image: none; }
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(var(--ios-red-rgb), 0.4);
 }
-.mygw-btn-add { box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.3); }
-.mygw-btn-add:hover { box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.4); }
 .mygw-btn-outline:disabled, .mygw-btn-start:disabled, .mygw-btn-stop:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -1063,13 +990,9 @@ select.recurpay-input { background-image: none; }
 .mygw-spinner { border-top-color: var(--ios-blue); animation: spin 0.8s linear infinite; }
 .mygw-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 .mygw-gateway-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   transform: translateY(-4px);
 }
 .mygw-info-value.mono { font-family: var(--font-mono); }
-.mygw-btn-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.3);
-}
 .mygw-btn-danger:hover:not(:disabled), .settingspage-icon-btn-small:hover { background: rgba(var(--ios-red-rgb), 0.15); }
 .mygw-modal-actions .mygw-btn-secondary, .mygw-modal-actions .mygw-btn-primary,
 .mygw-modal-actions .mygw-btn-danger, .settingspage-add-gateway-id .settingspage-input-control {
@@ -1080,7 +1003,7 @@ select.recurpay-input { background-image: none; }
 .walletpage-dex-chevron {
   transition: transform 0.2s ease;
 }
-.mygw-modal-enter-from .mygw-modal-content, .mygw-modal-leave-to .mygw-modal-content,
+.mygw-modal-content, .mygw-modal-content,
 .navbar-nav-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
@@ -1118,7 +1041,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .domainpage-btn.danger:hover:not(:disabled) {
   background: linear-gradient(135deg, color-mix(in srgb, var(--ios-red) 85%, black) 0%, color-mix(in srgb, var(--ios-red) 70%, black) 100%);
 }
-.domainpage-card { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
 .domainpage-stable-link-label-input:hover, .domainpage-stable-link-label-input:focus {
   background: var(--card-bg);
   border-color: var(--border-color);
@@ -1147,7 +1069,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .domainpage-domain-part { flex: 1.2; }
 .domainpage-ext-part { flex: 0.8; }
 .domainpage-price-row.total {
-  margin-top: 0.3rem;
   font-weight: 600;
 }
 .domainpage-key-input { flex: 0.9; }
@@ -1481,7 +1402,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-chart-donut-wrapper canvas { width: 100px !important; height: 100px !important; }
 .explorer-chart-center-label { transform: translate(-50%, -50%); }
 .explorer-proposer-label { letter-spacing: 0.02em; }
-.explorer-proposer-name { margin-top: 0; }
 .explorer-proposer-stat .explorer-stat-label { color: var(--text-tertiary); }
 .explorer-proposer-stat .explorer-stat-value {
   font-weight: 700;
@@ -1518,11 +1438,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-action-btn {
   transition: all var(--transition-base);
   letter-spacing: -0.022em;
-  box-shadow: 0 1px 3px rgba(var(--ios-blue-rgb), 0.2);
 }
 .explorer-action-btn:hover:not(:disabled) {
   transform: scale(1.02);
-  box-shadow: 0 3px 10px rgba(var(--ios-blue-rgb), 0.3);
 }
 .explorer-action-btn:active:not(:disabled), .explorer-confirm-btn:active:not(:disabled),
 .drivepage-action-btn:active {
@@ -1569,11 +1487,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   font-size: var(--fs-base);
   letter-spacing: -0.022em;
   transition: all var(--transition-base);
-  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.25);
 }
 .explorer-confirm-btn:hover:not(:disabled) {
   transform: scale(1.01);
-  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.35);
 }
 
 /* Transaction Status Popup */
@@ -1587,10 +1503,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   animation: spin 0.8s linear infinite;
 }
 .explorer-tx-icon { animation: iconBounce 0.5s ease; }
-.explorer-tx-status-text-p { word-wrap: break-word; }
-.explorer-tx-close-btn:hover, .explorer-tx-retry-btn:hover {
-  box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
-}
 .explorer-tx-status-popup.processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
 .explorer-tx-status-popup.success { border: 2px solid rgba(var(--ios-green-rgb), 0.5); }
 .explorer-tx-status-popup.error { border: 2px solid var(--ios-red); }
@@ -1630,10 +1542,8 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   -webkit-text-fill-color: var(--text-tertiary);
 }
 .searchpage-search-box:focus-within {
-  box-shadow: var(--shadow-focus);
   transform: translateY(-2px);
 }
-.searchpage-search-btn { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
 .searchpage-search-btn::before {
   content: "";
   position: absolute;
@@ -1644,7 +1554,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-search-btn:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 .searchpage-search-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .searchpage-help-icon-btn {
@@ -1653,7 +1562,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-help-body { max-height: min(72vh, 720px); }
 .searchpage-help-h3 { font-weight: 850; }
-.searchpage-help-callout-icon { margin-top: 0.05rem; }
 .searchpage-help-list li::before {
   content: "";
   position: absolute;
@@ -1683,17 +1591,14 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   flex: 0 0 auto;
   margin-top: 0.05rem;
 }
-.searchpage-pill { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); }
 .searchpage-pill svg { flex-shrink: 0; transition: transform 0.2s ease; }
 .searchpage-pill:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 .searchpage-pill:hover:not(:disabled):not(.active) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 .searchpage-pill:hover:not(:disabled) svg { transform: scale(1.1); }
 .searchpage-pill.active {
@@ -1718,7 +1623,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: var(--gradient-brand);
+  background: var(--accent-gradient, var(--gradient-brand));
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -1770,28 +1675,15 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-type-docx, .searchpage-type-address { background: rgba(var(--ios-teal-rgb), 0.12); color: var(--ios-teal); }
 .searchpage-type-block { background: rgba(var(--ios-indigo-rgb), 0.12); color: var(--ios-purple); }
 
-/* Card accent colors by type */
-.searchpage-result-tx::before {
-  background: linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%);
-}
-.searchpage-result-block::before, .searchpage-result-ipfs.searchpage-file-epub::before {
-  background: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%);
-}
-.searchpage-result-address::before, .searchpage-result-ipfs.searchpage-file-docx::before {
-  background: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%);
-}
-.searchpage-result-ipfs::before {
-  background: linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%);
-}
-.searchpage-result-ipfs.searchpage-file-html::before {
-  background: linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%);
-}
-.searchpage-result-ipfs.searchpage-file-pdf::before {
-  background: linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%);
-}
-.searchpage-result-ipfs.searchpage-file-txt::before {
-  background: linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%);
-}
+/* Card accent colors by type - each just sets the --accent-gradient consumed by
+   .searchpage-result-card::before above, instead of redeclaring the whole pseudo-element */
+.searchpage-result-tx { --accent-gradient: linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%); }
+.searchpage-result-block, .searchpage-result-ipfs.searchpage-file-epub { --accent-gradient: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%); }
+.searchpage-result-address, .searchpage-result-ipfs.searchpage-file-docx { --accent-gradient: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%); }
+.searchpage-result-ipfs { --accent-gradient: linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%); }
+.searchpage-result-ipfs.searchpage-file-html { --accent-gradient: linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%); }
+.searchpage-result-ipfs.searchpage-file-pdf { --accent-gradient: linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%); }
+.searchpage-result-ipfs.searchpage-file-txt { --accent-gradient: linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%); }
 .searchpage-safe-thumb.searchpage-thumb-loading {
   background: linear-gradient( 90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100% );
   background-size: 200% 100%;
@@ -1824,7 +1716,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-image-card { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
 .searchpage-image-card:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 16px 32px var(--primary-a15);
 }
 .searchpage-image-thumb, .searchpage-image-fallback { aspect-ratio: 4 / 3; }
 .searchpage-image-fallback--deferred {
@@ -1882,11 +1773,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* WalletPage.vue */
 .walletpage-text-muted { font-style: italic; }
-.walletpage-action-btn.primary {
-  box-shadow: 0 4px 15px rgba(var(--ios-blue-rgb), 0.4);
-}
 .walletpage-action-btn.primary:hover {
-  box-shadow: 0 8px 25px rgba(var(--ios-blue-rgb), 0.5);
   transform: translateY(-2px);
 }
 .walletpage-balance-card {
@@ -1933,10 +1820,8 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .walletpage-quick-btn:not(:disabled):hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.25);
   border-color: rgba(var(--ios-blue-rgb), 0.5);
 }
-.walletpage-quick-icon { box-shadow: 0 8px 20px rgba(var(--ios-blue-rgb), 0.3); }
 .walletpage-quick-icon-disabled {
   background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
   opacity: 0.6;
@@ -1997,9 +1882,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-info-banner-ul { list-style-type: disc; }
 .walletpage-form-select { appearance: none; -webkit-appearance: none; }
 .walletpage-form-input:read-only { cursor: not-allowed; }
-.walletpage-summary-row.total {
-  font-weight: 700;
-}
 .walletpage-summary-value.tax, .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
 }
@@ -2007,7 +1889,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-top-color: white;
   animation: spin 0.6s linear infinite;
 }
-.walletpage-qr-wrapper { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
 .walletpage-qr-image, .walletpage-qr-placeholder { height: 240px; }
 .walletpage-qr-loading::before {
   content: '';
@@ -2033,11 +1914,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-contacts-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 .walletpage-input-action-btn { right: 0.75rem; transform: translateY(-50%); }
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
-.walletpage-contact-picker {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-.walletpage-picker-list { max-height: 300px; }
-
 /* DrivePage.vue */
 .drivepage-hosting-row { transition: background 0.15s ease, border-color 0.15s ease; }
 .drivepage-hosting-row.active, .drivepage-hosting-row:hover {
@@ -2058,7 +1934,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-hosting-dot {
   grid-column: 1;
   grid-row: 1;
-  box-shadow: 0 0 0 rgba(var(--ios-red-rgb), 0);
 }
 .drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
 .drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
@@ -2068,8 +1943,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   grid-row: 2;
   justify-self: start;
 }
-
-/* Main Content */
 
 /* Warning Banner */
 .drivepage-warning-banner {
@@ -2085,7 +1958,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .drivepage-bulk-action-btn.danger:hover:not(:disabled) {
   border-color: rgba(var(--ios-red-rgb), 0.38);
-  box-shadow: 0 0 0 3px rgba(var(--ios-red-rgb), 0.08);
 }
 .drivepage-bulk-action-count {
   height: 1.35rem;
@@ -2151,7 +2023,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Gateway plans modal */
 .drivepage-plans-filter-checkbox-input, .drivepage-drive-backup-toggle-input { accent-color: var(--accent-primary); }
 .drivepage-plans-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.drivepage-gateway-card { box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); }
 .drivepage-plan-chip.active {
   border-color: var(--ios-green);
   background: var(--fill-success);
@@ -2159,16 +2030,11 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .drivepage-upload-btn:hover, .drivepage-upload-btn-large:hover, .drivepage-detail-btn.primary:hover {
   background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
-  box-shadow: 0 6px 16px var(--primary-a40);
   transform: translateY(-1px);
 }
 .drivepage-upload-dropdown {
   top: calc(100% + 0.5rem);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
-.drivepage-upload-dropdown-item { font: inherit; }
-
-/* Upload Progress */
 
 /* Folder breadcrumb */
 .drivepage-progress-bar-fill { transition: width 0.2s ease; }
@@ -2184,18 +2050,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   opacity: 0.6;
 }
 
-/* Empty State */
-
-/* Detail Panel */
-.drivepage-detail-preview-image, .drivepage-detail-preview-video { object-fit: contain; }
-
-/* Toast */
-.drivepage-toast-enter-from, .drivepage-toast-leave-to { opacity: 0; transform: translate(-50%, 10px); }
-
-/* Drop Overlay */
-
 /* List View */
-.drivepage-list-header { position: sticky; }
 .drivepage-list-item {
   transition: all 0.1s;
   content-visibility: auto;

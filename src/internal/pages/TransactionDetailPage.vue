@@ -21,7 +21,7 @@
 
     <div v-else-if="transaction" class="flex flex-column gap-150">
       <!-- Transaction Overview Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Transaction Overview</h2>
         </div>
@@ -72,7 +72,7 @@
       </div>
 
       <!-- Messages Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="transaction.messages && transaction.messages.length > 0">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="transaction.messages && transaction.messages.length > 0">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Messages ({{ transaction.messages.length }})</h2>
         </div>
@@ -84,7 +84,7 @@
                 <span class="txdetail-item-index color-text-tertiary fs-075rem">#{{ Number(index) + 1 }}</span>
               </div>
               <div class="txdetail-item-data">
-                <pre class="bg-primary color-text-primary padding-100 margin-0 txdetail-item-data-pre border-1 border-radius-6px mono fs-075rem pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
+                <pre class="bg-primary color-text-primary padding-100 margin-0 word-wrap-break border-1 border-radius-6px mono fs-075rem pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
             </div>
           </div>
@@ -92,7 +92,7 @@
       </div>
 
       <!-- Events Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden" v-if="transaction.events && transaction.events.length > 0">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="transaction.events && transaction.events.length > 0">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Events ({{ transaction.events.length }})</h2>
         </div>
@@ -112,7 +112,7 @@
       </div>
 
       <!-- Raw Data Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden">
+      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
           <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Raw Transaction Data</h2>
         </div>
