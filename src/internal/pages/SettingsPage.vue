@@ -1161,7 +1161,7 @@
       <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card">
           <div class="settingspage-about-logo margin-bottom-150">
-            <div class="settingspage-logo-icon large flex-align-justify-center size-40px border-radius-md bg-gradient-primary color-white shadow-primary">
+            <div class="flex-align-justify-center size-64px border-radius-xl bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />
             </div>
           </div>

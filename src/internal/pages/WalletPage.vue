@@ -141,7 +141,7 @@
         <div class="walletpage-info-section flex flex-wrap-wrap gap-100">
           <div class="walletpage-info-card flex-1 bg-card border-radius-16px padding-100-125 border-1">
             <div class="walletpage-info-label text-uppercase color-text-tertiary fs-13px letter-spacing-008em margin-bottom-25">Address</div>
-            <div class="walletpage-info-value mono color-text-primary fs-14px" :title="address || '-'">
+            <div class="mono break-all color-text-primary fs-14px" :title="address || '-'">
               {{ address || '-' }}
             </div>
           </div>

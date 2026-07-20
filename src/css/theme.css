@@ -1603,12 +1603,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .navbar-import-textarea { resize: vertical; min-height: 84px; }
 
-/* SettingsPage.vue */
-.settingspage-logo-icon.large {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--border-radius-xl);
-}
 
 /* Main Content */
 
@@ -2459,7 +2453,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   opacity: 0.6;
 }
 .walletpage-info-card { min-width: 260px; }
-.walletpage-info-value.mono { font-family: var(--font-mono); word-break: break-all; }
 .walletpage-content-section { max-width: 100%; box-sizing: border-box; }
 .walletpage-search-input { min-width: 200px; }
 .walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
