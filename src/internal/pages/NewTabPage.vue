@@ -2,7 +2,7 @@
   <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden padding-150-100-200">
     <div
       v-if="showOnboarding"
-      class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150"
+      class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150 background-rgba-2-6-23-0-56"
       role="dialog"
       aria-modal="true"
       aria-labelledby="lumen-onboarding-title"
@@ -36,7 +36,7 @@
     <Teleport to="body">
       <div
         v-if="showShortcutModal"
-        class="newtab-shortcut-modal-overlay newtab-onboarding-overlay flex-align-justify-center padding-100 fixed inset-0"
+        class="newtab-shortcut-modal-overlay newtab-onboarding-overlay flex-align-justify-center padding-100 fixed inset-0 background-rgba-2-6-23-0-56"
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcut-modal-title"

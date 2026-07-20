@@ -341,7 +341,7 @@
                 />
               </div>
               <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success bg-ios-green-a1 border-1-ios-green-a30 padding-25-4" :class="{ active: autoRefresh }">
-                <span class="explorer-pulse-dot border-radius-circle w-8px h-8px"></span>
+                <span class="explorer-pulse-dot border-radius-circle w-8px h-8px background-current"></span>
                 Live
               </span>
             </div>
@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175 background-black-a02-hover background-black-a04-active" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-25" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -452,7 +452,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175 background-black-a02-hover background-black-a04-active">
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06 padding-125-175 background-black-a02-hover background-black-a04-active">
                 <div class="explorer-td td-rank flex-align-center fs-13px fs-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary fs-15px">{{ index + 1 }}</span>
                 </div>
@@ -570,7 +570,7 @@
                 </div>
                 <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center fs-13px fs-14px">
                   <button 
-                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue border-radius-border-radius-xs" 
+                    class="explorer-action-btn flex-align-center txt-weight-light cursor-pointer gap-35 padding-50-100 color-white border-none fs-13px bg-ios-blue border-radius-border-radius-xs background-ios-gray-4-disabled" 
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
@@ -598,7 +598,7 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4px" @click="closeStakeModal">
+    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4px background-rgba-0-0-0-0-7" @click="closeStakeModal">
       <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct max-w-420px border-radius-border-radius-2xl" @click.stop>
         <div class="explorer-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
           <h3 class="explorer-modal-header-h3 fs-18px txt-weight-medium color-text-primary margin-0">Manage Stake with {{ selectedValidator?.moniker }}</h3>

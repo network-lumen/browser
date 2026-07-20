@@ -117,7 +117,7 @@
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
               <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
-                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain color-ios-purple">
+                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain color-ios-purple background-ios-purple-a15">
                   <Link2 :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-15 min-w-0">
@@ -358,7 +358,7 @@
           <!-- Contact Cards -->
           <div class="helppage-contact-grid gap-100 grid">
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
-              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord color-ios-purple">
+              <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord color-ios-purple background-ios-purple-a15">
                 <MessageCircle :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">
