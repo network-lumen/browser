@@ -289,14 +289,11 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .drivepage-toast-enter-active, .drivepage-toast-leave-active { transition: all 0.2s ease; }
 
 /* Score badges like in the image */
-.score-badge.high { background: linear-gradient(135deg, var(--lime-bright) 0%, #A8E63D 100%); color: #0a1612; }
 
 /* Stats display */
-.stat-change.positive { color: var(--success-green); }
-.stat-change.negative { color: var(--red-base); }
 
 /* Search input dark style */
-.search-input-dark::placeholder, .pwd-modal-input::placeholder, .input::placeholder,
+.pwd-modal-input::placeholder, .input::placeholder,
 .history-search input::placeholder, .recurpay-input::placeholder, .walletonboard-input::placeholder,
 .gwpage-form-input::placeholder, .newtab-omnibox-input::placeholder, .relpage-form-input::placeholder,
 .domainpage-form-input::placeholder, .navbar-url-bar-input::placeholder, .navbar-extension-state.disabled,
@@ -317,7 +314,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: var(--hover-bg);
   color: var(--text-primary);
 }
-.lsb-item.active svg, .card-interactive:hover::before, .navbar-profile-row:hover .navbar-profile-row-delete,
+.lsb-item.active svg, .navbar-profile-row:hover .navbar-profile-row-delete,
 .explorer-table-row:hover .explorer-copy-icon-btn, .explorer-td-hash:hover .explorer-copy-icon-btn,
 .explorer-tx-hash-link:hover svg, .searchpage-search-btn:hover::before, .searchpage-result-card:hover::before,
 .searchpage-result-card:hover .searchpage-result-url, .walletpage-quick-btn:not(:disabled):hover::before {
@@ -679,7 +676,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .history-group-head { padding: 0 0.1rem 0.7rem; }
 .history-group-head-span { height: 1.7rem; }
 .history-item { padding: 0.8rem 0.15rem; border-top: 1px solid var(--separator); }
-.history-list .history-item:first-child { border-top: none; }
 .history-item-main, .walletpage-dex-summary-btn { color: inherit; }
 .history-item-avatar { width: 2.7rem; height: 2.7rem; }
 .history-item-remove:hover, .subview-action-btn.delete:hover { background: var(--fill-error); color: var(--ios-red); }
@@ -765,7 +761,6 @@ select.recurpay-input { background-image: none; }
 .extensions-store-header-actions { flex: 1 1 420px; }
 .extensions-store-btn { color: #e2e8f0; background: rgba(30, 41, 59, 0.92); }
 .extensions-store-btn.primary { color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.extensions-store-btn.import-btn { color: #fff; background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .extensions-store-btn-install-hero-btn {
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
   box-shadow: 0 18px 40px rgba(14, 165, 233, 0.26);
@@ -806,7 +801,7 @@ select.recurpay-input { background-image: none; }
 
 /* SubscriptionsView.vue */
 .subview { max-width: 1200px; }
-.subview-header h2, .subview-reminder-content h4, .subview-payment-header h4 { margin: 0 0 4px 0; }
+.subview-header h2, .subview-reminder-card h4, .subview-payment-header h4 { margin: 0 0 4px 0; }
 .subview-btn.primary, .navbar-extension-toggle input:checked + .navbar-extension-toggle-slider {
   background: var(--accent-primary);
 }
@@ -1272,7 +1267,7 @@ select.recurpay-input { background-image: none; }
   width: 42% !important;
   animation: sitemodal-pin-progress-slide 1.2s ease-in-out infinite;
 }
-.sitemodal-balance-hint.error, .domainpage-empty.error p, .explorer-changes-value.negative, .error,
+.sitemodal-balance-hint.error, .domainpage-empty.error p, .error,
 .walletpage-asset-meta.error, .walletpage-dex-meta.error, .walletpage-amount-value.send,
 .walletpage-field-hint.error {
   color: var(--ios-red);
@@ -1760,8 +1755,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Content Area */
 .explorer-content-area { overflow: visible; }
-.explorer-refresh-indicator.active, .explorer-changes-value.positive, .walletpage-amount-value.receive,
-.drivepage-hls-queue-item.status-done .drivepage-hls-queue-item-status {
+.explorer-refresh-indicator.active, .walletpage-amount-value.receive {
   color: var(--ios-green);
 }
 .explorer-pulse-dot { background: currentColor; animation: pulse-live 2s ease-in-out infinite; }
@@ -1874,7 +1868,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
-.explorer-view-all-btn:hover, .walletpage-input-wrapper.readonly, .drivepage-gateway-card.drivepage-offline {
+.explorer-view-all-btn:hover, .walletpage-input-wrapper.readonly, .drivepage-gateway-card.offline {
   opacity: 0.7;
 }
 
@@ -2000,7 +1994,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-tx-close-btn:hover, .explorer-tx-retry-btn:hover {
   box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
 }
-.explorer-tx-status-popup.explorer-processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
+.explorer-tx-status-popup.processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
 .explorer-tx-status-popup.success { border: 2px solid rgba(var(--ios-green-rgb), 0.5); }
 .explorer-tx-status-popup.error { border: 2px solid var(--ios-red); }
 
