@@ -553,6 +553,7 @@
 .shadow-primary-lg { box-shadow: var(--shadow-primary-lg); }
 .shadow-xl { box-shadow: var(--shadow-xl); }
 .shadow-modal { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+.max-h-100vh-32px { max-height: calc(100vh - 32px); }
 .transition-smooth-all { transition: all var(--transition-smooth); }
 .transition-bg-02 { transition: background 0.2s ease; }
 .transition-opacity-015 { transition: opacity 0.15s ease; }

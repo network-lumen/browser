@@ -548,7 +548,8 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
 .chaindetail-back-btn:hover, .drivepage-upload-btn, .drivepage-upload-btn-large, .daopage-btn-modal-primary:hover, .explorer-search-btn:hover:not(:disabled), .drivepage-detail-btn.primary { box-shadow: 0 4px 12px var(--primary-a30); }
-.chaindetail-card { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.chaindetail-card { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: box-shadow 0.2s; }
+.chaindetail-card:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); }
 .chaindetail-card-header-h2 { letter-spacing: 0.025em; }
 .chaindetail-row { grid-template-columns: 180px 1fr; padding: 0.875rem 0; }
 .chaindetail-row:last-child, .blockdetail-row:last-child, .recurpay-summary-row:last-child,
@@ -581,8 +582,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .blockdetail-header, .walletonboard-header { padding: 2rem 2rem 1.5rem; }
 .blockdetail-back-btn:hover { box-shadow: 0 4px 8px var(--primary-a30); }
 .blockdetail-content { min-height: calc(100vh - 200px); }
-.blockdetail-card { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); transition: box-shadow 0.2s; }
-.blockdetail-card:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); }
 .blockdetail-row:hover {
   margin: 0 -1.5rem;
   padding: 1rem 1.5rem;
@@ -1232,11 +1231,6 @@ select.recurpay-input { background-image: none; }
 
 /* LumenSiteModalHost.vue */
 .sitemodal-overlay { background: rgba(0, 0, 0, 0.55); }
-.sitemodal-content {
-  width: min(520px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-}
 .sitemodal-close:disabled, .sitemodal-btn-primary:disabled, .sitemodal-btn-secondary:disabled,
 .sitemodal-btn-danger:disabled {
   opacity: 0.5;
@@ -1436,7 +1430,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   animation: spin 0.7s linear infinite;
 }
 .domainpage-modal-overlay { z-index: 40; }
-.domainpage-modal { max-width: 480px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); }
 .domainpage-modal-body { padding: 1.1rem 1.25rem 1.25rem; }
 .domainpage-domain-part { flex: 1.2; }
 .domainpage-ext-part { flex: 0.8; }
@@ -1642,7 +1635,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-ipfs-page--bare { background: var(--bg-tertiary); }
 .ipfspage-ipfs-page--bare .ipfspage-main-content { padding: 0; overflow: hidden; }
 .ipfspage-modal-overlay { z-index: 2000; }
-.ipfspage-modal { width: min(520px, 100%); box-shadow: 0 18px 48px rgba(15, 23, 42, 0.25); }
 .ipfspage-btn-secondary:hover:not(:disabled) {
   background: var(--hover-bg, var(--bg-secondary));
 }

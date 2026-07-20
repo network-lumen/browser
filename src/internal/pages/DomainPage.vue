@@ -215,7 +215,7 @@
 
       <Transition name="domainpage-fade">
         <div v-if="stableLinkModalMode" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeStableLinkModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
               <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeStableLinkModal">
@@ -263,7 +263,7 @@
 
       <Transition name="domainpage-fade">
         <div v-if="showStableSettingsModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeStableSettingsModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Stable link records</h3>
               <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeStableSettingsModal">
@@ -341,7 +341,7 @@
       <!-- Register Domain Modal -->
       <Transition name="domainpage-fade">
         <div v-if="showRegisterModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeRegisterModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Register domain</h3>
               <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeRegisterModal">
@@ -414,7 +414,7 @@
       <!-- Settings Modal -->
       <Transition name="domainpage-fade">
         <div v-if="showSettingsModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeSettingsModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Domain settings</h3>
               <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeSettingsModal">
@@ -507,7 +507,7 @@
       <!-- Transfer Modal -->
       <Transition name="domainpage-fade">
         <div v-if="showTransferModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeTransferModal">
-          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
+          <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh max-w-500px shadow-modal-strong" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Transfer domain</h3>
               <button class="domainpage-modal-close border-none border-radius-full flex-align-justify-center cursor-pointer size-28px bg-tertiary" type="button" @click="closeTransferModal">
