@@ -4,7 +4,7 @@
       <div class="qr-scanner-modal bg-card w-full border-radius-16px overflow-hidden shadow-modal max-w-500px max-h-90vh" @click.stop>
         <div class="qr-scanner-header flex-align-center-justify-space-between border-bottom-default padding-125-150">
           <h3 class="color-text-primary margin-0 fs-18px txt-weight-light">{{ title }}</h3>
-          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02" @click="$emit('close')" aria-label="Close">
+          <button class="qr-close-btn border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02 hover-bg-fill-tertiary hover-color-text-primary" @click="$emit('close')" aria-label="Close">
             <X :size="24" />
           </button>
         </div>

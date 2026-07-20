@@ -106,7 +106,7 @@
           <section class="quick-actions flex flex-column gap-100">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Get Started</h3>
             <div class="helppage-actions-grid gap-75 grid">
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://drive')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
                 <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <FolderOpen :size="24" />
                 </div>
@@ -116,7 +116,7 @@
                 </div>
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://domain')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
                 <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Link2 :size="24" />
                 </div>
@@ -126,7 +126,7 @@
                 </div>
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://wallet')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://wallet')">
                 <div class="helppage-action-icon wallet badge-success color-success flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Wallet :size="24" />
                 </div>
@@ -136,7 +136,7 @@
                 </div>
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015" type="button" @click="goto('lumen://search')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-100 border-radius-lg text-left padding-100-125 border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://search')">
                 <div class="helppage-action-icon search badge-warning color-warning flex-align-justify-center size-48px border-radius-14px flex-shrink-0 bg-ios-orange-a15">
                   <Search :size="24" />
                 </div>
@@ -357,7 +357,7 @@
 
           <!-- Contact Cards -->
           <div class="helppage-contact-grid gap-100 grid">
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
               <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0">
                 <MessageCircle :size="28" />
               </div>
@@ -368,7 +368,7 @@
               <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
               <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-56px border-radius-14px flex-shrink-0">
                 <Github :size="28" />
               </div>
@@ -379,7 +379,7 @@
               <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-125 padding-125 border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
               <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0">
                 <Globe :size="28" />
               </div>

@@ -12,7 +12,7 @@
           </div>
           <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This domain belongs to no one</h2>
           <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
-          <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light bg-gradient-primary fs-15px shadow-primary transition-smooth padding-75-150" type="button" @click="goToBuyDomain">
+          <button class="sitepage-buy-btn flex-inline-align-justify-center gap-50 border-none border-radius-full cursor-pointer color-white txt-weight-light bg-gradient-primary fs-15px shadow-primary transition-smooth padding-75-150 hover-bg-gradient-hover hover-shadow-primary-lg hover-lift-2" type="button" @click="goToBuyDomain">
             <span>Buy this domain</span>
           </button>
         </div>

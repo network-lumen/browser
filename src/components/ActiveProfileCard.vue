@@ -7,7 +7,7 @@
     <ProfileAvatar :profile="profile" :size="dense ? 32 : 36" />
     <div class="flex flex-column gap-2px min-w-0">
       <span v-if="showLabel" class="fs-10px color-text-tertiary text-uppercase letter-spacing-005em fw-500">{{ label }}</span>
-      <span class="fs-13px fw-600 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ displayName }}</span>
+      <span class="fs-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ displayName }}</span>
     </div>
   </div>
 </template>

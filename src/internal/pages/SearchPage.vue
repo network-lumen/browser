@@ -7,7 +7,7 @@
   >
           <button
         type="button"
-        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2 transition-lift-015 hover-bg-secondary hover-color-text-primary hover-lift-1"
+        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2 transition-lift-015 hover-bg-secondary hover-color-text-primary hover-lift-1 hover-shadow-md"
         title="How search works"
         aria-label="How search works"
         @click="openHowSearchWorks"
@@ -79,7 +79,7 @@
 
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center padding-0 padding-bottom-100">
         <button
-          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015"
+          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
           type="button"
           :disabled="loadingPrevious"
           @click="loadPrevious"
@@ -143,7 +143,7 @@
         >
           <button
             type="button"
-            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50 hover-color-accent"
+            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
             :class="{ 'searchpage-saved': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -169,7 +169,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8"
+                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -189,7 +189,7 @@
                 />
                 <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute padding-50-62 left-0 right-0 bottom-0">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62 backdrop-blur-8 cursor-events-auto"
+                    class="searchpage-safe-thumb-reveal w-full fs-075rem txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 padding-50-62 backdrop-blur-8 cursor-events-auto color-white-a92"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
@@ -244,7 +244,7 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue" 
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue hover-shadow-primary hover-bg-card" 
             :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
             type="button" 
             @click="openResult(r)"
@@ -259,7 +259,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 w-200 backdrop-blur-8"
+                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 w-200 backdrop-blur-8 color-white-a92"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -347,7 +347,7 @@
 
       <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center">
         <button
-          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015"
+          class="searchpage-load-more-btn disabled-fade-60 border-radius-full color-text-primary txt-weight-light cursor-pointer padding-75-125 border-1 bg-primary fs-14px transition-all-015 hover-bg-hover hover-border-accent"
           type="button"
           :disabled="loadingMore || loadingPrevious"
           @click="loadMore"

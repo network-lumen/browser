@@ -1,7 +1,7 @@
 <template>
   <div class="margin-top-87 padding-top-75 border-top-light">
-    <button type="button" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full gap-50 fs-13px fw-500 text-left padding-50-62 transition-all-015 flex-justify-space-between border-default bg-secondary" @click="open = !open">
-      <span class="fw-600">{{ label }}</span>
+    <button type="button" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full gap-50 fs-13px fw-500 text-left padding-50-62 transition-all-015 flex-justify-space-between border-default bg-secondary hover-bg-hover hover-border-primary-a30 hover-color-text-primary" @click="open = !open">
+      <span class="txt-weight-light">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </button>
 

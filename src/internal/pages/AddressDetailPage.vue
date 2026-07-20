@@ -7,7 +7,7 @@
         </svg>
         Back to Explorer
       </button>
-      <h1 class="fs-28px fw-600 color-text-primary margin-0">Address Details</h1>
+      <h1 class="fs-28px txt-weight-light color-text-primary margin-0">Address Details</h1>
     </div>
 
     <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100">

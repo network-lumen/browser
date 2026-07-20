@@ -1,6 +1,6 @@
 <template>
   <span
-    class="flex-inline-align-justify-center border-radius-full border-light fw-800 line-height-1 cursor-select-none overflow-hidden"
+    class="flex-inline-align-justify-center border-radius-full border-light txt-weight-strong line-height-1 cursor-select-none overflow-hidden"
     :class="isGuest ? 'bg-fill-secondary color-text-secondary shadow-none' : [hueClass, 'shadow-xs']"
     :style="avatarStyle"
     :title="titleText"

@@ -12,12 +12,12 @@
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap fs-12px">{{ restBase }}</span>
         </div>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015" type="button" @click="copyAll" :disabled="!hasAnyData">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015 hover-bg-primary-a08 hover-color-accent" type="button" @click="copyAll" :disabled="!hasAnyData">
           <Copy :size="16" />
           Copy all
         </button>
 
-        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015" type="button" @click="refreshAll" :disabled="loadingAll">
+        <button class="netparams-btn disabled-fade-60 flex-inline-align-center bg-primary color-text-secondary cursor-pointer gap-50 border-radius-full padding-50-75 border-1 transition-colors-015 hover-bg-primary-a08 hover-color-accent" type="button" @click="refreshAll" :disabled="loadingAll">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </button>
@@ -50,7 +50,7 @@
           <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-50 flex-0-0-auto">
             <button
               type="button"
-              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015"
+              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a08 hover-color-accent"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"

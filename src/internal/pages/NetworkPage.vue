@@ -103,25 +103,25 @@
         <div class="netpage-left-column flex flex-column gap-87">
           <div class="netpage-info-card bg-card border-1 border-radius-14px padding-125-150 transition-all-02 hover-bg-tertiary hover-lift-2">
             <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light fs-075rem letter-spacing-008em">Block Height</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1">{{ formatNumber(blockHeight) }}</div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1 fs-225rem">{{ formatNumber(blockHeight) }}</div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal fs-13px">Latest block on chain</div>
           </div>
 
           <div class="netpage-info-card bg-card border-1 border-radius-14px padding-125-150 transition-all-02 hover-bg-tertiary hover-lift-2">
             <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light fs-075rem letter-spacing-008em">Validators</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1">{{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal fs-18px margin-left-25">/{{ validators.total }}</span></div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1 fs-225rem">{{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal fs-18px margin-left-25">/{{ validators.total }}</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal fs-13px">{{ validatorPercent.toFixed(1) }}% active</div>
           </div>
 
           <div class="netpage-info-card bg-card border-1 border-radius-14px padding-125-150 transition-all-02 hover-bg-tertiary hover-lift-2">
             <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light fs-075rem letter-spacing-008em">Block Time</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1">{{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal fs-18px margin-left-25">s</span></div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1 fs-225rem">{{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal fs-18px margin-left-25">s</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal fs-13px">Avg: {{ avgBlockTime.toFixed(2) }}s</div>
           </div>
 
           <div class="netpage-info-card bg-card border-1 border-radius-14px padding-125-150 transition-all-02 hover-bg-tertiary hover-lift-2">
             <div class="netpage-card-label color-text-secondary margin-bottom-100 text-uppercase txt-weight-light fs-075rem letter-spacing-008em">Throughput</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1">{{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal fs-18px margin-left-25">tx/s</span></div>
+            <div class="netpage-card-value color-text-primary txt-weight-medium margin-bottom-75 line-height-1 fs-225rem">{{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal fs-18px margin-left-25">tx/s</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal fs-13px">Peak: {{ maxTps.toFixed(1) }} tx/s</div>
           </div>
         </div>

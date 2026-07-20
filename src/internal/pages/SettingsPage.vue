@@ -258,7 +258,7 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02" @click="openInNewTabSafe('lumen://history')">
+              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary" @click="openInNewTabSafe('lumen://history')">
                 Open history
               </button>
             </div>
@@ -272,7 +272,7 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02" :disabled="!historyEntries.length" @click="clearProfileHistory">
+              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary" :disabled="!historyEntries.length" @click="clearProfileHistory">
                 Clear history
               </button>
             </div>
@@ -375,7 +375,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <button 
                 v-if="securitySessionActive"
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 @click="lockSecuritySession"
               >
                 <LockKeyhole :size="16" />
@@ -552,7 +552,7 @@
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
               <button 
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 @click="cancelRemovePassword"
                 :disabled="securityLoading"
               >
@@ -586,7 +586,7 @@
             </div>
             <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 @click="selectAllProfiles"
                 :disabled="!profiles.length"
@@ -594,7 +594,7 @@
                 Select all
               </button>
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 @click="clearSelectedProfiles"
                 :disabled="!selectedProfileIds.length"
@@ -657,7 +657,7 @@
                 @keyup.enter="saveProfileDisplayName"
               />
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="resetProfileDisplayNameDraft"
@@ -665,7 +665,7 @@
                 Reset
               </button>
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
                 @click="saveProfileDisplayName"
@@ -704,7 +704,7 @@
                 :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
               />
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
                 @click="chooseProfileAvatar"
@@ -712,7 +712,7 @@
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
               </button>
               <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
                 @click="resetProfileAvatar"
@@ -735,7 +735,7 @@
              </div>
              <div class="settingspage-setting-control settingspage-profile-backup-actions flex-align-center gap-50">
                <button
-                 class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                 class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                  type="button"
                  @click="onExportSelectedBackups"
                  :disabled="!selectedProfileIds.length || exportingBackup"
@@ -829,7 +829,7 @@
 
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
               type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings"
@@ -837,7 +837,7 @@
               Reset
             </button>
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
               type="button"
               :disabled="devSettingsSaving"
               @click="saveDevSettings"
@@ -875,7 +875,7 @@
                   :disabled="lumenDataFolderBusy"
                 />
                 <button
-                  class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                  class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                   type="button"
                   :disabled="lumenDataFolderBusy"
                   @click="browseLumenDataFolder"
@@ -911,7 +911,7 @@
 
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft"
@@ -919,7 +919,7 @@
               Revert
             </button>
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="useDefaultLumenDataFolderDraft"
@@ -927,7 +927,7 @@
               Use default
             </button>
             <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
               type="button"
               :disabled="lumenDataFolderBusy"
               @click="saveLumenDataFolder"
@@ -962,7 +962,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button
-                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 @click="copyDebugReport"
                 :disabled="troubleshootingBusy"
@@ -980,7 +980,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <button
-                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02"
+                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
                 type="button"
                 @click="openLogsFolderAction"
                 :disabled="troubleshootingBusy"
@@ -1070,7 +1070,7 @@
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
                   <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between padding-75-100 bg-card border-1 border-radius-8px transition-all-02 hover-border-ios-blue">
                     <span class="settingspage-gateway-id-text mono color-text-primary fs-14px">{{ id }}</span>
-                    <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px transition-all-02" @click="removeGatewayId(index)">
+                    <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px transition-all-02 hover-color-error" @click="removeGatewayId(index)">
                       <X :size="16" />
                     </button>
                   </div>
@@ -1094,7 +1094,7 @@
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                  <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary" @click="addGatewayId" :disabled="!newGatewayId.trim()">
                     <Plus :size="16" />
                     Add
                   </button>

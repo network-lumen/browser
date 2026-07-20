@@ -204,7 +204,7 @@
           </button>
           <button
             v-if="step === 'intro'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
             @click="step = 'password'"
           >
             Get Started
@@ -219,7 +219,7 @@
           </button>
           <button
             v-if="step === 'password'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
             :disabled="settingPassword"
             @click="handlePasswordSubmit"
           >
@@ -229,7 +229,7 @@
 
           <button
             v-if="step === 'profile-name'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
             @click="handleProfileNameSubmit"
           >
             Continue
@@ -244,7 +244,7 @@
           </button>
           <button
             v-if="step === 'backup'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
             :disabled="exportingBackup"
             @click="handleExportBackup"
           >
@@ -254,7 +254,7 @@
 
           <button
             v-if="step === 'complete'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
+            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
             @click="handleComplete"
           >
             Start Using Lumen

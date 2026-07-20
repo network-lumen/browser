@@ -6,7 +6,7 @@
           <Calendar :size="24" />
           <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
         </h2>
-        <button class="recurpay-close-btn bg-transparent border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02" @click="$emit('close')">
+        <button class="recurpay-close-btn bg-transparent border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02 hover-bg-tertiary hover-color-text-primary" @click="$emit('close')">
           <X :size="24" />
         </button>
       </div>
@@ -167,7 +167,7 @@
         </div>
 
         <!-- Payment Summary -->
-        <div class="recurpay-summary border-radius-12px padding-125 color-white">
+        <div class="recurpay-summary border-radius-12px padding-125 color-white bg-gradient-brand">
           <h4 class="margin-0 fs-16px txt-weight-light recurpay-summary-h4 margin-bottom-100">Payment Summary</h4>
           <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2">
             <span>Amount per payment:</span>
