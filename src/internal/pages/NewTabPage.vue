@@ -66,7 +66,7 @@
               <input
                 v-model="shortcutDraft.title"
                 type="text"
-                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02"
+                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02 focus-border-primary-a50 focus-ring"
                 placeholder="Optional custom title"
                 maxlength="60"
                 @keydown.enter.prevent="submitShortcutModal"
@@ -78,7 +78,7 @@
               <input
                 v-model="shortcutDraft.url"
                 type="text"
-                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02"
+                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02 focus-border-primary-a50 focus-ring"
                 placeholder="lumen://home or example.lmn"
                 @keydown.enter.prevent="submitShortcutModal"
               />

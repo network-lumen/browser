@@ -150,7 +150,7 @@
         <div
           v-else
           class="ipfspage-viewer flex-align-justify-center border-radius-12px padding-100 border-1 bg-secondary relative"
-          :class="{ 'ipfspage-viewer--bare': isBareHtmlView, 'ipfspage-viewer--document': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
+          :class="{ 'border-none border-radius-0 bg-transparent min-h-0': isBareHtmlView, 'ipfspage-viewer--document': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
         >
           <img
             v-if="viewKind === 'image'"

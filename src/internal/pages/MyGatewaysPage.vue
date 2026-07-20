@@ -63,7 +63,7 @@
             </button>
             <button 
               type="button" 
-              class="flex-align-center gap-50 border-none cursor-pointer color-white fw-500" :class="embeddedServerRunning ? 'mygw-btn-stop' : 'mygw-btn-start'"
+              class="flex-align-center gap-50 border-none cursor-pointer color-white fw-500" :class="embeddedServerRunning ? 'mygw-btn-stop' : 'mygw-btn-start hover-lift-2-enabled hover-shadow-ios-green-lg'"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >

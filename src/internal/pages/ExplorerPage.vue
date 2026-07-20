@@ -77,7 +77,7 @@
     <main class="explorer-main-content flex-1 padding-150 overflow-y-auto bg-secondary">
       <!-- Search Bar -->
       <div class="explorer-search-section margin-bottom-200">
-        <div class="explorer-search-container flex-align-center gap-50 border-radius-12px bg-card border-2 padding-75-100 transition-all-02 max-w-800px">
+        <div class="explorer-search-container flex-align-center gap-50 border-radius-12px bg-card border-2 padding-75-100 transition-all-02 max-w-800px focus-within-border-accent focus-within-ring">
           <svg class="explorer-search-icon color-text-tertiary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
@@ -132,7 +132,7 @@
 
           <!-- Charts Section -->
           <div class="explorer-charts-section gap-75 grid">
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-50">
@@ -164,7 +164,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
@@ -195,7 +195,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
@@ -222,7 +222,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
+            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light bg-fill-success fs-13px padding-45-75">
@@ -590,7 +590,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light fixed padding-75-125 color-white border-radius-8px fs-14px bg-ios-green z-9999 bottom-200">
+    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-50 txt-weight-light fixed padding-75-125 color-white border-radius-8px fs-14px bg-ios-green z-9999 bottom-200 shadow-ios-green-lg">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
