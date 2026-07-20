@@ -258,7 +258,7 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <UiButton variant="secondary" @click="openInNewTabSafe('lumen://history')" class="settingspage-btn-secondary disabled-fade-50">
+              <UiButton variant="secondary" @click="openInNewTabSafe('lumen://history')" class="disabled-fade-50">
                 Open history
               </UiButton>
             </div>
@@ -272,7 +272,7 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <UiButton variant="secondary" :disabled="!historyEntries.length" @click="clearProfileHistory" class="settingspage-btn-secondary disabled-fade-50">
+              <UiButton variant="secondary" :disabled="!historyEntries.length" @click="clearProfileHistory" class="disabled-fade-50">
                 Clear history
               </UiButton>
             </div>
@@ -375,7 +375,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <UiButton variant="secondary" v-if="securitySessionActive"
                
-                @click="lockSecuritySession" class="settingspage-btn-secondary disabled-fade-50">
+                @click="lockSecuritySession" class="disabled-fade-50">
                 <LockKeyhole :size="16" />
                 Lock Now
               </UiButton>
@@ -448,7 +448,7 @@
               {{ securityError }}
             </div>
             <UiButton variant="primary" @click="setSecurityPassword"
-              :disabled="securityLoading || !newPassword || !confirmPassword" class="settingspage-btn-primary disabled-fade-50">
+              :disabled="securityLoading || !newPassword || !confirmPassword" class="disabled-fade-50">
               {{ securityLoading ? 'Setting up...' : 'Enable Password Protection' }}
             </UiButton>
           </div>
@@ -503,7 +503,7 @@
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
               <UiButton variant="primary" @click="changeSecurityPassword"
-                :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword" class="settingspage-btn-primary disabled-fade-50">
+                :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword" class="disabled-fade-50">
                 {{ securityLoading ? 'Changing...' : 'Change Password' }}
               </UiButton>
             </div>
@@ -519,7 +519,7 @@
             </div>
             <div class="settingspage-setting-control flex-align-center">
               <UiButton variant="danger" @click="showRemovePasswordConfirm = true"
-                :disabled="securityLoading" class="settingspage-btn-danger disabled-fade-50">
+                :disabled="securityLoading" class="disabled-fade-50">
                 Remove Password
               </UiButton>
             </div>
@@ -541,11 +541,11 @@
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
               <UiButton variant="secondary" @click="cancelRemovePassword"
-                :disabled="securityLoading" class="settingspage-btn-secondary disabled-fade-50">
+                :disabled="securityLoading" class="disabled-fade-50">
                 Cancel
               </UiButton>
               <UiButton variant="danger" @click="removeSecurityPassword"
-                :disabled="securityLoading || !removePasswordInput" class="settingspage-btn-danger disabled-fade-50">
+                :disabled="securityLoading || !removePasswordInput" class="disabled-fade-50">
                 {{ securityLoading ? 'Removing...' : 'Confirm Remove' }}
               </UiButton>
             </div>
@@ -570,12 +570,12 @@
             <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
               <UiButton variant="secondary" type="button"
                 @click="selectAllProfiles"
-                :disabled="!profiles.length" class="settingspage-btn-secondary disabled-fade-50">
+                :disabled="!profiles.length" class="disabled-fade-50">
                 Select all
               </UiButton>
               <UiButton variant="secondary" type="button"
                 @click="clearSelectedProfiles"
-                :disabled="!selectedProfileIds.length" class="settingspage-btn-secondary disabled-fade-50">
+                :disabled="!selectedProfileIds.length" class="disabled-fade-50">
                 Clear
               </UiButton>
             </div>
@@ -635,12 +635,12 @@
               />
               <UiButton variant="secondary" type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
-                @click="resetProfileDisplayNameDraft" class="settingspage-btn-secondary disabled-fade-50">
+                @click="resetProfileDisplayNameDraft" class="disabled-fade-50">
                 Reset
               </UiButton>
               <UiButton variant="secondary" type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
-                @click="saveProfileDisplayName" class="settingspage-btn-secondary disabled-fade-50">
+                @click="saveProfileDisplayName" class="disabled-fade-50">
                 {{ profileRenameSaving ? 'Saving...' : 'Save' }}
               </UiButton>
             </div>
@@ -676,12 +676,12 @@
               />
               <UiButton variant="secondary" type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
-                @click="chooseProfileAvatar" class="settingspage-btn-secondary disabled-fade-50">
+                @click="chooseProfileAvatar" class="disabled-fade-50">
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
               </UiButton>
               <UiButton variant="secondary" type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
-                @click="resetProfileAvatar" class="settingspage-btn-secondary disabled-fade-50">
+                @click="resetProfileAvatar" class="disabled-fade-50">
                 Reset
               </UiButton>
             </div>
@@ -701,7 +701,7 @@
              <div class="settingspage-setting-control settingspage-profile-backup-actions flex-align-center gap-50">
                <UiButton variant="secondary" type="button"
                  @click="onExportSelectedBackups"
-                 :disabled="!selectedProfileIds.length || exportingBackup" class="settingspage-btn-secondary disabled-fade-50">
+                 :disabled="!selectedProfileIds.length || exportingBackup" class="disabled-fade-50">
                  Export selected ({{ selectedProfileIds.length }})
                </UiButton>
              </div>
@@ -792,12 +792,12 @@
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
-              @click="resetDevSettings" class="settingspage-btn-secondary disabled-fade-50">
+              @click="resetDevSettings" class="disabled-fade-50">
               Reset
             </UiButton>
             <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
-              @click="saveDevSettings" class="settingspage-btn-secondary disabled-fade-50">
+              @click="saveDevSettings" class="disabled-fade-50">
               {{ devSettingsSaving ? 'Saving...' : 'Save' }}
             </UiButton>
           </div>
@@ -832,7 +832,7 @@
                 />
                 <UiButton variant="secondary" type="button"
                   :disabled="lumenDataFolderBusy"
-                  @click="browseLumenDataFolder" class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn">
+                  @click="browseLumenDataFolder" class="disabled-fade-50">
                   <FolderOpen :size="16" />
                   <span>Browse...</span>
                 </UiButton>
@@ -865,17 +865,17 @@
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
             <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
-              @click="revertLumenDataFolderDraft" class="settingspage-btn-secondary disabled-fade-50">
+              @click="revertLumenDataFolderDraft" class="disabled-fade-50">
               Revert
             </UiButton>
             <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
-              @click="useDefaultLumenDataFolderDraft" class="settingspage-btn-secondary disabled-fade-50">
+              @click="useDefaultLumenDataFolderDraft" class="disabled-fade-50">
               Use default
             </UiButton>
             <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
-              @click="saveLumenDataFolder" class="settingspage-btn-secondary disabled-fade-50">
+              @click="saveLumenDataFolder" class="disabled-fade-50">
               {{ lumenDataFolderSaving ? 'Applying...' : 'Apply' }}
             </UiButton>
           </div>
@@ -907,7 +907,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <UiButton variant="secondary" type="button"
                 @click="copyDebugReport"
-                :disabled="troubleshootingBusy" class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn">
+                :disabled="troubleshootingBusy" class="disabled-fade-50">
                 <Copy :size="16" />
                 <span>{{ troubleshootingAction === 'copy' ? 'Copying...' : 'Copy Debug Report' }}</span>
               </UiButton>
@@ -922,7 +922,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <UiButton variant="secondary" type="button"
                 @click="openLogsFolderAction"
-                :disabled="troubleshootingBusy" class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn">
+                :disabled="troubleshootingBusy" class="disabled-fade-50">
                 <FolderOpen :size="16" />
                 <span>{{ troubleshootingAction === 'open' ? 'Opening...' : 'Open Logs Folder' }}</span>
               </UiButton>
@@ -1008,7 +1008,7 @@
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
                   <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between padding-75-100 bg-card border-1 border-radius-8px transition-all-02 hover-border-ios-blue">
                     <span class="settingspage-gateway-id-text mono color-text-primary fs-14px">{{ id }}</span>
-                    <UiButton variant="secondary" @click="removeGatewayId(index)" class="settingspage-icon-btn-small size-28px">
+                    <UiButton variant="icon" @click="removeGatewayId(index)">
                       <X :size="16" />
                     </UiButton>
                   </div>
@@ -1032,7 +1032,7 @@
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <UiButton variant="secondary" @click="addGatewayId" :disabled="!newGatewayId.trim()" class="settingspage-btn-secondary disabled-fade-50">
+                  <UiButton variant="secondary" @click="addGatewayId" :disabled="!newGatewayId.trim()" class="disabled-fade-50">
                     <Plus :size="16" />
                     Add
                   </UiButton>

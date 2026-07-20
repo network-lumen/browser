@@ -33,17 +33,17 @@
         </div>
         <div class="domainpage-header-actions flex gap-75">
           <template v-if="activeNameTab === 'lumen'">
-            <UiButton variant="primary" type="button" @click="openRegisterModal" class="domainpage-btn outline-none">
+            <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
               <Plus :size="16" />
               <span>Buy domain</span>
             </UiButton>
           </template>
           <template v-else>
-            <UiButton variant="secondary" type="button" @click="importStableLink" class="domainpage-btn outline-none">
+            <UiButton variant="secondary" type="button" @click="importStableLink" class="outline-none">
               <Upload :size="16" />
               <span>Import</span>
             </UiButton>
-            <UiButton variant="primary" type="button" @click="createStableLink" class="domainpage-btn outline-none">
+            <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
               <Plus :size="16" />
               <span>Generate</span>
             </UiButton>
@@ -67,7 +67,7 @@
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
           </p>
-          <UiButton variant="primary" type="button" @click="openRegisterModal" class="domainpage-btn outline-none">
+          <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
             <Plus :size="16" />
             <span>Buy domain</span>
           </UiButton>
@@ -86,24 +86,24 @@
               >
                 {{ expiryText(d) }}
               </span>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Open lumen URL"
-                @click="openDomain(d)" class="domainpage-icon-btn">
+                @click="openDomain(d)">
                 <ExternalLink :size="16" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Copy lumen URL"
-                @click="copyDomainUrl(d)" class="domainpage-icon-btn">
+                @click="copyDomainUrl(d)">
                 <Copy :size="16" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Settings (preview only)"
-                @click="openSettingsModal(d)" class="domainpage-icon-btn">
+                @click="openSettingsModal(d)">
                 <Settings :size="16" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Transfer domain"
-                @click="openTransferModal(d)" class="domainpage-icon-btn">
+                @click="openTransferModal(d)">
                 <Send :size="16" />
               </UiButton>
             </div>
@@ -124,7 +124,7 @@
           <p class="domainpage-hero-text fs-085rem color-text-tertiary margin-0">
             Stable links are cryptographic names backed by IPNS.
           </p>
-          <UiButton variant="primary" type="button" @click="createStableLink" class="domainpage-btn outline-none">
+          <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
             <Plus :size="16" />
             <span>Generate</span>
           </UiButton>
@@ -151,34 +151,34 @@
               <span class="domainpage-domain-subtitle mono fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
             <div class="domainpage-domain-right flex-align-center gap-35">
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Open stable link"
                 :disabled="!d.id"
-                @click="openRawDomain(d)" class="domainpage-icon-btn">
+                @click="openRawDomain(d)">
                 <ExternalLink :size="16" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Copy stable link URL"
                 :disabled="!d.id"
-                @click="copyRawDomainUrl(d)" class="domainpage-icon-btn">
+                @click="copyRawDomainUrl(d)">
                 <Copy :size="16" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Edit records"
                 :disabled="!d.name"
-                @click="openStableSettingsModal(d)" class="domainpage-icon-btn">
+                @click="openStableSettingsModal(d)">
                 <Settings :size="16" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
+              <UiButton variant="icon" type="button"
                 title="Export private key"
                 :disabled="!d.name"
-                @click="exportStableLink(d)" class="domainpage-icon-btn">
+                @click="exportStableLink(d)">
                 <Download :size="16" />
               </UiButton>
               <UiButton variant="danger" type="button"
                 title="Delete stable link"
                 :disabled="!d.name"
-                @click="deleteStableLink(d)" class="domainpage-icon-btn">
+                @click="deleteStableLink(d)">
                 <Trash2 :size="16" />
               </UiButton>
             </div>
@@ -204,11 +204,11 @@
                   autofocus class="domainpage-form-input focus-outline-none focus-ring focus-shadow" />
               </div>
               <div class="modal-actions flex flex-justify-end gap-50">
-                <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="domainpage-btn outline-none">
+                <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="primary" type="submit"
-                  :disabled="stableLinkSaving || !stableLinkNameDraft.trim()" class="domainpage-btn outline-none">
+                  :disabled="stableLinkSaving || !stableLinkNameDraft.trim()" class="outline-none">
                   <span v-if="!stableLinkSaving" class="flex-inline-align-center gap-50">
                     <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
                     {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
@@ -254,21 +254,21 @@
                     <UiButton variant="danger" type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
-                      :disabled="stableSettingsSaving" class="domainpage-icon-btn">
+                      :disabled="stableSettingsSaving">
                       <X :size="14" />
                     </UiButton>
                   </div>
                 </div>
-                <UiButton variant="secondary" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving" class="domainpage-btn outline-none">
+                <UiButton variant="secondary" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving" class="outline-none">
                   Add record
                 </UiButton>
               </div>
 
               <div class="modal-actions flex flex-justify-end gap-50">
-                <UiButton variant="secondary" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving" class="domainpage-btn outline-none">
+                <UiButton variant="secondary" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving" class="outline-none">
                   Cancel
                 </UiButton>
-                <UiButton variant="primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading" class="domainpage-btn outline-none">
+                <UiButton variant="primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading" class="outline-none">
                   <span v-if="!stableSettingsSaving" class="flex-inline-align-center gap-50">
                     <Check :size="16" />
                     Save records
@@ -321,7 +321,7 @@
 
               <UiButton variant="primary" type="button"
                 @click="confirmRegister"
-                :disabled="!canRegister || registering" class="domainpage-btn outline-none">
+                :disabled="!canRegister || registering" class="outline-none">
                 <span v-if="!registering" class="flex-inline-align-center gap-50">
                   <Plus :size="16" />
                   Register domain
@@ -362,12 +362,12 @@
                       placeholder="Value" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow" />
                     <UiButton variant="danger" type="button"
                       @click="removeSettingsRecord(idx)"
-                      title="Remove row" class="domainpage-icon-btn">
+                      title="Remove row">
                       <X :size="14" />
                     </UiButton>
                   </div>
                 </div>
-                <UiButton variant="secondary" type="button" @click="addSettingsRecord" class="domainpage-btn outline-none">
+                <UiButton variant="secondary" type="button" @click="addSettingsRecord" class="outline-none">
                   Add record
                 </UiButton>
               </div>
@@ -387,12 +387,12 @@
               </div>
 
               <div class="modal-actions flex flex-justify-end gap-50">
-                <UiButton variant="secondary" type="button" @click="closeSettingsModal" class="domainpage-btn outline-none">
+                <UiButton variant="secondary" type="button" @click="closeSettingsModal" class="outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="primary" type="button"
                   @click="saveSettings"
-                  :disabled="!canSaveSettings || savingSettings" class="domainpage-btn outline-none">
+                  :disabled="!canSaveSettings || savingSettings" class="outline-none">
                   <span v-if="!savingSettings" class="flex-inline-align-center gap-50">
                     <Settings :size="16" />
                     Save changes
@@ -432,12 +432,12 @@
               </div>
 
               <div class="modal-actions flex flex-justify-end gap-50">
-                <UiButton variant="secondary" type="button" @click="closeTransferModal" class="domainpage-btn outline-none">
+                <UiButton variant="secondary" type="button" @click="closeTransferModal" class="outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="danger" type="button"
                   @click="confirmTransfer"
-                  :disabled="!canTransfer || transferring" class="domainpage-btn outline-none">
+                  :disabled="!canTransfer || transferring" class="outline-none">
                   <span v-if="!transferring" class="flex-inline-align-center gap-50">
                     <Send :size="16" />
                     Transfer domain

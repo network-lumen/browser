@@ -15,10 +15,10 @@
       </div>
 
       <template #footer>
-        <UiButton variant="secondary" type="button" @click="dismissOnboarding" class="newtab-btn newtab-btn-secondary outline-none">
+        <UiButton variant="secondary" type="button" @click="dismissOnboarding" class="outline-none">
           Skip
         </UiButton>
-        <UiButton variant="primary" type="button" @click="learnLumen" class="newtab-btn newtab-btn-primary outline-none">
+        <UiButton variant="primary" type="button" @click="learnLumen" class="outline-none">
           Learn Lumen
         </UiButton>
       </template>
@@ -61,10 +61,10 @@
           </div>
 
       <template #footer>
-        <UiButton variant="secondary" type="button" @click="closeShortcutModal" class="newtab-btn newtab-btn-secondary outline-none">
+        <UiButton variant="secondary" type="button" @click="closeShortcutModal" class="outline-none">
           Cancel
         </UiButton>
-        <UiButton variant="primary" type="button" @click="submitShortcutModal" class="newtab-btn newtab-btn-primary outline-none">
+        <UiButton variant="primary" type="button" @click="submitShortcutModal" class="outline-none">
           {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
         </UiButton>
       </template>
@@ -113,7 +113,7 @@
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
-            <UiButton variant="secondary" type="button" @click="beginCreateShortcut" class="newtab-btn newtab-btn-secondary outline-none">
+            <UiButton variant="secondary" type="button" @click="beginCreateShortcut" class="outline-none">
               <Plus :size="15" />
               <span>Add shortcut</span>
             </UiButton>
@@ -188,7 +188,7 @@
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
-            <UiButton variant="secondary" type="button" @click="goto('lumen://history')" class="newtab-btn newtab-btn-secondary outline-none">
+            <UiButton variant="secondary" type="button" @click="goto('lumen://history')" class="outline-none">
               <History :size="15" />
               <span>Open history</span>
             </UiButton>

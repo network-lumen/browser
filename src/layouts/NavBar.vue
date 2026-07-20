@@ -97,7 +97,7 @@
               <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
-                @click.stop="openExtension(ext)" class="navbar-extension-action-btn flex-inline-align-justify-center disabled-fade-40 size-28px">
+                @click.stop="openExtension(ext)" class="flex-inline-align-justify-center disabled-fade-40 size-28px">
                 <ExternalLink :size="14" />
               </UiButton>
 
@@ -114,7 +114,7 @@
               <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
-                @click.stop="reloadExtension(ext.id)" class="navbar-extension-action-btn flex-inline-align-justify-center disabled-fade-40 size-28px">
+                @click.stop="reloadExtension(ext.id)" class="flex-inline-align-justify-center disabled-fade-40 size-28px">
                 <RefreshCw :size="14" />
               </UiButton>
 
@@ -122,7 +122,7 @@
                
                 title="Remove extension"
                 :disabled="extensionsBusy"
-                @click.stop="removeExtension(ext.id)" class="navbar-extension-action-btn disabled-fade-40 size-28px">
+                @click.stop="removeExtension(ext.id)" class="disabled-fade-40 size-28px">
                 <Trash2 :size="14" />
               </UiButton>
             </div>
@@ -218,10 +218,10 @@
           <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37 padding-top-50 gap-35 border-top-05-border-light">
             <UiInput bg-class="bg-fill-primary" radius-class="border-radius-sm" font-size-class="fs-13px" padding-class="padding-50-62" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus" />
             <div class="navbar-profile-create-actions flex gap-35">
-              <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 primary w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015 color-white bg-accent" @click="confirmCreateProfile">
+              <UiButton variant="primary" class="flex-1" @click="confirmCreateProfile">
                 Create
               </UiButton>
-              <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click="cancelCreateProfile">
+              <UiButton variant="secondary" class="flex-1" @click="cancelCreateProfile">
                 Cancel
               </UiButton>
             </div>
@@ -299,10 +299,10 @@
           </div>
           
     <template #footer>
-      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelExportModal">
+      <UiButton variant="secondary" class="flex-1" @click="cancelExportModal">
         Cancel
       </UiButton>
-      <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmExportProfile">
+      <UiButton variant="primary" class="flex-1" @click="confirmExportProfile">
         Export {{ exportEncrypted ? '(Encrypted)' : '' }}
       </UiButton>
     </template>
@@ -342,16 +342,16 @@
           <div v-else class="import-mode-panel flex flex-column gap-75">
             <div class="navbar-import-manual-actions flex flex-wrap-wrap gap-50">
               <UiButton
-                variant="none"
-                class="navbar-import-source-btn flex-1 border-radius-md color-text-primary fs-13px txt-weight-light flex-justify-center border-default bg-secondary padding-62-75 min-w-180px"
+                variant="secondary"
+                class="flex-1 min-w-180px"
                 :disabled="importBusy"
                 @click="loadManualProfileSourceIntoForm"
               >
                 Load profile backup…
               </UiButton>
               <UiButton
-                variant="none"
-                class="navbar-import-source-btn flex-1 border-radius-md color-text-primary fs-13px txt-weight-light flex-justify-center border-default bg-secondary padding-62-75 min-w-180px"
+                variant="secondary"
+                class="flex-1 min-w-180px"
                 :disabled="importBusy"
                 @click="loadManualPqcSourceIntoForm"
               >
@@ -427,12 +427,12 @@
           </div>
 
     <template #footer>
-      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportModal">
+      <UiButton variant="secondary" class="flex-1" @click="cancelImportModal">
         Cancel
       </UiButton>
       <UiButton
-        variant="none"
-        class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none"
+        variant="primary"
+        class="flex-1"
         :disabled="importBusy"
         @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
       >
@@ -466,10 +466,10 @@
           </div>
           
     <template #footer>
-      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportPasswordModal">
+      <UiButton variant="secondary" class="flex-1" @click="cancelImportPasswordModal">
         Cancel
       </UiButton>
-      <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmImportEncrypted">
+      <UiButton variant="primary" class="flex-1" @click="confirmImportEncrypted">
         Import
       </UiButton>
     </template>
@@ -482,10 +482,10 @@
       This cannot be recovered.
     </p>
     <template #footer>
-      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelDeleteProfileModal">
+      <UiButton variant="secondary" class="flex-1" @click="cancelDeleteProfileModal">
         Cancel
       </UiButton>
-      <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmDeleteProfile">
+      <UiButton variant="danger" class="flex-1" @click="confirmDeleteProfile">
         Delete
       </UiButton>
     </template>
@@ -498,10 +498,10 @@
       Your wallet is now linked on-chain and uses post-quantum security.
     </p>
     <template #footer>
-      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="dismissPqcLinkedModal">
+      <UiButton variant="secondary" class="flex-1" @click="dismissPqcLinkedModal">
         Ignore
       </UiButton>
-      <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="exportAfterPqcLinked">
+      <UiButton variant="primary" class="flex-1" @click="exportAfterPqcLinked">
         Export
       </UiButton>
     </template>

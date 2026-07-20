@@ -53,7 +53,7 @@
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
             <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
-            <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults" class="homepage-empty-btn">
+            <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults">
               Restore defaults
             </UiButton>
           </div>
@@ -104,7 +104,7 @@
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
             <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
-            <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults" class="homepage-empty-btn">
+            <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults">
               Restore defaults
             </UiButton>
           </div>

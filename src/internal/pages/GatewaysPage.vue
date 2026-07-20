@@ -32,13 +32,13 @@
           <UiButton variant="secondary" type="button"
            
             @click="refreshManage"
-            :disabled="gatewaysLoading" class="gwpage-btn-secondary">
+            :disabled="gatewaysLoading">
             Refresh
           </UiButton>
           <UiButton variant="primary" type="button"
            
             @click="openCreateModal"
-            :disabled="gatewaysLoading || !hasProfile" class="gwpage-btn-primary">
+            :disabled="gatewaysLoading || !hasProfile">
             Create gateway
           </UiButton>
         </div>
@@ -92,7 +92,7 @@
           <div v-else-if="gatewaysError" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
             <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">Unable to load gateways</h2>
             <p class="gwpage-empty-sub color-text-secondary fs-14px">{{ gatewaysError }}</p>
-            <UiButton variant="secondary" @click="refreshManage" class="gwpage-btn-secondary">Try again</UiButton>
+            <UiButton variant="secondary" @click="refreshManage">Try again</UiButton>
           </div>
 
           <div v-else-if="!myGateways.length" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
@@ -165,13 +165,13 @@
                 <UiButton variant="secondary" type="button"
                  
                   @click="resetEdit(gw.id)"
-                  :disabled="editMap[gw.id].busy" class="gwpage-btn-secondary">
+                  :disabled="editMap[gw.id].busy">
                   Reset
                 </UiButton>
                 <UiButton variant="primary" type="button"
                  
                   @click="updateGateway(gw.id)"
-                  :disabled="editMap[gw.id].busy || !isDirty(gw.id)" class="gwpage-btn-primary">
+                  :disabled="editMap[gw.id].busy || !isDirty(gw.id)">
                   <span v-if="!editMap[gw.id].busy">Save changes</span>
                   <span v-else>Submitting…</span>
                 </UiButton>
@@ -221,12 +221,12 @@
                   </div>
                 </div>
             <template #footer>
-              <UiButton variant="secondary" type="button" @click="closeCreateModal" :disabled="registerState.busy" class="gwpage-btn-secondary">
+              <UiButton variant="secondary" type="button" @click="closeCreateModal" :disabled="registerState.busy">
                 Cancel
               </UiButton>
               <UiButton variant="primary" type="button"
                 @click="registerGateway"
-                :disabled="registerState.busy || !canRegister" class="gwpage-btn-primary">
+                :disabled="registerState.busy || !canRegister">
                 <span v-if="!registerState.busy">Create</span>
                 <span v-else>Submitting…</span>
               </UiButton>

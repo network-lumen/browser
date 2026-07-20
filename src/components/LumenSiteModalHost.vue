@@ -25,13 +25,13 @@
             </div>
           </div>
     <template #footer>
-      <UiButton variant="secondary" type="button" @click="denyPermission" class="sitemodal-btn-secondary">
+      <UiButton variant="secondary" type="button" @click="denyPermission">
         Deny
       </UiButton>
-      <UiButton variant="secondary" type="button" @click="allowOnce" class="sitemodal-btn-secondary">
+      <UiButton variant="secondary" type="button" @click="allowOnce">
         Allow once
       </UiButton>
-      <UiButton variant="primary" type="button" @click="allowAlways" class="sitemodal-btn-primary">
+      <UiButton variant="primary" type="button" @click="allowAlways">
         Always allow
       </UiButton>
     </template>
@@ -90,10 +90,10 @@
             </div>
           </div>
     <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeSend(false)" :disabled="sending" class="sitemodal-btn-secondary">
+      <UiButton variant="secondary" type="button" @click="closeSend(false)" :disabled="sending">
         Cancel
       </UiButton>
-      <UiButton variant="primary" type="button" @click="submitSend" :disabled="!canSend" class="sitemodal-btn-primary">
+      <UiButton variant="primary" type="button" @click="submitSend" :disabled="!canSend">
         <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="sending"></span>
         <span>{{ sending ? 'Sending...' : 'Send' }}</span>
       </UiButton>
@@ -152,28 +152,28 @@
             </div>
           </div>
     <template #footer>
-      <UiButton variant="secondary" type="button" @click="closePin(false)" :disabled="pinIsRunning" class="sitemodal-btn-secondary">
+      <UiButton variant="secondary" type="button" @click="closePin(false)" :disabled="pinIsRunning">
         Cancel
       </UiButton>
       <UiButton variant="secondary" v-if="pinCanPause"
 
         type="button"
-        @click="pausePinJob" class="sitemodal-btn-secondary">
+        @click="pausePinJob">
         Pause
       </UiButton>
       <UiButton variant="secondary" v-if="pinCanResume"
 
         type="button"
-        @click="resumePinJob" class="sitemodal-btn-secondary">
+        @click="resumePinJob">
         Resume
       </UiButton>
       <UiButton variant="danger" v-if="pinCanStop"
 
         type="button"
-        @click="cancelPinJob" class="sitemodal-btn-danger badge-error">
+        @click="cancelPinJob">
         Stop
       </UiButton>
-      <UiButton variant="primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget" class="sitemodal-btn-primary">
+      <UiButton variant="primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
         <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="pinning"></span>
         <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
       </UiButton>
@@ -253,10 +253,10 @@
             The stable link URL will be copied after it is attached to this live.
           </p>
     <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving" class="sitemodal-btn-secondary">
+      <UiButton variant="secondary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
         Cancel
       </UiButton>
-      <UiButton variant="primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink" class="sitemodal-btn-primary">
+      <UiButton variant="primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
         <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSaving"></span>
         <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
         <Save v-else :size="16" />
@@ -293,10 +293,10 @@
             Previous live settings will be loaded from this link if records are available.
           </p>
     <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading" class="sitemodal-btn-secondary">
+      <UiButton variant="secondary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
         Cancel
       </UiButton>
-      <UiButton variant="primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName" class="sitemodal-btn-primary">
+      <UiButton variant="primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
         <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSetupLoading"></span>
         <Link v-else :size="16" />
         <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>

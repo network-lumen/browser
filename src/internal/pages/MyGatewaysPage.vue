@@ -53,7 +53,7 @@
             <UiButton variant="primary" v-if="embeddedServerRunning"
               type="button" 
              
-              @click="viewApiKey" class="mygw-btn-outline">
+              @click="viewApiKey">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
               </svg>
@@ -81,7 +81,7 @@
         <div v-if="embeddedServerRunning" class="mygw-whitelist-section border-top-1 padding-top-200">
           <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
             <h2 class="txt-weight-light color-text-primary margin-0 mygw-section-header-h2 fs-125rem">Whitelist Management</h2>
-            <UiButton variant="primary" type="button" @click="openWhitelistModal" class="mygw-btn-add">
+            <UiButton variant="primary" type="button" @click="openWhitelistModal">
               <Plus :size="18" />
               Add User
             </UiButton>
@@ -136,7 +136,7 @@
         <!-- External Gateways Section -->
         <div class="mygw-section-header flex-align-center flex-justify-space-between margin-bottom-150">
           <h2 class="txt-weight-light color-text-primary margin-0 mygw-section-header-h2 fs-125rem">External Gateways</h2>
-          <UiButton variant="primary" type="button" @click="openCreateModal" class="mygw-btn-add">
+          <UiButton variant="primary" type="button" @click="openCreateModal">
             <Plus :size="18" />
             Add Gateway
           </UiButton>
@@ -151,14 +151,14 @@
           <AlertCircle :size="48" class="color-error margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">Error Loading Gateways</h2>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">{{ error }}</p>
-          <UiButton variant="secondary" @click="loadGateways" class="mygw-btn-secondary">Try Again</UiButton>
+          <UiButton variant="secondary" @click="loadGateways">Try Again</UiButton>
         </div>
 
         <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
           <Server :size="48" class="color-text-tertiary margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">No Gateways Yet</h2>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Create your first private gateway to get started</p>
-          <UiButton variant="primary" @click="openCreateModal" class="mygw-btn-primary disabled-fade-50">
+          <UiButton variant="primary" @click="openCreateModal" class="disabled-fade-50">
             <Plus :size="18" />
             Create Gateway
           </UiButton>
@@ -192,11 +192,11 @@
             </div>
 
             <div class="mygw-gateway-actions flex gap-50 margin-top-100">
-              <UiButton variant="secondary" @click="openEditModal(gateway)" class="mygw-btn-secondary">
+              <UiButton variant="secondary" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
                 Edit
               </UiButton>
-              <UiButton variant="danger" @click="confirmDelete(gateway)" class="mygw-btn-danger">
+              <UiButton variant="danger" @click="confirmDelete(gateway)">
                 <Trash2 :size="16" />
                 Delete
               </UiButton>
@@ -240,10 +240,10 @@
                 {{ modalError }}
               </div>
         <template #footer>
-          <UiButton variant="secondary" @click="closeModal" :disabled="saving" class="mygw-btn-secondary">
+          <UiButton variant="secondary" @click="closeModal" :disabled="saving">
             Cancel
           </UiButton>
-          <UiButton variant="primary" @click="saveGateway" :disabled="saving || !isFormValid" class="mygw-btn-primary disabled-fade-50">
+          <UiButton variant="primary" @click="saveGateway" :disabled="saving || !isFormValid" class="disabled-fade-50">
             {{ saving ? 'Saving...' : (editingGateway ? 'Update' : 'Create') }}
           </UiButton>
         </template>
@@ -254,10 +254,10 @@
               <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
               <p class="mygw-warning-text color-warning margin-top-50 fs-14px">This action cannot be undone.</p>
         <template #footer>
-          <UiButton variant="secondary" @click="closeDeleteConfirm" :disabled="deleting" class="mygw-btn-secondary">
+          <UiButton variant="secondary" @click="closeDeleteConfirm" :disabled="deleting">
             Cancel
           </UiButton>
-          <UiButton variant="danger" @click="deleteGateway" :disabled="deleting" class="mygw-btn-danger">
+          <UiButton variant="danger" @click="deleteGateway" :disabled="deleting">
             {{ deleting ? 'Deleting...' : 'Delete' }}
           </UiButton>
         </template>
@@ -294,10 +294,10 @@
                 {{ whitelistModalError }}
               </div>
         <template #footer>
-          <UiButton variant="secondary" @click="closeWhitelistModal" :disabled="whitelistSaving" class="mygw-btn-secondary">
+          <UiButton variant="secondary" @click="closeWhitelistModal" :disabled="whitelistSaving">
             Cancel
           </UiButton>
-          <UiButton variant="primary" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()" class="mygw-btn-primary disabled-fade-50">
+          <UiButton variant="primary" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()" class="disabled-fade-50">
             {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
           </UiButton>
         </template>
@@ -308,10 +308,10 @@
               <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
               <p class="mygw-warning-text color-warning margin-top-50 fs-14px">They will no longer be able to access your gateway.</p>
         <template #footer>
-          <UiButton variant="secondary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting" class="mygw-btn-secondary">
+          <UiButton variant="secondary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
             Cancel
           </UiButton>
-          <UiButton variant="danger" @click="removeFromWhitelist" :disabled="whitelistDeleting" class="mygw-btn-danger">
+          <UiButton variant="danger" @click="removeFromWhitelist" :disabled="whitelistDeleting">
             {{ whitelistDeleting ? 'Removing...' : 'Remove' }}
           </UiButton>
         </template>

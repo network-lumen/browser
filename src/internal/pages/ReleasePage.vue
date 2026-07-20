@@ -24,11 +24,11 @@
           </p>
         </div>
         <div class="relpage-header-actions flex-inline-align-center gap-75 flex-wrap-wrap flex-0-0-auto">
-          <UiButton variant="secondary" type="button" :disabled="loading" @click="refreshAll" class="relpage-btn-secondary">
+          <UiButton variant="secondary" type="button" :disabled="loading" @click="refreshAll">
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
           </UiButton>
-          <UiButton variant="primary" type="button" :disabled="loading || !allowed" @click="openPublishModal" class="relpage-btn-primary">
+          <UiButton variant="primary" type="button" :disabled="loading || !allowed" @click="openPublishModal">
             <Plus :size="18" />
             <span>Publish release</span>
           </UiButton>
@@ -56,7 +56,7 @@
           <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase fs-12px">Update test</span>
           <UiCheckbox v-model="testMode.forcePrompt" :disabled="loading" @update:modelValue="applyTestMode">Force prompt</UiCheckbox>
           <UiCheckbox v-model="testMode.allowUnvalidatedStable" :disabled="loading" @update:modelValue="applyTestMode">Allow pending (stable)</UiCheckbox>
-          <UiButton variant="secondary" type="button" @click="pollNow" :disabled="loading" class="relpage-btn-secondary">Re-check</UiButton>
+          <UiButton variant="secondary" type="button" @click="pollNow" :disabled="loading">Re-check</UiButton>
         </div>
       </section>
 
@@ -111,10 +111,10 @@
           </div>
 
           <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75 margin-0 margin-top-50 margin-bottom-100">
-            <UiButton variant="primary" type="button" :disabled="submittingDao" @click="openDaoModal('validate')" class="relpage-btn-primary">
+            <UiButton variant="primary" type="button" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </UiButton>
-            <UiButton variant="secondary" type="button" :disabled="submittingDao" @click="openDaoModal('reject')" class="relpage-btn-secondary">
+            <UiButton variant="secondary" type="button" :disabled="submittingDao" @click="openDaoModal('reject')">
               Send to DAO (reject)
             </UiButton>
           </div>
@@ -215,8 +215,8 @@
         </div>
 
         <template #footer>
-          <UiButton variant="secondary" type="button" @click="closeDaoModal" :disabled="submittingDao" class="relpage-btn-secondary">Cancel</UiButton>
-          <UiButton variant="primary" type="button" @click="submitDaoProposal" :disabled="submittingDao" class="relpage-btn-primary">
+          <UiButton variant="secondary" type="button" @click="closeDaoModal" :disabled="submittingDao">Cancel</UiButton>
+          <UiButton variant="primary" type="button" @click="submitDaoProposal" :disabled="submittingDao">
             <span v-if="submittingDao" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
           </UiButton>
@@ -228,10 +228,9 @@
           <div class="relpage-import-box margin-bottom-100 border-radius-16px border-1 bg-primary padding-90-90-25-90">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Import from GitHub release</h3>
-              <UiButton variant="secondary" type="button"
-               
+              <UiButton variant="secondary" size="sm" type="button"
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
-                @click="importFromGithubRelease" class="relpage-btn-secondary relpage-btn-sm">
+                @click="importFromGithubRelease">
                 <span v-if="importingGithub" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Importing…</span>
                 <span v-else>Auto-fill</span>
               </UiButton>
@@ -276,20 +275,21 @@
           <div class="relpage-artifacts-builder">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between margin-top-50">
               <h3>Artifacts</h3>
-              <UiButton variant="secondary" type="button" @click="addArtifact" class="relpage-btn-secondary relpage-btn-sm">Add artifact</UiButton>
+              <UiButton variant="secondary" size="sm" type="button" @click="addArtifact">Add artifact</UiButton>
             </div>
 
             <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="relpage-artifact-draft border-radius-12px border-1-light padding-75 margin-top-75 bg-primary">
               <div class="relpage-artifact-draft-head flex-align-center flex-justify-space-between margin-bottom-50">
                 <div class="relpage-muted color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
-                <button
+                <UiButton
                   v-if="draft.artifacts.length > 1"
+                  variant="secondary"
+                  size="sm"
                   type="button"
-                  class="relpage-btn-secondary relpage-btn-sm flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-13px fs-14px fw-650 padding-75-100 padding-50-75 hover-bg-primary-a08 hover-color-accent"
                   @click="removeArtifact(idx)"
                 >
                   Remove
-                </button>
+                </UiButton>
               </div>
 
               <div class="relpage-form-grid gap-75 grid">
@@ -327,8 +327,8 @@
         </div>
 
         <template #footer>
-          <UiButton variant="secondary" type="button" @click="closePublishModal" :disabled="submitting" class="relpage-btn-secondary">Cancel</UiButton>
-          <UiButton variant="primary" type="button" @click="submitRelease" :disabled="submitting" class="relpage-btn-primary">
+          <UiButton variant="secondary" type="button" @click="closePublishModal" :disabled="submitting">Cancel</UiButton>
+          <UiButton variant="primary" type="button" @click="submitRelease" :disabled="submitting">
             <span v-if="submitting" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>
           </UiButton>

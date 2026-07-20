@@ -85,7 +85,7 @@
         <div class="drivepage-header-actions flex-align-center flex-wrap-wrap gap-75">
 
 
-          <UiButton variant="secondary" type="button" @click="openPlansModal" class="drivepage-plans-btn">
+          <UiButton variant="secondary" type="button" @click="openPlansModal">
             <Database :size="16" />
             <span>Cloud</span>
           </UiButton>
@@ -172,13 +172,13 @@
         <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap margin-left-auto gap-50">
           <UiButton variant="secondary" type="button"
             :disabled="!selectedLocalCount"
-            @click="clearLocalSelection" class="drivepage-bulk-action-btn disabled-fade-45">
+            @click="clearLocalSelection" class="disabled-fade-45">
             Clear
           </UiButton>
           <UiButton variant="primary" v-if="canBulkConvertSelectedLocal"
            
             type="button"
-            @click="convertSelectedLocalToHls" class="drivepage-bulk-action-btn disabled-fade-45">
+            @click="convertSelectedLocalToHls" class="disabled-fade-45">
             Convert to HLS
             <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium fs-12px bg-primary-a10 padding-0 padding-right-25 padding-left-25 min-w-135rem-badge">
               {{ selectedLocalConvertibleCount }}
@@ -186,7 +186,7 @@
           </UiButton>
           <UiButton variant="danger" type="button"
             :disabled="!canBulkRemoveSelectedLocal"
-            @click="removeSelectedLocalFiles" class="drivepage-bulk-action-btn disabled-fade-45">
+            @click="removeSelectedLocalFiles" class="disabled-fade-45">
             Remove selected
           </UiButton>
         </div>
@@ -237,7 +237,7 @@
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
               <UiButton variant="secondary" type="button"
                 @click="cancelUpload(key)"
-                :disabled="upload?.uploadingCanceling" class="drivepage-progress-cancel-btn disabled-fade-60">
+                :disabled="upload?.uploadingCanceling" class="disabled-fade-60">
                 {{ upload?.uploadingCanceling ? "Cancelling..." : "Cancel" }}
               </UiButton>
             </div>
@@ -285,14 +285,14 @@
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
               <UiButton variant="secondary" type="button"
                 @click="pauseHlsQueue"
-                :disabled="convertingCanceling || convertingPauseRequested" class="drivepage-progress-cancel-btn disabled-fade-60">
+                :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-60">
                 {{
                   convertingPauseRequested ? "Pausing..." : "Pause"
                 }}
               </UiButton>
               <UiButton variant="secondary" type="button"
                 @click="cancelHlsConversion"
-                :disabled="convertingCanceling || convertingPauseRequested" class="drivepage-progress-cancel-btn disabled-fade-60">
+                :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-60">
                 {{ convertingCanceling ? "Cancelling..." : "Cancel" }}
               </UiButton>
             </div>
@@ -374,7 +374,7 @@
             <div class="drivepage-progress-actions flex gap-50 margin-top-37">
               <UiButton variant="secondary" type="button"
                 @click="cancelHlsArchiveDownload"
-                :disabled="archiveDownloadCanceling" class="drivepage-progress-cancel-btn disabled-fade-60">
+                :disabled="archiveDownloadCanceling" class="disabled-fade-60">
                 {{ archiveDownloadCanceling ? "Cancelling..." : "Cancel" }}
               </UiButton>
             </div>
@@ -509,14 +509,14 @@
       <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="drivepage-pagination-bar flex-align-justify-center flex-wrap-wrap gap-50 margin-top-50 padding-0 padding-top-100 padding-bottom-100">
         <UiButton variant="secondary" :disabled="currentPage === 1"
           @click="currentPage = 1"
-          title="First page" class="drivepage-page-btn disabled-fade-40 size-32px">
+          title="First page" class="disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
           </svg>
         </UiButton>
         <UiButton variant="secondary" :disabled="currentPage === 1"
           @click="currentPage--"
-          title="Previous page" class="drivepage-page-btn disabled-fade-40 size-32px">
+          title="Previous page" class="disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
@@ -538,14 +538,14 @@
         
         <UiButton variant="secondary" :disabled="currentPage === totalPages"
           @click="currentPage++"
-          title="Next page" class="drivepage-page-btn disabled-fade-40 size-32px">
+          title="Next page" class="disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </UiButton>
         <UiButton variant="secondary" :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
-          title="Last page" class="drivepage-page-btn disabled-fade-40 size-32px">
+          title="Last page" class="disabled-fade-40 size-32px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
           </svg>
@@ -585,9 +585,9 @@
         <h3 class="txt-sm txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}
         </h3>
-        <button class="drivepage-close-btn flex-align-justify-center size-28px cursor-pointer color-text-tertiary border-1-light bg-transparent border-radius-8px transition-colors-015" @click="selectedFile = null">
+        <UiButton variant="icon" @click="selectedFile = null">
           <X :size="18" />
-        </button>
+        </UiButton>
       </div>
 
       <div class="drivepage-detail-preview flex-align-justify-center border-radius-12px margin-bottom-125 color-text-tertiary bg-secondary overflow-hidden border-1-light" :class="getFileTypeClass(selectedFile)">
@@ -652,7 +652,7 @@
       <div class="detail-actions flex flex-column gap-50">
         <UiButton variant="primary" v-if="!isDirEntry(selectedFile)"
          
-          @click="downloadFile(selectedFile)" class="drivepage-detail-btn">
+          @click="downloadFile(selectedFile)">
           <Download :size="16" />
           Download
         </UiButton>
@@ -660,15 +660,15 @@
          
           :disabled="converting || uploading"
           @click="convertSelectedToHls"
-          title="Convert to HLS (creates a new CID)" class="drivepage-detail-btn">
+          title="Convert to HLS (creates a new CID)">
           <Clapperboard :size="16" />
           Convert to HLS
         </UiButton>
-        <UiButton variant="secondary" @click="copyLumenLinkFor(selectedFile)" class="drivepage-detail-btn">
+        <UiButton variant="secondary" @click="copyLumenLinkFor(selectedFile)">
           <Share2 :size="16" />
           Share
         </UiButton>
-        <UiButton variant="secondary" @click="openInIpfs(selectedFile)" class="drivepage-detail-btn">
+        <UiButton variant="secondary" @click="openInIpfs(selectedFile)">
           <ExternalLink :size="16" />
           Open
         </UiButton>
@@ -705,7 +705,7 @@
             <template #footer>
               <UiButton variant="secondary" type="button"
                 @click="closeUploadPathModal"
-                :disabled="uploadPathBusy" class="drivepage-btn-modal-secondary disabled-fade-60">
+                :disabled="uploadPathBusy" class="disabled-fade-60">
                 Cancel
               </UiButton>
               <UiButton variant="primary" type="button"
@@ -844,7 +844,7 @@
             <template #footer>
               <UiButton variant="secondary" type="button"
                 :disabled="driveBackupBusy"
-                @click="closeDriveBackupExportModal" class="drivepage-btn-modal-secondary disabled-fade-60">
+                @click="closeDriveBackupExportModal" class="disabled-fade-60">
                 Cancel
               </UiButton>
               <UiButton variant="primary" type="button"
@@ -952,7 +952,7 @@
             <template #footer>
               <UiButton variant="secondary" type="button"
                 :disabled="driveBackupBusy"
-                @click="closeDriveBackupImportModal" class="drivepage-btn-modal-secondary disabled-fade-60">
+                @click="closeDriveBackupImportModal" class="disabled-fade-60">
                 Cancel
               </UiButton>
               <UiButton variant="primary" type="button"
@@ -1260,7 +1260,7 @@
                       </span>
                       <UiButton variant="secondary" type="button"
                        
-                        @click.stop="toggleGatewayExpanded(group.gateway.id)" class="drivepage-gateway-expand-btn">
+                        @click.stop="toggleGatewayExpanded(group.gateway.id)">
                         {{
                           isGatewayExpanded(group.gateway.id)
                             ? "Hide details"
@@ -1491,7 +1491,7 @@
             <template #footer>
               <UiButton variant="secondary" type="button"
                 @click="closeSubscribeModal"
-                :disabled="subscribeBusy" class="drivepage-btn-modal-secondary disabled-fade-60">
+                :disabled="subscribeBusy" class="disabled-fade-60">
                 Cancel
               </UiButton>
               <UiButton variant="primary" type="button"

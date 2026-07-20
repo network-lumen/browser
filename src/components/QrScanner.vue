@@ -21,10 +21,10 @@
             <p v-if="error.includes('permission')" class="color-text-secondary fs-14px qr-error-state-p margin-0 margin-bottom-150">
               Please allow camera access in your browser settings
             </p>
-            <button class="qr-retry-btn color-white border-none cursor-pointer flex-inline-align-center fs-14px fw-500 gap-50 bg-accent border-radius-8px padding-62-125 transition-bg-02" @click="initializeScanner">
+            <UiButton variant="primary" @click="initializeScanner">
               <RefreshCw :size="16" />
               <span>Try Again</span>
-            </button>
+            </UiButton>
           </div>
 
           <!-- Success State -->
@@ -44,11 +44,11 @@
             </div>
 
             <div class="qr-action-buttons flex-justify-center gap-75">
-              <UiButton variant="secondary" @click="scanAgain" class="qr-btn qr-btn-secondary">
+              <UiButton variant="secondary" @click="scanAgain" >
                 <QrCode :size="16" />
                 <span>Scan Again</span>
               </UiButton>
-              <UiButton variant="primary" @click="handleUseScannedData" class="qr-btn qr-btn-primary">
+              <UiButton variant="primary" @click="handleUseScannedData" >
                 <Check :size="16" />
                 <span>Use This</span>
               </UiButton>

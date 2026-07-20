@@ -57,7 +57,7 @@
           <h1 class="txt-weight-medium color-text-primary margin-0 daopage-content-header-h1 fs-175rem">{{ getViewTitle() }}</h1>
           <p class="color-text-secondary daopage-content-header-p fs-14px margin-0 margin-top-25">{{ getViewDescription() }}</p>
         </div>
-        <UiButton variant="primary" v-if="currentView === 'proposals'" @click="openCreateProposalModal" class="daopage-btn-primary">
+        <UiButton variant="primary" v-if="currentView === 'proposals'" @click="openCreateProposalModal">
           <Plus :size="18" />
           New Proposal
         </UiButton>
@@ -122,7 +122,7 @@
                   <span class="color-success">{{ calculateVotePercentage(proposal, 'yes').toFixed(0) }}% Yes</span>
                   <span class="color-error">{{ calculateVotePercentage(proposal, 'no').toFixed(0) }}% No</span>
                 </div>
-                <UiButton variant="secondary" @click="openVoteModal(proposal)" class="daopage-btn-secondary">
+                <UiButton variant="secondary" @click="openVoteModal(proposal)">
                   {{ proposal.status === 'PROPOSAL_STATUS_VOTING_PERIOD' ? 'Vote' : 'View Details' }}
                 </UiButton>
               </div>
@@ -154,7 +154,7 @@
                   </div>
                   <span class="daopage-progress-label color-text-secondary fs-075rem">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>
                 </div>
-                <UiButton variant="primary" @click="openVoteModal(proposal)" class="daopage-btn-primary">
+                <UiButton variant="primary" @click="openVoteModal(proposal)">
                   <Vote :size="16" />
                   Vote Now
                 </UiButton>
@@ -253,7 +253,7 @@
               </div>
             </div>
 
-            <UiButton variant="primary" @click="submitProposal" :disabled="!canSubmitProposal()" class="daopage-btn-modal-primary">
+            <UiButton variant="primary" @click="submitProposal" :disabled="!canSubmitProposal()">
               <Plus :size="18" />
               Submit Proposal
             </UiButton>
@@ -319,7 +319,7 @@
               <span class="daopage-power-value color-text-primary txt-weight-light fs-15px">9,000 LMN</span>
             </div>
 
-            <UiButton variant="primary" @click="castVote" :disabled="!voteChoice" class="daopage-btn-modal-primary">
+            <UiButton variant="primary" @click="castVote" :disabled="!voteChoice">
               <Vote :size="18" />
               Cast Vote
             </UiButton>
