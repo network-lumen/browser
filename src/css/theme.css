@@ -490,14 +490,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .toast-action { margin: -2px -4px -2px 0; }
 .toast-enter-active { animation: toast-in 0.3s ease-out; }
 .toast-leave-active { animation: toast-out 0.2s ease-in forwards; }
-@keyframes toast-in {
-  0% { opacity: 0; transform: translateX(100%) scale(0.9); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
-}
-@keyframes toast-out {
-  0% { opacity: 1; transform: translateX(0) scale(1); }
-  100% { opacity: 0; transform: translateX(100%) scale(0.9); }
-}
 
 /* Shared interactive-state helpers (disabled fade, hover fill, status badges) */
 .disabled-fade-40:disabled { cursor: not-allowed; opacity: 0.4; }
@@ -658,11 +650,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .history-item-main, .walletpage-dex-summary-btn { color: inherit; }
 .history-item-avatar { height: 2.7rem; }
 .history-item-remove:hover, .subview-action-btn.delete:hover { background: var(--fill-error); color: var(--ios-red); }
-@media (max-width: 980px) {
-  .history-page { flex-direction: column; }
-  .history-header, .history-toolbar, .history-item { flex-direction: column; align-items: stretch; }
-  .history-item-meta, .history-header-actions { justify-content: flex-start; margin-left: 0; }
-}
 
 /* ExtensionPage.vue */
 
@@ -692,10 +679,6 @@ select.recurpay-input { background-image: none; }
 /* WalletOnboardingModal.vue */
 .walletonboard-content { box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2); }
 .walletonboard-step { animation: walletonboard-fade-in 0.3s ease-in-out; }
-@keyframes walletonboard-fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 .walletonboard-info-card:hover {
   box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.1);
 }
@@ -744,13 +727,6 @@ select.recurpay-input { background-image: none; }
 }
 .extensions-store-footnote { margin: 0 24px 18px; color: rgba(148, 163, 184, 0.88); }
 .extensions-store-footnote-strong { color: rgba(226, 232, 240, 0.94); }
-@media (max-width: 900px) {
-  .extensions-store-header { padding: 16px; }
-  .extensions-store-header-actions { width: 100%; justify-content: flex-start; }
-  .extensions-store-webview { margin: 12px 16px 16px; border-radius: 18px; }
-  .extensions-store-status { margin: 0 16px 12px; }
-  .extensions-store-footnote { margin: 0 16px 16px; }
-}
 
 /* SitePage.vue */
 .sitepage-inline-link {
@@ -789,10 +765,6 @@ select.recurpay-input { background-image: none; }
 
 /* HomePage.vue */
 .homepage-all-pages-list { animation: homepage-fade-down 0.18s ease-out; }
-@keyframes homepage-fade-down {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 .homepage-page-item { cursor: grab; }
 .homepage-page-item:active { cursor: grabbing; }
 .homepage-page-item.dragging { opacity: 0.4; cursor: grabbing; }
@@ -857,13 +829,6 @@ select.recurpay-input { background-image: none; }
   color: var(--ios-purple);
 }
 .homepage-action-card:hover .homepage-action-arrow { color: var(--accent-primary); transform: translateX(2px); }
-@media (max-width: 1100px) {
-  .homepage-actions-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 900px) {
-  .homepage-main { padding: 1.5rem; }
-  .homepage-actions-grid, .walletpage-asset-modal-grid { grid-template-columns: 1fr; }
-}
 
 /* MainScreen.vue */
 .main-shell {
@@ -889,10 +854,6 @@ select.recurpay-input { background-image: none; }
 .netpage-node-detail { border-left: 2px solid transparent; }
 .netpage-node-detail:hover { border-left-color: var(--accent-color); }
 .netpage-main-grid { grid-template-columns: 320px 1fr 380px; align-items: start; }
-@media (max-width: 1400px) {
-  .netpage-main-grid { grid-template-columns: 1fr 1fr; }
-  .netpage-left-column { grid-column: 1 / -1; }
-}
 .netpage-info-card:hover, .gwpage-private-gateway-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -1113,18 +1074,6 @@ select.recurpay-input { background-image: none; }
 .newtab-onboarding-overlay, .newtab-shortcut-modal-overlay { background: rgba(2, 6, 23, 0.56); z-index: 20; }
 .newtab-onboarding-modal, .newtab-shortcut-modal { width: min(34rem, 100%); }
 .newtab-shortcut-modal { width: min(32rem, 100%); }
-@media (max-width: 1040px) {
-  .newtab-page { padding-inline: 0.85rem; }
-  .newtab-hero { padding: 2rem 1rem; }
-  .newtab-hero-copy { max-width: 34rem; }
-  .newtab-quick-links { width: min(880px, 100%); gap: 0.5rem; }
-}
-@media (max-width: 1180px) {
-  .newtab-shortcuts-head-actions { width: 100%; justify-content: flex-start; }
-}
-@media (max-width: 900px) {
-  .newtab-shortcut-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
 
 
 /* DaoPage.vue */
@@ -1196,10 +1145,6 @@ select.recurpay-input { background-image: none; }
 .walletpage-field-hint.error {
   color: var(--ios-red);
 }
-@keyframes sitemodal-pin-progress-slide {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(320%); }
-}
 .sitemodal-fade-enter-active, .sitemodal-fade-leave-active { transition: opacity 0.12s ease; }
 
 /* MyGatewaysPage.vue */
@@ -1215,10 +1160,6 @@ select.recurpay-input { background-image: none; }
   color: var(--ios-green);
 }
 .mygw-status-dot { animation: mygw-pulse 2s ease-in-out infinite; }
-@keyframes mygw-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 .mygw-btn-outline, .mygw-btn-start, .mygw-btn-stop, .mygw-btn-add {
   padding: 0.75rem 1.25rem;
   border-radius: 10px;
@@ -1299,10 +1240,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   z-index: 2000;
 }
 .relpage-modal { max-height: 92vh; }
-@media (max-width: 1000px) {
-  .relpage-main { padding: 1.5rem; }
-  .relpage-grid, .relpage-form-grid { grid-template-columns: 1fr; }
-}
 
 /* DomainPage.vue */
 .domainpage-btn.primary, .walletpage-quick-icon.send, .walletpage-quick-icon.receive,
@@ -1359,10 +1296,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .domainpage-fade-enter-active, .domainpage-fade-leave-active, .ipfspage-fade-enter-active,
 .ipfspage-fade-leave-active {
   transition: opacity 0.15s ease;
-}
-@media (max-width: 960px) {
-  .domain-page { flex-direction: column; }
-  .domainpage-main { padding: 1.5rem; }
 }
 
 /* NavBar.vue */
@@ -1537,10 +1470,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   width: 42% !important;
   animation: pin-progress-slide 1.2s ease-in-out infinite;
 }
-@keyframes pin-progress-slide {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(320%); }
-}
 .ipfspage-plans-btn.ipfspage-save-active {
   background: rgba(var(--ios-green-rgb), 0.12);
   border-color: rgba(var(--ios-green-rgb), 0.38);
@@ -1638,10 +1567,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--ios-green);
 }
 .explorer-pulse-dot { background: currentColor; animation: pulse-live 2s ease-in-out infinite; }
-@keyframes pulse-live {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
 
 /* Tables */
 .explorer-blocks-table .explorer-table-header, .explorer-blocks-table .explorer-table-row {
@@ -1759,10 +1684,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--ios-gray-4);
 }
 .explorer-copy-notification { right: 2rem; animation: slideInUp 0.3s ease; }
-@keyframes slideInUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
 
 /* Stake Modal Styles */
 .explorer-modal-overlay {
@@ -1772,10 +1693,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-radius: var(--border-radius-2xl);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
   animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes modalSlideIn {
-  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .explorer-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -1820,19 +1737,11 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   z-index: 10001;
   animation: popupFadeIn 0.3s ease;
 }
-@keyframes popupFadeIn {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
 .explorer-tx-spinner {
   border-top-color: var(--accent-primary);
   animation: spin 0.8s linear infinite;
 }
 .explorer-tx-icon { animation: iconBounce 0.5s ease; }
-@keyframes iconBounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
 .explorer-tx-status-text-p { word-wrap: break-word; }
 .explorer-tx-close-btn:hover, .explorer-tx-retry-btn:hover {
   box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3);
@@ -2319,14 +2228,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 .walletpage-picker-list { max-height: 300px; }
-@media (max-width: 900px) {
-  .walletpage-content-header { flex-direction: column; gap: 1rem; }
-  .walletpage-header-actions { width: 100%; flex-wrap: wrap; }
-  .walletpage-asset-item-rich, .walletpage-dex-top { flex-direction: column; }
-  .walletpage-asset-side, .walletpage-dex-side { width: 100%; }
-  .walletpage-asset-actions { justify-content: flex-start; }
-  .walletpage-dex-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 
 /* DrivePage.vue */
 .drivepage-hosting-row { transition: background 0.15s ease, border-color 0.15s ease; }
@@ -2369,10 +2270,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-warning-banner {
   background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.1) 0%, rgba(var(--ios-orange-rgb), 0.05) 100%);
   animation: fadeIn 0.3s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Search & Filter Bar */

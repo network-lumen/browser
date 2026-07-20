@@ -76,11 +76,6 @@
 .avatar-hue-10 { background: hsl(300deg 62% 56%); color: #f8fafc; }
 .avatar-hue-11 { background: hsl(330deg 62% 56%); color: #f8fafc; }
 /* .bg-primary-a10 removed (unused) */
-@media (hover: hover) {
-  /* .hover-bg-white removed (unused) */
-  .hover-bg-black-a10:where(:hover, :focus-visible) { background: var(--black-a10); }
-  .hover-bg-fill-primary:where(:hover, :focus-visible) { background: var(--fill-primary); }
-}
 /* .focus-bg-blue removed (unused) */
 /* ------------------------------- COLORS ------------------------------- */
 /* .color-white-blue-dark removed (unused) */
@@ -92,9 +87,6 @@
 .color-success { color: var(--ios-green); }
 .underline { text-decoration: underline; }
 .hover-underline { text-decoration: none; }
-@media (hover: hover) {
-    .hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
-}
 /* ---------------------------- OVERFLOWS ---------------------------- */
 .overflow-hidden { overflow: hidden; }
 .overflow-auto { overflow: auto; }
@@ -110,9 +102,6 @@
 .txt-weight-medium { font-weight: 700; }
 .txt-weight-strong { font-weight: 800; }
 /* family */
-
-@media (hover: hover) {
-}
 /* ---------------------------- POINTERS ----------------------------*/
 .cursor-pointer { cursor: pointer; }
 .cursor-events-none { pointer-events: none; }
@@ -337,30 +326,6 @@
 .border-radius-18px { border-radius: 18px; }
 .overlay-scrim { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
 /* animations */
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-@keyframes pulse{
-  0% { box-shadow:0 0 0 0 var(--primary-a45) }
-  70%{ box-shadow:0 0 0 8px var(--primary-a00) }
-  100%{ box-shadow:0 0 0 0 var(--primary-a00) }
-}
-@keyframes spin-sweep {
-  0% {
-    stroke-dasharray: 10 46;
-    stroke-dashoffset: 0;
-    opacity: 0.78;
-  }
-  50% {
-    stroke-dasharray: 30 26;
-    stroke-dashoffset: -9;
-    opacity: 1;
-  }
-  100% {
-    stroke-dasharray: 10 46;
-    stroke-dashoffset: -34;
-    opacity: 0.78;
-  }
-}
 
 /* UiSpinner.vue */
 .ui-spinner {

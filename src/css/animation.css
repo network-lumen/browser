@@ -1,0 +1,109 @@
+/* from src/css/utilities.css */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* from src/css/utilities.css */
+@keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* from src/css/utilities.css */
+@keyframes pulse{
+  0% { box-shadow:0 0 0 0 var(--primary-a45) }
+  70%{ box-shadow:0 0 0 8px var(--primary-a00) }
+  100%{ box-shadow:0 0 0 0 var(--primary-a00) }
+}
+
+/* from src/css/utilities.css */
+@keyframes spin-sweep {
+  0% {
+    stroke-dasharray: 10 46;
+    stroke-dashoffset: 0;
+    opacity: 0.78;
+  }
+  50% {
+    stroke-dasharray: 30 26;
+    stroke-dashoffset: -9;
+    opacity: 1;
+  }
+  100% {
+    stroke-dasharray: 10 46;
+    stroke-dashoffset: -34;
+    opacity: 0.78;
+  }
+}
+
+/* from src/css/theme.css */
+@keyframes toast-in {
+  0% { opacity: 0; transform: translateX(100%) scale(0.9); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* from src/css/theme.css */
+@keyframes toast-out {
+  0% { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(100%) scale(0.9); }
+}
+
+/* from src/css/theme.css */
+@keyframes walletonboard-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* from src/css/theme.css */
+@keyframes homepage-fade-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* from src/css/theme.css */
+@keyframes sitemodal-pin-progress-slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+/* from src/css/theme.css */
+@keyframes mygw-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* from src/css/theme.css */
+@keyframes pin-progress-slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+/* from src/css/theme.css */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* from src/css/theme.css */
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* from src/css/theme.css */
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* from src/css/theme.css */
+@keyframes popupFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* from src/css/theme.css */
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* from src/css/theme.css */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
