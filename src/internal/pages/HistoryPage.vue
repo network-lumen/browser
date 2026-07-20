@@ -45,7 +45,7 @@
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px padding-87-100 bg-ios-orange-a08">
+      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px padding-87-100 bg-ios-orange-a08 border-1-ios-orange-a16">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 

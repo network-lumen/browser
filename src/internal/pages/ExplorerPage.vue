@@ -138,22 +138,22 @@
                 <div class="time-filters flex-align-center gap-50">
                   <span class="explorer-filter-label fs-075rem color-text-tertiary margin-right-25">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75 hover-bg-hover hover-border-accent hover-color-text-primary" 
                     :class="{ active: txHistoryWindow === 5 }"
                     @click="txHistoryWindow = 5"
                   >5B</button>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75 hover-bg-hover hover-border-accent hover-color-text-primary" 
                     :class="{ active: txHistoryWindow === 10 }"
                     @click="txHistoryWindow = 10"
                   >10B</button>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75 hover-bg-hover hover-border-accent hover-color-text-primary" 
                     :class="{ active: txHistoryWindow === 15 }"
                     @click="txHistoryWindow = 15"
                   >15B</button>
                   <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75" 
+                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-45-75 hover-bg-hover hover-border-accent hover-color-text-primary" 
                     :class="{ active: txHistoryWindow === 20 }"
                     @click="txHistoryWindow = 20"
                   >20B</button>
@@ -232,7 +232,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-35 padding-75">
-                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0">
+                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30">
                     <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
@@ -264,7 +264,7 @@
               </div>
               <div class="activity-list flex flex-column gap-75">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="explorer-activity-item cursor-pointer flex-align-center gap-75 padding-75 bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
-                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0">
+                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="3" width="7" height="7" rx="1"/>
                       <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -294,7 +294,7 @@
               </div>
               <div class="activity-list flex flex-column gap-75">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="explorer-activity-item cursor-pointer flex-align-center gap-75 padding-75 bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
-                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0">
+                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
                       <path d="M21 3v5h-5"/>
@@ -348,7 +348,7 @@
           </div>
 
           <div class="explorer-blocks-table">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
               <div class="th th-hash">HASH</div>
@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -369,7 +369,7 @@
                 </div>
                 <div class="explorer-td td-proposer flex-align-center fs-13px fs-14px">
                   <div class="explorer-proposer-info flex-align-center gap-35">
-                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0">
+                    <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white fs-10px overflow-hidden fs-15rem flex-shrink-0 border-2-primary-a30">
                       <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
@@ -384,7 +384,7 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
+                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -442,7 +442,7 @@
           </div>
 
           <div v-else class="explorer-transactions-table">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
               <div class="th th-result">Result</div>
@@ -452,7 +452,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06">
                 <div class="explorer-td explorer-td-hash flex-align-center gap-50 fs-13px fs-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-50 cursor-pointer transition-all-02 padding-right-50" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -464,7 +464,7 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
+                  <button class="explorer-copy-icon-btn flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -505,7 +505,7 @@
           </div>
 
           <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden">
-            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02">
+            <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
               <div class="th th-voting-power">VOTING POWER %</div>
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06">
                 <div class="explorer-td td-rank flex-align-center fs-13px fs-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary fs-15px">{{ index + 1 }}</span>
                 </div>
@@ -674,10 +674,10 @@
                 </div>
               </div>
               <div class="explorer-quick-amounts gap-50 grid">
-                <button @click="setStakePercentage(25)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02">25%</button>
-                <button @click="setStakePercentage(50)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02">50%</button>
-                <button @click="setStakePercentage(75)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02">75%</button>
-                <button @click="setStakePercentage(100)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02">Max</button>
+                <button @click="setStakePercentage(25)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">25%</button>
+                <button @click="setStakePercentage(50)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">50%</button>
+                <button @click="setStakePercentage(75)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">75%</button>
+                <button @click="setStakePercentage(100)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">Max</button>
               </div>
             </div>
 
@@ -706,7 +706,7 @@
               <div class="explorer-tx-status-content flex-align-center flex-column gap-150 text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-100 w-full">
-                  <div class="explorer-tx-spinner size-48px border-radius-circle"></div>
+                  <div class="explorer-tx-spinner size-48px border-radius-circle border-4-color"></div>
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
                     <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
@@ -724,7 +724,7 @@
                     <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full margin-top-75 padding-75 bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block fs-11px color-text-tertiary margin-bottom-25 text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02" @click="viewTransaction(txHash)">
+                      <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02 hover-border-accent" @click="viewTransaction(txHash)">
                         <code class="explorer-tx-hash-link-code flex-1 mono fs-075rem color-primary break-all txt-weight-light">{{ txHash }}</code>
                         <svg class="explorer-tx-hash-link-svg flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>

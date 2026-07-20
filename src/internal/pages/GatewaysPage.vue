@@ -59,7 +59,7 @@
             </a>
           </div>
           <div class="gwpage-private-gateways-grid grid">
-            <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card bg-card border-1 transition-all-02">
+            <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card bg-card border-1 transition-all-02 hover-border-ios-blue hover-lift-2">
               <div class="gwpage-private-gateway-header flex-align-center margin-bottom-75">
                 <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge fs-11px letter-spacing-005em padding-25-75">Private</span>
@@ -126,19 +126,19 @@
               <div class="gwpage-manage-grid grid gap-90-100" v-if="editMap[gw.id]">
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
-                  <input v-model="editMap[gw.id].endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="gateway.city" />
+                  <input v-model="editMap[gw.id].endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent" placeholder="gateway.city" />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Regions</label>
                   <input
                     v-model="editMap[gw.id].regions"
-                    class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75"
+                    class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent"
                     placeholder="us-east, eu-west"
                   />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Payout address</label>
-                  <input v-model="editMap[gw.id].payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75" placeholder="lmn1..." />
+                  <input v-model="editMap[gw.id].payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent" placeholder="lmn1..." />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Active</label>
@@ -151,21 +151,21 @@
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Metadata (JSON object)</label>
                   <textarea
                     v-model="editMap[gw.id].metadata"
-                    class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75"
+                    class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent"
                     rows="7"
                     placeholder='{\n  "name": "My gateway"\n}'
                   ></textarea>
                 </div>
                 <div class="gwpage-form-group full">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Memo</label>
-                  <input v-model="editMap[gw.id].memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="Optional memo" />
+                  <input v-model="editMap[gw.id].memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent" placeholder="Optional memo" />
                 </div>
               </div>
 
               <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
                 {{ editMap[gw.id].error }}
               </div>
-              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08">
+              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08 border-1-ios-green-a25">
                 tx: {{ editMap[gw.id].txhash }}
               </div>
 
@@ -211,38 +211,38 @@
                 <div class="gwpage-modal-body grid gap-90-100">
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
-                    <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="gateway.city" />
+                    <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent" placeholder="gateway.city" />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Regions</label>
                     <input
                       v-model="registerForm.regions"
-                      class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75"
+                      class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent"
                       placeholder="us-east, eu-west"
                     />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Payout address</label>
-                    <input v-model="registerForm.payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75" placeholder="lmn1..." />
+                    <input v-model="registerForm.payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent" placeholder="lmn1..." />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Metadata (JSON object)</label>
                     <textarea
                       v-model="registerForm.metadata"
-                      class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75"
+                      class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent"
                       rows="7"
                       placeholder='{\n  "name": "My gateway"\n}'
                     ></textarea>
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Memo</label>
-                    <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75" placeholder="Optional memo" />
+                    <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent" placeholder="Optional memo" />
                   </div>
 
                   <div v-if="registerState.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
                     {{ registerState.error }}
                   </div>
-                  <div v-if="registerState.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08">
+                  <div v-if="registerState.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08 border-1-ios-green-a25">
                     tx: {{ registerState.txhash }}
                   </div>
                 </div>

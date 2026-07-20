@@ -49,7 +49,7 @@
             >
               <span v-if="loading">Verifying...</span>
               <span v-else-if="busy" class="flex-inline-align-center gap-50">
-                <span class="pwd-modal-spinner border-radius-full w-14px h-14px" aria-hidden="true"></span>
+                <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45" aria-hidden="true"></span>
                 Working...
               </span>
               <span v-else>Confirm</span>

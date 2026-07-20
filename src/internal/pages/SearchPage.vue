@@ -7,7 +7,7 @@
   >
           <button
         type="button"
-        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2 transition-lift-015"
+        class="searchpage-help-icon-btn flex-inline-align-justify-center color-text-secondary size-36px border-radius-full cursor-pointer absolute border-1 bg-card shadow-sm z-2 transition-lift-015 hover-bg-secondary hover-color-text-primary hover-lift-1"
         title="How search works"
         aria-label="How search works"
         @click="openHowSearchWorks"
@@ -100,7 +100,7 @@
         </li>
       </ul>
 
-      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center bg-card">
+      <div v-else-if="!results.length" class="searchpage-empty-state flex-align-center flex-column border-radius-xl text-center bg-card border-2-dashed-color">
         <div class="searchpage-empty-icon flex-align-justify-center w-80px border-radius-circle color-text-tertiary margin-bottom-150 bg-secondary">
           <Search :size="48" />
         </div>
@@ -143,7 +143,7 @@
         >
           <button
             type="button"
-            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50"
+            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50 hover-color-accent"
             :class="{ 'searchpage-saved': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -244,7 +244,7 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100" 
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer padding-125-150 border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-100 hover-border-ios-blue" 
             :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image' : '' ]"
             type="button" 
             @click="openResult(r)"
@@ -312,7 +312,7 @@
               <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono margin-top-37 color-primary fw-500 fs-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap margin-0 padding-50-62 bg-primary-a06"
+                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary margin-top-50 fs-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap margin-0 padding-50-62 bg-primary-a06 border-1-primary-a12"
                 :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -329,12 +329,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02"
+                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02"
+                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
@@ -399,7 +399,7 @@
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62 padding-75-87 bg-ios-indigo-a08">
+                <div class="searchpage-help-callout flex-align-start margin-top-75 border-radius-14px gap-62 padding-75-87 bg-ios-indigo-a08 border-1-ios-indigo-a18">
                   <Sparkles :size="16" class="searchpage-help-callout-icon color-text-primary flex-0-0-auto opacity-85" />
                   <div class="searchpage-help-callout-text color-text-secondary line-height-145 fs-14px">
                     Local-only content on your machine stays private and won’t appear in network

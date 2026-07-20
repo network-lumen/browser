@@ -41,7 +41,7 @@
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="sitepage-hls-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12">
+          <div v-if="hlsError" class="sitepage-hls-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12 border-1-ios-red-a35">
             {{ hlsError }}
           </div>
         </template>

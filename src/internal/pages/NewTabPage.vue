@@ -150,7 +150,7 @@
           </button>
         </div>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760 bg-ios-orange-a08">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760 bg-ios-orange-a08 border-1-ios-orange-a14">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
@@ -226,7 +226,7 @@
           </article>
         </div>
 
-        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty margin-top-100 border-radius-20px padding-87-100 bg-black-a02">
+        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty margin-top-100 border-radius-20px padding-87-100 bg-black-a02 border-1-dashed-color">
           <div class="newtab-shortcuts-empty-copy">
             <h3 class="color-text-primary">No shortcuts yet</h3>
             <p class="color-text-secondary">
@@ -259,7 +259,7 @@
             v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02"
+            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02 hover-lift-1"
             @click="openTarget(entry.url, $event)"
           >
             <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">

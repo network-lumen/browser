@@ -92,7 +92,7 @@
           <div
             v-for="ext in extensions"
             :key="ext.id"
-            class="navbar-extension-row flex-align-start gap-62 padding-62 border-radius-md bg-secondary"
+            class="navbar-extension-row flex-align-start gap-62 padding-62 border-radius-md bg-secondary border-05-light"
           >
             <div class="navbar-extension-main flex-1 min-w-0">
               <div class="navbar-extension-name fs-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ ext.name }}</div>
@@ -182,7 +182,7 @@
 
     <!-- Profile -->
     <div class="navbar-profile-section appregion-no-drag relative">
-      <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
+      <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full hover-bg-hover hover-border-color" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
         <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary" />
@@ -240,7 +240,7 @@
           </UiButton>
 
           <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37 padding-top-50 gap-35">
-            <input v-model="newProfileName" type="text" class="navbar-profile-create-input w-full border-radius-sm color-text-primary fs-13px fw-500 padding-50-62 border-default bg-fill-primary" placeholder="Profile name" />
+            <input v-model="newProfileName" type="text" class="navbar-profile-create-input w-full border-radius-sm color-text-primary fs-13px fw-500 padding-50-62 border-default bg-fill-primary focus-outline-none focus-border-accent" placeholder="Profile name" />
             <div class="navbar-profile-create-actions flex gap-35">
               <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 primary w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click="confirmCreateProfile">
                 Create
@@ -280,7 +280,7 @@
           </p>
           
           <!-- Password required for decryption notice -->
-          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary">
+          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
             <div class="navbar-export-field flex flex-column gap-25">
               <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Wallet Password</label>
               <input 
@@ -305,7 +305,7 @@
               <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Encrypt backup with password</span>
             </label>
             
-            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary">
+            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
               <div class="navbar-export-field flex flex-column gap-25">
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Password</label>
                 <input 
@@ -328,7 +328,7 @@
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red">
+          <div v-if="exportError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ exportError }}
           </div>
           
@@ -379,7 +379,7 @@
           </div>
 
           <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-75">
-            <p class="navbar-import-mode-copy margin-0 border-radius-md color-text-secondary fs-13px padding-87 bg-secondary line-height-15">
+            <p class="navbar-import-mode-copy margin-0 border-radius-md color-text-secondary fs-13px padding-87 bg-secondary line-height-15 border-05-light">
               Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
@@ -406,7 +406,7 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary fs-12px gap-25 bg-secondary padding-75-87"
+              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary fs-12px gap-25 bg-secondary padding-75-87 border-05-light"
             >
               <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-145 break-word">
                 Profile source: {{ manualImportProfileSourceName }}
@@ -416,7 +416,7 @@
               </div>
             </div>
 
-            <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary">
+            <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
               <div class="navbar-export-field flex flex-column gap-25">
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Profile Name</label>
                 <input
@@ -467,7 +467,7 @@
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red">
+          <div v-if="importModalError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ importModalError }}
           </div>
 
@@ -504,7 +504,7 @@
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
           
-          <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary">
+          <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
             <div class="navbar-export-field flex flex-column gap-25">
               <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Backup Password</label>
               <input 
@@ -517,7 +517,7 @@
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red">
+          <div v-if="importError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ importError }}
           </div>
           
