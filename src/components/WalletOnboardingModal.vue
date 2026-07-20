@@ -20,7 +20,7 @@
 
         <div class="walletonboard-body flex-1 overflow-y-auto padding-200">
           <div v-if="step === 'intro'" class="walletonboard-step">
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15">
+            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a3">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="txt-sm txt-weight-strong margin-0">Important: No one can recover your wallet</p>
@@ -32,14 +32,14 @@
             </div>
 
             <div class="walletonboard-info-cards gap-100 grid">
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary">
+              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Set a Password</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
                   Protect your wallet with a strong password
                 </p>
               </div>
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary">
+              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent">
                 <Download :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Backup Your Wallet</h4>
                 <p class="txt-xs color-gray-blue margin-top-25 margin-0">
@@ -59,7 +59,7 @@
               <input
                 v-model="password"
                 type="password"
-                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card"
+                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card focus-border-accent focus-ring-blue"
                 placeholder="Enter password"
                 @keyup.enter="handlePasswordSubmit"
               />
@@ -70,7 +70,7 @@
               <input
                 v-model="confirmPassword"
                 type="password"
-                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card"
+                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card focus-border-accent focus-ring-blue"
                 placeholder="Confirm password"
                 @keyup.enter="handlePasswordSubmit"
               />
@@ -96,7 +96,7 @@
               <input
                 v-model="profileName"
                 type="text"
-                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card"
+                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card focus-border-accent focus-ring-blue"
                 placeholder="Enter a profile name"
                 maxlength="64"
                 @keyup.enter="handleProfileNameSubmit"
@@ -154,7 +154,7 @@
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15">
+            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a3">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="txt-xs margin-0">

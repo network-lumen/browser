@@ -117,7 +117,7 @@
       <!-- Appearance View -->
       <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Theme Preference</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Choose your preferred color scheme</span>
@@ -125,7 +125,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <div class="settingspage-theme-selector flex gap-50 border-radius-10px bg-secondary border-1 padding-25">
                 <button 
-                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 hover-color-text-primary"
                   :class="{ active: theme === 'light' }"
                   @click="setTheme('light')"
                 >
@@ -133,7 +133,7 @@
                   <span>Light</span>
                 </button>
                 <button 
-                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 hover-color-text-primary"
                   :class="{ active: theme === 'dark' }"
                   @click="setTheme('dark')"
                 >
@@ -141,7 +141,7 @@
                   <span>Dark</span>
                 </button>
                 <button 
-                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02"
+                  class="settingspage-theme-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 hover-color-text-primary"
                   :class="{ active: theme === 'system' }"
                   @click="setTheme('system')"
                 >
@@ -151,7 +151,7 @@
               </div>
             </div>
           </div>
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Font Size</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust the default font size</span>
@@ -164,7 +164,7 @@
               </select>
             </div>
           </div>
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Brightness</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust screen brightness ({{ brightness }}%)</span>
@@ -187,7 +187,7 @@
       <!-- Content View -->
       <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show sexual content</span>
             </div>
@@ -199,7 +199,7 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show violent / gore content</span>
             </div>
@@ -211,7 +211,7 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show disturbing imagery</span>
             </div>
@@ -232,7 +232,7 @@
       <!-- Privacy View -->
       <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Save browsing history</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -249,7 +249,7 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Saved items</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -264,7 +264,7 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Clear saved history</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -287,7 +287,7 @@
       <!-- Network View -->
       <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Kubo connectivity</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -298,7 +298,7 @@
               <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-50 border-radius-10px flex-wrap-wrap bg-secondary border-1 padding-25">
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
                   :class="{ active: ipfsConnectivityMode === 'light' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('light')"
@@ -307,7 +307,7 @@
                 </button>
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
                   :class="{ active: ipfsConnectivityMode === 'normal' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('normal')"
@@ -316,7 +316,7 @@
                 </button>
                 <button
                   type="button"
-                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center"
+                  class="settingspage-theme-option settingspage-network-mode-option flex-align-center gap-50 fw-500 color-text-secondary cursor-pointer padding-50-100 bg-transparent border-none border-radius-8px fs-14px transition-all-02 flex-justify-center hover-color-text-primary"
                   :class="{ active: ipfsConnectivityMode === 'high' }"
                   :disabled="networkSettingsSaving"
                   @click="saveIpfsConnectivityMode('high')"
@@ -347,7 +347,7 @@
       <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Status Display -->
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Password Protection</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -367,7 +367,7 @@
           </div>
 
           <!-- Session Status (only shown when password is enabled) -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Session Status</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">{{ securitySessionStatusText }}</span>
@@ -388,7 +388,7 @@
             </div>
           </div>
 
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Password Cache Duration</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -414,7 +414,7 @@
           </div>
 
           <!-- Set Password (when no password is set) -->
-          <div v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Set Password</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -459,7 +459,7 @@
           </div>
 
           <!-- Change/Remove Password (when password is set) -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Change Password</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -518,7 +518,7 @@
           </div>
 
           <!-- Remove Password -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Remove Password</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -537,7 +537,7 @@
           </div>
 
           <!-- Remove Password Confirmation -->
-          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px padding-100-125 bg-fill-error margin-top-75">
+          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px padding-100-125 bg-fill-error margin-top-75 border-1-ios-red-a2">
             <p class="settingspage-security-confirm-box-p margin-0 fs-14px color-text-primary">Enter your current password to disable protection:</p>
             <input 
               type="password" 
@@ -579,7 +579,7 @@
       <!-- Profiles View -->
       <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item profiles-header flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item profiles-header flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Profiles</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Select one or more profiles to export.</span>
@@ -621,7 +621,7 @@
               <div class="settingspage-profile-row-main flex flex-column gap-20 min-w-0">
                 <div class="settingspage-profile-row-title flex-align-center gap-50 min-w-0">
                   <span class="settingspage-profile-title txt-weight-light color-text-primary fs-14px overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px padding-0-50 bg-ios-blue-a18">Active</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary fs-11px padding-0-50 bg-ios-blue-a18 border-1-ios-blue-a25">Active</span>
                 </div>
                 <span class="settingspage-profile-id fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
               </div>
@@ -629,7 +629,7 @@
           </div>
           <p v-else class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">No profiles found.</p>
 
-          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Display name</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Rename a profile without changing its internal profile ID.</span>
@@ -678,7 +678,7 @@
             {{ profileRenameError }}
           </p>
 
-          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Profile photo</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Override the generated profile thumbnail with a local image.</span>
@@ -728,7 +728,7 @@
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </p>
 
-           <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+           <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
              <div class="setting-info flex flex-column gap-20">
                <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Backups</span>
                <span class="settingspage-setting-desc color-text-secondary fs-13px">Export full backup folders (profiles + PQC keys).</span>
@@ -768,7 +768,7 @@
             <span>Network</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Local IPFS Gateway</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Used for loading IPFS content in the UI</span>
@@ -788,7 +788,7 @@
             <span>IPFS</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">IPFS API Endpoint</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Used by the Electron backend (Kubo API)</span>
@@ -803,7 +803,7 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Max upload size (local drive)</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -858,7 +858,7 @@
             <span>Lumen data folder</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Custom data folder target</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -955,7 +955,7 @@
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Copy Debug Report</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
@@ -973,7 +973,7 @@
             </div>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Open Logs Folder</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
@@ -1007,7 +1007,7 @@
       <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Main Enable Toggle -->
-          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default" :class="{ active: privateCloudEnabled }">
+          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1" :class="{ active: privateCloudEnabled }">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
@@ -1031,7 +1031,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway Preferences</h3>
               
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Prefer Private Gateways</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Try private gateways first before DAO gateways</span>
@@ -1044,7 +1044,7 @@
                 </div>
               </div>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Fallback to DAO Gateways</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Use DAO gateways if private gateways fail</span>
@@ -1068,7 +1068,7 @@
 
               <div class="settingspage-gateway-ids-wrapper border-radius-12px padding-100 bg-secondary border-1">
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
-                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between padding-75-100 bg-card border-1 border-radius-8px transition-all-02">
+                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between padding-75-100 bg-card border-1 border-radius-8px transition-all-02 hover-border-ios-blue">
                     <span class="settingspage-gateway-id-text mono color-text-primary fs-14px">{{ id }}</span>
                     <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px transition-all-02" @click="removeGatewayId(index)">
                       <X :size="16" />
@@ -1106,7 +1106,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Advanced Settings</h3>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Request Timeout</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
@@ -1124,7 +1124,7 @@
                 </div>
               </div>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default">
+              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Max Retries</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Maximum retry attempts per gateway</span>
@@ -1142,7 +1142,7 @@
             </div>
 
             <!-- Info Box -->
-            <div class="settingspage-info-box flex gap-100 border-radius-12px margin-top-100 padding-100-125">
+            <div class="settingspage-info-box flex gap-100 border-radius-12px margin-top-100 padding-100-125 border-15-ios-blue-a2">
               <svg class="settingspage-info-box-svg flex-shrink-0 color-ios-blue" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>

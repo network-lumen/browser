@@ -230,7 +230,7 @@
 
             <div class="daopage-form-group margin-bottom-125">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block fs-13px margin-bottom-50">Category</label>
-              <select class="daopage-form-select cursor-pointer w-full padding-87 border-1 border-radius-10px fs-14px color-text-primary transition-all-02" v-model="proposalForm.category">
+              <select class="daopage-form-select cursor-pointer w-full padding-87 border-1 border-radius-10px fs-14px color-text-primary transition-all-02 hover-border-color" v-model="proposalForm.category">
                 <option value="governance">Governance</option>
                 <option value="treasury">Treasury</option>
                 <option value="technical">Technical</option>
@@ -241,7 +241,7 @@
 
             <div class="daopage-form-group margin-bottom-125">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block fs-13px margin-bottom-50">Voting Duration</label>
-              <select class="daopage-form-select cursor-pointer w-full padding-87 border-1 border-radius-10px fs-14px color-text-primary transition-all-02" v-model="proposalForm.duration">
+              <select class="daopage-form-select cursor-pointer w-full padding-87 border-1 border-radius-10px fs-14px color-text-primary transition-all-02 hover-border-color" v-model="proposalForm.duration">
                 <option value="3">3 Days</option>
                 <option value="7">7 Days</option>
                 <option value="14">14 Days</option>
@@ -249,7 +249,7 @@
               </select>
             </div>
 
-            <div class="daopage-proposal-requirements margin-bottom-150 border-radius-10px padding-100 bg-card">
+            <div class="daopage-proposal-requirements margin-bottom-150 border-radius-10px padding-100 bg-card border-1-ios-blue-a3">
               <div class="daopage-requirement-item flex-align-center gap-75 color-text-secondary fs-13px">
                 <svg class="daopage-requirement-item-svg flex-shrink-0 color-primary" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>

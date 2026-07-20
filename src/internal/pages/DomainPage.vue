@@ -58,7 +58,7 @@
           <p>{{ error }}</p>
         </div>
         <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
-          <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
+          <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
           <p>Loading your domains...</p>
         </div>
         <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1">
@@ -125,7 +125,7 @@
 
       <section v-else class="domainpage-card bg-card border-radius-16px border-1">
         <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50">
-          <div class="domainpage-spinner border-radius-full ring-spinner-sm"></div>
+          <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
           <p>Loading stable links...</p>
         </div>
         <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50">
@@ -214,7 +214,7 @@
       </section>
 
       <Transition name="domainpage-fade">
-        <div v-if="stableLinkModalMode" class="overlay-scrim domainpage-modal-overlay" @click="closeStableLinkModal">
+        <div v-if="stableLinkModalMode" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeStableLinkModal">
           <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">{{ stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link' }}</h3>
@@ -253,7 +253,7 @@
                     <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
                     {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
                 </button>
               </div>
             </form>
@@ -262,7 +262,7 @@
       </Transition>
 
       <Transition name="domainpage-fade">
-        <div v-if="showStableSettingsModal" class="overlay-scrim domainpage-modal-overlay" @click="closeStableSettingsModal">
+        <div v-if="showStableSettingsModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeStableSettingsModal">
           <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Stable link records</h3>
@@ -330,7 +330,7 @@
                     <Check :size="16" />
                     Save records
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
                 </button>
               </div>
             </div>
@@ -340,7 +340,7 @@
 
       <!-- Register Domain Modal -->
       <Transition name="domainpage-fade">
-        <div v-if="showRegisterModal" class="overlay-scrim domainpage-modal-overlay" @click="closeRegisterModal">
+        <div v-if="showRegisterModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeRegisterModal">
           <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Register domain</h3>
@@ -404,7 +404,7 @@
                   <Plus :size="16" />
                   Register domain
                 </span>
-                <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
+                <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
               </button>
             </div>
           </div>
@@ -413,7 +413,7 @@
 
       <!-- Settings Modal -->
       <Transition name="domainpage-fade">
-        <div v-if="showSettingsModal" class="overlay-scrim domainpage-modal-overlay" @click="closeSettingsModal">
+        <div v-if="showSettingsModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeSettingsModal">
           <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Domain settings</h3>
@@ -496,7 +496,7 @@
                     <Settings :size="16" />
                     Save changes
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
                 </button>
               </div>
             </div>
@@ -506,7 +506,7 @@
 
       <!-- Transfer Modal -->
       <Transition name="domainpage-fade">
-        <div v-if="showTransferModal" class="overlay-scrim domainpage-modal-overlay" @click="closeTransferModal">
+        <div v-if="showTransferModal" class="overlay-scrim domainpage-modal-overlay bg-slate-a45" @click="closeTransferModal">
           <div class="domainpage-modal w-full flex flex-column overflow-hidden bg-card border-radius-14px max-h-90vh" @click.stop>
             <header class="domainpage-modal-header flex-align-center flex-justify-space-between padding-100-125 border-bottom-1">
               <h3 class="margin-0">Transfer domain</h3>
@@ -556,7 +556,7 @@
                     <Send :size="16" />
                     Transfer domain
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm"></span>
+                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
                 </button>
               </div>
             </div>

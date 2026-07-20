@@ -28,7 +28,7 @@
             <RefreshCw :size="18" />
             <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
           </button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" :disabled="loading || !allowed" @click="openPublishModal">
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2" :disabled="loading || !allowed" @click="openPublishModal">
             <Plus :size="18" />
             <span>Publish release</span>
           </button>
@@ -119,7 +119,7 @@
           </div>
 
           <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-75 margin-0 margin-top-50 margin-bottom-100">
-            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" :disabled="submittingDao" @click="openDaoModal('validate')">
+            <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </button>
             <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" :disabled="submittingDao" @click="openDaoModal('reject')">
@@ -194,7 +194,7 @@
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Send to DAO</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px" @click="closeDaoModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px hover-bg-hover hover-border-color hover-color-text-primary" @click="closeDaoModal">×</button>
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75">
@@ -230,7 +230,7 @@
 
         <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75 border-top-1-light">
           <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" @click="closeDaoModal" :disabled="submittingDao">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" @click="submitDaoProposal" :disabled="submittingDao">
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2" @click="submitDaoProposal" :disabled="submittingDao">
             <span v-if="submittingDao" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Sending…</span>
             <span v-else>Broadcast proposal</span>
           </button>
@@ -242,7 +242,7 @@
       <div class="relpage-modal overflow-auto border-radius-18px padding-125 bg-primary border-1 shadow-primary-lg">
         <div class="relpage-modal-head flex-align-center flex-justify-space-between gap-100 padding-bottom-75 border-bottom-1-light">
           <h2 class="relpage-modal-head-h2 margin-0 fs-19px">Publish release</h2>
-          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px" @click="closePublishModal">×</button>
+          <button type="button" class="relpage-modal-close cursor-pointer color-text-secondary border-radius-10px border-1-light bg-transparent fs-125rem w-34px hover-bg-hover hover-border-color hover-color-text-primary" @click="closePublishModal">×</button>
         </div>
 
         <div class="relpage-modal-body flex flex-column gap-75">
@@ -356,7 +356,7 @@
 
         <div class="relpage-modal-foot flex flex-justify-end gap-75 padding-top-75 border-top-1-light">
           <button type="button" class="relpage-btn-secondary flex-inline-align-center gap-50 border-radius-10px cursor-pointer color-text-secondary border-1 bg-primary fs-14px fw-650 padding-75-100" @click="closePublishModal" :disabled="submitting">Cancel</button>
-          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100" @click="submitRelease" :disabled="submitting">
+          <button type="button" class="relpage-btn-primary flex-inline-align-center gap-50 border-radius-10px cursor-pointer border-none color-white bg-gradient-primary shadow-primary fs-14px fw-650 padding-75-100 hover-lift-2" @click="submitRelease" :disabled="submitting">
             <span v-if="submitting" class="flex-inline-align-center gap-50"><UiSpinner size="sm" /> Publishing…</span>
             <span v-else>Publish</span>
           </button>

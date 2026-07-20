@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
     <div class="margin-bottom-200">
-      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary transition-smooth-all" @click="goBack">
+      <button class="chaindetail-back-btn flex-inline-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 border-radius-sm fw-500 fs-14px shadow-primary transition-smooth-all hover-lift-2" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -30,7 +30,7 @@
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Transaction Hash:</span>
             <div class="chaindetail-hash-value flex-align-center gap-50">
               <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ transaction.hash }}</code>
-              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02 padding-25" @click="copyToClipboard(transaction.hash)" title="Copy hash">
+              <button class="chaindetail-copy-btn bg-secondary cursor-pointer flex-inline-align-justify-center border-1 border-radius-6px transition-all-02 padding-25 hover-bg-accent hover-border-accent" @click="copyToClipboard(transaction.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>

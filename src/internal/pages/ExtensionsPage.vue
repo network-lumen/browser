@@ -1,6 +1,6 @@
 <template>
   <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
-    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-100">
+    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-100 border-bottom-1-slate-a16">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1">{{ headerTitle }}</h1>
         <p class="extensions-store-copy-p margin-0 margin-top-37" v-if="headerDescription">{{ headerDescription }}</p>
@@ -25,7 +25,7 @@
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview flex-1 overflow-hidden min-h-0"
+      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"

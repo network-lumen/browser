@@ -168,7 +168,7 @@
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12 border-1-ios-red-a35">
               {{ hlsError }}
             </div>
           </template>
@@ -241,7 +241,7 @@
     <Transition name="ipfspage-fade">
       <div
         v-if="showSaveModal"
-        class="ipfspage-modal-overlay flex-align-justify-center padding-125 fixed inset-0"
+        class="ipfspage-modal-overlay flex-align-justify-center padding-125 fixed inset-0 bg-slate-a45"
         role="dialog"
         aria-modal="true"
         @click="closeSaveModal"
@@ -270,7 +270,7 @@
               {{ saveModalError }}
             </div>
 
-            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px margin-top-87 padding-75-87 bg-ios-blue-a08">
+            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px margin-top-87 padding-75-87 bg-ios-blue-a08 border-1-ios-blue-a18">
               <div class="ipfspage-pin-progress-head flex-align-center-justify-space-between gap-75 margin-bottom-50">
                 <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase fs-12px letter-spacing-004em">{{ savePinStatusLabel }}</span>
                 <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary fs-12px">{{ savePinProgressCounter }}</span>
@@ -289,13 +289,13 @@
           </div>
 
           <footer class="ipfspage-modal-actions flex-justify-end gap-75 padding-87-100 border-top-1">
-            <button class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
+            <button class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 hover-color-text-primary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning">
               Cancel
             </button>
-            <button v-if="savePinCanPause" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100" type="button" @click="pauseSavePinJob">
+            <button v-if="savePinCanPause" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 hover-color-text-primary" type="button" @click="pauseSavePinJob">
               Pause
             </button>
-            <button v-if="savePinCanResume" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100" type="button" @click="resumeSavePinJob">
+            <button v-if="savePinCanResume" class="ipfspage-btn-secondary disabled-fade-60 color-text-primary bg-primary bg-card border-default border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 hover-color-text-primary" type="button" @click="resumeSavePinJob">
               Resume
             </button>
             <button v-if="savePinCanStop" class="ipfspage-btn-danger disabled-fade-60 color-error border-1 border-radius-12px cursor-pointer fs-14px txt-weight-light padding-62-100 bg-ios-red-a10" type="button" @click="cancelSavePinJob">

@@ -336,7 +336,7 @@
             </div>
           </div>
 
-          <div class="helppage-discover-note color-text-primary margin-top-85 border-radius-14px fs-14px padding-75-87 bg-fill-blue line-height-135">
+          <div class="helppage-discover-note color-text-primary margin-top-85 border-radius-14px fs-14px padding-75-87 bg-fill-blue line-height-135 border-1-ios-blue-a14">
             <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
             If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
             uploaded folder, and give it a minute to propagate.
@@ -407,7 +407,7 @@
           <div class="helppage-docs-grid gap-90 grid" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <BookOpen :size="20" />
               </div>
               <div>
@@ -432,7 +432,7 @@
 
             <!-- Secure your Wallet -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Wallet :size="20" />
               </div>
               <div>
@@ -447,7 +447,7 @@
 
             <!-- Upload -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <FolderOpen :size="20" />
               </div>
               <div>
@@ -462,7 +462,7 @@
 
             <!-- Cloud -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Database :size="20" />
               </div>
               <div>
@@ -477,7 +477,7 @@
 
             <!-- How to Manage Domain -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Link2 :size="20" />
               </div>
               <div>
@@ -492,7 +492,7 @@
 
             <!-- Domain Setting -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Globe :size="20" />
               </div>
               <div>
@@ -507,7 +507,7 @@
 
             <!-- How to Linked Domain -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Link2 :size="20" />
               </div>
               <div>
@@ -522,7 +522,7 @@
 
             <!-- Publish Website with .lmn -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Server :size="20" />
               </div>
               <div>
@@ -537,7 +537,7 @@
 
             <!-- Theme -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
               <div>
@@ -552,7 +552,7 @@
 
             <!-- Font Size -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
               <div>
@@ -567,7 +567,7 @@
 
             <!-- Brightness -->
             <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
               <div>
