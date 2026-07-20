@@ -53,7 +53,7 @@
             <button 
               v-if="embeddedServerRunning"
               type="button" 
-              class="mygw-btn-outline flex-align-center gap-50 cursor-pointer fw-500 color-text-primary flex-1 bg-transparent border-15 hover-bg-hover hover-border-ios-blue hover-lift-1"
+              class="mygw-btn-outline flex-align-center gap-50 cursor-pointer fw-500 color-text-primary flex-1 bg-transparent border-15 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-color-ios-blue"
               @click="viewApiKey"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -153,7 +153,7 @@
           <AlertCircle :size="48" class="color-error margin-bottom-100" />
           <h2 class="txt-weight-light color-text-primary mygw-empty-state-h2 fs-125rem margin-0 margin-bottom-50">Error Loading Gateways</h2>
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">{{ error }}</p>
-          <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="loadGateways">Try Again</button>
+          <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="loadGateways">Try Again</button>
         </div>
 
         <div v-else-if="gateways.length === 0" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
@@ -194,7 +194,7 @@
             </div>
 
             <div class="mygw-gateway-actions flex gap-50 margin-top-100">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="openEditModal(gateway)">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
                 Edit
               </button>
@@ -258,7 +258,7 @@
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150 border-top-1">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="closeModal" :disabled="saving">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="closeModal" :disabled="saving">
                 Cancel
               </button>
               <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1" @click="saveGateway" :disabled="saving || !isFormValid">
@@ -284,7 +284,7 @@
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150 border-top-1">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="closeDeleteConfirm" :disabled="deleting">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="closeDeleteConfirm" :disabled="deleting">
                 Cancel
               </button>
               <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1 padding-62-100 border-radius-10px fs-14px transition-all-02 bg-ios-red-a10 border-1-ios-red-a2" @click="deleteGateway" :disabled="deleting">
@@ -342,7 +342,7 @@
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150 border-top-1">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="closeWhitelistModal" :disabled="whitelistSaving">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="closeWhitelistModal" :disabled="whitelistSaving">
                 Cancel
               </button>
               <button class="mygw-btn-primary disabled-fade-50 flex-align-center gap-50 border-none cursor-pointer color-white fw-500 bg-gradient-primary padding-62-100 border-radius-10px fs-14px transition-all-02 hover-lift-1" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()">
@@ -368,7 +368,7 @@
             </div>
 
             <div class="mygw-modal-actions flex gap-75 padding-150 border-top-1">
-              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
+              <button class="mygw-btn-secondary flex-align-center gap-50 cursor-pointer fw-500 color-text-secondary flex-1 bg-hover border-1 padding-62-100 border-radius-10px fs-14px transition-all-02 hover-color-text-primary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
                 Cancel
               </button>
               <button class="mygw-btn-danger flex-align-center gap-50 cursor-pointer fw-500 color-error flex-1 padding-62-100 border-radius-10px fs-14px transition-all-02 bg-ios-red-a10 border-1-ios-red-a2" @click="removeFromWhitelist" :disabled="whitelistDeleting">

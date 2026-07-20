@@ -30,7 +30,7 @@
             <h4 class="color-text-primary fs-14px">{{ reminder.paymentName }}</h4>
             <p class="color-text-secondary margin-0 fs-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
-          <button class="subview-reminder-dismiss flex-0-0-auto bg-transparent border-none cursor-pointer color-text-tertiary padding-25 border-radius-4px transition-all-02" @click="dismissReminder(reminder.id)">
+          <button class="subview-reminder-dismiss flex-0-0-auto bg-transparent border-none cursor-pointer color-text-tertiary padding-25 border-radius-4px transition-all-02 hover-bg-tertiary hover-color-text-primary" @click="dismissReminder(reminder.id)">
             <X :size="16" />
           </button>
         </div>
@@ -151,14 +151,14 @@
 
           <div class="subview-payment-actions flex gap-50 padding-top-100 border-top-1">
             <button
-              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02"
+              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
               @click="viewHistory(payment)"
               title="View History"
             >
               <History :size="16" />
             </button>
             <button
-              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02"
+              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
               @click="editPayment(payment)"
               title="Edit"
             >
@@ -166,7 +166,7 @@
             </button>
             <button
               v-if="payment.status === 'active'"
-              class="subview-action-btn pause flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02"
+              class="subview-action-btn pause flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
               @click="pausePayment(payment.id)"
               title="Pause"
             >
@@ -174,14 +174,14 @@
             </button>
             <button
               v-else-if="payment.status === 'paused'"
-              class="subview-action-btn resume flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02"
+              class="subview-action-btn resume flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
               @click="resumePayment(payment.id)"
               title="Resume"
             >
               <PlayCircle :size="16" />
             </button>
             <button
-              class="subview-action-btn delete flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02"
+              class="subview-action-btn delete flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
               @click="confirmDelete(payment)"
               title="Delete"
             >
@@ -210,7 +210,7 @@
               <History :size="20" />
               <span>Payment History</span>
             </h3>
-            <button class="subview-close-btn bg-transparent border-none cursor-pointer color-text-secondary padding-25 border-radius-6px transition-all-02" @click="showHistoryModal = false">
+            <button class="subview-close-btn bg-transparent border-none cursor-pointer color-text-secondary padding-25 border-radius-6px transition-all-02 hover-bg-fill-tertiary hover-color-text-primary" @click="showHistoryModal = false">
               <X :size="20" />
             </button>
           </div>

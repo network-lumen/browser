@@ -11,7 +11,7 @@
         <div class="history-header-actions flex-align-center gap-62 flex-wrap-wrap">
           <button
             type="button"
-            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015"
+            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1"
             :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015"
+            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -99,13 +99,13 @@
             <button
               v-if="!historyEnabled"
               type="button"
-              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015"
+              class="history-mode-btn active badge-success flex-inline-align-justify-center border-none cursor-pointer color-success bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1"
               @click="setHistoryEnabled(true)"
             >
               <Power :size="15" />
               <span>Turn on history</span>
             </button>
-            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer bg-gradient-primary shadow-primary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015" @click="openNewTab">
+            <button type="button" class="history-open-btn flex-inline-align-justify-center border-none color-white cursor-pointer bg-gradient-primary shadow-primary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1" @click="openNewTab">
               <ArrowUpRight :size="14" />
               <span>Open new tab</span>
             </button>

@@ -22,7 +22,7 @@
             <span class="drivepage-hosting-title fs-085rem txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
           </button>
           <button
-            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015"
+            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015 hover-bg-primary-a08 hover-color-accent"
             type="button"
             @click.stop="openLocalDetails"
             title="Local details"
@@ -77,7 +77,7 @@
               </span>
           </button>
           <button
-            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015"
+            class="drivepage-hosting-details flex-inline-align-justify-center flex-0-0-auto size-32px border-radius-10px color-text-secondary cursor-pointer border-1-light bg-transparent transition-colors-015 hover-bg-primary-a08 hover-color-accent"
             type="button"
             @click.stop="openGatewayDetails(sub.gatewayId)"
             title="Subscription details"
@@ -100,7 +100,7 @@
         <div class="drivepage-header-actions flex-align-center flex-wrap-wrap gap-75">
 
 
-          <button class="drivepage-plans-btn flex-inline-align-center border-radius-full color-text-secondary cursor-pointer gap-35 border-1 bg-secondary fs-13px transition-all-02 padding-50-100 hover-border-color hover-color-text-primary" type="button" @click="openPlansModal">
+          <button class="drivepage-plans-btn flex-inline-align-center border-radius-full color-text-secondary cursor-pointer gap-35 border-1 bg-secondary fs-13px transition-all-02 padding-50-100 hover-border-color hover-color-text-primary hover-bg-primary" type="button" @click="openPlansModal">
             <Database :size="16" />
             <span>Cloud</span>
           </button>
@@ -160,13 +160,13 @@
             placeholder="Search files..."
             @input="currentPage = 1"
           />
-          <button v-if="searchQuery" class="drivepage-clear-search flex-align-justify-center border-radius-circle color-text-secondary cursor-pointer border-none bg-fill-tertiary transition-all-015 h-20px w-20px" @click="searchQuery = ''; currentPage = 1">
+          <button v-if="searchQuery" class="drivepage-clear-search flex-align-justify-center border-radius-circle color-text-secondary cursor-pointer border-none bg-fill-tertiary transition-all-015 h-20px w-20px hover-bg-fill-secondary hover-color-text-primary" @click="searchQuery = ''; currentPage = 1">
             <X :size="14" />
           </button>
         </div>
         <div class="filter-info flex-align-center gap-75">
           <span class="drivepage-file-count color-text-secondary fs-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
-          <select v-model="itemsPerPage" class="drivepage-per-page-select color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary fs-13px transition-all-015 padding-50-62" @change="currentPage = 1">
+          <select v-model="itemsPerPage" class="drivepage-per-page-select color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary fs-13px transition-all-015 padding-50-62 focus-border-accent focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
             <option :value="10">10 per page</option>
             <option :value="20">20 per page</option>
             <option :value="50">50 per page</option>
@@ -223,7 +223,7 @@
 
       <!-- Breadcrumb (folders) -->
       <div v-if="isBrowsing" class="drivepage-browse-bar flex-align-center gap-75 margin-bottom-75">
-        <button class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75" type="button" @click="exitBrowse">
+        <button class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary" type="button" @click="exitBrowse">
           Back
         </button>
         <div class="drivepage-browse-crumbs flex-align-center flex-wrap-wrap gap-35 min-w-0">
@@ -571,7 +571,7 @@
       <!-- Pagination -->
       <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="drivepage-pagination-bar flex-align-justify-center flex-wrap-wrap gap-50 margin-top-50">
         <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
           :disabled="currentPage === 1"
           @click="currentPage = 1"
           title="First page"
@@ -581,7 +581,7 @@
           </svg>
         </button>
         <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
           :disabled="currentPage === 1"
           @click="currentPage--"
           title="Previous page"
@@ -596,7 +596,7 @@
             <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary fs-085rem">...</span>
             <button 
               v-else
-              class="drivepage-page-num flex-align-justify-center size-32px color-text-primary fs-085rem fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px padding-0-50" 
+              class="drivepage-page-num flex-align-justify-center size-32px color-text-primary fs-085rem fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px padding-0-50 hover-bg-hover hover-border-accent" 
               :class="{ active: currentPage === page }"
               @click="currentPage = page as number"
             >
@@ -606,7 +606,7 @@
         </div>
         
         <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
           :disabled="currentPage === totalPages"
           @click="currentPage++"
           title="Next page"
@@ -616,7 +616,7 @@
           </svg>
         </button>
         <button 
-          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015"
+          class="drivepage-page-btn disabled-fade-40 flex-align-justify-center size-32px color-text-secondary cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 hover-bg-hover hover-border-accent hover-color-accent"
           :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
           title="Last page"
@@ -708,7 +708,7 @@
           <span class="drivepage-info-label color-text-tertiary text-uppercase fs-10px letter-spacing-005em">Name</span>
           <input
             v-if="canRenameSelected"
-            class="drivepage-info-value drivepage-name-input color-text-primary fw-500 w-full border-radius-10px fs-085rem fs-13px border-1 bg-secondary padding-50-62"
+            class="drivepage-info-value drivepage-name-input color-text-primary fw-500 w-full border-radius-10px fs-085rem fs-13px border-1 bg-secondary padding-50-62 focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
             v-model.trim="renameDraft"
             type="text"
             placeholder="Unknown"
@@ -788,7 +788,7 @@
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">{{ uploadPathMode === "folder" ? "Upload folder" : "Upload files" }}</h3>
             <button
-              class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02"
+              class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary"
               type="button"
               @click="closeUploadPathModal"
             >
@@ -805,7 +805,7 @@
             </p>
             <textarea
               v-model="uploadPathText"
-              class="drivepage-upload-path-textarea w-full border-radius-12px color-text-primary outline-none padding-75 border-1 bg-secondary fs-14px mono"
+              class="drivepage-upload-path-textarea w-full border-radius-12px color-text-primary outline-none padding-75 border-1 bg-secondary fs-14px mono focus-border-accent focus-ring focus-outline-none focus-shadow"
               rows="5"
               :placeholder="
                 uploadPathMode === 'folder'
@@ -817,7 +817,7 @@
 
           <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
               @click="closeUploadPathModal"
               :disabled="uploadPathBusy"
@@ -847,7 +847,7 @@
         <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Local drive</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeLocalDetails">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeLocalDetails">
               <X :size="20" />
             </button>
           </div>
@@ -913,7 +913,7 @@
 
               <div class="drivepage-details-actions margin-top-75 flex-wrap-wrap flex-inline-align-center gap-35">
                 <button
-                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75"
+                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
                   type="button"
                   :disabled="driveBackupBusy"
                   @click="openDriveBackupExportModal"
@@ -921,7 +921,7 @@
                   Export snapshot
                 </button>
                 <button
-                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75"
+                  class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
                   type="button"
                   :disabled="driveBackupBusy"
                   @click="triggerImportDriveBackup"
@@ -952,7 +952,7 @@
         <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Export drive snapshot</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeDriveBackupExportModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeDriveBackupExportModal">
               <X :size="20" />
             </button>
           </div>
@@ -966,7 +966,7 @@
               <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87 focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPassword"
                   placeholder="Min 8 characters (recommended: long passphrase)"
@@ -977,7 +977,7 @@
               <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Confirm password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87 focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPasswordConfirm"
                   placeholder="Repeat password"
@@ -1007,7 +1007,7 @@
           </div>
           <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
               :disabled="driveBackupBusy"
               @click="closeDriveBackupExportModal"
@@ -1043,7 +1043,7 @@
         <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Import drive snapshot</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeDriveBackupImportModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeDriveBackupImportModal">
               <X :size="20" />
             </button>
           </div>
@@ -1067,7 +1067,7 @@
               <div class="drive-backup-field flex flex-column gap-35">
                 <label class="drivepage-drive-backup-label fs-075rem txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary fs-14px padding-75-87 focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupImportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupImportPassword"
                   placeholder="Enter backup password"
@@ -1144,7 +1144,7 @@
           </div>
           <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
               :disabled="driveBackupBusy"
               @click="closeDriveBackupImportModal"
@@ -1188,7 +1188,7 @@
         <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Subscription details</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeGatewayDetails">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeGatewayDetails">
               <X :size="20" />
             </button>
           </div>
@@ -1239,7 +1239,7 @@
                     Unlock your Lumen identity to fetch usage from this cloud.
                   </div>
                   <button
-                    class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75"
+                    class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
                     type="button"
                     @click="requestUnlock"
                   >
@@ -1306,7 +1306,7 @@
         <div class="drivepage-modal-content drivepage-plans-modal w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Cloud plans</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closePlansModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closePlansModal">
               <X :size="20" />
             </button>
           </div>
@@ -1385,7 +1385,7 @@
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 fs-14px bg-secondary border-none bg-transparent padding-75-87 focus-outline-none focus-border-accent focus-bg-primary"
+                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 fs-14px bg-secondary border-none bg-transparent padding-75-87 focus-outline-none focus-border-accent focus-bg-primary focus-ring focus-shadow"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1393,7 +1393,7 @@
 
                      <select
                        v-model="planRegion"
-                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px"
+                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow"
                        aria-label="Region filter"
                      >
                        <option value="">All regions</option>
@@ -1406,7 +1406,7 @@
                    <div class="drivepage-plans-search-group drivepage-plans-search-group-sort flex-align-center gap-75 margin-left-auto flex-wrap-nowrap">
                      <select
                        v-model="planSortBy"
-                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px"
+                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary fs-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow"
                        aria-label="Sort by"
                      >
                        <option value="score-desc">Sort: Score (high-low)</option>
@@ -1431,7 +1431,7 @@
                    <button
                      v-if="planFilter"
                      type="button"
-                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75"
+                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
                      @click="planFilter = ''"
                    >
                      Clear search
@@ -1439,12 +1439,12 @@
                    <button
                      v-if="hasPlanFilters"
                      type="button"
-                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75"
+                     class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
                      @click="resetPlanFilters"
                    >
                      Reset filters
                    </button>
-                   <button type="button" class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75" @click="openPlansModal">
+                   <button type="button" class="drivepage-btn-ghost border-radius-full color-text-secondary cursor-pointer border-1 fs-13px bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary" @click="openPlansModal">
                      Reload
                    </button>
                  </div>
@@ -1495,7 +1495,7 @@
                       </span>
                       <button
                         type="button"
-                        class="drivepage-gateway-expand-btn border-radius-full fs-075rem color-text-secondary cursor-pointer border-1 bg-primary transition-all-02 padding-25-75"
+                        class="drivepage-gateway-expand-btn border-radius-full fs-075rem color-text-secondary cursor-pointer border-1 bg-primary transition-all-02 padding-25-75 hover-bg-secondary hover-border-color hover-color-text-primary"
                         @click.stop="toggleGatewayExpanded(group.gateway.id)"
                       >
                         {{
@@ -1593,7 +1593,7 @@
                <div class="drivepage-plans-pager-controls flex-align-justify-center flex-wrap-wrap gap-35">
                  <button
                    type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
                    :disabled="planPage === 1"
                    @click="planPage = 1"
                  >
@@ -1601,7 +1601,7 @@
                  </button>
                  <button
                    type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
                    :disabled="planPage === 1"
                    @click="planPage--"
                  >
@@ -1612,7 +1612,7 @@
                  </span>
                  <button
                    type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
                    :disabled="planPage === planTotalPages"
                    @click="planPage++"
                  >
@@ -1620,7 +1620,7 @@
                  </button>
                  <button
                    type="button"
-                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62"
+                   class="drivepage-plans-pager-btn disabled-fade-40 border-radius-10px color-text-secondary cursor-pointer border-1 bg-transparent fs-13px transition-all-015 padding-50-62 hover-bg-hover hover-border-accent hover-color-accent"
                    :disabled="planPage === planTotalPages"
                    @click="planPage = planTotalPages"
                  >
@@ -1631,7 +1631,7 @@
                  <select
                    v-model.number="planPageSize"
                    aria-label="Rows per page"
-                   class="drivepage-per-page-select color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary fs-13px transition-all-015 padding-50-62"
+                   class="drivepage-per-page-select color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary fs-13px transition-all-015 padding-50-62 focus-border-accent focus-ring focus-outline-none focus-shadow"
                  >
                    <option :value="8">8 / page</option>
                    <option :value="16">16 / page</option>
@@ -1655,7 +1655,7 @@
         <div class="drivepage-modal-content w-full bg-primary border-radius-16px overflow-y-auto shadow-modal max-h-90vh max-w-520px" @click.stop>
           <div class="drivepage-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
             <h3 class="drivepage-modal-header-h3 margin-0 fs-125rem txt-weight-light color-text-primary">Confirm subscription "{{ planDisplayName(subscribePlan) }}"</h3>
-            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02" @click="closeSubscribeModal">
+            <button class="drivepage-modal-close flex-align-justify-center size-32px color-text-secondary cursor-pointer border-radius-8px border-none bg-hover transition-all-02 hover-color-text-primary" @click="closeSubscribeModal">
               <X :size="20" />
             </button>
           </div>
@@ -1753,7 +1753,7 @@
           </div>
           <div class="drivepage-modal-footer flex-align-center-justify-end gap-75 border-top-1">
             <button
-              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02"
+              class="drivepage-btn-modal-secondary disabled-fade-60 flex-1 border-radius-10px color-text-secondary fw-500 cursor-pointer padding-87 bg-primary border-1 fs-15px transition-all-02 hover-bg-secondary hover-border-color hover-color-text-primary"
               type="button"
               @click="closeSubscribeModal"
               :disabled="subscribeBusy"

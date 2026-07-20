@@ -23,10 +23,10 @@
         </div>
 
         <div class="newtab-onboarding-actions flex margin-top-100 flex-justify-end gap-62 flex-wrap-wrap">
-          <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium" type="button" @click="learnLumen">
+          <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="learnLumen">
             Learn Lumen
           </button>
-          <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium" type="button" @click="dismissOnboarding">
+          <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="dismissOnboarding">
             Skip
           </button>
         </div>
@@ -95,10 +95,10 @@
           </div>
 
           <div class="newtab-shortcut-modal-actions flex margin-top-100 flex-justify-end gap-62 flex-wrap-wrap">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium" type="button" @click="closeShortcutModal">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="closeShortcutModal">
               Cancel
             </button>
-            <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium" type="button" @click="submitShortcutModal">
+            <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="submitShortcutModal">
               {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
             </button>
           </div>
@@ -130,7 +130,7 @@
             autocomplete="off"
             aria-label="Search Lumen or enter a URL"
           />
-          <button class="newtab-omnibox-submit flex-inline-align-justify-center color-white flex-0-0-auto border-none cursor-pointer bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium padding-75-100" type="submit">
+          <button class="newtab-omnibox-submit flex-inline-align-justify-center color-white flex-0-0-auto border-none cursor-pointer bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium padding-75-100 hover-lift-1" type="submit">
             <ArrowUpRight :size="15" />
             <span>Go</span>
           </button>
@@ -141,7 +141,7 @@
             v-for="link in quickLinks"
             :key="link.url"
             type="button"
-            class="newtab-quick-link flex-inline-align-center border-radius-full color-text-secondary border-none cursor-pointer gap-35 bg-fill-tertiary fs-13px padding-50-75 fw-650"
+            class="newtab-quick-link flex-inline-align-center border-radius-full color-text-secondary border-none cursor-pointer gap-35 bg-fill-tertiary fs-13px padding-50-75 fw-650 hover-lift-1"
             :disabled="link.requiresProfile && !hasProfiles"
             @click="openQuickLink(link, $event)"
           >
@@ -163,7 +163,7 @@
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium" type="button" @click="beginCreateShortcut">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="beginCreateShortcut">
               <Plus :size="15" />
               <span>Add shortcut</span>
             </button>
@@ -198,7 +198,7 @@
 
             <div class="newtab-shortcut-card-actions flex flex-wrap-wrap gap-35">
               <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200 hover-lift-1"
                 type="button"
                 :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
                 @click.stop="togglePinned(entry.id, entry.pinned)"
@@ -206,7 +206,7 @@
                 <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
               </button>
               <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200"
+                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200 hover-lift-1"
                 type="button"
                 title="Edit shortcut"
                 @click.stop="beginEditShortcut(entry)"
@@ -214,7 +214,7 @@
                 <Pencil :size="14" />
               </button>
               <button
-                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200"
+                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200 hover-lift-1"
                 type="button"
                 title="Remove shortcut"
                 @click.stop="removeFavouriteById(entry.id)"
@@ -247,7 +247,7 @@
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium" type="button" @click="goto('lumen://history')">
+            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="goto('lumen://history')">
               <History :size="15" />
               <span>Open history</span>
             </button>
@@ -259,7 +259,7 @@
             v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02 hover-lift-1"
+            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02 hover-lift-1 hover-bg-fill-tertiary"
             @click="openTarget(entry.url, $event)"
           >
             <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary" :class="`tone-${entry.kind}`">

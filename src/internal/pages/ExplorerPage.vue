@@ -89,7 +89,7 @@
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
           />
-          <button class="explorer-search-btn disabled-fade-50 txt-weight-light cursor-pointer bg-gradient-primary color-white border-none border-radius-8px transition-all-02 padding-62-125" @click="performSearch" :disabled="!searchQuery">
+          <button class="explorer-search-btn disabled-fade-50 txt-weight-light cursor-pointer bg-gradient-primary color-white border-none border-radius-8px transition-all-02 padding-62-125 hover-lift-1" @click="performSearch" :disabled="!searchQuery">
             Search
           </button>
         </div>
@@ -132,7 +132,7 @@
 
           <!-- Charts Section -->
           <div class="explorer-charts-section gap-75 grid">
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-50">
@@ -164,7 +164,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
@@ -195,7 +195,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default">
+            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
@@ -222,7 +222,7 @@
               </div>
             </div>
 
-            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default">
+            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default shadow-subtle">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light bg-fill-success fs-13px padding-45-75">
@@ -257,7 +257,7 @@
 
           <!-- Recent Activity -->
           <div class="explorer-recent-activity gap-75 grid margin-top-75">
-            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default">
+            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Blocks</h3>
                 <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'blocks'">View All →</button>
@@ -287,7 +287,7 @@
               </div>
             </div>
 
-            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default">
+            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Transactions</h3>
                 <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'transactions'">View All →</button>
@@ -327,7 +327,7 @@
             </div>
             <div class="explorer-header-actions flex flex-inline-align-center gap-75 flex-wrap-wrap">
               <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
-                <select v-model="blockFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px">
+                <select v-model="blockFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
                   <option value="all">All Blocks</option>
                   <option value="recent">Recent (Last 100)</option>
                   <option value="with-txs">With Transactions</option>
@@ -337,7 +337,7 @@
                   v-model="blockHeightFilter"
                   type="number"
                   placeholder="Filter by height..."
-                  class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02"
+                  class="explorer-height-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
                 />
               </div>
               <span class="explorer-refresh-indicator flex-align-center gap-50 color-text-tertiary fw-500 fs-13px inline-flex flex-inline-align-center gap-35 border-radius-4px fs-11px txt-weight-light color-success bg-ios-green-a1 border-1-ios-green-a30" :class="{ active: autoRefresh }">
@@ -359,7 +359,7 @@
             <div class="explorer-table-body flex flex-column overflow-y-auto">
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-100 grid border-bottom-1 flex-inline-align-center padding-62-100 transition-bg-02 border-bottom-05-black-a06" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
-                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline" @click="navigateToBlock(block.height)">
+                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer gap-35 transition-all-02 hover-underline hover-color-accent-secondary" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-14px h-14px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -412,14 +412,14 @@
               <p class="explorer-transactions-subtitle color-text-tertiary margin-0 fs-14px">Latest transactions on the lumen-mainnet</p>
             </div>
             <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-50">
-              <select v-model="txTypeFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px">
+              <select v-model="txTypeFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
                 <option value="delegate">Delegate</option>
                 <option value="vote">Vote</option>
                 <option value="other">Other</option>
               </select>
-              <select v-model="txStatusFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px">
+              <select v-model="txStatusFilter" class="explorer-filter-select cursor-pointer padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
@@ -428,7 +428,7 @@
                 v-model="txHashFilter"
                 type="text"
                 placeholder="Filter by hash..."
-                class="explorer-hash-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02"
+                class="explorer-hash-filter-input padding-50-75 border-1 border-radius-8px bg-card color-text-primary fs-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
               />
             </div>
           </div>
@@ -484,7 +484,7 @@
                   </span>
                 </div>
                 <div class="explorer-td td-height flex-align-center fs-13px fs-14px">
-                  <span class="explorer-block-link explorer-clickable color-primary txt-weight-light cursor-pointer fs-13px" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                  <span class="explorer-block-link explorer-clickable color-primary txt-weight-light cursor-pointer fs-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
                 <div class="explorer-td td-fee flex-align-center fs-13px fs-14px">
                   <span class="explorer-fee-amount fs-075rem color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
@@ -504,7 +504,7 @@
             <p class="explorer-validators-subtitle color-text-tertiary fs-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
-          <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden">
+          <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden shadow-subtle">
             <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
@@ -529,7 +529,7 @@
                     </div>
                     <div class="validator-name-wrapper flex flex-column gap-25">
                       <span class="explorer-validator-name txt-weight-light color-text-primary fs-18px fs-14px">{{ validator.moniker }}</span>
-                      <span class="explorer-validator-address color-text-tertiary cursor-pointer margin-top-50 padding-top-75 fs-11px border-top-1 mono" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
+                      <span class="explorer-validator-address color-text-tertiary cursor-pointer margin-top-50 padding-top-75 fs-11px border-top-1 mono hover-color-ios-blue" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
                   </div>
                 </div>
@@ -653,7 +653,7 @@
                   type="number" 
                   v-model="stakeAmount" 
                   :placeholder="`0.0`"
-                  class="explorer-stake-input w-full color-text-primary txt-weight-light bg-secondary border-1 border-radius-8px fs-15px transition-all-02"
+                  class="explorer-stake-input w-full color-text-primary txt-weight-light bg-secondary border-1 border-radius-8px fs-15px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow"
                   step="0.000001"
                   min="0"
                 />
@@ -683,7 +683,7 @@
 
             <div v-if="currentStakeAction === 'Redelegate'" class="explorer-form-group flex flex-column gap-50">
               <label class="explorer-form-group-label fs-14px txt-weight-light color-text-primary">Select New Validator</label>
-              <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer padding-75-100 bg-secondary border-1 border-radius-8px fs-14px transition-all-02">
+              <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer padding-75-100 bg-secondary border-1 border-radius-8px fs-14px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option value="">Choose validator...</option>
                 <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
                   {{ val.moniker }}
@@ -724,7 +724,7 @@
                     <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full margin-top-75 padding-75 bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block fs-11px color-text-tertiary margin-bottom-25 text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02 hover-border-accent" @click="viewTransaction(txHash)">
+                      <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02 hover-border-accent hover-bg-primary-a08" @click="viewTransaction(txHash)">
                         <code class="explorer-tx-hash-link-code flex-1 mono fs-075rem color-primary break-all txt-weight-light">{{ txHash }}</code>
                         <svg class="explorer-tx-hash-link-svg flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -734,7 +734,7 @@
                       </button>
                     </div>
                   </div>
-                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02" @click="closeStakeModal">Close</button>
+                  <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 hover-lift-1" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->
@@ -747,7 +747,7 @@
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
                     <p class="explorer-tx-status-text-p fs-14px color-text-secondary margin-0">{{ txMessage }}</p>
                   </div>
-                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150" @click="txStatus = 'idle'">Try Again</button>
+                  <button class="explorer-tx-retry-btn txt-weight-light cursor-pointer margin-top-50 bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 padding-75-150 hover-lift-1" @click="txStatus = 'idle'">Try Again</button>
                 </div>
               </div>
             </div>

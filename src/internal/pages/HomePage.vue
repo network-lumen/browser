@@ -2,7 +2,7 @@
   <div class="home-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
-      <button type="button" class="homepage-toggle-pages w-full flex-align-center-justify-space-between gap-50 cursor-pointer color-text-secondary border-radius-sm fs-13px fw-500 padding-50-75 border-default bg-secondary transition-all-015" @click="showAllPages = !showAllPages">
+      <button type="button" class="homepage-toggle-pages w-full flex-align-center-justify-space-between gap-50 cursor-pointer color-text-secondary border-radius-sm fs-13px fw-500 padding-50-75 border-default bg-secondary transition-all-015 hover-bg-hover hover-border-primary-a30 hover-color-text-primary" @click="showAllPages = !showAllPages">
         <span>All pages</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </button>
@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur hover-bg-hover hover-lift-2"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur hover-bg-hover hover-lift-2"
+            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"

@@ -1,20 +1,20 @@
 <template>
   <div class="absolute inset-0 z-1400 bg-transparent" @click="requestClose()">
     <div class="extension-popup-shell absolute overflow-hidden border-radius-14px bg-dark-111 right-12px border-1-white-a08" :style="popupShellStyle" @click.stop>
-      <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-2" aria-label="Close extension popup" @click="requestClose()">
+      <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-2 color-white-a86" aria-label="Close extension popup" @click="requestClose()">
         <X :size="14" />
       </button>
 
-      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150">
+      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
         {{ error }}
       </div>
-      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150">
+      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
         Preparing extension…
       </div>
-      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150">
+      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
         Extension guest preload is unavailable.
       </div>
-      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150">
+      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
         Loading extension…
       </div>
       <webview
@@ -35,7 +35,7 @@
         @did-stop-loading="onDidStopLoading"
         @dom-ready="onDomReady"
       ></webview>
-      <div v-else class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150">
+      <div v-else class="extension-popup-status w-full h-full fs-14px text-center flex-align-justify-center padding-150 color-white-a82">
         Preparing extension…
       </div>
     </div>

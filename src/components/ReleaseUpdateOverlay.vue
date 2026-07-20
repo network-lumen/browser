@@ -6,7 +6,7 @@
           <div class="flex-align-start flex-justify-space-between gap-100 margin-bottom-100">
             <div>
               <div class="fs-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
-              <div class="fs-19px fw-700">{{ latest?.version || 'Preparing update' }}</div>
+              <div class="fs-19px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
             </div>
           </div>
 

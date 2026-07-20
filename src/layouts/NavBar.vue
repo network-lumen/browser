@@ -38,7 +38,7 @@
         :value="urlField"
         @input="onInput"
         type="text"
-        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px border-default bg-secondary transition-all-02"
+        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px border-default bg-secondary transition-all-02 focus-outline-none focus-bg-primary focus-border-accent focus-ring focus-shadow"
         placeholder="Search or enter a URL"
         @keydown.enter="onEnter"
       />
@@ -74,7 +74,7 @@
       </button>
     </div>
 
-    <div class="navbar-extensions-section appregion-no-drag relative">
+    <div class="navbar-extensions-section appregion-no-drag relative margin-left-n50">
       <button
         type="button"
         class="navbar-nav-btn hover-fill-primary-enabled extensions-trigger flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
@@ -185,7 +185,7 @@
       <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full hover-bg-hover hover-border-color" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
         <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">{{ activeProfileDisplay }}</span>
-        <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary" />
+        <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary margin-left-n12" />
       </button>
 
       <div
@@ -287,7 +287,7 @@
                 type="password" 
                 v-model="exportPassword" 
                 placeholder="Enter your wallet password"
-                class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
             </div>
@@ -312,7 +312,7 @@
                   type="password" 
                   v-model="exportPassword" 
                   placeholder="Enter password (min 6 characters)"
-                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 />
               </div>
               <div class="navbar-export-field flex flex-column gap-25">
@@ -321,7 +321,7 @@
                   type="password" 
                   v-model="exportPasswordConfirm" 
                   placeholder="Confirm password"
-                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
               </div>
@@ -422,7 +422,7 @@
                 <input
                   v-model="manualImportName"
                   type="text"
-                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                   placeholder="Enter profile name"
                 />
               </div>
@@ -431,7 +431,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary font-inherit"
+                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
@@ -441,7 +441,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -451,7 +451,7 @@
                 <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -511,7 +511,7 @@
                 type="password" 
                 v-model="importPassword" 
                 placeholder="Enter backup password"
-                class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary"
+                class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
             </div>

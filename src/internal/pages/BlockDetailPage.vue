@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
     <div class="blockdetail-header bg-primary border-bottom-1">
-      <button class="blockdetail-back-btn flex-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 txt-weight-light border-radius-8px fs-14px transition-all-02 hover-lift-1" @click="goBack">
+      <button class="blockdetail-back-btn flex-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 txt-weight-light border-radius-8px fs-14px transition-all-02 hover-lift-1 shadow-primary-xs" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -53,7 +53,7 @@
                 />
                 <span v-else>{{ block.proposer.charAt(0).toUpperCase() }}</span>
               </div>
-              <span class="color-text-primary fs-15px fw-600">{{ block.proposer }}</span>
+              <span class="color-text-primary fs-15px txt-weight-light">{{ block.proposer }}</span>
             </div>
           </div>
           <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary">

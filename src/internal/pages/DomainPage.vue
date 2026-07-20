@@ -232,7 +232,7 @@
                 <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">Stable link name</label>
                 <input
                   v-model="stableLinkNameDraft"
-                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                   type="text"
                   autocomplete="off"
                   placeholder="my-link"
@@ -293,14 +293,14 @@
                   >
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
                       :disabled="stableSettingsSaving"
                     />
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
                       :disabled="stableSettingsSaving"
@@ -358,7 +358,7 @@
                 <div class="domainpage-domain-input-wrapper flex-align-center gap-35">
                   <input
                     type="text"
-                    class="domainpage-form-input domainpage-domain-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                    class="domainpage-form-input domainpage-domain-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
@@ -367,7 +367,7 @@
                   <span class="domainpage-dot-sep txt-weight-light color-text-tertiary fs-14px">.</span>
                   <input
                     type="text"
-                    class="domainpage-form-input domainpage-ext-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                    class="domainpage-form-input domainpage-ext-part w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                     v-model="registerForm.ext"
                     placeholder="lmn"
                     @blur="refreshAvailability"
@@ -443,13 +443,13 @@
                   >
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                      class="domainpage-form-input domainpage-key-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                       v-model="r.key"
                       placeholder="cid | ipns | txt | ..."
                     />
                     <input
                       type="text"
-                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                      class="domainpage-form-input domainpage-value-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                       v-model="r.value"
                       placeholder="Value"
                     />
@@ -528,7 +528,7 @@
                 <label class="color-text-secondary domainpage-form-group-label block margin-bottom-25 fs-13px">New Owner Address</label>
                 <input
                   type="text"
-                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75"
+                  class="domainpage-form-input w-full border-radius-10px fs-085rem color-text-primary border-1 bg-secondary padding-62-75 focus-outline-none focus-border-accent focus-ring focus-shadow"
                   v-model="transferForm.newOwner"
                   placeholder="lumen1..."
                 />

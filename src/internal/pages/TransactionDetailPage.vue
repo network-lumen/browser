@@ -7,7 +7,7 @@
         </svg>
         Back to Explorer
       </button>
-      <h1 class="fs-28px fw-600 color-text-primary margin-0">Transaction Details</h1>
+      <h1 class="fs-28px txt-weight-light color-text-primary margin-0">Transaction Details</h1>
     </div>
 
     <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100">
@@ -48,7 +48,7 @@
           </div>
           <div class="chaindetail-row gap-100 grid border-bottom-1-light">
             <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Block Height:</span>
-            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary fs-14px break-all" @click="navigateToBlock(transaction.height)">
+            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary fs-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
