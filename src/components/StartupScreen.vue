@@ -1,5 +1,5 @@
 <template>
-  <div class="startup-card bg-card border-default flex flex-column w-full h-full border-radius-0 shadow-none overflow-hidden" role="status" aria-live="polite">
+  <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="startup-card flex flex-column w-full h-full shadow-none overflow-hidden">
     <header class="startup-head flex-align-center gap-75 padding-62 border-bottom-default">
       <div class="startup-mark bg-gradient-primary color-white flex-align-justify-center flex-0-0-auto fs-18px border-radius-14px w-42px h-42px fw-900" aria-hidden="true">L</div>
       <div class="min-w-0">
@@ -17,9 +17,9 @@
           <div class="startup-msg-subtitle color-text-secondary fs-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <button class="startup-btn startup-btn-primary bg-gradient-primary color-white border-default cursor-pointer margin-bottom-100 border-radius-md fs-13px shadow-primary padding-62-100 fw-650 border-color-transparent" type="button" :disabled="busy" @click="restartAll">
+          <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="startup-btn startup-btn-primary">
             Retry
-          </button>
+          </UiButton>
         </div>
       </div>
     </main>
@@ -28,10 +28,12 @@
       <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary fs-12px">This usually takes a few seconds.</span>
       <span v-else class="startup-hint color-text-tertiary fs-12px">If it keeps failing, restart Lumen.</span>
     </footer>
-  </div>
+  </UiCard>
 </template>
 
 <script setup lang="ts">
+import UiCard from '../ui/UiCard.vue';
+import UiButton from '../ui/UiButton.vue';
 import { ref, onMounted } from 'vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 

@@ -5,10 +5,10 @@
         <h2 class="color-text-primary txt-weight-medium fs-24px">Recurring Payments & Subscriptions</h2>
         <p class="color-text-secondary margin-0 fs-14px">Manage your scheduled automatic payments</p>
       </div>
-      <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px padding-62-125" @click="showCreateModal = true">
+      <UiButton variant="primary" @click="showCreateModal = true" class="subview-btn outline-none">
         <Plus :size="16" />
         <span>New Payment</span>
-      </button>
+      </UiButton>
     </div>
 
     <!-- Payment Reminders -->
@@ -30,9 +30,9 @@
             <h4 class="color-text-primary fs-14px">{{ reminder.paymentName }}</h4>
             <p class="color-text-secondary margin-0 fs-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
-          <button class="subview-reminder-dismiss flex-0-0-auto bg-transparent border-none cursor-pointer color-text-tertiary padding-25 border-radius-4px transition-all-02 hover-bg-tertiary hover-color-text-primary" @click="dismissReminder(reminder.id)">
+          <UiButton variant="primary" @click="dismissReminder(reminder.id)" class="subview-reminder-dismiss">
             <X :size="16" />
-          </button>
+          </UiButton>
         </div>
       </div>
     </div>
@@ -95,10 +95,10 @@
         <Calendar :size="48" class="subview-empty-icon color-text-tertiary margin-bottom-100" />
         <h3 class="color-text-primary fs-18px subview-empty-state-h3 margin-0 margin-bottom-50">No Recurring Payments</h3>
         <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">Schedule automatic payments for subscriptions, bills, and more</p>
-        <button class="subview-btn primary txt-weight-light txt-sm cursor-pointer outline-none flex-inline-align-center gap-50 border-none color-white border-radius-8px padding-62-125" @click="showCreateModal = true">
+        <UiButton variant="primary" @click="showCreateModal = true" class="subview-btn outline-none">
           <Plus :size="16" />
           <span>Create Your First Payment</span>
-        </button>
+        </UiButton>
       </div>
 
       <!-- Payments Grid -->
@@ -150,43 +150,30 @@
           </div>
 
           <div class="subview-payment-actions flex gap-50 padding-top-100 border-top-1">
-            <button
-              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
-              @click="viewHistory(payment)"
-              title="View History"
-            >
+            <UiButton variant="secondary" @click="viewHistory(payment)"
+              title="View History" class="subview-action-btn">
               <History :size="16" />
-            </button>
-            <button
-              class="subview-action-btn flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary"
-              @click="editPayment(payment)"
-              title="Edit"
-            >
+            </UiButton>
+            <UiButton variant="secondary" @click="editPayment(payment)"
+              title="Edit" class="subview-action-btn">
               <Edit :size="16" />
-            </button>
-            <button
-              v-if="payment.status === 'active'"
-              class="subview-action-btn pause flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary color-ios-orange-hover background-ios-orange-a15-hover"
+            </UiButton>
+            <UiButton variant="secondary" v-if="payment.status === 'active'"
+             
               @click="pausePayment(payment.id)"
-              title="Pause"
-            >
+              title="Pause" class="subview-action-btn pause background-ios-orange-a15-hover">
               <PauseCircle :size="16" />
-            </button>
-            <button
-              v-else-if="payment.status === 'paused'"
-              class="subview-action-btn resume flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary color-ios-green-hover background-fill-success-hover"
+            </UiButton>
+            <UiButton variant="secondary" v-else-if="payment.status === 'paused'"
+             
               @click="resumePayment(payment.id)"
-              title="Resume"
-            >
+              title="Resume" class="subview-action-btn resume background-fill-success-hover">
               <PlayCircle :size="16" />
-            </button>
-            <button
-              class="subview-action-btn delete flex-1 flex-align-justify-center cursor-pointer border-none color-text-secondary padding-50 bg-fill-tertiary border-radius-6px transition-all-02 hover-bg-fill-secondary hover-color-text-primary hover-color-error background-fill-error-hover"
-              @click="confirmDelete(payment)"
-              title="Delete"
-            >
+            </UiButton>
+            <UiButton variant="secondary" @click="confirmDelete(payment)"
+              title="Delete" class="subview-action-btn delete background-fill-error-hover">
               <Trash2 :size="16" />
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
@@ -202,19 +189,13 @@
     />
 
     <!-- Payment History Modal -->
-    <Transition name="fade">
-      <div v-if="showHistoryModal" class="subview-modal-overlay overlay-scrim z-9999 backdrop-blur-4px bg-black-a75" @click="showHistoryModal = false">
-        <div class="subview-modal-content bg-card w-full flex flex-column overflow-hidden border-radius-12px max-w-500px" @click.stop>
-          <div class="subview-modal-header flex-align-center-justify-space-between padding-125 border-bottom-1">
-            <h3 class="flex-align-center gap-50 color-text-primary margin-0 fs-18px">
-              <History :size="20" />
-              <span>Payment History</span>
-            </h3>
-            <button class="subview-close-btn bg-transparent border-none cursor-pointer color-text-secondary padding-25 border-radius-6px transition-all-02 hover-bg-fill-tertiary hover-color-text-primary" @click="showHistoryModal = false">
-              <X :size="20" />
-            </button>
-          </div>
-          <div class="subview-modal-body flex-1 overflow-y-auto padding-125">
+    <UiModal :model-value="showHistoryModal" panel-class="w-full max-w-500px" @update:model-value="showHistoryModal = false">
+      <template #header>
+        <h3 class="flex-align-center gap-50 color-text-primary margin-0 fs-18px">
+          <History :size="20" />
+          <span>Payment History</span>
+        </h3>
+      </template>
             <div v-if="selectedPaymentHistory.length === 0" class="subview-empty-state small text-center">
               <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">No payment history yet</p>
             </div>
@@ -246,10 +227,7 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    </UiModal>
 
     <!-- QR Scanner -->
     <QrScanner 
@@ -262,6 +240,8 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
 import { ref, computed, onMounted } from 'vue';
 import { 
   Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle, 

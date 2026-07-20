@@ -1,24 +1,22 @@
 <template>
-  <Transition name="walletonboard-transition">
-    <div v-if="visible" class="walletonboard-overlay overlay-scrim backdrop-blur-4px bg-black-a50 z-10000" @click="handleOverlayClick">
-      <div class="walletonboard-content walletonboard-modal bg-card flex flex-column overflow-y-auto border-radius-16px max-h-90vh w-90pct max-w-560px shadow-0-24-48-rgba-0-0-0-0-2" @click.stop>
-        <div class="walletonboard-header text-center border-bottom-default padding-200-200-150">
-          <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
-            <Shield :size="32" class="color-primary" />
-          </div>
-          <h2 class="walletonboard-title color-text-primary txt-weight-light fs-15rem margin-0 margin-bottom-50">
-            {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
-          </h2>
-          <p class="walletonboard-subtitle color-text-secondary margin-0 fs-14px">
-            {{
-              requiresProfileCreation
-                ? "A profile is required to use Drive, Wallet, and personal storage."
-                : "Your wallet is local and self-custodial"
-            }}
-          </p>
+  <UiModal :model-value="visible" panel-class="walletonboard-modal w-90pct max-w-560px" :closable="false" @update:model-value="() => {}">
+    <template #header>
+      <div class="walletonboard-header text-center">
+        <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
+          <Shield :size="32" class="color-primary" />
         </div>
-
-        <div class="walletonboard-body flex-1 overflow-y-auto padding-200">
+        <h2 class="walletonboard-title color-text-primary txt-weight-light fs-15rem margin-0 margin-bottom-50">
+          {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
+        </h2>
+        <p class="walletonboard-subtitle color-text-secondary margin-0 fs-14px">
+          {{
+            requiresProfileCreation
+              ? "A profile is required to use Drive, Wallet, and personal storage."
+              : "Your wallet is local and self-custodial"
+          }}
+        </p>
+      </div>
+    </template>
           <div v-if="step === 'intro'" class="walletonboard-step">
             <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a3">
               <AlertCircle :size="20" class="color-warning" />
@@ -56,24 +54,20 @@
 
             <div class="walletonboard-group margin-bottom-150">
               <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Password (minimum 8 characters)</label>
-              <input
-                v-model="password"
-                type="password"
-                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card focus-border-accent focus-ring-blue"
+              <UiInput bg-class="bg-card" padding-class="padding-75" :focus-ring="false" v-model="password"
+               
+               
                 placeholder="Enter password"
-                @keyup.enter="handlePasswordSubmit"
-              />
+                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue" />
             </div>
 
             <div class="walletonboard-group margin-bottom-150">
               <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Confirm Password</label>
-              <input
-                v-model="confirmPassword"
-                type="password"
-                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card focus-border-accent focus-ring-blue"
+              <UiInput bg-class="bg-card" padding-class="padding-75" :focus-ring="false" v-model="confirmPassword"
+               
+               
                 placeholder="Confirm password"
-                @keyup.enter="handlePasswordSubmit"
-              />
+                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue" />
             </div>
 
             <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
@@ -93,14 +87,12 @@
 
             <div class="walletonboard-group margin-bottom-150">
               <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Profile name</label>
-              <input
-                v-model="profileName"
-                type="text"
-                class="walletonboard-input w-full color-text-primary outline-none padding-75 border-default border-radius-8px fs-14px transition-all-02 bg-card focus-border-accent focus-ring-blue"
+              <UiInput bg-class="bg-card" padding-class="padding-75" :focus-ring="false" v-model="profileName"
+               
+               
                 placeholder="Enter a profile name"
                 maxlength="64"
-                @keyup.enter="handleProfileNameSubmit"
-              />
+                @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue" />
             </div>
 
             <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
@@ -137,9 +129,9 @@
                 <p class="txt-sm color-gray-blue margin-top-50 margin-0">
                   {{ walletError }}
                 </p>
-                <button class="walletonboard-btn-secondary flex-align-center margin-top-100 cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02" @click="createWallet">
+                <UiButton variant="secondary" @click="createWallet" class="walletonboard-btn-secondary">
                   Try Again
-                </button>
+                </UiButton>
               </div>
             </div>
           </div>
@@ -192,80 +184,55 @@
               </ul>
             </div>
           </div>
-        </div>
+    <template #footer>
+      <UiButton variant="secondary" v-if="step === 'intro' && !requiresProfileCreation"
+        @click="handleSkip" class="walletonboard-btn-secondary">
+        Skip for now
+      </UiButton>
+      <UiButton variant="primary" v-if="step === 'intro'"
+        @click="step = 'password'" class="walletonboard-btn-primary disabled-fade-60">
+        Get Started
+      </UiButton>
 
-        <div class="walletonboard-footer flex gap-100 flex-justify-end border-top-default padding-150-200">
-          <button
-            v-if="step === 'intro' && !requiresProfileCreation"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
-            @click="handleSkip"
-          >
-            Skip for now
-          </button>
-          <button
-            v-if="step === 'intro'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
-            @click="step = 'password'"
-          >
-            Get Started
-          </button>
+      <UiButton variant="secondary" v-if="step === 'password'"
+        @click="step = 'intro'" class="walletonboard-btn-secondary">
+        Back
+      </UiButton>
+      <UiButton variant="primary" v-if="step === 'password'"
+        :disabled="settingPassword"
+        @click="handlePasswordSubmit" class="walletonboard-btn-primary disabled-fade-60">
+        <UiSpinner v-if="settingPassword" size="sm" />
+        <span>{{ settingPassword ? 'Setting Password...' : 'Set Password' }}</span>
+      </UiButton>
 
-          <button
-            v-if="step === 'password'"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
-            @click="step = 'intro'"
-          >
-            Back
-          </button>
-          <button
-            v-if="step === 'password'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
-            :disabled="settingPassword"
-            @click="handlePasswordSubmit"
-          >
-            <UiSpinner v-if="settingPassword" size="sm" />
-            <span>{{ settingPassword ? 'Setting Password...' : 'Set Password' }}</span>
-          </button>
+      <UiButton variant="primary" v-if="step === 'profile-name'"
+        @click="handleProfileNameSubmit" class="walletonboard-btn-primary disabled-fade-60">
+        Continue
+      </UiButton>
 
-          <button
-            v-if="step === 'profile-name'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
-            @click="handleProfileNameSubmit"
-          >
-            Continue
-          </button>
+      <UiButton variant="secondary" v-if="step === 'backup'"
+        @click="handleSkipBackup" class="walletonboard-btn-secondary">
+        Skip Backup
+      </UiButton>
+      <UiButton variant="primary" v-if="step === 'backup'"
+        :disabled="exportingBackup"
+        @click="handleExportBackup" class="walletonboard-btn-primary disabled-fade-60">
+        <UiSpinner v-if="exportingBackup" size="sm" />
+        <span>{{ exportingBackup ? 'Exporting...' : 'Export Backup' }}</span>
+      </UiButton>
 
-          <button
-            v-if="step === 'backup'"
-            class="walletonboard-btn-secondary flex-align-center cursor-pointer gap-50 color-text-secondary bg-transparent border-default padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02"
-            @click="handleSkipBackup"
-          >
-            Skip Backup
-          </button>
-          <button
-            v-if="step === 'backup'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
-            :disabled="exportingBackup"
-            @click="handleExportBackup"
-          >
-            <UiSpinner v-if="exportingBackup" size="sm" />
-            <span>{{ exportingBackup ? 'Exporting...' : 'Export Backup' }}</span>
-          </button>
-
-          <button
-            v-if="step === 'complete'"
-            class="walletonboard-btn-primary disabled-fade-60 flex-align-center cursor-pointer border-none gap-50 bg-gradient-primary color-white padding-75-150 border-radius-8px fs-14px fw-500 transition-all-02 hover-bg-gradient-hover"
-            @click="handleComplete"
-          >
-            Start Using Lumen
-          </button>
-        </div>
-      </div>
-    </div>
-  </Transition>
+      <UiButton variant="primary" v-if="step === 'complete'"
+        @click="handleComplete" class="walletonboard-btn-primary disabled-fade-60">
+        Start Using Lumen
+      </UiButton>
+    </template>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../ui/UiInput.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
 import { computed, ref, watch } from 'vue';
 import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';

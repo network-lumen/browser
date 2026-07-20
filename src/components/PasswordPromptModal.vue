@@ -1,67 +1,52 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div
-        v-if="visible"
-        class="overlay-scrim backdrop-blur-4px z-10000"
-        @click.self="handleCancel"
-      >
-        <div class="modal-panel pwd-modal bg-card border-default w-full border-radius-16px padding-175 max-w-360px shadow-modal-strong">
-          <div class="pwd-modal-header flex-align-center gap-75 margin-bottom-75">
-            <LockKeyhole :size="24" class="color-primary" />
-            <h3 class="color-text-primary margin-0 txt-weight-light pwd-modal-header-h3 fs-18px">Password Required</h3>
-          </div>
-
+  <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-modal-strong" :closable="false" @update:model-value="handleCancel">
+    <template #header>
+      <div class="pwd-modal-header flex-align-center gap-75">
+        <LockKeyhole :size="24" class="color-primary" />
+        <h3 class="color-text-primary margin-0 txt-weight-light pwd-modal-header-h3 fs-18px">Password Required</h3>
+      </div>
+    </template>
           <p class="pwd-modal-message color-text-secondary fs-14px line-height-14 margin-0 margin-bottom-125">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
 
           <div class="margin-bottom-125">
-            <input
-              ref="passwordInput"
+            <UiInput bg-class="bg-fill-tertiary" radius-class="border-radius-10px" font-size-class="fs-16px" padding-class="padding-75-100" :focus-ring="false" ref="passwordInput"
               type="password"
-              class="pwd-modal-input bg-fill-tertiary border-default color-text-primary outline-none w-full border-radius-10px padding-75-100 fs-16px disabled-fade-60 transition-colors-015"
               v-model="password"
               placeholder="Enter password"
               :disabled="loading || busy"
               @keyup.enter="handleSubmit"
-              @keyup.escape="handleCancel"
-            />
+              @keyup.escape="handleCancel" class="pwd-modal-input border-default disabled-fade-60 transition-colors-015" />
 
             <div v-if="error" class="pwd-modal-error color-error fs-085rem margin-top-50 padding-50-75 bg-fill-error border-radius-8px">
               {{ error }}
             </div>
           </div>
 
-          <div class="flex-align-center gap-75 flex-justify-end">
-            <button
-              v-if="cancelable !== false"
-              class="pwd-modal-btn-secondary disabled-fade-50 bg-fill-tertiary color-text-primary border-none cursor-pointer border-radius-10px fw-500 fs-14px padding-62-125 transition-opacity-015"
-              @click="handleCancel"
-              :disabled="loading || busy"
-            >
-              Cancel
-            </button>
-            <button
-              class="pwd-modal-btn-primary disabled-fade-50 color-white border-none cursor-pointer border-radius-10px fw-500 bg-accent fs-14px padding-62-125 transition-opacity-015"
-              @click="handleSubmit"
-              :disabled="loading || busy || !password"
-            >
-              <span v-if="loading">Verifying...</span>
-              <span v-else-if="busy" class="flex-inline-align-center gap-50">
-                <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45 spinner-white" aria-hidden="true"></span>
-                Working...
-              </span>
-              <span v-else>Confirm</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+    <template #footer>
+      <UiButton variant="secondary" v-if="cancelable !== false"
+        @click="handleCancel"
+        :disabled="loading || busy" class="pwd-modal-btn-secondary disabled-fade-50">
+        Cancel
+      </UiButton>
+      <UiButton variant="primary" @click="handleSubmit"
+        :disabled="loading || busy || !password" class="pwd-modal-btn-primary disabled-fade-50">
+        <span v-if="loading">Verifying...</span>
+        <span v-else-if="busy" class="flex-inline-align-center gap-50">
+          <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45 spinner-white" aria-hidden="true"></span>
+          Working...
+        </span>
+        <span v-else>Confirm</span>
+      </UiButton>
+    </template>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../ui/UiInput.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
 import { ref, watch, nextTick } from 'vue';
 import { LockKeyhole } from 'lucide-vue-next';
 import { useInternalLumen } from '../composables/useInternalLumen';

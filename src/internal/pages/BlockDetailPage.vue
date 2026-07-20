@@ -1,12 +1,6 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
     <div class="blockdetail-header bg-primary border-bottom-1 padding-200-200-150">
-      <button class="blockdetail-back-btn flex-align-center gap-50 padding-62-125 bg-gradient-primary color-white border-none cursor-pointer margin-bottom-100 txt-weight-light border-radius-8px fs-14px transition-all-02 hover-lift-1 shadow-primary-xs shadow-0-4-8-primary-a30-hover" @click="goBack">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back to Explorer
-      </button>
       <h1 class="color-text-primary txt-weight-medium margin-0 blockdetail-header-h1 fs-175rem letter-spacing-n002">Block Details</h1>
     </div>
 
@@ -34,12 +28,12 @@
             <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Hash:</span>
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-75">
               <code class="flex-1 blockdetail-hash-value-code padding-50-75 border-1 border-radius-6px fs-13px mono break-all">{{ block.hash }}</code>
-              <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25 hover-border-accent hover-color-accent hover-bg-secondary" @click="copyToClipboard(block.hash)" title="Copy hash">
+              <UiButton variant="secondary" @click="copyToClipboard(block.hash)" title="Copy hash" class="blockdetail-copy-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-              </button>
+              </UiButton>
             </div>
           </div>
           <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
@@ -99,7 +93,7 @@
         </div>
         <div class="chaindetail-card-body padding-150">
           <div class="flex flex-column gap-100">
-            <div class="blockdetail-tx-item flex gap-100 cursor-pointer border-radius-md flex-align-start padding-100-125 bg-card border-default shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)">
+            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-100 cursor-pointer flex-align-start padding-100-125 shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover">
               <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-md color-ios-blue min-w-32px bg-gradient-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -108,19 +102,19 @@
               <div class="flex-1 min-w-0">
                 <div class="blockdetail-tx-hash flex-align-center gap-50 margin-bottom-50">
                   <code class="flex-1 border-radius-sm blockdetail-tx-hash-code padding-50-62 bg-card border-default fs-075rem mono break-all">{{ tx.hash }}</code>
-                  <button class="blockdetail-copy-btn bg-primary color-text-secondary cursor-pointer flex-align-justify-center border-1 border-radius-6px transition-all-02 flex-shrink-0 padding-25 hover-border-accent hover-color-accent hover-bg-secondary" @click.stop="copyToClipboard(tx.hash)">
+                  <UiButton variant="secondary" @click.stop="copyToClipboard(tx.hash)" class="blockdetail-copy-btn">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                  </button>
+                  </UiButton>
                 </div>
                 <div class="flex-align-center gap-100 fs-13px">
                   <span class="color-text-secondary fw-500">{{ tx.type }}</span>
                   <span class="blockdetail-tx-status-success flex-align-center gap-25 color-success txt-weight-light bg-fill-success border-radius-4px padding-25-4">✓ Success</span>
                 </div>
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
       </div>
@@ -129,6 +123,8 @@
 </template>
 
 <script setup lang="ts">
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -219,14 +215,6 @@ async function copyToClipboard(text: string) {
     console.log('Copied to clipboard');
   } catch (err) {
     console.error('Failed to copy:', err);
-  }
-}
-
-function goBack() {
-  if (openInNewTab) {
-    openInNewTab('lumen://explorer');
-  } else {
-    window.location.href = 'lumen://explorer';
   }
 }
 

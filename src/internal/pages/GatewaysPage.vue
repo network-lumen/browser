@@ -29,22 +29,18 @@
           </p>
         </div>
         <div class="gwpage-manage-head-actions flex-inline">
-          <button
-            type="button"
-            class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary"
+          <UiButton variant="secondary" type="button"
+           
             @click="refreshManage"
-            :disabled="gatewaysLoading"
-          >
+            :disabled="gatewaysLoading" class="gwpage-btn-secondary">
             Refresh
-          </button>
-          <button
-            type="button"
-            class="gwpage-btn-primary color-white flex-inline-align-center border-none cursor-pointer padding-75-125 bg-gradient-primary fs-14px transition-all-02 hover-lift-2"
+          </UiButton>
+          <UiButton variant="primary" type="button"
+           
             @click="openCreateModal"
-            :disabled="gatewaysLoading || !hasProfile"
-          >
+            :disabled="gatewaysLoading || !hasProfile" class="gwpage-btn-primary">
             Create gateway
-          </button>
+          </UiButton>
         </div>
       </header>
 
@@ -96,7 +92,7 @@
           <div v-else-if="gatewaysError" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
             <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">Unable to load gateways</h2>
             <p class="gwpage-empty-sub color-text-secondary fs-14px">{{ gatewaysError }}</p>
-            <button class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary" @click="refreshManage">Try again</button>
+            <UiButton variant="secondary" @click="refreshManage" class="gwpage-btn-secondary">Try again</UiButton>
           </div>
 
           <div v-else-if="!myGateways.length" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
@@ -126,19 +122,17 @@
               <div class="gwpage-manage-grid grid gap-90-100" v-if="editMap[gw.id]">
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
-                  <input v-model="editMap[gw.id].endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="gateway.city" />
+                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].endpoint" placeholder="gateway.city" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Regions</label>
-                  <input
-                    v-model="editMap[gw.id].regions"
-                    class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow"
-                    placeholder="us-east, eu-west"
-                  />
+                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].regions"
+                   
+                    placeholder="us-east, eu-west" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Payout address</label>
-                  <input v-model="editMap[gw.id].payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="lmn1..." />
+                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Active</label>
@@ -149,16 +143,14 @@
                 </div>
                 <div class="gwpage-form-group full">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Metadata (JSON object)</label>
-                  <textarea
-                    v-model="editMap[gw.id].metadata"
-                    class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow"
+                  <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].metadata"
+                   
                     rows="7"
-                    placeholder='{\n  "name": "My gateway"\n}'
-                  ></textarea>
+                    placeholder='{\n  "name": "My gateway"\n}' class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow"></UiInput>
                 </div>
                 <div class="gwpage-form-group full">
                   <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Memo</label>
-                  <input v-model="editMap[gw.id].memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="Optional memo" />
+                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
               </div>
 
@@ -170,73 +162,55 @@
               </div>
 
               <footer class="gwpage-manage-card-actions flex flex-justify-end">
-                <button
-                  type="button"
-                  class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary"
+                <UiButton variant="secondary" type="button"
+                 
                   @click="resetEdit(gw.id)"
-                  :disabled="editMap[gw.id].busy"
-                >
+                  :disabled="editMap[gw.id].busy" class="gwpage-btn-secondary">
                   Reset
-                </button>
-                <button
-                  type="button"
-                  class="gwpage-btn-primary color-white flex-inline-align-center border-none cursor-pointer padding-75-125 bg-gradient-primary fs-14px transition-all-02 hover-lift-2"
+                </UiButton>
+                <UiButton variant="primary" type="button"
+                 
                   @click="updateGateway(gw.id)"
-                  :disabled="editMap[gw.id].busy || !isDirty(gw.id)"
-                >
+                  :disabled="editMap[gw.id].busy || !isDirty(gw.id)" class="gwpage-btn-primary">
                   <span v-if="!editMap[gw.id].busy">Save changes</span>
                   <span v-else>Submitting…</span>
-                </button>
+                </UiButton>
               </footer>
             </section>
           </div>
 
-          <Transition name="gwpage-modal-transition">
-            <div
-              v-if="showCreateModal"
-              class="gwpage-modal-overlay overlay-scrim backdrop-blur-4px bg-black-a35 z-100"
-              @click="closeCreateModal"
-            >
-              <div class="gwpage-modal-content overflow-hidden bg-primary border-1 shadow-primary-lg w-min-760" @click.stop>
-                <div class="gwpage-modal-header flex-align-start flex-justify-space-between border-bottom-1-light padding-125-125-75">
-                  <div>
-                    <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
-                    <p class="gwpage-modal-sub color-text-secondary margin-0 margin-top-25">Register a new gateway for the active profile.</p>
-                  </div>
-                  <button type="button" class="gwpage-icon-btn disabled-fade-60 hover-fill-primary-enabled bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer border-1-light line-height-1 w-34px h-34px transition-colors-015" @click="closeCreateModal" :disabled="registerState.busy">
-                    ×
-                  </button>
-                </div>
-
-                <div class="gwpage-modal-body grid gap-90-100 padding-100-125-25">
+          <UiModal :model-value="showCreateModal" panel-class="w-min-760" :closable="!registerState.busy" @update:model-value="closeCreateModal">
+            <template #header>
+              <div>
+                <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
+                <p class="gwpage-modal-sub color-text-secondary margin-0 margin-top-25">Register a new gateway for the active profile.</p>
+              </div>
+            </template>
+                <div class="gwpage-modal-body grid gap-90-100">
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
-                    <input v-model="registerForm.endpoint" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="gateway.city" />
+                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.endpoint" placeholder="gateway.city" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Regions</label>
-                    <input
-                      v-model="registerForm.regions"
-                      class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow"
-                      placeholder="us-east, eu-west"
-                    />
+                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.regions"
+                     
+                      placeholder="us-east, eu-west" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Payout address</label>
-                    <input v-model="registerForm.payout" class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="lmn1..." />
+                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Metadata (JSON object)</label>
-                    <textarea
-                      v-model="registerForm.metadata"
-                      class="gwpage-form-input w-full color-text-primary mono border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow"
+                    <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.metadata"
+                     
                       rows="7"
-                      placeholder='{\n  "name": "My gateway"\n}'
-                    ></textarea>
+                      placeholder='{\n  "name": "My gateway"\n}' class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow"></UiInput>
                   </div>
                   <div class="gwpage-form-group">
                     <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Memo</label>
-                    <input v-model="registerForm.memo" class="gwpage-form-input w-full color-text-primary border-1 bg-secondary padding-62-75 focus-border-accent focus-ring focus-outline-none focus-shadow" placeholder="Optional memo" />
+                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
 
                   <div v-if="registerState.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
@@ -246,24 +220,18 @@
                     tx: {{ registerState.txhash }}
                   </div>
                 </div>
-
-                <div class="gwpage-modal-actions flex flex-justify-end border-top-1-light padding-100-125-125">
-                  <button type="button" class="gwpage-btn-secondary color-text-primary flex-inline-align-center cursor-pointer padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary" @click="closeCreateModal" :disabled="registerState.busy">
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    class="gwpage-btn-primary color-white flex-inline-align-center border-none cursor-pointer padding-75-125 bg-gradient-primary fs-14px transition-all-02 hover-lift-2"
-                    @click="registerGateway"
-                    :disabled="registerState.busy || !canRegister"
-                  >
-                    <span v-if="!registerState.busy">Create</span>
-                    <span v-else>Submitting…</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Transition>
+            <template #footer>
+              <UiButton variant="secondary" type="button" @click="closeCreateModal" :disabled="registerState.busy" class="gwpage-btn-secondary">
+                Cancel
+              </UiButton>
+              <UiButton variant="primary" type="button"
+                @click="registerGateway"
+                :disabled="registerState.busy || !canRegister" class="gwpage-btn-primary">
+                <span v-if="!registerState.busy">Create</span>
+                <span v-else>Submitting…</span>
+              </UiButton>
+            </template>
+          </UiModal>
 
           <Transition name="gwpage-toast-transition">
             <div v-if="toast.show" class="gwpage-toast flex-align-start border-radius-md fixed padding-75-125 shadow-primary-lg bg-gradient-primary color-white bottom-200 left-half" :class="toast.kind">
@@ -277,6 +245,9 @@
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiModal from '../../ui/UiModal.vue';
 import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';

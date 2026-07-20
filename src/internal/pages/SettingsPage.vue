@@ -117,7 +117,7 @@
       <!-- Appearance View -->
       <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Theme Preference</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Choose your preferred color scheme</span>
@@ -150,8 +150,8 @@
                 </button>
               </div>
             </div>
-          </div>
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          </UiCard>
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Font Size</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust the default font size</span>
@@ -163,8 +163,8 @@
                 <option value="large">Large</option>
               </select>
             </div>
-          </div>
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          </UiCard>
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Brightness</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Adjust screen brightness ({{ brightness }}%)</span>
@@ -180,14 +180,14 @@
               />
               <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary min-w-45px">{{ brightness }}%</span>
             </div>
-          </div>
+          </UiCard>
         </div>
       </div>
 
       <!-- Content View -->
       <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show sexual content</span>
             </div>
@@ -197,9 +197,9 @@
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
-          </div>
+          </UiCard>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show violent / gore content</span>
             </div>
@@ -209,9 +209,9 @@
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
-          </div>
+          </UiCard>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Show disturbing imagery</span>
             </div>
@@ -221,7 +221,7 @@
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
-          </div>
+          </UiCard>
 
           <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Sensitive content is blurred by default. You can choose what to reveal.
@@ -232,7 +232,7 @@
       <!-- Privacy View -->
       <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Save browsing history</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -247,9 +247,9 @@
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
-          </div>
+          </UiCard>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Saved items</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -258,13 +258,13 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary" @click="openInNewTabSafe('lumen://history')">
+              <UiButton variant="secondary" @click="openInNewTabSafe('lumen://history')" class="settingspage-btn-secondary disabled-fade-50">
                 Open history
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Clear saved history</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -272,11 +272,11 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary" :disabled="!historyEntries.length" @click="clearProfileHistory">
+              <UiButton variant="secondary" :disabled="!historyEntries.length" @click="clearProfileHistory" class="settingspage-btn-secondary disabled-fade-50">
                 Clear history
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
 
           <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Turning history off stops new entries from being saved, but does not delete existing ones.
@@ -287,7 +287,7 @@
       <!-- Network View -->
       <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Kubo connectivity</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -325,7 +325,7 @@
                 </button>
               </div>
             </div>
-          </div>
+          </UiCard>
 
           <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             If your network is unstable or your device is resource-constrained, Light is recommended.
@@ -347,7 +347,7 @@
       <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Status Display -->
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Password Protection</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -364,31 +364,29 @@
                 {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
               </span>
             </div>
-          </div>
+          </UiCard>
 
           <!-- Session Status (only shown when password is enabled) -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Session Status</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">{{ securitySessionStatusText }}</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button 
-                v-if="securitySessionActive"
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                @click="lockSecuritySession"
-              >
+              <UiButton variant="secondary" v-if="securitySessionActive"
+               
+                @click="lockSecuritySession" class="settingspage-btn-secondary disabled-fade-50">
                 <LockKeyhole :size="16" />
                 Lock Now
-              </button>
+              </UiButton>
               <span v-else class="settingspage-status-badge status-locked badge-warning color-warning flex-inline-align-center gap-35 border-radius-20px fw-500 inline-flex padding-25-75 bg-ios-orange-a15">
                 <LockKeyhole :size="14" />
                 Locked
               </span>
             </div>
-          </div>
+          </UiCard>
 
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Password Cache Duration</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -411,10 +409,10 @@
                 </option>
               </select>
             </div>
-          </div>
+          </UiCard>
 
           <!-- Set Password (when no password is set) -->
-          <div v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="!securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Set Password</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -422,7 +420,7 @@
                 Your keys will be encrypted with this password.
               </span>
             </div>
-          </div>
+          </UiCard>
 
           <div v-if="!securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px padding-100-125 bg-fill-tertiary margin-top-50">
             <div class="form-row flex flex-column gap-35">
@@ -449,24 +447,21 @@
             <div v-if="securityError" class="settingspage-security-error color-error fs-085rem padding-0 padding-top-50 padding-bottom-50">
               {{ securityError }}
             </div>
-            <button 
-              class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px padding-62-125 transition-opacity-015"
-              @click="setSecurityPassword"
-              :disabled="securityLoading || !newPassword || !confirmPassword"
-            >
+            <UiButton variant="primary" @click="setSecurityPassword"
+              :disabled="securityLoading || !newPassword || !confirmPassword" class="settingspage-btn-primary disabled-fade-50">
               {{ securityLoading ? 'Setting up...' : 'Enable Password Protection' }}
-            </button>
+            </UiButton>
           </div>
 
           <!-- Change/Remove Password (when password is set) -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Change Password</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
                 Update your security password. You'll need to enter your current password.
               </span>
             </div>
-          </div>
+          </UiCard>
 
           <div v-if="securityStatus.enabled" class="settingspage-security-form flex flex-column gap-100 border-radius-12px padding-100-125 bg-fill-tertiary margin-top-50">
             <div class="form-row flex flex-column gap-35">
@@ -507,18 +502,15 @@
               {{ securitySuccess }}
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
-              <button 
-                class="settingspage-btn-primary disabled-fade-50 color-white border-radius-10px fw-500 cursor-pointer bg-accent border-none fs-14px padding-62-125 transition-opacity-015"
-                @click="changeSecurityPassword"
-                :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword"
-              >
+              <UiButton variant="primary" @click="changeSecurityPassword"
+                :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword" class="settingspage-btn-primary disabled-fade-50">
                 {{ securityLoading ? 'Changing...' : 'Change Password' }}
-              </button>
+              </UiButton>
             </div>
           </div>
 
           <!-- Remove Password -->
-          <div v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="settingspage-setting-item margin-top-150 flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Remove Password</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -526,15 +518,12 @@
               </span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button 
-                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none transition-opacity-015"
-                @click="showRemovePasswordConfirm = true"
-                :disabled="securityLoading"
-              >
+              <UiButton variant="danger" @click="showRemovePasswordConfirm = true"
+                :disabled="securityLoading" class="settingspage-btn-danger disabled-fade-50">
                 Remove Password
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
 
           <!-- Remove Password Confirmation -->
           <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-75 border-radius-12px padding-100-125 bg-fill-error margin-top-75 border-1-ios-red-a2">
@@ -551,20 +540,14 @@
               {{ securityError }}
             </div>
             <div class="settingspage-security-actions flex gap-75 margin-top-50">
-              <button 
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                @click="cancelRemovePassword"
-                :disabled="securityLoading"
-              >
+              <UiButton variant="secondary" @click="cancelRemovePassword"
+                :disabled="securityLoading" class="settingspage-btn-secondary disabled-fade-50">
                 Cancel
-              </button>
-              <button 
-                class="settingspage-btn-danger disabled-fade-50 color-white border-radius-10px fs-085rem fw-500 cursor-pointer padding-50-100 border-none transition-opacity-015"
-                @click="removeSecurityPassword"
-                :disabled="securityLoading || !removePasswordInput"
-              >
+              </UiButton>
+              <UiButton variant="danger" @click="removeSecurityPassword"
+                :disabled="securityLoading || !removePasswordInput" class="settingspage-btn-danger disabled-fade-50">
                 {{ securityLoading ? 'Removing...' : 'Confirm Remove' }}
-              </button>
+              </UiButton>
             </div>
           </div>
 
@@ -579,32 +562,26 @@
       <!-- Profiles View -->
       <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
-          <div class="settingspage-setting-item profiles-header flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item profiles-header flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Profiles</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Select one or more profiles to export.</span>
             </div>
             <div class="settingspage-setting-control settingspage-profile-select-actions flex-align-center gap-50">
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 @click="selectAllProfiles"
-                :disabled="!profiles.length"
-              >
+                :disabled="!profiles.length" class="settingspage-btn-secondary disabled-fade-50">
                 Select all
-              </button>
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 @click="clearSelectedProfiles"
-                :disabled="!selectedProfileIds.length"
-              >
+                :disabled="!selectedProfileIds.length" class="settingspage-btn-secondary disabled-fade-50">
                 Clear
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
 
-          <div v-if="profiles.length" class="settingspage-profiles-list flex flex-column gap-25 border-radius-lg padding-50 bg-card border-default">
+          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="settingspage-profiles-list flex flex-column gap-25 padding-50">
             <label
               v-for="p in profiles"
               :key="p.id"
@@ -626,10 +603,10 @@
                 <span class="settingspage-profile-id fs-075rem color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
               </div>
             </label>
-          </div>
+          </UiCard>
           <p v-else class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">No profiles found.</p>
 
-          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Display name</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Rename a profile without changing its internal profile ID.</span>
@@ -656,29 +633,23 @@
                 :disabled="profileRenameSaving || !renameProfileId"
                 @keyup.enter="saveProfileDisplayName"
               />
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
-                @click="resetProfileDisplayNameDraft"
-              >
+                @click="resetProfileDisplayNameDraft" class="settingspage-btn-secondary disabled-fade-50">
                 Reset
-              </button>
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 :disabled="profileRenameSaving || !renameProfileId"
-                @click="saveProfileDisplayName"
-              >
+                @click="saveProfileDisplayName" class="settingspage-btn-secondary disabled-fade-50">
                 {{ profileRenameSaving ? 'Saving...' : 'Save' }}
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
           <p v-if="profileRenameError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ profileRenameError }}
           </p>
 
-          <div v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Profile photo</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Override the generated profile thumbnail with a local image.</span>
@@ -703,24 +674,18 @@
                 :size="44"
                 :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
               />
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 :disabled="profileAvatarSaving || !avatarProfileId"
-                @click="chooseProfileAvatar"
-              >
+                @click="chooseProfileAvatar" class="settingspage-btn-secondary disabled-fade-50">
                 {{ profileAvatarSaving ? 'Updating...' : 'Choose image' }}
-              </button>
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
-                @click="resetProfileAvatar"
-              >
+                @click="resetProfileAvatar" class="settingspage-btn-secondary disabled-fade-50">
                 Reset
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
           <p v-if="profileAvatarError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ profileAvatarError }}
           </p>
@@ -728,22 +693,19 @@
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </p>
 
-           <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+           <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
              <div class="setting-info flex flex-column gap-20">
                <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Backups</span>
                <span class="settingspage-setting-desc color-text-secondary fs-13px">Export full backup folders (profiles + PQC keys).</span>
              </div>
              <div class="settingspage-setting-control settingspage-profile-backup-actions flex-align-center gap-50">
-               <button
-                 class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                 type="button"
+               <UiButton variant="secondary" type="button"
                  @click="onExportSelectedBackups"
-                 :disabled="!selectedProfileIds.length || exportingBackup"
-               >
+                 :disabled="!selectedProfileIds.length || exportingBackup" class="settingspage-btn-secondary disabled-fade-50">
                  Export selected ({{ selectedProfileIds.length }})
-               </button>
+               </UiButton>
              </div>
-           </div>
+           </UiCard>
            <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
              Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
            </p>
@@ -768,7 +730,7 @@
             <span>Network</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Local IPFS Gateway</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Used for loading IPFS content in the UI</span>
@@ -781,14 +743,14 @@
                 placeholder="http://127.0.0.1:8080"
               />
             </div>
-          </div>
+          </UiCard>
 
           <div class="settingspage-advanced-title flex-align-center gap-50 margin-top-100 txt-weight-medium color-text-primary margin-bottom-50 fs-14px">
             <Database :size="18" />
             <span>IPFS</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">IPFS API Endpoint</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Used by the Electron backend (Kubo API)</span>
@@ -801,9 +763,9 @@
                 placeholder="http://127.0.0.1:5001"
               />
             </div>
-          </div>
+          </UiCard>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Max upload size (local drive)</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -821,29 +783,23 @@
               />
               <span class="settingspage-setting-inline-note color-text-secondary fs-13px">GB</span>
             </div>
-          </div>
+          </UiCard>
 
           <div v-if="devSettingsError" class="settingspage-setting-hint color-red-base fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             {{ devSettingsError }}
           </div>
 
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
-            <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-              type="button"
+            <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
-              @click="resetDevSettings"
-            >
+              @click="resetDevSettings" class="settingspage-btn-secondary disabled-fade-50">
               Reset
-            </button>
-            <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-              type="button"
+            </UiButton>
+            <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
-              @click="saveDevSettings"
-            >
+              @click="saveDevSettings" class="settingspage-btn-secondary disabled-fade-50">
               {{ devSettingsSaving ? 'Saving...' : 'Save' }}
-            </button>
+            </UiButton>
           </div>
 
           <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
@@ -858,7 +814,7 @@
             <span>Lumen data folder</span>
           </div>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Custom data folder target</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">
@@ -874,18 +830,15 @@
                   :placeholder="defaultUserDataPath || 'D:\\Lumen'"
                   :disabled="lumenDataFolderBusy"
                 />
-                <button
-                  class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                  type="button"
+                <UiButton variant="secondary" type="button"
                   :disabled="lumenDataFolderBusy"
-                  @click="browseLumenDataFolder"
-                >
+                  @click="browseLumenDataFolder" class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn">
                   <FolderOpen :size="16" />
                   <span>Browse...</span>
-                </button>
+                </UiButton>
               </div>
             </div>
-          </div>
+          </UiCard>
 
           <div class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             Active now: <span class="settingspage-mono-path break-all mono">{{ activeUserDataPath || 'Unavailable' }}</span>
@@ -910,30 +863,21 @@
           </div>
 
           <div class="settingspage-profile-backup-actions margin-top-75 gap-50">
-            <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-              type="button"
+            <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
-              @click="revertLumenDataFolderDraft"
-            >
+              @click="revertLumenDataFolderDraft" class="settingspage-btn-secondary disabled-fade-50">
               Revert
-            </button>
-            <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-              type="button"
+            </UiButton>
+            <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
-              @click="useDefaultLumenDataFolderDraft"
-            >
+              @click="useDefaultLumenDataFolderDraft" class="settingspage-btn-secondary disabled-fade-50">
               Use default
-            </button>
-            <button
-              class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-              type="button"
+            </UiButton>
+            <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
-              @click="saveLumenDataFolder"
-            >
+              @click="saveLumenDataFolder" class="settingspage-btn-secondary disabled-fade-50">
               {{ lumenDataFolderSaving ? 'Applying...' : 'Apply' }}
-            </button>
+            </UiButton>
           </div>
 
           <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
@@ -955,41 +899,35 @@
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Copy Debug Report</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 @click="copyDebugReport"
-                :disabled="troubleshootingBusy"
-              >
+                :disabled="troubleshootingBusy" class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn">
                 <Copy :size="16" />
                 <span>{{ troubleshootingAction === 'copy' ? 'Copying...' : 'Copy Debug Report' }}</span>
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
 
-          <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Open Logs Folder</span>
               <span class="settingspage-setting-desc color-text-secondary fs-13px">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
             </div>
             <div class="settingspage-setting-control flex-align-center">
-              <button
-                class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn color-text-primary fs-085rem color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 @click="openLogsFolderAction"
-                :disabled="troubleshootingBusy"
-              >
+                :disabled="troubleshootingBusy" class="settingspage-btn-secondary disabled-fade-50 settingspage-troubleshooting-btn">
                 <FolderOpen :size="16" />
                 <span>{{ troubleshootingAction === 'open' ? 'Opening...' : 'Open Logs Folder' }}</span>
-              </button>
+              </UiButton>
             </div>
-          </div>
+          </UiCard>
 
           <p class="settingspage-setting-hint fs-075rem color-text-tertiary margin-top-50 fs-13px margin-top-25">
             The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
@@ -1007,7 +945,7 @@
       <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="setting-group flex flex-column gap-50">
           <!-- Main Enable Toggle -->
-          <div class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm settingspage-setting-item-settingspage-featured" :class="{ active: privateCloudEnabled }">
+          <UiCard padding="none" :shadow="false" :class="{ active: privateCloudEnabled }" class="settingspage-setting-item settingspage-featured flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm settingspage-setting-item-settingspage-featured">
             <div class="setting-info flex flex-column gap-20">
               <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle margin-right-50">
@@ -1023,7 +961,7 @@
                 <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
               </label>
             </div>
-          </div>
+          </UiCard>
 
           <!-- Settings when enabled -->
           <template v-if="privateCloudEnabled">
@@ -1031,7 +969,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Gateway Preferences</h3>
               
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Prefer Private Gateways</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Try private gateways first before DAO gateways</span>
@@ -1042,9 +980,9 @@
                     <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
                   </label>
                 </div>
-              </div>
+              </UiCard>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Fallback to DAO Gateways</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Use DAO gateways if private gateways fail</span>
@@ -1055,7 +993,7 @@
                     <span class="settingspage-toggle-slider cursor-pointer absolute inset-0 bg-border transition-all-02 border-radius-26px"></span>
                   </label>
                 </div>
-              </div>
+              </UiCard>
             </div>
 
             <!-- Gateway IDs -->
@@ -1070,9 +1008,9 @@
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-50 margin-bottom-100">
                   <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between padding-75-100 bg-card border-1 border-radius-8px transition-all-02 hover-border-ios-blue">
                     <span class="settingspage-gateway-id-text mono color-text-primary fs-14px">{{ id }}</span>
-                    <button class="settingspage-icon-btn-small flex-align-justify-center size-28px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px transition-all-02 hover-color-error" @click="removeGatewayId(index)">
+                    <UiButton variant="secondary" @click="removeGatewayId(index)" class="settingspage-icon-btn-small size-28px">
                       <X :size="16" />
-                    </button>
+                    </UiButton>
                   </div>
                 </div>
                 <div v-else class="settingspage-empty-gateway-ids flex-align-center flex-column text-center color-text-tertiary padding-200-100">
@@ -1094,10 +1032,10 @@
                     placeholder="Enter gateway ID (e.g., gateway-123)"
                     @keyup.enter="addGatewayId"
                   />
-                  <button class="settingspage-btn-secondary disabled-fade-50 color-text-primary fs-085rem color-text-secondary cursor-pointer padding-50-100 bg-secondary border-1 border-radius-8px transition-all-02 hover-color-text-primary" @click="addGatewayId" :disabled="!newGatewayId.trim()">
+                  <UiButton variant="secondary" @click="addGatewayId" :disabled="!newGatewayId.trim()" class="settingspage-btn-secondary disabled-fade-50">
                     <Plus :size="16" />
                     Add
-                  </button>
+                  </UiButton>
                 </div>
               </div>
             </div>
@@ -1106,7 +1044,7 @@
             <div class="settingspage-settings-subsection margin-top-100">
               <h3 class="settingspage-subsection-title txt-weight-light color-text-primary fs-15px margin-0 margin-bottom-75">Advanced Settings</h3>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Request Timeout</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
@@ -1122,9 +1060,9 @@
                   />
                   <span class="settingspage-brightness-value text-right fs-085rem txt-weight-light color-text-secondary min-w-45px">{{ gatewayTimeout / 1000 }}s</span>
                 </div>
-              </div>
+              </UiCard>
 
-              <div class="settingspage-setting-item flex-align-center-justify-space-between border-radius-lg padding-100-125 bg-card border-default hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="settingspage-setting-item flex-align-center-justify-space-between padding-100-125 hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-20">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary fs-14px">Max Retries</span>
                   <span class="settingspage-setting-desc color-text-secondary fs-13px">Maximum retry attempts per gateway</span>
@@ -1138,7 +1076,7 @@
                     class="settingspage-input-control w-80px fs-085rem color-text-primary padding-50-100 bg-secondary border-1 border-radius-8px"
                   />
                 </div>
-              </div>
+              </UiCard>
             </div>
 
             <!-- Info Box -->
@@ -1195,6 +1133,8 @@
 </template>
 
 <script setup lang="ts">
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
 import { ref, watch, computed, inject, onMounted } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 

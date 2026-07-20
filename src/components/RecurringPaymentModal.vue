@@ -1,39 +1,26 @@
 <template>
-  <div class="recurpay-overlay overlay-scrim z-9999 backdrop-blur-4px padding-125 bg-black-a75" @click="$emit('close')">
-    <div class="recurpay-modal bg-primary w-full flex flex-column overflow-hidden border-radius-16px shadow-modal max-w-600px max-h-90vh" @click.stop>
-      <div class="recurpay-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-        <h2 class="flex-align-center margin-0 color-text-primary fs-20px txt-weight-light recurpay-header-h2 gap-75">
-          <Calendar :size="24" />
-          <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
-        </h2>
-        <button class="recurpay-close-btn bg-transparent border-none cursor-pointer color-text-secondary flex-align-justify-center padding-25 border-radius-6px transition-all-02 hover-bg-tertiary hover-color-text-primary" @click="$emit('close')">
-          <X :size="24" />
-        </button>
-      </div>
-
-      <div class="recurpay-body flex-1 overflow-y-auto padding-150">
+  <UiModal :model-value="true" panel-class="w-full max-w-600px" @update:model-value="$emit('close')">
+    <template #header>
+      <h2 class="flex-align-center margin-0 color-text-primary fs-20px txt-weight-light recurpay-header-h2 gap-75">
+        <Calendar :size="24" />
+        <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
+      </h2>
+    </template>
         <!-- Basic Information -->
         <div class="recurpay-section margin-bottom-200">
           <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">Payment Details</h3>
 
           <div class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Payment Name <span class="required color-error">*</span></label>
-            <input
-              v-model="form.name"
-              type="text"
-              placeholder="e.g., Netflix Subscription"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
-            />
+            <UiInput v-model="form.name" placeholder="e.g., Netflix Subscription" />
           </div>
 
           <div class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Description</label>
-            <textarea
-              v-model="form.description"
+            <UiInput type="textarea" v-model="form.description"
               placeholder="Optional notes about this payment"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
-              rows="2"
-            ></textarea>
+             
+              rows="2" class="recurpay-input"></UiInput>
           </div>
 
           <div class="recurpay-group margin-bottom-100">
@@ -63,13 +50,10 @@
                 placeholder="lumen1..."
                 class="recurpay-input flex-1 bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
-              <button
-                class="recurpay-input-btn cursor-pointer flex-align-justify-center color-text-primary bg-tertiary border-1 border-radius-8px transition-all-02 padding-62-100"
-                @click="$emit('scan-address')"
-                title="Scan QR Code"
-              >
+              <UiButton variant="primary" @click="$emit('scan-address')"
+                title="Scan QR Code" class="recurpay-input-btn">
                 <QrCode :size="16" />
-              </button>
+              </UiButton>
             </div>
           </div>
 
@@ -77,14 +61,11 @@
             <div class="recurpay-group margin-bottom-100">
               <label class="block color-text-primary recurpay-group-label margin-bottom-25">Amount <span class="required color-error">*</span></label>
               <div class="recurpay-amount-input relative">
-                <input
-                  v-model="form.amount"
-                  type="number"
+                <UiInput v-model="form.amount"
+                 
                   step="0.000001"
                   min="0"
-                  placeholder="0.000000"
-                  class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent padding-right-50px shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
-                />
+                  placeholder="0.000000" class="recurpay-input padding-right-50px" />
                 <span class="currency absolute top-half fs-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>
             </div>
@@ -126,13 +107,10 @@
 
           <div class="recurpay-group margin-bottom-100">
             <label class="block color-text-primary recurpay-group-label margin-bottom-25">Maximum Payments (Optional)</label>
-            <input
-              v-model="form.maxPayments"
-              type="number"
+            <UiInput v-model="form.maxPayments"
+             
               min="1"
-              placeholder="Leave empty for unlimited"
-              class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
-            />
+              placeholder="Leave empty for unlimited" class="recurpay-input" />
             <p class="recurpay-hint color-text-secondary fs-12px margin-0 margin-top-37">Payment will stop after this many successful transactions</p>
           </div>
         </div>
@@ -145,14 +123,7 @@
           </h3>
 
           <div class="recurpay-group margin-bottom-100">
-            <label class="recurpay-checkbox-label flex-align-center cursor-pointer gap-50 cursor-select-none recurpay-group-label margin-bottom-25">
-              <input
-                v-model="form.reminderEnabled"
-                type="checkbox"
-                class="w-18px h-18px cursor-pointer"
-              />
-              <span class="color-text-primary">Enable payment reminders</span>
-            </label>
+            <UiCheckbox v-model="form.reminderEnabled">Enable payment reminders</UiCheckbox>
           </div>
 
           <div v-if="form.reminderEnabled" class="recurpay-group margin-bottom-100">
@@ -187,27 +158,26 @@
             <strong class="txt-weight-light">{{ estimatedTotal }} LMN</strong>
           </div>
         </div>
-      </div>
 
-      <div class="recurpay-footer flex flex-justify-end gap-75 padding-125-150 border-top-1">
-        <button class="recurpay-btn secondary disabled-fade-50 flex-inline-align-center cursor-pointer bg-tertiary color-text-primary fw-500 fs-14px gap-50 border-radius-8px transition-all-02 padding-62-125 border-1" @click="$emit('close')">Cancel</button>
-        <button
-          class="recurpay-btn primary disabled-fade-50 flex-inline-align-center cursor-pointer color-white border-none fw-500 fs-14px gap-50 border-radius-8px transition-all-02 padding-62-125"
-          @click="handleSubmit"
-          :disabled="!isFormValid"
-        >
-          <Check :size="16" />
-          <span>{{ isEditing ? 'Update Payment' : 'Schedule Payment' }}</span>
-        </button>
-      </div>
-    </div>
-  </div>
+    <template #footer>
+      <UiButton variant="secondary" @click="$emit('close')" class="recurpay-btn disabled-fade-50">Cancel</UiButton>
+      <UiButton variant="primary" @click="handleSubmit"
+        :disabled="!isFormValid" class="recurpay-btn disabled-fade-50">
+        <Check :size="16" />
+        <span>{{ isEditing ? 'Update Payment' : 'Schedule Payment' }}</span>
+      </UiButton>
+    </template>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
 import { ref, computed, watch } from 'vue';
-import { Calendar, X, QrCode, Bell, Check } from 'lucide-vue-next';
+import { Calendar, QrCode, Bell, Check } from 'lucide-vue-next';
 import type { RecurringPayment, PaymentFrequency } from '../internal/services/recurringPayments';
+import UiCheckbox from '../ui/UiCheckbox.vue';
+import UiInput from '../ui/UiInput.vue';
 
 interface Props {
   payment?: RecurringPayment;

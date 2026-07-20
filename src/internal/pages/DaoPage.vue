@@ -57,10 +57,10 @@
           <h1 class="txt-weight-medium color-text-primary margin-0 daopage-content-header-h1 fs-175rem">{{ getViewTitle() }}</h1>
           <p class="color-text-secondary daopage-content-header-p fs-14px margin-0 margin-top-25">{{ getViewDescription() }}</p>
         </div>
-        <button v-if="currentView === 'proposals'" class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light padding-75-125 bg-gradient-primary fs-14px transition-all-02 hover-lift-2" @click="openCreateProposalModal">
+        <UiButton variant="primary" v-if="currentView === 'proposals'" @click="openCreateProposalModal" class="daopage-btn-primary">
           <Plus :size="18" />
           New Proposal
-        </button>
+        </UiButton>
       </header>
 
       <!-- Loading State -->
@@ -122,9 +122,9 @@
                   <span class="color-success">{{ calculateVotePercentage(proposal, 'yes').toFixed(0) }}% Yes</span>
                   <span class="color-error">{{ calculateVotePercentage(proposal, 'no').toFixed(0) }}% No</span>
                 </div>
-                <button class="daopage-btn-secondary cursor-pointer color-text-secondary padding-50-100 bg-hover border-1 border-radius-8px fs-13px transition-all-02 hover-color-text-primary" @click="openVoteModal(proposal)">
+                <UiButton variant="secondary" @click="openVoteModal(proposal)" class="daopage-btn-secondary">
                   {{ proposal.status === 'PROPOSAL_STATUS_VOTING_PERIOD' ? 'Vote' : 'View Details' }}
-                </button>
+                </UiButton>
               </div>
             </div>
           </div>
@@ -154,10 +154,10 @@
                   </div>
                   <span class="daopage-progress-label color-text-secondary fs-075rem">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>
                 </div>
-                <button class="daopage-btn-primary flex-align-center gap-50 border-none color-white cursor-pointer border-radius-10px txt-weight-light padding-75-125 bg-gradient-primary fs-14px transition-all-02 hover-lift-2" @click="openVoteModal(proposal)">
+                <UiButton variant="primary" @click="openVoteModal(proposal)" class="daopage-btn-primary">
                   <Vote :size="16" />
                   Vote Now
-                </button>
+                </UiButton>
               </div>
             </div>
           </div>
@@ -204,28 +204,17 @@
     </main>
 
     <!-- Create Proposal Modal -->
-    <Transition name="fade">
-      <div v-if="showCreateProposalModal" class="overlay-scrim z-1000 padding-100" @click="closeCreateProposalModal">
-        <div class="daopage-modal-content large w-full overflow-y-auto border-radius-16px shadow-modal max-h-90vh max-w-520px max-w-640px background-bg-primary" @click.stop>
-          <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
-            <h3 class="margin-0 txt-weight-light color-text-primary daopage-modal-header-h3 fs-125rem">Create Proposal</h3>
-            <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px border-radius-8px bg-hover transition-all-02 hover-color-text-primary" @click="closeCreateProposalModal">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
-          <div class="daopage-modal-body padding-150">
+    <UiModal :model-value="showCreateProposalModal" title="Create Proposal" panel-class="w-full max-w-640px" @update:model-value="closeCreateProposalModal">
             <p class="daopage-modal-desc color-text-secondary margin-bottom-150 fs-14px">Submit a proposal for DAO governance</p>
 
             <div class="daopage-form-group margin-bottom-125">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block fs-13px margin-bottom-50">Proposal Title</label>
-              <input type="text" class="daopage-form-input w-full padding-87 border-1 border-radius-10px fs-14px color-text-primary transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-primary" v-model="proposalForm.title" placeholder="Enter proposal title..." />
+              <UiInput radius-class="border-radius-10px" padding-class="padding-87" :focus-ring="false" type="text" v-model="proposalForm.title" placeholder="Enter proposal title..." class="daopage-form-input focus-outline-none focus-ring focus-shadow background-bg-primary" />
             </div>
 
             <div class="daopage-form-group margin-bottom-125">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block fs-13px margin-bottom-50">Description</label>
-              <textarea class="daopage-form-textarea w-full padding-87 border-1 border-radius-10px fs-14px color-text-primary transition-all-02 font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-primary" v-model="proposalForm.description" rows="6" placeholder="Describe your proposal in detail..."></textarea>
+              <UiInput type="textarea" radius-class="border-radius-10px" padding-class="padding-87" :focus-ring="false" v-model="proposalForm.description" rows="6" placeholder="Describe your proposal in detail..." class="daopage-form-textarea focus-outline-none focus-ring focus-shadow background-bg-primary"></UiInput>
             </div>
 
             <div class="daopage-form-group margin-bottom-125">
@@ -264,28 +253,14 @@
               </div>
             </div>
 
-            <button class="daopage-btn-modal-primary w-full flex-align-justify-center gap-50 border-none color-white cursor-pointer border-radius-10px fw-500 padding-87 bg-gradient-primary fs-15px transition-all-02 hover-lift-1" @click="submitProposal" :disabled="!canSubmitProposal()">
+            <UiButton variant="primary" @click="submitProposal" :disabled="!canSubmitProposal()" class="daopage-btn-modal-primary">
               <Plus :size="18" />
               Submit Proposal
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+            </UiButton>
+    </UiModal>
 
     <!-- Vote Modal -->
-    <Transition name="fade">
-      <div v-if="showVoteModal" class="overlay-scrim z-1000 padding-100" @click="closeVoteModal">
-        <div class="daopage-modal-content w-full overflow-y-auto border-radius-16px shadow-modal max-h-90vh max-w-520px background-bg-primary" @click.stop>
-          <div class="daopage-modal-header flex-align-center flex-justify-space-between padding-150 border-bottom-1">
-            <h3 class="margin-0 txt-weight-light color-text-primary daopage-modal-header-h3 fs-125rem">Cast Your Vote</h3>
-            <button class="daopage-modal-close flex-align-justify-center border-none color-text-secondary cursor-pointer size-32px border-radius-8px bg-hover transition-all-02 hover-color-text-primary" @click="closeVoteModal">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
-          <div class="daopage-modal-body padding-150">
+    <UiModal :model-value="showVoteModal" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="closeVoteModal">
             <div class="daopage-proposal-title-card flex-align-center flex-justify-space-between margin-bottom-150 border-radius-12px padding-150 bg-gradient-primary">
               <h4 class="margin-0 txt-weight-light daopage-proposal-title-card-h4 fs-18px color-white">{{ selectedProposal?.title || 'Proposal Title' }}</h4>
               <span class="daopage-proposal-status active border-radius-20px fw-500 fs-075rem padding-25-75 color-accent-secondary bg-fill-blue">Active</span>
@@ -344,18 +319,18 @@
               <span class="daopage-power-value color-text-primary txt-weight-light fs-15px">9,000 LMN</span>
             </div>
 
-            <button class="daopage-btn-modal-primary w-full flex-align-justify-center gap-50 border-none color-white cursor-pointer border-radius-10px fw-500 padding-87 bg-gradient-primary fs-15px transition-all-02 hover-lift-1" @click="castVote" :disabled="!voteChoice">
+            <UiButton variant="primary" @click="castVote" :disabled="!voteChoice" class="daopage-btn-modal-primary">
               <Vote :size="18" />
               Cast Vote
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+            </UiButton>
+    </UiModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiModal from '../../ui/UiModal.vue';
 import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';

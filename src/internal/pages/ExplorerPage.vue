@@ -89,9 +89,9 @@
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
           />
-          <button class="explorer-search-btn disabled-fade-50 txt-weight-light cursor-pointer bg-gradient-primary color-white border-none border-radius-8px transition-all-02 padding-62-125 hover-lift-1" @click="performSearch" :disabled="!searchQuery">
+          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="explorer-search-btn disabled-fade-50">
             Search
-          </button>
+          </UiButton>
         </div>
       </div>
 
@@ -132,7 +132,7 @@
 
           <!-- Charts Section -->
           <div class="explorer-charts-section gap-75 grid">
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card padding-125 shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-50">
@@ -162,9 +162,9 @@
               <div class="explorer-chart-container">
                 <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
               </div>
-            </div>
+            </UiCard>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card padding-125 shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
@@ -193,9 +193,9 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UiCard>
 
-            <div class="explorer-chart-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card padding-125 shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
@@ -220,9 +220,9 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UiCard>
 
-            <div class="explorer-chart-card explorer-block-production-card border-radius-lg padding-125 bg-card border-default shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card explorer-block-production-card padding-125 shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between margin-bottom-50">
                 <h3 class="explorer-chart-header-h3 fs-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-50 border-radius-20px color-success txt-weight-light bg-fill-success fs-13px padding-45-75">
@@ -252,15 +252,15 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UiCard>
           </div>
 
           <!-- Recent Activity -->
           <div class="explorer-recent-activity gap-75 grid margin-top-75">
-            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-activity-column padding-125 shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Blocks</h3>
-                <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'blocks'">View All →</button>
+                <UiButton variant="primary" @click="currentView = 'blocks'" class="explorer-view-all-btn">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-75">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="explorer-activity-item cursor-pointer flex-align-center gap-75 padding-75 bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
@@ -285,12 +285,12 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UiCard>
 
-            <div class="explorer-activity-column border-radius-lg padding-125 bg-card border-default shadow-subtle backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-activity-column padding-125 shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between margin-bottom-75">
                 <h3 class="explorer-activity-header-h3 fs-16px txt-weight-light color-text-primary">Latest Transactions</h3>
-                <button class="explorer-view-all-btn color-primary txt-weight-light cursor-pointer bg-transparent border-none fs-14px" @click="currentView = 'transactions'">View All →</button>
+                <UiButton variant="primary" @click="currentView = 'transactions'" class="explorer-view-all-btn">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-75">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="explorer-activity-item cursor-pointer flex-align-center gap-75 padding-75 bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
@@ -314,7 +314,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
 
@@ -384,12 +384,12 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="explorer-copy-icon-btn opacity-0 flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash">
+                  <UiButton variant="icon" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash" class="explorer-copy-icon-btn size-24px">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                  </button>
+                  </UiButton>
                 </div>
                 <div class="explorer-td td-txs flex-align-center fs-13px fs-14px">
                   <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px padding-18-37 fs-75rem" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
@@ -464,12 +464,12 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <button class="explorer-copy-icon-btn opacity-0 flex-inline-align-justify-center size-24px h-24px padding-0 color-text-tertiary cursor-pointer bg-transparent border-none border-radius-4px transition-all-02 flex-shrink-0 margin-left-50 hover-bg-tertiary hover-color-accent hover-bg-hover" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash">
+                  <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="explorer-copy-icon-btn size-24px">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                  </button>
+                  </UiButton>
                 </div>
                 <div class="explorer-td td-type flex-align-center fs-13px fs-14px">
                   <span class="explorer-tx-type-badge fs-075rem txt-weight-light border-radius-4px padding-25-75 bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
@@ -504,7 +504,7 @@
             <p class="explorer-validators-subtitle color-text-tertiary fs-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
-          <div class="explorer-validators-table border-radius-lg bg-card border-default overflow-hidden shadow-subtle backdrop-blur">
+          <UiCard padding="none" :shadow="false" class="explorer-validators-table overflow-hidden shadow-subtle backdrop-blur">
             <div class="explorer-table-header gap-100 txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 fs-10px letter-spacing-005em fs-11px letter-spacing-008em padding-62-100 bg-black-a02 border-bottom-05-black-a08 padding-125-175">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
@@ -584,7 +584,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </UiCard>
         </div>
       </template>
     </main>
@@ -598,14 +598,7 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <div v-if="showStakeModal" class="explorer-modal-overlay flex-align-justify-center fixed top-0 z-10000 left-0 right-0 bottom-0 backdrop-blur-4px background-rgba-0-0-0-0-7" @click="closeStakeModal">
-      <div class="explorer-stake-modal bg-primary overflow-y-auto max-h-90vh w-90pct max-w-420px border-radius-border-radius-2xl" @click.stop>
-        <div class="explorer-modal-header flex-align-center-justify-space-between padding-150 border-bottom-1">
-          <h3 class="explorer-modal-header-h3 fs-18px txt-weight-medium color-text-primary margin-0">Manage Stake with {{ selectedValidator?.moniker }}</h3>
-          <button class="explorer-close-btn hover-fill-primary flex-align-justify-center size-32px color-text-secondary cursor-pointer bg-transparent border-none border-radius-6px fs-15rem transition-all-02" @click="closeStakeModal">×</button>
-        </div>
-
-        <div class="explorer-modal-body padding-150">
+    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="explorer-stake-modal w-90pct max-w-420px" @update:model-value="closeStakeModal">
           <div class="explorer-balance-info flex gap-100 margin-bottom-150 padding-100 bg-secondary border-radius-8px">
             <div class="explorer-balance-item flex flex-column flex-1 gap-25">
               <span class="explorer-balance-label fs-075rem color-text-secondary fw-500">Staked:</span>
@@ -649,14 +642,12 @@
             <div v-else class="explorer-form-group flex flex-column gap-50">
               <label class="explorer-form-group-label fs-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
               <div class="explorer-input-wrapper flex-align-center relative">
-                <input 
-                  type="number" 
+                <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="padding-75-400-75-100" :focus-ring="false" type="number" 
                   v-model="stakeAmount" 
                   :placeholder="`0.0`"
-                  class="explorer-stake-input w-full color-text-primary txt-weight-light bg-secondary border-1 border-radius-8px fs-15px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow padding-75-400-75-100"
+                 
                   step="0.000001"
-                  min="0"
-                />
+                  min="0" class="explorer-stake-input fs-15px focus-outline-none focus-ring focus-shadow" />
                 <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute fs-14px right-100">LMN</span>
               </div>
               <div class="explorer-amount-slider flex flex-column gap-50 padding-0 padding-top-50 padding-bottom-50">
@@ -674,10 +665,10 @@
                 </div>
               </div>
               <div class="explorer-quick-amounts gap-50 grid">
-                <button @click="setStakePercentage(25)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">25%</button>
-                <button @click="setStakePercentage(50)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">50%</button>
-                <button @click="setStakePercentage(75)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">75%</button>
-                <button @click="setStakePercentage(100)" class="explorer-quick-btn txt-weight-light color-text-secondary cursor-pointer padding-50 bg-secondary border-1 border-radius-6px fs-13px transition-all-02 hover-border-accent hover-color-accent">Max</button>
+                <UiButton variant="secondary" @click="setStakePercentage(25)" class="explorer-quick-btn">25%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(50)" class="explorer-quick-btn">50%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(75)" class="explorer-quick-btn">75%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(100)" class="explorer-quick-btn">Max</UiButton>
               </div>
             </div>
 
@@ -692,13 +683,13 @@
             </div>
 
             <div class="advanced-options" v-if="showAdvancedOptions">
-              <button class="explorer-advanced-toggle flex-align-center gap-50 color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px fs-13px transition-all-02 padding-62-100" @click="showAdvancedOptions = !showAdvancedOptions">
+              <UiButton variant="secondary" @click="showAdvancedOptions = !showAdvancedOptions" class="explorer-advanced-toggle">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"/>
                   <path d="M12 1v6m0 6v6"/>
                 </svg>
                 Advanced Options
-              </button>
+              </UiButton>
             </div>
 
             <!-- Transaction Status Popup -->
@@ -724,14 +715,14 @@
                     <p class="word-wrap-break fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full margin-top-75 padding-75 bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block fs-11px color-text-tertiary margin-bottom-25 text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <button class="explorer-tx-hash-link flex-align-center gap-50 w-full padding-62 cursor-pointer text-left bg-primary border-1 border-radius-6px transition-all-02 hover-border-accent hover-bg-primary-a08" @click="viewTransaction(txHash)">
+                      <UiButton variant="none" @click="viewTransaction(txHash)" class="explorer-tx-hash-link flex-align-center gap-50 cursor-pointer w-full">
                         <code class="explorer-tx-hash-link-code flex-1 mono fs-075rem color-primary break-all txt-weight-light">{{ txHash }}</code>
                         <svg class="explorer-tx-hash-link-svg flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                           <polyline points="15 3 21 3 21 9"/>
                           <line x1="10" y1="14" x2="21" y2="3"/>
                         </svg>
-                      </button>
+                      </UiButton>
                     </div>
                   </div>
                   <button class="explorer-tx-close-btn margin-top-100 txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px fs-14px transition-all-02 hover-lift-1 padding-62-200 shadow-0-4-12-ios-indigo-a3-hover" @click="closeStakeModal">Close</button>
@@ -761,15 +752,17 @@
               <span v-else>Processing...</span>
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-    
+    </UiModal>
+
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiModal from '../../ui/UiModal.vue';
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';

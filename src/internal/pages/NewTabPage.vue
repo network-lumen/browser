@@ -1,110 +1,74 @@
 <template>
   <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden padding-150-100-200">
-    <div
-      v-if="showOnboarding"
-      class="newtab-onboarding-overlay absolute inset-0 flex-align-justify-center padding-150 background-rgba-2-6-23-0-56"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="lumen-onboarding-title"
-      aria-describedby="lumen-onboarding-desc"
-    >
-      <div class="newtab-onboarding-modal border-1-light padding-125 border-radius-24px" @click.stop>
-        <div class="flex-align-start gap-100 margin-bottom-100">
-          <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-brand-logo-radius" aria-hidden="true">
-            <Hexagon :size="22" />
-          </div>
-          <div class="newtab-onboarding-text">
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Welcome</div>
-            <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
-            <p id="lumen-onboarding-desc" class="color-text-secondary">
-              Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
-            </p>
-          </div>
+    <UiModal :model-value="showOnboarding" panel-class="newtab-onboarding-modal border-1-light border-radius-24px" :closable="false" @update:model-value="dismissOnboarding">
+      <div class="flex-align-start gap-100 margin-bottom-100">
+        <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-brand-logo-radius" aria-hidden="true">
+          <Hexagon :size="22" />
         </div>
-
-        <div class="newtab-onboarding-actions flex margin-top-100 flex-justify-end gap-62 flex-wrap-wrap">
-          <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="learnLumen">
-            Learn Lumen
-          </button>
-          <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="dismissOnboarding">
-            Skip
-          </button>
+        <div class="newtab-onboarding-text">
+          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Welcome</div>
+          <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
+          <p id="lumen-onboarding-desc" class="color-text-secondary">
+            Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
+          </p>
         </div>
       </div>
-    </div>
 
-    <Teleport to="body">
-      <div
-        v-if="showShortcutModal"
-        class="newtab-shortcut-modal-overlay newtab-onboarding-overlay flex-align-justify-center padding-100 fixed inset-0 background-rgba-2-6-23-0-56"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="shortcut-modal-title"
-        @click.self="closeShortcutModal"
-      >
-        <div class="newtab-shortcut-modal border-1-light padding-125 border-radius-24px">
-          <div class="newtab-shortcut-modal-head flex-align-start flex-justify-space-between gap-100">
-            <div>
-              <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcut</div>
-              <h2 id="shortcut-modal-title" class="color-text-primary">
-                {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
-              </h2>
-            </div>
-            <button
-              class="newtab-shortcut-modal-close flex-inline-align-justify-center border-none cursor-pointer h-200 border-radius-full color-text-secondary bg-fill-tertiary w-200"
-              type="button"
-              aria-label="Close shortcut editor"
-              @click="closeShortcutModal"
-            >
-              <X :size="16" />
-            </button>
-          </div>
+      <template #footer>
+        <UiButton variant="secondary" type="button" @click="dismissOnboarding" class="newtab-btn newtab-btn-secondary outline-none">
+          Skip
+        </UiButton>
+        <UiButton variant="primary" type="button" @click="learnLumen" class="newtab-btn newtab-btn-primary outline-none">
+          Learn Lumen
+        </UiButton>
+      </template>
+    </UiModal>
 
-          <div class="newtab-shortcut-form flex flex-column margin-top-100 gap-90">
+    <UiModal :model-value="showShortcutModal" panel-class="newtab-shortcut-modal border-1-light border-radius-24px" @update:model-value="closeShortcutModal">
+      <template #header>
+        <div>
+          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary fs-12px">Shortcut</div>
+          <h2 id="shortcut-modal-title" class="color-text-primary">
+            {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
+          </h2>
+        </div>
+      </template>
+          <div class="newtab-shortcut-form flex flex-column gap-90">
             <label class="newtab-shortcut-field flex flex-column gap-35">
               <span class="newtab-shortcut-field-span color-text-secondary fs-085rem txt-weight-light">Name</span>
-              <input
-                v-model="shortcutDraft.title"
-                type="text"
-                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02 focus-border-primary-a50 focus-ring"
+              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="padding-75-87" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"
+               
+               
                 placeholder="Optional custom title"
                 maxlength="60"
-                @keydown.enter.prevent="submitShortcutModal"
-              />
+                @keydown.enter.prevent="submitShortcutModal" class="newtab-shortcut-field-input border-1-light focus-ring" />
             </label>
 
             <label class="newtab-shortcut-field flex flex-column gap-35">
               <span class="newtab-shortcut-field-span color-text-secondary fs-085rem txt-weight-light">URL or Lumen page</span>
-              <input
-                v-model="shortcutDraft.url"
-                type="text"
-                class="w-full color-text-primary outline-none newtab-shortcut-field-input border-1-light border-radius-14px padding-75-87 bg-black-a02 focus-border-primary-a50 focus-ring"
+              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="padding-75-87" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.url"
+               
+               
                 placeholder="lumen://home or example.lmn"
-                @keydown.enter.prevent="submitShortcutModal"
-              />
+                @keydown.enter.prevent="submitShortcutModal" class="newtab-shortcut-field-input border-1-light focus-ring" />
             </label>
 
-            <label class="newtab-shortcut-checkbox flex-inline-align-center gap-50">
-              <input v-model="shortcutDraft.pinned" type="checkbox" />
-              <span class="newtab-shortcut-checkbox-span color-text-secondary fs-085rem txt-weight-light">Mark this shortcut as favourite</span>
-            </label>
+            <UiCheckbox v-model="shortcutDraft.pinned">Mark this shortcut as favourite</UiCheckbox>
 
             <div v-if="shortcutError" class="newtab-shortcut-error color-error txt-weight-light fs-085rem">
               {{ shortcutError }}
             </div>
           </div>
 
-          <div class="newtab-shortcut-modal-actions flex margin-top-100 flex-justify-end gap-62 flex-wrap-wrap">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="closeShortcutModal">
-              Cancel
-            </button>
-            <button class="newtab-btn newtab-btn-primary txt-weight-light txt-sm cursor-pointer outline-none color-white flex-inline-align-justify-center border-none padding-75-100 bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="submitShortcutModal">
-              {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+      <template #footer>
+        <UiButton variant="secondary" type="button" @click="closeShortcutModal" class="newtab-btn newtab-btn-secondary outline-none">
+          Cancel
+        </UiButton>
+        <UiButton variant="primary" type="button" @click="submitShortcutModal" class="newtab-btn newtab-btn-primary outline-none">
+          {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
+        </UiButton>
+      </template>
+    </UiModal>
 
     <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
       <div class="newtab-glow newtab-glow--left border-radius-full absolute opacity-55 bg-ios-blue-a18 w-2800"></div>
@@ -130,25 +94,11 @@
             autocomplete="off"
             aria-label="Search Lumen or enter a URL"
           />
-          <button class="newtab-omnibox-submit flex-inline-align-justify-center color-white flex-0-0-auto border-none cursor-pointer bg-gradient-primary shadow-primary gap-50 border-radius-full txt-weight-medium padding-75-100 hover-lift-1" type="submit">
+          <UiButton variant="primary" type="submit" class="newtab-omnibox-submit">
             <ArrowUpRight :size="15" />
             <span>Go</span>
-          </button>
+          </UiButton>
         </form>
-
-        <div class="newtab-quick-links flex flex-wrap-wrap flex-justify-center margin-0 margin-x-auto margin-top-100 w-min-980px-full">
-          <button
-            v-for="link in quickLinks"
-            :key="link.url"
-            type="button"
-            class="newtab-quick-link flex-inline-align-center border-radius-full color-text-secondary border-none cursor-pointer gap-35 bg-fill-tertiary fs-13px padding-50-75 fw-650 hover-lift-1"
-            :disabled="link.requiresProfile && !hasProfiles"
-            @click="openQuickLink(link, $event)"
-          >
-            <component :is="link.icon" :size="14" />
-            <span>{{ link.label }}</span>
-          </button>
-        </div>
 
         <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-18px text-center line-height-145 padding-87-100 w-min-760 bg-ios-orange-a08 border-1-ios-orange-a14 margin-0 margin-x-auto margin-top-100">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
@@ -163,10 +113,10 @@
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="beginCreateShortcut">
+            <UiButton variant="secondary" type="button" @click="beginCreateShortcut" class="newtab-btn newtab-btn-secondary outline-none">
               <Plus :size="15" />
               <span>Add shortcut</span>
-            </button>
+            </UiButton>
           </div>
         </div>
 
@@ -186,7 +136,7 @@
             @drop.prevent="onShortcutDrop(entry.id)"
             @dragend="onShortcutDragEnd"
           >
-            <button class="newtab-shortcut-card-main flex w-full border-none bg-transparent color-text-primary cursor-pointer flex-1 text-left flex-align-start gap-75" type="button" @click="openTarget(entry.url, $event)">
+            <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" class="newtab-shortcut-card-main flex-align-center gap-75 cursor-pointer w-full bg-transparent border-none text-left">
               <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :class="`tone-${entry.kind}`">
                 {{ entry.monogram }}
               </span>
@@ -194,33 +144,24 @@
                 <span class="newtab-shortcut-title block fs-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
                 <span class="newtab-shortcut-subtitle block color-text-tertiary fs-13px line-height-145 nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
-            </button>
+            </UiButton>
 
             <div class="newtab-shortcut-card-actions flex flex-wrap-wrap gap-35">
-              <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200 hover-lift-1"
-                type="button"
+              <UiButton variant="secondary" type="button"
                 :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
-                @click.stop="togglePinned(entry.id, entry.pinned)"
-              >
+                @click.stop="togglePinned(entry.id, entry.pinned)" class="newtab-shortcut-action">
                 <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
-              </button>
-              <button
-                class="newtab-shortcut-action flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200 hover-lift-1"
-                type="button"
+              </UiButton>
+              <UiButton variant="secondary" type="button"
                 title="Edit shortcut"
-                @click.stop="beginEditShortcut(entry)"
-              >
+                @click.stop="beginEditShortcut(entry)" class="newtab-shortcut-action">
                 <Pencil :size="14" />
-              </button>
-              <button
-                class="newtab-shortcut-action newtab-shortcut-action--danger flex-inline-align-justify-center h-200 border-radius-full color-text-secondary border-none cursor-pointer bg-fill-tertiary w-200 hover-lift-1"
-                type="button"
+              </UiButton>
+              <UiButton variant="danger" type="button"
                 title="Remove shortcut"
-                @click.stop="removeFavouriteById(entry.id)"
-              >
+                @click.stop="removeFavouriteById(entry.id)" class="newtab-shortcut-action newtab-shortcut-action--danger">
                 <Trash2 :size="14" />
-              </button>
+              </UiButton>
             </div>
 
           </article>
@@ -247,21 +188,18 @@
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-62 flex-justify-end">
-            <button class="newtab-btn newtab-btn-secondary txt-weight-light txt-sm cursor-pointer outline-none color-text-primary flex-inline-align-justify-center border-none padding-75-100 bg-fill-tertiary gap-50 border-radius-full txt-weight-medium hover-lift-1" type="button" @click="goto('lumen://history')">
+            <UiButton variant="secondary" type="button" @click="goto('lumen://history')" class="newtab-btn newtab-btn-secondary outline-none">
               <History :size="15" />
               <span>Open history</span>
-            </button>
+            </UiButton>
           </div>
         </div>
 
         <div class="newtab-history-preview-list grid gap-62 margin-top-62">
-          <button
-            v-for="entry in renderedHistoryPreview"
+          <UiButton variant="none" v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            class="newtab-history-preview-item w-full flex-align-center gap-75 cursor-pointer color-text-primary border-radius-18px text-left border-1-light padding-75-87 bg-black-a02 hover-lift-1 hover-bg-fill-tertiary"
-            @click="openTarget(entry.url, $event)"
-          >
+            @click="openTarget(entry.url, $event)" class="newtab-history-preview-item flex-align-center gap-75 cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left padding-87">
             <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px fs-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :class="`tone-${entry.kind}`">
               {{ entry.monogram }}
             </span>
@@ -270,7 +208,7 @@
               <span class="newtab-history-preview-subtitle block nowrap overflow-hidden txt-overflow-ellipsis color-text-tertiary fs-13px">{{ entry.subtitle }}</span>
             </span>
             <span class="newtab-history-preview-time flex-0-0-auto txt-weight-medium margin-left-auto padding-left-50 color-text-tertiary fs-13px">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
-          </button>
+          </UiButton>
         </div>
       </section>
     </div>
@@ -278,24 +216,20 @@
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, onMounted, reactive, ref } from "vue";
+import UiCheckbox from "../../ui/UiCheckbox.vue";
+import UiModal from "../../ui/UiModal.vue";
 import {
   ArrowUpRight,
-  Database,
-  Globe,
-  HardDrive,
   Hexagon,
   History,
-  House,
   Pencil,
   Plus,
-  Puzzle,
   Search,
   Star,
   Trash2,
-  Vote,
-  Wallet,
-  X,
 } from "lucide-vue-next";
 import { describeFavouriteUrl } from "../favouriteMeta";
 import { FavouriteEntry, useFavourites } from "../favouritesStore";
@@ -303,12 +237,6 @@ import { useHistory } from "../historyStore";
 import { profilesState } from "../profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
 
-type QuickLink = {
-  url: string;
-  label: string;
-  icon: any;
-  requiresProfile?: boolean;
-};
 
 type ShortcutModalMode = "create" | "edit";
 
@@ -357,18 +285,6 @@ const builtinHosts = [
   "gateways",
   "release",
   "newtab",
-];
-
-const quickLinks: QuickLink[] = [
-  { url: "lumen://search", label: "Search", icon: Search },
-  { url: "lumen://history", label: "History", icon: History },
-  { url: "lumen://home", label: "My space", icon: House, requiresProfile: true },
-  { url: "lumen://drive", label: "Drive", icon: HardDrive, requiresProfile: true },
-  { url: "lumen://wallet", label: "Wallet", icon: Wallet, requiresProfile: true },
-  { url: "lumen://extensions", label: "Extensions", icon: Puzzle },
-  { url: "lumen://network", label: "Network", icon: Globe },
-  { url: "lumen://dao", label: "DAO", icon: Vote },
-  { url: "lumen://ipfs", label: "IPFS", icon: Database },
 ];
 
 const ONBOARDING_KEY = "lumen:onboarding:discover:v1";
@@ -499,11 +415,6 @@ function submitOmnibox() {
   const target = normalizeAddressInput(commandInput.value, builtinHosts);
   commandInput.value = target;
   goto(target);
-}
-
-function openQuickLink(link: QuickLink, event?: MouseEvent) {
-  if (link.requiresProfile && !hasProfiles.value) return;
-  openTarget(link.url, event);
 }
 
 function learnLumen() {

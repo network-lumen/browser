@@ -153,27 +153,27 @@
           <section class="how-it-works flex flex-column gap-100">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">How Lumen Works</h3>
             <div class="helppage-steps-grid gap-100 grid">
-              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-100 padding-125">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 fs-16px margin-0 margin-bottom-25">Blockchain Names</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Domain names are stored on the blockchain - no central authority can take them away.</p>
                 </div>
-              </div>
-              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              </UiCard>
+              <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-100 padding-125">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 fs-16px margin-0 margin-bottom-25">Distributed Storage</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
                 </div>
-              </div>
-              <div class="helppage-step-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              </UiCard>
+              <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-100 padding-125">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <div class="helppage-step-content">
                   <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 fs-16px margin-0 margin-bottom-25">Verified Access</h4>
                   <p class="color-text-secondary fs-085rem margin-0">Every piece of content is cryptographically verified for authenticity.</p>
                 </div>
-              </div>
+              </UiCard>
             </div>
           </section>
 
@@ -181,7 +181,7 @@
           <section class="features-section flex flex-column gap-100">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium margin-0 fs-16px">Key Features</h3>
             <div class="helppage-features-grid gap-100 grid">
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-100 padding-125">
                 <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Globe :size="24" />
                 </div>
@@ -189,8 +189,8 @@
                   <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 fs-14px margin-0 margin-bottom-25">Human-Readable Links</h4>
                   <p class="color-text-secondary margin-0 helppage-feature-content-p fs-13px line-height-14">Type <code>demo.lmn</code> instead of long cryptographic hashes.</p>
                 </div>
-              </div>
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              </UiCard>
+              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-100 padding-125">
                 <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Database :size="24" />
                 </div>
@@ -198,8 +198,8 @@
                   <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 fs-14px margin-0 margin-bottom-25">Content Everywhere</h4>
                   <p class="color-text-secondary margin-0 helppage-feature-content-p fs-13px line-height-14">Your website exists in many places, so it stays available.</p>
                 </div>
-              </div>
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              </UiCard>
+              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-100 padding-125">
                 <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Server :size="24" />
                 </div>
@@ -207,8 +207,8 @@
                   <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 fs-14px margin-0 margin-bottom-25">Pro Cloud Service</h4>
                   <p class="color-text-secondary margin-0 helppage-feature-content-p fs-13px line-height-14">Optional premium service for faster loading and reliability.</p>
                 </div>
-              </div>
-              <div class="helppage-feature-card flex gap-100 padding-125 border-radius-lg border-default bg-card">
+              </UiCard>
+              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-100 padding-125">
                 <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Wallet :size="24" />
                 </div>
@@ -216,7 +216,7 @@
                   <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 fs-14px margin-0 margin-bottom-25">Your Identity</h4>
                   <p class="color-text-secondary margin-0 helppage-feature-content-p fs-13px line-height-14">Your wallet proves what you own and enables transactions.</p>
                 </div>
-              </div>
+              </UiCard>
             </div>
           </section>
         </div>
@@ -235,49 +235,49 @@
 
           <!-- Steps -->
           <div class="tutorial-steps flex flex-column gap-100">
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Upload to Drive</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Go to Drive, upload a file or folder, then click <strong>Share</strong> to get a Lumen link.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015 padding-62-100" type="button" @click="goto('lumen://drive')">
+              <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="helppage-step-action">
                 <FolderOpen :size="18" />
                 <span>Open Drive</span>
-              </button>
-            </div>
+              </UiButton>
+            </UiCard>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Buy Your Domain</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Go to Domains, click <strong>Buy domain</strong>, choose a name like <code>yourname.lmn</code>.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015 padding-62-100" type="button" @click="goto('lumen://domain')">
+              <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="helppage-step-action">
                 <Link2 :size="18" />
                 <span>Open Domains</span>
-              </button>
-            </div>
+              </UiButton>
+            </UiCard>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Link Domain to Content</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">In Domain settings, add a record with <code>Key: cid</code> and <code>Value: your-content-hash</code>.</p>
-            </div>
+            </UiCard>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Visit Your Site</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Type <code>lumen://yourname.lmn</code> in the address bar to access your decentralized website!</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015 padding-62-100" type="button" @click="goto('lumen://newtab')">
+              <UiButton variant="primary" type="button" @click="goto('lumen://newtab')" class="helppage-step-action">
                 <Globe :size="18" />
                 <span>Open New Tab</span>
-              </button>
-            </div>
+              </UiButton>
+            </UiCard>
           </div>
         </div>
       </div>
@@ -295,45 +295,45 @@
 
           <!-- Steps -->
           <div class="tutorial-steps flex flex-column gap-100">
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Build Your Website</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.</p>
-            </div>
+            </UiCard>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Upload It to Drive</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Open Drive, upload that folder, then copy its Lumen link — that's your content's address.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015 padding-62-100" type="button" @click="goto('lumen://drive')">
+              <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="helppage-step-action">
                 <FolderOpen :size="18" />
                 <span>Open Drive</span>
-              </button>
-            </div>
+              </UiButton>
+            </UiCard>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Get a Domain</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.</p>
-              <button class="helppage-step-action flex-inline-align-center gap-50 cursor-pointer color-text-primary border-radius-10px txt-weight-light fs-085rem border-1 bg-fill-tertiary transition-all-015 padding-62-100" type="button" @click="goto('lumen://domain')">
+              <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="helppage-step-action">
                 <Link2 :size="18" />
                 <span>Open Domains</span>
-              </button>
-            </div>
+              </UiButton>
+            </UiCard>
 
-            <div class="helppage-tutorial-step padding-125 border-radius-lg border-default bg-card">
+            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step padding-125">
               <div class="helppage-step-header flex-align-center gap-75 margin-bottom-50">
                 <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
                 <h4 class="color-text-primary margin-0 txt-weight-medium helppage-step-header-h4 fs-16px">Link Your Domain to Your Content</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p fs-14px line-height-15 margin-0 margin-bottom-75">Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.</p>
-            </div>
+            </UiCard>
           </div>
 
           <div class="helppage-discover-note color-text-primary margin-top-85 border-radius-14px fs-14px padding-75-87 bg-fill-blue line-height-135 border-1-ios-blue-a14">
@@ -406,7 +406,7 @@
           <!-- Documentation Grid -->
           <div class="helppage-docs-grid gap-90 grid" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <BookOpen :size="20" />
               </div>
@@ -428,10 +428,10 @@
                   nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Secure your Wallet -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Wallet :size="20" />
               </div>
@@ -443,10 +443,10 @@
                   Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Upload -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <FolderOpen :size="20" />
               </div>
@@ -458,10 +458,10 @@
                   massa, vitae fermentum velit quam a odio.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Cloud -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Database :size="20" />
               </div>
@@ -473,10 +473,10 @@
                   Praesent faucibus, elit vitae fermentum viverra, odio tellus laoreet purus.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- How to Manage Domain -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Link2 :size="20" />
               </div>
@@ -488,10 +488,10 @@
                   reprehenderit qui in ea voluptate velit esse.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Domain Setting -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Globe :size="20" />
               </div>
@@ -503,10 +503,10 @@
                   et ultrices posuere cubilia curae.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- How to Linked Domain -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Link2 :size="20" />
               </div>
@@ -518,10 +518,10 @@
                   consequatur.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Publish Website with .lmn -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Server :size="20" />
               </div>
@@ -533,10 +533,10 @@
                   Integer vitae lectus sed magna ultricies cursus.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Theme -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
@@ -548,10 +548,10 @@
                   convallis libero viverra.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Font Size -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
@@ -563,10 +563,10 @@
                   auctor.
                 </p>
               </div>
-            </div>
+            </UiCard>
 
             <!-- Brightness -->
-            <div class="helppage-discover-card flex border-radius-lg gap-87 border-default bg-card shadow-sm padding-87-100">
+            <UiCard padding="md" shadow class="flex gap-87">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
@@ -578,7 +578,7 @@
                   Quisque feugiat tellus at malesuada suscipit.
                 </p>
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
       </div>  
@@ -587,8 +587,10 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, ref, watch } from 'vue';
 import type { ComputedRef } from 'vue';
+import UiCard from '../../ui/UiCard.vue';
 import { 
   HelpCircle,
   Sparkles,

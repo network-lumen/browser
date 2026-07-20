@@ -2,49 +2,41 @@
   <header class="navbar flex-align-center gap-75 padding-50-75 bg-primary border-bottom-default min-h-52px">
     <!-- Navigation Controls -->
     <div class="navbar-nav-controls flex-align-center gap-25">
-      <button
-        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
-        :disabled="!canGoBack"
+      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoBack"
         title="Back"
-        @click="previous"
-      >
+        @click="previous" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
         <ArrowLeft :size="16" />
-      </button>
-      <button
-        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
-        :disabled="!canGoForward"
+      </UiButton>
+      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoForward"
         title="Forward"
-        @click="next"
-      >
+        @click="next" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
         <ArrowRight :size="16" />
-      </button>
-      <button
-        v-if="!isExtensionTab"
-        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
+      </UiButton>
+      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" v-if="!isExtensionTab"
+
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
         :title="loading ? 'Loading…' : 'Refresh'"
-        @click="refresh"
-      >
+        @click="refresh" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
         <UiSpinner v-if="loading" size="sm" />
         <RefreshCw v-else :size="16" />
-      </button>
+      </UiButton>
     </div>
 
     <!-- URL Bar -->
     <div class="navbar-url-bar-container appregion-no-drag flex-align-center flex-1 relative min-w-0">
       <Search :size="15" stroke-width="2" class="navbar-url-bar-icon color-text-tertiary absolute cursor-events-none" />
-      <input
-        :value="urlField"
+      <UiInput bg-class="bg-secondary" radius-class="border-radius-sm" font-size-class="fs-13px" padding-class="padding-50-275-50-225" :focus-ring="false" :value="urlField"
         @input="onInput"
-        type="text"
-        class="navbar-url-bar-input w-full border-radius-sm color-text-primary fs-13px border-default bg-secondary transition-all-02 focus-outline-none focus-bg-primary focus-border-accent focus-ring focus-shadow padding-50-275-50-225"
+       
+       
         placeholder="Search or enter a URL"
-        @keydown.enter="onEnter"
-      />
-      <button
-        type="button"
-        class="navbar-url-bar-action hover-fill-primary flex-inline-align-justify-center size-28px color-text-tertiary cursor-pointer absolute border-none border-radius-8px bg-transparent transition-all-015 top-half"
+        @keydown.enter="onEnter" class="navbar-url-bar-input border-default focus-outline-none focus-bg-primary focus-ring focus-shadow" />
+      <UiButton
+        variant="icon"
+        icon-radius-class="border-radius-8px"
+        icon-padding-class=""
+        class="navbar-url-bar-action flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half"
         :class="{ 'is-active': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
@@ -53,39 +45,35 @@
         @click="onToggleFavourite"
       >
         <Star :size="16" :fill="favActive ? 'currentColor' : 'none'" />
-      </button>
+      </UiButton>
     </div>
 
     <!-- Quick Actions -->
     <div class="navbar-quick-actions flex-align-center gap-25">
-      <button
-        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
-        title="Home"
-        @click="$emit('goto', 'lumen://home')"
-      >
+      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Home"
+        @click="$emit('goto', 'lumen://home')" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
         <House :size="16" />
-      </button>
-      <button
-        class="navbar-nav-btn hover-fill-primary-enabled flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
-        title="Drive"
-        @click="$emit('goto', 'lumen://drive')"
-      >
+      </UiButton>
+      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Drive"
+        @click="$emit('goto', 'lumen://drive')" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
         <Cloud :size="16" />
-      </button>
+      </UiButton>
     </div>
 
     <div class="navbar-extensions-section appregion-no-drag relative margin-left-n50">
-      <button
-        type="button"
-        class="navbar-nav-btn hover-fill-primary-enabled extensions-trigger flex-inline-align-justify-center size-32px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
+      <UiButton
+        variant="icon"
+        icon-radius-class="border-radius-sm"
+        icon-padding-class=""
+        class="navbar-nav-btn extensions-trigger flex-inline-align-justify-center size-32px"
         :class="{ 'is-active': showExtensionsMenu }"
         title="Extensions"
         @click.stop="toggleExtensionsMenu"
       >
         <Puzzle :size="16" />
-      </button>
+      </UiButton>
 
-      <div v-if="showExtensionsMenu" class="navbar-extensions-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px" role="menu">
+      <UiCard padding="none" :shadow="false" v-if="showExtensionsMenu" role="menu" class="navbar-extensions-menu absolute padding-50 shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px">
         <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em padding-0 padding-right-50 padding-bottom-50 padding-left-50">Extensions</div>
 
         <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-35 overflow-y-auto padding-right-25">
@@ -106,15 +94,12 @@
             </div>
 
             <div class="navbar-extension-actions flex-align-center gap-35">
-              <button
-                type="button"
-                class="navbar-extension-action-btn disabled-fade-40 hover-fill-primary-enabled flex-inline-align-justify-center size-28px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
-                @click.stop="openExtension(ext)"
-              >
+                @click.stop="openExtension(ext)" class="navbar-extension-action-btn flex-inline-align-justify-center disabled-fade-40 size-28px">
                 <ExternalLink :size="14" />
-              </button>
+              </UiButton>
 
               <label class="navbar-extension-toggle flex-inline-align-center cursor-pointer relative" :title="ext.enabled ? 'Disable extension' : 'Enable extension'">
                 <input class="navbar-extension-toggle-input absolute opacity-0 w-0"
@@ -126,25 +111,20 @@
                 <span class="navbar-extension-toggle-slider border-radius-full relative bg-border w-34px h-20px"></span>
               </label>
 
-              <button
-                type="button"
-                class="navbar-extension-action-btn disabled-fade-40 hover-fill-primary-enabled flex-inline-align-justify-center size-28px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
-                @click.stop="reloadExtension(ext.id)"
-              >
+                @click.stop="reloadExtension(ext.id)" class="navbar-extension-action-btn flex-inline-align-justify-center disabled-fade-40 size-28px">
                 <RefreshCw :size="14" />
-              </button>
+              </UiButton>
 
-              <button
-                type="button"
-                class="navbar-extension-action-btn disabled-fade-40 danger flex-inline-align-justify-center size-28px border-radius-sm color-text-secondary cursor-pointer border-none bg-transparent transition-all-015"
+              <UiButton variant="danger" type="button"
+               
                 title="Remove extension"
                 :disabled="extensionsBusy"
-                @click.stop="removeExtension(ext.id)"
-              >
+                @click.stop="removeExtension(ext.id)" class="navbar-extension-action-btn disabled-fade-40 size-28px">
                 <Trash2 :size="14" />
-              </button>
+              </UiButton>
             </div>
           </div>
         </div>
@@ -163,36 +143,32 @@
             Load unpacked extension
           </UiButton>
 
-          <button
-            type="button"
-            class="navbar-extensions-store-link disabled-fade-45 flex-inline-align-center gap-50 w-full border-radius-sm color-text-primary cursor-pointer fs-13px fw-500 flex-justify-space-between padding-50-62 border-none bg-transparent"
+          <UiButton variant="primary" type="button"
+           
             :disabled="extensionsBusy"
-            @click.stop="openChromeWebStore"
-          >
+            @click.stop="openChromeWebStore" class="navbar-extensions-store-link disabled-fade-45">
             <span>Import from Chrome Web Store</span>
             <ExternalLink :size="13" />
-          </button>
+          </UiButton>
 
           <div v-if="extensionsMessage" class="navbar-extensions-menu-message fs-12px color-text-tertiary padding-0-12">
             {{ extensionsMessage }}
           </div>
         </div>
-      </div>
+      </UiCard>
     </div>
 
     <!-- Profile -->
     <div class="navbar-profile-section appregion-no-drag relative">
-      <button type="button" class="navbar-profile-trigger flex-inline-align-center gap-50 color-text-primary cursor-pointer border-default bg-secondary transition-all-015 border-radius-full hover-bg-hover hover-border-color padding-35-62-35-35" :title="activeProfileDisplay" @click.stop="toggleProfileMenu">
+      <UiButton variant="secondary" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
         <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary margin-left-n12" />
-      </button>
+      </UiButton>
 
-      <div
-        v-if="showProfileMenu"
-        class="navbar-profile-menu border-radius-lg absolute bg-card border-default padding-50 shadow-xl z-100 right-0 min-w-260px max-w-300px"
-        role="menu"
-      >
+      <UiCard padding="none" :shadow="false" v-if="showProfileMenu"
+       
+        role="menu" class="navbar-profile-menu absolute padding-50 shadow-xl z-100 right-0 min-w-260px max-w-300px">
         <ActiveProfileCard
           v-if="activeProfile"
           :profile="activeProfile"
@@ -210,10 +186,10 @@
               :class="{ active: p.id === activeProfileId }"
               role="menuitem"
             >
-              <button type="button" class="navbar-profile-row-btn flex-align-center gap-50 flex-1 cursor-pointer text-left color-text-primary min-w-0 bg-transparent border-none padding-25" @click.stop="selectProfile(p.id)">
+              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-35 border-none bg-transparent cursor-pointer color-text-primary fs-13px fw-500 border-radius-sm padding-25-50 transition-all-015 text-left w-full min-w-0">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
                 <span class="navbar-profile-row-name fs-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
-              </button>
+              </UiButton>
 
               <button type="button" class="navbar-profile-row-delete flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
@@ -240,7 +216,7 @@
           </UiButton>
 
           <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37 padding-top-50 gap-35 border-top-05-border-light">
-            <input v-model="newProfileName" type="text" class="navbar-profile-create-input w-full border-radius-sm color-text-primary fs-13px fw-500 padding-50-62 border-default bg-fill-primary focus-outline-none focus-border-accent background-fill-primary-focus" placeholder="Profile name" />
+            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-sm" font-size-class="fs-13px" padding-class="padding-50-62" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus" />
             <div class="navbar-profile-create-actions flex gap-35">
               <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 primary w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015 color-white bg-accent" @click="confirmCreateProfile">
                 Create
@@ -255,20 +231,12 @@
             {{ profileMessage }}
           </div>
         </div>
-      </div>
+      </UiCard>
     </div>
   </header>
 
   <!-- Export Options Modal -->
-  <Teleport to="body">
-    <div v-if="showExportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelExportModal">
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
-        <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
-          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Export Profile</h3>
-          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelExportModal">&times;</button>
-        </div>
-        
-        <div class="navbar-export-modal-body padding-125">
+  <UiModal :model-value="showExportModal" title="Export Profile" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelExportModal">
           <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             Export your profile backup.
             <template v-if="exportRequiresPassword">
@@ -292,18 +260,16 @@
               />
             </div>
             
-            <label class="navbar-export-option margin-top-75 flex-align-center gap-50 cursor-pointer border-radius-sm padding-50-62">
-              <input type="checkbox" v-model="exportEncrypted" class="w-16px h-16px" />
-              <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Also encrypt the backup file with this password</span>
-            </label>
+            <div class="navbar-export-option margin-top-75 border-radius-sm padding-50-62">
+              <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
+            </div>
           </div>
           
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
-            <label class="navbar-export-option flex-align-center gap-50 cursor-pointer border-radius-sm padding-50-62">
-              <input type="checkbox" v-model="exportEncrypted" class="w-16px h-16px" />
-              <span class="navbar-export-option-label fs-13px fw-500 color-text-primary">Encrypt backup with password</span>
-            </label>
+            <div class="navbar-export-option border-radius-sm padding-50-62">
+              <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
+            </div>
             
             <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
               <div class="navbar-export-field flex flex-column gap-25">
@@ -332,29 +298,18 @@
             {{ exportError }}
           </div>
           
-          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelExportModal">
-              Cancel
-            </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmExportProfile">
-              Export {{ exportEncrypted ? '(Encrypted)' : '' }}
-            </UiButton>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+    <template #footer>
+      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelExportModal">
+        Cancel
+      </UiButton>
+      <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmExportProfile">
+        Export {{ exportEncrypted ? '(Encrypted)' : '' }}
+      </UiButton>
+    </template>
+  </UiModal>
 
   <!-- Import Modal -->
-  <Teleport to="body">
-    <div v-if="showImportModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelImportModal">
-      <div class="navbar-export-modal navbar-import-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw w-min-560px-92vw">
-        <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
-          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Import profile</h3>
-          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelImportModal">&times;</button>
-        </div>
-
-        <div class="navbar-export-modal-body padding-125">
+  <UiModal :model-value="showImportModal" title="Import profile" panel-class="min-w-360px max-w-90vw w-min-560px-92vw" @update:model-value="cancelImportModal">
           <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             Choose how you want to import your profile.
           </p>
@@ -471,35 +426,24 @@
             {{ importModalError }}
           </div>
 
-          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportModal">
-              Cancel
-            </UiButton>
-            <UiButton
-              variant="none"
-              class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none"
-              :disabled="importBusy"
-              @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
-            >
-              <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
-              <span v-else class="navbar-import-busy-label flex-inline-align-justify-center gap-50"><UiSpinner size="sm" /> Importing…</span>
-            </UiButton>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+    <template #footer>
+      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportModal">
+        Cancel
+      </UiButton>
+      <UiButton
+        variant="none"
+        class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none"
+        :disabled="importBusy"
+        @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
+      >
+        <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
+        <span v-else class="navbar-import-busy-label flex-inline-align-justify-center gap-50"><UiSpinner size="sm" /> Importing…</span>
+      </UiButton>
+    </template>
+  </UiModal>
 
   <!-- Import Password Modal (for encrypted backups) -->
-  <Teleport to="body">
-    <div v-if="showImportPasswordModal" class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px" @click.self="cancelImportPasswordModal">
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
-        <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
-          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Encrypted Backup</h3>
-          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelImportPasswordModal">&times;</button>
-        </div>
-        
-        <div class="navbar-export-modal-body padding-125">
+  <UiModal :model-value="showImportPasswordModal" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelImportPasswordModal">
           <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
@@ -521,91 +465,60 @@
             {{ importError }}
           </div>
           
-          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportPasswordModal">
-              Cancel
-            </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmImportEncrypted">
-              Import
-            </UiButton>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+    <template #footer>
+      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelImportPasswordModal">
+        Cancel
+      </UiButton>
+      <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmImportEncrypted">
+        Import
+      </UiButton>
+    </template>
+  </UiModal>
 
   <!-- Delete Profile Confirm Modal -->
-  <Teleport to="body">
-    <div
-      v-if="showDeleteProfileModal"
-      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px"
-      @click.self="cancelDeleteProfileModal"
-    >
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
-        <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
-          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Delete profile?</h3>
-          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="cancelDeleteProfileModal">&times;</button>
-        </div>
-
-        <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
-            You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
-            This cannot be recovered.
-          </p>
-
-          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelDeleteProfileModal">
-              Cancel
-            </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmDeleteProfile">
-              Delete
-            </UiButton>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+  <UiModal :model-value="showDeleteProfileModal" title="Delete profile?" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelDeleteProfileModal">
+    <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+      You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
+      This cannot be recovered.
+    </p>
+    <template #footer>
+      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="cancelDeleteProfileModal">
+        Cancel
+      </UiButton>
+      <UiButton variant="none" class="navbar-export-btn confirm danger flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="confirmDeleteProfile">
+        Delete
+      </UiButton>
+    </template>
+  </UiModal>
 
   <!-- PQC Link Notice -->
-  <Teleport to="body">
-    <div
-      v-if="showPqcLinkedModal"
-      class="navbar-export-modal-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-9999 backdrop-blur-4px"
-      @click.self="dismissPqcLinkedModal"
-    >
-      <div class="navbar-export-modal border-radius-xl bg-card overflow-hidden border-default shadow-2xl min-w-360px max-w-90vw">
-        <div class="navbar-export-modal-header flex-align-center-justify-space-between padding-100-125 border-bottom-default">
-          <h3 class="margin-0 fs-16px txt-weight-light color-text-primary">Post-quantum security enabled</h3>
-          <button type="button" class="navbar-export-modal-close flex-align-justify-center size-28px border-radius-sm fs-18px color-text-tertiary cursor-pointer bg-hover border-none transition-all-015" @click="dismissPqcLinkedModal">&times;</button>
-        </div>
-
-        <div class="navbar-export-modal-body padding-125">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
-            Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
-            Your wallet is now linked on-chain and uses post-quantum security.
-          </p>
-
-          <div class="navbar-export-modal-actions flex gap-50 margin-top-100">
-            <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="dismissPqcLinkedModal">
-              Ignore
-            </UiButton>
-            <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="exportAfterPqcLinked">
-              Export
-            </UiButton>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+  <UiModal :model-value="showPqcLinkedModal" title="Post-quantum security enabled" panel-class="min-w-360px max-w-90vw" @update:model-value="dismissPqcLinkedModal">
+    <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+      Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
+      Your wallet is now linked on-chain and uses post-quantum security.
+    </p>
+    <template #footer>
+      <UiButton variant="none" class="navbar-export-btn cancel hover-fill-primary flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-cancel border-default" @click="dismissPqcLinkedModal">
+        Ignore
+      </UiButton>
+      <UiButton variant="none" class="navbar-export-btn confirm flex-1 border-radius-sm txt-weight-light fs-13px cursor-pointer transition-all-015 padding-62-100 navbar-export-btn-confirm border-none" @click="exportAfterPqcLinked">
+        Export
+      </UiButton>
+    </template>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../ui/UiInput.vue';
+import UiCard from '../ui/UiCard.vue';
+import UiModal from '../ui/UiModal.vue';
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown, Puzzle, ExternalLink } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
+import UiCheckbox from '../ui/UiCheckbox.vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import {
   profilesState,

@@ -54,24 +54,15 @@
     </section>
   </transition>
 
-  <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="notesOpen" class="release-prompt-notes-overlay flex-align-justify-center fixed inset-0 bg-black-a50 z-10000 backdrop-blur-4px" @click.self="notesOpen = false">
-        <div class="release-prompt-notes-modal bg-card border-default flex flex-column border-radius-16px shadow-panel-lg overflow-hidden w-min-720px-92vw">
-          <div class="release-prompt-notes-head flex-align-center-justify-space-between gap-100 padding-75-87 border-bottom-width-border-light">
-            <h3 class="release-prompt-notes-title color-text-primary margin-0 fs-16px">Change notes</h3>
-            <button type="button" class="release-prompt-notes-close bg-transparent border-none color-text-secondary cursor-pointer fs-15rem line-height-1 padding-25-4" @click="notesOpen = false">&times;</button>
-          </div>
-          <pre class="release-prompt-notes-body color-text-primary bg-primary margin-0 padding-87 overflow-auto fs-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  <UiModal :model-value="notesOpen" title="Change notes" panel-class="w-min-720px-92vw" @update:model-value="notesOpen = false">
+    <pre class="release-prompt-notes-body color-text-primary bg-primary margin-0 overflow-auto fs-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { formatReleaseSize, useReleaseUpdates } from '../internal/services/releaseUpdates';
 import { addToast } from '../stores/toastStore';

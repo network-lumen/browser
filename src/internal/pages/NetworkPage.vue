@@ -26,18 +26,15 @@
             <SlidersHorizontal :size="18" />
             <span>Params</span>
           </button>
-          <button
-            v-if="activeView === 'status'"
+          <UiButton variant="none" v-if="activeView === 'status'"
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
             @click="refreshData"
-            :disabled="refreshing"
-          >
+            :disabled="refreshing" class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015">
             <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             <span>{{ refreshing ? 'Refreshing...' : 'Refresh' }}</span>
-          </button>
+          </UiButton>
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
@@ -258,6 +255,7 @@
 </template>
 
 <script setup lang="ts">
+import UiButton from '../../ui/UiButton.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
 import { Network, SlidersHorizontal } from 'lucide-vue-next';
 import { useInternalLumen } from '../../composables/useInternalLumen';

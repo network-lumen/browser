@@ -104,7 +104,7 @@
 .txt-weight-medium { font-weight: 700; }
 .txt-weight-strong { font-weight: 800; }
 /* family */
-.font-inherit { font: inherit; }
+.font-inherit-full { font: inherit; }
 /* ---------------------------- POINTERS ----------------------------*/
 .cursor-pointer { cursor: pointer; }
 .cursor-events-none { pointer-events: none; }

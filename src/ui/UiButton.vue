@@ -1,6 +1,6 @@
 <template>
   <button
-    class="flex-align-justify-center"
+    class="flex-inline-align-center gap-62"
     :type="type"
     :disabled="disabled"
     :class="computedClass"
@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-type Variant = 'ghost' | 'primary' | 'icon' | 'cta' | 'none';
+type Variant = 'ghost' | 'primary' | 'secondary' | 'danger' | 'icon' | 'cta' | 'tag' | 'none';
 type Size = 'sm' | 'md';
 
 const props = withDefaults(defineProps<{
@@ -22,33 +22,53 @@ const props = withDefaults(defineProps<{
   block?: boolean;
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
+  /** Only used when variant="icon" — lets callers restore their own shape instead of the default circle. */
+  iconRadiusClass?: string;
+  /** Only used when variant="icon" — lets callers drop/replace the default padding (e.g. when a fixed size-NNpx class already controls the box). */
+  iconPaddingClass?: string;
 }>(), {
   variant: 'none',
   size: 'md',
   block: false,
   disabled: false,
-  type: 'button'
+  type: 'button',
+  iconRadiusClass: 'border-radius-circle',
+  iconPaddingClass: 'padding-25'
 });
 
 defineEmits<{ (e: 'click', ev: MouseEvent): void }>();
 
-const variantClass: Record<Variant, string> = {
-  ghost: 'button-ghost bg-transparent color-text-primary cursor-pointer border-radius-10px padding-50',
-  primary: 'button-primary color-white cursor-pointer border-radius-10px padding-50',
-  icon: 'button-icon bg-transparent border-none cursor-pointer color-text-secondary border-radius-circle padding-25',
-  cta: 'button-cta bg-fill-tertiary color-text-primary cursor-pointer border-radius-10px padding-50',
+const variantClass: Record<Exclude<Variant, 'icon'>, string> = {
+  ghost: 'button-ghost bg-transparent color-text-primary cursor-pointer border-radius-10px',
+  primary: 'button-primary-rich color-white cursor-pointer border-radius-10px border-none bg-gradient-primary shadow-0-4-15-ios-blue-a4 shadow-0-8-25-ios-blue-a5-hover',
+  secondary: 'button-secondary cursor-pointer border-radius-10px border-1 bg-secondary color-text-primary hover-bg-hover',
+  danger: 'button-danger cursor-pointer border-radius-10px border-none color-white bg-gradient-danger shadow-danger-a30 hover-bg-gradient-danger-deep hover-shadow-danger-a40',
+  cta: 'button-cta bg-fill-tertiary color-text-primary cursor-pointer border-radius-10px',
+  tag: 'button-tag color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 shadow-0-1-4-rgba-0-0-0-0-05',
   none: ''
 };
 
 const sizeClass: Record<Size, string> = {
-  sm: 'txt-xs',
-  md: 'txt-sm'
+  sm: 'txt-xs padding-50-100',
+  md: 'txt-sm padding-75-125'
 };
 
-const computedClass = computed(() => [
-  variantClass[props.variant],
-  sizeClass[props.size],
-  props.block ? 'w-full' : '',
-  props.disabled ? 'opacity-70 cursor-not-allowed' : ''
-].filter(Boolean).join(' '));
+const computedClass = computed(() => {
+  if (props.variant === 'icon') {
+    return [
+      'button-icon bg-transparent border-none cursor-pointer color-text-secondary',
+      props.iconRadiusClass,
+      props.iconPaddingClass,
+      props.block ? 'w-full' : '',
+      props.disabled ? 'opacity-70 cursor-not-allowed' : ''
+    ].filter(Boolean).join(' ');
+  }
+  const usesSize = props.variant !== 'tag' && props.variant !== 'none';
+  return [
+    variantClass[props.variant],
+    usesSize ? sizeClass[props.size] : '',
+    props.block ? 'w-full' : '',
+    props.disabled ? 'opacity-70 cursor-not-allowed' : ''
+  ].filter(Boolean).join(' ');
+});
 </script>
