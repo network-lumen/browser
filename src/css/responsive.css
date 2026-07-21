@@ -2,7 +2,6 @@
 @media (hover: hover) {
   /* .hover-bg-white removed (unused) */
   .hover-bg-black-a10:where(:hover, :focus-visible) { background: var(--black-a10); }
-  .hover-bg-fill-primary:where(:hover, :focus-visible) { background: var(--fill-primary); }
 }
 
 /* from src/css/utilities.css */
@@ -52,7 +51,6 @@
   .newtab-page { padding-inline: 0.85rem; }
   .newtab-hero { padding: 2rem 1rem; }
   .newtab-hero-copy { max-width: 34rem; }
-  .newtab-quick-links { width: min(880px, 100%); gap: 0.5rem; }
 }
 
 /* from src/css/theme.css */

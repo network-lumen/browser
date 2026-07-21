@@ -117,7 +117,7 @@
 
       <!-- Loading State -->
       <div v-if="isLoading" class="explorer-loading-state flex-align-justify-center flex-column color-text-secondary padding-400-200">
-        <div class="explorer-spinner size-40px border-radius-circle margin-bottom-100 border-3"></div>
+        <UiSpinner size="lg" class="margin-bottom-100" />
         <p>Loading blockchain data...</p>
       </div>
 
@@ -698,7 +698,7 @@
               <div class="explorer-tx-status-content flex-align-center flex-column gap-150 text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-100 w-full">
-                  <div class="explorer-tx-spinner size-48px border-radius-circle border-4-color"></div>
+                  <UiSpinner size="lg" />
                   <div class="explorer-tx-status-text flex flex-column gap-50">
                     <strong class="explorer-tx-status-text-strong fs-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
                     <p class="word-wrap-break fs-14px color-text-secondary margin-0 max-w-320px">{{ txMessage }}</p>
@@ -765,6 +765,7 @@ import UiInput from '../../ui/UiInput.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';

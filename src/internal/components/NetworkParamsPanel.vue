@@ -237,10 +237,10 @@ function pretty(value: any): string {
 }
 
 function statusClass(s: ParamSection): string {
-  if (s.loading) return 'loading';
-  if (s.error) return 'error';
-  if (s.data) return 'ok';
-  return 'idle';
+  if (s.loading) return 'badge-warning color-warning';
+  if (s.error) return 'badge-error color-error';
+  if (s.data) return 'badge-success color-success';
+  return '';
 }
 
 function statusLabel(s: ParamSection): string {
