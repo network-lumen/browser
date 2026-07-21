@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-21T19:48:49.601Z",
+  "generatedAt": "2026-07-21T20:00:51.649Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.4",
   "groups": [
@@ -233,11 +233,11 @@
       "member": "getActive",
       "implementation": "profilesGetActive",
       "fallbackError": "get_active_failed",
-      "description": "Get the currently active Lumen profile.",
+      "description": "Get the currently active Lumen profile, trimmed to `{id, name, walletAddress}`.",
       "params": [],
       "returns": {
-        "type": "Promise<{ok:boolean,data?:object,error?:string}>",
-        "description": "`data` is the profile record."
+        "type": "Promise<{ok:boolean,data?:{id:string,name:string,walletAddress:string},error?:string}>",
+        "description": ""
       },
       "errors": [
         {

@@ -1678,10 +1678,22 @@ async function setWindowFullscreen(active) {
   }
 }
 
-/** Get the currently active Lumen profile. */
+/**
+ * Get the currently active Lumen profile, trimmed to what a site actually
+ * needs to identify the connected account. The full profile record (main
+ * process side) also carries internal-only fields — `role`, `favourites`
+ * (the user's Drive/bookmark map), `colorIndex` (UI theming) — that have no
+ * legitimate use off-app and must never reach webview content.
+ */
 async function profilesGetActive() {
   ensureLumenSite();
-  return await ipcRenderer.invoke('profiles:getActive');
+  const profile = await ipcRenderer.invoke('profiles:getActive');
+  if (!profile || !profile.id) return null;
+  return {
+    id: webview_utils.safeString(profile.id, 128),
+    name: webview_utils.safeString(profile.name, 256),
+    walletAddress: webview_utils.safeString(profile.walletAddress || profile.address || '', 256),
+  };
 }
 
 /** Add data to IPFS via the host node. */
@@ -2051,8 +2063,8 @@ const lumen = {
 
   profiles: {
     /**
-     * Get the currently active Lumen profile.
-     * @returns {Promise<{ok:boolean,data?:object,error?:string}>} `data` is the profile record.
+     * Get the currently active Lumen profile, trimmed to `{id, name, walletAddress}`.
+     * @returns {Promise<{ok:boolean,data?:{id:string,name:string,walletAddress:string},error?:string}>}
      * @error {get_active_failed} No active profile / wallet is set up.
      */
     getActive: wrapLumenApiCall(profilesGetActive, 'get_active_failed')

@@ -318,12 +318,42 @@ describe('window.lumen preload API', () => {
   // -- profiles --------------------------------------------------------------
 
   describe('profiles.getActive', () => {
-    it('invokes profiles:getActive with no payload and wraps the raw result as data', async () => {
+    it('invokes profiles:getActive with no payload and trims the result to {id, name, walletAddress}', async () => {
       const lumen = await loadLumen();
-      queueInvoke('profiles:getActive', { value: { id: 'p1', walletAddress: 'lmn1x' } });
+      queueInvoke('profiles:getActive', {
+        value: {
+          id: 'p1',
+          name: 'MyName',
+          walletAddress: 'lmn1x',
+          role: 'user',
+          favourites: { 'example.com': 'bafy...' },
+          avatarDataUrl: 'data:image/png;base64,xyz',
+          colorIndex: 3,
+        },
+      });
       const result = await lumen.profiles.getActive();
-      expect(result).toEqual({ ok: true, data: { id: 'p1', walletAddress: 'lmn1x' } });
+      expect(result).toEqual({ ok: true, data: { id: 'p1', name: 'MyName', walletAddress: 'lmn1x' } });
       expect(lastInvokeCall()).toEqual(['profiles:getActive']);
+    });
+
+    it('never leaks role/favourites/avatarDataUrl/colorIndex to site content', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('profiles:getActive', {
+        value: {
+          id: 'p1',
+          name: 'MyName',
+          walletAddress: 'lmn1x',
+          role: 'admin',
+          favourites: { 'other-site.example': 'bafyabc' },
+          avatarDataUrl: 'data:image/png;base64,xyz',
+          colorIndex: 2,
+        },
+      });
+      const result = await lumen.profiles.getActive();
+      expect(result.data).not.toHaveProperty('role');
+      expect(result.data).not.toHaveProperty('favourites');
+      expect(result.data).not.toHaveProperty('avatarDataUrl');
+      expect(result.data).not.toHaveProperty('colorIndex');
     });
   });
 
