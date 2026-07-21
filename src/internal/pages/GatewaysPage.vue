@@ -63,7 +63,7 @@
               <h3 class="gwpage-private-gateway-name color-text-primary fs-16px margin-0 margin-bottom-50">{{ gw.name }}</h3>
               <p class="gwpage-private-gateway-url mono color-text-secondary fs-13px break-all margin-0 margin-bottom-75">{{ gw.url }}</p>
               <div class="gwpage-private-gateway-status flex-align-center gap-50">
-                <span class="border-radius-12px fw-500 text-capitalize gwpage-private-gateway-status-span padding-25-75 fs-075rem" :class="`status-${gw.status}`">{{ gw.status }}</span>
+                <span class="border-radius-12px fw-500 text-capitalize padding-25-75 fs-075rem" :class="gw.status === 'active' ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">{{ gw.status }}</span>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@
 
         <div v-else class="manage-wrap flex flex-column gap-100">
           <div v-if="gatewaysLoading" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
-            <div class="gwpage-spinner border-3 margin-0 margin-x-auto margin-bottom-100"></div>
+            <UiSpinner size="lg" class="margin-0 margin-x-auto margin-bottom-100" />
             <p class="gwpage-empty-sub color-text-secondary fs-14px">Loading gateways…</p>
           </div>
 
@@ -243,6 +243,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
 import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';

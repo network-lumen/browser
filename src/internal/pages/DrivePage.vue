@@ -215,7 +215,7 @@
       </div>
 
       <div v-if="browseLoading" class="drivepage-listing-loading flex-align-justify-center flex-1 min-h-280px">
-        <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
+        <UiSpinner size="lg" />
       </div>
 
       <div v-else-if="browseError" class="drivepage-fetch-error txt-xs margin-top-25 color-error margin-top-100">
@@ -389,7 +389,7 @@
       </div>
 
       <div v-if="showSavedListSpinner" class="drivepage-listing-loading flex-align-justify-center flex-1 min-h-280px">
-        <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
+        <UiSpinner size="lg" />
       </div>
 
 
@@ -980,7 +980,7 @@
     <!-- Subscription Details Modal -->
     <UiModal :model-value="showGatewayDetails" title="Subscription details" panel-class="w-full max-w-520px" @update:model-value="closeGatewayDetails">
             <div v-if="gatewayDetailsLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle min-h-220px">
-              <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
+              <UiSpinner size="lg" />
             </div>
 
             <template v-else>
@@ -1085,7 +1085,7 @@
           <div class="drivepage-modal-body padding-150">
 
             <div v-if="plansLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-75 fw-500 color-text-primary w-full align-middle min-h-220px">
-              <div class="drivepage-drive-spinner size-36px border-radius-full border-3-fill-secondary" aria-busy="true"></div>
+              <UiSpinner size="lg" />
             </div>
 
             <div v-else-if="plansError" class="permalink-success">
@@ -1103,8 +1103,8 @@
                     <div class="drivepage-plan-title-row flex-align-center-justify-space-between gap-50">
                       <span class="drivepage-plan-name txt-weight-light color-text-primary fs-15px">{{ planDisplayName(plan) }}</span>
                       <span
-                        class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
-                        :class="{ active: planStatus(plan) === 'active', pending: planStatus(plan) === 'pending', }"
+                        class="border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
+                        :class="planStatusBadgeClass(plan)"
                       >
                         {{ planStatusLabel(plan) }}
                       </span>
@@ -1325,13 +1325,13 @@
                           <UiButton variant="secondary" v-if="planStatus(plan) === 'none'"
                             type="button"
                            
-                            @click.stop="openSubscribeModal(plan)" class="drivepage-plan-status-badge">
+                            @click.stop="openSubscribeModal(plan)">
                             {{ planStatusLabel(plan) }}
                           </UiButton>
                           <span
                             v-else
-                            class="drivepage-plan-status-badge border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
-                            :class="{ active: planStatus(plan) === 'active', pending: planStatus(plan) === 'pending', }"
+                            class="border-radius-full txt-weight-light color-text-secondary fs-11px bg-primary border-1 padding-15-60"
+                            :class="planStatusBadgeClass(plan)"
                           >
                             {{ planStatusLabel(plan) }}
                           </span>
@@ -3611,6 +3611,13 @@ function planStatus(plan: PlanView): string {
   const fallback = planSubscriptions.value.get(plan.gatewayId.toLowerCase());
   if (fallback && fallback.length) return fallback[0].status || "unknown";
   return "none";
+}
+
+function planStatusBadgeClass(plan: PlanView): string {
+  const status = planStatus(plan);
+  if (status === "active") return "badge-success color-success";
+  if (status === "pending") return "badge-warning color-warning";
+  return "";
 }
 
 function planStatusLabel(plan: PlanView): string {

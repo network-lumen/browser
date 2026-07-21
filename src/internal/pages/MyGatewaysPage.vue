@@ -43,8 +43,8 @@
               <p v-if="embeddedServerRunning" class="mygw-server-url margin-0 fs-14px color-ios-blue mono">{{ embeddedServerUrl }}</p>
               <p v-else class="mygw-server-status-text color-text-secondary margin-0 fs-14px">Start your personal gateway server</p>
             </div>
-            <div class="mygw-server-status-badge flex-align-center gap-50 fw-500 color-text-secondary border-radius-20px padding-50-100 bg-fill-tertiary fs-14px transition-all-03" :class="{ running: embeddedServerRunning }">
-              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary"></span>
+            <div class="flex-align-center gap-50 fw-500 border-radius-20px padding-50-100 fs-14px transition-all-03" :class="embeddedServerRunning ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">
+              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary" :class="{ active: embeddedServerRunning }"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
           </div>
@@ -88,7 +88,7 @@
           </div>
 
           <div v-if="whitelistLoading" class="mygw-empty-state small flex flex-column flex-align-justify-center text-center padding-200-100">
-            <div class="mygw-spinner border-radius-full size-40px border-3"></div>
+            <UiSpinner size="lg" />
             <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Loading whitelist...</p>
           </div>
 
@@ -143,7 +143,7 @@
         </div>
 
         <div v-if="loading" class="mygw-empty-state flex flex-column flex-align-justify-center text-center padding-400-200">
-          <div class="mygw-spinner border-radius-full size-40px border-3"></div>
+          <UiSpinner size="lg" />
           <p class="mygw-empty-state-p fs-14px color-text-secondary margin-0 margin-bottom-150">Loading gateways...</p>
         </div>
 
@@ -171,7 +171,7 @@
                 <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary" :class="{ active: gateway.status === 'active' }"></div>
                 <h3 class="fs-11rem txt-weight-light color-text-primary margin-0">{{ gateway.name }}</h3>
               </div>
-              <span class="mygw-gateway-badge fw-500 border-radius-12px text-capitalize fs-075rem padding-25-75" :class="`badge-${gateway.status}`">
+              <span class="fw-500 border-radius-12px text-capitalize fs-075rem padding-25-75" :class="gatewayStatusBadgeClass(gateway.status)">
                 {{ gateway.status }}
               </span>
             </div>
@@ -324,6 +324,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import { Server, List, Plus, Edit2, Trash2, AlertCircle } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -530,6 +531,12 @@ function formatDate(timestamp: number): string {
     month: 'short',
     day: 'numeric'
   });
+}
+
+function gatewayStatusBadgeClass(status: Gateway['status']): string {
+  if (status === 'active') return 'badge-success color-success';
+  if (status === 'error') return 'badge-error color-error';
+  return 'badge-neutral color-text-tertiary';
 }
 
 async function checkEmbeddedServerStatus() {

@@ -58,7 +58,7 @@
           <p>{{ error }}</p>
         </div>
         <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
-          <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
+          <UiSpinner size="lg" />
           <p>Loading your domains...</p>
         </div>
         <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-50 flex-inline-align-center gap-150 w-full relative z-1 padding-200-150">
@@ -80,7 +80,7 @@
             <div class="domainpage-domain-right flex-align-center gap-35">
               <span
                 v-if="d.expireAtSeconds"
-                class="domainpage-pill border-radius-full color-text-secondary fw-500 txt-sm cursor-pointer fs-11px border-1-transparent padding-25-60"
+                class="border-radius-full fw-500 txt-sm cursor-pointer fs-11px padding-25-60"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >
@@ -113,7 +113,7 @@
 
       <section v-else class="domainpage-card bg-card border-radius-16px border-1 padding-125-150-150 shadow-0-10-30-rgba-0-0-0-0-1">
         <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
-          <div class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></div>
+          <UiSpinner size="lg" />
           <p>Loading stable links...</p>
         </div>
         <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-50 padding-200-150">
@@ -213,7 +213,7 @@
                     <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
                     {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
+                  <UiSpinner v-else size="sm" />
                 </UiButton>
               </div>
             </form>
@@ -273,7 +273,7 @@
                     <Check :size="16" />
                     Save records
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
+                  <UiSpinner v-else size="sm" />
                 </UiButton>
               </div>
             </div>
@@ -326,7 +326,7 @@
                   <Plus :size="16" />
                   Register domain
                 </span>
-                <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
+                <UiSpinner v-else size="sm" />
               </UiButton>
             </div>
       </UiModal>
@@ -397,7 +397,7 @@
                     <Settings :size="16" />
                     Save changes
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
+                  <UiSpinner v-else size="sm" />
                 </UiButton>
               </div>
             </div>
@@ -442,7 +442,7 @@
                     <Send :size="16" />
                     Transfer domain
                   </span>
-                  <span v-else class="domainpage-spinner border-radius-full ring-spinner-sm border-2-fill-secondary"></span>
+                  <UiSpinner v-else size="sm" />
                 </UiButton>
               </div>
             </div>
@@ -456,6 +456,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
 import { computed, inject, ref, watch, watchEffect } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
@@ -1075,14 +1076,14 @@ function prettyDate(tsMs?: number | null): string {
 }
 
 function expiryClass(d: DomainRow): string {
-  if (!d.expireAtSeconds) return 'pill-unknown';
+  if (!d.expireAtSeconds) return 'badge-neutral color-text-tertiary';
   const ms = d.expireAtSeconds * 1000;
   const days = Math.floor((ms - Date.now()) / 86_400_000);
-  if (!Number.isFinite(days)) return 'pill-unknown';
-  if (days < 0) return 'pill-expired';
-  if (days <= 7) return 'pill-soon';
-  if (days <= 30) return 'pill-warn';
-  return 'pill-ok';
+  if (!Number.isFinite(days)) return 'badge-neutral color-text-tertiary';
+  if (days < 0) return 'badge-error color-error';
+  if (days <= 7) return 'badge-warning color-warning';
+  if (days <= 30) return 'badge-warning color-warning';
+  return 'badge-success color-success';
 }
 
 function expiryText(d: DomainRow): string {

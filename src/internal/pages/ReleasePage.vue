@@ -1073,10 +1073,10 @@ function shortAddr(addr?: string) {
 
 function statusClass(r: ReleaseRecord) {
   const status = String(r.status || '').toUpperCase();
-  if (r.yanked) return 'danger';
-  if (status.includes('REJECT') || status.includes('EXPIRE')) return 'warning';
-  if (status.includes('VALID')) return 'success';
-  return 'pending';
+  if (r.yanked) return 'badge-error color-error';
+  if (status.includes('REJECT') || status.includes('EXPIRE')) return 'badge-warning color-warning';
+  if (status.includes('VALID')) return 'badge-success color-success';
+  return 'badge-info color-primary';
 }
 
 function formatDuration(seconds: number) {

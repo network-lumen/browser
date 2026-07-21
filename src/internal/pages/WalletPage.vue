@@ -294,7 +294,7 @@
                   <div class="walletpage-dex-title-row flex-align-center flex-wrap-wrap gap-50">
                     <span class="walletpage-dex-name txt-weight-light color-text-primary fs-16px">{{ dex.name }}</span>
                     <span class="walletpage-asset-chain-pill flex-inline-align-center border-radius-full color-text-secondary bg-secondary border-1 fs-12px padding-20-55">{{ dex.chainLabel }}</span>
-                    <span class="walletpage-dex-status-badge flex-inline-align-center border-radius-full txt-weight-medium fs-12px border-1-transparent padding-22-55" :class="`status-${dex.status}`">
+                    <span class="flex-inline-align-center border-radius-full txt-weight-medium fs-12px padding-22-55" :class="getDexStatusBadgeClass(dex.status)">
                       {{ getDexStatusLabel(dex.status) }}
                     </span>
                   </div>
@@ -744,9 +744,9 @@
             </div>
 
             <UiButton variant="primary" @click="confirmAssetTransfer"
-              :disabled="!canSubmitAssetTransfer || assetTransferSending" class="walletpage-btn-modal-primary disabled-fade-50">
+              :disabled="!canSubmitAssetTransfer || assetTransferSending" class="disabled-fade-50">
               <ArrowLeftRight :size="18" v-if="!assetTransferSending" />
-              <span class="walletpage-spinner ring-spinner-sm border-radius-circle border-2-white-a3" v-else></span>
+              <UiSpinner v-else size="sm" style="--spinner-color: #fff" />
               <span>{{ assetTransferSending ? 'Transferring...' : 'IBC Transfer' }}</span>
             </UiButton>
           </template>
@@ -922,9 +922,9 @@
               </div>
             </div>
 
-            <UiButton variant="primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction" class="walletpage-btn-modal-primary disabled-fade-50">
+            <UiButton variant="primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction" class="disabled-fade-50">
               <Send :size="18" v-if="!sendingTransaction" />
-              <span class="walletpage-spinner ring-spinner-sm border-radius-circle border-2-white-a3" v-else></span>
+              <UiSpinner v-else size="sm" style="--spinner-color: #fff" />
               <span>{{ sendPrimaryActionLabel }}</span>
             </UiButton>
     </UiModal>
@@ -1006,9 +1006,9 @@
             </div>
 
             <UiButton variant="primary" @click="saveContact" 
-              :disabled="!contactForm.name || !contactForm.address || savingContact" class="walletpage-btn-modal-primary disabled-fade-50">
+              :disabled="!contactForm.name || !contactForm.address || savingContact" class="disabled-fade-50">
               <Check :size="18" v-if="!savingContact" />
-              <span class="walletpage-spinner ring-spinner-sm border-radius-circle border-2-white-a3" v-else></span>
+              <UiSpinner v-else size="sm" style="--spinner-color: #fff" />
               <span>{{ savingContact ? 'Saving...' : (editingContact ? 'Update Contact' : 'Add Contact') }}</span>
             </UiButton>
     </UiModal>
@@ -1047,6 +1047,7 @@ import UiInput from '../../ui/UiInput.vue';
 import { computed, ref, watch, onMounted, onBeforeUnmount, inject } from 'vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiButton from '../../ui/UiButton.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
@@ -2896,6 +2897,13 @@ function getDexStatusLabel(status: DexStatus): string {
   if (status === 'degraded') return 'Partial';
   if (status === 'error') return 'Offline';
   return 'Idle';
+}
+
+function getDexStatusBadgeClass(status: DexStatus): string {
+  if (status === 'online') return 'badge-success color-success';
+  if (status === 'degraded') return 'badge-warning color-warning';
+  if (status === 'error') return 'badge-error color-error';
+  return 'badge-info color-primary';
 }
 
 function formatDexCount(value: number | null): string {
