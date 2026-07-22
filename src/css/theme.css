@@ -369,26 +369,17 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* SitePage.vue */
 .gwpage-manage-link:hover { opacity: 0.8; }
-.sitepage-hls-error, .ipfspage-hls-error {
-  left: 1rem;
-  bottom: 1rem;
-  backdrop-filter: blur(6px);
-}
 
-/* SubscriptionsView.vue */
-.subview-reminder-card h4, .subview-payment-header h4 { margin: 0 0 4px 0; }
-.subview-stats-section, .explorer-stats-bar { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-.subview-payments-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+/* SubscriptionsView.vue — .paused/.completed are dynamic (:class="payment.status") */
 .subview-payment-card.paused { opacity: 0.7; background: var(--bg-secondary); }
-.subview-payment-status.completed, .gwpage-private-badge {
+.subview-payment-status.completed {
   background: rgba(var(--ios-indigo-rgb), 0.15);
   color: var(--ios-indigo);
 }
 
 
-/* HomePage.vue */
-.homepage-all-pages-list { animation: homepage-fade-down 0.18s ease-out; }
-.homepage-page-item { cursor: grab; }
+/* HomePage.vue — .dragging/.drag-over/.is-drag-over are drag-state bindings
+   that pair with :active/:hover states; kept as CSS with their state partners. */
 .homepage-page-item:active { cursor: grabbing; }
 .homepage-page-item.dragging { opacity: 0.4; cursor: grabbing; }
 .homepage-page-item.drag-over {
@@ -399,9 +390,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .homepage-page-item:hover, .explorer-tx-hash-link:hover {
   transform: translateX(2px);
 }
-.homepage-no-profile-sub, .searchpage-site-domain { opacity: 0.9; }
 .homepage-action-card:disabled { opacity: 0.55; cursor: not-allowed; }
-.homepage-actions-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .homepage-empty-grid.is-drag-over {
   border-color: var(--accent-primary);
   background: var(--primary-a08);
@@ -410,11 +399,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .drivepage-list-item.selected .drivepage-list-actions, .drivepage-list-item.checked .drivepage-list-actions {
   opacity: 1;
   pointer-events: auto;
-}
-.homepage-remove-card-btn {
-  top: 0.375rem;
-  right: 0.375rem;
-  z-index: 10;
 }
 .homepage-remove-card-btn:hover, .searchpage-image-save-btn.searchpage-saved:hover {
   background: var(--error-red);

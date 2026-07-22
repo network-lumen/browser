@@ -297,7 +297,7 @@
               </div>
               <div
                 v-if="r.kind === 'site' && r.site?.domain"
-                class="searchpage-site-domain mono flex-inline-align-center mt-6px gap-6px color-primary txt-weight-light text-13px"
+                class="searchpage-site-domain mono flex-inline-align-center mt-6px gap-6px color-primary txt-weight-light text-13px opacity-90"
                 :title="r.site.domain"
               >
                 <Globe :size="14" />

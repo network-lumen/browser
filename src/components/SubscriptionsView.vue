@@ -16,7 +16,7 @@
             <AlertCircle :size="20" />
           </div>
           <div class="flex-1">
-            <h4 class="color-text-primary text-14px">{{ reminder.paymentName }}</h4>
+            <h4 class="color-text-primary text-14px m-0px mb-4px">{{ reminder.paymentName }}</h4>
             <p class="color-text-secondary m-0px text-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
           <UiButton variant="primary" @click="dismissReminder(reminder.id)" class="subview-reminder-dismiss">
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Filter and Stats -->
-    <div class="subview-stats-section mb-32px grid gap-16px">
+    <div class="subview-stats-section mb-32px grid gap-16px grid-cols-auto-fit-200">
       <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
         <div class="subview-stat-icon active badge-success color-success flex-align-justify-center size-48px border-radius-12px">
           <PlayCircle :size="20" />
@@ -91,7 +91,7 @@
       </UiEmptyState>
 
       <!-- Payments Grid -->
-      <div v-else class="subview-payments-grid grid gap-16px">
+      <div v-else class="subview-payments-grid grid gap-16px grid-cols-auto-fill-320">
         <UiCard
           v-for="payment in filteredPayments"
           :key="payment.id"
@@ -104,7 +104,7 @@
         >
           <div class="subview-payment-header flex-align-start flex-justify-space-between mb-12px">
             <div>
-              <h4 class="color-text-primary text-16px">{{ payment.name }}</h4>
+              <h4 class="color-text-primary text-16px m-0px mb-4px">{{ payment.name }}</h4>
               <span class="subview-payment-category color-text-secondary text-11px fw-500 text-capitalize inline-block bg-tertiary border-radius-4px py-0px px-8px" v-if="payment.category">
                 {{ payment.category }}
               </span>

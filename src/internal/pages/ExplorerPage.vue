@@ -96,7 +96,7 @@
       </div>
 
       <!-- Stats Bar -->
-      <div class="explorer-stats-bar gap-16px mb-32px grid">
+      <div class="explorer-stats-bar gap-16px mb-32px grid grid-cols-auto-fit-200">
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Latest Block</span>
           <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(latestBlock) }}</span>

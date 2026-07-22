@@ -147,7 +147,7 @@
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-14px right-100 bg-ios-red-a12 border-1-ios-red-a35">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-14px right-100 bg-ios-red-a12 border-1-ios-red-a35 left-16px bottom-16px backdrop-blur-6">
               {{ hlsError }}
             </div>
           </template>
