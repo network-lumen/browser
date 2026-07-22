@@ -307,7 +307,7 @@
             Choose how you want to import your profile.
           </p>
 
-          <div class="navbar-import-mode-switch gap-8px mb-16px grid">
+          <div class="navbar-import-mode-switch gap-8px mb-16px grid grid-cols-2-minmax0">
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"

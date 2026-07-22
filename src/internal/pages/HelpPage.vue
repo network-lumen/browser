@@ -100,9 +100,9 @@
           <!-- Quick Actions -->
           <section class="quick-actions flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
-            <div class="helppage-actions-grid gap-12px grid">
+            <div class="helppage-actions-grid gap-12px grid grid-cols-2">
               <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-lg text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
-                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-drive color-ios-blue">
+                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 color-ios-blue bg-fill-blue">
                   <FolderOpen :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-2px min-w-0">
@@ -147,7 +147,7 @@
           <!-- How it Works -->
           <section class="how-it-works flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">How Lumen Works</h3>
-            <div class="helppage-steps-grid gap-16px grid">
+            <div class="helppage-steps-grid gap-16px grid grid-cols-3">
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">1</div>
                 <div class="helppage-step-content">
@@ -175,7 +175,7 @@
           <!-- Features Grid -->
           <section class="features-section flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
-            <div class="helppage-features-grid gap-16px grid">
+            <div class="helppage-features-grid gap-16px grid grid-cols-2">
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
                 <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Globe :size="24" />
@@ -351,7 +351,7 @@
           </section>
 
           <!-- Contact Cards -->
-          <div class="helppage-contact-grid gap-16px grid">
+          <div class="helppage-contact-grid gap-16px grid grid-cols-1">
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
               <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord color-ios-purple background-ios-purple-a15">
                 <MessageCircle :size="28" />
@@ -364,7 +364,7 @@
             </button>
 
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
-              <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-56px border-radius-14px flex-shrink-0">
+              <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-56px border-radius-14px flex-shrink-0 bg-fill-tertiary">
                 <Github :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">
@@ -375,7 +375,7 @@
             </button>
 
             <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
-              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-website color-ios-blue">
+              <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0 color-ios-blue bg-fill-blue">
                 <Globe :size="28" />
               </div>
               <div class="helppage-contact-info min-w-0">
@@ -399,7 +399,7 @@
           ></iframe>
 
           <!-- Documentation Grid -->
-          <div class="helppage-docs-grid gap-14px grid" v-if="false" aria-hidden="true">
+          <div class="helppage-docs-grid gap-14px grid grid-cols-1" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
             <UiCard padding="md" shadow class="flex gap-14px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">

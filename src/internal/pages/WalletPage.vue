@@ -634,7 +634,7 @@
               </div>
             </div>
 
-            <div class="walletpage-asset-modal-grid gap-16px grid">
+            <div class="walletpage-asset-modal-grid gap-16px grid grid-cols-2-minmax0">
               <div class="walletpage-form-group mb-20px">
                 <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From chain</label>
                 <div class="walletpage-input-wrapper readonly relative">

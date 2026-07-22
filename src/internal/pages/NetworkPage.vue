@@ -95,7 +95,7 @@
     <div class="netpage-main flex-1 overflow-y-auto bg-secondary">
       <template v-if="activeView === 'status'">
         <!-- Main Grid Layout -->
-        <div class="netpage-main-grid gap-24px p-32px grid">
+        <div class="netpage-main-grid gap-24px p-32px grid grid-cols-320-1fr-380 align-items-start">
         <!-- Left Column: Overview Cards -->
         <div class="netpage-left-column flex flex-column gap-14px">
           <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-tertiary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
@@ -128,7 +128,7 @@
         <!-- Network Health -->
         <section class="netpage-health-section bg-card border-1 border-radius-14px py-20px px-24px">
           <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
-          <div class="netpage-health-grid gap-14px grid">
+          <div class="netpage-health-grid gap-14px grid grid-cols-2">
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
@@ -176,9 +176,9 @@
           <div class="netpage-section-header flex-align-center-justify-space-between mb-24px">
             <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Activity</h2>
             <div class="netpage-chart-tabs flex gap-8px">
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ active: activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ active: activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ active: activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue fw-600': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue fw-600': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue fw-600': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
             </div>
           </div>
           <div class="netpage-activity-chart p-24px bg-secondary border-radius-12px">
@@ -224,7 +224,7 @@
               :key="block.height"
             >
               <div class="netpage-block-left flex-align-center gap-14px flex-1 min-w-0">
-                <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-0-2-8-rgba-0-0-0-0-2" :title="block.validator">
+                <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-0-2-8-rgba-0-0-0-0-2 bg-gradient-indigo-purple" :title="block.validator">
                   <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
                   <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
                 </div>
@@ -242,7 +242,7 @@
                 <div class="netpage-block-meta flex flex-column flex-align-end gap-6px flex-justify-center">
                   <div class="meta-item flex-align-center gap-8px">
                     <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase text-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px text-13px py-0px px-8px h-22px min-w-30px" :class="{ 'has-txs': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px text-13px py-0px px-8px h-22px min-w-30px" :class="{ 'bg-fill-success border-color-ios-green-a30 color-ios-green': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="netpage-meta-time flex-align-center color-text-secondary gap-6px text-12px line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">

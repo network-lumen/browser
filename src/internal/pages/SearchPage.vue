@@ -364,7 +364,7 @@
         </div>
       </template>
           <div class="searchpage-help-body color-text-primary">
-            <div class="searchpage-help-grid grid gap-y-14px gap-x-16px">
+            <div class="searchpage-help-grid grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
                 <p class="m-0px mt-8px color-text-secondary line-height-145">
@@ -431,7 +431,7 @@
                 </ul>
               </section>
 
-              <p class="searchpage-help-note color-text-secondary border-radius-14px border-1-light bg-primary text-14px py-12px px-16px m-0px mt-4px">
+              <p class="searchpage-help-note color-text-secondary border-radius-14px border-1-light bg-primary text-14px py-12px px-16px m-0px mt-4px grid-col-full">
                 Results can vary while indexing is in progress and as the network evolves.
               </p>
             </div>

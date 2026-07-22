@@ -412,7 +412,7 @@
           :key="file.cid"
           class="drivepage-list-item last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
-          :class="{ selected: selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
+          :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
           <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px" @click.stop>
             <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative">

@@ -342,7 +342,7 @@
             <div class="settingspage-setting-control flex-align-center">
               <span 
                 class="settingspage-status-badge flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px" 
-                :class="securityStatus.enabled ? 'status-enabled badge-success' : 'settingspage-status-disabled'"
+                :class="securityStatus.enabled ? 'status-enabled badge-success' : 'bg-fill-tertiary'"
               >
                 {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
               </span>
