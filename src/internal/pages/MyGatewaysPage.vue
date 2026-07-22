@@ -67,7 +67,7 @@
             </UiButton>
             <button 
               type="button" 
-              class="flex-align-center gap-8px border-none cursor-pointer color-white fw-500" :class="embeddedServerRunning ? 'mygw-btn-stop' : 'mygw-btn-start hover-lift-2-enabled hover-shadow-ios-green-lg'"
+              class="flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'mygw-btn-stop' : 'mygw-btn-start hover-lift-2-enabled hover-shadow-ios-green-lg'"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
