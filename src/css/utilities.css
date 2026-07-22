@@ -237,6 +237,16 @@
 .z-1000 { z-index: 1000; }
 .z-1400 { z-index: 1400; }
 .z-9999 { z-index: 9999; }
+/* Pseudo-element (::before/::after) utilities — page CSS keeps only the
+   geometry/background that's genuinely unique to that element. */
+.before-absolute::before { content: ''; position: absolute; }
+.after-absolute::after { content: ''; position: absolute; }
+.before-inset-0::before { inset: 0; }
+.before-cursor-events-none::before { pointer-events: none; }
+.after-cursor-events-none::after { pointer-events: none; }
+.before-rounded-full::before { border-radius: var(--border-radius-full); }
+.after-rounded-full::after { border-radius: var(--border-radius-full); }
+.before-fade-hover::before { opacity: 0; transition: opacity 0.3s ease; }
 .border-radius-12px { border-radius: 12px; }
 .border-radius-18px { border-radius: 18px; }
 /* animations */
