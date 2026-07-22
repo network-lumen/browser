@@ -11,7 +11,7 @@
 
         <div class="drivepage-hosting-row transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
           <UiButton variant="none" type="button"
-            @click="selectHosting('local')" class="drivepage-hosting-main grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
+            @click="selectHosting('local')" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
             <span
               class="drivepage-hosting-dot grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
               :class="ipfsConnected ? 'ok' : 'off'"
@@ -46,7 +46,7 @@
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
           <UiButton variant="none" type="button"
-              @click="selectGateway(sub.gatewayId)" class="drivepage-hosting-main grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
+              @click="selectGateway(sub.gatewayId)" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
               <span class="drivepage-hosting-dot grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
               <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
@@ -88,7 +88,7 @@
               <Plus :size="18" />
               <span>Upload</span>
             </UiButton>
-            <div v-if="showUploadMenu" class="drivepage-upload-dropdown border-radius-12px absolute bg-primary border-1 p-4px z-50 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-12" @click.stop>
+            <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-50 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-12" @click.stop>
               <UiMenuItem @click="openFilePicker">
                 Upload files
               </UiMenuItem>
@@ -101,7 +101,7 @@
       </UiPageHeader>
 
       <!-- Privacy Warning Banner -->
-      <div class="drivepage-warning-banner flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-ios-orange-a30">
+      <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-ios-orange-a30">
         <div class="drivepage-warning-icon flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-ios-orange-a15">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
@@ -410,7 +410,7 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="drivepage-list-item last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="drivepage-list-item content-visibility-auto-920-56 last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
           :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
@@ -1197,7 +1197,7 @@
                </UiEmptyState>
 
                <!-- Grouped by gateway -->
-               <div v-if="planGroups.length" class="drivepage-plans-grid flex flex-column gap-12px mt-12px">
+               <div v-if="planGroups.length" class="flex flex-column gap-12px mt-12px">
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
