@@ -348,7 +348,7 @@
           </div>
 
           <div class="explorer-blocks-table w-full">
-            <div class="explorer-table-header gap-16px txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 text-10px letter-spacing-005em text-11px letter-spacing-008em py-10px px-16px bg-black-a02 border-bottom-05-black-a08 py-20px px-28px">
+            <div class="explorer-table-header">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
               <div class="th th-hash">HASH</div>
@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer gap-16px grid border-bottom-1 flex-inline-align-center py-10px px-16px transition-bg-02 border-bottom-05-black-a06 py-20px px-28px background-black-a02-hover background-black-a04-active" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -442,7 +442,7 @@
           </div>
 
           <div v-else class="explorer-transactions-table w-full">
-            <div class="explorer-table-header gap-16px txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 text-10px letter-spacing-005em text-11px letter-spacing-008em py-10px px-16px bg-black-a02 border-bottom-05-black-a08 py-20px px-28px">
+            <div class="explorer-table-header">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
               <div class="th th-result">Result</div>
@@ -452,7 +452,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row gap-16px grid border-bottom-1 flex-inline-align-center py-10px px-16px transition-bg-02 border-bottom-05-black-a06 py-20px px-28px background-black-a02-hover background-black-a04-active">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td explorer-td-hash flex-align-center gap-8px text-13px text-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -505,7 +505,7 @@
           </div>
 
           <UiCard padding="none" :shadow="false" class="explorer-validators-table overflow-hidden shadow-subtle backdrop-blur">
-            <div class="explorer-table-header gap-16px txt-weight-light color-text-tertiary text-uppercase grid bg-secondary border-bottom-1 text-10px letter-spacing-005em text-11px letter-spacing-008em py-10px px-16px bg-black-a02 border-bottom-05-black-a08 py-20px px-28px">
+            <div class="explorer-table-header">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
               <div class="th th-voting-power">VOTING POWER %</div>
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row gap-16px grid border-bottom-1 flex-inline-align-center py-10px px-16px transition-bg-02 border-bottom-05-black-a06 py-20px px-28px background-black-a02-hover background-black-a04-active">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td td-rank flex-align-center text-13px text-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>

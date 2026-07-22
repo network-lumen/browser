@@ -1124,16 +1124,36 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .explorer-pulse-dot { animation: pulse-live 2s ease-in-out infinite; }
 
-/* Tables */
-.explorer-blocks-table .explorer-table-header, .explorer-blocks-table .explorer-table-row {
-  grid-template-columns: 90px 180px 1fr 110px 150px;
-  gap: 1rem;
+/* Tables — Blocks/Transactions/Validators views share one row/header recipe;
+   only the grid-template-columns differ per view's data shape. */
+.explorer-blocks-view .explorer-table-header, .explorer-blocks-view .explorer-table-row,
+.explorer-transactions-table .explorer-table-header, .explorer-transactions-table .explorer-table-row,
+.explorer-validators-table .explorer-table-header, .explorer-validators-table .explorer-table-row {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.625rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.explorer-blocks-view .explorer-table-header,
+.explorer-transactions-table .explorer-table-header,
+.explorer-validators-table .explorer-table-header {
+  background: var(--bg-secondary);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.explorer-blocks-view .explorer-table-row,
+.explorer-transactions-table .explorer-table-row,
+.explorer-validators-table .explorer-table-row {
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 .explorer-transactions-table .explorer-table-header, .explorer-transactions-table .explorer-table-row {
   grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr;
 }
 .explorer-table-body { max-height: 600px; }
-.explorer-transactions-table .explorer-table-row { grid-template-columns: 180px 120px 100px 100px 120px; }
+.explorer-transactions-table .explorer-table-row { grid-template-columns: 180px 120px 100px 100px 100px 120px; }
 .explorer-hash-container.explorer-clickable:hover .explorer-hash-code {
   background: var(--primary-a10);
   color: var(--accent-primary);
@@ -1157,22 +1177,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-color: var(--primary, var(--accent-primary));
 }
 .explorer-blocks-view .explorer-table-header, .explorer-blocks-view .explorer-table-row {
-  display: grid;
   grid-template-columns: 90px 320px 2.2fr 130px 140px;
-  gap: 0.75rem;
-  padding: 0.625rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-.explorer-blocks-view .explorer-table-header {
-  background: var(--bg-secondary);
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 .explorer-blocks-view .explorer-table-body { max-height: none; }
-.explorer-blocks-view .explorer-table-row { transition: background 0.2s; }
 .explorer-validator-address code {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -1197,11 +1204,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* Validators Table Styles */
-.explorer-table-header, .explorer-table-row {
+.explorer-validators-table .explorer-table-header, .explorer-validators-table .explorer-table-row {
   grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
 }
-.explorer-table-header { letter-spacing: 0.02em; }
-.explorer-table-row { transition: all var(--transition-fast); }
 .explorer-table-row:hover { cursor: default; }
 .explorer-table-row:active { transform: scale(0.998); }
 .explorer-validator-avatar { background: linear-gradient(135deg, var(--ios-indigo), var(--ios-purple)); }
