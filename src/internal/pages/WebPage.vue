@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full min-h-0 bg-tertiary overflow-hidden" :class="{ 'webpage-fullscreen fixed': webviewHtmlFullscreen }">
+  <div class="w-full h-full min-h-0 bg-tertiary overflow-hidden" :class="{ 'webpage-fullscreen fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <div v-if="isChromeWebStorePage" class="w-full h-full flex-align-justify-center p-32px bg-primary">
       <div class="webpage-store-proxy-card flex flex-column gap-14px text-center p-24px border-radius-20px border-1 bg-card shadow-xl max-w-520px">
         <h3 class="m-0px text-18px color-text-primary">Chrome Web Store opens in Lumen Extensions</h3>

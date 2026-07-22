@@ -410,6 +410,21 @@
 .bottom-24px { bottom: 24px; }
 .right-24px { right: 24px; }
 .text-underline-offset-2px { text-underline-offset: 2px; }
+.shadow-0-4-12-primary-a30 { box-shadow: 0 4px 12px var(--primary-a30); }
+.letter-spacing-0025em { letter-spacing: 0.025em; }
+.grid-cols-180-1fr { grid-template-columns: 180px 1fr; }
+.flex-0-0-180px { flex: 0 0 180px; }
+.min-h-100vh-200px { min-height: calc(100vh - 200px); }
+.z-max { z-index: 2147483647; }
+.top-8px { top: 8px; }
+.right-8px { right: 8px; }
+.w-min-420px-24 { width: min(420px, calc(100vw - 24px)); }
+.max-h-420px { max-height: 420px; }
+.min-h-60px { min-height: 60px; }
+.color-scheme-light-dark { color-scheme: light dark; }
+.grid-cols-1fr-1fr { grid-template-columns: 1fr 1fr; }
+.animate-walletonboard-fade-in { animation: walletonboard-fade-in 0.3s ease-in-out; }
+.bg-image-none { background-image: none; }
 .max-h-120px { max-height: 120px; }
 .aspect-square { aspect-ratio: 1; }
 .letter-spacing-05px { letter-spacing: 0.5px; }

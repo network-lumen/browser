@@ -9,7 +9,7 @@
       <p class="color-error">{{ error }}</p>
     </div>
 
-    <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px">
+    <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
       <!-- Block Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
@@ -17,11 +17,11 @@
         </div>
         <div class="chaindetail-card-body p-24px">
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Height:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Height:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.height }}</span>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Hash:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Hash:</span>
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-12px">
               <code class="flex-1 blockdetail-hash-value-code py-8px px-12px border-1 border-radius-6px text-13px mono break-all">{{ block.hash }}</code>
               <UiButton variant="icon" @click="copyToClipboard(block.hash)" title="Copy hash">
@@ -33,7 +33,7 @@
             </div>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Proposer:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Proposer:</span>
             <div class="flex-align-center gap-12px">
               <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img class="blockdetail-proposer-avatar-img w-full h-full object-fit-cover"
@@ -47,11 +47,11 @@
             </div>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Time:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Time:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.time }}</span>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Transactions:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Transactions:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.txs }}</span>
           </div>
         </div>
@@ -64,19 +64,19 @@
         </div>
         <div class="chaindetail-card-body p-24px">
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Chain ID:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Chain ID:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.chainId || 'lumen-mainnet' }}</span>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Block Size:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Block Size:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Gas Used:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Gas Used:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ formatNumber(block.gasUsed || 0) }}</span>
           </div>
           <div class="blockdetail-row last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Gas Limit:</span>
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Gas Limit:</span>
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ formatNumber(block.gasLimit || 0) }}</span>
           </div>
         </div>

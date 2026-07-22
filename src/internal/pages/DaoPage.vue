@@ -284,7 +284,7 @@
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
                 <input type="radio" name="vote" value="against" v-model="voteChoice" />
                 <UiCard class="daopage-vote-option-content flex-align-center gap-16px transition-all-02" padding="md" radius="10px" border-class="border-2" :shadow="false">
-                  <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-against color-error">
+                  <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-against color-error bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM15 13.59L13.59 15L10 11.41L6.41 15L5 13.59L8.59 10L5 6.41L6.41 5L10 8.59L13.59 5L15 6.41L11.41 10L15 13.59Z"/>
                     </svg>
@@ -299,7 +299,7 @@
               <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
                 <input type="radio" name="vote" value="abstain" v-model="voteChoice" />
                 <UiCard class="daopage-vote-option-content flex-align-center gap-16px transition-all-02" padding="md" radius="10px" border-class="border-2" :shadow="false">
-                  <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-abstain color-text-tertiary">
+                  <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-abstain color-text-tertiary bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
                       <line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="2"/>

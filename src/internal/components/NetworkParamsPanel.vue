@@ -69,7 +69,7 @@
           <div v-else-if="s.error" class="netparams-section-error color-error text-14px">
             {{ s.error }}
           </div>
-          <pre v-else class="netparams-json-block mono bg-primary color-text-primary m-0px border-radius-12px p-14px border-1-light overflow-auto text-12px line-height-135">{{ pretty(s.data) }}</pre>
+          <pre v-else class="netparams-json-block mono bg-primary color-text-primary m-0px border-radius-12px p-14px border-1-light overflow-auto text-12px line-height-135 max-h-420px">{{ pretty(s.data) }}</pre>
         </div>
       </section>
     </div>

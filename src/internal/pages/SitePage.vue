@@ -1,5 +1,5 @@
 <template>
-  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen fixed': webviewHtmlFullscreen }">
+  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <main class="sitepage-main flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
       <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />

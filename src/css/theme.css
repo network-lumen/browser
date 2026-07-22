@@ -302,7 +302,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
  * used to be combined into those same rules (identical computed value,
  * unrelated concept) keep their own declaration here. */
 .walletonboard-btn-secondary:hover,
-.sitemodal-input-wrapper.readonly .sitemodal-form-input, .ipfspage-dir-row:hover, .explorer-table-row:hover,
+.ipfspage-dir-row:hover, .explorer-table-row:hover,
 .explorer-blocks-view .explorer-table-row:hover {
   background: var(--bg-secondary);
 }
@@ -344,30 +344,12 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .blockdetail-label { flex: 0 0 180px; }
 
 /* WebPage.vue */
-.webpage-fullscreen, .sitepage-fullscreen {
-  inset: 0;
-  z-index: 2147483647;
-  background: #000;
-}
 .webpage-fullscreen .webpage-webview, .sitepage-fullscreen .sitepage-main,
 .sitepage-fullscreen .sitepage-viewer, .sitepage-fullscreen .sitepage-webview {
   width: 100vw;
   height: 100vh;
 }
 
-/* ExtensionPopupHost.vue */
-.extension-popup-shell {
-  width: min(420px, calc(100vw - 24px));
-  height: min(760px, calc(100vh - 24px));
-  max-height: calc(100vh - 24px);
-}
-.extension-popup-close {
-  top: 8px;
-  right: 8px;
-}
-
-/* NetworkParamsPanel.vue */
-.netparams-json-block { max-height: 420px; }
 
 /* HistoryPage.vue */
 .history-copy-h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
@@ -375,27 +357,13 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* ExtensionPage.vue */
 
 /* RecurringPaymentModal.vue */
-textarea.recurpay-input { min-height: 60px; }
-.recurpay-input[type="date"], .recurpay-input[type="number"], select.recurpay-input { color-scheme: light dark; }
 .recurpay-input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
-select.recurpay-input { background-image: none; }
-.explorer-time-filter-btn.active, .searchpage-image-save-btn.searchpage-saved {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: #fff;
-}
-.recurpay-row, .walletonboard-info-cards, .relpage-detail-grid, .explorer-proposer-stat-group {
-  grid-template-columns: 1fr 1fr;
-}
-.explorer-tab-btn.active, .walletpage-input-action-btn:hover {
+.walletpage-input-action-btn:hover {
   background: var(--accent-primary);
   color: #fff;
 }
-.walletpage-eye-btn:hover, .daopage-vote-icon-against, .daopage-vote-icon-abstain { background: var(--card-bg); }
+.walletpage-eye-btn:hover { background: var(--card-bg); }
 
-
-/* WalletOnboardingModal.vue */
-.walletonboard-step { animation: walletonboard-fade-in 0.3s ease-in-out; }
 
 
 /* ExtensionsPage.vue (Chrome Web Store host — always-dark, theme-independent) */

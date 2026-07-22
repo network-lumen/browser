@@ -116,7 +116,7 @@
             </UiButton>
           </div>
 
-          <div class="relpage-detail-grid gap-12px mb-16px grid">
+          <div class="relpage-detail-grid gap-12px mb-16px grid grid-cols-1fr-1fr">
             <div class="relpage-kv">
               <div class="relpage-k text-12px color-text-tertiary">Status</div>
               <div class="relpage-v color-text-primary text-14px mt-4px">

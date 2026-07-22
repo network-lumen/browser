@@ -23,10 +23,10 @@
       <!-- Address Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Address Overview</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
-          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-8px">
               <code class="bg-secondary color-text-primary chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ address.address }}</code>
@@ -38,11 +38,11 @@
               </UiButton>
             </div>
           </div>
-          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Account Number:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Sequence:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.sequence }}</span>
           </div>
@@ -52,7 +52,7 @@
       <!-- Balances Card -->
       <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Balances</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Balances</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
@@ -78,7 +78,7 @@
       <!-- Delegations Card -->
       <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Delegations ({{ address.delegations.length }})</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Delegations ({{ address.delegations.length }})</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
           <div class="flex flex-column gap-16px">
@@ -103,7 +103,7 @@
       <!-- Recent Transactions Card -->
       <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Recent Transactions</h2>
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Recent Transactions</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">

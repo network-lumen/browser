@@ -84,7 +84,7 @@
           </UiButton>
 
           <div class="drivepage-upload-menu flex-inline relative" @click.stop>
-            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn">
+            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn shadow-0-4-12-primary-a30">
               <Plus :size="18" />
               <span>Upload</span>
             </UiButton>
@@ -556,7 +556,7 @@
       >
         <Cloud :size="64" stroke-width="1" />
         <template #actions>
-          <UiButton variant="primary" type="button" @click="openFilePicker" class="drivepage-upload-btn-large">
+          <UiButton variant="primary" type="button" @click="openFilePicker" class="drivepage-upload-btn-large shadow-0-4-12-primary-a30">
             <Upload :size="20" />
             <span>Choose files to upload</span>
           </UiButton>
