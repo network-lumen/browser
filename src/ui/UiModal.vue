@@ -6,18 +6,18 @@
       @click.self="close"
     >
       <div class="bg-card border-radius-16px shadow-modal overflow-hidden flex flex-column max-h-90vh" :class="panelClass" @click.stop>
-        <div v-if="$slots.header || title" class="flex-align-center-justify-space-between padding-125 border-bottom-default">
+        <div v-if="$slots.header || title" class="flex-align-center-justify-space-between p-20px border-bottom-default">
           <slot name="header">
-            <h3 class="margin-0 color-text-primary">{{ title }}</h3>
+            <h3 class="m-0px color-text-primary">{{ title }}</h3>
           </slot>
           <button v-if="closable" type="button" class="bg-transparent border-none cursor-pointer color-text-secondary" @click="close">
             <X :size="18" />
           </button>
         </div>
-        <div class="padding-125 overflow-y-auto">
+        <div class="p-20px overflow-y-auto">
           <slot />
         </div>
-        <div v-if="$slots.footer" class="flex-justify-end gap-75 padding-125 border-top-default">
+        <div v-if="$slots.footer" class="flex-justify-end gap-12px p-20px border-top-default">
           <slot name="footer" />
         </div>
       </div>

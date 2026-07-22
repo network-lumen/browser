@@ -31,10 +31,12 @@
   --black-a10: rgba(var(--black-rgb), .10);
   --primary-a00: rgba(var(--ios-blue-rgb), .00);
   --primary-a05: rgba(var(--ios-blue-rgb), .05);
+  --primary-a06: rgba(var(--ios-blue-rgb), .06);
   --primary-a08: rgba(var(--ios-blue-rgb), .08);
   --primary-a10: rgba(var(--ios-blue-rgb), .10);
   --primary-a12: rgba(var(--ios-blue-rgb), .12);
   --primary-a15: rgba(var(--ios-blue-rgb), .15);
+  --primary-a18: rgba(var(--ios-blue-rgb), .18);
   --primary-a20: rgba(var(--ios-blue-rgb), .20);
   --primary-a25: rgba(var(--ios-blue-rgb), .25);
   --primary-a30: rgba(var(--ios-blue-rgb), .30);
@@ -118,9 +120,11 @@
   --gradient-brand: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
   --gradient-primary-soft: linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(52, 152, 219, 0.1) 100%) !important;
   --blue-sky: #0ea5e9 !important;
+  --primary-a06: rgba(52, 152, 219, 0.06) !important;
   --primary-a08: rgba(52, 152, 219, 0.08) !important;
   --primary-a10: rgba(52, 152, 219, 0.10) !important;
   --primary-a15: rgba(52, 152, 219, 0.15) !important;
+  --primary-a18: rgba(52, 152, 219, 0.18) !important;
   --primary-a20: rgba(52, 152, 219, 0.20) !important;
   --primary-a25: rgba(52, 152, 219, 0.25) !important;
   --primary-a30: rgba(52, 152, 219, 0.30) !important;
@@ -183,9 +187,11 @@
   --black-a10: rgba(0, 0, 0, .10);
   --primary-a00: rgba(10, 132, 255, .00);
   --primary-a05: rgba(10, 132, 255, .05);
+  --primary-a06: rgba(10, 132, 255, .06);
   --primary-a08: rgba(10, 132, 255, .08);
   --primary-a10: rgba(10, 132, 255, .10);
   --primary-a15: rgba(10, 132, 255, .15);
+  --primary-a18: rgba(10, 132, 255, .18);
   --primary-a20: rgba(10, 132, 255, .20);
   --primary-a25: rgba(10, 132, 255, .25);
   --primary-a30: rgba(10, 132, 255, .30);
@@ -237,7 +243,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* Table row hover effect */
 
 /* ========== INTERNAL SIDEBAR NAVIGATION (lsb-*) ========== */
-.lsb-item:hover:not(.active), .button-icon:where(:hover, :focus-visible), .hover-fill-primary:hover,
+.lsb-item:hover:not(.active), .hover-fill-primary:hover,
 .domainpage-names-nav-item:hover,
 .domainpage-names-nav-item.active {
   background: var(--hover-bg);
@@ -257,20 +263,20 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* Gradient Text */
 
 /* Button Styles */
-.sitepage-buy-btn:active, .homepage-action-card:active, .searchpage-help-icon-btn:active {
+.homepage-action-card:active, .searchpage-help-icon-btn:active {
   transform: translateY(0);
 }
 
-/* UiButton.vue variants */
-.button-ghost, .button-cta { border: 1px solid var(--border-color); }
-.button-ghost:where(:hover, :focus-visible), .daopage-member-item:hover,
+/* UiButton.vue variant rules live in src/css/ui/button.css. These page-specific
+ * hover selectors shared the same computed value (unrelated concept) and keep
+ * their own declaration here. */
+.daopage-member-item:hover,
 .mygw-whitelist-table thead, .mygw-whitelist-table tbody tr:hover, .relpage-row:hover,
 .navbar-extensions-store-link:hover:not(:disabled), .navbar-profile-row:hover,
-.navbar-profile-menu-action:hover, .navbar-export-option:hover,
+.navbar-export-option:hover,
 .settingspage-profile-row:hover, .walletpage-picker-item:hover {
   background: var(--hover-bg);
 }
-.button-cta:where(:hover, :focus-visible) { background: var(--fill-secondary); }
 
 /* StartupScreen.vue */
 .startup-mark { letter-spacing: -0.03em; }
@@ -283,7 +289,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .lumen-sidebar {
   -webkit-backdrop-filter: var(--backdrop-blur);
 }
-.sidebar-section-count { height: 1.5rem; }
 .sidebar-fav-item, .walletpage-asset-item-rich, .walletpage-dex-top { align-items: stretch; }
 .sidebar-fav-avatar.tone-search, .history-item-avatar.tone-search, .newtab-shortcut-avatar.tone-search {
   background: rgba(var(--ios-blue-rgb), 0.12);
@@ -336,7 +341,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .qr-scan-instruction {
   transform: translateX(-50%);
 }
-.qr-error-state, .qr-success-state, .subview-empty-state.small { padding: 40px 20px; }
+.qr-error-state, .qr-success-state { padding: 40px 20px; }
 .walletpage-asset-icon.lmn {
   background: var(--accent-secondary);
 }
@@ -366,54 +371,36 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   right: 24px;
 }
 .release-prompt-notes-link { text-underline-offset: 2px; }
-.meta {
-  list-style: none;
-  margin: 0;
-}
 .release-update .meta li + li { margin-top: 6px; }
 
 
-/* UiToast.vue */
-.toast-container {
-  right: 20px;
-  z-index: 99999;
-}
-.toast {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-.toast-dismissible:hover, .walletonboard-btn-secondary:hover,
+/* UiToast.vue rules live in src/css/ui/toast.css. Page-specific selectors that
+ * used to be combined into those same rules (identical computed value,
+ * unrelated concept) keep their own declaration here. */
+.walletonboard-btn-secondary:hover,
 .sitemodal-input-wrapper.readonly .sitemodal-form-input, .ipfspage-dir-row:hover, .explorer-table-row:hover,
-.explorer-blocks-view .explorer-table-row:hover, .drivepage-upload-dropdown-item:hover {
+.explorer-blocks-view .explorer-table-row:hover {
   background: var(--bg-secondary);
 }
-.toast-success .toast-icon { color: var(--ios-green); background: rgba(var(--ios-green-rgb), 0.12); }
-.toast-error .toast-icon, .newtab-shortcut-action--danger:hover {
+.newtab-shortcut-action--danger:hover {
   color: var(--ios-red);
   background: rgba(var(--ios-red-rgb), 0.12);
 }
-.toast-warning .toast-icon { color: var(--ios-orange); background: rgba(var(--ios-orange-rgb), 0.12); }
-.toast-info .toast-icon, .searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
-.toast-title { line-height: 1.3; }
-.toast-message { user-select: text; }
-.toast-action { margin: -2px -4px -2px 0; }
-.toast-enter-active { animation: toast-in 0.3s ease-out; }
-.toast-leave-active { animation: toast-out 0.2s ease-in forwards; }
+.searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
 
-/* Shared interactive-state helpers (disabled fade, hover fill, status badges) */
+/* Shared interactive-state helpers (disabled fade, hover fill) */
 .disabled-fade-40:disabled { cursor: not-allowed; opacity: 0.4; }
 .disabled-fade-45:disabled { cursor: not-allowed; opacity: 0.45; }
-.badge-success, .searchpage-icon-ipfs, .searchpage-type-ipfs, .searchpage-type-image {
+/* badge-success/error/warning/info/neutral rules live in src/css/ui/badge.css.
+ * These search-page selectors shared the same computed background value
+ * (unrelated concept) and keep their own declaration here. */
+.searchpage-icon-ipfs, .searchpage-type-ipfs, .searchpage-type-image {
   background: var(--fill-success);
 }
-.badge-error, .searchpage-type-pdf { background: var(--fill-error); }
-.badge-warning { background: rgba(var(--ios-orange-rgb), 0.15); }
-.badge-info { background: var(--fill-blue); }
-.badge-neutral { background: var(--fill-tertiary); }
+.searchpage-type-pdf { background: var(--fill-error); }
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
 .chaindetail-back-btn:hover, .drivepage-upload-btn, .drivepage-upload-btn-large { box-shadow: 0 4px 12px var(--primary-a30); }
-.chaindetail-card { transition: box-shadow 0.2s; }
 .chaindetail-card-header-h2 { letter-spacing: 0.025em; }
 .chaindetail-row { grid-template-columns: 180px 1fr; }
 
@@ -530,11 +517,7 @@ select.recurpay-input { background-image: none; }
 .extensions-store-footnote { margin: 0 24px 18px; }
 
 /* SitePage.vue */
-.sitepage-inline-link {
-  display: inline;
-  text-underline-offset: 2px;
-}
-.sitepage-inline-link:hover, .gwpage-manage-link:hover { opacity: 0.8; }
+.gwpage-manage-link:hover { opacity: 0.8; }
 .sitepage-hls-error, .ipfspage-hls-error {
   left: 1rem;
   bottom: 1rem;
@@ -543,11 +526,7 @@ select.recurpay-input { background-image: none; }
 
 /* SubscriptionsView.vue */
 .subview-reminder-card h4, .subview-payment-header h4 { margin: 0 0 4px 0; }
-.navbar-extension-toggle input:checked + .navbar-extension-toggle-slider {
-  background: var(--accent-primary);
-}
 .subview-stats-section, .explorer-stats-bar { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-.subview-empty-state { padding: 60px 20px; }
 .subview-payments-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 .subview-payment-card.paused { opacity: 0.7; background: var(--bg-secondary); }
 .subview-payment-status.completed, .gwpage-private-badge {
@@ -628,14 +607,14 @@ select.recurpay-input { background-image: none; }
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%), linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
 }
 .tab-spinner { --spinner-size: 14px; --spinner-stroke: 1.5px; }
-.mainscreen-tab {
-  position: relative;
-}
 .tabs-header .mainscreen-tab.active { background: var(--tab-active-bg); z-index: 2; }
-.tabs-header .mainscreen-tab.active .mainscreen-tab-label, .tabs-header .mainscreen-tab.active .button-icon,
-.explorer-tab-btn:hover:not(.active), .searchpage-empty-subtitle strong {
+.tabs-header .mainscreen-tab.active .mainscreen-tab-label,
+.explorer-tab-btn:hover:not(.active) {
   color: var(--text-primary);
 }
+/* Contextual override: an active .button-icon rendered here also becomes
+ * text-primary — the base .button-icon rule lives in src/css/ui/button.css. */
+.tabs-header .mainscreen-tab.active .button-icon { color: var(--text-primary); }
 .add-tab-btn:where(:hover, :focus-visible) {
   background: var(--fill-primary);
   color: var(--text-primary);
@@ -728,7 +707,6 @@ select.recurpay-input { background-image: none; }
   font-size: 1.05rem;
 }
 .gwpage-modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.sitemodal-icon { height: 34px; }
 .gwpage-badge-warn { background: rgba(var(--ios-yellow-rgb), 0.15); }
 .gwpage-private-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 
@@ -819,7 +797,7 @@ select.recurpay-input { background-image: none; }
 
 
 /* DaoPage.vue */
-.daopage-empty-state svg, .explorer-empty-state svg { margin-bottom: 1rem; opacity: 0.5; }
+.explorer-empty-state svg { margin-bottom: 1rem; opacity: 0.5; }
 .daopage-stats-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .daopage-stat-card { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
 .daopage-proposal-status.deposit { background: rgba(var(--ios-yellow-rgb), 0.15); color: var(--ios-orange); }
@@ -838,7 +816,7 @@ select.recurpay-input { background-image: none; }
   border: 1px solid var(--border-color);
 }
 .daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input,
-.drivepage-upload-dropdown-item input, .drivepage-action-btn:last-child::after {
+.drivepage-action-btn:last-child::after {
   display: none;
 }
 .daopage-vote-option:hover .daopage-vote-option-content {
@@ -873,8 +851,6 @@ select.recurpay-input { background-image: none; }
 
 /* MyGatewaysPage.vue */
 .my-gateways-page { height: 100vh; }
-.mygw-content-area { padding-top: 2px; }
-.mygw-server-card { margin-bottom: 2.5rem; }
 .mygw-server-card.active {
   border-color: var(--ios-green);
   background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
@@ -919,7 +895,6 @@ select.recurpay-input { background-image: none; }
 .navbar-nav-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
-.mygw-whitelist-section { margin-bottom: 2.5rem; }
 .mygw-whitelist-table-table { border-collapse: collapse; }
 textarea.mygw-form-input, .walletpage-form-textarea {
   resize: vertical;
@@ -975,24 +950,10 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: rgba(var(--ios-red-rgb), 0.1);
   color: var(--error-red);
 }
-.navbar-extension-toggle-input, .settingspage-toggle-input { height: 0; }
-.navbar-extension-toggle-slider, .navbar-extensions-store-link, .navbar-export-option {
+.navbar-extensions-store-link, .navbar-export-option {
   transition: background 0.15s ease;
 }
-.navbar-extension-toggle-slider::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
-  transition: transform 0.15s ease;
-}
-.navbar-extension-toggle input:checked + .navbar-extension-toggle-slider::after { transform: translateX(14px); }
-.navbar-extension-toggle input:disabled + .navbar-extension-toggle-slider, .searchpage-result-open { opacity: 0.5; }
+.searchpage-result-open { opacity: 0.5; }
 
 /* ===== PROFILE SECTION ===== */
 
@@ -1006,7 +967,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .navbar-profile-row-delete { height: 26px; }
 .navbar-profile-create-input::placeholder { color: var(--text-tertiary); opacity: 0.6; }
-.navbar-profile-create-actions .navbar-profile-menu-action { flex: 1; justify-content: center; }
 
 /* ===== EXPORT MODAL ===== */
 .navbar-export-option input[type="checkbox"] {
@@ -1023,31 +983,12 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Settings Section */
 .settingspage-setting-item { transition: all var(--transition-fast); }
-/* Gives the first card's hover-lift room to breathe so its top border isn't clipped by the scroll container. */
-.setting-group { padding-top: 2px; }
 .settingspage-profile-row { transition: background var(--transition-fast); }
 .settingspage-profile-row.active { background: rgba(var(--ios-blue-rgb), 0.12); }
 
 /* Theme Selector */
 .settingspage-theme-option:hover { background: var(--hover-bg, var(--primary-a10)); }
 .settingspage-theme-option.active { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); }
-
-/* Toggle */
-.settingspage-toggle { height: 26px; }
-.settingspage-toggle-slider:before {
-  content: '';
-  position: absolute;
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background: var(--text-primary);
-  border-radius: 50%;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.settingspage-toggle input:checked + .settingspage-toggle-slider { background: var(--gradient-primary); }
-.settingspage-toggle input:checked + .settingspage-toggle-slider:before { transform: translateX(22px); }
 
 /* Brightness Control */
 .settingspage-brightness-slider, .explorer-slider {
@@ -1593,7 +1534,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* Empty State */
-.searchpage-empty-icon, .drivepage-empty-icon { height: 80px; }
 .searchpage-suggestion-list { line-height: 1.7; }
 
 /* Improved Skeleton */
@@ -1602,9 +1542,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
-.searchpage-skeleton-title { height: 1.125rem; }
-.searchpage-skeleton-url { height: 0.875rem; }
-.searchpage-skeleton-desc { height: 2.5rem; }
 
 
 /* WalletPage.vue */
@@ -1688,7 +1625,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-type-badge.dns-transfer { background: rgba(var(--ios-blue-rgb), 0.1); color: var(--ios-blue); }
 .walletpage-type-badge.dns-register { background: rgba(var(--ios-orange-rgb), 0.1); color: var(--ios-orange); }
 .walletpage-type-badge.withdraw-rewards { background: rgba(var(--ios-yellow-rgb), 0.1); color: var(--ios-yellow); }
-.walletpage-type-badge.publish-release { background: rgba(var(--ios-indigo-rgb), 0.12); color: var(--ios-indigo); }
+.walletpage-type-badge.publish-release { background: rgba(var(--ios-indigo-rgb), 0.1); color: var(--ios-indigo); }
 .walletpage-type-badge.send { background: rgba(var(--ios-red-rgb), 0.1); color: var(--ios-red); }
 .walletpage-type-badge.receive { background: rgba(var(--ios-green-rgb), 0.1); color: var(--ios-green); }
 .walletpage-type-text { line-height: 1.1; }
@@ -1729,7 +1666,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
 /* DrivePage.vue */
 /* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
-.details-grid { display: flex; flex-direction: column; }
 .details-row {
   display: flex;
   align-items: center;
@@ -1743,14 +1679,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .details-value { color: var(--text-primary); font-size: 0.9375rem; font-weight: 500; }
 .details-value.ok { color: var(--ios-green); }
 .details-value.off { color: var(--ios-red); }
-.details-section { margin-top: 1.25rem; }
-.details-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
 .details-section-header h4 { margin: 0; font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); }
 .drivepage-hosting-row { transition: background 0.15s ease, border-color 0.15s ease; }
 .drivepage-hosting-row.active, .drivepage-hosting-row:hover {
@@ -1774,7 +1702,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
 .drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
-.drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.2); }
+.drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
 .drivepage-hosting-tags {
   grid-column: 2 / -1;
   grid-row: 2;
@@ -1814,21 +1742,21 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transform: rotate(45deg);
 }
 .drivepage-hls-queue-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
-.drivepage-hls-queue-item.status-converting { border-color: var(--primary-a25); background: var(--primary-a05); }
+.drivepage-hls-queue-item.status-converting { border-color: var(--primary-a25); background: var(--primary-a06); }
 .drivepage-hls-queue-item.status-done {
   border-color: rgba(var(--ios-green-rgb), 0.25);
   background: rgba(var(--ios-green-rgb), 0.06);
 }
 .drivepage-hls-queue-item.status-paused {
-  border-color: rgba(var(--ios-blue-rgb), 0.2);
-  background: rgba(var(--ios-blue-rgb), 0.05);
+  border-color: rgba(var(--ios-blue-rgb), 0.25);
+  background: rgba(var(--ios-blue-rgb), 0.06);
 }
 .drivepage-hls-queue-item.status-failed {
-  border-color: rgba(var(--ios-red-rgb), 0.2);
+  border-color: rgba(var(--ios-red-rgb), 0.25);
   background: rgba(var(--ios-red-rgb), 0.06);
 }
 .drivepage-hls-queue-item.status-cancelled {
-  border-color: rgba(var(--ios-orange-rgb), 0.22);
+  border-color: rgba(var(--ios-orange-rgb), 0.25);
   background: rgba(var(--ios-orange-rgb), 0.06);
 }
 

@@ -1,15 +1,15 @@
 <template>
-  <section class="padding-200">
-    <header class="netparams-header flex margin-bottom-125 flex-wrap-wrap gap-100 flex-align-start flex-justify-space-between">
+  <section class="p-32px">
+    <header class="netparams-header flex mb-20px flex-wrap-wrap gap-16px flex-align-start flex-justify-space-between">
       <div>
-        <h1 class="color-text-primary txt-weight-strong margin-0 netparams-header-h1 fs-15rem">Params</h1>
-        <p class="color-text-secondary netparams-header-p fs-14px margin-0 margin-top-37">Live view of the blockchain parameters (fetched from the REST API).</p>
+        <h1 class="color-text-primary txt-weight-strong m-0px netparams-header-h1 text-24px">Params</h1>
+        <p class="color-text-secondary netparams-header-p text-14px m-0px mt-6px">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
-      <div class="netparams-header-actions flex flex-wrap-wrap gap-75 flex-inline-align-center">
-        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary gap-50 border-radius-full padding-50-75 border-1 max-w-420px" :title="restBase">
-          <span class="netparams-pill-label color-text-tertiary txt-weight-strong text-uppercase fs-12px letter-spacing-005em">REST</span>
-          <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap fs-12px">{{ restBase }}</span>
+      <div class="netparams-header-actions flex flex-wrap-wrap gap-12px flex-inline-align-center">
+        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary gap-8px border-radius-full py-8px px-12px border-1 max-w-420px" :title="restBase">
+          <span class="netparams-pill-label color-text-tertiary txt-weight-strong text-uppercase text-12px letter-spacing-005em">REST</span>
+          <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap text-12px">{{ restBase }}</span>
         </div>
 
         <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn disabled-fade-60">
@@ -24,30 +24,30 @@
       </div>
     </header>
 
-    <div v-if="fatalError" class="netparams-fatal-error color-text-primary padding-125 border-radius-16px border-1-ios-red-a25 bg-ios-red-a08">
-      <p class="netparams-fatal-title margin-0 txt-weight-strong">Unable to fetch params</p>
-      <p class="netparams-fatal-desc color-text-secondary fs-14px margin-0 margin-top-37">{{ fatalError }}</p>
+    <div v-if="fatalError" class="netparams-fatal-error color-text-primary p-20px border-radius-16px border-1-ios-red-a25 bg-ios-red-a08">
+      <p class="netparams-fatal-title m-0px txt-weight-strong">Unable to fetch params</p>
+      <p class="netparams-fatal-desc color-text-secondary text-14px m-0px mt-6px">{{ fatalError }}</p>
     </div>
 
-    <div v-else class="flex flex-column gap-75">
-      <div v-if="loadingAll && !hasAnyData" class="netparams-loading-state flex-align-center bg-primary color-text-secondary gap-75 padding-100 border-1 border-radius-16px">
+    <div v-else class="flex flex-column gap-12px">
+      <div v-if="loadingAll && !hasAnyData" class="netparams-loading-state flex-align-center bg-primary color-text-secondary gap-12px p-16px border-1 border-radius-16px">
         <UiSpinner size="sm" />
         <span>Loading params…</span>
       </div>
 
       <section v-for="s in sections" :key="s.id" class="netparams-section bg-primary border-1 border-radius-16px overflow-hidden">
-        <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer gap-100 text-left flex-justify-space-between padding-100-125" @click="toggleSection(s.id)">
-          <div class="netparams-section-title flex flex-column gap-25 min-w-0">
-            <div class="netparams-title-row flex-align-center gap-62 min-w-0">
-              <span class="netparams-section-name color-text-primary txt-weight-strong fs-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.title }}</span>
-              <span class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong fs-12px border-1-light padding-25-4" :class="statusClass(s)">
+        <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer gap-16px text-left flex-justify-space-between py-16px px-20px" @click="toggleSection(s.id)">
+          <div class="netparams-section-title flex flex-column gap-4px min-w-0">
+            <div class="netparams-title-row flex-align-center gap-10px min-w-0">
+              <span class="netparams-section-name color-text-primary txt-weight-strong text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.title }}</span>
+              <span class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>
-            <span class="netparams-section-path color-text-tertiary mono fs-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.path }}</span>
+            <span class="netparams-section-path color-text-tertiary mono text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.path }}</span>
           </div>
 
-          <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-50 flex-0-0-auto">
+          <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-8px flex-0-0-auto">
             <button
               type="button"
               class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a08 hover-color-accent"
@@ -61,15 +61,15 @@
           </div>
         </button>
 
-        <div v-if="s.open" class="netparams-section-body bg-secondary border-top-1-light padding-85-125-125">
-          <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary gap-75">
+        <div v-if="s.open" class="netparams-section-body bg-secondary border-top-1-light pt-14px pr-20px pb-20px pl-20px">
+          <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary gap-12px">
             <UiSpinner size="sm" />
             <span>Loading…</span>
           </div>
-          <div v-else-if="s.error" class="netparams-section-error color-error fs-14px">
+          <div v-else-if="s.error" class="netparams-section-error color-error text-14px">
             {{ s.error }}
           </div>
-          <pre v-else class="netparams-json-block mono bg-primary color-text-primary margin-0 border-radius-12px padding-87 border-1-light overflow-auto fs-12px line-height-135">{{ pretty(s.data) }}</pre>
+          <pre v-else class="netparams-json-block mono bg-primary color-text-primary m-0px border-radius-12px p-14px border-1-light overflow-auto text-12px line-height-135">{{ pretty(s.data) }}</pre>
         </div>
       </section>
     </div>

@@ -1,25 +1,25 @@
 <template>
-  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
-    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100 min-h-300px">
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary p-32px">
+    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-16px min-h-300px">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading transaction data...</p>
     </div>
 
-    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100 min-h-300px">
-      <p class="color-error chaindetail-error-p fs-16px">{{ error }}</p>
+    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-16px min-h-300px">
+      <p class="color-error chaindetail-error-p text-16px">{{ error }}</p>
     </div>
 
-    <div v-else-if="transaction" class="flex flex-column gap-150">
+    <div v-else-if="transaction" class="flex flex-column gap-24px">
       <!-- Transaction Overview Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Transaction Overview</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px">Transaction Overview</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Transaction Hash:</span>
-            <div class="chaindetail-hash-value flex-align-center gap-50">
-              <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ transaction.hash }}</code>
+        <div class="chaindetail-card-body p-24px">
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Transaction Hash:</span>
+            <div class="chaindetail-hash-value flex-align-center gap-8px">
+              <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ transaction.hash }}</code>
               <UiButton variant="icon" @click="copyToClipboard(transaction.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -28,96 +28,97 @@
               </UiButton>
             </div>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Status:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Status:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">
               <span :class="['chaindetail-status-badge', transaction.success ? 'badge-success' : 'badge-error']">
                 {{ transaction.success ? '✓ Success' : '✗ Failed' }}
               </span>
             </span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Block Height:</span>
-            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary fs-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Block Height:</span>
+            <span class="chaindetail-value chaindetail-value-clickable cursor-pointer color-primary text-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Time:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ transaction.time }}</span>
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Time:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">{{ transaction.time }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Gas Used:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ formatNumber(transaction.gasUsed) }}</span>
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Gas Used:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">{{ formatNumber(transaction.gasUsed) }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Gas Wanted:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ formatNumber(transaction.gasWanted) }}</span>
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Gas Wanted:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">{{ formatNumber(transaction.gasWanted) }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Fee:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ transaction.fee }}</span>
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Fee:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">{{ transaction.fee }}</span>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Messages Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="transaction.messages && transaction.messages.length > 0">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Messages ({{ transaction.messages.length }})</h2>
+      <UiCard v-if="transaction.messages && transaction.messages.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px">Messages ({{ transaction.messages.length }})</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="flex flex-column gap-100">
-            <div class="txdetail-item bg-secondary padding-100 border-1 border-radius-8px" v-for="(msg, index) in transaction.messages" :key="index">
-              <div class="txdetail-item-header flex-align-center flex-justify-space-between margin-bottom-75">
-                <span class="txdetail-item-type color-text-primary txt-weight-light fs-14px">{{ msg.type }}</span>
-                <span class="txdetail-item-index color-text-tertiary fs-075rem">#{{ Number(index) + 1 }}</span>
+        <div class="chaindetail-card-body p-24px">
+          <div class="flex flex-column gap-16px">
+            <UiCard bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(msg, index) in transaction.messages" :key="index">
+              <div class="txdetail-item-header flex-align-center flex-justify-space-between mb-12px">
+                <span class="txdetail-item-type color-text-primary txt-weight-light text-14px">{{ msg.type }}</span>
+                <span class="txdetail-item-index color-text-tertiary text-12px">#{{ Number(index) + 1 }}</span>
               </div>
               <div class="txdetail-item-data">
-                <pre class="bg-primary color-text-primary padding-100 margin-0 word-wrap-break border-1 border-radius-6px mono fs-075rem pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
+                <pre class="bg-primary color-text-primary p-16px m-0px word-wrap-break border-1 border-radius-6px mono text-12px pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Events Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="transaction.events && transaction.events.length > 0">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Events ({{ transaction.events.length }})</h2>
+      <UiCard v-if="transaction.events && transaction.events.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px">Events ({{ transaction.events.length }})</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="flex flex-column gap-100">
-            <div class="txdetail-item bg-secondary padding-100 border-1 border-radius-8px" v-for="(event, index) in transaction.events" :key="index">
-              <div class="txdetail-item-type color-text-primary txt-weight-light fs-14px">{{ event.type }}</div>
-              <div class="txdetail-event-attributes flex flex-column gap-50 margin-top-75">
-                <div class="flex gap-50 fs-12px" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
+        <div class="chaindetail-card-body p-24px">
+          <div class="flex flex-column gap-16px">
+            <UiCard bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(event, index) in transaction.events" :key="index">
+              <div class="txdetail-item-type color-text-primary txt-weight-light text-14px">{{ event.type }}</div>
+              <div class="txdetail-event-attributes flex flex-column gap-8px mt-12px">
+                <div class="flex gap-8px text-12px" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
                   <span class="txdetail-attr-key color-text-secondary txt-weight-light min-w-120px">{{ attr.key }}:</span>
                   <span class="color-text-primary break-all">{{ attr.value }}</span>
                 </div>
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Raw Data Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary txt-weight-light margin-0 chaindetail-card-header-h2 fs-16px">Raw Transaction Data</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px">Raw Transaction Data</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
+        <div class="chaindetail-card-body p-24px">
           <div>
             <pre class="bg-primary color-text-primary">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
           </div>
         </div>
-      </div>
+      </UiCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
+import UiCard from '../../ui/UiCard.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';

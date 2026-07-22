@@ -2,12 +2,12 @@
   <div class="gateways-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">
-      <nav class="lsb-nav flex flex-column gap-75">
+      <nav class="lsb-nav flex flex-column gap-12px">
         <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em margin-bottom-25 padding-50-62">Manage</span>
+          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Manage</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
+            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': true }"
           >
             <List :size="18" />
@@ -18,146 +18,130 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="gwpage-main flex-1 flex flex-column overflow-hidden min-w-0 padding-200-250 bg-secondary">
+    <main class="gwpage-main flex-1 flex flex-column overflow-hidden min-w-0 py-32px px-40px bg-secondary">
       <!-- Header -->
-      <header class="gwpage-content-header flex-align-start flex-justify-space-between">
-        <div>
-          <h1 class="color-text-primary txt-weight-medium margin-0 gwpage-content-header-h1 fs-175rem">My gateways</h1>
-          <p class="color-text-secondary gwpage-content-header-p fs-14px margin-0 margin-top-25">Register and update on-chain gateway settings.</p>
-          <p v-if="gatewayParams" class="gwpage-content-fees color-text-tertiary fs-12px margin-top-37 gwpage-content-header-p fs-14px margin-0 margin-top-25">
-            Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
-          </p>
-        </div>
-        <div class="gwpage-manage-head-actions flex-inline">
+      <UiPageHeader title="My gateways">
+        <p class="ui-page-header-subtitle">Register and update on-chain gateway settings.</p>
+        <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-6px">
+          Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
+        </p>
+        <template #actions>
           <UiButton variant="secondary" type="button"
-           
             @click="refreshManage"
             :disabled="gatewaysLoading">
             Refresh
           </UiButton>
           <UiButton variant="primary" type="button"
-           
             @click="openCreateModal"
             :disabled="gatewaysLoading || !hasProfile">
             Create gateway
           </UiButton>
-        </div>
-      </header>
+        </template>
+      </UiPageHeader>
 
       <!-- Advanced gateway management -->
       <div class="gwpage-content-area overflow-y-auto">
         <!-- Private Gateways Section -->
         <div v-if="privateGateways.length > 0" class="gwpage-private-gateways-section">
           <div class="gwpage-section-header flex-align-center-justify-space-between">
-            <h2 class="color-text-primary txt-weight-light margin-0 gwpage-section-header-h2 fs-125rem">Private Gateways</h2>
-            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="gwpage-manage-link color-ios-blue fs-14px transition-opacity-02 hover-underline">
+            <h2 class="color-text-primary txt-weight-light m-0px gwpage-section-header-h2 text-20px">Private Gateways</h2>
+            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="gwpage-manage-link color-ios-blue text-14px transition-opacity-02 hover-underline">
               Manage Private Gateways →
             </a>
           </div>
           <div class="gwpage-private-gateways-grid grid">
-            <div v-for="gw in privateGateways" :key="gw.id" class="gwpage-private-gateway-card bg-card border-1 transition-all-02 hover-border-ios-blue hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
-              <div class="gwpage-private-gateway-header flex-align-center margin-bottom-75">
+            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-ios-blue hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+              <div class="gwpage-private-gateway-header flex-align-center mb-12px">
                 <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.status === 'active' }"></div>
-                <span class="gwpage-private-badge fs-11px letter-spacing-005em padding-25-75">Private</span>
+                <span class="gwpage-private-badge text-11px letter-spacing-005em py-4px px-12px">Private</span>
               </div>
-              <h3 class="gwpage-private-gateway-name color-text-primary fs-16px margin-0 margin-bottom-50">{{ gw.name }}</h3>
-              <p class="gwpage-private-gateway-url mono color-text-secondary fs-13px break-all margin-0 margin-bottom-75">{{ gw.url }}</p>
-              <div class="gwpage-private-gateway-status flex-align-center gap-50">
-                <span class="border-radius-12px fw-500 text-capitalize padding-25-75 fs-075rem" :class="gw.status === 'active' ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">{{ gw.status }}</span>
+              <h3 class="gwpage-private-gateway-name color-text-primary text-16px m-0px mb-8px">{{ gw.name }}</h3>
+              <p class="gwpage-private-gateway-url mono color-text-secondary text-13px break-all m-0px mb-12px">{{ gw.url }}</p>
+              <div class="gwpage-private-gateway-status flex-align-center gap-8px">
+                <span class="border-radius-12px fw-500 text-capitalize py-4px px-12px text-12px" :class="gw.status === 'active' ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">{{ gw.status }}</span>
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
 
         <!-- DAO Gateways Section -->
         <div v-if="hasProfile" class="gwpage-dao-gateways-section">
           <div class="gwpage-section-header flex-align-center-justify-space-between">
-            <h2 class="color-text-primary txt-weight-light margin-0 gwpage-section-header-h2 fs-125rem">DAO Gateways</h2>
+            <h2 class="color-text-primary txt-weight-light m-0px gwpage-section-header-h2 text-20px">DAO Gateways</h2>
           </div>
         </div>
 
-        <div v-if="!hasProfile" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
-          <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">No active profile</h2>
-          <p class="gwpage-empty-sub color-text-secondary fs-14px">
-            Select or create a profile to manage gateways.
-          </p>
-        </div>
+        <UiEmptyState v-if="!hasProfile" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" title="No active profile" description="Select or create a profile to manage gateways." />
 
-        <div v-else class="manage-wrap flex flex-column gap-100">
-          <div v-if="gatewaysLoading" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
-            <UiSpinner size="lg" class="margin-0 margin-x-auto margin-bottom-100" />
-            <p class="gwpage-empty-sub color-text-secondary fs-14px">Loading gateways…</p>
-          </div>
+        <div v-else class="manage-wrap flex flex-column gap-16px">
+          <UiEmptyState v-if="gatewaysLoading" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" description="Loading gateways…">
+            <UiSpinner size="lg" />
+          </UiEmptyState>
 
-          <div v-else-if="gatewaysError" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
-            <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">Unable to load gateways</h2>
-            <p class="gwpage-empty-sub color-text-secondary fs-14px">{{ gatewaysError }}</p>
-            <UiButton variant="secondary" @click="refreshManage">Try again</UiButton>
-          </div>
+          <UiEmptyState v-else-if="gatewaysError" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" title="Unable to load gateways" :description="gatewaysError">
+            <template #actions>
+              <UiButton variant="secondary" @click="refreshManage">Try again</UiButton>
+            </template>
+          </UiEmptyState>
 
-          <div v-else-if="!myGateways.length" class="gwpage-empty-state-card border-radius-16px bg-primary border-1 max-w-520px margin-0 margin-x-auto margin-top-200 margin-bottom-200">
-            <h2 class="gwpage-empty-title color-text-primary margin-bottom-50">No gateways yet</h2>
-            <p class="gwpage-empty-sub color-text-secondary fs-14px">
-              Use “Create gateway” to register your first gateway.
-            </p>
-          </div>
+          <UiEmptyState v-else-if="!myGateways.length" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" title="No gateways yet" description="Use “Create gateway” to register your first gateway." />
 
-          <div v-else class="manage-list flex flex-column gap-100">
-            <section v-for="gw in myGateways" :key="gw.id" class="gwpage-manage-card bg-primary border-1 border-radius-16px">
+          <div v-else class="manage-list flex flex-column gap-16px">
+            <UiCard v-for="gw in myGateways" :key="gw.id" padding="none" bg-class="bg-primary" border-class="border-1" radius="16px" :shadow="false">
               <header class="gwpage-manage-card-head flex-align-center-justify-space-between">
-                <div class="gwpage-manage-card-title flex-align-center gap-62 min-w-0">
+                <div class="gwpage-manage-card-title flex-align-center gap-10px min-w-0">
                   <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.active }"></div>
                   <span class="gwpage-manage-card-name color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px" :title="gw.endpoint || `Gateway #${gw.id}`">
                     {{ gw.endpoint || `Gateway #${gw.id}` }}
                   </span>
-                  <span class="gwpage-manage-card-id mono color-text-tertiary fs-12px">#{{ gw.id }}</span>
+                  <span class="gwpage-manage-card-id mono color-text-tertiary text-12px">#{{ gw.id }}</span>
                 </div>
                 <div class="manage-card-badges">
-                  <span class="gwpage-badge fs-11px padding-20-60" :class="gw.active ? 'badge-success' : 'gwpage-badge-warn'">
+                  <span class="gwpage-badge text-11px py-4px px-10px" :class="gw.active ? 'badge-success' : 'gwpage-badge-warn'">
                     {{ gw.active ? 'Active' : 'Inactive' }}
                   </span>
                 </div>
               </header>
 
-              <div class="gwpage-manage-grid grid gap-90-100" v-if="editMap[gw.id]">
+              <div class="gwpage-manage-grid grid gap-y-14px gap-x-16px" v-if="editMap[gw.id]">
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Endpoint</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].endpoint" placeholder="gateway.city" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Regions</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Regions</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].regions"
                    
                     placeholder="us-east, eu-west" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Payout address</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Payout address</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Active</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Active</label>
                   <label class="gwpage-toggle flex-inline-align-center">
                     <input v-model="editMap[gw.id].active" type="checkbox" class="w-16px h-16px" />
                     <span class="gwpage-toggle-ui hidden"></span>
                   </label>
                 </div>
                 <div class="gwpage-form-group full">
-                  <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Metadata (JSON object)</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Metadata (JSON object)</label>
                   <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].metadata"
                    
                     rows="7"
                     placeholder='{\n  "name": "My gateway"\n}' class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow"></UiInput>
                 </div>
                 <div class="gwpage-form-group full">
-                  <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Memo</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Memo</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
               </div>
 
-              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error mt-12px p-12px border-1-ios-red-a25 bg-ios-red-a08">
                 {{ editMap[gw.id].error }}
               </div>
-              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08 border-1-ios-green-a25">
+              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-ios-green-a08 border-1-ios-green-a25">
                 tx: {{ editMap[gw.id].txhash }}
               </div>
 
@@ -176,47 +160,47 @@
                   <span v-else>Submitting…</span>
                 </UiButton>
               </footer>
-            </section>
+            </UiCard>
           </div>
 
           <UiModal :model-value="showCreateModal" panel-class="w-min-760" :closable="!registerState.busy" @update:model-value="closeCreateModal">
             <template #header>
               <div>
                 <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
-                <p class="gwpage-modal-sub color-text-secondary margin-0 margin-top-25">Register a new gateway for the active profile.</p>
+                <p class="gwpage-modal-sub color-text-secondary m-0px mt-4px">Register a new gateway for the active profile.</p>
               </div>
             </template>
-                <div class="gwpage-modal-body grid gap-90-100">
+                <div class="gwpage-modal-body grid gap-y-14px gap-x-16px">
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Endpoint</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Endpoint</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.endpoint" placeholder="gateway.city" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Regions</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Regions</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.regions"
                      
                       placeholder="us-east, eu-west" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Payout address</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Payout address</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Metadata (JSON object)</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Metadata (JSON object)</label>
                     <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.metadata"
                      
                       rows="7"
                       placeholder='{\n  "name": "My gateway"\n}' class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow"></UiInput>
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary fs-12px margin-bottom-25">Memo</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Memo</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
 
-                  <div v-if="registerState.error" class="gwpage-inline-error margin-top-75 padding-75 border-1-ios-red-a25 bg-ios-red-a08">
+                  <div v-if="registerState.error" class="gwpage-inline-error mt-12px p-12px border-1-ios-red-a25 bg-ios-red-a08">
                     {{ registerState.error }}
                   </div>
-                  <div v-if="registerState.txhash" class="gwpage-inline-success mono margin-top-75 padding-75 bg-ios-green-a08 border-1-ios-green-a25">
+                  <div v-if="registerState.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-ios-green-a08 border-1-ios-green-a25">
                     tx: {{ registerState.txhash }}
                   </div>
                 </div>
@@ -244,6 +228,9 @@ import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import UiPageHeader from '../../ui/UiPageHeader.vue';
+import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiCard from '../../ui/UiCard.vue';
 import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';

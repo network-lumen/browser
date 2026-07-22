@@ -2,16 +2,16 @@
   <div class="history-page internal-page flex min-h-full">
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
-    <main class="history-main flex-1 min-w-0 min-h-0 padding-125 flex flex-column gap-100 overflow-y-auto">
-      <header class="history-header flex-align-center-justify-space-between gap-100 flex-justify-space-between border-default bg-card shadow-sm border-radius-24px padding-120-125">
+    <main class="history-main flex-1 min-w-0 min-h-0 p-20px flex flex-column gap-16px overflow-y-auto">
+      <header class="history-header flex-align-center-justify-space-between gap-16px flex-justify-space-between border-default bg-card shadow-sm border-radius-24px py-20px px-20px">
         <div class="history-copy">
-          <h1 class="color-text-primary margin-0 history-copy-h1">History</h1>
+          <h1 class="color-text-primary m-0px history-copy-h1">History</h1>
         </div>
 
-        <div class="history-header-actions flex-align-center gap-62 flex-wrap-wrap">
+        <div class="history-header-actions flex-align-center gap-10px flex-wrap-wrap">
           <button
             type="button"
-            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1"
+            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
             :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-50 padding-75-100 txt-weight-medium transition-lift-015 hover-lift-1"
+            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -31,8 +31,8 @@
         </div>
       </header>
 
-      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-75 border-default bg-card shadow-sm padding-87-100 border-radius-24px">
-        <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-62 bg-fill-tertiary padding-75-100">
+      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-12px border-default bg-card shadow-sm py-14px px-16px border-radius-24px">
+        <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-10px bg-fill-tertiary py-12px px-16px">
           <Search :size="17" />
           <input
             v-model="query"
@@ -40,38 +40,38 @@
             placeholder="Search history"
             spellcheck="false"
             autocomplete="off"
-            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary history-search-input fs-15px"
+            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary history-search-input text-15px"
           />
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px padding-87-100 bg-ios-orange-a08 border-1-ios-orange-a16">
+      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-18px py-14px px-16px bg-ios-orange-a08 border-1-ios-orange-a16">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 
-      <div v-if="groupedEntries.length" class="flex flex-column gap-90">
-        <section v-for="group in groupedEntries" :key="group.label" class="history-group padding-100 border-default bg-card shadow-sm border-radius-24px">
-          <div class="history-group-head flex-align-center-justify-space-between gap-75 flex-justify-space-between padding-0-10-70">
-            <h2 class="color-text-primary margin-0 history-group-head-h2 fs-16px">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span padding-0-50 bg-fill-secondary fs-12px min-w-27rem-badge">{{ group.entries.length }}</span>
+      <div v-if="groupedEntries.length" class="flex flex-column gap-14px">
+        <section v-for="group in groupedEntries" :key="group.label" class="history-group p-16px border-default bg-card shadow-sm border-radius-24px">
+          <div class="history-group-head flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
+            <h2 class="color-text-primary m-0px history-group-head-h2 text-16px">{{ group.label }}</h2>
+            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span py-0px px-8px bg-fill-secondary text-12px min-w-27rem-badge">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
-            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between padding-80-15 border-top-1-separator">
-              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-75" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px fs-12px letter-spacing-008em border-default bg-fill-secondary w-270" :class="`tone-${entry.kind}`">
+            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
+              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
+                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-270" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}
                 </span>
 
-                <span class="history-item-copy flex flex-column gap-15 min-w-0">
+                <span class="history-item-copy flex flex-column gap-2px min-w-0">
                   <span class="history-item-title color-text-primary txt-weight-medium nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
-                  <span class="history-item-subtitle color-text-tertiary fs-085rem nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
+                  <span class="history-item-subtitle color-text-tertiary text-14px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
                 </span>
               </button>
 
-              <div class="history-item-meta flex-inline-align-center flex-0-0-auto gap-50 margin-left-50">
-                <span class="history-item-time color-text-tertiary fs-12px txt-weight-medium">{{ formatTime(entry.lastVisitedAt) }}</span>
-                <span v-if="entry.visitCount > 1" class="history-item-visits color-text-tertiary fs-12px txt-weight-medium">
+              <div class="history-item-meta flex-inline-align-center flex-0-0-auto gap-8px ml-8px">
+                <span class="history-item-time color-text-tertiary text-12px txt-weight-medium">{{ formatTime(entry.lastVisitedAt) }}</span>
+                <span v-if="entry.visitCount > 1" class="history-item-visits color-text-tertiary text-12px txt-weight-medium">
                   {{ entry.visitCount }} visits
                 </span>
                 <button
@@ -89,25 +89,22 @@
       </div>
 
       <div v-else class="history-empty flex-1 flex-align-justify-center">
-        <UiCard padding="none" :shadow="false" radius="24px" class="history-empty-card padding-150 text-center shadow-sm w-min-560px-full">
-          <div class="history-empty-icon flex-inline-align-justify-center color-text-primary margin-x-auto border-radius-18px bg-fill-secondary w-325 h-325 margin-0 margin-bottom-87">
+        <UiCard padding="none" :shadow="false" radius="24px" class="shadow-sm w-min-560px-full">
+          <UiEmptyState :title="emptyTitle" :description="emptyCopy">
             <HistoryIcon :size="22" />
-          </div>
-          <h3 class="color-text-primary margin-0 history-empty-card-h3 fs-18px">{{ emptyTitle }}</h3>
-          <p class="color-text-secondary history-empty-card-p line-height-155 margin-0 margin-x-auto margin-top-75 max-w-3400">{{ emptyCopy }}</p>
-          <div class="history-empty-actions flex-align-center margin-top-100 flex-justify-center gap-62 flex-wrap-wrap">
-            <UiButton variant="secondary" v-if="!historyEnabled"
-              type="button"
-             
-              @click="setHistoryEnabled(true)" class="history-mode-btn active badge-success">
-              <Power :size="15" />
-              <span>Turn on history</span>
-            </UiButton>
-            <UiButton variant="primary" type="button" @click="openNewTab" class="history-open-btn">
-              <ArrowUpRight :size="14" />
-              <span>Open new tab</span>
-            </UiButton>
-          </div>
+            <template #actions>
+              <UiButton variant="secondary" v-if="!historyEnabled"
+                type="button"
+                @click="setHistoryEnabled(true)" class="active badge-success">
+                <Power :size="15" />
+                <span>Turn on history</span>
+              </UiButton>
+              <UiButton variant="primary" type="button" @click="openNewTab">
+                <ArrowUpRight :size="14" />
+                <span>Open new tab</span>
+              </UiButton>
+            </template>
+          </UiEmptyState>
         </UiCard>
       </div>
     </main>
@@ -117,6 +114,7 @@
 <script setup lang="ts">
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
+import UiEmptyState from '../../ui/UiEmptyState.vue';
 import { computed, inject, ref } from "vue";
 import {
   ArrowUpRight,

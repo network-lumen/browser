@@ -1,21 +1,21 @@
 <template>
   <UiModal :model-value="active" panel-class="w-min-520px-92vw color-text-primary" :closable="false" @update:model-value="() => {}">
-    <div class="flex-align-start flex-justify-space-between gap-100 margin-bottom-100">
+    <div class="flex-align-start flex-justify-space-between gap-16px mb-16px">
       <div>
-        <div class="fs-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
-        <div class="fs-19px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
+        <div class="text-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
+        <div class="text-20px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
       </div>
     </div>
 
     <div class="h-12px border-radius-full bg-fill-tertiary overflow-hidden">
       <div class="h-full border-radius-full bg-gradient-primary transition-width-018s" :style="{ width: `${percent}%` }"></div>
     </div>
-    <div class="margin-top-50 flex-justify-space-between fs-085rem color-text-secondary">
+    <div class="mt-8px flex-justify-space-between text-14px color-text-secondary">
       <span v-if="bytesLabel">{{ bytesLabel }}</span>
       <span v-if="percentKnown">{{ percent }}%</span>
     </div>
 
-    <div v-if="errorLabel" class="margin-top-85 padding-75 border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-75">
+    <div v-if="errorLabel" class="mt-14px p-12px border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-12px">
       {{ errorLabel }}
       <UiButton variant="secondary" type="button" @click="clearError">Close</UiButton>
     </div>

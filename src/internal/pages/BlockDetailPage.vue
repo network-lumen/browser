@@ -1,29 +1,29 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
-    <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-100 padding-400-200">
+    <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-16px py-64px px-32px">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading block data...</p>
     </div>
 
-    <div v-else-if="error" class="blockdetail-error flex flex-column flex-align-justify-center gap-100 padding-400-200">
+    <div v-else-if="error" class="blockdetail-error flex flex-column flex-align-justify-center gap-16px py-64px px-32px">
       <p class="color-error">{{ error }}</p>
     </div>
 
-    <div v-else-if="block" class="blockdetail-content flex flex-column gap-150 bg-secondary padding-200">
+    <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px">
       <!-- Block Overview Card -->
-      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Overview</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
+          <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Overview</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Height:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.height }}</span>
+        <div class="chaindetail-card-body p-24px">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Height:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.height }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Hash:</span>
-            <div class="blockdetail-hash-value flex-1 flex-align-center gap-75">
-              <code class="flex-1 blockdetail-hash-value-code padding-50-75 border-1 border-radius-6px fs-13px mono break-all">{{ block.hash }}</code>
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Hash:</span>
+            <div class="blockdetail-hash-value flex-1 flex-align-center gap-12px">
+              <code class="flex-1 blockdetail-hash-value-code py-8px px-12px border-1 border-radius-6px text-13px mono break-all">{{ block.hash }}</code>
               <UiButton variant="icon" @click="copyToClipboard(block.hash)" title="Copy hash">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -32,10 +32,10 @@
               </UiButton>
             </div>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Proposer:</span>
-            <div class="flex-align-center gap-75">
-              <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium fs-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Proposer:</span>
+            <div class="flex-align-center gap-12px">
+              <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img class="blockdetail-proposer-avatar-img w-full h-full object-fit-cover"
                   v-if="block.proposerAvatar"
                   :src="block.proposerAvatar"
@@ -43,61 +43,61 @@
                 />
                 <span v-else>{{ block.proposer.charAt(0).toUpperCase() }}</span>
               </div>
-              <span class="color-text-primary fs-15px txt-weight-light">{{ block.proposer }}</span>
+              <span class="color-text-primary text-15px txt-weight-light">{{ block.proposer }}</span>
             </div>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Time:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.time }}</span>
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Time:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.time }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Transactions:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.txs }}</span>
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Transactions:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.txs }}</span>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Block Data Card -->
-      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Block Data</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
+          <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Data</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Chain ID:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ block.chainId || 'lumen-mainnet' }}</span>
+        <div class="chaindetail-card-body p-24px">
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Chain ID:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.chainId || 'lumen-mainnet' }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Block Size:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ calculateBlockSize(block) }} KB</span>
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Block Size:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Gas Used:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ formatNumber(block.gasUsed || 0) }}</span>
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Gas Used:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ formatNumber(block.gasUsed || 0) }}</span>
           </div>
-          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary padding-0 padding-top-100 padding-bottom-100 hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light fs-14px">Gas Limit:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 fs-15px">{{ formatNumber(block.gasLimit || 0) }}</span>
+          <div class="blockdetail-row flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
+            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px">Gas Limit:</span>
+            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ formatNumber(block.gasLimit || 0) }}</span>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Transactions Card -->
-      <div class="chaindetail-card bg-primary border-radius-12px border-1 overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="block.txs > 0">
-        <div class="blockdetail-card-header bg-primary padding-125-150 border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium margin-0 blockdetail-card-header-h2 fs-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
+      <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
+          <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="flex flex-column gap-100">
-            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-100 cursor-pointer flex-align-start padding-100-125 shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover">
+        <div class="chaindetail-card-body p-24px">
+          <div class="flex flex-column gap-16px">
+            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover">
               <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-md color-ios-blue min-w-32px bg-gradient-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="blockdetail-tx-hash flex-align-center gap-50 margin-bottom-50">
-                  <code class="flex-1 border-radius-sm blockdetail-tx-hash-code padding-50-62 bg-card border-default fs-075rem mono break-all">{{ tx.hash }}</code>
+                <div class="blockdetail-tx-hash flex-align-center gap-8px mb-8px">
+                  <code class="flex-1 border-radius-sm blockdetail-tx-hash-code py-8px px-10px bg-card border-default text-12px mono break-all">{{ tx.hash }}</code>
                   <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -105,15 +105,15 @@
                     </svg>
                   </UiButton>
                 </div>
-                <div class="flex-align-center gap-100 fs-13px">
+                <div class="flex-align-center gap-16px text-13px">
                   <span class="color-text-secondary fw-500">{{ tx.type }}</span>
-                  <span class="blockdetail-tx-status-success flex-align-center gap-25 color-success txt-weight-light bg-fill-success border-radius-4px padding-25-4">✓ Success</span>
+                  <span class="blockdetail-tx-status-success flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">✓ Success</span>
                 </div>
               </div>
             </UiCard>
           </div>
         </div>
-      </div>
+      </UiCard>
     </div>
   </div>
 </template>

@@ -1,8 +1,8 @@
 <template>
   <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'ipfspage-ipfs-page--bare': isBareHtmlView }">
-    <main class="ipfspage-main-content flex flex-column flex-1 padding-150 overflow-auto">
-      <header v-if="!isBareHtmlView" class="ipfspage-content-header flex-align-start gap-100 margin-bottom-100 flex-justify-end">
-        <div class="ipfspage-header-actions flex gap-50">
+    <main class="ipfspage-main-content flex flex-column flex-1 p-24px overflow-auto">
+      <UiPageHeader v-if="!isBareHtmlView">
+        <template #actions>
           <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
            
             type="button"
@@ -47,36 +47,36 @@
             <Download :size="16" />
             <span>Download</span>
           </UiButton>
-        </div>
-      </header>
+        </template>
+      </UiPageHeader>
 
-      <UiCard padding="none" :shadow="false" v-if="loading" class="ipfspage-loading-wrap flex-align-center gap-75 padding-100">
+      <UiCard padding="none" :shadow="false" v-if="loading" class="ipfspage-loading-wrap flex-align-center gap-12px p-16px">
         <UiSpinner size="md" />
       </UiCard>
 
-      <div v-else-if="error" class="ipfspage-error-wrap padding-100 border-radius-lg color-error bg-fill-error border-width-ios-red-a35">
+      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-lg color-error bg-fill-error border-width-ios-red-a35">
         {{ error }}
       </div>
 
       <template v-else>
-        <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center padding-300-200">
+        <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center py-48px px-32px">
           <div class="ipfspage-welcome-content text-center max-w-600px">
-            <h2 class="ipfspage-welcome-content-h2 fs-175rem txt-weight-light color-text-primary margin-bottom-75">IPFS Content Viewer</h2>
+            <h2 class="ipfspage-welcome-content-h2 text-28px txt-weight-light color-text-primary mb-12px">IPFS Content Viewer</h2>
             <p>View and download content from IPFS using CIDs.</p>
-            <UiCard padding="none" :shadow="false" class="ipfspage-welcome-example padding-150 margin-bottom-200">
-              <p class="ipfspage-example-label fw-500 color-text-secondary fs-14px margin-bottom-75">Example:</p>
-              <code class="ipfspage-welcome-example-code block bg-card border-default border-radius-8px padding-75-100 mono fs-14px color-primary break-all"
+            <UiCard padding="none" :shadow="false" class="ipfspage-welcome-example p-24px mb-32px">
+              <p class="ipfspage-example-label fw-500 color-text-secondary text-14px mb-12px">Example:</p>
+              <code class="ipfspage-welcome-example-code block bg-card border-default border-radius-8px py-12px px-16px mono text-14px color-primary break-all"
                 >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
               >
             </UiCard>
-            <p class="ipfspage-welcome-hint color-text-tertiary fs-14px">
+            <p class="ipfspage-welcome-hint color-text-tertiary text-14px">
               Enter an IPFS CID in the address bar to view content.
             </p>
           </div>
         </div>
 
         <div v-else-if="isDir" class="dir-wrap">
-          <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-35 padding-0 padding-top-50 padding-bottom-50">
+          <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
             <UiButton variant="primary" type="button"
               @click="openDirRoot"
               :disabled="!navigate" class="ipfspage-crumb disabled-fade-60">
@@ -92,16 +92,16 @@
             </template>
           </div>
 
-          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="ipfspage-empty-dir padding-100 color-text-secondary">Empty folder.</UiCard>
+          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="ipfspage-empty-dir p-16px color-text-secondary">Empty folder.</UiCard>
 
           <div v-else class="ipfspage-dir-table border-radius-lg border-default overflow-hidden">
             <div
               v-for="it in entries"
               :key="it.key"
-              class="ipfspage-dir-row gap-75 grid flex-inline-align-center padding-75-100 border-bottom-1 bg-primary"
+              class="ipfspage-dir-row gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
               @dblclick="openEntry(it)"
             >
-              <div class="ipfspage-dir-name flex-align-center cursor-pointer gap-62 min-w-0" @click="openEntry(it)">
+              <div class="ipfspage-dir-name flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">
                 <Folder v-if="it.type === 'dir'" :size="16" class="ipfspage-ico color-text-secondary" />
                 <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="ipfspage-ico color-text-secondary" />
                 <File v-else :size="16" class="ipfspage-ico color-text-secondary" />
@@ -109,10 +109,10 @@
                   it.name
                 }}</span>
               </div>
-              <div class="ipfspage-dir-size mono text-right color-text-secondary fs-085rem">
+              <div class="ipfspage-dir-size mono text-right color-text-secondary text-14px">
                 {{ it.size != null ? formatSize(it.size) : "-" }}
               </div>
-              <div class="ipfspage-dir-actions flex-justify-end gap-50">
+              <div class="ipfspage-dir-actions flex-justify-end gap-8px">
                 <UiButton variant="primary" type="button"
                   @click.stop="copyLinkFor(it)" class="ipfspage-btn-ghost">
                   Copy link
@@ -128,7 +128,7 @@
 
         <div
           v-else
-          class="ipfspage-viewer flex-align-justify-center border-radius-12px padding-100 border-1 bg-secondary relative min-h-360px"
+          class="ipfspage-viewer flex-align-justify-center border-radius-12px p-16px border-1 bg-secondary relative min-h-360px"
           :class="{ 'border-none border-radius-0 bg-transparent min-h-0': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
         >
           <img
@@ -147,7 +147,7 @@
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12 border-1-ios-red-a35">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-14px right-100 bg-ios-red-a12 border-1-ios-red-a35">
               {{ hlsError }}
             </div>
           </template>
@@ -191,25 +191,25 @@
             allow="fullscreen"
           ></iframe>
 
-          <pre v-else-if="viewKind === 'docx'" class="ipfspage-text w-full fs-085rem color-text-primary overflow-auto pre-wrap max-h-75vh">{{
+          <pre v-else-if="viewKind === 'docx'" class="ipfspage-text w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
             docxContent
           }}</pre>
 
           <article
             v-else-if="viewKind === 'markdown'"
-            class="markdown-body ipfspage-markdown-view w-full margin-0-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
+            class="markdown-body ipfspage-markdown-view w-full my-0px mx-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
             data-color-mode="auto"
             v-html="markdownHtml"
             @click="onMarkdownClick"
           ></article>
 
-          <pre v-else-if="viewKind === 'text'" class="ipfspage-text w-full fs-085rem color-text-primary overflow-auto pre-wrap max-h-75vh">{{
+          <pre v-else-if="viewKind === 'text'" class="ipfspage-text w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
             textContent
           }}</pre>
 
           <div v-else class="ipfspage-unsupported flex-align-justify-center w-full">
-            <div class="ipfspage-unsupported-content text-center padding-200 max-w-500px">
-              <h3 class="ipfspage-unsupported-content-h3 fs-125rem txt-weight-light color-text-primary margin-bottom-75">Preview not available</h3>
+            <div class="ipfspage-unsupported-content text-center p-32px max-w-500px">
+              <h3 class="ipfspage-unsupported-content-h3 text-20px txt-weight-light color-text-primary mb-12px">Preview not available</h3>
               <p>This content type cannot be previewed directly.</p>
             </div>
           </div>
@@ -218,8 +218,8 @@
     </main>
 
     <UiModal :model-value="showSaveModal" title="Save to Drive" panel-class="w-min-520px-92vw" @update:model-value="closeSaveModal">
-          <div class="flex flex-column gap-50">
-            <label class="ipfspage-modal-label fs-085rem txt-weight-light color-text-primary" for="save-name">Name</label>
+          <div class="flex flex-column gap-8px">
+            <label class="ipfspage-modal-label text-14px txt-weight-light color-text-primary" for="save-name">Name</label>
             <UiInput radius-class="border-radius-12px" :focus-ring="false" id="save-name"
               v-model="saveNameDraft"
              
@@ -228,14 +228,14 @@
               :disabled="savePreparing || saving"
               @keydown.enter.prevent="confirmSaveToDrive" class="ipfspage-modal-input focus-ring focus-outline-none focus-shadow" />
 
-            <div v-if="saveModalError" class="ipfspage-modal-error fs-085rem color-error margin-top-25">
+            <div v-if="saveModalError" class="ipfspage-modal-error text-14px color-error mt-4px">
               {{ saveModalError }}
             </div>
 
-            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px margin-top-87 padding-75-87 bg-ios-blue-a08 border-1-ios-blue-a18">
-              <div class="ipfspage-pin-progress-head flex-align-center-justify-space-between gap-75 margin-bottom-50">
-                <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase fs-12px letter-spacing-004em">{{ savePinStatusLabel }}</span>
-                <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary fs-12px">{{ savePinProgressCounter }}</span>
+            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px mt-14px py-12px px-14px bg-primary-a08 border-1-ios-blue-a18">
+              <div class="ipfspage-pin-progress-head flex-align-center-justify-space-between gap-12px mb-8px">
+                <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase text-12px letter-spacing-004em">{{ savePinStatusLabel }}</span>
+                <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary text-12px">{{ savePinProgressCounter }}</span>
               </div>
               <div class="ipfspage-pin-progress-track w-full border-radius-full relative overflow-hidden bg-fill-secondary h-8px">
                 <div
@@ -244,7 +244,7 @@
                   :style="{ width: savePinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, savePinProgressPercent))}%` }"
                 ></div>
               </div>
-              <div class="ipfspage-pin-progress-text color-text-secondary margin-top-50 fs-13px break-word">
+              <div class="ipfspage-pin-progress-text color-text-secondary mt-8px text-13px break-word">
                 {{ savePinProgressText || (savePinIsRunning ? "Saving content from the network…" : "Waiting for action.") }}
               </div>
             </div>
@@ -278,6 +278,7 @@ import UiInput from '../../ui/UiInput.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
+import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
  import {

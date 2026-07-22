@@ -1,0 +1,33 @@
+/* ============================================================================
+ * src/css/ui/menu-item.css
+ * Backs UiMenuItem.vue — a single action row inside a dropdown/context menu
+ * panel (the panel itself is a plain UiCard with role="menu"; see NavBar's
+ * profile/extensions menus and DrivePage's upload menu).
+ * ========================================================================== */
+
+.ui-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ui-menu-item:where(:hover, :focus-visible) {
+  background: var(--hover-bg);
+}
+
+.ui-menu-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}

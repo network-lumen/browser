@@ -1,36 +1,36 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed padding-100 w-min-380px-92vw shadow-0-20-55-rgba-0-0-0-0-18">
-      <header class="flex flex-column gap-10">
-        <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em margin-0">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed p-16px w-min-380px-92vw shadow-0-20-55-rgba-0-0-0-0-18">
+      <header class="flex flex-column gap-2px">
+        <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em m-0px">
           Update available
         </p>
-        <h4 class="margin-0 txt-md txt-weight-light">
+        <h4 class="m-0px txt-md txt-weight-light">
           {{ (latest.release && latest.release.version) || latest.version }}
         </h4>
-        <p class="color-text-secondary txt-xs margin-0">Current version: {{ currentVersion || 'n/a' }}</p>
+        <p class="color-text-secondary txt-xs m-0px">Current version: {{ currentVersion || 'n/a' }}</p>
       </header>
 
-      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline margin-top-25 padding-0 fs-085rem color-text-link" type="button" @click="notesOpen = true">
+      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link" type="button" @click="notesOpen = true">
         Change notes
       </button>
 
-      <ul class="meta color-text-secondary txt-xs margin-top-25 padding-0">
+      <ul class="meta list-style-none m-0px color-text-secondary txt-xs p-0px">
         <li><strong>Platform:</strong> {{ latest.platform }}</li>
         <li><strong>Channel:</strong> {{ latest.channel }}</li>
         <li><strong>Artifact:</strong> {{ latest.artifact.kind }}</li>
         <li v-if="sizeLabel"><strong>Size:</strong> ~{{ sizeLabel }}</li>
         <li v-if="shaFull">
           <strong>SHA256:</strong>
-          <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer padding-0 margin-left-25" @click.stop="copySha" aria-label="Copy SHA-256">
-            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px mono padding-0-50">{{ shaShort }}</code>
+          <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer p-0px ml-4px" @click.stop="copySha" aria-label="Copy SHA-256">
+            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px mono py-0px px-8px">{{ shaShort }}</code>
           </button>
         </li>
       </ul>
 
-      <div class="gap-25 flex flex-wrap-wrap margin-top-25">
+      <div class="gap-4px flex flex-wrap-wrap mt-4px">
         <UiButton
-          class="flex-align-justify-center gap-50 padding-50 border-radius-10px txt-xs flex-1-1-auto"
+          class="flex-align-justify-center gap-8px p-8px border-radius-10px txt-xs flex-1-1-auto"
           :variant="downloadDisabled ? 'ghost' : 'primary'"
           :disabled="downloadDisabled || busy"
           @click="onUpdate"
@@ -44,7 +44,7 @@
           </template>
         </UiButton>
         <UiButton
-          class="flex-align-justify-center gap-50 padding-50 border-radius-10px txt-xs flex-1-1-auto"
+          class="flex-align-justify-center gap-8px p-8px border-radius-10px txt-xs flex-1-1-auto"
           variant="ghost"
           @click="remindLater"
         >
@@ -55,7 +55,7 @@
   </transition>
 
   <UiModal :model-value="notesOpen" title="Change notes" panel-class="w-min-720px-92vw" @update:model-value="notesOpen = false">
-    <pre class="release-prompt-notes-body color-text-primary bg-primary margin-0 overflow-auto fs-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
+    <pre class="release-prompt-notes-body color-text-primary bg-primary m-0px overflow-auto text-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
   </UiModal>
 </template>
 

@@ -1,0 +1,15 @@
+/* ============================================================================
+ * src/css/ui/badge.css
+ * Status-badge background colors. Layout (padding, radius, font-size/weight)
+ * is applied at the call site via scale.css utility classes — these rules are
+ * only the semantic color, combined with `badge-{success,error,warning,info,
+ * neutral}` in a `:class` binding (see NetworkParamsPanel.vue, DomainPage.vue,
+ * WalletPage.vue, MyGatewaysPage.vue, GatewaysPage.vue, DrivePage.vue,
+ * ReleasePage.vue for call sites).
+ * ========================================================================== */
+
+.badge-success { background: var(--fill-success); }
+.badge-error { background: var(--fill-error); }
+.badge-warning { background: rgba(var(--ios-orange-rgb), 0.15); }
+.badge-info { background: var(--fill-blue); }
+.badge-neutral { background: var(--fill-tertiary); }

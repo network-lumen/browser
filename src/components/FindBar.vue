@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="open"
-    class="findbar flex-align-center border-radius-12px absolute gap-35 padding-50 border-default bg-primary z-50 right-12px shadow-0-8-24-rgba-0-0-0-0-12"
+    class="findbar flex-align-center border-radius-12px absolute gap-6px p-8px border-default bg-primary z-50 right-12px shadow-0-8-24-rgba-0-0-0-0-12"
     role="dialog"
     aria-label="Find in page"
     @mousedown.stop
@@ -10,14 +10,14 @@
     <input
       ref="inputEl"
       v-model="query"
-      class="findbar-input outline-none color-text-primary border-radius-10px fs-13px border-default bg-primary h-30px padding-0-50 w-220px border-color-accent-primary-focus-visible shadow-0-0-0-3-ios-blue-a25-focus-visible"
+      class="findbar-input outline-none color-text-primary border-radius-10px text-13px border-default bg-primary h-30px py-0px px-8px w-220px border-color-accent-primary-focus-visible shadow-0-0-0-3-ios-blue-a25-focus-visible"
       type="text"
       placeholder="Find in page"
       autocomplete="off"
       @keydown="onInputKeydown"
     />
 
-    <div class="findbar-count color-text-secondary text-right fs-12px cursor-select-none min-w-52px" :class="{ 'findbar-count--muted': !query }" aria-live="polite">
+    <div class="findbar-count color-text-secondary text-right text-12px cursor-select-none min-w-52px" :class="{ 'findbar-count--muted': !query }" aria-live="polite">
       {{ countText }}
     </div>
 

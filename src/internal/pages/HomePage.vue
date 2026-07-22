@@ -7,12 +7,12 @@
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </UiButton>
 
-      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-25 padding-bottom-25">
+      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-4px pb-4px">
         <button
           v-for="key in allRoutes"
           :key="key"
           type="button"
-          class="homepage-page-item w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-50 fs-13px fw-500 text-left padding-50-75 transition-all-015 cursor-select-none hover-bg-hover hover-color-text-primary"
+          class="homepage-page-item w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-015 cursor-select-none hover-bg-hover hover-color-text-primary"
           :class="{ dragging: draggedItem === key, 'drag-over': dragOverItem === key }"
           draggable="true"
           @dragstart="onItemDragStart($event, key)"
@@ -30,29 +30,29 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="homepage-main flex-1 flex flex-column margin-0 min-w-0 overflow-y-auto padding-125-150 bg-secondary border-radius-0">
-      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md margin-bottom-100 padding-75-100 bg-ios-yellow-a08 border-05-ios-yellow-a4">
-        <div class="homepage-no-profile-title txt-weight-light fs-13px">No profile found</div>
-        <div class="homepage-no-profile-sub fs-12px margin-top-25">Create one using the button in the top right.</div>
+    <main class="homepage-main flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
+      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md mb-16px py-12px px-16px bg-ios-yellow-a08 border-05-ios-yellow-a40">
+        <div class="homepage-no-profile-title txt-weight-light text-13px">No profile found</div>
+        <div class="homepage-no-profile-sub text-12px mt-4px">Create one using the button in the top right.</div>
       </div>
 
       <!-- Quick Actions -->
-      <section class="homepage-quick-actions margin-bottom-125">
-        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light margin-bottom-75 padding-bottom-50 letter-spacing-n001 border-bottom-05-light">My Space</h2>
+      <section class="homepage-quick-actions mb-20px">
+        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">My Space</h2>
         <div
-          class="homepage-actions-grid gap-62 grid"
+          class="homepage-actions-grid gap-10px grid"
           @dragover.prevent="onMySpaceDragOver"
           @dragleave="onMySpaceDragLeave"
           @drop.prevent="onMySpaceDrop"
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25 bg-fill-tertiary transition-all-015 padding-87-100 border-15-dashed-color min-h-100px"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px"
             :class="{ 'is-drag-over': dragOverMySpace }"
             @click="showAllPages = true"
           >
-            <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
-            <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
+            <div class="homepage-empty-title color-text-primary txt-weight-light text-13px">No cards yet</div>
+            <div class="homepage-empty-desc text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
             <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults">
               Restore defaults
             </UiButton>
@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="homepage-action-card flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -80,30 +80,30 @@
             </div>
             <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :class="key" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
-              <span class="homepage-action-desc color-text-secondary fs-12px line-height-135">{{ getCardDescription(key) }}</span>
+              <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
+              <span class="homepage-action-desc color-text-secondary text-12px line-height-135">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="homepage-action-arrow color-text-tertiary transition-all-015" />
           </button>
         </div>
       </section>
 
-      <section class="homepage-quick-actions margin-bottom-125">
-        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary fs-15px txt-weight-light margin-bottom-75 padding-bottom-50 letter-spacing-n001 border-bottom-05-light">Lumen</h2>
+      <section class="homepage-quick-actions mb-20px">
+        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">Lumen</h2>
         <div
-          class="homepage-actions-grid gap-62 grid"
+          class="homepage-actions-grid gap-10px grid"
           @dragover.prevent="onLumenDragOver"
           @dragleave="onLumenDragLeave"
           @drop.prevent="onLumenDrop"
         >
           <div
             v-if="lumenCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-25 bg-fill-tertiary transition-all-015 padding-87-100 border-15-dashed-color min-h-100px"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px"
             :class="{ 'is-drag-over': dragOverLumen }"
             @click="showAllPages = true"
           >
-            <div class="homepage-empty-title color-text-primary txt-weight-light fs-13px">No cards yet</div>
-            <div class="homepage-empty-desc text-center color-text-secondary fs-12px">Drag a page from “All Pages” to add it here.</div>
+            <div class="homepage-empty-title color-text-primary txt-weight-light text-13px">No cards yet</div>
+            <div class="homepage-empty-desc text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
             <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults">
               Restore defaults
             </UiButton>
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="homepage-action-card flex-align-center cursor-pointer gap-75 border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs padding-87-100 backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="homepage-action-card flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"
@@ -130,8 +130,8 @@
             </div>
             <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :class="key" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="homepage-action-title color-text-primary fs-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
-              <span class="homepage-action-desc color-text-secondary fs-12px line-height-135">{{ getCardDescription(key) }}</span>
+              <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
+              <span class="homepage-action-desc color-text-secondary text-12px line-height-135">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="homepage-action-arrow color-text-tertiary transition-all-015" />
           </button>

@@ -1,35 +1,35 @@
 <template>
-  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary padding-200">
-    <div class="margin-bottom-200">
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary p-32px">
+    <div class="mb-32px">
       <UiButton variant="ghost" @click="goBack" class="chaindetail-back-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
         Back to Explorer
       </UiButton>
-      <h1 class="fs-28px txt-weight-light color-text-primary margin-0">Address Details</h1>
+      <h1 class="text-28px txt-weight-light color-text-primary m-0px">Address Details</h1>
     </div>
 
-    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-100 min-h-300px">
+    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-16px min-h-300px">
       <div class="ring-spinner ring-spinner-lg"></div>
       <p>Loading address data...</p>
     </div>
 
-    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-100 min-h-300px">
-      <p class="color-error chaindetail-error-p fs-16px">{{ error }}</p>
+    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-16px min-h-300px">
+      <p class="color-error chaindetail-error-p text-16px">{{ error }}</p>
     </div>
 
-    <div v-else-if="address" class="flex flex-column gap-150">
+    <div v-else-if="address" class="flex flex-column gap-24px">
       <!-- Address Overview Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Address Overview</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Address Overview</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Address:</span>
-            <div class="chaindetail-hash-value flex-align-center gap-50">
-              <code class="bg-secondary color-text-primary chaindetail-hash-value-code padding-50-75 border-1 border-radius-6px mono fs-075rem break-all">{{ address.address }}</code>
+        <div class="chaindetail-card-body p-24px">
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Address:</span>
+            <div class="chaindetail-hash-value flex-align-center gap-8px">
+              <code class="bg-secondary color-text-primary chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ address.address }}</code>
               <UiButton variant="icon" @click="copyToClipboard(address.address)" title="Copy address">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -38,25 +38,25 @@
               </UiButton>
             </div>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Account Number:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.accountNumber }}</span>
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Account Number:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="chaindetail-row gap-100 grid border-bottom-1-light padding-87-0 border-radius-37-hover background-bg-hover-hover">
-            <span class="chaindetail-label color-text-secondary fw-500 fs-14px">Sequence:</span>
-            <span class="chaindetail-value color-text-primary fs-14px break-all">{{ address.sequence }}</span>
+          <div class="chaindetail-row gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover">
+            <span class="chaindetail-label color-text-secondary fw-500 text-14px">Sequence:</span>
+            <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.sequence }}</span>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Balances Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Balances</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Balances</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-100">
-            <div class="addrdetail-balance-item flex-align-center gap-100 padding-100 bg-secondary border-1 border-radius-8px" v-for="(balance, index) in address.balances" :key="index">
+        <div class="chaindetail-card-body p-24px">
+          <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
+            <UiCard class="flex-align-center gap-16px" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(balance, index) in address.balances" :key="index">
               <div class="addrdetail-balance-icon flex-align-justify-center color-white size-40px border-radius-circle bg-gradient-primary">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
@@ -64,82 +64,83 @@
                 </svg>
               </div>
               <div class="flex-1">
-                <div class="addrdetail-balance-amount color-text-primary txt-weight-light fs-18px">{{ formatAmount(balance.amount) }}</div>
-                <div class="fs-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
+                <div class="addrdetail-balance-amount color-text-primary txt-weight-light text-18px">{{ formatAmount(balance.amount) }}</div>
+                <div class="text-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
               </div>
-            </div>
+            </UiCard>
           </div>
-          <div v-else class="addrdetail-empty-state color-text-tertiary padding-200 text-center">
+          <div v-else class="addrdetail-empty-state color-text-tertiary p-32px text-center">
             <p>No balances found</p>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Delegations Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" v-if="address.delegations && address.delegations.length > 0">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Delegations ({{ address.delegations.length }})</h2>
+      <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Delegations ({{ address.delegations.length }})</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div class="flex flex-column gap-100">
-            <div class="addrdetail-delegation-item flex-align-center flex-justify-space-between padding-100 bg-secondary border-1 border-radius-8px" v-for="(delegation, index) in address.delegations" :key="index">
-              <div class="flex-align-center gap-75 flex-1">
-                <div class="addrdetail-validator-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light fs-14px" :style="{ background: getValidatorColor(delegation.validator) }">
+        <div class="chaindetail-card-body p-24px">
+          <div class="flex flex-column gap-16px">
+            <UiCard class="flex-align-center flex-justify-space-between" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(delegation, index) in address.delegations" :key="index">
+              <div class="flex-align-center gap-12px flex-1">
+                <div class="addrdetail-validator-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light text-14px" :style="{ background: getValidatorColor(delegation.validator) }">
                   <span>{{ delegation.validatorMoniker?.charAt(0).toUpperCase() || 'V' }}</span>
                 </div>
-                <div class="flex flex-column gap-25">
-                  <div class="addrdetail-validator-name color-text-primary txt-weight-light fs-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
-                  <div class="addrdetail-validator-address color-text-tertiary fs-075rem mono">{{ shortenAddress(delegation.validator) }}</div>
+                <div class="flex flex-column gap-4px">
+                  <div class="addrdetail-validator-name color-text-primary txt-weight-light text-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
+                  <div class="addrdetail-validator-address color-text-tertiary text-12px mono">{{ shortenAddress(delegation.validator) }}</div>
                 </div>
               </div>
-              <div class="addrdetail-delegation-amount color-text-primary txt-weight-light fs-14px">
+              <div class="addrdetail-delegation-amount color-text-primary txt-weight-light text-14px">
                 {{ formatAmount(delegation.amount) }} LUMEN
               </div>
-            </div>
+            </UiCard>
           </div>
         </div>
-      </div>
+      </UiCard>
 
       <!-- Recent Transactions Card -->
-      <div class="chaindetail-card bg-primary border-1 border-radius-12px overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 padding-0 padding-top-100 padding-right-150 padding-bottom-100 padding-left-150">
-          <h2 class="color-text-primary chaindetail-card-header-h2 fs-16px">Recent Transactions</h2>
+      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
+          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px">Recent Transactions</h2>
         </div>
-        <div class="chaindetail-card-body padding-150">
-          <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-100">
-            <div class="addrdetail-tx-item flex-align-center gap-100 padding-100 bg-primary border-1 border-radius-8px transition-all-02 hover-lift-2 shadow-0-4-8-rgba-0-0-0-0-1-hover" v-for="(tx, index) in address.transactions" :key="index">
+        <div class="chaindetail-card-body p-24px">
+          <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
+            <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 shadow-0-4-8-rgba-0-0-0-0-1-hover" v-for="(tx, index) in address.transactions" :key="index">
               <div class="addrdetail-tx-icon flex-align-justify-center size-32px border-radius-circle color-text-secondary bg-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
               </div>
               <div class="flex-1">
-                <div class="addrdetail-tx-hash cursor-pointer margin-bottom-25" @click="navigateToTx(tx.hash)">
-                  <code class="color-primary addrdetail-tx-hash-code mono fs-075rem">{{ shortenHash(tx.hash) }}</code>
+                <div class="addrdetail-tx-hash cursor-pointer mb-4px" @click="navigateToTx(tx.hash)">
+                  <code class="color-primary addrdetail-tx-hash-code mono text-12px">{{ shortenHash(tx.hash) }}</code>
                 </div>
-                <div class="addrdetail-tx-meta flex gap-100 color-text-tertiary fs-075rem">
+                <div class="addrdetail-tx-meta flex gap-16px color-text-tertiary text-12px">
                   <span class="addrdetail-tx-height cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
                   <span>{{ tx.time }}</span>
                 </div>
               </div>
               <div class="flex-align-center">
-                <span :class="['fs-075rem flex-inline-align-justify-center', tx.success ? 'badge-success' : 'badge-error']">
+                <span :class="['text-12px flex-inline-align-justify-center', tx.success ? 'badge-success' : 'badge-error']">
                   {{ tx.success ? '✓' : '✗' }}
                 </span>
               </div>
-            </div>
+            </UiCard>
           </div>
-          <div v-else class="addrdetail-empty-state color-text-tertiary padding-200 text-center">
+          <div v-else class="addrdetail-empty-state color-text-tertiary p-32px text-center">
             <p>No recent transactions found</p>
           </div>
         </div>
-      </div>
+      </UiCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
+import UiCard from '../../ui/UiCard.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';

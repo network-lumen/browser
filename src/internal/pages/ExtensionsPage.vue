@@ -1,15 +1,15 @@
 <template>
   <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
-    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-100 border-bottom-1-slate-a16">
+    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1 color-hex-f8fafc">{{ headerTitle }}</h1>
-        <p class="extensions-store-copy-p margin-0 margin-top-37 max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
+        <p class="extensions-store-copy-p m-0px mt-6px max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
-      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-62">
+      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none padding-75-100 extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px color-hex-e2e8f0 background-rgba-30-41-59-0-92 shadow-0-18-40-rgba-14-165-233-0-26"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none py-12px px-16px extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px color-hex-e2e8f0 background-rgba-30-41-59-0-92 shadow-0-18-40-rgba-14-165-233-0-26"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px padding-75-87 color-hex-dbeafe background-rgba-37-99-235-0-18" :class="{ error: statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-14px color-hex-dbeafe background-rgba-37-99-235-0-18" :class="{ error: statusError }">
       {{ statusMessage }}
     </div>
 
@@ -43,7 +43,7 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap fs-11px gap-87 line-height-145 color-rgba-148-163-184-0-88">
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap text-11px gap-14px line-height-145 color-rgba-148-163-184-0-88">
       <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
       <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Lumen install:</strong> installation is handled by Lumen.</span>
       <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>

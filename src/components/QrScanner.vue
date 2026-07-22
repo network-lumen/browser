@@ -11,14 +11,14 @@
               <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px border-3-accent-primary"></div>
               <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px border-left-none border-top-none bottom-n3px right-n3px border-3-accent-primary"></div>
             </div>
-            <p class="qr-scan-instruction color-white margin-0 border-radius-20px fs-14px absolute padding-50-100 bottom-20px left-half backdrop-blur-8 background-rgba-0-0-0-0-6">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half backdrop-blur-8 background-rgba-0-0-0-0-6">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
           <div v-if="error" class="qr-error-state text-center">
-            <AlertCircle :size="48" class="qr-error-icon color-error margin-bottom-100" />
-            <h4 class="color-text-primary qr-error-state-h4 fs-20px txt-weight-light margin-0 margin-bottom-50">{{ error }}</h4>
-            <p v-if="error.includes('permission')" class="color-text-secondary fs-14px qr-error-state-p margin-0 margin-bottom-150">
+            <AlertCircle :size="48" class="qr-error-icon color-error mb-16px" />
+            <h4 class="color-text-primary qr-error-state-h4 text-20px txt-weight-light m-0px mb-8px">{{ error }}</h4>
+            <p v-if="error.includes('permission')" class="color-text-secondary text-14px qr-error-state-p m-0px mb-24px">
               Please allow camera access in your browser settings
             </p>
             <UiButton variant="primary" @click="initializeScanner">
@@ -29,21 +29,21 @@
 
           <!-- Success State -->
           <div v-if="scannedData" class="qr-success-state text-center">
-            <CheckCircle :size="48" class="qr-success-icon color-success margin-bottom-100" />
-            <h4 class="color-text-primary qr-success-state-h4 fs-20px txt-weight-light margin-0 margin-bottom-50">QR Code Scanned</h4>
+            <CheckCircle :size="48" class="qr-success-icon color-success mb-16px" />
+            <h4 class="color-text-primary qr-success-state-h4 text-20px txt-weight-light m-0px mb-8px">QR Code Scanned</h4>
 
-            <div class="qr-scanned-data text-left bg-secondary border-radius-8px padding-100 margin-0 margin-top-150 margin-bottom-150">
+            <div class="qr-scanned-data text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
               <div class="qr-data-type">
-                <span class="qr-label color-text-secondary block fs-12px txt-weight-light text-uppercase margin-bottom-25">Type:</span>
-                <span class="qr-value color-text-primary fs-14px fw-500">{{ detectedType }}</span>
+                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px">Type:</span>
+                <span class="qr-value color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>
               <div class="qr-data-content">
-                <span class="qr-label color-text-secondary block fs-12px txt-weight-light text-uppercase margin-bottom-25">Content:</span>
-                <div class="qr-value-box bg-card color-text-primary fs-13px border-1 border-radius-6px padding-75 break-all overflow-y-auto mono">{{ scannedData }}</div>
+                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px">Content:</span>
+                <div class="qr-value-box bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono">{{ scannedData }}</div>
               </div>
             </div>
 
-            <div class="qr-action-buttons flex-justify-center gap-75">
+            <div class="qr-action-buttons flex-justify-center gap-12px">
               <UiButton variant="secondary" @click="scanAgain" >
                 <QrCode :size="16" />
                 <span>Scan Again</span>

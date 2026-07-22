@@ -1,0 +1,31 @@
+/* ============================================================================
+ * src/css/ui/toast.css
+ * Backs UiToast.vue. Several of these declarations used to live combined with
+ * unrelated page-specific selectors in theme.css (same computed value, no
+ * actual relationship) — those page-specific selectors keep their own rule in
+ * theme.css referencing the same CSS variables, so visual output is unchanged.
+ * ========================================================================== */
+
+.toast-container {
+  right: 20px;
+  z-index: 99999;
+}
+.toast {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.toast-dismissible:hover {
+  background: var(--bg-secondary);
+}
+.toast-success .toast-icon { color: var(--ios-green); background: rgba(var(--ios-green-rgb), 0.12); }
+.toast-error .toast-icon {
+  color: var(--ios-red);
+  background: rgba(var(--ios-red-rgb), 0.12);
+}
+.toast-warning .toast-icon { color: var(--ios-orange); background: rgba(var(--ios-orange-rgb), 0.12); }
+.toast-info .toast-icon { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
+.toast-title { line-height: 1.3; }
+.toast-message { user-select: text; }
+.toast-action { margin: -2px -4px -2px 0; }
+.toast-enter-active { animation: toast-in 0.3s ease-out; }
+.toast-leave-active { animation: toast-out 0.2s ease-in forwards; }

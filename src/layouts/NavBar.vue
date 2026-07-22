@@ -1,7 +1,7 @@
 <template>
-  <header class="navbar flex-align-center gap-75 padding-50-75 bg-primary border-bottom-default min-h-52px">
+  <header class="navbar flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-52px">
     <!-- Navigation Controls -->
-    <div class="navbar-nav-controls flex-align-center gap-25">
+    <div class="navbar-nav-controls flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoBack"
         title="Back"
         @click="previous" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
@@ -26,7 +26,7 @@
     <!-- URL Bar -->
     <div class="navbar-url-bar-container appregion-no-drag flex-align-center flex-1 relative min-w-0">
       <Search :size="15" stroke-width="2" class="navbar-url-bar-icon color-text-tertiary absolute cursor-events-none" />
-      <UiInput bg-class="bg-secondary" radius-class="border-radius-sm" font-size-class="fs-13px" padding-class="padding-50-275-50-225" :focus-ring="false" :value="urlField"
+      <UiInput bg-class="bg-secondary" radius-class="border-radius-sm" font-size-class="text-13px" padding-class="pt-8px pr-48px pb-8px pl-40px" :focus-ring="false" :value="urlField"
         @input="onInput"
        
        
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="navbar-quick-actions flex-align-center gap-25">
+    <div class="navbar-quick-actions flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Home"
         @click="$emit('goto', 'lumen://home')" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
         <House :size="16" />
@@ -60,7 +60,7 @@
       </UiButton>
     </div>
 
-    <div class="navbar-extensions-section appregion-no-drag relative margin-left-n50">
+    <div class="navbar-extensions-section appregion-no-drag relative ml-n8px">
       <UiButton
         variant="icon"
         icon-radius-class="border-radius-sm"
@@ -73,27 +73,27 @@
         <Puzzle :size="16" />
       </UiButton>
 
-      <UiCard padding="none" :shadow="false" v-if="showExtensionsMenu" role="menu" class="navbar-extensions-menu absolute padding-50 shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px">
-        <div class="navbar-extensions-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em padding-0 padding-right-50 padding-bottom-50 padding-left-50">Extensions</div>
+      <UiCard padding="none" :shadow="false" v-if="showExtensionsMenu" role="menu" class="navbar-extensions-menu absolute p-8px shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px">
+        <div class="navbar-extensions-menu-title text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em p-0px pr-8px pb-8px pl-8px">Extensions</div>
 
-        <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-35 overflow-y-auto padding-right-25">
+        <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-6px overflow-y-auto pr-4px">
           <div
             v-for="ext in extensions"
             :key="ext.id"
-            class="navbar-extension-row flex-align-start gap-62 padding-62 border-radius-md bg-secondary border-05-light"
+            class="navbar-extension-row flex-align-start gap-10px p-10px border-radius-md bg-secondary border-05-light"
           >
             <div class="navbar-extension-main flex-1 min-w-0">
-              <div class="navbar-extension-name fs-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ ext.name }}</div>
-              <div class="navbar-extension-meta flex-align-center flex-wrap-wrap gap-35 margin-top-25">
-                <span class="navbar-extension-state fs-11px color-text-tertiary" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
+              <div class="navbar-extension-name text-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ ext.name }}</div>
+              <div class="navbar-extension-meta flex-align-center flex-wrap-wrap gap-6px mt-4px">
+                <span class="navbar-extension-state text-11px color-text-tertiary" :class="{ error: !!ext.lastError, disabled: !ext.enabled }">
                   {{ extensionStateLabel(ext) }}
                 </span>
-                <span v-if="ext.version" class="navbar-extension-version fs-11px color-text-tertiary">v{{ ext.version }}</span>
+                <span v-if="ext.version" class="navbar-extension-version text-11px color-text-tertiary">v{{ ext.version }}</span>
               </div>
-              <div v-if="ext.lastError" class="navbar-extension-error fs-11px margin-top-25 break-word line-height-135">{{ ext.lastError }}</div>
+              <div v-if="ext.lastError" class="navbar-extension-error text-11px mt-4px break-word line-height-135">{{ ext.lastError }}</div>
             </div>
 
-            <div class="navbar-extension-actions flex-align-center gap-35">
+            <div class="navbar-extension-actions flex-align-center gap-6px">
               <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
@@ -101,15 +101,13 @@
                 <ExternalLink :size="14" />
               </UiButton>
 
-              <label class="navbar-extension-toggle flex-inline-align-center cursor-pointer relative" :title="ext.enabled ? 'Disable extension' : 'Enable extension'">
-                <input class="navbar-extension-toggle-input absolute opacity-0 w-0"
-                  type="checkbox"
-                  :checked="ext.enabled"
-                  :disabled="extensionsBusy"
-                  @change="toggleExtensionEnabled(ext)"
-                />
-                <span class="navbar-extension-toggle-slider border-radius-full relative bg-border w-34px h-20px"></span>
-              </label>
+              <UiToggle
+                size="sm"
+                :title="ext.enabled ? 'Disable extension' : 'Enable extension'"
+                :model-value="ext.enabled"
+                :disabled="extensionsBusy"
+                @update:model-value="toggleExtensionEnabled(ext)"
+              />
 
               <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Reload extension"
@@ -129,19 +127,14 @@
           </div>
         </div>
 
-        <div v-else class="navbar-extensions-menu-hint text-center fs-12px color-text-tertiary padding-87-50">
+        <div v-else class="navbar-extensions-menu-hint text-center text-12px color-text-tertiary py-14px px-8px">
           No extensions installed yet.
         </div>
 
-        <div class="navbar-extensions-menu-actions flex flex-column gap-50 margin-top-62 padding-top-50 border-top-05-border-light">
-          <UiButton
-            variant="none"
-            class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015"
-            :disabled="extensionsBusy"
-            @click.stop="loadUnpackedExtension"
-          >
+        <div class="navbar-extensions-menu-actions flex flex-column gap-8px mt-10px pt-8px border-top-05-border-light">
+          <UiMenuItem :disabled="extensionsBusy" @click.stop="loadUnpackedExtension">
             Load unpacked extension
-          </UiButton>
+          </UiMenuItem>
 
           <UiButton variant="primary" type="button"
            
@@ -151,7 +144,7 @@
             <ExternalLink :size="13" />
           </UiButton>
 
-          <div v-if="extensionsMessage" class="navbar-extensions-menu-message fs-12px color-text-tertiary padding-0-12">
+          <div v-if="extensionsMessage" class="navbar-extensions-menu-message text-12px color-text-tertiary py-0px px-2px">
             {{ extensionsMessage }}
           </div>
         </div>
@@ -162,13 +155,13 @@
     <div class="navbar-profile-section appregion-no-drag relative">
       <UiButton variant="secondary" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
-        <span class="navbar-profile-trigger-name fs-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
-        <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary margin-left-n12" />
+        <span class="navbar-profile-trigger-name text-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
+        <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary ml-n2px" />
       </UiButton>
 
       <UiCard padding="none" :shadow="false" v-if="showProfileMenu"
        
-        role="menu" class="navbar-profile-menu absolute padding-50 shadow-xl z-100 right-0 min-w-260px max-w-300px">
+        role="menu" class="navbar-profile-menu absolute p-8px shadow-xl z-100 right-0 min-w-260px max-w-300px">
         <ActiveProfileCard
           v-if="activeProfile"
           :profile="activeProfile"
@@ -177,18 +170,18 @@
         />
 
         <div v-if="hasProfiles && !isGuestOnly" class="navbar-profile-menu-section">
-          <div class="navbar-profile-menu-title fs-11px txt-weight-light color-text-tertiary text-uppercase margin-top-50 letter-spacing-005em padding-0-50 margin-bottom-25">Profiles</div>
-          <ul class="navbar-profile-list flex flex-column padding-0 margin-0 gap-2px list-style-none overflow-y-auto">
+          <div class="navbar-profile-menu-title text-11px txt-weight-light color-text-tertiary text-uppercase mt-8px letter-spacing-005em py-0px px-8px mb-4px">Profiles</div>
+          <ul class="navbar-profile-list flex flex-column p-0px m-0px gap-2px list-style-none overflow-y-auto">
             <li
               v-for="p in profiles"
               :key="p.id"
-              class="navbar-profile-row flex-align-center border-radius-sm gap-35 padding-25"
+              class="navbar-profile-row flex-align-center border-radius-sm gap-6px p-4px"
               :class="{ active: p.id === activeProfileId }"
               role="menuitem"
             >
-              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-35 border-none bg-transparent cursor-pointer color-text-primary fs-13px fw-500 border-radius-sm padding-25-50 transition-all-015 text-left w-full min-w-0">
+              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-sm py-4px px-8px transition-all-015 text-left w-full min-w-0">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
-                <span class="navbar-profile-row-name fs-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
+                <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
               <button type="button" class="navbar-profile-row-delete flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
@@ -198,26 +191,26 @@
           </ul>
         </div>
 
-        <div v-else class="navbar-profile-menu-hint fs-12px color-text-tertiary text-center padding-0 padding-top-75 padding-right-50 padding-bottom-75 padding-left-50">
+        <div v-else class="navbar-profile-menu-hint text-12px color-text-tertiary text-center p-0px pt-12px pr-8px pb-12px pl-8px">
           {{ isGuestOnly
             ? 'Guest mode active. Create or import a profile to get started.'
             : 'No profiles yet.' }}
         </div>
 
-        <div class="navbar-profile-menu-actions flex flex-column gap-2px margin-top-50 padding-top-50 border-top-05-border-light">
-          <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click.stop="onCreateProfileClick">
+        <div class="navbar-profile-menu-actions flex flex-column gap-2px mt-8px pt-8px border-top-05-border-light">
+          <UiMenuItem @click.stop="onCreateProfileClick">
             New profile…
-          </UiButton>
-          <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" :disabled="!activeProfileId" @click.stop="onExportProfile">
+          </UiMenuItem>
+          <UiMenuItem :disabled="!activeProfileId" @click.stop="onExportProfile">
             Export active profile…
-          </UiButton>
-          <UiButton variant="none" class="navbar-profile-menu-action disabled-fade-40 w-full border-radius-sm cursor-pointer fs-13px fw-500 color-text-primary flex-justify-start padding-50-62 border-none bg-transparent transition-all-015" @click.stop="onImportProfileClick">
+          </UiMenuItem>
+          <UiMenuItem @click.stop="onImportProfileClick">
             Import profile…
-          </UiButton>
+          </UiMenuItem>
 
-          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column margin-top-37 padding-top-50 gap-35 border-top-05-border-light">
-            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-sm" font-size-class="fs-13px" padding-class="padding-50-62" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus" />
-            <div class="navbar-profile-create-actions flex gap-35">
+          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column mt-6px pt-8px gap-6px border-top-05-border-light">
+            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-sm" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus" />
+            <div class="navbar-profile-create-actions flex gap-6px">
               <UiButton variant="primary" class="flex-1" @click="confirmCreateProfile">
                 Create
               </UiButton>
@@ -227,7 +220,7 @@
             </div>
           </div>
 
-          <div v-if="profileMessage" class="navbar-profile-menu-message margin-top-37 fs-12px color-text-tertiary padding-25-4">
+          <div v-if="profileMessage" class="navbar-profile-menu-message mt-6px text-12px color-text-tertiary py-4px px-6px">
             {{ profileMessage }}
           </div>
         </div>
@@ -237,7 +230,7 @@
 
   <!-- Export Options Modal -->
   <UiModal :model-value="showExportModal" title="Export Profile" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelExportModal">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+          <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Export your profile backup.
             <template v-if="exportRequiresPassword">
               <br/><strong>Note:</strong> Your wallet is password-protected. Enter your password to include wallet data in the backup.
@@ -248,53 +241,53 @@
           </p>
           
           <!-- Password required for decryption notice -->
-          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
-            <div class="navbar-export-field flex flex-column gap-25">
-              <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Wallet Password</label>
+          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+            <div class="navbar-export-field flex flex-column gap-4px">
+              <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Wallet Password</label>
               <input 
                 type="password" 
                 v-model="exportPassword" 
                 placeholder="Enter your wallet password"
-                class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
             </div>
             
-            <div class="navbar-export-option margin-top-75 border-radius-sm padding-50-62">
+            <div class="navbar-export-option mt-12px border-radius-sm py-8px px-10px">
               <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
             </div>
           </div>
           
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
-            <div class="navbar-export-option border-radius-sm padding-50-62">
+            <div class="navbar-export-option border-radius-sm py-8px px-10px">
               <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
             </div>
             
-            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
-              <div class="navbar-export-field flex flex-column gap-25">
-                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Password</label>
+            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+              <div class="navbar-export-field flex flex-column gap-4px">
+                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Password</label>
                 <input 
                   type="password" 
                   v-model="exportPassword" 
                   placeholder="Enter password (min 6 characters)"
-                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 />
               </div>
-              <div class="navbar-export-field flex flex-column gap-25">
-                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Confirm Password</label>
+              <div class="navbar-export-field flex flex-column gap-4px">
+                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Confirm Password</label>
                 <input 
                   type="password" 
                   v-model="exportPasswordConfirm" 
                   placeholder="Confirm password"
-                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
               </div>
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="exportError" class="navbar-export-error border-radius-sm text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ exportError }}
           </div>
           
@@ -310,14 +303,14 @@
 
   <!-- Import Modal -->
   <UiModal :model-value="showImportModal" title="Import profile" panel-class="min-w-360px max-w-90vw w-min-560px-92vw" @update:model-value="cancelImportModal">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+          <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Choose how you want to import your profile.
           </p>
 
-          <div class="navbar-import-mode-switch gap-50 margin-bottom-100 grid">
+          <div class="navbar-import-mode-switch gap-8px mb-16px grid">
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary fs-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 padding-62-75"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
               :class="{ 'active bg-primary-a08 border-color-accent color-text-primary': importMode === 'file' }"
               @click="setImportMode('file')"
             >
@@ -325,7 +318,7 @@
             </button>
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary fs-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 padding-62-75"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
               :class="{ 'active bg-primary-a08 border-color-accent color-text-primary': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
@@ -333,14 +326,14 @@
             </button>
           </div>
 
-          <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-75">
-            <p class="navbar-import-mode-copy margin-0 border-radius-md color-text-secondary fs-13px padding-87 bg-secondary line-height-15 border-05-light">
+          <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-12px">
+            <p class="navbar-import-mode-copy m-0px border-radius-md color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
               Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
 
-          <div v-else class="import-mode-panel flex flex-column gap-75">
-            <div class="navbar-import-manual-actions flex flex-wrap-wrap gap-50">
+          <div v-else class="import-mode-panel flex flex-column gap-12px">
+            <div class="navbar-import-manual-actions flex flex-wrap-wrap gap-8px">
               <UiButton
                 variant="secondary"
                 class="flex-1 min-w-180px"
@@ -361,7 +354,7 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary fs-12px gap-25 bg-secondary padding-75-87 border-05-light"
+              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary text-12px gap-4px bg-secondary py-12px px-14px border-05-light"
             >
               <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-145 break-word">
                 Profile source: {{ manualImportProfileSourceName }}
@@ -371,58 +364,58 @@
               </div>
             </div>
 
-            <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
-              <div class="navbar-export-field flex flex-column gap-25">
-                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Profile Name</label>
+            <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+              <div class="navbar-export-field flex flex-column gap-4px">
+                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Profile Name</label>
                 <input
                   v-model="manualImportName"
                   type="text"
-                  class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                   placeholder="Enter profile name"
                 />
               </div>
 
-              <div class="navbar-export-field flex flex-column gap-25">
-                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Mnemonic</label>
+              <div class="navbar-export-field flex flex-column gap-4px">
+                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
               </div>
 
-              <div class="navbar-export-field flex flex-column gap-25">
-                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Public Key</label>
+              <div class="navbar-export-field flex flex-column gap-4px">
+                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
               </div>
 
-              <div class="navbar-export-field flex flex-column gap-25">
-                <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Private Key</label>
+              <div class="navbar-export-field flex flex-column gap-4px">
+                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
               </div>
             </div>
 
-            <p class="navbar-import-manual-hint margin-0 fs-12px color-text-tertiary line-height-15">
+            <p class="navbar-import-manual-hint m-0px text-12px color-text-tertiary line-height-15">
               You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.
             </p>
 
-            <p class="navbar-import-manual-hint margin-0 fs-12px color-text-tertiary line-height-15">
+            <p class="navbar-import-manual-hint m-0px text-12px color-text-tertiary line-height-15">
               If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="importModalError" class="navbar-export-error border-radius-sm text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ importModalError }}
           </div>
 
@@ -437,31 +430,31 @@
         @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
       >
         <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
-        <span v-else class="navbar-import-busy-label flex-inline-align-justify-center gap-50"><UiSpinner size="sm" /> Importing…</span>
+        <span v-else class="navbar-import-busy-label flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
       </UiButton>
     </template>
   </UiModal>
 
   <!-- Import Password Modal (for encrypted backups) -->
   <UiModal :model-value="showImportPasswordModal" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelImportPasswordModal">
-          <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+          <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
           
-          <div class="navbar-export-password-fields flex flex-column gap-62 border-radius-md margin-top-75 padding-87 bg-secondary border-05-light">
-            <div class="navbar-export-field flex flex-column gap-25">
-              <label class="fs-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Backup Password</label>
+          <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+            <div class="navbar-export-field flex flex-column gap-4px">
+              <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Backup Password</label>
               <input 
                 type="password" 
                 v-model="importPassword" 
                 placeholder="Enter backup password"
-                class="navbar-export-input border-radius-sm color-text-primary fs-13px padding-50-62 border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-sm fs-12px padding-50-62 margin-top-62 bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="importError" class="navbar-export-error border-radius-sm text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ importError }}
           </div>
           
@@ -477,7 +470,7 @@
 
   <!-- Delete Profile Confirm Modal -->
   <UiModal :model-value="showDeleteProfileModal" title="Delete profile?" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelDeleteProfileModal">
-    <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+    <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
       You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
       This cannot be recovered.
     </p>
@@ -493,7 +486,7 @@
 
   <!-- PQC Link Notice -->
   <UiModal :model-value="showPqcLinkedModal" title="Post-quantum security enabled" panel-class="min-w-360px max-w-90vw" @update:model-value="dismissPqcLinkedModal">
-    <p class="navbar-export-modal-desc fs-13px color-text-secondary line-height-15 margin-0 margin-bottom-100">
+    <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
       Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
       Your wallet is now linked on-chain and uses post-quantum security.
     </p>
@@ -519,6 +512,8 @@ import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
+import UiToggle from '../ui/UiToggle.vue';
+import UiMenuItem from '../ui/UiMenuItem.vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import {
   profilesState,

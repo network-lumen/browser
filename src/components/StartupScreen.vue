@@ -1,20 +1,20 @@
 <template>
   <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="startup-card flex flex-column w-full h-full shadow-none overflow-hidden">
-    <header class="startup-head flex-align-center gap-75 padding-62 border-bottom-default">
+    <header class="startup-head flex-align-center gap-12px p-10px border-bottom-default">
       <img :src="logoUrl" alt="" class="startup-mark flex-0-0-auto border-radius-14px w-42px h-42px" aria-hidden="true" />
       <div class="min-w-0">
-        <div class="startup-title fs-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
+        <div class="startup-title text-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
       </div>
     </header>
 
     <main class="startup-body h-auto flex flex-1-1-auto min-h-0">
-      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-87 padding-28px-22px">
+      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-14px py-28px px-24px">
         <div class="ring-spinner ring-spinner-lg" aria-label="Loading"></div>
       </div>
 
-      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-87 padding-28px-22px">
+      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-14px py-28px px-24px">
         <div>
-          <div class="startup-msg-subtitle color-text-secondary fs-13px">
+          <div class="startup-msg-subtitle color-text-secondary text-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
           <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="startup-btn startup-btn-primary">
@@ -24,9 +24,9 @@
       </div>
     </main>
 
-    <footer class="startup-foot flex-justify-center border-top-default padding-75-100">
-      <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary fs-12px">This usually takes a few seconds.</span>
-      <span v-else class="startup-hint color-text-tertiary fs-12px">If it keeps failing, restart Lumen.</span>
+    <footer class="startup-foot flex-justify-center border-top-default py-12px px-16px">
+      <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary text-12px">This usually takes a few seconds.</span>
+      <span v-else class="startup-hint color-text-tertiary text-12px">If it keeps failing, restart Lumen.</span>
     </footer>
   </UiCard>
 </template>
