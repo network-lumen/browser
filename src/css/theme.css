@@ -1263,7 +1263,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-type-badge.receive { background: rgba(var(--ios-green-rgb), 0.1); color: var(--ios-green); }
 .walletpage-type-text { line-height: 1.1; }
 .walletpage-action-icon:disabled:hover { transform: none; }
-.walletpage-form-input:read-only { cursor: not-allowed; }
+.walletpage-form-input[readonly] { cursor: not-allowed; }
 .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
 }
