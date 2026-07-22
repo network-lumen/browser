@@ -139,22 +139,22 @@
                   <span class="explorer-filter-label text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ active: txHistoryWindow === 5 }"
+                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 5 }"
                     @click="txHistoryWindow = 5"
                   >5B</button>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ active: txHistoryWindow === 10 }"
+                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 10 }"
                     @click="txHistoryWindow = 10"
                   >10B</button>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ active: txHistoryWindow === 15 }"
+                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 15 }"
                     @click="txHistoryWindow = 15"
                   >15B</button>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ active: txHistoryWindow === 20 }"
+                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 20 }"
                     @click="txHistoryWindow = 20"
                   >20B</button>
                 </div>
@@ -239,7 +239,7 @@
                   <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
                   <div class="explorer-proposer-label color-text-tertiary text-center text-11px">Latest Block Proposer</div>
                   <div class="explorer-proposer-stats w-full mt-6px">
-                    <div class="explorer-proposer-stat-group gap-8px w-full grid">
+                    <div class="explorer-proposer-stat-group gap-8px w-full grid grid-cols-1fr-1fr">
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
                         <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
                         <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
@@ -616,7 +616,7 @@
               v-for="action in stakeActions" 
               :key="action"
               class="explorer-tab-btn flex-1 txt-weight-light color-text-secondary cursor-pointer py-8px px-12px bg-transparent border-none border-radius-6px text-13px transition-all-02"
-              :class="{ active: currentStakeAction === action }"
+              :class="{ 'active bg-accent color-white': currentStakeAction === action }"
               @click="currentStakeAction = action as 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'"
             >
               {{ action }}

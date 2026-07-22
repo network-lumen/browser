@@ -138,7 +138,7 @@
           <button
             type="button"
             class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
-            :class="{ 'searchpage-saved': isPinnedImage(r) }"
+            :class="{ 'searchpage-saved bg-accent border-color-accent color-white': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
           >

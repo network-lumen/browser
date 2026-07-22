@@ -17,7 +17,7 @@
         </p>
       </div>
     </template>
-          <div v-if="step === 'intro'" class="walletonboard-step">
+          <div v-if="step === 'intro'" class="walletonboard-step animate-walletonboard-fade-in">
             <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a30">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
@@ -29,7 +29,7 @@
               </div>
             </div>
 
-            <div class="walletonboard-info-cards gap-16px grid">
+            <div class="walletonboard-info-cards gap-16px grid grid-cols-1fr-1fr">
               <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a10-hover">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="txt-sm txt-weight-strong mt-8px m-0px">Set a Password</h4>
@@ -47,7 +47,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'password'" class="walletonboard-step">
+          <div v-else-if="step === 'password'" class="walletonboard-step animate-walletonboard-fade-in">
             <p class="txt-sm color-gray-blue mb-16px">
               Create a strong password to protect your wallet. You'll need this password to send transactions.
             </p>
@@ -75,7 +75,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'profile-name'" class="walletonboard-step">
+          <div v-else-if="step === 'profile-name'" class="walletonboard-step animate-walletonboard-fade-in">
             <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm m-0px">Password set successfully!</p>
@@ -100,7 +100,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'creating-wallet'" class="walletonboard-step">
+          <div v-else-if="step === 'creating-wallet'" class="walletonboard-step animate-walletonboard-fade-in">
             <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm m-0px">Password set successfully!</p>
@@ -136,7 +136,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'backup'" class="walletonboard-step">
+          <div v-else-if="step === 'backup'" class="walletonboard-step animate-walletonboard-fade-in">
             <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="txt-sm m-0px">Password set successfully!</p>
@@ -165,7 +165,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'complete'" class="walletonboard-step">
+          <div v-else-if="step === 'complete'" class="walletonboard-step animate-walletonboard-fade-in">
             <div class="walletonboard-success-box-large text-center py-32px px-16px">
               <CheckCircle :size="48" class="color-success" />
               <h3 class="txt-lg txt-weight-strong mt-16px m-0px color-text-primary">All Set!</h3>

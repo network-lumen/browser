@@ -55,7 +55,7 @@
           <div class="sitemodal-form-group">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">From</label>
             <div class="sitemodal-input-wrapper readonly relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :value="activeAddress || '-'" readonly />
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
             </div>
           </div>
 
