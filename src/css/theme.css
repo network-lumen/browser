@@ -510,27 +510,14 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .newtab-omnibox:focus-within {
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08), 0 0 0 4px var(--primary-a12);
 }
-.newtab-shortcut-grid { grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); }
 .newtab-shortcut-card {
   background: color-mix(in srgb, var(--card-bg) 92%, transparent);
 }
-.newtab-shortcut-card.pinned {
-  border-color: rgba(var(--ios-blue-rgb), 0.18);
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06), inset 0 0 0 1px rgba(var(--ios-blue-rgb), 0.1);
-}
-.newtab-shortcut-card.is-dragging { opacity: 0.5; transform: scale(0.98); }
-.newtab-shortcut-card.is-drop-target {
-  border-color: rgba(var(--ios-blue-rgb), 0.28);
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 2px rgba(var(--ios-blue-rgb), 0.18);
-}
 .newtab-shortcut-title { font-weight: 760; }
-.newtab-history-preview-list { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .newtab-history-preview-item { transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
 
 
 /* DaoPage.vue */
-.explorer-empty-state svg { margin-bottom: 1rem; opacity: 0.5; }
-.daopage-stats-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .daopage-stat-card { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
 .daopage-proposal-status.deposit { background: rgba(var(--ios-yellow-rgb), 0.15); color: var(--ios-orange); }
 .daopage-proposal-status.unknown { background: var(--bg-secondary); color: var(--text-secondary); }
@@ -541,11 +528,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   cursor: not-allowed;
   transform: none;
 }
-.daopage-proposal-title-card .daopage-proposal-status {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
 .daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input,
 .drivepage-action-btn:last-child::after {
   display: none;
@@ -553,10 +535,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .daopage-vote-option:hover .daopage-vote-option-content {
   border-color: var(--border-color);
   background: var(--bg-secondary);
-}
-.daopage-vote-option.selected .daopage-vote-option-content {
-  border-color: var(--accent-primary);
-  background: var(--card-bg);
 }
 
 /* LumenSiteModalHost.vue */
