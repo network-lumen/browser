@@ -1,16 +1,16 @@
 <template>
-  <div class="margin-top-87 padding-top-75 border-top-light">
-    <UiButton variant="none" type="button" @click="open = !open" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center-justify-space-between gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015">
+  <div class="mt-14px pt-12px border-top-light">
+    <UiButton variant="none" type="button" @click="open = !open" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center-justify-space-between gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015">
       <span class="txt-weight-light">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </UiButton>
 
-    <div v-if="open" class="margin-top-37 flex flex-column gap-2px">
+    <div v-if="open" class="mt-6px flex flex-column gap-2px">
       <button
         v-for="r in routes"
         :key="r.key"
         type="button"
-        class="lsb-item lsb-item--compact border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-62 border-radius-sm w-full fs-13px fw-500 text-left padding-50-62 transition-all-015"
+        class="lsb-item lsb-item--compact border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
         :class="{ 'active bg-gradient-primary color-white shadow-primary': r.key === activeKey }"
         @click="openRoute(r.key)"
       >

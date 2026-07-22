@@ -1,22 +1,24 @@
 <template>
-  <label class="flex-inline-align-center gap-8px cursor-pointer">
+  <label class="ui-toggle" :class="[`ui-toggle-${size}`, disabled ? 'ui-toggle-disabled' : '']">
     <input
       type="checkbox"
-      class="w-16px h-16px cursor-pointer"
+      class="ui-toggle-input"
       :checked="modelValue"
       :disabled="disabled"
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
     />
-    <span v-if="$slots.default" class="color-text-primary text-14px"><slot /></span>
+    <span class="ui-toggle-slider"></span>
   </label>
 </template>
 
 <script setup lang="ts">
 withDefaults(defineProps<{
   modelValue?: boolean;
+  size?: 'sm' | 'md';
   disabled?: boolean;
 }>(), {
   modelValue: false,
+  size: 'md',
   disabled: false,
 });
 

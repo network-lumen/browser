@@ -1,27 +1,27 @@
 <template>
-  <section class="max-w-800px margin-0-auto bg-white border-radius-20px box-shadow-default padding-100 w-full" aria-labelledby="wallet-title">
-    <header class="flex-align-start flex-justify-space-between margin-bottom-50">
-      <div class="margin-25 flex-align-center gap-50">
-        <div class="flex flex-column gap-0">
-          <h3 id="wallet-title" class="txt-lg txt-weight-strong margin-0">Wallet</h3>
-          <p class="margin-0 color-gray-blue">Your Lumen balance and address.</p>
+  <section class="max-w-800px my-0px mx-auto bg-white border-radius-20px box-shadow-default p-16px w-full" aria-labelledby="wallet-title">
+    <header class="flex-align-start flex-justify-space-between mb-8px">
+      <div class="m-4px flex-align-center gap-8px">
+        <div class="flex flex-column gap-0px">
+          <h3 id="wallet-title" class="txt-lg txt-weight-strong m-0px">Wallet</h3>
+          <p class="m-0px color-gray-blue">Your Lumen balance and address.</p>
         </div>
       </div>
     </header>
 
-    <div class="flex flex-column gap-50">
+    <div class="flex flex-column gap-8px">
       <!-- Address -->
       <div
-        class="padding-50 flex-align-center-justify-space-between gap-50 border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
+        class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
       >
-        <div class="flex flex-align-center gap-50">
+        <div class="flex flex-align-center gap-8px">
           <div class="txt-xs color-gray-blue">Address</div>
           <div class="txt-xs txt-weight-medium" :title="address || '--'">
             <span v-if="address">{{ shortAddress }}</span>
             <span v-else class="color-gray-blue-light">-</span>
           </div>
         </div>
-        <div class="flex-align-center gap-50">
+        <div class="flex-align-center gap-8px">
           <UiButton
             variant="ghost"
             :disabled="!address"
@@ -36,18 +36,18 @@
 
       <!-- Balance -->
       <div
-        class="padding-50 flex-align-center-justify-space-between gap-50 border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
+        class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
       >
-        <div class="flex flex-align-center gap-50">
+        <div class="flex flex-align-center gap-8px">
           <div class="txt-xs color-gray-blue">Balance</div>
           <div class="txt-xs txt-weight-medium">
             <span class="color-gray-blue-light">Coming soon</span>
           </div>
         </div>
-        <div class="flex-align-center gap-50">
+        <div class="flex-align-center gap-8px">
           <UiButton variant="primary" :disabled="true" title="Send LMN">
             <ArrowUpRight :size="16" />
-            <span class="margin-left-25">Send</span>
+            <span class="ml-4px">Send</span>
           </UiButton>
         </div>
       </div>

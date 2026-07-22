@@ -2,13 +2,13 @@
   <UiModal :model-value="visible" panel-class="walletonboard-modal w-90pct max-w-560px" :closable="false" @update:model-value="() => {}">
     <template #header>
       <div class="walletonboard-header text-center">
-        <div class="walletonboard-header-icon flex-align-justify-center margin-bottom-100">
+        <div class="walletonboard-header-icon flex-align-justify-center mb-16px">
           <Shield :size="32" class="color-primary" />
         </div>
-        <h2 class="walletonboard-title color-text-primary txt-weight-light fs-15rem margin-0 margin-bottom-50">
+        <h2 class="walletonboard-title color-text-primary txt-weight-light text-24px m-0px mb-8px">
           {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
         </h2>
-        <p class="walletonboard-subtitle color-text-secondary margin-0 fs-14px">
+        <p class="walletonboard-subtitle color-text-secondary m-0px text-14px">
           {{
             requiresProfileCreation
               ? "A profile is required to use Drive, Wallet, and personal storage."
@@ -18,29 +18,29 @@
       </div>
     </template>
           <div v-if="step === 'intro'" class="walletonboard-step">
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a3">
+            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a30">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
-                <p class="txt-sm txt-weight-strong margin-0">Important: No one can recover your wallet</p>
-                <p class="txt-xs color-gray-blue margin-top-25 margin-0">
+                <p class="txt-sm txt-weight-strong m-0px">Important: No one can recover your wallet</p>
+                <p class="txt-xs color-gray-blue mt-4px m-0px">
                   Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up,
                   your funds are permanently lost. We cannot help you recover them.
                 </p>
               </div>
             </div>
 
-            <div class="walletonboard-info-cards gap-100 grid">
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a1-hover">
+            <div class="walletonboard-info-cards gap-16px grid">
+              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a10-hover">
                 <Lock :size="20" class="color-primary" />
-                <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Set a Password</h4>
-                <p class="txt-xs color-gray-blue margin-top-25 margin-0">
+                <h4 class="txt-sm txt-weight-strong mt-8px m-0px">Set a Password</h4>
+                <p class="txt-xs color-gray-blue mt-4px m-0px">
                   Protect your wallet with a strong password
                 </p>
               </div>
-              <div class="walletonboard-info-card color-text-primary padding-150 border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a1-hover">
+              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a10-hover">
                 <Download :size="20" class="color-primary" />
-                <h4 class="txt-sm txt-weight-strong margin-top-50 margin-0">Backup Your Wallet</h4>
-                <p class="txt-xs color-gray-blue margin-top-25 margin-0">
+                <h4 class="txt-sm txt-weight-strong mt-8px m-0px">Backup Your Wallet</h4>
+                <p class="txt-xs color-gray-blue mt-4px m-0px">
                   Export and save your wallet backup file securely
                 </p>
               </div>
@@ -48,46 +48,46 @@
           </div>
 
           <div v-else-if="step === 'password'" class="walletonboard-step">
-            <p class="txt-sm color-gray-blue margin-bottom-100">
+            <p class="txt-sm color-gray-blue mb-16px">
               Create a strong password to protect your wallet. You'll need this password to send transactions.
             </p>
 
-            <div class="walletonboard-group margin-bottom-150">
-              <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Password (minimum 8 characters)</label>
-              <UiInput bg-class="bg-card" padding-class="padding-75" :focus-ring="false" v-model="password"
+            <div class="walletonboard-group mb-24px">
+              <label class="block txt-xs txt-weight-strong mb-4px color-text-primary">Password (minimum 8 characters)</label>
+              <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="password"
                
                
                 placeholder="Enter password"
                 @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue" />
             </div>
 
-            <div class="walletonboard-group margin-bottom-150">
-              <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Confirm Password</label>
-              <UiInput bg-class="bg-card" padding-class="padding-75" :focus-ring="false" v-model="confirmPassword"
+            <div class="walletonboard-group mb-24px">
+              <label class="block txt-xs txt-weight-strong mb-4px color-text-primary">Confirm Password</label>
+              <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="confirmPassword"
                
                
                 placeholder="Confirm password"
                 @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue" />
             </div>
 
-            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ passwordError }}
             </div>
           </div>
 
           <div v-else-if="step === 'profile-name'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
-              <p class="txt-sm margin-0">Password set successfully!</p>
+              <p class="txt-sm m-0px">Password set successfully!</p>
             </div>
 
-            <p class="txt-sm color-gray-blue margin-top-100 margin-bottom-100">
+            <p class="txt-sm color-gray-blue mt-16px mb-16px">
               Choose a name for your first profile before creating your wallet.
             </p>
 
-            <div class="walletonboard-group margin-bottom-150">
-              <label class="block txt-xs txt-weight-strong margin-bottom-25 color-text-primary">Profile name</label>
-              <UiInput bg-class="bg-card" padding-class="padding-75" :focus-ring="false" v-model="profileName"
+            <div class="walletonboard-group mb-24px">
+              <label class="block txt-xs txt-weight-strong mb-4px color-text-primary">Profile name</label>
+              <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="profileName"
                
                
                 placeholder="Enter a profile name"
@@ -95,38 +95,38 @@
                 @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue" />
             </div>
 
-            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ profileNameError }}
             </div>
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
-              <p class="txt-sm margin-0">Password set successfully!</p>
+              <p class="txt-sm m-0px">Password set successfully!</p>
             </div>
 
             <div>
               <div v-if="creatingWallet" class="text-center">
                 <UiSpinner size="lg" />
-                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">Creating Your Wallet</h3>
-                <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+                <h3 class="txt-lg txt-weight-strong mt-16px m-0px color-text-primary">Creating Your Wallet</h3>
+                <p class="txt-sm color-gray-blue mt-8px m-0px">
                   Generating secure keys and wallet address...
                 </p>
               </div>
 
               <div v-else-if="walletCreated" class="text-center">
                 <CheckCircle :size="48" class="color-success" />
-                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">Wallet Created!</h3>
-                <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+                <h3 class="txt-lg txt-weight-strong mt-16px m-0px color-text-primary">Wallet Created!</h3>
+                <p class="txt-sm color-gray-blue mt-8px m-0px">
                   Your wallet is ready. Let's back it up to keep it safe.
                 </p>
               </div>
 
               <div v-else-if="walletError" class="text-center">
                 <AlertCircle :size="48" class="color-red-base" />
-                <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">Wallet Creation Failed</h3>
-                <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+                <h3 class="txt-lg txt-weight-strong mt-16px m-0px color-text-primary">Wallet Creation Failed</h3>
+                <p class="txt-sm color-gray-blue mt-8px m-0px">
                   {{ walletError }}
                 </p>
                 <UiButton variant="secondary" @click="createWallet" class="walletonboard-btn-secondary">
@@ -137,50 +137,50 @@
           </div>
 
           <div v-else-if="step === 'backup'" class="walletonboard-step">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-75 padding-100 bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
-              <p class="txt-sm margin-0">Password set successfully!</p>
+              <p class="txt-sm m-0px">Password set successfully!</p>
             </div>
 
-            <p class="txt-sm color-gray-blue margin-top-100 margin-bottom-100">
+            <p class="txt-sm color-gray-blue mt-16px mb-16px">
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="walletonboard-warning-box flex gap-75 padding-100 margin-bottom-150 border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a3">
+            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a30">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
-                <p class="txt-xs margin-0">
+                <p class="txt-xs m-0px">
                   Store your backup in a secure location like an encrypted USB drive or password manager.
                   Never share it with anyone.
                 </p>
               </div>
             </div>
 
-            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base margin-top-50 color-text-primary padding-75 bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="backupError" class="walletonboard-error-message block txt-xs color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ backupError }}
             </div>
 
-            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success margin-top-50 color-text-primary padding-75 bg-fill-success border-radius-6px border-1-ios-green-a30">
+            <div v-if="backupSuccess" class="walletonboard-success-message block txt-xs color-success mt-8px color-text-primary p-12px bg-fill-success border-radius-6px border-1-ios-green-a30">
               {{ backupSuccess }}
             </div>
           </div>
 
           <div v-else-if="step === 'complete'" class="walletonboard-step">
-            <div class="walletonboard-success-box-large text-center padding-200-100">
+            <div class="walletonboard-success-box-large text-center py-32px px-16px">
               <CheckCircle :size="48" class="color-success" />
-              <h3 class="txt-lg txt-weight-strong margin-top-100 margin-0 color-text-primary">All Set!</h3>
-              <p class="txt-sm color-gray-blue margin-top-50 margin-0">
+              <h3 class="txt-lg txt-weight-strong mt-16px m-0px color-text-primary">All Set!</h3>
+              <p class="txt-sm color-gray-blue mt-8px m-0px">
                 Your wallet is now protected. Remember to keep your password and backup file safe.
               </p>
             </div>
 
-            <div class="walletonboard-reminder-box margin-top-200 padding-150 border-radius-12px bg-secondary">
-              <p class="txt-xs txt-weight-strong margin-0 margin-bottom-50 color-text-primary">Remember:</p>
-              <ul class="walletonboard-reminder-list txt-xs color-gray-blue margin-0 padding-left-150">
-                <li class="walletonboard-reminder-list-li margin-bottom-50">Never share your password or backup file</li>
-                <li class="walletonboard-reminder-list-li margin-bottom-50">Store your backup in multiple secure locations</li>
-                <li class="walletonboard-reminder-list-li margin-bottom-50">You'll need your password for all transactions</li>
-                <li class="walletonboard-reminder-list-li margin-bottom-50">No one can recover your wallet if you lose both</li>
+            <div class="walletonboard-reminder-box mt-32px p-24px border-radius-12px bg-secondary">
+              <p class="txt-xs txt-weight-strong m-0px mb-8px color-text-primary">Remember:</p>
+              <ul class="walletonboard-reminder-list txt-xs color-gray-blue m-0px pl-24px">
+                <li class="walletonboard-reminder-list-li mb-8px">Never share your password or backup file</li>
+                <li class="walletonboard-reminder-list-li mb-8px">Store your backup in multiple secure locations</li>
+                <li class="walletonboard-reminder-list-li mb-8px">You'll need your password for all transactions</li>
+                <li class="walletonboard-reminder-list-li mb-8px">No one can recover your wallet if you lose both</li>
               </ul>
             </div>
           </div>

@@ -1,13 +1,13 @@
 <template>
   <div class="w-full h-full min-h-0 bg-tertiary overflow-hidden" :class="{ 'webpage-fullscreen fixed': webviewHtmlFullscreen }">
-    <div v-if="isChromeWebStorePage" class="w-full h-full flex-align-justify-center padding-200 bg-primary">
-      <div class="webpage-store-proxy-card flex flex-column gap-87 text-center padding-150 border-radius-20px border-1 bg-card shadow-xl max-w-520px">
-        <h3 class="margin-0 fs-11rem color-text-primary">Chrome Web Store opens in Lumen Extensions</h3>
-        <p class="margin-0 color-text-secondary line-height-155">
+    <div v-if="isChromeWebStorePage" class="w-full h-full flex-align-justify-center p-32px bg-primary">
+      <div class="webpage-store-proxy-card flex flex-column gap-14px text-center p-24px border-radius-20px border-1 bg-card shadow-xl max-w-520px">
+        <h3 class="m-0px text-18px color-text-primary">Chrome Web Store opens in Lumen Extensions</h3>
+        <p class="m-0px color-text-secondary line-height-155">
           Lumen fetches Chrome Web Store metadata directly and imports extensions
           from the internal Extensions page.
         </p>
-        <button type="button" class="webpage-store-proxy-btn border-none color-white cursor-pointer border-radius-full txt-weight-light bg-accent padding-75-100 align-self-center" @click="openChromeWebStoreImport">
+        <button type="button" class="webpage-store-proxy-btn border-none color-white cursor-pointer border-radius-full txt-weight-light bg-accent py-12px px-16px align-self-center" @click="openChromeWebStoreImport">
           Open Extensions
         </button>
       </div>

@@ -1,0 +1,79 @@
+/* ============================================================================
+ * src/css/ui/toggle.css
+ * Backs UiToggle.vue (iOS-style switch). Two legacy hand-rolled implementations
+ * (NavBar extension toggle: 34x20, SettingsPage toggles: 48x26) are unified
+ * here behind one CSS shape + a `size` prop.
+ * ========================================================================== */
+
+.ui-toggle {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.ui-toggle-disabled {
+  cursor: not-allowed;
+}
+
+.ui-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ui-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border-color);
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.ui-toggle-slider::before {
+  content: '';
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.ui-toggle-input:checked + .ui-toggle-slider {
+  background: var(--gradient-primary);
+}
+
+.ui-toggle-input:disabled + .ui-toggle-slider {
+  opacity: 0.5;
+}
+
+.ui-toggle-md {
+  width: 48px;
+  height: 26px;
+}
+.ui-toggle-md .ui-toggle-slider::before {
+  left: 3px;
+  bottom: 3px;
+  width: 20px;
+  height: 20px;
+  /* matches the pre-unification SettingsPage toggle thumb color exactly */
+  background: var(--text-primary);
+}
+.ui-toggle-md .ui-toggle-input:checked + .ui-toggle-slider::before {
+  transform: translateX(22px);
+}
+
+.ui-toggle-sm {
+  width: 34px;
+  height: 20px;
+}
+.ui-toggle-sm .ui-toggle-slider::before {
+  left: 2px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+}
+.ui-toggle-sm .ui-toggle-input:checked + .ui-toggle-slider::before {
+  transform: translateX(14px);
+}

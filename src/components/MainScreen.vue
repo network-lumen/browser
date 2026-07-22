@@ -3,13 +3,13 @@
     <UiToast />
     <div class="app overflow-hidden">
       <div
-        class="tabs-header h-200 padding-right-150 txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        class="tabs-header h-200 pr-24px txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
         ref="hdr"
       >
         <div
           v-for="(t, i) in tabs"
           :key="t.id"
-          class="mainscreen-tab h-200 min-w-1500 max-w-3000 flex-0-0-auto padding-left-50 padding-right-50 gap-50 cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
+          class="mainscreen-tab relative h-200 min-w-1500 max-w-3000 flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
           :data-id="t.id"
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
@@ -47,7 +47,7 @@
           ref="addBtn"
           variant="none"
           title="New tab"
-          class="add-tab-btn margin-left-25 border-radius-circle padding-25 border-none cursor-pointer color-text-primary bg-fill-secondary"
+          class="add-tab-btn ml-4px border-radius-circle p-4px border-none cursor-pointer color-text-primary bg-fill-secondary"
           @click="addTab"
         >
           <Plus :size="16" />

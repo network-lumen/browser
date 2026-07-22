@@ -2,12 +2,12 @@
   <div
     v-if="profile"
     class="flex-align-center w-full bg-fill-tertiary border-light border-radius-md"
-    :class="dense ? 'gap-50 padding-62 margin-0' : 'gap-62 padding-75 margin-bottom-87'"
+    :class="dense ? 'gap-8px p-10px m-0px' : 'gap-10px p-12px mb-14px'"
   >
     <ProfileAvatar :profile="profile" :size="dense ? 32 : 36" />
     <div class="flex flex-column gap-2px min-w-0">
-      <span v-if="showLabel" class="fs-10px color-text-tertiary text-uppercase letter-spacing-005em fw-500">{{ label }}</span>
-      <span class="fs-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ displayName }}</span>
+      <span v-if="showLabel" class="text-10px color-text-tertiary text-uppercase letter-spacing-005em fw-500">{{ label }}</span>
+      <span class="text-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ displayName }}</span>
     </div>
   </div>
 </template>

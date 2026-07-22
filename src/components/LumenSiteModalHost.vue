@@ -1,27 +1,27 @@
 <template>
   <UiModal :model-value="!!(current && modalType === 'permission')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="denyPermission">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-62">
-        <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
+        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
           <Shield :size="18" />
         </div>
         <h3>Permission required</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25">
             <span>
               Allow this website to open Lumen action modals?
             </span>
           </div>
 
-          <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
-              <span class="sitemodal-perm-k fs-12px color-text-secondary">Site</span>
-              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ siteLabel }}</span>
+          <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
+              <span class="sitemodal-perm-k text-12px color-text-secondary">Site</span>
+              <span class="sitemodal-perm-v mono text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ siteLabel }}</span>
             </div>
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0" v-if="actionKind">
-              <span class="sitemodal-perm-k fs-12px color-text-secondary">Action</span>
-              <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ actionKind }}</span>
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px" v-if="actionKind">
+              <span class="sitemodal-perm-k text-12px color-text-secondary">Action</span>
+              <span class="sitemodal-perm-v text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ actionKind }}</span>
             </div>
           </div>
     <template #footer>
@@ -39,54 +39,54 @@
 
   <UiModal :model-value="!!(current && modalType === 'sendToken')" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="closeSend(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-62">
-        <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
+        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
           <Send :size="18" />
         </div>
         <h3>Send LMN</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
 
-          <div v-if="sendError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ sendError }}</div>
+          <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ sendError }}</div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">From</label>
+            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">From</label>
             <div class="sitemodal-input-wrapper readonly relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" :value="activeAddress || '-'" readonly />
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :value="activeAddress || '-'" readonly />
             </div>
           </div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">To <span class="color-error">*</span></label>
+            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">To <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
             </div>
           </div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">Amount (LMN) <span class="color-error">*</span></label>
+            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">Amount (LMN) <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
-              <span class="sitemodal-input-suffix fs-12px color-text-secondary absolute top-half right-12px">LMN</span>
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
+              <span class="sitemodal-input-suffix text-12px color-text-secondary absolute top-half right-12px">LMN</span>
             </div>
-            <div class="sitemodal-balance-hint fs-12px color-text-secondary margin-top-37" v-if="balanceUlmn !== null">
+            <div class="sitemodal-balance-hint text-12px color-text-secondary mt-6px" v-if="balanceUlmn !== null">
               Available: {{ balanceLmnDisplay }} LMN
             </div>
-            <div class="sitemodal-balance-hint error fs-12px margin-top-37" v-else>
+            <div class="sitemodal-balance-hint error text-12px mt-6px" v-else>
               Balance unavailable
             </div>
-            <div class="sitemodal-balance-hint error fs-12px margin-top-37" v-if="insufficientFunds">
+            <div class="sitemodal-balance-hint error text-12px mt-6px" v-if="insufficientFunds">
               not enough funds
             </div>
           </div>
 
           <div class="sitemodal-form-group">
-            <label class="fs-12px color-text-secondary sitemodal-send-label block margin-bottom-25">Memo (optional)</label>
+            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">Memo (optional)</label>
             <div class="sitemodal-input-wrapper relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" type="text" v-model="sendMemo" :disabled="sending" />
+              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
             </div>
           </div>
     <template #footer>
@@ -94,7 +94,7 @@
         Cancel
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitSend" :disabled="!canSend">
-        <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="sending"></span>
+        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="sending"></span>
         <span>{{ sending ? 'Sending...' : 'Send' }}</span>
       </UiButton>
     </template>
@@ -102,23 +102,23 @@
 
   <UiModal :model-value="!!(current && modalType === 'pin')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!pinning" @update:model-value="closePin(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-62">
-        <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
+        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
           <Save :size="18" />
         </div>
         <h3>Save to Drive</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="pinError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ pinError }}</div>
+          <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ pinError }}</div>
 
           <div class="sitemodal-form-group">
             <label>Name <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input
-                class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75"
+                class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
                 type="text"
                 v-model="saveNameDraft"
                 placeholder="Enter a name"
@@ -128,17 +128,17 @@
             </div>
           </div>
 
-          <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
-              <span class="sitemodal-perm-k fs-12px color-text-secondary">Target</span>
-              <span class="sitemodal-perm-v mono fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ pinTargetDisplay }}</span>
+          <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
+              <span class="sitemodal-perm-k text-12px color-text-secondary">Target</span>
+              <span class="sitemodal-perm-v mono text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ pinTargetDisplay }}</span>
             </div>
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px margin-top-75 padding-62-75 bg-ios-blue-a06 border-width-ios-blue-a18">
-            <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-75 margin-bottom-50">
-              <span class="sitemodal-pin-progress-status fs-12px text-uppercase txt-weight-medium color-ios-blue letter-spacing-004em">{{ pinStatusLabel }}</span>
-              <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter fs-12px color-text-secondary">{{ pinProgressCounter }}</span>
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-ios-blue-a06 border-width-ios-blue-a18">
+            <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-12px mb-8px">
+              <span class="sitemodal-pin-progress-status text-12px text-uppercase txt-weight-medium color-ios-blue letter-spacing-004em">{{ pinStatusLabel }}</span>
+              <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter text-12px color-text-secondary">{{ pinProgressCounter }}</span>
             </div>
             <div class="sitemodal-pin-progress-track relative overflow-hidden border-radius-full w-full h-8px">
               <div
@@ -147,7 +147,7 @@
                 :style="{ width: pinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, pinProgressPercent))}%` }"
               ></div>
             </div>
-            <div class="sitemodal-pin-progress-text fs-12px color-text-secondary margin-top-50 break-word">
+            <div class="sitemodal-pin-progress-text text-12px color-text-secondary mt-8px break-word">
                 {{ pinProgressText || (pinIsRunning ? 'Saving content from the network…' : 'Waiting for action.') }}
             </div>
           </div>
@@ -174,7 +174,7 @@
         Stop
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-        <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="pinning"></span>
+        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="pinning"></span>
         <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
       </UiButton>
     </template>
@@ -182,23 +182,23 @@
 
   <UiModal :model-value="!!(current && modalType === 'stableLink')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSaving" @update:model-value="closeStableLink(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-62">
-        <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
+        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
           <Link :size="18" />
         </div>
         <h3>Choose or create a stable link for your live</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ stableLinkError }}</div>
+          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkError }}</div>
 
-          <div class="sitemodal-segmented-control border-radius-10px grid gap-25 padding-25 margin-bottom-75 bg-fill-tertiary">
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent border-0" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+          <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px padding-50-62 bg-transparent border-0" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
               Create new
             </button>
           </div>
@@ -206,7 +206,7 @@
           <div class="sitemodal-form-group" v-if="stableLinkMode === 'existing'">
             <label>Stable link</label>
             <div class="sitemodal-input-wrapper relative">
-              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
+              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
                 <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
                 <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                   {{ item.label }} — {{ shortStableIpns(item.id) }}
@@ -219,7 +219,7 @@
             <label>New stable link label</label>
             <div class="sitemodal-input-wrapper relative">
               <input
-                class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75"
+                class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
                 type="text"
                 v-model="stableLinkNewLabel"
                 placeholder="my-live"
@@ -229,27 +229,27 @@
             </div>
           </div>
 
-          <div class="sitemodal-perm-box border-radius-10px border-default padding-62-75">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
-              <span class="sitemodal-perm-k fs-12px color-text-secondary">Live</span>
-              <span class="sitemodal-perm-v fs-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
+          <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
+              <span class="sitemodal-perm-k text-12px color-text-secondary">Live</span>
+              <span class="sitemodal-perm-v text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
             </div>
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-75 padding-6px-0">
-              <span class="sitemodal-perm-k fs-12px color-text-secondary">Records</span>
+            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
+              <span class="sitemodal-perm-k text-12px color-text-secondary">Records</span>
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="sitemodal-records-toggle">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" :class="{ open: stableLinkRecordsExpanded }" />
               </UiButton>
             </div>
-            <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list grid gap-35 margin-top-50 padding-top-50 border-top-default">
-              <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row grid gap-62">
-                <span class="sitemodal-record-key mono fs-12px color-text-secondary">{{ record.key }}</span>
-                <span class="sitemodal-record-value mono fs-12px color-text-primary" :title="record.value">{{ record.value }}</span>
+            <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list grid gap-6px mt-8px pt-8px border-top-default">
+              <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row grid gap-10px">
+                <span class="sitemodal-record-key mono text-12px color-text-secondary">{{ record.key }}</span>
+                <span class="sitemodal-record-value mono text-12px color-text-primary" :title="record.value">{{ record.value }}</span>
               </div>
             </div>
           </div>
 
-          <p class="sitemodal-balance-hint fs-12px color-text-secondary margin-top-37">
+          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-6px">
             The stable link URL will be copied after it is attached to this live.
           </p>
     <template #footer>
@@ -257,7 +257,7 @@
         Cancel
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-        <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSaving"></span>
+        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSaving"></span>
         <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
         <Save v-else :size="16" />
         <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
@@ -267,21 +267,21 @@
 
   <UiModal :model-value="!!(current && modalType === 'stableLinkSetup')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSetupLoading" @update:model-value="closeStableLinkSetup(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-62">
-        <div class="sitemodal-icon flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
+        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
           <Link :size="18" />
         </div>
         <h3>Select a live link</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px fs-13px color-text-primary margin-bottom-75 bg-fill-blue padding-62-75 border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px fs-13px color-error bg-fill-error margin-bottom-75 padding-62-75 border-width-ios-red-a25">{{ stableLinkSetupError }}</div>
+          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkSetupError }}</div>
           <div class="sitemodal-form-group">
             <label>Live link</label>
             <div class="sitemodal-input-wrapper relative">
-              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary fs-14px border-default bg-card padding-62-75" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
+              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
                 <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
                 <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                   {{ item.label }} — {{ shortStableIpns(item.id) }}
@@ -289,7 +289,7 @@
               </select>
             </div>
           </div>
-          <p class="sitemodal-balance-hint fs-12px color-text-secondary margin-top-37">
+          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-6px">
             Previous live settings will be loaded from this link if records are available.
           </p>
     <template #footer>
@@ -297,7 +297,7 @@
         Cancel
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-        <span class="sitemodal-spinner border-radius-full inline-block margin-right-50 w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSetupLoading"></span>
+        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSetupLoading"></span>
         <Link v-else :size="16" />
         <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
       </UiButton>

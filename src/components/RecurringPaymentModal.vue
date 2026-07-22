@@ -1,31 +1,31 @@
 <template>
   <UiModal :model-value="true" panel-class="w-full max-w-600px" @update:model-value="$emit('close')">
     <template #header>
-      <h2 class="flex-align-center margin-0 color-text-primary fs-20px txt-weight-light recurpay-header-h2 gap-75">
+      <h2 class="flex-align-center m-0px color-text-primary text-20px txt-weight-light recurpay-header-h2 gap-12px">
         <Calendar :size="24" />
         <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
       </h2>
     </template>
         <!-- Basic Information -->
-        <div class="recurpay-section margin-bottom-200">
-          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">Payment Details</h3>
+        <div class="recurpay-section mb-32px">
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">Payment Details</h3>
 
-          <div class="recurpay-group margin-bottom-100">
-            <label class="block color-text-primary recurpay-group-label margin-bottom-25">Payment Name <span class="required color-error">*</span></label>
+          <div class="recurpay-group mb-16px">
+            <label class="block color-text-primary recurpay-group-label mb-4px">Payment Name <span class="required color-error">*</span></label>
             <UiInput v-model="form.name" placeholder="e.g., Netflix Subscription" />
           </div>
 
-          <div class="recurpay-group margin-bottom-100">
-            <label class="block color-text-primary recurpay-group-label margin-bottom-25">Description</label>
+          <div class="recurpay-group mb-16px">
+            <label class="block color-text-primary recurpay-group-label mb-4px">Description</label>
             <UiInput type="textarea" v-model="form.description"
               placeholder="Optional notes about this payment"
              
               rows="2" class="recurpay-input"></UiInput>
           </div>
 
-          <div class="recurpay-group margin-bottom-100">
-            <label class="block color-text-primary recurpay-group-label margin-bottom-25">Category</label>
-            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
+          <div class="recurpay-group mb-16px">
+            <label class="block color-text-primary recurpay-group-label mb-4px">Category</label>
+            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -38,17 +38,17 @@
         </div>
 
         <!-- Payment Configuration -->
-        <div class="recurpay-section margin-bottom-200">
-          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">Payment Configuration</h3>
+        <div class="recurpay-section mb-32px">
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">Payment Configuration</h3>
 
-          <div class="recurpay-group margin-bottom-100">
-            <label class="block color-text-primary recurpay-group-label margin-bottom-25">Recipient Address <span class="required color-error">*</span></label>
-            <div class="recurpay-input-with-button flex gap-50">
+          <div class="recurpay-group mb-16px">
+            <label class="block color-text-primary recurpay-group-label mb-4px">Recipient Address <span class="required color-error">*</span></label>
+            <div class="recurpay-input-with-button flex gap-8px">
               <input
                 v-model="form.recipient"
                 type="text"
                 placeholder="lumen1..."
-                class="recurpay-input flex-1 bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
+                class="recurpay-input flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
                 title="Scan QR Code">
@@ -57,22 +57,22 @@
             </div>
           </div>
 
-          <div class="recurpay-row grid gap-100">
-            <div class="recurpay-group margin-bottom-100">
-              <label class="block color-text-primary recurpay-group-label margin-bottom-25">Amount <span class="required color-error">*</span></label>
+          <div class="recurpay-row grid gap-16px">
+            <div class="recurpay-group mb-16px">
+              <label class="block color-text-primary recurpay-group-label mb-4px">Amount <span class="required color-error">*</span></label>
               <div class="recurpay-amount-input relative">
                 <UiInput v-model="form.amount"
                  
                   step="0.000001"
                   min="0"
-                  placeholder="0.000000" class="recurpay-input padding-right-50px" />
-                <span class="currency absolute top-half fs-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
+                  placeholder="0.000000" class="recurpay-input pr-48px" />
+                <span class="currency absolute top-half text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>
             </div>
 
-            <div class="recurpay-group margin-bottom-100">
-              <label class="block color-text-primary recurpay-group-label margin-bottom-25">Frequency <span class="required color-error">*</span></label>
-              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
+            <div class="recurpay-group mb-16px">
+              <label class="block color-text-primary recurpay-group-label mb-4px">Frequency <span class="required color-error">*</span></label>
+              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -83,52 +83,52 @@
             </div>
           </div>
 
-          <div class="recurpay-row grid gap-100">
-            <div class="recurpay-group margin-bottom-100">
-              <label class="block color-text-primary recurpay-group-label margin-bottom-25">Start Date <span class="required color-error">*</span></label>
+          <div class="recurpay-row grid gap-16px">
+            <div class="recurpay-group mb-16px">
+              <label class="block color-text-primary recurpay-group-label mb-4px">Start Date <span class="required color-error">*</span></label>
               <input
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
             </div>
 
-            <div class="recurpay-group margin-bottom-100">
-              <label class="block color-text-primary recurpay-group-label margin-bottom-25">End Date (Optional)</label>
+            <div class="recurpay-group mb-16px">
+              <label class="block color-text-primary recurpay-group-label mb-4px">End Date (Optional)</label>
               <input
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
               />
             </div>
           </div>
 
-          <div class="recurpay-group margin-bottom-100">
-            <label class="block color-text-primary recurpay-group-label margin-bottom-25">Maximum Payments (Optional)</label>
+          <div class="recurpay-group mb-16px">
+            <label class="block color-text-primary recurpay-group-label mb-4px">Maximum Payments (Optional)</label>
             <UiInput v-model="form.maxPayments"
              
               min="1"
               placeholder="Leave empty for unlimited" class="recurpay-input" />
-            <p class="recurpay-hint color-text-secondary fs-12px margin-0 margin-top-37">Payment will stop after this many successful transactions</p>
+            <p class="recurpay-hint color-text-secondary text-12px m-0px mt-6px">Payment will stop after this many successful transactions</p>
           </div>
         </div>
 
         <!-- Reminder Settings -->
-        <div class="recurpay-section margin-bottom-200">
-          <h3 class="flex-align-center color-text-primary fs-16px txt-weight-light recurpay-section-h3 gap-50 margin-0 margin-bottom-100">
+        <div class="recurpay-section mb-32px">
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">
             <Bell :size="18" />
             <span>Payment Reminders</span>
           </h3>
 
-          <div class="recurpay-group margin-bottom-100">
+          <div class="recurpay-group mb-16px">
             <UiCheckbox v-model="form.reminderEnabled">Enable payment reminders</UiCheckbox>
           </div>
 
-          <div v-if="form.reminderEnabled" class="recurpay-group margin-bottom-100">
-            <label class="block color-text-primary recurpay-group-label margin-bottom-25">Remind me (days before payment)</label>
-            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none fs-14px border-1 border-radius-8px transition-all-02 padding-62-75 font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
+          <div v-if="form.reminderEnabled" class="recurpay-group mb-16px">
+            <label class="block color-text-primary recurpay-group-label mb-4px">Remind me (days before payment)</label>
+            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>
@@ -139,21 +139,21 @@
         </div>
 
         <!-- Payment Summary -->
-        <div class="recurpay-summary border-radius-12px padding-125 color-white bg-gradient-brand">
-          <h4 class="margin-0 fs-16px txt-weight-light recurpay-summary-h4 margin-bottom-100">Payment Summary</h4>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50">
+        <div class="recurpay-summary border-radius-12px p-20px color-white bg-gradient-brand">
+          <h4 class="m-0px text-16px txt-weight-light recurpay-summary-h4 mb-16px">Payment Summary</h4>
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
             <span>Amount per payment:</span>
             <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
             <span>Frequency:</span>
             <strong class="txt-weight-light">{{ frequencyLabel }}</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50" v-if="form.startDate">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="form.startDate">
             <span>First payment:</span>
             <strong class="txt-weight-light">{{ formatDate(form.startDate) }}</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a2 padding-0 padding-top-50 padding-bottom-50" v-if="estimatedTotal">
+          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="estimatedTotal">
             <span>{{ estimatedTotalLabel }}:</span>
             <strong class="txt-weight-light">{{ estimatedTotal }} LMN</strong>
           </div>

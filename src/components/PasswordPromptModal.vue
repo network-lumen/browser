@@ -1,17 +1,17 @@
 <template>
   <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-modal-strong" :closable="false" @update:model-value="handleCancel">
     <template #header>
-      <div class="pwd-modal-header flex-align-center gap-75">
+      <div class="pwd-modal-header flex-align-center gap-12px">
         <LockKeyhole :size="24" class="color-primary" />
-        <h3 class="color-text-primary margin-0 txt-weight-light pwd-modal-header-h3 fs-18px">Password Required</h3>
+        <h3 class="color-text-primary m-0px txt-weight-light pwd-modal-header-h3 text-18px">Password Required</h3>
       </div>
     </template>
-          <p class="pwd-modal-message color-text-secondary fs-14px line-height-14 margin-0 margin-bottom-125">
+          <p class="pwd-modal-message color-text-secondary text-14px line-height-14 m-0px mb-20px">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
 
-          <div class="margin-bottom-125">
-            <UiInput bg-class="bg-fill-tertiary" radius-class="border-radius-10px" font-size-class="fs-16px" padding-class="padding-75-100" :focus-ring="false" ref="passwordInput"
+          <div class="mb-20px">
+            <UiInput bg-class="bg-fill-tertiary" radius-class="border-radius-10px" font-size-class="text-16px" padding-class="py-12px px-16px" :focus-ring="false" ref="passwordInput"
               type="password"
               v-model="password"
               placeholder="Enter password"
@@ -19,7 +19,7 @@
               @keyup.enter="handleSubmit"
               @keyup.escape="handleCancel" class="pwd-modal-input border-default disabled-fade-60 transition-colors-015" />
 
-            <div v-if="error" class="pwd-modal-error color-error fs-085rem margin-top-50 padding-50-75 bg-fill-error border-radius-8px">
+            <div v-if="error" class="pwd-modal-error color-error text-14px mt-8px py-8px px-12px bg-fill-error border-radius-8px">
               {{ error }}
             </div>
           </div>
@@ -33,7 +33,7 @@
       <UiButton variant="primary" @click="handleSubmit"
         :disabled="loading || busy || !password" class="disabled-fade-50">
         <span v-if="loading">Verifying...</span>
-        <span v-else-if="busy" class="flex-inline-align-center gap-50">
+        <span v-else-if="busy" class="flex-inline-align-center gap-8px">
           <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45 spinner-white" aria-hidden="true"></span>
           Working...
         </span>

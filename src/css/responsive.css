@@ -77,8 +77,6 @@
 
 /* from src/css/theme.css */
 @media (max-width: 900px) {
-  .walletpage-content-header { flex-direction: column; gap: 1rem; }
-  .walletpage-header-actions { width: 100%; flex-wrap: wrap; }
   .walletpage-asset-item-rich, .walletpage-dex-top { flex-direction: column; }
   .walletpage-asset-side, .walletpage-dex-side { width: 100%; }
   .walletpage-asset-actions { justify-content: flex-start; }

@@ -1,23 +1,23 @@
 <template>
-  <div class="subview margin-0-auto padding-150 max-w-1200px">
+  <div class="subview my-0px mx-auto p-24px max-w-1200px">
     <!-- Payment Reminders -->
-    <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px padding-125 margin-bottom-150 bg-ios-orange-a15">
-      <h3 class="flex-align-center gap-50 color-text-primary fs-16px subview-reminders-section-h3 margin-0 margin-bottom-100">
+    <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px p-20px mb-24px bg-ios-orange-a15">
+      <h3 class="flex-align-center gap-8px color-text-primary text-16px subview-reminders-section-h3 m-0px mb-16px">
         <Bell :size="18" />
         <span>Upcoming Payments</span>
       </h3>
-      <div class="flex flex-column gap-75">
+      <div class="flex flex-column gap-12px">
         <div
           v-for="reminder in activeReminders"
           :key="reminder.id"
-          class="subview-reminder-card flex-align-center gap-75 bg-card padding-75 border-radius-8px shadow-sm"
+          class="subview-reminder-card flex-align-center gap-12px bg-card p-12px border-radius-8px shadow-sm"
         >
           <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-40px color-warning bg-ios-orange-a15">
             <AlertCircle :size="20" />
           </div>
           <div class="flex-1">
-            <h4 class="color-text-primary fs-14px">{{ reminder.paymentName }}</h4>
-            <p class="color-text-secondary margin-0 fs-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
+            <h4 class="color-text-primary text-14px">{{ reminder.paymentName }}</h4>
+            <p class="color-text-secondary m-0px text-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
           <UiButton variant="primary" @click="dismissReminder(reminder.id)" class="subview-reminder-dismiss">
             <X :size="16" />
@@ -27,48 +27,48 @@
     </div>
 
     <!-- Filter and Stats -->
-    <div class="subview-stats-section margin-bottom-200 grid gap-100">
-      <div class="subview-stat-card flex-align-center border-radius-12px gap-100 padding-125 bg-card border-1">
+    <div class="subview-stats-section mb-32px grid gap-16px">
+      <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
         <div class="subview-stat-icon active badge-success color-success flex-align-justify-center size-48px border-radius-12px">
           <PlayCircle :size="20" />
         </div>
         <div>
-          <div class="subview-stat-value txt-weight-medium color-text-primary fs-24px">{{ activeCount }}</div>
-          <div class="subview-stat-label color-text-tertiary text-uppercase fs-14px">Active</div>
+          <div class="subview-stat-value txt-weight-medium color-text-primary text-24px">{{ activeCount }}</div>
+          <div class="subview-stat-label color-text-tertiary text-uppercase text-14px">Active</div>
         </div>
-      </div>
-      <div class="subview-stat-card flex-align-center border-radius-12px gap-100 padding-125 bg-card border-1">
+      </UiCard>
+      <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
         <div class="subview-stat-icon paused badge-warning color-warning flex-align-justify-center size-48px border-radius-12px bg-ios-orange-a15">
           <PauseCircle :size="20" />
         </div>
         <div>
-          <div class="subview-stat-value txt-weight-medium color-text-primary fs-24px">{{ pausedCount }}</div>
-          <div class="subview-stat-label color-text-tertiary text-uppercase fs-14px">Paused</div>
+          <div class="subview-stat-value txt-weight-medium color-text-primary text-24px">{{ pausedCount }}</div>
+          <div class="subview-stat-label color-text-tertiary text-uppercase text-14px">Paused</div>
         </div>
-      </div>
-      <div class="subview-stat-card flex-align-center border-radius-12px gap-100 padding-125 bg-card border-1">
+      </UiCard>
+      <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
         <div class="subview-stat-icon total flex-align-justify-center size-48px border-radius-12px color-accent-secondary bg-fill-blue">
           <DollarSign :size="20" />
         </div>
         <div>
-          <div class="subview-stat-value txt-weight-medium color-text-primary fs-24px">{{ monthlyTotal }}</div>
-          <div class="subview-stat-label color-text-tertiary text-uppercase fs-14px">Monthly Total</div>
+          <div class="subview-stat-value txt-weight-medium color-text-primary text-24px">{{ monthlyTotal }}</div>
+          <div class="subview-stat-label color-text-tertiary text-uppercase text-14px">Monthly Total</div>
         </div>
-      </div>
+      </UiCard>
     </div>
 
     <!-- Payments List -->
-    <div class="subview-payments-section border-radius-12px bg-card border-1 padding-150">
-      <div class="subview-section-header flex-align-center-justify-space-between margin-bottom-150">
-        <h3 class="color-text-primary margin-0 fs-18px">Your Recurring Payments</h3>
-        <div class="subview-filters flex gap-75">
-          <select v-model="filterStatus" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px border-1 border-radius-6px padding-45-75">
+    <UiCard radius="12px" border-class="border-1" padding="lg" :shadow="false">
+      <div class="subview-section-header flex-align-center-justify-space-between mb-24px">
+        <h3 class="color-text-primary m-0px text-18px">Your Recurring Payments</h3>
+        <div class="subview-filters flex gap-12px">
+          <select v-model="filterStatus" class="subview-filter-select bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
           </select>
-          <select v-model="filterCategory" class="subview-filter-select bg-primary color-text-primary cursor-pointer fs-14px border-1 border-radius-6px padding-45-75">
+          <select v-model="filterCategory" class="subview-filter-select bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
             <option value="all">All Categories</option>
             <option value="subscription">Subscriptions</option>
             <option value="bill">Bills</option>
@@ -80,54 +80,58 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="filteredPayments.length === 0" class="subview-empty-state text-center">
-        <Calendar :size="48" class="subview-empty-icon color-text-tertiary margin-bottom-100" />
-        <h3 class="color-text-primary fs-18px subview-empty-state-h3 margin-0 margin-bottom-50">No Recurring Payments</h3>
-        <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">Schedule automatic payments for subscriptions, bills, and more</p>
-        <UiButton variant="primary" @click="showCreateModal = true" class="outline-none">
-          <Plus :size="16" />
-          <span>Create Your First Payment</span>
-        </UiButton>
-      </div>
+      <UiEmptyState v-if="filteredPayments.length === 0" title="No Recurring Payments" description="Schedule automatic payments for subscriptions, bills, and more">
+        <Calendar :size="48" />
+        <template #actions>
+          <UiButton variant="primary" @click="showCreateModal = true" class="outline-none">
+            <Plus :size="16" />
+            <span>Create Your First Payment</span>
+          </UiButton>
+        </template>
+      </UiEmptyState>
 
       <!-- Payments Grid -->
-      <div v-else class="subview-payments-grid grid gap-100">
-        <div
+      <div v-else class="subview-payments-grid grid gap-16px">
+        <UiCard
           v-for="payment in filteredPayments"
           :key="payment.id"
-          class="subview-payment-card border-radius-12px border-2 padding-125 transition-all-02 hover-border-accent hover-shadow-primary-a15"
+          class="subview-payment-card transition-all-02 hover-border-accent hover-shadow-primary-a15"
           :class="payment.status"
+          radius="12px"
+          border-class="border-2"
+          padding-class="p-20px"
+          :shadow="false"
         >
-          <div class="subview-payment-header flex-align-start flex-justify-space-between margin-bottom-75">
+          <div class="subview-payment-header flex-align-start flex-justify-space-between mb-12px">
             <div>
-              <h4 class="color-text-primary fs-16px">{{ payment.name }}</h4>
-              <span class="subview-payment-category color-text-secondary fs-11px fw-500 text-capitalize inline-block bg-tertiary border-radius-4px padding-0-50" v-if="payment.category">
+              <h4 class="color-text-primary text-16px">{{ payment.name }}</h4>
+              <span class="subview-payment-category color-text-secondary text-11px fw-500 text-capitalize inline-block bg-tertiary border-radius-4px py-0px px-8px" v-if="payment.category">
                 {{ payment.category }}
               </span>
             </div>
             <div
-              class="subview-payment-status border-radius-12px fs-12px txt-weight-light text-uppercase padding-25-75"
+              class="subview-payment-status border-radius-12px text-12px txt-weight-light text-uppercase py-4px px-12px"
               :class="[payment.status, { 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }]"
             >
               {{ payment.status }}
             </div>
           </div>
 
-          <div class="subview-payment-amount color-text-primary fs-24px margin-bottom-100">
+          <div class="subview-payment-amount color-text-primary text-24px mb-16px">
             {{ formatAmount(payment.amount) }} LMN
-            <span class="subview-frequency color-text-secondary fs-14px txt-weight-normal margin-left-50">{{ getFrequencyLabel(payment.frequency) }}</span>
+            <span class="subview-frequency color-text-secondary text-14px txt-weight-normal ml-8px">{{ getFrequencyLabel(payment.frequency) }}</span>
           </div>
 
-          <div class="subview-payment-details margin-bottom-100">
-            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px padding-6px-0">
+          <div class="subview-payment-details mb-16px">
+            <div class="subview-detail-row flex-align-center-justify-space-between text-13px py-6px px-0px">
               <span class="color-text-secondary">Next Payment:</span>
               <span class="subview-detail-value color-text-primary fw-500">{{ formatDate(payment.nextPaymentDate) }}</span>
             </div>
-            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px padding-6px-0">
+            <div class="subview-detail-row flex-align-center-justify-space-between text-13px py-6px px-0px">
               <span class="color-text-secondary">Recipient:</span>
-              <span class="subview-detail-value color-text-primary mono fs-12px fw-500">{{ formatAddress(payment.recipient) }}</span>
+              <span class="subview-detail-value color-text-primary mono text-12px fw-500">{{ formatAddress(payment.recipient) }}</span>
             </div>
-            <div class="subview-detail-row flex-align-center-justify-space-between fs-13px padding-6px-0">
+            <div class="subview-detail-row flex-align-center-justify-space-between text-13px py-6px px-0px">
               <span class="color-text-secondary">Success Rate:</span>
               <span class="subview-detail-value color-text-primary fw-500">
                 {{ payment.totalPayments > 0
@@ -138,7 +142,7 @@
             </div>
           </div>
 
-          <div class="subview-payment-actions flex gap-50 padding-top-100 border-top-1">
+          <div class="subview-payment-actions flex gap-8px pt-16px border-top-1">
             <UiButton variant="secondary" @click="viewHistory(payment)"
               title="View History" class="subview-action-btn">
               <History :size="16" />
@@ -164,9 +168,9 @@
               <Trash2 :size="16" />
             </UiButton>
           </div>
-        </div>
+        </UiCard>
       </div>
-    </div>
+    </UiCard>
 
     <!-- Create/Edit Modal -->
     <RecurringPaymentModal
@@ -180,19 +184,17 @@
     <!-- Payment History Modal -->
     <UiModal :model-value="showHistoryModal" panel-class="w-full max-w-500px" @update:model-value="showHistoryModal = false">
       <template #header>
-        <h3 class="flex-align-center gap-50 color-text-primary margin-0 fs-18px">
+        <h3 class="flex-align-center gap-8px color-text-primary m-0px text-18px">
           <History :size="20" />
           <span>Payment History</span>
         </h3>
       </template>
-            <div v-if="selectedPaymentHistory.length === 0" class="subview-empty-state small text-center">
-              <p class="color-text-secondary subview-empty-state-p margin-0 margin-bottom-150">No payment history yet</p>
-            </div>
-            <div v-else class="flex flex-column gap-75">
+            <UiEmptyState v-if="selectedPaymentHistory.length === 0" description="No payment history yet" />
+            <div v-else class="flex flex-column gap-12px">
               <div
                 v-for="record in selectedPaymentHistory"
                 :key="record.id"
-                class="subview-history-item flex gap-75 padding-75 bg-secondary border-radius-8px"
+                class="subview-history-item flex gap-12px p-12px bg-secondary border-radius-8px"
                 :class="record.status"
               >
                 <div
@@ -204,15 +206,15 @@
                   <Clock v-else :size="16" />
                 </div>
                 <div class="flex-1">
-                  <div class="subview-history-header flex-align-center-justify-space-between margin-bottom-25">
+                  <div class="subview-history-header flex-align-center-justify-space-between mb-4px">
                     <strong class="color-text-primary">{{ formatAmount(record.amount) }} LMN</strong>
-                    <span class="subview-history-status color-text-secondary fs-12px txt-weight-light text-uppercase border-radius-4px bg-fill-tertiary padding-0-50">{{ record.status }}</span>
+                    <span class="subview-history-status color-text-secondary text-12px txt-weight-light text-uppercase border-radius-4px bg-fill-tertiary py-0px px-8px">{{ record.status }}</span>
                   </div>
-                  <div class="subview-history-date color-text-secondary fs-13px margin-bottom-25">{{ formatDateTime(record.executedAt) }}</div>
-                  <div v-if="record.txHash" class="subview-history-tx color-text-secondary mono fs-12px">
+                  <div class="subview-history-date color-text-secondary text-13px mb-4px">{{ formatDateTime(record.executedAt) }}</div>
+                  <div v-if="record.txHash" class="subview-history-tx color-text-secondary mono text-12px">
                     <span>TxHash: {{ record.txHash.slice(0, 16) }}...</span>
                   </div>
-                  <div v-if="record.error" class="subview-history-error fs-12px color-error margin-top-25">{{ record.error }}</div>
+                  <div v-if="record.error" class="subview-history-error text-12px color-error mt-4px">{{ record.error }}</div>
                 </div>
               </div>
             </div>
@@ -231,6 +233,8 @@
 <script setup lang="ts">
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
+import UiEmptyState from '../ui/UiEmptyState.vue';
+import UiCard from '../ui/UiCard.vue';
 import { ref, computed, onMounted } from 'vue';
 import { 
   Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle, 

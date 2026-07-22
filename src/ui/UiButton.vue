@@ -1,6 +1,6 @@
 <template>
   <button
-    class="flex-inline-align-center gap-62"
+    class="flex-inline-align-center gap-10px"
     :type="type"
     :disabled="disabled"
     :class="computedClass"
@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<{
   disabled: false,
   type: 'button',
   iconRadiusClass: 'border-radius-circle',
-  iconPaddingClass: 'padding-25'
+  iconPaddingClass: 'p-4px'
 });
 
 defineEmits<{ (e: 'click', ev: MouseEvent): void }>();
@@ -44,13 +44,13 @@ const variantClass: Record<Exclude<Variant, 'icon'>, string> = {
   secondary: 'button-secondary cursor-pointer border-radius-10px border-1 bg-secondary color-text-primary hover-bg-hover',
   danger: 'button-danger cursor-pointer border-radius-10px border-none color-white bg-gradient-danger shadow-danger-a30 hover-bg-gradient-danger-deep hover-shadow-danger-a40',
   cta: 'button-cta bg-fill-tertiary color-text-primary cursor-pointer border-radius-10px',
-  tag: 'button-tag color-text-secondary cursor-pointer flex-inline-align-center gap-50 padding-62-125 border-radius-full txt-weight-light bg-card fs-14px border-15 transition-all-02 shadow-0-1-4-rgba-0-0-0-0-05',
+  tag: 'button-tag color-text-secondary cursor-pointer flex-inline-align-center gap-8px py-10px px-20px border-radius-full txt-weight-light bg-card text-14px border-15 transition-all-02 shadow-0-1-4-rgba-0-0-0-0-05',
   none: ''
 };
 
 const sizeClass: Record<Size, string> = {
-  sm: 'txt-xs padding-50-100',
-  md: 'txt-sm padding-75-125'
+  sm: 'txt-xs py-8px px-16px',
+  md: 'txt-sm py-12px px-20px'
 };
 
 const computedClass = computed(() => {

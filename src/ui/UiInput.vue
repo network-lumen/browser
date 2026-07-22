@@ -47,8 +47,8 @@ const props = withDefaults(defineProps<{
   bgClass: 'bg-primary',
   radiusClass: 'border-radius-8px',
   borderClass: 'border-1',
-  fontSizeClass: 'fs-14px',
-  paddingClass: 'padding-62-75',
+  fontSizeClass: 'text-14px',
+  paddingClass: 'py-10px px-12px',
   focusBorderClass: 'focus-border-accent',
 });
 

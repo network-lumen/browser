@@ -1,34 +1,38 @@
 <template>
   <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen fixed': webviewHtmlFullscreen }">
-    <main class="sitepage-main flex-1 flex flex-column overflow-hidden min-h-0 padding-0">
+    <main class="sitepage-main flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
       <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />
       </div>
 
-      <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <UiCard padding="none" :shadow="false" class="sitepage-domain-empty-card flex flex-column flex-align-center text-center gap-35 shadow-md padding-250-225 max-w-2400">
-          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
+      <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary p-32px">
+        <UiCard padding="none" :shadow="false" class="shadow-md max-w-2400">
+          <UiEmptyState title="This domain belongs to no one">
             <Tag :size="26" />
-          </div>
-          <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This domain belongs to no one</h2>
-          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
-          <UiButton variant="primary" type="button" @click="goToBuyDomain" class="sitepage-buy-btn">
-            <span>Buy this domain</span>
-          </UiButton>
+            <template #description>
+              <p class="ui-empty-state-description"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+            </template>
+            <template #actions>
+              <UiButton variant="primary" type="button" @click="goToBuyDomain">
+                <span>Buy this domain</span>
+              </UiButton>
+            </template>
+          </UiEmptyState>
         </UiCard>
       </div>
 
-      <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary padding-200">
-        <UiCard padding="none" :shadow="false" class="sitepage-domain-empty-card flex flex-column flex-align-center text-center gap-35 shadow-md padding-250-225 max-w-2400">
-          <div class="sitepage-domain-empty-icon flex-align-justify-center border-radius-circle color-primary margin-bottom-75 bg-gradient-primary-soft w-325 h-325">
+      <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary p-32px">
+        <UiCard padding="none" :shadow="false" class="shadow-md max-w-2400">
+          <UiEmptyState title="This content isn't available right now">
             <FileQuestion :size="26" />
-          </div>
-          <h2 class="color-text-primary txt-weight-light margin-0 sitepage-domain-empty-card-h2 fs-125rem">This content isn't available right now</h2>
-          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">The content couldn't be found. Please try again later.</p>
-          <p class="color-text-secondary sitepage-domain-empty-card-p fs-15px line-height-15 margin-0 margin-bottom-75">
-            If this is your site,
-            <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="sitepage-inline-link underline color-primary cursor-pointer">read the setup guide</UiButton>.
-          </p>
+            <template #description>
+              <p class="ui-empty-state-description">The content couldn't be found. Please try again later.</p>
+              <p class="ui-empty-state-description">
+                If this is your site,
+                <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="underline color-primary cursor-pointer">read the setup guide</UiButton>.
+              </p>
+            </template>
+          </UiEmptyState>
         </UiCard>
       </div>
 
@@ -41,7 +45,7 @@
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="sitepage-hls-error absolute fs-14px cursor-events-none padding-75-87 right-100 bg-ios-red-a12 border-1-ios-red-a35">
+          <div v-if="hlsError" class="sitepage-hls-error absolute text-14px cursor-events-none py-12px px-14px right-100 bg-ios-red-a12 border-1-ios-red-a35">
             {{ hlsError }}
           </div>
         </template>
@@ -78,6 +82,7 @@ import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { FileQuestion, Tag } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import UiEmptyState from "../../ui/UiEmptyState.vue";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
