@@ -5,7 +5,7 @@
           <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden bg-black">
             <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
             <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0 left-0"></canvas>
-            <div class="qr-scan-frame border-radius-12px absolute top-half left-half border-2-white-a50 w-250px">
+            <div class="qr-scan-frame border-radius-12px absolute top-half left-half translate-center border-2-white-a50 w-250px">
               <div class="qr-corner qr-corner-top-left absolute w-30px h-30px border-right-none border-bottom-none top-n3px left-n3px border-3-accent-primary"></div>
               <div class="qr-corner qr-corner-top-right absolute w-30px h-30px border-left-none border-bottom-none top-n3px right-n3px border-3-accent-primary"></div>
               <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px border-3-accent-primary"></div>

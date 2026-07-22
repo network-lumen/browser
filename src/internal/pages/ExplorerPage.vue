@@ -171,7 +171,7 @@
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
                   <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
-                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
+                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                     <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
                     <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
                   </div>
@@ -202,7 +202,7 @@
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
                   <canvas ref="votingPowerChart" width="120" height="120"></canvas>
-                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half">
+                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                     <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
                     <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
                   </div>
@@ -546,8 +546,8 @@
                   <span class="explorer-changes-value txt-weight-light text-14px">—</span>
                 </div>
                 <div class="explorer-td td-cumulative flex-align-center text-13px text-14px">
-                  <div class="explorer-cumulative-container flex-align-justify-center relative w-50px">
-                    <svg class="explorer-circular-progress block" width="50" height="50" viewBox="0 0 50 50">
+                  <div class="explorer-cumulative-container flex-align-justify-center relative w-50px h-48px">
+                    <svg class="explorer-circular-progress block filter-none" width="50" height="50" viewBox="0 0 50 50">
                       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle 
                         cx="25" cy="25" r="20" 
@@ -694,7 +694,7 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup p-32px fixed bg-primary border-radius-16px top-half left-half shadow-modal-strong min-w-400px max-w-90vw" :class="txStatus">
+            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-modal-strong min-w-400px max-w-90vw" :class="txStatus">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-24px text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-16px w-full">
