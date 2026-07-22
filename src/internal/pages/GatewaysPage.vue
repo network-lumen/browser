@@ -105,35 +105,35 @@
 
               <div class="gwpage-manage-grid grid gap-y-14px gap-x-16px" v-if="editMap[gw.id]">
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Endpoint</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Endpoint</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].endpoint" placeholder="gateway.city" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Regions</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Regions</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].regions"
                    
                     placeholder="us-east, eu-west" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Payout address</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Payout address</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow" />
                 </div>
                 <div class="gwpage-form-group">
-                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Active</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Active</label>
                   <label class="gwpage-toggle flex-inline-align-center">
                     <input v-model="editMap[gw.id].active" type="checkbox" class="w-16px h-16px" />
                     <span class="gwpage-toggle-ui hidden"></span>
                   </label>
                 </div>
                 <div class="gwpage-form-group full">
-                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Metadata (JSON object)</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Metadata (JSON object)</label>
                   <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].metadata"
                    
                     rows="7"
                     placeholder='{\n  "name": "My gateway"\n}' class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow"></UiInput>
                 </div>
                 <div class="gwpage-form-group full">
-                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Memo</label>
+                  <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Memo</label>
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                 </div>
               </div>
@@ -166,34 +166,34 @@
           <UiModal :model-value="showCreateModal" panel-class="w-min-760" :closable="!registerState.busy" @update:model-value="closeCreateModal">
             <template #header>
               <div>
-                <h2 class="gwpage-modal-title color-text-primary">Create gateway</h2>
+                <h2 class="gwpage-modal-title color-text-primary text-16px">Create gateway</h2>
                 <p class="gwpage-modal-sub color-text-secondary m-0px mt-4px">Register a new gateway for the active profile.</p>
               </div>
             </template>
                 <div class="gwpage-modal-body grid gap-y-14px gap-x-16px">
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Endpoint</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Endpoint</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.endpoint" placeholder="gateway.city" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Regions</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Regions</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.regions"
                      
                       placeholder="us-east, eu-west" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Payout address</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Payout address</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow" />
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Metadata (JSON object)</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Metadata (JSON object)</label>
                     <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.metadata"
                      
                       rows="7"
                       placeholder='{\n  "name": "My gateway"\n}' class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow"></UiInput>
                   </div>
                   <div class="gwpage-form-group">
-                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px">Memo</label>
+                    <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Memo</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow" />
                   </div>
 

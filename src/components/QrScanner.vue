@@ -6,16 +6,16 @@
             <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
             <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0 left-0"></canvas>
             <div class="qr-scan-frame border-radius-12px absolute top-half left-half translate-center border-2-white-a50 w-250px">
-              <div class="qr-corner qr-corner-top-left absolute w-30px h-30px border-right-none border-bottom-none top-n3px left-n3px border-3-accent-primary"></div>
-              <div class="qr-corner qr-corner-top-right absolute w-30px h-30px border-left-none border-bottom-none top-n3px right-n3px border-3-accent-primary"></div>
-              <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px border-3-accent-primary"></div>
-              <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px border-left-none border-top-none bottom-n3px right-n3px border-3-accent-primary"></div>
+              <div class="qr-corner qr-corner-top-left absolute w-30px h-30px border-right-none border-bottom-none top-n3px left-n3px border-3-accent-primary rounded-tl-12px"></div>
+              <div class="qr-corner qr-corner-top-right absolute w-30px h-30px border-left-none border-bottom-none top-n3px right-n3px border-3-accent-primary rounded-tr-12px"></div>
+              <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px border-3-accent-primary rounded-bl-12px"></div>
+              <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px border-left-none border-top-none bottom-n3px right-n3px border-3-accent-primary rounded-br-12px"></div>
             </div>
-            <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half backdrop-blur-8 background-rgba-0-0-0-0-6">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 background-rgba-0-0-0-0-6">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
-          <div v-if="error" class="qr-error-state text-center">
+          <div v-if="error" class="qr-error-state text-center py-40px px-20px">
             <AlertCircle :size="48" class="qr-error-icon color-error mb-16px" />
             <h4 class="color-text-primary qr-error-state-h4 text-20px txt-weight-light m-0px mb-8px">{{ error }}</h4>
             <p v-if="error.includes('permission')" class="color-text-secondary text-14px qr-error-state-p m-0px mb-24px">
@@ -28,12 +28,12 @@
           </div>
 
           <!-- Success State -->
-          <div v-if="scannedData" class="qr-success-state text-center">
+          <div v-if="scannedData" class="qr-success-state text-center py-40px px-20px">
             <CheckCircle :size="48" class="qr-success-icon color-success mb-16px" />
             <h4 class="color-text-primary qr-success-state-h4 text-20px txt-weight-light m-0px mb-8px">QR Code Scanned</h4>
 
             <div class="qr-scanned-data text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
-              <div class="qr-data-type">
+              <div class="qr-data-type mb-12px">
                 <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px">Type:</span>
                 <span class="qr-value color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>

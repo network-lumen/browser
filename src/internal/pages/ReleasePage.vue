@@ -34,7 +34,7 @@
 
       <section class="relpage-toolbar flex flex-wrap-wrap mb-16px flex-align-end gap-y-14px gap-x-16px" aria-label="Filters">
         <div class="relpage-filter flex flex-column gap-6px min-w-220px">
-          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px">Channel</label>
+          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Channel</label>
           <select v-model="channelFilter" class="relpage-form-input w-full text-14px color-text-primary border-radius-12px border-1 bg-primary py-10px px-12px focus-outline-none focus-border-accent focus-ring focus-shadow" :disabled="loading">
             <option value="all">All</option>
             <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
@@ -42,7 +42,7 @@
         </div>
 
         <div class="relpage-filter grow flex flex-column gap-6px relpage-filter-grow min-w-260px min-w-220px">
-          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px">Search</label>
+          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Search</label>
           <UiInput radius-class="border-radius-12px" font-size-class="text-14px" :focus-ring="false" v-model.trim="searchTerm"
            
             placeholder="Version, publisher, ID…"
@@ -50,7 +50,7 @@
         </div>
 
         <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-12px flex-wrap-wrap border-radius-14px border-1 bg-primary py-8px px-12px" aria-label="Update test tools">
-          <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase text-12px">Update test</span>
+          <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Update test</span>
           <UiCheckbox v-model="testMode.forcePrompt" :disabled="loading" @update:modelValue="applyTestMode">Force prompt</UiCheckbox>
           <UiCheckbox v-model="testMode.allowUnvalidatedStable" :disabled="loading" @update:modelValue="applyTestMode">Allow pending (stable)</UiCheckbox>
           <UiButton variant="secondary" type="button" @click="pollNow" :disabled="loading">Re-check</UiButton>

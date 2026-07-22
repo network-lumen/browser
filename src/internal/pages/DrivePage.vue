@@ -685,7 +685,7 @@
                 uploadPathMode === 'folder'
                   ? '/root/my-folder'
                   : '/root/my-file.txt'
-              " class="drivepage-upload-path-textarea mono focus-ring focus-outline-none focus-shadow"></UiInput>
+              " class="drivepage-upload-path-textarea mono resize-vertical focus-ring focus-outline-none focus-shadow"></UiInput>
 
             <template #footer>
               <UiButton variant="secondary" type="button"

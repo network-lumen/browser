@@ -56,7 +56,7 @@
           <p>Loading your domains...</p>
         </div>
         <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
-          <p class="domainpage-hero-title txt-weight-light m-0px">Get your name on Lumen</p>
+          <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Get your name on Lumen</p>
           <p class="domainpage-hero-text text-14px color-text-tertiary m-0px">
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
@@ -114,7 +114,7 @@
           <p>{{ rawDomainsError }}</p>
         </div>
         <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
-          <p class="domainpage-hero-title txt-weight-light m-0px">Generate a stable link</p>
+          <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Generate a stable link</p>
           <p class="domainpage-hero-text text-14px color-text-tertiary m-0px">
             Stable links are cryptographic names backed by IPNS.
           </p>
