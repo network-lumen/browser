@@ -527,8 +527,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   cursor: not-allowed;
   transform: none;
 }
-.daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input,
-.drivepage-action-btn:last-child::after {
+.daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input {
   display: none;
 }
 .daopage-vote-option:hover .daopage-vote-option-content {
@@ -1022,17 +1021,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-upload-btn:hover, .drivepage-upload-btn-large:hover {
   background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
   transform: translateY(-1px);
-}
-
-/* Folder breadcrumb */
-.drivepage-action-btn::after {
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1px;
-  height: 14px;
-  background: var(--border-color);
-  opacity: 0.6;
 }
 
 /* List View */

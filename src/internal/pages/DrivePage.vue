@@ -467,28 +467,28 @@
           <span class="drivepage-list-date color-text-secondary text-right text-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="drivepage-list-actions flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
+          <div class="drivepage-list-actions divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
-              @click.stop="openEntryDetails(file)" class="drivepage-action-btn after-absolute">
+              @click.stop="openEntryDetails(file)" class="drivepage-action-btn">
               <TableProperties :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Download"
-              @click.stop="downloadFile(file)" class="drivepage-action-btn after-absolute">
+              @click.stop="downloadFile(file)" class="drivepage-action-btn">
               <Download :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isDirEntry(file) && isVideoFile(file.name)"
               title="Convert to HLS"
               :disabled="converting || uploading"
-              @click.stop="convertToHls(file)" class="drivepage-action-btn after-absolute">
+              @click.stop="convertToHls(file)" class="drivepage-action-btn">
               <Clapperboard :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Share"
-              @click.stop="copyLumenLinkFor(file)" class="drivepage-action-btn after-absolute">
+              @click.stop="copyLumenLinkFor(file)" class="drivepage-action-btn">
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="drivepage-action-btn after-absolute danger background-error-red-hover bg-ios-red-a10 color-error">
+              @click.stop="removeFile(file)" class="drivepage-action-btn danger background-error-red-hover bg-ios-red-a10 color-error">
               <Trash2 :size="14" />
             </UiButton>
           </div>
