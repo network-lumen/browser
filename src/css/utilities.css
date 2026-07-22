@@ -424,6 +424,8 @@
 .color-scheme-light-dark { color-scheme: light dark; }
 .grid-cols-1fr-1fr { grid-template-columns: 1fr 1fr; }
 .animate-walletonboard-fade-in { animation: walletonboard-fade-in 0.3s ease-in-out; }
+.flex-1-1-420px { flex: 1 1 420px; }
+.background-gradient-0f766e-0ea5e9 { background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .bg-image-none { background-image: none; }
 .max-h-120px { max-height: 120px; }
 .aspect-square { aspect-ratio: 1; }
@@ -738,6 +740,8 @@
 .background-fill-error-hover:hover { background: var(--fill-error); }
 .background-rgba-30-41-59-0-92 { background: rgba(30, 41, 59, 0.92); }
 .background-rgba-37-99-235-0-18 { background: rgba(37, 99, 235, 0.18); }
+.color-hex-fecaca { color: #fecaca; }
+.background-rgba-185-28-28-0-2 { background: rgba(185, 28, 28, 0.2); }
 .background-hex-ffffff { background: #ffffff; }
 .background-ios-orange-a15-hover:hover { background: rgba(var(--ios-orange-rgb), 0.15); }
 .background-fill-success-hover:hover { background: var(--fill-success); }

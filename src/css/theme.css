@@ -322,9 +322,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .searchpage-type-pdf { background: var(--fill-error); }
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
-.chaindetail-back-btn:hover, .drivepage-upload-btn, .drivepage-upload-btn-large { box-shadow: 0 4px 12px var(--primary-a30); }
-.chaindetail-card-header-h2 { letter-spacing: 0.025em; }
-.chaindetail-row { grid-template-columns: 180px 1fr; }
+.chaindetail-back-btn:hover { box-shadow: 0 4px 12px var(--primary-a30); }
 
 .mygw-whitelist-table tbody tr:last-child td { border-bottom: none; }
 
@@ -337,11 +335,9 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   text-decoration: underline;
 }
 /* BlockDetailPage.vue */
-.blockdetail-content { min-height: calc(100vh - 200px); }
 .blockdetail-row:hover {
   margin: 0 -1.5rem;
 }
-.blockdetail-label { flex: 0 0 180px; }
 
 /* WebPage.vue */
 .webpage-fullscreen .webpage-webview, .sitepage-fullscreen .sitepage-main,
@@ -370,20 +366,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .extensions-store-page {
   background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%), linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1));
 }
-.extensions-store-header { padding: 20px 24px 16px; }
-.extensions-store-header-actions { flex: 1 1 420px; }
-.extensions-store-btn.primary { color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.extensions-store-btn-install-hero-btn {
-  background: linear-gradient(135deg, #0f766e, #0ea5e9);
-}
-.extensions-store-status {
-  margin: 0 24px 14px;
-}
-.extensions-store-status.error { background: rgba(185, 28, 28, 0.2); color: #fecaca; }
-.extensions-store-webview {
-  margin: 12px 24px 24px;
-}
-.extensions-store-footnote { margin: 0 24px 18px; }
 
 /* SitePage.vue */
 .gwpage-manage-link:hover { opacity: 0.8; }

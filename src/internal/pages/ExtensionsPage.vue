@@ -1,15 +1,15 @@
 <template>
   <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
-    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16">
+    <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16 pt-20px px-24px pb-16px">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1 color-hex-f8fafc">{{ headerTitle }}</h1>
         <p class="extensions-store-copy-p m-0px mt-6px max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
-      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px">
+      <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px flex-1-1-420px">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none py-12px px-16px extensions-store-btn-install-hero-btn color-white min-w-168px min-h-46px color-hex-e2e8f0 background-rgba-30-41-59-0-92 shadow-0-18-40-rgba-14-165-233-0-26"
+          class="extensions-store-btn disabled-fade-60 install-hero-btn cursor-pointer border-none py-12px px-16px color-white min-w-168px min-h-46px color-hex-e2e8f0 background-gradient-0f766e-0ea5e9 shadow-0-18-40-rgba-14-165-233-0-26"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,14 +18,14 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-14px color-hex-dbeafe background-rgba-37-99-235-0-18" :class="{ error: statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-14px color-hex-dbeafe background-rgba-37-99-235-0-18 mt-0px mx-24px mb-14px" :class="{ 'color-hex-fecaca background-rgba-185-28-28-0-2': statusError }">
       {{ statusMessage }}
     </div>
 
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-22px background-hex-ffffff"
+      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-22px background-hex-ffffff mt-12px mx-24px mb-24px"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"
@@ -43,7 +43,7 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap text-11px gap-14px line-height-145 color-rgba-148-163-184-0-88">
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap text-11px gap-14px line-height-145 color-rgba-148-163-184-0-88 mt-0px mx-24px mb-18px">
       <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
       <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Lumen install:</strong> installation is handled by Lumen.</span>
       <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
