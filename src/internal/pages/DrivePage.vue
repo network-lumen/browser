@@ -9,14 +9,14 @@
           <span>Storage</span>
         </div>
 
-        <div class="drivepage-hosting-row flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
+        <div class="drivepage-hosting-row transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
           <UiButton variant="none" type="button"
-            @click="selectHosting('local')" class="drivepage-hosting-main grid flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
+            @click="selectHosting('local')" class="drivepage-hosting-main grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
             <span
-              class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
+              class="drivepage-hosting-dot grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
               :class="ipfsConnected ? 'ok' : 'off'"
             ></span>
-            <span class="drivepage-hosting-title text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
+            <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
           </UiButton>
           <UiButton variant="icon" icon-radius-class="border-radius-sm"
             @click.stop="openLocalDetails"
@@ -42,23 +42,23 @@
         <div
           v-for="sub in subscriptionRows"
           :key="sub.gatewayId"
-          class="drivepage-hosting-row flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
+          class="drivepage-hosting-row transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
           <UiButton variant="none" type="button"
-              @click="selectGateway(sub.gatewayId)" class="drivepage-hosting-main grid flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
-              <span class="drivepage-hosting-dot border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
-              <span class="drivepage-hosting-title text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
+              @click="selectGateway(sub.gatewayId)" class="drivepage-hosting-main grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
+              <span class="drivepage-hosting-dot grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
+              <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
               <span
                 v-if="sub.regionLabel"
-                class="drivepage-hosting-region txt-weight-medium color-text-tertiary text-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center max-w-750"
+                class="grid-col-3 grid-row-1 justify-self-end txt-weight-medium color-text-tertiary text-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center max-w-750"
                 :title="sub.regionTitle"
               >
                 {{ sub.regionLabel }}
               </span>
-              <span class="drivepage-hosting-tags flex-inline flex-wrap-wrap gap-6px" v-if="sub.planTags.length">
+              <span class="grid-col-2-end grid-row-2 justify-self-start flex-inline flex-wrap-wrap gap-6px" v-if="sub.planTags.length">
                 <UiTag v-for="p in sub.planTags" :key="p" variant="accent">{{
                   p
                 }}</UiTag>

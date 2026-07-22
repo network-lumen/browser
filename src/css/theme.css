@@ -1680,34 +1680,14 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .details-value.ok { color: var(--ios-green); }
 .details-value.off { color: var(--ios-red); }
 .details-section-header h4 { margin: 0; font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); }
-.drivepage-hosting-row { transition: background 0.15s ease, border-color 0.15s ease; }
 .drivepage-hosting-row.active, .drivepage-hosting-row:hover {
   background: var(--primary-a08);
   border-color: var(--primary-a25);
 }
-.drivepage-hosting-main {
-  grid-template-columns: 10px 1fr auto;
-  column-gap: 0.65rem;
-  row-gap: 0.3rem;
-}
-.drivepage-hosting-title { grid-column: 2; grid-row: 1; }
-.drivepage-hosting-region {
-  grid-column: 3;
-  grid-row: 1;
-  justify-self: end;
-}
-.drivepage-hosting-dot {
-  grid-column: 1;
-  grid-row: 1;
-}
+.drivepage-hosting-main { grid-template-columns: 10px 1fr auto; }
 .drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
 .drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
 .drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
-.drivepage-hosting-tags {
-  grid-column: 2 / -1;
-  grid-row: 2;
-  justify-self: start;
-}
 
 /* Warning Banner */
 .drivepage-warning-banner {
