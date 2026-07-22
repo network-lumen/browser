@@ -53,7 +53,7 @@
             <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-ios-blue hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
               <div class="gwpage-private-gateway-header flex-align-center mb-12px">
                 <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ ok: gw.status === 'active' }"></div>
-                <span class="gwpage-private-badge text-11px letter-spacing-005em py-4px px-12px">Private</span>
+                <span class="gwpage-private-badge text-11px letter-spacing-005em py-4px px-12px bg-ios-indigo-a15 color-ios-indigo">Private</span>
               </div>
               <h3 class="gwpage-private-gateway-name color-text-primary text-16px m-0px mb-8px">{{ gw.name }}</h3>
               <p class="gwpage-private-gateway-url mono color-text-secondary text-13px break-all m-0px mb-12px">{{ gw.url }}</p>

@@ -335,6 +335,8 @@
 .backdrop-blur-10 { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .list-style-disc { list-style-type: disc; }
 .color-ios-orange { color: var(--ios-orange); }
+.color-ios-indigo { color: var(--ios-indigo); }
+.bg-ios-indigo-a15 { background: rgba(var(--ios-indigo-rgb), 0.15); }
 .line-height-11 { line-height: 1.1; }
 .opacity-60 { opacity: 0.6; }
 .border-color-ios-orange-a30 { border-color: rgba(var(--ios-orange-rgb), 0.3); }
@@ -409,6 +411,9 @@
 .z-9998 { z-index: 9998; }
 .bottom-24px { bottom: 24px; }
 .right-24px { right: 24px; }
+.left-16px { left: 1rem; }
+.bottom-16px { bottom: 1rem; }
+.backdrop-blur-6 { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .text-underline-offset-2px { text-underline-offset: 2px; }
 .shadow-0-4-12-primary-a30 { box-shadow: 0 4px 12px var(--primary-a30); }
 .letter-spacing-0025em { letter-spacing: 0.025em; }
@@ -417,13 +422,22 @@
 .min-h-100vh-200px { min-height: calc(100vh - 200px); }
 .z-max { z-index: 2147483647; }
 .top-8px { top: 8px; }
+.top-6px { top: 0.375rem; }
+.right-6px { right: 0.375rem; }
+.z-10 { z-index: 10; }
 .right-8px { right: 8px; }
 .w-min-420px-24 { width: min(420px, calc(100vw - 24px)); }
 .max-h-420px { max-height: 420px; }
 .min-h-60px { min-height: 60px; }
 .color-scheme-light-dark { color-scheme: light dark; }
 .grid-cols-1fr-1fr { grid-template-columns: 1fr 1fr; }
+.grid-cols-auto-fit-200 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.grid-cols-auto-fill-320 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 .animate-walletonboard-fade-in { animation: walletonboard-fade-in 0.3s ease-in-out; }
+.animate-homepage-fade-down { animation: homepage-fade-down 0.18s ease-out; }
+.cursor-grab { cursor: grab; }
+.opacity-90 { opacity: 0.9; }
+.grid-cols-auto-fill-220 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .flex-1-1-420px { flex: 1 1 420px; }
 .background-gradient-0f766e-0ea5e9 { background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .bg-image-none { background-image: none; }

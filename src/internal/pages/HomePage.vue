@@ -7,12 +7,12 @@
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </UiButton>
 
-      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-4px pb-4px">
+      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-4px pb-4px animate-homepage-fade-down">
         <button
           v-for="key in allRoutes"
           :key="key"
           type="button"
-          class="homepage-page-item w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-015 cursor-select-none hover-bg-hover hover-color-text-primary"
+          class="homepage-page-item w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-015 cursor-select-none cursor-grab hover-bg-hover hover-color-text-primary"
           :class="{ dragging: draggedItem === key, 'drag-over': dragOverItem === key }"
           draggable="true"
           @dragstart="onItemDragStart($event, key)"
@@ -33,14 +33,14 @@
     <main class="homepage-main flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
       <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-md mb-16px py-12px px-16px bg-ios-yellow-a08 border-05-ios-yellow-a40">
         <div class="homepage-no-profile-title txt-weight-light text-13px">No profile found</div>
-        <div class="homepage-no-profile-sub text-12px mt-4px">Create one using the button in the top right.</div>
+        <div class="homepage-no-profile-sub text-12px mt-4px opacity-90">Create one using the button in the top right.</div>
       </div>
 
       <!-- Quick Actions -->
       <section class="homepage-quick-actions mb-20px">
         <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">My Space</h2>
         <div
-          class="homepage-actions-grid gap-10px grid"
+          class="homepage-actions-grid gap-10px grid grid-cols-auto-fill-220"
           @dragover.prevent="onMySpaceDragOver"
           @dragleave="onMySpaceDragLeave"
           @drop.prevent="onMySpaceDrop"
@@ -72,7 +72,7 @@
             :disabled="!hasProfiles && ['drive', 'domain', 'wallet'].includes(key)"
           >
             <div
-              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px"
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px top-6px right-6px z-10"
               @click.stop="removeMySpaceCard(key)"
               title="Remove card"
             >
@@ -91,7 +91,7 @@
       <section class="homepage-quick-actions mb-20px">
         <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">Lumen</h2>
         <div
-          class="homepage-actions-grid gap-10px grid"
+          class="homepage-actions-grid gap-10px grid grid-cols-auto-fill-220"
           @dragover.prevent="onLumenDragOver"
           @dragleave="onLumenDragLeave"
           @drop.prevent="onLumenDrop"
@@ -122,7 +122,7 @@
             @click="handleCardClick($event, key)"
           >
             <div
-              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px"
+              class="homepage-remove-card-btn flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px top-6px right-6px z-10"
               @click.stop="removeLumenCard(key)"
               title="Remove card"
             >
