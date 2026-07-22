@@ -90,17 +90,17 @@
       <!-- Overview View -->
       <div v-if="currentView === 'overview'" class="overview-section flex flex-column gap-24px">
         <!-- Balance Card -->
-        <div class="walletpage-balance-card border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 before-absolute after-absolute before-cursor-events-none after-cursor-events-none before-rounded-full after-rounded-full">
+        <div class="walletpage-balance-card border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 before-absolute after-absolute before-cursor-events-none after-cursor-events-none before-rounded-full after-rounded-full shadow-glow-ios-blue-lg">
           <div class="walletpage-balance-header flex-align-center-justify-space-between mb-16px">
             <span class="walletpage-balance-label text-uppercase txt-weight-light text-13px letter-spacing-008em color-rgba-255-255-255-0-85">Total Balance</span>
-            <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="walletpage-eye-btn flex-inline-align-justify-center size-32px color-white">
+            <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="walletpage-eye-btn flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
               <Eye v-if="showBalance" :size="18" />
               <EyeOff v-else :size="18" />
             </UiButton>
           </div>
           <div class="walletpage-balance-amount flex gap-12px flex-align-baseline mb-12px">
             <span class="walletpage-currency txt-weight-light text-18px color-rgba-255-255-255-0-9">LMN</span>
-            <span class="walletpage-amount txt-weight-strong letter-spacing-n002 text-48px">
+            <span class="walletpage-amount txt-weight-strong letter-spacing-n002 text-48px text-shadow-soft">
               {{ showBalance ? balanceLabel : '••••••' }}
             </span>
           </div>
@@ -127,13 +127,13 @@
             <span>Receive</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-60 shadow-0-8-20-ios-blue-a30">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 walletpage-quick-icon-disabled color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-60 shadow-0-8-20-ios-blue-a30">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -172,7 +172,7 @@
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px walletpage-info-banner-warning background-ios-orange-a10">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column mt-16px gap-12px gap-16px">
@@ -187,7 +187,7 @@
                     v-if="asset.iconUrl"
                     :src="asset.iconUrl"
                     :alt="`${asset.displayName} icon`"
-                    class="walletpage-asset-icon-image w-full h-full object-fit-cover block"
+                    class="walletpage-asset-icon-image w-full h-full object-fit-cover block bg-white"
                     @error="handleAssetIconError(asset)"
                   />
                   <span v-else>{{ asset.iconText }}</span>
@@ -214,7 +214,7 @@
                     :disabled="assetRowRefreshingId === asset.id"
                     title="Refresh this asset"
                     aria-label="Refresh this asset" class="walletpage-action-icon walletpage-asset-refresh-btn background-card-bg-disabled-hover">
-                    <RefreshCw :size="14" :class="{ 'walletpage-spin-icon': assetRowRefreshingId === asset.id }" />
+                    <RefreshCw :size="14" :class="{ spinning: assetRowRefreshingId === asset.id }" />
                   </UiButton>
                   <UiButton variant="secondary" @click="copyToClipboard(asset.ownerAddress, 'Address copied!')"
                     title="Copy chain address"
@@ -243,7 +243,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px walletpage-info-banner-warning background-ios-orange-a10">
+        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
           <span>{{ dexError }}</span>
         </div>
 
@@ -260,7 +260,7 @@
                 class="color-inherit flex-align-start gap-14px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
                 @click="toggleDexExpanded(dex.key)"
               >
-                <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-52px h-52px" :class="{ 'walletpage-dex-logo-dark': dex.logoTheme === 'dark' }">
+                <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-52px h-52px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark' }">
                   <img
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
@@ -307,7 +307,7 @@
             </div>
 
             <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary border-top-1-light pt-16px pr-20px pb-20px pl-20px">
-              <div class="walletpage-dex-detail-grid gap-12px grid">
+              <div class="walletpage-dex-detail-grid gap-12px grid grid-cols-4">
                 <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-14px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Trading pairs</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.tradingPairsCount) }}</span>
@@ -387,7 +387,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="ui-empty-state-description">{{ activitiesError }}</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px walletpage-info-banner-warning background-ios-orange-a10">
+            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
               <span>
                 💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
                 Your balance is still accurate and transactions are recorded on-chain.
@@ -400,14 +400,14 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="ui-empty-state-description">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px walletpage-info-banner-warning background-ios-orange-a10">
+            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
               <div class="mb-12px">
                 <strong>💡 Why can't I see my transactions?</strong>
               </div>
               <div class="mb-8px">
                 All Lumen Network RPC nodes currently have transaction indexing disabled. This means:
               </div>
-              <ul class="text-left mt-8px mb-12px ml-24px walletpage-info-banner-ul pl-24px">
+              <ul class="text-left mt-8px mb-12px ml-24px list-style-disc pl-24px">
                 <li class="walletpage-info-banner-li m-0px mt-4px mb-4px">Your balance is still accurate and updated</li>
                 <li class="walletpage-info-banner-li m-0px mt-4px mb-4px">All transactions are recorded on-chain</li>
                 <li class="walletpage-info-banner-li m-0px mt-4px mb-4px">Transaction history cannot be queried via API</li>
@@ -453,7 +453,7 @@
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
-                <div class="walletpage-type-text flex flex-column gap-2px min-w-0">
+                <div class="walletpage-type-text flex flex-column gap-2px min-w-0 line-height-11">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
@@ -470,7 +470,7 @@
                   {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount) / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} {{ formatDenom(tx.amounts[0].denom) }}
                 </template>
                 <template v-else>
-                  <span class="walletpage-text-muted color-text-tertiary">N/A</span>
+                  <span class="walletpage-text-muted color-text-tertiary italic">N/A</span>
                 </template>
               </span>
             </div>
@@ -484,7 +484,7 @@
                   {{ tx.from }}
                 </template>
                 <template v-else>
-                  <span class="walletpage-text-muted color-text-tertiary">-</span>
+                  <span class="walletpage-text-muted color-text-tertiary italic">-</span>
                 </template>
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.from"
@@ -504,7 +504,7 @@
                   {{ tx.to }}
                 </template>
                 <template v-else>
-                  <span class="walletpage-text-muted color-text-tertiary">-</span>
+                  <span class="walletpage-text-muted color-text-tertiary italic">-</span>
                 </template>
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.to"
@@ -872,7 +872,7 @@
               </div>
               <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Tax</span>
-                <span class="walletpage-summary-value tax txt-weight-light color-text-primary mono">{{ sendSummary.taxLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-ios-orange mono">{{ sendSummary.taxLabel }}</span>
               </div>
               <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Receiver net</span>

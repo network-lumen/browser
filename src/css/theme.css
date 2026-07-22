@@ -1307,10 +1307,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* WalletPage.vue */
-.walletpage-text-muted { font-style: italic; }
-.walletpage-balance-card {
-  box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.3), 0 5px 15px rgba(var(--ios-blue-rgb), 0.2);
-}
 .walletpage-balance-card::before {
   top: -50%;
   right: -20%;
@@ -1325,12 +1321,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   height: 200px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
 }
-.walletpage-eye-btn { backdrop-filter: blur(10px); }
-.walletpage-amount { text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
 .walletpage-quick-actions { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-.walletpage-quick-btn {
-  backdrop-filter: blur(10px);
-}
 .walletpage-quick-btn::before {
   background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.1) 0%, rgba(var(--ios-blue-rgb), 0.1) 100%);
 }
@@ -1338,26 +1329,17 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transform: translateY(-6px);
   border-color: rgba(var(--ios-blue-rgb), 0.5);
 }
-.walletpage-quick-icon-disabled {
-  background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
-  opacity: 0.6;
-}
 .walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
-.walletpage-asset-icon-image { background: white; }
-.walletpage-spin-icon { animation: spin 0.9s linear infinite; }
 .walletpage-dex-item-online { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); }
 .walletpage-dex-item-degraded { border-color: rgba(var(--ios-orange-rgb), 0.35); }
 .walletpage-dex-item-error { border-color: rgba(var(--ios-red-rgb), 0.28); }
-.walletpage-dex-logo-dark { background: #111827; border-color: rgba(17, 24, 39, 0.65); }
 .walletpage-dex-logo-image { height: 74%; }
-.walletpage-dex-detail-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 /* Transaction List */
-.walletpage-table-header {
+.walletpage-table-header, .walletpage-activity-row {
   grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
 }
 .walletpage-table-header > div, .walletpage-activity-row > div { min-width: 0; }
-.walletpage-activity-row { grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px; }
 .walletpage-activity-row:hover {
   padding-left: calc(1.25rem - 3px);
 }
@@ -1370,12 +1352,8 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-type-badge.receive { background: rgba(var(--ios-green-rgb), 0.1); color: var(--ios-green); }
 .walletpage-type-text { line-height: 1.1; }
 .walletpage-action-icon:disabled:hover { transform: none; }
-.walletpage-info-banner-warning {
-  border-color: rgba(var(--ios-orange-rgb), 0.3);
-}
-.walletpage-info-banner-ul { list-style-type: disc; }
 .walletpage-form-input:read-only { cursor: not-allowed; }
-.walletpage-summary-value.tax, .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
+.drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
 }
 .walletpage-qr-loading::before {

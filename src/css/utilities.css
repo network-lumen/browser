@@ -332,6 +332,18 @@
 .rounded-tr-12px { border-top-right-radius: 12px; }
 .rounded-bl-12px { border-bottom-left-radius: 12px; }
 .rounded-br-12px { border-bottom-right-radius: 12px; }
+.backdrop-blur-10 { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.list-style-disc { list-style-type: disc; }
+.color-ios-orange { color: var(--ios-orange); }
+.line-height-11 { line-height: 1.1; }
+.opacity-60 { opacity: 0.6; }
+.border-color-ios-orange-a30 { border-color: rgba(var(--ios-orange-rgb), 0.3); }
+.bg-gradient-gray { background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%); }
+.bg-slate-900 { background: #111827; }
+.border-color-slate-900-a65 { border-color: rgba(17, 24, 39, 0.65); }
+.shadow-glow-ios-blue-lg { box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.3), 0 5px 15px rgba(var(--ios-blue-rgb), 0.2); }
+.text-shadow-soft { text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .border-2 { border: 2px solid var(--border-color); }
 .border-1-transparent { border: 1px solid transparent; }
 .bg-border { background: var(--border-color); }
