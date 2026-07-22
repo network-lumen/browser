@@ -120,15 +120,15 @@
           </div>
         </div>
 
-        <div class="newtab-shortcut-grid grid gap-12px mt-16px">
+        <div class="newtab-shortcut-grid grid gap-12px mt-16px grid-cols-auto-fit-196">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
             class="newtab-shortcut-card flex flex-column gap-12px relative p-14px border-1-light border-radius-22px min-h-150px shadow-0-12-24-rgba-15-23-42-0-05"
             :class="{
-              pinned: entry.pinned,
-              'is-dragging': draggingShortcutId === entry.id,
-              'is-drop-target': dragOverShortcutId === entry.id && draggingShortcutId !== entry.id,
+              'card-state-pinned': entry.pinned,
+              'card-state-dragging': draggingShortcutId === entry.id,
+              'card-state-drop-target': dragOverShortcutId === entry.id && draggingShortcutId !== entry.id,
             }"
             draggable="true"
             @dragstart="onShortcutDragStart($event, entry.id)"
@@ -195,7 +195,7 @@
           </div>
         </div>
 
-        <div class="newtab-history-preview-list grid gap-10px mt-10px">
+        <div class="newtab-history-preview-list grid gap-10px mt-10px grid-cols-auto-fit-280">
           <UiButton variant="none" v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
