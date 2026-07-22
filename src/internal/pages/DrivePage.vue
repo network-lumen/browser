@@ -25,7 +25,7 @@
           </UiButton>
         </div>
 
-        <div class="drivepage-hosting-divider bg-border m-0px mt-16px mr-4px mb-12px ml-4px"></div>
+        <div class="h-1px bg-border m-0px mt-16px mr-4px mb-12px ml-4px"></div>
 
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between mt-4px">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase text-11px letter-spacing-005em">Subscriptions</span>
@@ -151,7 +151,7 @@
             :checked="allVisibleLocalEntriesSelected"
             @change="handleVisibleLocalSelectionChange"
           />
-          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px"></span>
+          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px"></span>
         </label>
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
@@ -170,7 +170,7 @@
             type="button"
             @click="convertSelectedLocalToHls" class="disabled-fade-45">
             Convert to HLS
-            <span v-if="selectedLocalConvertibleCount" class="drivepage-bulk-action-count flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-135rem-badge">
+            <span v-if="selectedLocalConvertibleCount" class="h-22px flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-135rem-badge">
               {{ selectedLocalConvertibleCount }}
             </span>
           </UiButton>
@@ -233,9 +233,9 @@
             </div>
           </div>
         </div>
-        <div v-if="upload?.uploadingPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden mt-10px">
+        <div v-if="upload?.uploadingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-10px">
           <div
-            class="drivepage-progress-bar-fill h-full bg-accent w-0"
+            class="transition-width-018s h-full bg-accent w-0"
             :style="{ width: `${upload?.uploadingPercent}%` }"
           ></div>
         </div>
@@ -288,9 +288,9 @@
             </div>
           </div>
         </div>
-        <div v-if="convertingPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden mt-10px">
+        <div v-if="convertingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-10px">
           <div
-            class="drivepage-progress-bar-fill h-full bg-accent w-0"
+            class="transition-width-018s h-full bg-accent w-0"
             :style="{ width: `${convertingPercent}%` }"
           ></div>
         </div>
@@ -370,9 +370,9 @@
             </div>
           </div>
         </div>
-        <div v-if="archiveDownloadPercent != null" class="drivepage-progress-bar border-radius-full bg-fill-secondary overflow-hidden mt-10px">
+        <div v-if="archiveDownloadPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-10px">
           <div
-            class="drivepage-progress-bar-fill h-full bg-accent w-0"
+            class="transition-width-018s h-full bg-accent w-0"
             :style="{ width: `${archiveDownloadPercent}%` }"
           ></div>
         </div>
@@ -397,7 +397,7 @@
                 :checked="allVisibleLocalEntriesSelected"
                 @change="handleVisibleLocalSelectionChange"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px"></span>
             </label>
           </div>
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
@@ -410,7 +410,7 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="drivepage-list-item flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="drivepage-list-item transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
           :class="{ selected: selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
@@ -421,7 +421,7 @@
                 :checked="isLocalFileSelected(file)"
                 @change.stop="handleLocalFileSelectionChange(file, $event)"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px"></span>
             </label>
           </div>
           <div class="drivepage-list-icon flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0" :class="getFileTypeClass(file)">
@@ -575,7 +575,7 @@
         </UiButton>
       </div>
 
-      <div class="drivepage-detail-preview flex-align-justify-center border-radius-12px mb-20px color-text-tertiary bg-secondary overflow-hidden border-1-light" :class="getFileTypeClass(selectedFile)">
+      <div class="h-160px flex-align-justify-center border-radius-12px mb-20px color-text-tertiary bg-secondary overflow-hidden border-1-light" :class="getFileTypeClass(selectedFile)">
         <!-- Show actual image preview in detail panel -->
         <img
           v-if="isImageFile(selectedFile.name)"
@@ -1083,7 +1083,7 @@
 
             <div v-else class="drivepage-plans-list flex flex-column flex-wrap-wrap gap-12px">
               <div v-if="false">
-                <div v-for="plan in plans" :key="plan.id" class="drivepage-plan-row flex flex-column gap-8px p-16px border-radius-12px border-1 bg-secondary mb-8px">
+                <div v-for="plan in plans" :key="plan.id" class="basis-full flex flex-column gap-8px p-16px border-radius-12px border-1 bg-secondary mb-8px">
                   <div class="drivepage-plan-main flex flex-column flex-1 gap-6px">
                     <div class="drivepage-plan-title-row flex-align-center-justify-space-between gap-8px">
                       <span class="drivepage-plan-name txt-weight-light color-text-primary text-15px">{{ planDisplayName(plan) }}</span>
@@ -1258,7 +1258,7 @@
                       <div
                         v-for="plan in group.plans"
                         :key="plan.id"
-                        class="drivepage-plan-row flex flex-column gap-8px p-16px border-radius-12px border-1 bg-secondary mb-8px"
+                        class="basis-full flex flex-column gap-8px p-16px border-radius-12px border-1 bg-secondary mb-8px"
                       >
                         <div class="drivepage-plan-main flex flex-column flex-1 gap-6px">
                           <div class="drivepage-plan-title-row flex-align-center-justify-space-between gap-8px">

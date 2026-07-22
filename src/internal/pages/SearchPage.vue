@@ -348,7 +348,7 @@
         </UiButton>
       </div>
 
-      <div ref="paginationSentinel" class="searchpage-load-more-sentinel w-full" aria-hidden="true"></div>
+      <div ref="paginationSentinel" class="h-1px w-full" aria-hidden="true"></div>
     </section>
 
     <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760" @update:model-value="closeHowSearchWorks">

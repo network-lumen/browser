@@ -915,9 +915,9 @@
                   v-if="qrCodeDataUrl" 
                   :src="qrCodeDataUrl"
                   alt="QR Code"
-                  class="walletpage-qr-image block border-radius-8px w-240px"
+                  class="h-240px block border-radius-8px w-240px"
                 />
-                <div v-else class="walletpage-qr-placeholder flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
+                <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
                   <div class="walletpage-qr-loading flex-align-center gap-8px color-text-secondary">Generating QR Code...</div>
                 </div>
               </div>

@@ -177,7 +177,7 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
             <div class="helppage-features-grid gap-16px grid">
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Globe :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -186,7 +186,7 @@
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Database :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -195,7 +195,7 @@
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Server :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -204,7 +204,7 @@
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="helppage-feature-icon flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
                   <Wallet :size="24" />
                 </div>
                 <div class="helppage-feature-content">

@@ -71,7 +71,7 @@
         <!-- Stats Grid -->
         <div class="daopage-stats-grid mb-24px gap-16px grid">
           <div class="daopage-stat-card flex-align-center gap-16px p-20px border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
+            <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <FileText :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -80,7 +80,7 @@
             </div>
           </div>
           <div class="daopage-stat-card flex-align-center gap-16px p-20px border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
+            <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <Users :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -89,7 +89,7 @@
             </div>
           </div>
           <div class="daopage-stat-card flex-align-center gap-16px p-20px border-radius-12px">
-            <div class="daopage-stat-icon flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
+            <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <Wallet :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -150,7 +150,7 @@
               <h3 class="daopage-proposal-title color-text-primary text-18px txt-weight-light m-0px mb-8px">{{ proposal.title }}</h3>
               <div class="daopage-proposal-footer flex-align-center flex-justify-space-between">
                 <div class="daopage-vote-progress flex-1 flex flex-column gap-4px">
-                  <div class="daopage-progress-bar-container overflow-hidden bg-border border-radius-4px">
+                  <div class="h-6px overflow-hidden bg-border border-radius-4px">
                     <div class="daopage-progress-yes h-full border-radius-4px transition-width-03" :style="{ width: calculateVotePercentage(proposal, 'yes') + '%' }"></div>
                   </div>
                   <span class="daopage-progress-label color-text-secondary text-12px">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>

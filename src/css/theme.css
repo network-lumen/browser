@@ -419,12 +419,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .chaindetail-value-clickable, .addrdetail-tx-hash:hover code, .addrdetail-tx-height:hover, .settingspage-about-link:hover, .settingspage-info-box a:hover, .explorer-block-link.explorer-clickable:hover, .explorer-height-link:hover, .explorer-block-link:hover {
   text-decoration: underline;
 }
-.chaindetail-status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-}
-
 /* BlockDetailPage.vue */
 .blockdetail-content { min-height: calc(100vh - 200px); }
 .blockdetail-row:hover {
@@ -468,7 +462,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .history-copy p, .helppage-hero-subtitle, .searchpage-help-p { margin: 0.5rem 0 0; }
 .history-group-head-span { height: 1.7rem; }
 .history-item-main, .walletpage-dex-summary-btn { color: inherit; }
-.history-item-avatar { height: 2.7rem; }
 
 /* ExtensionPage.vue */
 
@@ -627,7 +620,6 @@ select.recurpay-input { background-image: none; }
 .explorer-recent-activity {
   grid-template-columns: repeat(2, 1fr);
 }
-.netpage-indicator-bar, .daopage-progress-bar-container, .drivepage-progress-bar { height: 6px; }
 .netpage-indicator-fill.excellent, .gwpage-status-dot.ok, .mygw-status-dot.active { background: var(--ios-green); }
 .netpage-indicator-fill.normal { background: var(--ios-orange); }
 .netpage-tab-btn.active {
@@ -636,7 +628,6 @@ select.recurpay-input { background-image: none; }
   color: var(--ios-blue);
   font-weight: 600;
 }
-.netpage-chart-container, .drivepage-detail-preview { height: 160px; }
 .netpage-block-card:hover {
   transform: translateX(4px);
 }
@@ -678,7 +669,6 @@ select.recurpay-input { background-image: none; }
   font-size: 0.8rem;
   line-height: 1.4;
 }
-.helppage-feature-icon, .daopage-stat-icon { height: 44px; }
 .helppage-tutorial-step .helppage-step-number {
   border-radius: 8px;
   background: var(--gradient-primary);
@@ -782,7 +772,6 @@ select.recurpay-input { background-image: none; }
   border-color: rgba(var(--ios-blue-rgb), 0.28);
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 2px rgba(var(--ios-blue-rgb), 0.18);
 }
-.newtab-shortcut-avatar { height: 3rem; }
 .newtab-shortcut-title { font-weight: 760; }
 .newtab-history-preview-list { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .newtab-history-preview-item { transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
@@ -861,12 +850,6 @@ select.recurpay-input { background-image: none; }
   color: var(--ios-green);
 }
 .mygw-status-dot { animation: mygw-pulse 2s ease-in-out infinite; }
-.mygw-btn-start, .mygw-btn-stop {
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
 .mygw-btn-start {
   background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
   box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
@@ -965,7 +948,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .navbar-profile-row.active, .explorer-activity-item:hover, .drivepage-list-item:hover, .explorer-quick-btn:hover {
   background: var(--primary-a08);
 }
-.navbar-profile-row-delete { height: 26px; }
 .navbar-profile-create-input::placeholder { color: var(--text-tertiary); opacity: 0.6; }
 
 /* ===== EXPORT MODAL ===== */
@@ -1174,13 +1156,15 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-filter-select:hover, .explorer-height-filter-input:hover, .explorer-hash-filter-input:hover, .walletpage-filter-select:hover, .walletpage-search-input:hover, .walletpage-filter-select:focus, .walletpage-search-input:focus {
   border-color: var(--primary, var(--accent-primary));
 }
-.explorer-blocks-view .explorer-table-header {
+.explorer-blocks-view .explorer-table-header, .explorer-blocks-view .explorer-table-row {
   display: grid;
   grid-template-columns: 90px 320px 2.2fr 130px 140px;
   gap: 0.75rem;
   padding: 0.625rem 1.5rem;
-  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
+}
+.explorer-blocks-view .explorer-table-header {
+  background: var(--bg-secondary);
   font-size: 0.625rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -1188,14 +1172,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   letter-spacing: 0.05em;
 }
 .explorer-blocks-view .explorer-table-body { max-height: none; }
-.explorer-blocks-view .explorer-table-row {
-  display: grid;
-  grid-template-columns: 90px 320px 2.2fr 130px 140px;
-  gap: 0.75rem;
-  padding: 0.625rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.2s;
-}
+.explorer-blocks-view .explorer-table-row { transition: background 0.2s; }
 .explorer-validator-address code {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -1220,14 +1197,11 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* Validators Table Styles */
-.explorer-table-header {
+.explorer-table-header, .explorer-table-row {
   grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
-  letter-spacing: 0.02em;
 }
-.explorer-table-row {
-  grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
-  transition: all var(--transition-fast);
-}
+.explorer-table-header { letter-spacing: 0.02em; }
+.explorer-table-row { transition: all var(--transition-fast); }
 .explorer-table-row:hover { cursor: default; }
 .explorer-table-row:active { transform: scale(0.998); }
 .explorer-validator-avatar { background: linear-gradient(135deg, var(--ios-indigo), var(--ios-purple)); }
@@ -1392,7 +1366,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-meta .txt-xs { font-weight: 500; font-size: 0.8125rem; }
 
 /* Load more */
-.searchpage-load-more-sentinel, .drivepage-hosting-divider { height: 1px; }
 .searchpage-result-card::before {
   content: "";
   position: absolute;
@@ -1596,7 +1569,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%);
   opacity: 0.6;
 }
-.walletpage-content-section { box-sizing: border-box; }
 .walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
 .walletpage-asset-icon-image { background: white; }
 .walletpage-spin-icon { animation: spin 0.9s linear infinite; }
@@ -1614,7 +1586,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Transaction List */
 .walletpage-table-header {
   grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px;
-  box-sizing: border-box;
 }
 .walletpage-table-header > div, .walletpage-activity-row > div { min-width: 0; }
 .walletpage-activity-row { grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px; }
@@ -1639,7 +1610,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-summary-value.tax, .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
 }
-.walletpage-qr-image, .walletpage-qr-placeholder { height: 240px; }
 .walletpage-qr-loading::before {
   content: '';
   width: 16px;
@@ -1698,11 +1668,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Search & Filter Bar */
 .drivepage-bulk-toolbar { background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
 .drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
-.drivepage-bulk-action-count {
-  height: 1.35rem;
-}
 .drivepage-bulk-checkbox-span {
-  height: 18px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .drivepage-bulk-checkbox input:checked + span {
@@ -1747,8 +1713,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: #fff;
   font-weight: 600;
 }
-.drivepage-plan-row { flex-basis: 100%; }
-
 /* Gateway plans modal */
 .drivepage-plans-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .drivepage-upload-btn:hover, .drivepage-upload-btn-large:hover {
@@ -1760,7 +1724,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* Folder breadcrumb */
-.drivepage-progress-bar-fill { transition: width 0.2s ease; }
 .drivepage-action-btn::after {
   content: "";
   position: absolute;
@@ -1775,7 +1738,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* List View */
 .drivepage-list-item {
-  transition: all 0.1s;
   content-visibility: auto;
   contain-intrinsic-size: 920px 56px;
 }

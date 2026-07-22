@@ -377,3 +377,4 @@
 .grid-row-2 { grid-row: 2; }
 .justify-self-start { justify-self: start; }
 .justify-self-end { justify-self: end; }
+.basis-full { flex-basis: 100%; }
