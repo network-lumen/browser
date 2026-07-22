@@ -31,7 +31,7 @@
        
        
         placeholder="Search or enter a URL"
-        @keydown.enter="onEnter" class="navbar-url-bar-input border-default focus-outline-none focus-bg-primary focus-ring focus-shadow" />
+        @keydown.enter="onEnter" class="navbar-url-bar-input border-default focus-outline-none focus-bg-primary focus-ring focus-shadow placeholder-tertiary" />
       <UiButton
         variant="icon"
         icon-radius-class="border-radius-8px"

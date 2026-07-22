@@ -125,7 +125,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            class="drivepage-search-input flex-1 border-none bg-transparent text-14px color-text-primary outline-none min-w-0"
+            class="drivepage-search-input flex-1 border-none bg-transparent text-14px color-text-primary outline-none min-w-0 placeholder-tertiary"
             placeholder="Search files..."
             @input="currentPage = 1"
           />

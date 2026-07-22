@@ -20,12 +20,12 @@
             <UiInput type="textarea" v-model="form.description"
               placeholder="Optional notes about this payment"
              
-              rows="2" class="recurpay-input resize-vertical"></UiInput>
+              rows="2" class="recurpay-input resize-vertical placeholder-tertiary"></UiInput>
           </div>
 
           <div class="recurpay-group mb-16px">
             <label class="block color-text-primary recurpay-group-label mb-4px">Category</label>
-            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
+            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -48,7 +48,7 @@
                 v-model="form.recipient"
                 type="text"
                 placeholder="lumen1..."
-                class="recurpay-input flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
+                class="recurpay-input flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
                 title="Scan QR Code">
@@ -65,14 +65,14 @@
                  
                   step="0.000001"
                   min="0"
-                  placeholder="0.000000" class="recurpay-input pr-48px" />
+                  placeholder="0.000000" class="recurpay-input pr-48px placeholder-tertiary" />
                 <span class="currency absolute top-half translate-y-center text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>
             </div>
 
             <div class="recurpay-group mb-16px">
               <label class="block color-text-primary recurpay-group-label mb-4px">Frequency <span class="required color-error">*</span></label>
-              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
+              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -90,7 +90,7 @@
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary"
               />
             </div>
 
@@ -100,7 +100,7 @@
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus"
+                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary"
               />
             </div>
           </div>
@@ -110,7 +110,7 @@
             <UiInput v-model="form.maxPayments"
              
               min="1"
-              placeholder="Leave empty for unlimited" class="recurpay-input" />
+              placeholder="Leave empty for unlimited" class="recurpay-input placeholder-tertiary" />
             <p class="recurpay-hint color-text-secondary text-12px m-0px mt-6px">Payment will stop after this many successful transactions</p>
           </div>
         </div>
@@ -128,7 +128,7 @@
 
           <div v-if="form.reminderEnabled" class="recurpay-group mb-16px">
             <label class="block color-text-primary recurpay-group-label mb-4px">Remind me (days before payment)</label>
-            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus">
+            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>

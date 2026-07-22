@@ -84,7 +84,7 @@
           </svg>
           <input 
             type="text" 
-            class="explorer-search-input flex-1 outline-none color-text-primary border-none text-15px bg-transparent" 
+            class="explorer-search-input flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
             v-model="searchQuery"
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
@@ -337,7 +337,7 @@
                   v-model="blockHeightFilter"
                   type="number"
                   placeholder="Filter by height..."
-                  class="explorer-height-filter-input py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px"
+                  class="explorer-height-filter-input py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
               <span class="explorer-refresh-indicator flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a10 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
@@ -428,7 +428,7 @@
                 v-model="txHashFilter"
                 type="text"
                 placeholder="Filter by hash..."
-                class="explorer-hash-filter-input py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px"
+                class="explorer-hash-filter-input py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
           </div>

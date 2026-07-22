@@ -101,7 +101,7 @@
 
           <UiCard v-else class="mygw-whitelist-table overflow-hidden" border-class="border-15" radius="14px" padding="none" :shadow="false">
             <table class="mygw-whitelist-table-table w-full">
-              <thead>
+              <thead class="bg-hover">
                 <tr>
                   <th class="mygw-whitelist-table-th py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Display Name</th>
                   <th class="mygw-whitelist-table-th py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Wallet Address</th>

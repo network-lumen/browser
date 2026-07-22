@@ -365,7 +365,7 @@
                 v-model="txSearchQuery"
                 type="text"
                 placeholder="Search by hash..."
-                class="walletpage-search-input color-text-primary py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow min-w-200px"
+                class="walletpage-search-input color-text-primary py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow min-w-200px placeholder-tertiary"
               />
             </div>
             <UiButton variant="secondary" @click="exportTransactions">
@@ -630,7 +630,7 @@
               <div class="walletpage-input-wrapper readonly relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
                   :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
-                  readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                  readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>
 
@@ -638,7 +638,7 @@
               <div class="walletpage-form-group mb-20px">
                 <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From chain</label>
                 <div class="walletpage-input-wrapper readonly relative">
-                  <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                  <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
                 </div>
               </div>
               <div class="walletpage-form-group mb-20px">
@@ -660,7 +660,7 @@
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From address</label>
               <div class="walletpage-input-wrapper readonly relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.ownerAddress" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.ownerAddress" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>
 
@@ -669,7 +669,7 @@
               <div class="walletpage-input-wrapper relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
                   v-model="assetTransferForm.recipient"
-                  :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                  :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
               <div v-if="selectedAssetTransferTarget" class="walletpage-field-hint color-text-secondary mt-8px text-13px">
                 Default wallet on destination: {{ selectedAssetTransferTarget.defaultRecipient }}
@@ -683,7 +683,7 @@
                   inputmode="decimal"
                   v-model="assetTransferForm.amount"
                   placeholder="0.000000"
-                  @input="validateAssetTransferAmountInput" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only" />
+                  @input="validateAssetTransferAmountInput" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only placeholder-tertiary" />
                 <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-100">{{ assetTransferContext.displaySymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px">
@@ -745,7 +745,7 @@
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From</label>
               <div class="walletpage-input-wrapper readonly relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
               <div class="walletpage-field-hint color-text-secondary mt-8px text-13px">Chain: {{ sendSourceChainLabel }}</div>
             </div>
@@ -753,7 +753,7 @@
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Asset</label>
               <div class="walletpage-input-wrapper readonly relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>
 
@@ -802,7 +802,7 @@
                 <div class="walletpage-input-wrapper relative">
                   <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" 
                     v-model="sendForm.recipient" 
-                    :placeholder="sendRecipientPlaceholder" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                    :placeholder="sendRecipientPlaceholder" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
                   <UiButton variant="secondary" @click="openQrScanner"
                     type="button"
                     title="Scan QR Code" class="walletpage-input-action-btn absolute top-half translate-y-center right-12px">
@@ -850,7 +850,7 @@
                   inputmode="decimal"
                   v-model="sendForm.amount"
                   placeholder="0.000000"
-                  @input="validateAmountInput" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only" />
+                  @input="validateAmountInput" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only placeholder-tertiary" />
                 <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-100">{{ sendAssetSymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px" v-if="sendAvailableLabel">
@@ -948,7 +948,7 @@
               <div class="walletpage-input-wrapper relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" 
                   v-model="contactForm.name" 
-                  placeholder="Enter contact name" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                  placeholder="Enter contact name" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>
 
@@ -958,7 +958,7 @@
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" 
                   v-model="contactForm.address" 
                   placeholder="lmn1..." 
-                  :readonly="!!editingContact" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
+                  :readonly="!!editingContact" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>
 
@@ -967,7 +967,7 @@
               <div class="walletpage-input-wrapper relative">
                 <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note" 
                   placeholder="Add a note about this contact"
-                  rows="3" class="walletpage-form-input walletpage-form-textarea resize-vertical mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only"></UiInput>
+                  rows="3" class="walletpage-form-input walletpage-form-textarea resize-vertical mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary"></UiInput>
               </div>
             </div>
 
