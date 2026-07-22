@@ -47,7 +47,7 @@
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
             :class="{ 'is-drag-over': dragOverMySpace }"
             @click="showAllPages = true"
           >
@@ -98,7 +98,7 @@
         >
           <div
             v-if="lumenCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px"
+            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
             :class="{ 'is-drag-over': dragOverLumen }"
             @click="showAllPages = true"
           >

@@ -455,57 +455,26 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   color: var(--text-primary);
 }
 
-/* NetworkPage.vue */
+/* NetworkPage.vue — .excellent/.good/.normal are a dynamic 3-way ternary
+   (validatorPercent/blockTimeStatus thresholds), left as CSS. */
 .netpage-node-detail:hover { border-left-color: var(--accent-color); }
-.netpage-main-grid { grid-template-columns: 320px 1fr 380px; align-items: start; }
-.netpage-health-grid, .helppage-actions-grid, .helppage-features-grid, .explorer-charts-section,
-.explorer-recent-activity {
-  grid-template-columns: repeat(2, 1fr);
-}
-.netpage-indicator-fill.excellent, .gwpage-status-dot.ok, .mygw-status-dot.active { background: var(--ios-green); }
+.netpage-indicator-fill.excellent { background: var(--ios-green); }
 .netpage-indicator-fill.normal { background: var(--ios-orange); }
-.netpage-tab-btn.active {
-  background: rgba(var(--ios-indigo-rgb), 0.2);
-  border-color: var(--ios-blue);
-  color: var(--ios-blue);
-  font-weight: 600;
-}
 .netpage-block-card:hover {
   transform: translateX(4px);
 }
-.netpage-validator-avatar {
-  background: linear-gradient(135deg, var(--ios-indigo) 0%, var(--ios-purple) 100%);
-}
-.netpage-meta-value.has-txs {
-  background: var(--fill-success);
-  border-color: rgba(var(--ios-green-rgb), 0.3);
-  color: var(--ios-green);
-}
 
-/* HelpPage.vue */
-.helppage-docs-grid { grid-template-columns: 1fr; }
-
+/* HelpPage.vue — .searchpage-icon-link/.searchpage-type-* are the dynamic
+   SearchPage type/icon enum (bound via computed class helpers), left as CSS. */
 .helppage-hero-section { background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%); }
-.helppage-action-icon-drive, .helppage-contact-icon-website, .drivepage-list-item.selected { background: var(--fill-blue); }
-.helppage-steps-grid { grid-template-columns: repeat(3, 1fr); }
-.helppage-contact-grid { grid-template-columns: repeat(1, 1fr); }
-.helppage-contact-icon.github, .settingspage-status-disabled, .searchpage-icon-link, .searchpage-type-txt,
-.searchpage-type-link {
+.searchpage-icon-link, .searchpage-type-txt, .searchpage-type-link {
   background: var(--fill-tertiary);
 }
 
 /* GatewaysPage.vue */
-.gwpage-manage-grid, .searchpage-help-grid, .sitemodal-segmented-control, .relpage-form-grid,
-.navbar-import-mode-switch, .walletpage-asset-modal-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.gwpage-form-group.full, .gwpage-modal-body .gwpage-form-group:nth-child(4), .searchpage-help-note,
-.homepage-empty-grid {
+.gwpage-modal-body .gwpage-form-group:nth-child(4) {
   grid-column: 1 / -1;
 }
-.gwpage-modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.gwpage-badge-warn { background: rgba(var(--ios-yellow-rgb), 0.15); }
-.gwpage-private-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 
 /* NewTabPage.vue */
 .newtab-page {

@@ -194,7 +194,7 @@
           </div>
           <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkError }}</div>
 
-          <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary">
+          <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>

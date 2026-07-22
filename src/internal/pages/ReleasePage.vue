@@ -181,7 +181,7 @@
 
     <UiModal :model-value="daoModalOpen" title="Send to DAO" panel-class="w-min-900px-96vw" @update:model-value="closeDaoModal">
         <div class="relpage-modal-body flex flex-column gap-12px">
-          <div class="relpage-form-grid gap-12px grid">
+          <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Action</span>
               <select v-model="daoForm.kind" class="relpage-input w-full border-radius-md color-text-primary txt-md border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
@@ -242,7 +242,7 @@
             </label>
           </div>
 
-          <div class="relpage-form-grid gap-12px grid">
+          <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Version</span>
               <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="relpage-input focus-outline-none focus-ring focus-shadow" />
@@ -289,7 +289,7 @@
                 </UiButton>
               </div>
 
-              <div class="relpage-form-grid gap-12px grid">
+              <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">Platform</span>
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="relpage-input focus-outline-none focus-ring focus-shadow" />
@@ -300,7 +300,7 @@
                 </label>
               </div>
 
-              <div class="relpage-form-grid gap-12px grid">
+              <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">CID</span>
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-md" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="relpage-input focus-outline-none focus-ring focus-shadow" />
