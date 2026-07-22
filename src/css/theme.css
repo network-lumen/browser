@@ -225,7 +225,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .lsb-item.active svg, .navbar-profile-row:hover .navbar-profile-row-delete,
 .explorer-table-row:hover .explorer-copy-icon-btn, .explorer-td-hash:hover .explorer-copy-icon-btn,
-.explorer-tx-hash-link:hover svg, .searchpage-result-card:hover::before,
+.explorer-tx-hash-link:hover svg,
 .searchpage-result-card:hover .searchpage-result-url {
   opacity: 1;
 }
@@ -494,9 +494,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .newtab-hero, .newtab-shortcuts-panel, .newtab-onboarding-modal, .newtab-shortcut-modal {
   background: color-mix(in srgb, var(--card-bg) 94%, transparent);
   box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-.newtab-hero::before, .newtab-shortcuts-panel::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 25%);
 }
 .newtab-hero-copy-h1 {
   font-size: clamp(2.2rem, 7vw, 4.3rem);
@@ -790,24 +787,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transform: translateY(-2px) scale(1.02);
 }
 .searchpage-search-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
-.searchpage-help-steps { counter-reset: helpstep; }
-.searchpage-help-steps li::before {
-  counter-increment: helpstep;
-  content: counter(helpstep);
-  width: 26px;
-  height: 26px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-light);
-  background: var(--card-bg);
-  color: var(--text-tertiary);
-  font-weight: 800;
-  font-size: 0.75rem;
-  flex: 0 0 auto;
-  margin-top: 0.05rem;
-}
 .searchpage-pill svg { flex-shrink: 0; transition: transform 0.2s ease; }
 .searchpage-pill:disabled {
   transform: none;
@@ -825,14 +804,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-pill.active svg { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); }
 
-/* Load more */
-.searchpage-result-card::before {
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--accent-gradient, var(--gradient-brand));
-}
 .searchpage-result-card:hover {
   transform: translateY(-4px) translateX(4px);
 }
@@ -876,15 +847,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-type-docx, .searchpage-type-address { background: rgba(var(--ios-teal-rgb), 0.12); color: var(--ios-teal); }
 .searchpage-type-block { background: rgba(var(--ios-indigo-rgb), 0.12); color: var(--ios-purple); }
 
-/* Card accent colors by type - each just sets the --accent-gradient consumed by
-   .searchpage-result-card::before above, instead of redeclaring the whole pseudo-element */
-.searchpage-result-tx { --accent-gradient: linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%); }
-.searchpage-result-block, .searchpage-result-ipfs.searchpage-file-epub { --accent-gradient: linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%); }
-.searchpage-result-address, .searchpage-result-ipfs.searchpage-file-docx { --accent-gradient: linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%); }
-.searchpage-result-ipfs { --accent-gradient: linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%); }
-.searchpage-result-ipfs.searchpage-file-html { --accent-gradient: linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%); }
-.searchpage-result-ipfs.searchpage-file-pdf { --accent-gradient: linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%); }
-.searchpage-result-ipfs.searchpage-file-txt { --accent-gradient: linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%); }
 .searchpage-safe-thumb.searchpage-blurred img {
   filter: blur(14px) saturate(0.85) brightness(0.85);
   transform: scale(1.06);

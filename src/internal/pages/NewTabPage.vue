@@ -76,7 +76,7 @@
     </div>
 
     <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
-      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none backdrop-blur-16">
+      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-28px backdrop-blur-16">
         <div class="newtab-hero-copy text-center my-0px mx-auto max-w-4000">
           <h1 class="color-text-primary m-0px newtab-hero-copy-h1">Search Lumen</h1>
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-14px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
@@ -106,7 +106,7 @@
         </div>
       </section>
 
-      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none backdrop-blur-16">
+      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px backdrop-blur-16">
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
             <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
@@ -180,7 +180,7 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="newtab-shortcuts-panel newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none backdrop-blur-16"
+        class="newtab-shortcuts-panel newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px backdrop-blur-16"
       >
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
