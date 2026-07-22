@@ -849,6 +849,7 @@
 .border-left-3-accent-primary-hover:hover { border-left: 3px solid var(--accent-primary); }
 .border-left-1-border-color { border-left: 1px solid var(--border-color); }
 .divide-x-border > * + * { border-left: 1px solid var(--border-color); }
+.bg-gradient-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
 .border-right-05-border-color { border-right: 0.5px solid var(--border-color); }
 .background-none { background: none; }
 .background-rgba-0-0-0-0-6 { background: rgba(0, 0, 0, 0.6); }
