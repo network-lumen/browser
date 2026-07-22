@@ -241,6 +241,8 @@
    geometry/background that's genuinely unique to that element. */
 .before-absolute::before { content: ''; position: absolute; }
 .after-absolute::after { content: ''; position: absolute; }
+.before-position-absolute::before { position: absolute; }
+.after-position-absolute::after { position: absolute; }
 .before-inset-0::before { inset: 0; }
 .before-cursor-events-none::before { pointer-events: none; }
 .after-cursor-events-none::after { pointer-events: none; }

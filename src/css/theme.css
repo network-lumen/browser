@@ -1265,7 +1265,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-brand::after {
   content: "Search";
-  position: absolute;
   bottom: -1.5rem;
   left: 50%;
   transform: translateX(-50%);
@@ -1488,7 +1487,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   animation: shimmer 1.5s infinite;
 }
 
-
 /* WalletPage.vue */
 .walletpage-text-muted { font-style: italic; }
 .walletpage-balance-card {
@@ -1589,7 +1587,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-contacts-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 .walletpage-input-action-btn { right: 0.75rem; transform: translateY(-50%); }
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
-/* DrivePage.vue */
 /* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
 .details-row {
   display: flex;
@@ -1693,5 +1690,3 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   contain-intrinsic-size: 920px 56px;
 }
 .drivepage-list-item.checked { background: var(--primary-a05); }
-
-/* Modal Styles */
