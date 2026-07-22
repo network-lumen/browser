@@ -282,25 +282,6 @@
   transform: translateY(6px);
 }
 
-/* Shared Vue <Transition name="modal-fade"> — overlay fade + inner .modal-panel scale */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-.modal-fade-enter-active .modal-panel,
-.modal-fade-leave-active .modal-panel {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-.modal-fade-enter-from .modal-panel,
-.modal-fade-leave-to .modal-panel {
-  transform: scale(0.95);
-  opacity: 0;
-}
-
 .app-shell.startup {
   align-items: stretch;
   justify-content: stretch;
@@ -502,8 +483,6 @@
 .border-1-ios-blue-a25 { border: 1px solid rgba(var(--ios-blue-rgb), 0.25); }
 .border-15-ios-blue-a20 { border: 1.5px solid rgba(var(--ios-blue-rgb), 0.2); }
 .border-2-primary-a30 { border: 2px solid var(--primary-a30); }
-.border-bottom-05-black-a08 { border-bottom: 0.5px solid rgba(var(--black-rgb), 0.08); }
-.border-bottom-05-black-a06 { border-bottom: 0.5px solid var(--black-a06); }
 .border-1-ios-indigo-a18 { border: 1px solid rgba(var(--ios-indigo-rgb), 0.18); }
 .border-1-primary-a12 { border: 1px solid var(--primary-a12); }
 .border-1-primary-a20 { border: 1px solid var(--primary-a20); }
@@ -686,7 +665,6 @@
 .background-ios-red-a10-hover:hover { background: rgba(var(--ios-red-rgb), 0.1); }
 .background-fill-primary-focus:focus { background: var(--fill-primary); }
 .background-current { background: currentColor; }
-.background-black-a02-hover:hover { background: var(--black-a02); }
 .background-black-a04-active:active { background: var(--black-a04); }
 .background-bg-secondary-hover-not-disabled-not-active:hover:not(:disabled):not(.active) { background: var(--bg-secondary); }
 .background-rgba-0-0-0-0-45-hover:hover { background: rgba(0, 0, 0, 0.45); }
