@@ -238,12 +238,13 @@
           class="result-item"
           :data-result-index="idx"
         >
-          <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card before-absolute before-fade-hover"
-            :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
-            type="button" 
+          <button
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
+            :class="[ r.media ? `media-${r.media}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
+            type="button"
             @click="openResult(r)"
           >
+            <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
             <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :class="`searchpage-icon-${r.kind}`">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
@@ -384,18 +385,21 @@
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
-                <ol class="searchpage-help-steps flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-145 m-0px mt-8px">
-                  <li class="searchpage-help-steps-li flex gap-10px">
+                <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-145 m-0px mt-8px">
+                  <li class="flex gap-10px">
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary fw-800 text-12px mt-005rem">1</span>
                     <span class="searchpage-help-step-text min-w-0">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
-                  <li class="searchpage-help-steps-li flex gap-10px">
+                  <li class="flex gap-10px">
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary fw-800 text-12px mt-005rem">2</span>
                     <span class="searchpage-help-step-text min-w-0">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
-                  <li class="searchpage-help-steps-li flex gap-10px">
+                  <li class="flex gap-10px">
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary fw-800 text-12px mt-005rem">3</span>
                     <span class="searchpage-help-step-text min-w-0">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>
@@ -1578,6 +1582,24 @@ function typeBadgeLabel(r: ResultItem): string {
     default:
       return "Site";
   }
+}
+
+function resultAccentGradient(r: ResultItem): string {
+  if (!r) return "var(--gradient-brand)";
+  if (r.kind === "tx") return "linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%)";
+  if (r.kind === "block") return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
+  if (r.kind === "address") return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
+  if (r.kind === "ipfs") {
+    switch (r.fileKind) {
+      case "epub": return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
+      case "docx": return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
+      case "html": return "linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%)";
+      case "pdf": return "linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%)";
+      case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
+      default: return "linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%)";
+    }
+  }
+  return "var(--gradient-brand)";
 }
 
 function typeBadgeClass(r: ResultItem): string {
