@@ -758,7 +758,7 @@
 .background-card-bg { background: var(--card-bg, white); }
 .background-card-bg-disabled-hover:disabled:hover { background: var(--card-bg); }
 .background-ios-orange-a10 { background: rgba(var(--ios-orange-rgb), 0.1); }
-.background-bg-secondary-read-only:read-only { background: var(--bg-secondary); }
+.background-bg-secondary-read-only[readonly] { background: var(--bg-secondary); }
 .background-primary-a15-hover:hover { background: var(--primary-a15); }
 .background-error-red-hover:hover { background: var(--error-red); }
 .background-rgba-0-0-0-0-8 { background: rgba(0, 0, 0, 0.8); }
