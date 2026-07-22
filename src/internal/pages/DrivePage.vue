@@ -488,7 +488,7 @@
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="drivepage-action-btn after-absolute danger background-error-red-hover">
+              @click.stop="removeFile(file)" class="drivepage-action-btn after-absolute danger background-error-red-hover bg-ios-red-a10 color-error">
               <Trash2 :size="14" />
             </UiButton>
           </div>
@@ -1208,7 +1208,7 @@
                     <div class="drivepage-gateway-title flex-align-center gap-8px min-w-0">
                       <span
                         class="drivepage-gateway-status-dot border-radius-full w-10px h-10px bg-ios-green"
-                        :class="group.gateway.active ? 'ok' : 'off'"
+                        :class="group.gateway.active ? '' : 'bg-ios-red'"
                       ></span>
                       <span
                         class="drivepage-gateway-name txt-weight-light color-text-primary text-14px nowrap overflow-hidden txt-overflow-ellipsis max-w-260px"

@@ -340,11 +340,20 @@
 .bg-ios-indigo-a20 { background: rgba(var(--ios-indigo-rgb), 0.2); }
 .border-color-ios-blue { border-color: var(--ios-blue); }
 .border-color-ios-green-a30 { border-color: rgba(var(--ios-green-rgb), 0.3); }
+.border-color-ios-green { border-color: var(--ios-green); }
+.border-width-2px { border-width: 2px; }
+.bg-ios-blue-a12 { background: rgba(var(--ios-blue-rgb), 0.12); }
+.bg-gradient-ios-green-soft { background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%); }
+.bg-gradient-ios-blue-soft { background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.08) 0%, rgba(var(--ios-blue-rgb), 0.02) 100%); }
+.shadow-0-2-4-black-a008 { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); }
+.transition-all-fast { transition: all var(--transition-fast); }
+.transition-bg-fast { transition: background var(--transition-fast); }
 .bg-gradient-indigo-purple { background: linear-gradient(135deg, var(--ios-indigo) 0%, var(--ios-purple) 100%); }
 .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-cols-2-minmax0 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-cols-320-1fr-380 { grid-template-columns: 320px 1fr 380px; }
+.grid-cols-200minmax-140-180 { grid-template-columns: minmax(200px, 1fr) 140px 180px; }
 .align-items-start { align-items: start; }
 .grid-col-full { grid-column: 1 / -1; }
 .grid-cols-auto-fill-280 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
@@ -364,6 +373,8 @@
 .grid-cols-70-1fr { grid-template-columns: minmax(70px, 0.28fr) minmax(0, 1fr); }
 .overflow-wrap-anywhere { overflow-wrap: anywhere; }
 .h-100vh { height: 100vh; }
+.h-75vh { height: 75vh; }
+.border-none-radius-0-override { border: none; border-radius: 0; }
 .border-radius-inherit { border-radius: inherit; }
 .transition-width-02 { transition: width 0.2s ease; }
 .progress-fill-indeterminate { width: 42% !important; animation: progress-indeterminate-slide 1.2s ease-in-out infinite; }
@@ -376,7 +387,19 @@
 .transition-bg-border-012 { transition: background 0.12s ease, border-color 0.12s ease; }
 .row-state-active-primary { background: var(--primary-a08); border-color: var(--primary-a15); }
 .color-ios-green-override { color: var(--ios-green); }
+.bg-ios-green-a12-override { background: rgba(var(--ios-green-rgb), 0.12); }
+.border-1-ios-green-a38-override { border: 1px solid rgba(var(--ios-green-rgb), 0.38); }
 .flex-1-1-320px { flex: 1 1 320px; }
+.color-ios-yellow-override { color: var(--ios-yellow); }
+.left-12px { left: 12px; }
+.calc-top-100-6px { top: calc(100% + 6px); }
+.max-h-280px { max-height: 280px; }
+.max-h-200px { max-height: 200px; }
+.letter-spacing-003em { letter-spacing: 0.03em; }
+.transition-bg-015 { transition: background 0.15s ease; }
+.placeholder-tertiary-a60::placeholder { color: var(--text-tertiary); opacity: 0.6; }
+.accent-color-primary { accent-color: var(--accent-primary); }
+.shadow-inset-primary-a20 { box-shadow: 0 0 0 1px var(--primary-a20) inset; }
 .line-height-11 { line-height: 1.1; }
 .opacity-60 { opacity: 0.6; }
 .border-color-ios-orange-a30 { border-color: rgba(var(--ios-orange-rgb), 0.3); }
@@ -488,6 +511,11 @@
 .letter-spacing-05px { letter-spacing: 0.5px; }
 .font-inherit { font-family: inherit; }
 .fw-900 { font-weight: 900; }
+.fw-850 { font-weight: 850; }
+.line-height-17 { line-height: 1.7; }
+.max-h-min-72vh-720px { max-height: min(72vh, 720px); }
+.grid-cols-auto-fill-200 { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.cursor-help { cursor: help; }
 .overflow-x-hidden { overflow-x: hidden; }
 .border-15 { border: 1.5px solid var(--border-color); }
 .border-top-1-light { border-top: 1px solid var(--border-light); }
@@ -747,6 +775,11 @@
 .w-60pct { width: 60%; }
 .w-40pct { width: 40%; }
 .w-74pct { width: 74%; }
+.h-74pct { height: 74%; }
+.grid-cols-auto-fit-140 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.grid-cols-auto-fill-300 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.grid-cols-170-1fr-12fr-12fr-15fr-100-120 { grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px; }
+.hover-pl-calc-125rem-3px:hover { padding-left: calc(1.25rem - 3px); }
 .max-w-140px { max-width: 140px; }
 .max-w-750 { max-width: 7.5rem; }
 .max-w-260px { max-width: 260px; }

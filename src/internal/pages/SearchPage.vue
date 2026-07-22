@@ -121,7 +121,7 @@
           </p>
           <div class="text-left border-radius-md py-16px px-20px bg-secondary">
             <span class="txt-weight-light color-text-secondary text-13px block mb-8px">Try:</span>
-            <ul class="searchpage-suggestion-list m-0px color-text-secondary text-14px pl-20px">
+            <ul class="line-height-17 m-0px color-text-secondary text-14px pl-20px">
               <li>Using different keywords</li>
               <li>Searching for a domain (e.g., <code class="text-13px bg-primary-a08 border-radius-4px color-primary py-4px px-6px">example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
@@ -130,7 +130,7 @@
         </template>
       </UiEmptyState>
 
-      <div v-else-if="selectedType === 'image'" class="searchpage-image-grid gap-16px grid">
+      <div v-else-if="selectedType === 'image'" class="grid-cols-auto-fill-200 gap-16px grid">
         <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
          
@@ -221,7 +221,7 @@
               >
               <span
                 v-if="r.badges.length > 4"
-                class="searchpage-image-badge-more border-radius-full color-text-secondary txt-weight-light text-11px line-height-1 bg-tertiary border-1 nowrap py-4px px-6px"
+                class="cursor-help border-radius-full color-text-secondary txt-weight-light text-11px line-height-1 bg-tertiary border-1 nowrap py-4px px-6px"
                 :title="r.badges.slice(4).join(', ')"
                 >+{{ r.badges.length - 4 }}</span
               >
@@ -300,7 +300,7 @@
                 class="searchpage-site-domain mono flex-inline-align-center mt-6px gap-6px color-primary txt-weight-light text-13px opacity-90"
                 :title="r.site.domain"
               >
-                <Globe :size="14" />
+                <Globe :size="14" class="flex-0-0-auto" />
                 {{ r.site.domain }}
               </div>
               <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono mt-6px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
@@ -334,7 +334,7 @@
                 >
               </div>
             </div>
-            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto mt-4px transition-all-03" />
+            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto mt-4px transition-all-03 opacity-50" />
           </button>
         </li>
       </ul>
@@ -363,10 +363,10 @@
           </div>
         </div>
       </template>
-          <div class="searchpage-help-body color-text-primary">
+          <div class="max-h-min-72vh-720px color-text-primary">
             <div class="searchpage-help-grid grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
+                <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
                 <p class="m-0px mt-8px color-text-secondary line-height-145">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
@@ -382,7 +382,7 @@
               </section>
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
+                <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
                 <ol class="searchpage-help-steps flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-145 m-0px mt-8px">
                   <li class="searchpage-help-steps-li flex gap-10px">
                     <span class="searchpage-help-step-text min-w-0">
@@ -403,7 +403,7 @@
               </section>
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
+                <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
                 <ul class="searchpage-help-list p-0px color-text-secondary list-style-none line-height-145 m-0px mt-8px">
                   <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
@@ -421,7 +421,7 @@
               </section>
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
+                <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
                 <ul class="searchpage-help-list p-0px color-text-secondary list-style-none line-height-145 m-0px mt-8px">
                   <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
                   <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
