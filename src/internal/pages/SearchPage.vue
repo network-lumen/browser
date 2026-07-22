@@ -41,7 +41,7 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="searchpage-pill pill-sites fw-500 txt-sm border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="searchpage-pill pill-sites fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -51,7 +51,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="searchpage-pill fw-500 txt-sm border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="searchpage-pill fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -61,7 +61,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="searchpage-pill fw-500 txt-sm border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="searchpage-pill fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
