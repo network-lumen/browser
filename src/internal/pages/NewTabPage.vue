@@ -1,14 +1,14 @@
 <template>
   <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
-    <UiModal :model-value="showOnboarding" panel-class="newtab-onboarding-modal border-1-light border-radius-24px" :closable="false" @update:model-value="dismissOnboarding">
+    <UiModal :model-value="showOnboarding" panel-class="newtab-onboarding-modal border-1-light border-radius-24px backdrop-blur-16 w-min-34rem-full" :closable="false" @update:model-value="dismissOnboarding">
       <div class="flex-align-start gap-16px mb-16px">
-        <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-brand-logo-radius" aria-hidden="true">
+        <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
           <Hexagon :size="22" />
         </div>
         <div class="newtab-onboarding-text">
-          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px">Welcome</div>
+          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Welcome</div>
           <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
-          <p id="lumen-onboarding-desc" class="color-text-secondary">
+          <p id="lumen-onboarding-desc" class="color-text-secondary mt-6px line-height-15">
             Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
           </p>
         </div>
@@ -24,10 +24,10 @@
       </template>
     </UiModal>
 
-    <UiModal :model-value="showShortcutModal" panel-class="newtab-shortcut-modal border-1-light border-radius-24px" @update:model-value="closeShortcutModal">
+    <UiModal :model-value="showShortcutModal" panel-class="newtab-shortcut-modal border-1-light border-radius-24px backdrop-blur-16 w-min-32rem-full" @update:model-value="closeShortcutModal">
       <template #header>
         <div>
-          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px">Shortcut</div>
+          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
           <h2 id="shortcut-modal-title" class="color-text-primary">
             {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
           </h2>
@@ -76,13 +76,13 @@
     </div>
 
     <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
-      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none">
+      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none backdrop-blur-16">
         <div class="newtab-hero-copy text-center my-0px mx-auto max-w-4000">
           <h1 class="color-text-primary m-0px newtab-hero-copy-h1">Search Lumen</h1>
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-14px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="newtab-omnibox flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-14px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08" @submit.prevent="submitOmnibox">
+        <form class="newtab-omnibox flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-14px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-20px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -94,7 +94,7 @@
             autocomplete="off"
             aria-label="Search Lumen or enter a URL"
           />
-          <UiButton variant="primary" type="submit" class="newtab-omnibox-submit">
+          <UiButton variant="primary" type="submit" class="newtab-omnibox-submit transition-lift-015">
             <ArrowUpRight :size="15" />
             <span>Go</span>
           </UiButton>
@@ -106,10 +106,10 @@
         </div>
       </section>
 
-      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none">
+      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none backdrop-blur-16">
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px">Shortcuts</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-end">
@@ -149,17 +149,17 @@
             <div class="newtab-shortcut-card-actions flex flex-wrap-wrap gap-6px">
               <UiButton variant="secondary" type="button"
                 :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
-                @click.stop="togglePinned(entry.id, entry.pinned)" class="newtab-shortcut-action">
+                @click.stop="togglePinned(entry.id, entry.pinned)" class="newtab-shortcut-action transition-lift-015">
                 <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
               </UiButton>
               <UiButton variant="secondary" type="button"
                 title="Edit shortcut"
-                @click.stop="beginEditShortcut(entry)" class="newtab-shortcut-action">
+                @click.stop="beginEditShortcut(entry)" class="newtab-shortcut-action transition-lift-015">
                 <Pencil :size="14" />
               </UiButton>
               <UiButton variant="danger" type="button"
                 title="Remove shortcut"
-                @click.stop="removeFavouriteById(entry.id)" class="newtab-shortcut-action newtab-shortcut-action--danger">
+                @click.stop="removeFavouriteById(entry.id)" class="newtab-shortcut-action newtab-shortcut-action--danger transition-lift-015">
                 <Trash2 :size="14" />
               </UiButton>
             </div>
@@ -169,8 +169,8 @@
 
         <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty mt-16px border-radius-20px py-14px px-16px bg-black-a02 border-1-dashed-color">
           <div class="newtab-shortcuts-empty-copy">
-            <h3 class="color-text-primary">No shortcuts yet</h3>
-            <p class="color-text-secondary">
+            <h3 class="color-text-primary mt-4px letter-spacing-n003">No shortcuts yet</h3>
+            <p class="color-text-secondary mt-6px line-height-15">
               Star a page from the address bar or create a custom shortcut here. Favourite
               shortcuts stay first.
             </p>
@@ -180,11 +180,11 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="newtab-shortcuts-panel newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none"
+        class="newtab-shortcuts-panel newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px before-absolute before-inset-0 before-cursor-events-none backdrop-blur-16"
       >
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px">Recent</div>
+            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
           </div>
 
           <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-end">
@@ -199,7 +199,7 @@
           <UiButton variant="none" v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            @click="openTarget(entry.url, $event)" class="newtab-history-preview-item flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px">
+            @click="openTarget(entry.url, $event)" class="newtab-history-preview-item flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-ios-blue-a14">
             <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :class="`tone-${entry.kind}`">
               {{ entry.monogram }}
             </span>
