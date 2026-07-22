@@ -12,11 +12,11 @@
         @click="openHowSearchWorks" class="searchpage-help-icon-btn size-36px">
         <HelpCircle :size="18" />
       </UiButton>
-    <section class="hero flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
+    <section class="mt-15vh flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
       <div class="searchpage-brand bg-gradient-primary relative mb-8px letter-spacing-n002 fw-900 text-56px after-position-absolute gradient-text-clip">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="searchpage-search-box flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
+        <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
@@ -74,9 +74,9 @@
 
     </section>
 
-    <section v-if="touched" class="searchpage-results relative z-1 p-0px pr-8px pb-8px pl-8px w-min-920px-full">
+    <section v-if="touched" class="m-3rem-auto-0 relative z-1 p-0px pr-8px pb-8px pl-8px w-min-920px-full">
       <div class="searchpage-meta flex-align-center-justify-space-between gap-16px mb-16px p-0px pr-4px pl-4px">
-        <div v-if="errorMsg" class="txt-xs error">{{ errorMsg }}</div>
+        <div v-if="errorMsg" class="text-13px fw-500 line-height-12 error">{{ errorMsg }}</div>
       </div>
 
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center p-0px pb-16px">
@@ -90,11 +90,11 @@
 
       <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-14px p-0px m-0px list-style-none gap-16px">
         <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-16px border-radius-xl border-default bg-card py-20px px-24px">
-          <div class="searchpage-skeleton-icon border-radius-lg flex-shrink-0 w-52px h-52px"></div>
+          <div class="bg-shimmer border-radius-lg flex-shrink-0 w-52px h-52px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
-            <div class="searchpage-skeleton-title h-18px border-radius-6px w-60pct"></div>
-            <div class="searchpage-skeleton-url h-14px border-radius-6px mt-10px w-40pct"></div>
-            <div class="searchpage-skeleton-desc h-40px border-radius-6px mt-10px w-85pct"></div>
+            <div class="bg-shimmer h-18px border-radius-6px w-60pct"></div>
+            <div class="bg-shimmer h-14px border-radius-6px mt-10px w-40pct"></div>
+            <div class="bg-shimmer h-40px border-radius-6px mt-10px w-85pct"></div>
           </div>
         </li>
       </ul>
@@ -137,7 +137,7 @@
           :data-result-index="idx" class="searchpage-image-card overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
-            class="searchpage-image-save-btn flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 bg-primary transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
+            class="searchpage-image-save-btn top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
             :class="{ 'searchpage-saved bg-accent border-color-accent color-white': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -157,20 +157,20 @@
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb w-full h-full relative overflow-hidden bg-secondary"
-                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'searchpage-thumb-loading': !thumbLoadedById[r.id] }"
+                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
+                  class="top-40 left-50 right-auto z-3 flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="16" />
                 </button>
                 <img
-                  class="searchpage-image-thumb w-full object-fit-cover block bg-secondary"
+                  class="aspect-4-3 w-full object-fit-cover block bg-secondary"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -181,7 +181,7 @@
                   @load="onThumbLoad(r, $event)"
                   @error="onThumbError(r)"
                 />
-                <div v-if="shouldBlurThumb(r)" class="searchpage-safe-thumb-overlay absolute py-8px px-10px left-0 right-0 bottom-0">
+                <div v-if="shouldBlurThumb(r)" class="bg-gradient-thumb-overlay absolute py-8px px-10px left-0 right-0 bottom-0">
                   <div
                     class="searchpage-safe-thumb-reveal w-full text-12px txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 py-8px px-10px backdrop-blur-8 cursor-events-auto color-white-a92 background-rgba-0-0-0-0-45-hover"
                     @click.stop.prevent="revealThumb(r)"
@@ -190,12 +190,12 @@
                   </div>
                 </div>
               </div>
-              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary bg-secondary">
+              <div v-else-if="isSearchImageThumb(r) && brokenThumbs[r.id]" class="aspect-4-3 flex-align-justify-center w-full color-text-secondary bg-secondary">
                 <Image :size="18" />
               </div>
               <img
                 v-else-if="r.thumbUrl"
-                class="searchpage-image-thumb w-full object-fit-cover block bg-secondary"
+                class="aspect-4-3 w-full object-fit-cover block bg-secondary"
                 :src="r.thumbUrl"
                 alt=""
                 :loading="imageThumbLoading(idx)"
@@ -203,11 +203,11 @@
                 :fetchpriority="imageThumbFetchPriority(idx)"
                 @load="markThumbLoaded(r.id)"
               />
-              <div v-else class="searchpage-image-fallback flex-align-justify-center w-full color-text-secondary bg-secondary">
+              <div v-else class="aspect-4-3 flex-align-justify-center w-full color-text-secondary bg-secondary">
                 <Image :size="18" />
               </div>
             </template>
-            <div v-else class="searchpage-image-fallback searchpage-image-fallback--deferred flex-align-justify-center w-full color-text-secondary color-text-tertiary bg-secondary">
+            <div v-else class="aspect-4-3 bg-gradient-fallback-shimmer flex-align-justify-center w-full color-text-secondary color-text-tertiary bg-secondary">
               <Image :size="18" />
             </div>
           </button>
@@ -247,13 +247,13 @@
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
-                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'searchpage-thumb-loading': !thumbLoadedById[r.id] }"
+                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="searchpage-safe-thumb-hide searchpage-safe-thumb-hide--compact flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none top-25 bg-black-a35 backdrop-blur-8 color-white-a92 w-165 background-rgba-0-0-0-0-5-hover"
+                  class="top-40 right-25 z-3 h-165 flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-165 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -290,7 +290,7 @@
               </div>
               <div
                 v-if="displayTitle(r)"
-                class="searchpage-result-title m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
+                class="searchpage-result-title transition-color-02 m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
                 :class="{ 'text-15px italic opacity-70 letter-spacing-0': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
@@ -306,14 +306,14 @@
               <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url mono mt-6px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="searchpage-result-desc searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"
+                class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"
                 :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
               ></pre>
               <div
                 v-else-if="displayDescription(r)"
-                class="searchpage-result-desc color-text-secondary mt-8px text-14px overflow-hidden"
+                class="line-clamp-2 color-text-secondary mt-8px text-14px overflow-hidden"
                 :class="{ 'searchpage-result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
                 :title="displayDescription(r)"
               >

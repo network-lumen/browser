@@ -685,15 +685,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-markdown-view code { word-break: break-word; }
 
 /* Stats Bar */
-.explorer-stat-value {
-  background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
-}
-
-
 .explorer-refresh-indicator.active, .walletpage-amount-value.receive {
   color: var(--ios-green);
 }
-.explorer-pulse-dot { animation: pulse-live 2s ease-in-out infinite; }
 
 /* Tables — Blocks/Transactions/Validators views share one row/header recipe;
    only the grid-template-columns differ per view's data shape. */
@@ -737,9 +731,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--accent-primary);
 }
 
-/* Transactions View */
-.explorer-block-link, .explorer-validator-address, .searchpage-result-title { transition: color 0.2s; }
-
 /* Blocks View - Compact Layout */
 .explorer-filter-select:hover, .explorer-height-filter-input:hover, .explorer-hash-filter-input:hover, .walletpage-filter-select:hover, .walletpage-search-input:hover, .walletpage-filter-select:focus, .walletpage-search-input:focus {
   border-color: var(--primary, var(--accent-primary));
@@ -749,13 +740,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .explorer-blocks-view .explorer-table-body { max-height: none; }
 .explorer-chart-donut-wrapper canvas { width: 100px !important; height: 100px !important; }
-.explorer-proposer-label { letter-spacing: 0.02em; }
-.explorer-proposer-stat .explorer-stat-label { color: var(--text-tertiary); }
-.explorer-proposer-stat .explorer-stat-value {
-  font-weight: 700;
-  color: var(--ios-green);
-}
-.explorer-live-dot { animation: pulse 2s infinite; }
 .drivepage-gateway-card.offline {
   opacity: 0.7;
 }
@@ -766,21 +750,11 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .explorer-table-row:hover { cursor: default; }
 .explorer-table-row:active { transform: scale(0.998); }
-.explorer-validator-avatar { background: linear-gradient(135deg, var(--ios-indigo), var(--ios-purple)); }
-.explorer-voting-power-bar { height: 5px; }
-.explorer-voting-power-fill {
-  background: linear-gradient(90deg, rgba(var(--ios-green-rgb), 0.8), rgba(var(--ios-green-rgb), 0.6));
-}
 .drivepage-action-btn:active {
   transform: scale(0.98);
 }
-.explorer-copy-notification { right: 2rem; animation: slideInUp 0.3s ease; }
 
 /* Stake Modal Styles */
-.explorer-stake-modal {
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
-  animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
 .explorer-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -800,7 +774,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   cursor: pointer;
   border: none;
 }
-.explorer-quick-amounts { grid-template-columns: repeat(4, 1fr); }
 .explorer-advanced-toggle:hover, .walletpage-action-icon.walletpage-asset-refresh-btn:hover,
 .walletpage-action-icon.walletpage-copy-btn:hover, .drivepage-hls-queue-action-btn:hover:not(:disabled),
 .drivepage-hls-queue-clear-btn:hover:not(:disabled) {
@@ -808,11 +781,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--accent-primary);
 }
 /* Transaction Status Popup */
-.explorer-tx-status-popup {
-  z-index: 10001;
-  animation: popupFadeIn 0.3s ease;
-}
-.explorer-tx-icon { animation: iconBounce 0.5s ease; }
 .explorer-tx-status-popup.processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
 .explorer-tx-status-popup.success { border: 2px solid rgba(var(--ios-green-rgb), 0.5); }
 .explorer-tx-status-popup.error { border: 2px solid var(--ios-red); }
@@ -960,11 +928,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-result-ipfs.searchpage-file-html { --accent-gradient: linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%); }
 .searchpage-result-ipfs.searchpage-file-pdf { --accent-gradient: linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%); }
 .searchpage-result-ipfs.searchpage-file-txt { --accent-gradient: linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%); }
-.searchpage-safe-thumb.searchpage-thumb-loading {
-  background: linear-gradient( 90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100% );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
 .searchpage-safe-thumb.searchpage-blurred img {
   filter: blur(14px) saturate(0.85) brightness(0.85);
   transform: scale(1.06);
@@ -975,41 +938,12 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transform: none;
   transition: filter 180ms ease, transform 180ms ease;
 }
-.searchpage-safe-thumb-overlay {
-  background: linear-gradient( 180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.55) );
-}
-.searchpage-safe-thumb-hide {
-  top: 0.4rem;
-  right: 0.4rem;
-  z-index: 3;
-}
-.searchpage-safe-thumb-hide--compact {
-  right: 0.25rem;
-  height: 1.65rem;
-}
-.searchpage-image-card .searchpage-safe-thumb-hide { left: 0.5rem; right: auto; }
 .searchpage-image-card { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
 .searchpage-image-card:hover {
   transform: translateY(-6px) scale(1.02);
 }
-.searchpage-image-thumb, .searchpage-image-fallback { aspect-ratio: 4 / 3; }
-.searchpage-image-fallback--deferred {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-secondary) 76%, white) 100%);
-}
-.searchpage-image-save-btn {
-  top: 0.5rem;
-  background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
-  backdrop-filter: blur(6px);
-}
 .searchpage-image-save-btn:hover {
   transform: scale(1.06);
-}
-.searchpage-result-desc {
-  line-height: 1.6;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
 }
 .searchpage-result-desc--placeholder { font-style: italic; opacity: 0.6; }
 .searchpage-result-card:hover .searchpage-result-open {
@@ -1021,15 +955,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--primary-a10);
   border-color: var(--primary-a30);
   transform: translateY(-1px);
-}
-
-/* Empty State */
-
-/* Improved Skeleton */
-.searchpage-skeleton-icon, .searchpage-skeleton-title, .searchpage-skeleton-url, .searchpage-skeleton-desc {
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.25) 50%, rgba(148, 163, 184, 0.15) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
 /* WalletPage.vue */
@@ -1107,12 +1032,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
 .drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
 
-/* Warning Banner */
-.drivepage-warning-banner {
-  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.1) 0%, rgba(var(--ios-orange-rgb), 0.05) 100%);
-  animation: fadeIn 0.3s ease;
-}
-
 /* Search & Filter Bar */
 .drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
 .drivepage-bulk-checkbox input:checked + span {
@@ -1156,13 +1075,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   font-weight: 600;
 }
 /* Gateway plans modal */
-.drivepage-plans-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .drivepage-upload-btn:hover, .drivepage-upload-btn-large:hover {
   background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
   transform: translateY(-1px);
-}
-.drivepage-upload-dropdown {
-  top: calc(100% + 0.5rem);
 }
 
 /* Folder breadcrumb */
@@ -1177,8 +1092,4 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* List View */
-.drivepage-list-item {
-  content-visibility: auto;
-  contain-intrinsic-size: 920px 56px;
-}
 .drivepage-list-item.checked { background: var(--primary-a05); }

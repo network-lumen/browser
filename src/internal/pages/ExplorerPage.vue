@@ -99,19 +99,19 @@
       <div class="explorer-stats-bar gap-16px mb-32px grid grid-cols-auto-fit-200">
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Latest Block</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(latestBlock) }}</span>
+          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(latestBlock) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(txHistoryTotal) }}</span>
+          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Validators</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ validatorCount }}</span>
+          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ validatorCount }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Avg Block Time</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabel }}</span>
+          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
@@ -226,7 +226,7 @@
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
-                  <span class="explorer-live-dot border-radius-circle w-8px h-8px bg-ios-green"></span>
+                  <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-ios-green"></span>
                   <span>Live</span>
                 </div>
               </div>
@@ -237,16 +237,16 @@
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
                   <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
-                  <div class="explorer-proposer-label color-text-tertiary text-center text-11px">Latest Block Proposer</div>
+                  <div class="letter-spacing-002em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
                   <div class="explorer-proposer-stats w-full mt-6px">
                     <div class="explorer-proposer-stat-group gap-8px w-full grid grid-cols-1fr-1fr">
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
                         <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
-                        <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                        <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                       </div>
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
                         <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
-                        <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
+                        <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                       </div>
                     </div>
                   </div>
@@ -341,7 +341,7 @@
                 />
               </div>
               <span class="explorer-refresh-indicator flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a10 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
-                <span class="explorer-pulse-dot border-radius-circle w-8px h-8px background-current"></span>
+                <span class="animate-pulse-live border-radius-circle w-8px h-8px background-current"></span>
                 Live
               </span>
             </div>
@@ -455,7 +455,7 @@
               <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row last-border-bottom-none flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td explorer-td-hash flex-align-center gap-8px text-13px text-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
-                    <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
                     <code class="explorer-hash-code color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
@@ -484,7 +484,7 @@
                   </span>
                 </div>
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
-                  <span class="explorer-block-link explorer-clickable hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                  <span class="transition-color-02 explorer-clickable hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
                 <div class="explorer-td td-fee flex-align-center text-13px text-14px">
                   <span class="explorer-fee-amount text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
@@ -523,21 +523,21 @@
                 </div>
                 <div class="explorer-td td-validator flex-align-center text-13px text-14px">
                   <div class="validator-info flex-align-center gap-12px">
-                    <div class="explorer-validator-avatar flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-24px overflow-hidden text-13px flex-shrink-0 border-2">
+                    <div class="bg-gradient-indigo-purple flex-align-justify-center size-36px border-radius-circle txt-weight-medium color-white text-24px overflow-hidden text-13px flex-shrink-0 border-2">
                       <img class="explorer-validator-avatar-img w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
                       <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
                     </div>
                     <div class="validator-name-wrapper flex flex-column gap-4px">
                       <span class="explorer-validator-name txt-weight-light color-text-primary text-18px text-14px">{{ validator.moniker }}</span>
-                      <span class="explorer-validator-address color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-ios-blue" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
+                      <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-ios-blue" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
                   </div>
                 </div>
                 <div class="explorer-td td-voting-power flex-align-center text-13px text-14px">
                   <div class="explorer-voting-power-container flex flex-column gap-4px w-full">
                     <div class="explorer-voting-power-text txt-weight-medium color-text-primary text-15px mb-4px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
-                    <div class="explorer-voting-power-bar w-full bg-border border-radius-4px overflow-hidden mb-4px">
-                      <div class="explorer-voting-power-fill h-full border-radius-4px transition-width-03" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
+                    <div class="h-5px w-full bg-border border-radius-4px overflow-hidden mb-4px">
+                      <div class="bg-gradient-voting-power h-full border-radius-4px transition-width-03" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
                     </div>
                     <div class="explorer-voting-power-amount color-text-tertiary fw-500 text-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
                   </div>
@@ -591,7 +591,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="explorer-copy-notification flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-ios-green z-9999 bottom-200 shadow-ios-green-lg">
+    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-ios-green z-9999 bottom-200 shadow-ios-green-lg">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -599,7 +599,7 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="explorer-stake-modal w-90pct max-w-420px" @update:model-value="closeStakeModal">
+    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-stake-modal animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
           <div class="explorer-balance-info flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
             <div class="explorer-balance-item flex flex-column flex-1 gap-4px">
               <span class="explorer-balance-label text-12px color-text-secondary fw-500">Staked:</span>
@@ -665,7 +665,7 @@
                   <span>Max</span>
                 </div>
               </div>
-              <div class="explorer-quick-amounts gap-8px grid">
+              <div class="grid-cols-4-1fr gap-8px grid">
                 <UiButton variant="secondary" @click="setStakePercentage(25)" class="explorer-quick-btn">25%</UiButton>
                 <UiButton variant="secondary" @click="setStakePercentage(50)" class="explorer-quick-btn">50%</UiButton>
                 <UiButton variant="secondary" @click="setStakePercentage(75)" class="explorer-quick-btn">75%</UiButton>
@@ -694,7 +694,7 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-modal-strong min-w-400px max-w-90vw" :class="txStatus">
+            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-modal-strong min-w-400px max-w-90vw" :class="txStatus">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-24px text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-16px w-full">
@@ -707,7 +707,7 @@
 
                 <!-- Success -->
                 <div v-else-if="txStatus === 'success'" class="explorer-tx-success flex flex-column flex-inline-align-center gap-16px w-full">
-                  <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                  <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2"/>
                     <path d="M8 12l3 3 5-5" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -731,7 +731,7 @@
 
                 <!-- Error -->
                 <div v-else-if="txStatus === 'error'" class="explorer-tx-error flex flex-column flex-inline-align-center gap-16px w-full">
-                  <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                  <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="var(--ios-red)" stroke-width="2"/>
                     <path d="M12 8v4m0 4h.01" stroke="var(--ios-red)" stroke-width="2" stroke-linecap="round"/>
                   </svg>
