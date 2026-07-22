@@ -1,7 +1,7 @@
 <template>
   <main
     ref="scrollRoot"
-    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px"
+    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px before-cursor-events-none before-rounded-full"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
@@ -28,7 +28,7 @@
           />
           <UiButton
             variant="primary"
-            class="searchpage-search-btn disabled-fade-50"
+            class="searchpage-search-btn disabled-fade-50 before-absolute before-inset-0 before-fade-hover"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -238,7 +238,7 @@
           :data-result-index="idx"
         >
           <button 
-            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
+            class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card before-absolute before-fade-hover"
             :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px' : '' ]"
             type="button" 
             @click="openResult(r)"
@@ -405,15 +405,15 @@
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
                 <ul class="searchpage-help-list p-0px color-text-secondary list-style-none line-height-145 m-0px mt-8px">
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px">
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
                   </li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px">
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
                     Very short queries can behave like “Explore” (show recent content) instead of
                     strict keyword matching.
                   </li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px">
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
                     Tabs switch mode: <strong>Sites</strong>, <strong>Images</strong>, or
                     <strong>Explore everything</strong>.
                   </li>
@@ -423,11 +423,11 @@
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
                 <ul class="searchpage-help-list p-0px color-text-secondary list-style-none line-height-145 m-0px mt-8px">
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px"><strong>Popularity</strong>: signals like views and saves.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px"><strong>Verified sites</strong>: linked domains can be boosted.</li>
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Popularity</strong>: signals like views and saves.</li>
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
+                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Verified sites</strong>: linked domains can be boosted.</li>
                 </ul>
               </section>
 

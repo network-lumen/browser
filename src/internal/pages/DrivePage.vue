@@ -151,7 +151,7 @@
             :checked="allVisibleLocalEntriesSelected"
             @change="handleVisibleLocalSelectionChange"
           />
-          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px"></span>
+          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute"></span>
         </label>
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
@@ -397,7 +397,7 @@
                 :checked="allVisibleLocalEntriesSelected"
                 @change="handleVisibleLocalSelectionChange"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute"></span>
             </label>
           </div>
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
@@ -421,7 +421,7 @@
                 :checked="isLocalFileSelected(file)"
                 @change.stop="handleLocalFileSelectionChange(file, $event)"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute"></span>
             </label>
           </div>
           <div class="drivepage-list-icon flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0" :class="getFileTypeClass(file)">
@@ -470,25 +470,25 @@
           <div class="drivepage-list-actions flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
-              @click.stop="openEntryDetails(file)" class="drivepage-action-btn">
+              @click.stop="openEntryDetails(file)" class="drivepage-action-btn after-absolute">
               <TableProperties :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Download"
-              @click.stop="downloadFile(file)" class="drivepage-action-btn">
+              @click.stop="downloadFile(file)" class="drivepage-action-btn after-absolute">
               <Download :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isDirEntry(file) && isVideoFile(file.name)"
               title="Convert to HLS"
               :disabled="converting || uploading"
-              @click.stop="convertToHls(file)" class="drivepage-action-btn">
+              @click.stop="convertToHls(file)" class="drivepage-action-btn after-absolute">
               <Clapperboard :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Share"
-              @click.stop="copyLumenLinkFor(file)" class="drivepage-action-btn">
+              @click.stop="copyLumenLinkFor(file)" class="drivepage-action-btn after-absolute">
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="drivepage-action-btn danger background-error-red-hover">
+              @click.stop="removeFile(file)" class="drivepage-action-btn after-absolute danger background-error-red-hover">
               <Trash2 :size="14" />
             </UiButton>
           </div>
