@@ -31,7 +31,7 @@
           <div
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="sidebar-fav-item flex gap-6px"
+            class="sidebar-fav-item flex gap-6px align-items-stretch"
           >
             <UiButton variant="secondary" @click="openFavourite(entry.url, $event)" class="sidebar-fav-hit">
               <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-30px h-30px" :class="`tone-${entry.kind}`">

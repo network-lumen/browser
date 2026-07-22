@@ -136,6 +136,8 @@
 
 /* ---------------------------- FONT WEIGHT ---------------------------- */
 .fw-500 { font-weight: 500; }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
 
 /* ---------------------------- TEXT TRANSFORM / SPACING ---------------------------- */
 .text-uppercase { text-transform: uppercase; }
@@ -149,6 +151,7 @@
 .letter-spacing-008em { letter-spacing: 0.08em; }
 .letter-spacing-01em { letter-spacing: 0.1em; }
 .line-height-1 { line-height: 1; }
+.line-height-16 { line-height: 1.6; }
 .line-height-12 { line-height: 1.2; }
 .line-height-14 { line-height: 1.4; }
 .line-height-155 { line-height: 1.55; }
@@ -414,6 +417,7 @@
 .max-w-420px { max-width: 420px; }
 .opacity-55 { opacity: 0.55; }
 .align-self-center { align-self: center; }
+.align-items-stretch { align-items: stretch; }
 .cursor-events-auto { pointer-events: auto; }
 .backdrop-blur { backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); }
 .backdrop-blur-8 { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
@@ -524,6 +528,13 @@
 .shadow-inset-highlight { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
 .filter-none { filter: none; }
 .translate-center { transform: translate(-50%, -50%); }
+.gradient-text-clip { -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.appearance-none { appearance: none; -webkit-appearance: none; }
+.italic { font-style: italic; }
+.object-position-center { object-position: center; }
+.letter-spacing-0 { letter-spacing: 0; }
+.min-h-132px { min-height: 132px; }
+.max-h-132px { max-height: 132px; }
 .focus-ring:focus { box-shadow: 0 0 0 3px var(--primary-a10); }
 .border-radius-22px { border-radius: 22px; }
 .border-color-accent { border-color: var(--accent-primary); }

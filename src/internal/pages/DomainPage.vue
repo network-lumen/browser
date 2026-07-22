@@ -307,7 +307,7 @@
               </div>
 
               <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
-                <div class="domainpage-price-row total mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px pt-6px border-top-1">
+                <div class="domainpage-price-row total mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px pt-6px border-top-1 fw-600">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>
