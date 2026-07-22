@@ -98,7 +98,7 @@
             <div
               v-for="it in entries"
               :key="it.key"
-              class="ipfspage-dir-row gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
+              class="ipfspage-dir-row last-border-bottom-none gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
               @dblclick="openEntry(it)"
             >
               <div class="ipfspage-dir-name flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">

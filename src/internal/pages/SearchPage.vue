@@ -367,7 +367,7 @@
             <div class="searchpage-help-grid grid gap-y-14px gap-x-16px">
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="searchpage-help-h3 m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
-                <p class="searchpage-help-p color-text-secondary line-height-145">
+                <p class="m-0px mt-8px color-text-secondary line-height-145">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.

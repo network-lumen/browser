@@ -139,7 +139,7 @@
           <UiButton variant="primary" type="button"
            
             :disabled="extensionsBusy"
-            @click.stop="openChromeWebStore" class="navbar-extensions-store-link disabled-fade-45">
+            @click.stop="openChromeWebStore" class="navbar-extensions-store-link disabled-fade-40">
             <span>Import from Chrome Web Store</span>
             <ExternalLink :size="13" />
           </UiButton>

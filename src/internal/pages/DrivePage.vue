@@ -20,7 +20,7 @@
           </UiButton>
           <UiButton variant="icon" icon-radius-class="border-radius-sm"
             @click.stop="openLocalDetails"
-            title="Local details" class="drivepage-hosting-details flex-inline-align-justify-center size-32px">
+            title="Local details" class="drivepage-hosting-details hover-border-primary-a15 flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
           </UiButton>
         </div>
@@ -66,7 +66,7 @@
           </UiButton>
           <UiButton variant="icon" icon-radius-class="border-radius-sm"
             @click.stop="openGatewayDetails(sub.gatewayId)"
-            title="Subscription details" class="drivepage-hosting-details flex-inline-align-justify-center size-32px">
+            title="Subscription details" class="drivepage-hosting-details hover-border-primary-a15 flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
           </UiButton>
         </div>
@@ -162,13 +162,13 @@
         <div class="drivepage-bulk-toolbar-actions flex-align-center flex-wrap-wrap ml-auto gap-8px">
           <UiButton variant="secondary" type="button"
             :disabled="!selectedLocalCount"
-            @click="clearLocalSelection" class="disabled-fade-45">
+            @click="clearLocalSelection" class="disabled-fade-40">
             Clear
           </UiButton>
           <UiButton variant="primary" v-if="canBulkConvertSelectedLocal"
            
             type="button"
-            @click="convertSelectedLocalToHls" class="disabled-fade-45">
+            @click="convertSelectedLocalToHls" class="disabled-fade-40">
             Convert to HLS
             <span v-if="selectedLocalConvertibleCount" class="h-22px flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-135rem-badge">
               {{ selectedLocalConvertibleCount }}
@@ -176,7 +176,7 @@
           </UiButton>
           <UiButton variant="danger" type="button"
             :disabled="!canBulkRemoveSelectedLocal"
-            @click="removeSelectedLocalFiles" class="disabled-fade-45">
+            @click="removeSelectedLocalFiles" class="disabled-fade-40">
             Remove selected
           </UiButton>
         </div>
@@ -307,20 +307,20 @@
              
               type="button"
               @click="pauseHlsQueue"
-              :disabled="convertingPauseRequested" class="drivepage-hls-queue-action-btn disabled-fade-45">
+              :disabled="convertingPauseRequested" class="drivepage-hls-queue-action-btn disabled-fade-40">
               <Pause :size="14" />
               <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
             </UiButton>
             <UiButton variant="secondary" v-if="hlsQueueCanResume"
              
               type="button"
-              @click="resumeHlsQueue" class="drivepage-hls-queue-action-btn disabled-fade-45">
+              @click="resumeHlsQueue" class="drivepage-hls-queue-action-btn disabled-fade-40">
               <Play :size="14" />
               <span>Resume</span>
             </UiButton>
             <UiButton variant="secondary" type="button"
               @click="clearHlsQueue"
-              :disabled="!hlsQueue.length" class="drivepage-hls-queue-clear-btn disabled-fade-45">
+              :disabled="!hlsQueue.length" class="drivepage-hls-queue-clear-btn disabled-fade-40">
               {{ converting ? "Clear finished" : "Clear queue" }}
             </UiButton>
           </div>
@@ -410,7 +410,7 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="drivepage-list-item transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="drivepage-list-item last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
           :class="{ selected: selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >

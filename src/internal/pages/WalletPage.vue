@@ -257,7 +257,7 @@
             <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px">
               <button
                 type="button"
-                class="walletpage-dex-summary-btn flex-align-start gap-14px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
+                class="color-inherit flex-align-start gap-14px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
                 @click="toggleDexExpanded(dex.key)"
               >
                 <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-52px h-52px" :class="{ 'walletpage-dex-logo-dark': dex.logoTheme === 'dark' }">
@@ -441,7 +441,7 @@
           <div
             v-for="tx in enhancedActivities"
             :key="tx.id"
-            class="walletpage-activity-row gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
+            class="walletpage-activity-row last-border-bottom-none gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
           >
             <div class="col-type">
               <div class="walletpage-type-badge flex-inline text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :class="getActivityBadgeClass(tx)">
@@ -695,15 +695,15 @@
               <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-14px px-16px">
                 <span>Transfer Summary</span>
               </div>
-              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Route</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
               </div>
-              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Source chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ assetTransferContext.chainLabel }}</span>
               </div>
-              <div class="walletpage-summary-row txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
+              <div class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Destination chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
               </div>
@@ -829,7 +829,7 @@
                     <button 
                       v-for="contact in contacts" 
                       :key="contact.id"
-                      class="walletpage-picker-item flex-align-center gap-12px w-full text-left cursor-pointer py-12px px-16px border-none bg-transparent transition-all-02 border-bottom-1"
+                      class="walletpage-picker-item last-border-bottom-none flex-align-center gap-12px w-full text-left cursor-pointer py-12px px-16px border-none bg-transparent transition-all-02 border-bottom-1"
                       @click="selectContactForSend(contact)"
                     >
                       <div class="walletpage-picker-avatar flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-14px flex-shrink-0">{{ contact.name.charAt(0).toUpperCase() }}</div>
@@ -862,27 +862,27 @@
               <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-14px px-16px">
                 <span>{{ isIbcSend ? 'Transfer Summary' : 'Transaction Summary' }}</span>
               </div>
-              <div class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="!isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div v-if="!isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSourceChainLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Tax</span>
                 <span class="walletpage-summary-value tax txt-weight-light color-text-primary mono">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Receiver net</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Route</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.routeLabel }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
+              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Destination chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.destinationChain }}</span>
               </div>
