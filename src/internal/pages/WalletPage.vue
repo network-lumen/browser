@@ -93,7 +93,7 @@
         <div class="walletpage-balance-card border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 before-absolute after-absolute before-cursor-events-none after-cursor-events-none before-rounded-full after-rounded-full shadow-glow-ios-blue-lg">
           <div class="walletpage-balance-header flex-align-center-justify-space-between mb-16px">
             <span class="walletpage-balance-label text-uppercase txt-weight-light text-13px letter-spacing-008em color-rgba-255-255-255-0-85">Total Balance</span>
-            <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="walletpage-eye-btn flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
+            <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="hover-bg-card flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
               <Eye v-if="showBalance" :size="18" />
               <EyeOff v-else :size="18" />
             </UiButton>
@@ -113,7 +113,7 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="walletpage-quick-actions gap-16px grid">
+        <div class="grid-cols-auto-fit-140 gap-16px grid">
           <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
             <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
               <ArrowUpRight :size="20" />
@@ -265,7 +265,7 @@
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
                     :alt="`${dex.name} logo`"
-                    class="walletpage-dex-logo-image m-auto block bg-transparent w-74pct object-fit-contain object-position-center"
+                    class="h-74pct m-auto block bg-transparent w-74pct object-fit-contain object-position-center"
                     @error="handleDexLogoError(dex)"
                   />
                   <span v-else>{{ dex.iconText }}</span>
@@ -428,22 +428,22 @@
         </UiEmptyState>
 
         <div v-else class="walletpage-activities-list flex flex-column border-radius-12px w-full border-1 overflow-hidden background-card-bg">
-          <div class="walletpage-table-header gap-16px text-12px txt-weight-medium color-text-secondary text-uppercase w-full grid bg-secondary letter-spacing-005em py-12px px-20px border-bottom-2-color">
-            <div class="col-type">Type</div>
-            <div class="col-amount">Amount</div>
-            <div class="walletpage-col-from flex-align-center gap-8px">From</div>
-            <div class="walletpage-col-to flex-align-center gap-8px">To</div>
-            <div class="col-hash flex-align-center gap-8px">Hash</div>
-            <div class="col-status">Status</div>
-            <div class="col-time">Time</div>
+          <div class="grid-cols-170-1fr-12fr-12fr-15fr-100-120 gap-16px text-12px txt-weight-medium color-text-secondary text-uppercase w-full grid bg-secondary letter-spacing-005em py-12px px-20px border-bottom-2-color">
+            <div class="col-type min-w-0">Type</div>
+            <div class="col-amount min-w-0">Amount</div>
+            <div class="walletpage-col-from flex-align-center gap-8px min-w-0">From</div>
+            <div class="walletpage-col-to flex-align-center gap-8px min-w-0">To</div>
+            <div class="col-hash flex-align-center gap-8px min-w-0">Hash</div>
+            <div class="col-status min-w-0">Status</div>
+            <div class="col-time min-w-0">Time</div>
           </div>
 
           <div
             v-for="tx in enhancedActivities"
             :key="tx.id"
-            class="walletpage-activity-row last-border-bottom-none gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
+            class="grid-cols-170-1fr-12fr-12fr-15fr-100-120 hover-pl-calc-125rem-3px last-border-bottom-none gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
           >
-            <div class="col-type">
+            <div class="col-type min-w-0">
               <div class="walletpage-type-badge flex-inline text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :class="getActivityBadgeClass(tx)">
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
                 <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
@@ -453,7 +453,7 @@
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
-                <div class="walletpage-type-text flex flex-column gap-2px min-w-0 line-height-11">
+                <div class="flex flex-column gap-2px min-w-0 line-height-11">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
@@ -464,7 +464,7 @@
               </div>
             </div>
 
-            <div class="col-amount">
+            <div class="col-amount min-w-0">
               <span class="walletpage-amount-value txt-weight-medium text-14px mono" :class="tx.type">
                 <template v-if="tx.amounts && tx.amounts.length && tx.amounts[0].amount">
                   {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount) / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} {{ formatDenom(tx.amounts[0].denom) }}
@@ -475,7 +475,7 @@
               </span>
             </div>
 
-            <div class="walletpage-col-from flex-align-center gap-8px">
+            <div class="walletpage-col-from flex-align-center gap-8px min-w-0">
               <span class="walletpage-address-value mono text-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full overflow-hidden txt-overflow-ellipsis nowrap" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
@@ -495,7 +495,7 @@
               </UiButton>
             </div>
 
-            <div class="walletpage-col-to flex-align-center gap-8px">
+            <div class="walletpage-col-to flex-align-center gap-8px min-w-0">
               <span class="walletpage-address-value mono text-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full overflow-hidden txt-overflow-ellipsis nowrap" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
@@ -515,7 +515,7 @@
               </UiButton>
             </div>
 
-            <div class="col-hash flex-align-center gap-8px">
+            <div class="col-hash flex-align-center gap-8px min-w-0">
               <span class="walletpage-hash-value color-text-secondary text-13px mono" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
@@ -529,13 +529,13 @@
               </UiButton>
             </div>
 
-            <div class="col-status">
+            <div class="col-status min-w-0">
               <span class="walletpage-status-badge flex-inline-align-center text-12px txt-weight-light border-radius-6px nowrap py-8px px-10px" :class="(tx.code === undefined || tx.code === 0) ? 'success badge-success' : 'failed badge-error'">
                 {{ (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed' }}
               </span>
             </div>
 
-            <div class="col-time">
+            <div class="col-time min-w-0">
               <span class="walletpage-time-value flex flex-column color-text-primary fw-500 text-13px gap-2px">
                 {{ new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
                 <span class="walletpage-time-hour text-12px color-text-tertiary txt-weight-normal">{{ new Date(tx.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}</span>
@@ -561,7 +561,7 @@
           <Users :size="32" />
         </UiEmptyState>
 
-        <div v-else class="walletpage-contacts-grid gap-16px mt-24px grid">
+        <div v-else class="grid-cols-auto-fill-300 gap-16px mt-24px grid">
           <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px p-20px bg-card border-1 transition-all-02 hover-border-accent hover-shadow-primary-a15">
             <div class="walletpage-contact-header flex-align-center gap-14px mb-12px">
               <div class="walletpage-contact-avatar flex-align-justify-center size-48px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-20px flex-shrink-0">
@@ -627,7 +627,7 @@
 
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Asset</label>
-              <div class="walletpage-input-wrapper readonly relative">
+              <div class="walletpage-input-wrapper opacity-70 relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
                   :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
                   readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
@@ -637,7 +637,7 @@
             <div class="walletpage-asset-modal-grid gap-16px grid grid-cols-2-minmax0">
               <div class="walletpage-form-group mb-20px">
                 <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From chain</label>
-                <div class="walletpage-input-wrapper readonly relative">
+                <div class="walletpage-input-wrapper opacity-70 relative">
                   <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
                 </div>
               </div>
@@ -659,7 +659,7 @@
 
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From address</label>
-              <div class="walletpage-input-wrapper readonly relative">
+              <div class="walletpage-input-wrapper opacity-70 relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.ownerAddress" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>
@@ -744,7 +744,7 @@
 
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From</label>
-              <div class="walletpage-input-wrapper readonly relative">
+              <div class="walletpage-input-wrapper opacity-70 relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
               <div class="walletpage-field-hint color-text-secondary mt-8px text-13px">Chain: {{ sendSourceChainLabel }}</div>
@@ -752,7 +752,7 @@
 
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Asset</label>
-              <div class="walletpage-input-wrapper readonly relative">
+              <div class="walletpage-input-wrapper opacity-70 relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
               </div>
             </div>

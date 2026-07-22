@@ -2,7 +2,7 @@
   <label class="flex-inline-align-center gap-8px cursor-pointer">
     <input
       type="checkbox"
-      class="w-16px h-16px cursor-pointer"
+      class="w-16px h-16px cursor-pointer accent-color-primary"
       :checked="modelValue"
       :disabled="disabled"
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"

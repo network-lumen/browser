@@ -1,6 +1,6 @@
 <template>
-  <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'ipfspage-ipfs-page--bare': isBareHtmlView }">
-    <main class="ipfspage-main-content flex flex-column flex-1 p-24px overflow-auto">
+  <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'bg-tertiary': isBareHtmlView }">
+    <main class="ipfspage-main-content flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
       <UiPageHeader v-if="!isBareHtmlView">
         <template #actions>
           <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
@@ -24,7 +24,7 @@
             class="ipfspage-plans-btn disabled-fade-50"
             type="button"
             @click="openSaveModal"
-            :class="{ 'ipfspage-save-active': saved }"
+            :class="{ 'bg-ios-green-a12-override border-1-ios-green-a38-override color-ios-green-override': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
               saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'
@@ -62,14 +62,14 @@
         <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center py-48px px-32px">
           <div class="ipfspage-welcome-content text-center max-w-600px">
             <h2 class="ipfspage-welcome-content-h2 text-28px txt-weight-light color-text-primary mb-12px">IPFS Content Viewer</h2>
-            <p>View and download content from IPFS using CIDs.</p>
+            <p class="color-text-secondary text-16px mb-32px">View and download content from IPFS using CIDs.</p>
             <UiCard padding="none" :shadow="false" class="ipfspage-welcome-example p-24px mb-32px">
               <p class="ipfspage-example-label fw-500 color-text-secondary text-14px mb-12px">Example:</p>
               <code class="ipfspage-welcome-example-code block bg-card border-default border-radius-8px py-12px px-16px mono text-14px color-primary break-all"
                 >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
               >
             </UiCard>
-            <p class="ipfspage-welcome-hint color-text-tertiary text-14px">
+            <p class="color-text-secondary text-16px mb-32px">
               Enter an IPFS CID in the address bar to view content.
             </p>
           </div>
@@ -98,7 +98,7 @@
             <div
               v-for="it in entries"
               :key="it.key"
-              class="ipfspage-dir-row last-border-bottom-none gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
+              class="ipfspage-dir-row grid-cols-200minmax-140-180 last-border-bottom-none gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
               @dblclick="openEntry(it)"
             >
               <div class="ipfspage-dir-name flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">
@@ -163,8 +163,8 @@
              v-else-if="viewKind === 'html'"
              ref="siteWebview"
              :src="contentUrl"
-             class="ipfspage-embed w-full border-radius-12px border-1 bg-primary"
-             :class="{ 'ipfspage-embed--bare': isBareHtmlView }"
+             class="h-75vh w-full border-radius-12px border-1 bg-primary"
+             :class="{ 'border-none-radius-0-override': isBareHtmlView }"
              partition="persist:lumen"
              allowpopups
              :webpreferences="webprefs"
@@ -181,13 +181,13 @@
           <iframe
             v-else-if="viewKind === 'pdf'"
             :src="contentUrl"
-            class="ipfspage-embed w-full border-radius-12px border-1 bg-primary"
+            class="h-75vh w-full border-radius-12px border-1 bg-primary"
           ></iframe>
 
           <iframe
             v-else-if="viewKind === 'epub'"
             :src="epubReaderUrl"
-            class="ipfspage-embed w-full border-radius-12px border-1 bg-primary"
+            class="h-75vh w-full border-radius-12px border-1 bg-primary"
             allow="fullscreen"
           ></iframe>
 
@@ -210,7 +210,7 @@
           <div v-else class="ipfspage-unsupported flex-align-justify-center w-full">
             <div class="ipfspage-unsupported-content text-center p-32px max-w-500px">
               <h3 class="ipfspage-unsupported-content-h3 text-20px txt-weight-light color-text-primary mb-12px">Preview not available</h3>
-              <p>This content type cannot be previewed directly.</p>
+              <p class="color-text-secondary mb-24px">This content type cannot be previewed directly.</p>
             </div>
           </div>
         </div>
