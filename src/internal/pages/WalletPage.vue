@@ -90,7 +90,7 @@
       <!-- Overview View -->
       <div v-if="currentView === 'overview'" class="overview-section flex flex-column gap-24px">
         <!-- Balance Card -->
-        <div class="walletpage-balance-card border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 before-absolute after-absolute before-cursor-events-none after-cursor-events-none before-rounded-full after-rounded-full shadow-glow-ios-blue-lg">
+        <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-ios-blue-lg">
           <div class="walletpage-balance-header flex-align-center-justify-space-between mb-16px">
             <span class="walletpage-balance-label text-uppercase txt-weight-light text-13px letter-spacing-008em color-rgba-255-255-255-0-85">Total Balance</span>
             <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="hover-bg-card flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
@@ -114,25 +114,25 @@
 
         <!-- Quick Actions -->
         <div class="grid-cols-auto-fit-140 gap-16px grid">
-          <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
+          <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </UiButton>
-          <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
+          <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </UiButton>
-          <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
+          <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-60 shadow-0-8-20-ios-blue-a30">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
-          <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column before-absolute before-inset-0 before-fade-hover">
+          <UiButton variant="cta" disabled class="walletpage-quick-btn disabled-fade-50 flex-column">
             <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-60 shadow-0-8-20-ios-blue-a30">
               <CreditCard :size="20" />
             </div>
@@ -918,7 +918,10 @@
                   class="h-240px block border-radius-8px w-240px"
                 />
                 <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
-                  <div class="walletpage-qr-loading flex-align-center gap-8px color-text-secondary before-rounded-full">Generating QR Code...</div>
+                  <div class="flex-align-center gap-8px color-text-secondary">
+                    <span class="ring-spinner ring-spinner-sm inline-block flex-shrink-0"></span>
+                    Generating QR Code...
+                  </div>
                 </div>
               </div>
             </div>

@@ -225,8 +225,8 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .lsb-item.active svg, .navbar-profile-row:hover .navbar-profile-row-delete,
 .explorer-table-row:hover .explorer-copy-icon-btn, .explorer-td-hash:hover .explorer-copy-icon-btn,
-.explorer-tx-hash-link:hover svg, .searchpage-search-btn:hover::before, .searchpage-result-card:hover::before,
-.searchpage-result-card:hover .searchpage-result-url, .walletpage-quick-btn:not(:disabled):hover::before {
+.explorer-tx-hash-link:hover svg, .searchpage-result-card:hover::before,
+.searchpage-result-card:hover .searchpage-result-url {
   opacity: 1;
 }
 
@@ -787,18 +787,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 
 /* SearchPage.vue */
-.searchpage-search-page::before {
-  content: "";
-  position: fixed;
-  top: -50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, var(--primary-a08) 0%, transparent 70%);
-  z-index: 0;
-}
-.hero { margin-top: 15vh; }
 .searchpage-brand::after {
   content: "Search";
   bottom: -1.5rem;
@@ -811,24 +799,10 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--text-tertiary);
   -webkit-text-fill-color: var(--text-tertiary);
 }
-.searchpage-search-box:focus-within {
-  transform: translateY(-2px);
-}
-.searchpage-search-btn::before {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
-}
 .searchpage-search-btn:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.02);
 }
 .searchpage-search-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
-.searchpage-help-list li::before {
-  left: 0.2rem;
-  top: 0.65rem;
-  width: 6px;
-  height: 6px;
-  background: var(--text-tertiary);
-  opacity: 0.7;
-}
 .searchpage-help-steps { counter-reset: helpstep; }
 .searchpage-help-steps li::before {
   counter-increment: helpstep;
@@ -863,10 +837,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.3);
 }
 .searchpage-pill.active svg { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); }
-.searchpage-results {
-  margin: 3rem auto 0;
-}
-.searchpage-meta .txt-xs { font-weight: 500; font-size: 0.8125rem; }
 
 /* Load more */
 .searchpage-result-card::before {
@@ -958,23 +928,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* WalletPage.vue */
-.walletpage-balance-card::before {
-  top: -50%;
-  right: -20%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-}
-.walletpage-balance-card::after {
-  bottom: -30%;
-  left: -10%;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-}
-.walletpage-quick-btn::before {
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.1) 0%, rgba(var(--ios-blue-rgb), 0.1) 100%);
-}
 .walletpage-quick-btn:not(:disabled):hover {
   transform: translateY(-6px);
   border-color: rgba(var(--ios-blue-rgb), 0.5);
@@ -997,15 +950,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
 }
-.walletpage-qr-loading::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--text-tertiary);
-  border-top-color: var(--accent-primary);
-  animation: spin 0.6s linear infinite;
-}
-
 /* Address Book Styles */
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
 /* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
