@@ -55,7 +55,7 @@
 }
 
 /* from src/css/theme.css */
-@keyframes sitemodal-pin-progress-slide {
+@keyframes progress-indeterminate-slide {
   0% { transform: translateX(-120%); }
   100% { transform: translateX(320%); }
 }
@@ -64,12 +64,6 @@
 @keyframes mygw-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
-}
-
-/* from src/css/theme.css */
-@keyframes pin-progress-slide {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(320%); }
 }
 
 /* from src/css/theme.css */

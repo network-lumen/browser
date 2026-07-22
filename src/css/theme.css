@@ -537,39 +537,12 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: var(--bg-secondary);
 }
 
-/* LumenSiteModalHost.vue */
-.sitemodal-records-toggle svg { transition: transform 0.16s ease; }
-.sitemodal-records-toggle svg.open, .walletpage-dex-chevron.open { transform: rotate(180deg); }
-.sitemodal-record-detail-row { grid-template-columns: minmax(70px, 0.28fr) minmax(0, 1fr); align-items: start; }
-.sitemodal-record-value { overflow-wrap: anywhere; }
-.sitemodal-segmented-control button.active {
-  background: var(--card-bg);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
-}
-.sitemodal-pin-progress-fill, .ipfspage-pin-progress-fill { border-radius: inherit; transition: width 0.2s ease; }
-.sitemodal-pin-progress-fill.indeterminate {
-  width: 42% !important;
-  animation: sitemodal-pin-progress-slide 1.2s ease-in-out infinite;
-}
-.sitemodal-balance-hint.error, .domainpage-empty.error p, .error,
-.walletpage-asset-meta.error, .walletpage-dex-meta.error, .walletpage-amount-value.send,
-.walletpage-field-hint.error {
+.error, .walletpage-amount-value.send {
   color: var(--ios-red);
 }
 
-/* MyGatewaysPage.vue */
-.my-gateways-page { height: 100vh; }
-.mygw-server-card.active {
-  border-color: var(--ios-green);
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%);
-  box-shadow: 0 4px 20px rgba(var(--ios-green-rgb), 0.1);
-}
-.mygw-server-card.active .mygw-server-icon {
-  background: rgba(var(--ios-green-rgb), 0.15);
-  color: var(--ios-green);
-}
-.mygw-status-dot { animation: mygw-pulse 2s ease-in-out infinite; }
+/* MyGatewaysPage.vue — .mygw-btn-start/.mygw-btn-stop kept as a button
+   variant identity (multiple pseudo-state rules attached: hover, disabled) */
 .mygw-btn-start {
   background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
   box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
@@ -587,27 +560,16 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   cursor: not-allowed;
   transform: none !important;
 }
-.mygw-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 .mygw-gateway-card:hover {
   transform: translateY(-4px);
-}
-.walletpage-dex-chevron {
-  transition: transform 0.2s ease;
 }
 .navbar-nav-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
-.mygw-whitelist-table-table { border-collapse: collapse; }
 textarea.mygw-form-input, .walletpage-form-textarea {
   min-height: 80px;
   font-family: inherit;
 }
-
-/* ReleasePage.vue */
-.relpage-filter-grow { flex: 1 1 320px; }
-.relpage-grid { grid-template-columns: 1.1fr 1fr; }
-.relpage-row { transition: background 0.12s ease, border-color 0.12s ease; }
-.relpage-row.active { background: var(--primary-a08); border-color: var(--primary-a15); }
 
 /* DomainPage.vue */
 .domainpage-stable-link-label-input:hover, .domainpage-stable-link-label-input:focus {

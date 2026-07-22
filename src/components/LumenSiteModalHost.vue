@@ -75,10 +75,10 @@
             <div class="sitemodal-balance-hint text-12px color-text-secondary mt-6px" v-if="balanceUlmn !== null">
               Available: {{ balanceLmnDisplay }} LMN
             </div>
-            <div class="sitemodal-balance-hint error text-12px mt-6px" v-else>
+            <div class="sitemodal-balance-hint color-error text-12px mt-6px" v-else>
               Balance unavailable
             </div>
-            <div class="sitemodal-balance-hint error text-12px mt-6px" v-if="insufficientFunds">
+            <div class="sitemodal-balance-hint color-error text-12px mt-6px" v-if="insufficientFunds">
               not enough funds
             </div>
           </div>
@@ -142,8 +142,8 @@
             </div>
             <div class="sitemodal-pin-progress-track relative overflow-hidden border-radius-full w-full h-8px">
               <div
-                class="sitemodal-pin-progress-fill h-full bg-gradient-primary"
-                :class="{ indeterminate: pinProgressPercent == null && pinIsRunning }"
+                class="sitemodal-pin-progress-fill h-full bg-gradient-primary border-radius-inherit transition-width-02"
+                :class="{ 'progress-fill-indeterminate': pinProgressPercent == null && pinIsRunning }"
                 :style="{ width: pinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, pinProgressPercent))}%` }"
               ></div>
             </div>
@@ -195,10 +195,10 @@
           <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkError }}</div>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ active: stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ active: stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
               Create new
             </button>
           </div>
@@ -238,13 +238,13 @@
               <span class="sitemodal-perm-k text-12px color-text-secondary">Records</span>
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="sitemodal-records-toggle">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
-                <ChevronDown :size="14" :class="{ open: stableLinkRecordsExpanded }" />
+                <ChevronDown :size="14" class="transition-transform-016" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
               </UiButton>
             </div>
             <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list grid gap-6px mt-8px pt-8px border-top-default">
-              <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row grid gap-10px">
+              <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row grid gap-10px grid-cols-70-1fr align-items-start">
                 <span class="sitemodal-record-key mono text-12px color-text-secondary">{{ record.key }}</span>
-                <span class="sitemodal-record-value mono text-12px color-text-primary" :title="record.value">{{ record.value }}</span>
+                <span class="sitemodal-record-value mono text-12px color-text-primary overflow-wrap-anywhere" :title="record.value">{{ record.value }}</span>
               </div>
             </div>
           </div>

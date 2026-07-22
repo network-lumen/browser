@@ -239,8 +239,8 @@
               </div>
               <div class="ipfspage-pin-progress-track w-full border-radius-full relative overflow-hidden bg-fill-secondary h-8px">
                 <div
-                  class="ipfspage-pin-progress-fill h-full bg-gradient-primary"
-                  :class="{ indeterminate: savePinProgressPercent == null && savePinIsRunning }"
+                  class="ipfspage-pin-progress-fill h-full bg-gradient-primary border-radius-inherit transition-width-02"
+                  :class="{ 'progress-fill-indeterminate': savePinProgressPercent == null && savePinIsRunning }"
                   :style="{ width: savePinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, savePinProgressPercent))}%` }"
                 ></div>
               </div>
