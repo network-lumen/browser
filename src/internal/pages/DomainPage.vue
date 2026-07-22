@@ -6,7 +6,7 @@
         <button
           type="button"
           class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
-          :class="{ active: activeNameTab === 'lumen' }"
+          :class="{ 'bg-hover color-text-primary': activeNameTab === 'lumen' }"
           @click="activeNameTab = 'lumen'"
         >
           <Globe :size="16" />
@@ -15,7 +15,7 @@
         <button
           type="button"
           class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
-          :class="{ active: activeNameTab === 'stable' }"
+          :class="{ 'bg-hover color-text-primary': activeNameTab === 'stable' }"
           @click="activeNameTab = 'stable'"
         >
           <KeyRound :size="16" />
@@ -195,7 +195,7 @@
                   autocomplete="off"
                   placeholder="my-link"
                   :disabled="stableLinkSaving"
-                  autofocus class="domainpage-form-input focus-outline-none focus-ring focus-shadow" />
+                  autofocus class="domainpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
               </div>
               <div class="modal-actions flex flex-justify-end gap-8px">
                 <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="outline-none">
@@ -239,12 +239,12 @@
                      
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
-                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow" />
+                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
-                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow" />
+                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
@@ -284,13 +284,13 @@
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
-                    @blur="refreshAvailability" class="domainpage-form-input domainpage-domain-part focus-outline-none focus-ring focus-shadow" />
+                    @blur="refreshAvailability" class="domainpage-form-input domainpage-domain-part focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                   <span class="domainpage-dot-sep txt-weight-light color-text-tertiary text-14px">.</span>
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                    
                     v-model="registerForm.ext"
                     placeholder="lmn"
-                    @blur="refreshAvailability" class="domainpage-form-input domainpage-ext-part focus-outline-none focus-ring focus-shadow" />
+                    @blur="refreshAvailability" class="domainpage-form-input domainpage-ext-part focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                 </div>
                 <div
                   v-if="registerForm.domainName"
@@ -349,11 +349,11 @@
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.key"
-                      placeholder="cid | ipns | txt | ..." class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow" />
+                      placeholder="cid | ipns | txt | ..." class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.value"
-                      placeholder="Value" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow" />
+                      placeholder="Value" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
                       @click="removeSettingsRecord(idx)"
                       title="Remove row">
@@ -414,7 +414,7 @@
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                  
                   v-model="transferForm.newOwner"
-                  placeholder="lumen1..." class="domainpage-form-input focus-outline-none focus-ring focus-shadow" />
+                  placeholder="lumen1..." class="domainpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                 <p class="domainpage-form-hint text-12px color-text-tertiary mt-6px">Enter the Lumen address of the new owner</p>
               </div>
 

@@ -217,23 +217,9 @@
 html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 #app { background-color: var(--bg-tertiary); }
 
-/* Search input dark style */
-.pwd-modal-input::placeholder, .input::placeholder,
-.history-search input::placeholder, .recurpay-input::placeholder, .walletonboard-input::placeholder,
-.gwpage-form-input::placeholder, .newtab-omnibox-input::placeholder, .relpage-form-input::placeholder,
-.domainpage-form-input::placeholder, .navbar-url-bar-input::placeholder, .navbar-extension-state.disabled,
-.explorer-search-input::placeholder, .explorer-height-filter-input::placeholder,
-.explorer-hash-filter-input::placeholder, .walletpage-search-input::placeholder,
-.walletpage-form-input::placeholder, .drivepage-search-box .drivepage-search-input::placeholder {
-  color: var(--text-tertiary);
-}
-
-/* Table row hover effect */
-
 /* ========== INTERNAL SIDEBAR NAVIGATION (lsb-*) ========== */
 .lsb-item:hover:not(.active), .hover-fill-primary:hover,
-.domainpage-names-nav-item:hover,
-.domainpage-names-nav-item.active {
+.domainpage-names-nav-item:hover {
   background: var(--hover-bg);
   color: var(--text-primary);
 }
@@ -255,7 +241,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
  * hover selectors shared the same computed value (unrelated concept) and keep
  * their own declaration here. */
 .daopage-member-item:hover,
-.mygw-whitelist-table thead, .mygw-whitelist-table tbody tr:hover, .relpage-row:hover,
+.mygw-whitelist-table tbody tr:hover, .relpage-row:hover,
 .navbar-extensions-store-link:hover:not(:disabled), .navbar-profile-row:hover,
 .navbar-export-option:hover,
 .settingspage-profile-row:hover, .walletpage-picker-item:hover {
@@ -263,15 +249,10 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* StartupScreen.vue */
-.startup-center { margin: auto auto 30px auto; }
-.startup-btn { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
 .startup-btn:active:not(:disabled) { transform: translateY(1px); }
 .startup-btn:disabled { opacity: 0.6; cursor: default; }
 
 /* InternalSidebar.vue */
-.lumen-sidebar {
-  -webkit-backdrop-filter: var(--backdrop-blur);
-}
 .sidebar-fav-avatar.tone-search, .history-item-avatar.tone-search, .newtab-shortcut-avatar.tone-search {
   background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
@@ -294,18 +275,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* FindBar.vue */
-.findbar {
-  top: 10px;
-}
-
 /* QrScanner.vue */
-.qr-camera-container {
-  aspect-ratio: 1;
-  max-height: 400px;
-}
-.qr-scan-frame {
-  height: 250px;
-}
 .walletpage-asset-icon.lmn {
   background: var(--accent-secondary);
 }
@@ -314,26 +284,17 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .explorer-content-area > .explorer-charts-section, .explorer-content-area > .explorer-recent-activity {
   margin-bottom: 0;
 }
-.qr-label { letter-spacing: 0.5px; }
-.qr-value-box { max-height: 120px; }
 
 /* PasswordPromptModal.vue */
 .pwd-modal-input:focus, .drivepage-per-page-select:hover, .drivepage-bulk-checkbox input:hover + span,
 .drivepage-plans-filter-select:hover {
   border-color: var(--accent-primary);
 }
-.release-prompt-notes-link:hover, .release-prompt-sha-copy:hover,
-.searchpage-badge-more {
+.release-prompt-notes-link:hover, .release-prompt-sha-copy:hover {
   opacity: 0.85;
 }
 
 /* ReleaseUpdatePrompt.vue */
-.release-update {
-  z-index: 9998;
-  bottom: 24px;
-  right: 24px;
-}
-.release-prompt-notes-link { text-underline-offset: 2px; }
 .release-update .meta li + li { margin-top: 6px; }
 
 

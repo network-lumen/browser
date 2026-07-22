@@ -46,7 +46,7 @@
           <UiInput radius-class="border-radius-12px" font-size-class="text-14px" :focus-ring="false" v-model.trim="searchTerm"
            
             placeholder="Version, publisher, ID…"
-            :disabled="loading" class="relpage-form-input focus-outline-none focus-ring focus-shadow" />
+            :disabled="loading" class="relpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
         </div>
 
         <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-12px flex-wrap-wrap border-radius-14px border-1 bg-primary py-8px px-12px" aria-label="Update test tools">

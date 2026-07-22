@@ -277,6 +277,7 @@
 .ml-n8px { margin-left: -0.5rem; }
 .margin-auto { margin: auto; }
 .mx-auto { margin-left: auto; margin-right: auto; }
+.mt-auto { margin-top: auto; }
 
 /* ---- Spacing: gap ---- */
 .gap-0px { gap: 0rem; }

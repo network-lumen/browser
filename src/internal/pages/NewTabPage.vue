@@ -87,7 +87,7 @@
           <input
             v-model="commandInput"
             type="text"
-            class="newtab-omnibox-input flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 text-16px"
+            class="newtab-omnibox-input flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 text-16px placeholder-tertiary"
             placeholder="Search Lumen or enter a URL"
             spellcheck="false"
             autocapitalize="off"

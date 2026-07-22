@@ -58,7 +58,7 @@
                
                
                 placeholder="Enter password"
-                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue" />
+                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
             <div class="walletonboard-group mb-24px">
@@ -67,7 +67,7 @@
                
                
                 placeholder="Confirm password"
-                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue" />
+                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
             <div v-if="passwordError" class="walletonboard-error-message block txt-xs color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
@@ -92,7 +92,7 @@
                
                 placeholder="Enter a profile name"
                 maxlength="64"
-                @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue" />
+                @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
             <div v-if="profileNameError" class="walletonboard-error-message block txt-xs color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">

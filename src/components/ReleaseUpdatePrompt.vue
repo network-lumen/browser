@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed p-16px w-min-380px-92vw shadow-0-20-55-rgba-0-0-0-0-18">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-18px fixed p-16px w-min-380px-92vw shadow-0-20-55-rgba-0-0-0-0-18 z-9998 bottom-24px right-24px">
       <header class="flex flex-column gap-2px">
         <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em m-0px">
           Update available
@@ -11,7 +11,7 @@
         <p class="color-text-secondary txt-xs m-0px">Current version: {{ currentVersion || 'n/a' }}</p>
       </header>
 
-      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link" type="button" @click="notesOpen = true">
+      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link text-underline-offset-2px" type="button" @click="notesOpen = true">
         Change notes
       </button>
 

@@ -40,7 +40,7 @@
             placeholder="Search history"
             spellcheck="false"
             autocomplete="off"
-            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary history-search-input text-15px"
+            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary history-search-input text-15px placeholder-tertiary"
           />
         </label>
       </section>
