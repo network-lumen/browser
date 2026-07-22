@@ -201,7 +201,7 @@
                   <span class="walletpage-asset-meta color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.addressLabel }}</span>
                   <span v-if="asset.traceLabel" class="walletpage-asset-meta color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.traceLabel }}</span>
                   <span v-if="asset.routeLabel" class="walletpage-asset-meta color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.routeLabel }}</span>
-                  <span v-if="asset.error" class="walletpage-asset-meta error color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.error }}</span>
+                  <span v-if="asset.error" class="walletpage-asset-meta color-error text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.error }}</span>
                 </div>
               </div>
               <div class="walletpage-asset-side flex-align-end flex-column gap-12px flex-justify-space-between">
@@ -280,7 +280,7 @@
                     </span>
                   </div>
 
-                  <span v-if="dex.error" class="walletpage-dex-meta error color-text-tertiary text-13px">{{ dex.error }}</span>
+                  <span v-if="dex.error" class="walletpage-dex-meta color-error text-13px">{{ dex.error }}</span>
                 </div>
               </button>
 
@@ -291,8 +291,8 @@
                     @click="toggleDexExpanded(dex.key)">
                     <ChevronDown
                       :size="16"
-                      class="walletpage-dex-chevron"
-                      :class="{ open: isDexExpanded(dex.key) }"
+                      class="walletpage-dex-chevron transition-transform-02"
+                      :class="{ 'rotate-180': isDexExpanded(dex.key) }"
                     />
                     <span>{{ isDexExpanded(dex.key) ? 'Hide details' : 'Details' }}</span>
                   </UiButton>
@@ -791,7 +791,7 @@
                 Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
                 <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
               </div>
-              <div v-else-if="ibcChannelsError" class="walletpage-field-hint error color-text-secondary mt-8px text-13px">
+              <div v-else-if="ibcChannelsError" class="walletpage-field-hint color-error mt-8px text-13px">
                 {{ ibcChannelsError }}
               </div>
             </div>

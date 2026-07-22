@@ -49,7 +49,7 @@
 
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-0-10-30-rgba-0-0-0-0-1" :shadow="false">
         <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
-          <p>{{ error }}</p>
+          <p class="color-error">{{ error }}</p>
         </div>
         <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
           <UiSpinner size="lg" />
@@ -111,7 +111,7 @@
           <p>Loading stable links...</p>
         </div>
         <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
-          <p>{{ rawDomainsError }}</p>
+          <p class="color-error">{{ rawDomainsError }}</p>
         </div>
         <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
           <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Generate a stable link</p>

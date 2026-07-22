@@ -358,6 +358,25 @@
 .bg-gradient-secondary-hover { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
 .bg-gradient-teal-green { background: linear-gradient(90deg, var(--ios-teal), var(--ios-green)); }
 .opacity-50 { opacity: 0.5; }
+.rotate-180 { transform: rotate(180deg); }
+.transition-transform-016 { transition: transform 0.16s ease; }
+.transition-transform-02 { transition: transform 0.2s ease; }
+.grid-cols-70-1fr { grid-template-columns: minmax(70px, 0.28fr) minmax(0, 1fr); }
+.overflow-wrap-anywhere { overflow-wrap: anywhere; }
+.h-100vh { height: 100vh; }
+.border-radius-inherit { border-radius: inherit; }
+.transition-width-02 { transition: width 0.2s ease; }
+.progress-fill-indeterminate { width: 42% !important; animation: progress-indeterminate-slide 1.2s ease-in-out infinite; }
+.card-state-active-green { border-color: var(--ios-green); background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.05) 0%, rgba(var(--ios-green-rgb), 0.02) 100%); box-shadow: 0 4px 20px rgba(var(--ios-green-rgb), 0.1); }
+.bg-ios-green-a15 { background: rgba(var(--ios-green-rgb), 0.15); }
+.animate-mygw-pulse { animation: mygw-pulse 2s ease-in-out infinite; }
+.grid-cols-auto-fill-340 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.border-collapse-collapse { border-collapse: collapse; }
+.grid-cols-11fr-1fr { grid-template-columns: 1.1fr 1fr; }
+.transition-bg-border-012 { transition: background 0.12s ease, border-color 0.12s ease; }
+.row-state-active-primary { background: var(--primary-a08); border-color: var(--primary-a15); }
+.color-ios-green-override { color: var(--ios-green); }
+.flex-1-1-320px { flex: 1 1 320px; }
 .line-height-11 { line-height: 1.1; }
 .opacity-60 { opacity: 0.6; }
 .border-color-ios-orange-a30 { border-color: rgba(var(--ios-orange-rgb), 0.3); }

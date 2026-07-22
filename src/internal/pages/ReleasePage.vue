@@ -41,7 +41,7 @@
           </select>
         </div>
 
-        <div class="relpage-filter grow flex flex-column gap-6px relpage-filter-grow min-w-260px min-w-220px">
+        <div class="relpage-filter grow flex flex-column gap-6px relpage-filter-grow min-w-260px min-w-220px flex-1-1-320px">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Search</label>
           <UiInput radius-class="border-radius-12px" font-size-class="text-14px" :focus-ring="false" v-model.trim="searchTerm"
            
@@ -61,7 +61,7 @@
         <p>Redirecting…</p>
       </section>
 
-      <section v-else class="relpage-grid flex-1 overflow-hidden gap-16px grid min-h-0">
+      <section v-else class="relpage-grid flex-1 overflow-hidden gap-16px grid min-h-0 grid-cols-11fr-1fr">
         <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0">
           <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Releases</span>
@@ -79,8 +79,8 @@
             v-for="r in filteredReleases"
             :key="r.id"
             type="button"
-            class="relpage-row w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-16px border-1-transparent bg-transparent py-10px px-12px"
-            :class="{ active: selectedRelease?.id === r.id }"
+            class="relpage-row w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-16px border-1-transparent bg-transparent py-10px px-12px transition-bg-border-012"
+            :class="{ 'row-state-active-primary': selectedRelease?.id === r.id }"
             @click="selectedRelease = r"
           >
             <div class="relpage-row-main">
