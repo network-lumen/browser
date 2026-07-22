@@ -217,16 +217,6 @@
 html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 #app { background-color: var(--bg-tertiary); }
 
-/* Utility Classes for Modern UI Components */
-
-/* Badge Styles */
-
-/* Card with hover effect */
-
-/* Score badges like in the image */
-
-/* Stats display */
-
 /* Search input dark style */
 .pwd-modal-input::placeholder, .input::placeholder,
 .history-search input::placeholder, .recurpay-input::placeholder, .walletonboard-input::placeholder,
@@ -237,8 +227,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .walletpage-form-input::placeholder, .drivepage-search-box .drivepage-search-input::placeholder {
   color: var(--text-tertiary);
 }
-
-/* Button variants */
 
 /* Table row hover effect */
 
@@ -258,10 +246,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* ========== UTILITY CLASSES ========== */
 
-/* Gradient Backgrounds */
-
-/* Gradient Text */
-
 /* Button Styles */
 .homepage-action-card:active, .searchpage-help-icon-btn:active {
   transform: translateY(0);
@@ -279,7 +263,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* StartupScreen.vue */
-.startup-mark { letter-spacing: -0.03em; }
 .startup-center { margin: auto auto 30px auto; }
 .startup-btn { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
 .startup-btn:active:not(:disabled) { transform: translateY(1px); }
@@ -314,7 +297,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .findbar {
   top: 10px;
 }
-.findbar-count--muted { opacity: 0.55; }
 
 /* QrScanner.vue */
 .qr-camera-container {
@@ -324,29 +306,12 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .qr-scan-frame {
   height: 250px;
 }
-.qr-corner-top-left {
-  border-top-left-radius: 12px;
-}
-.qr-corner-top-right {
-  border-top-right-radius: 12px;
-}
-.qr-corner-bottom-left {
-  border-bottom-left-radius: 12px;
-}
-.qr-corner-bottom-right {
-  border-bottom-right-radius: 12px;
-}
-.qr-scan-instruction {
-  transform: translateX(-50%);
-}
-.qr-error-state, .qr-success-state { padding: 40px 20px; }
 .walletpage-asset-icon.lmn {
   background: var(--accent-secondary);
 }
-.qr-data-type, .qr-data-content, .sitemodal-send .sitemodal-form-group { margin-bottom: 12px; }
-.qr-data-content:last-child, .walletonboard-reminder-list li:last-child,
-.explorer-content-area > .explorer-charts-section, .explorer-content-area > .explorer-recent-activity,
-.walletpage-address-box {
+.sitemodal-send .sitemodal-form-group { margin-bottom: 12px; }
+.walletonboard-reminder-list li:last-child,
+.explorer-content-area > .explorer-charts-section, .explorer-content-area > .explorer-recent-activity {
   margin-bottom: 0;
 }
 .qr-label { letter-spacing: 0.5px; }
@@ -449,7 +414,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 /* ExtensionPage.vue */
 
 /* RecurringPaymentModal.vue */
-textarea.recurpay-input { resize: vertical; min-height: 60px; }
+textarea.recurpay-input { min-height: 60px; }
 .recurpay-input[type="date"], .recurpay-input[type="number"], select.recurpay-input { color-scheme: light dark; }
 .recurpay-input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
 select.recurpay-input { background-image: none; }
@@ -461,7 +426,6 @@ select.recurpay-input { background-image: none; }
 .recurpay-row, .walletonboard-info-cards, .relpage-detail-grid, .explorer-proposer-stat-group {
   grid-template-columns: 1fr 1fr;
 }
-.currency, .sitemodal-input-suffix, .walletpage-input-suffix { transform: translateY(-50%); }
 .explorer-tab-btn.active, .walletpage-input-action-btn:hover {
   background: var(--accent-primary);
   color: #fff;
@@ -644,10 +608,6 @@ select.recurpay-input { background-image: none; }
 .homepage-empty-grid {
   grid-column: 1 / -1;
 }
-.gwpage-form-label, .relpage-filter-label, .relpage-test-label { letter-spacing: 0.06em; }
-.gwpage-modal-title, .domainpage-hero-title, .searchpage-modal-title {
-  font-size: 1.05rem;
-}
 .gwpage-modal-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .gwpage-badge-warn { background: rgba(var(--ios-yellow-rgb), 0.15); }
 .gwpage-private-gateways-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
@@ -712,7 +672,6 @@ select.recurpay-input { background-image: none; }
 .daopage-proposal-status.unknown { background: var(--bg-secondary); color: var(--text-secondary); }
 .daopage-member-avatar.has-image { background: transparent; }
 .daopage-progress-yes { background: linear-gradient(90deg, var(--ios-teal), var(--ios-green)); }
-.daopage-form-textarea, .drivepage-upload-path-textarea, .navbar-import-textarea { resize: vertical; }
 .walletpage-action-icon:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -790,7 +749,6 @@ select.recurpay-input { background-image: none; }
 .mygw-gateway-card:hover {
   transform: translateY(-4px);
 }
-.mygw-info-value.mono { font-family: var(--font-mono); }
 .walletpage-dex-chevron {
   transition: transform 0.2s ease;
 }
@@ -799,7 +757,6 @@ select.recurpay-input { background-image: none; }
 }
 .mygw-whitelist-table-table { border-collapse: collapse; }
 textarea.mygw-form-input, .walletpage-form-textarea {
-  resize: vertical;
   min-height: 80px;
   font-family: inherit;
 }
@@ -827,7 +784,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* ===== URL BAR ===== */
 .navbar-url-bar-icon { left: 12px; }
-.navbar-url-bar-action { right: 6px; transform: translateY(-50%); }
+.navbar-url-bar-action { right: 6px; }
 
 /* ===== EXTENSIONS ===== */
 .navbar-extensions-menu {
@@ -1432,7 +1389,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Address Book Styles */
 .walletpage-contacts-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-.walletpage-input-action-btn { right: 0.75rem; transform: translateY(-50%); }
 .walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
 /* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
 .details-row {

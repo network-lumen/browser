@@ -299,7 +299,7 @@
                 <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="whitelistForm.notes"
                  
                   rows="3"
-                  placeholder="Additional notes about this user..." class="mygw-form-input focus-outline-none focus-ring-blue"></UiInput>
+                  placeholder="Additional notes about this user..." class="mygw-form-input resize-vertical focus-outline-none focus-ring-blue"></UiInput>
               </div>
 
               <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a10 border-1-ios-red-a20">

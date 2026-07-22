@@ -358,7 +358,7 @@
             <HelpCircle :size="18" />
           </div>
           <div>
-            <h2 class="searchpage-modal-title m-0px txt-weight-strong color-text-primary">How search works</h2>
+            <h2 class="searchpage-modal-title m-0px txt-weight-strong color-text-primary text-16px">How search works</h2>
             <p class="searchpage-modal-sub color-text-secondary text-14px m-0px mt-4px">Indexing, ranking, and how to get discovered.</p>
           </div>
         </div>

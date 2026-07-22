@@ -684,7 +684,7 @@
                   v-model="assetTransferForm.amount"
                   placeholder="0.000000"
                   @input="validateAssetTransferAmountInput" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only" />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half right-100">{{ assetTransferContext.displaySymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-100">{{ assetTransferContext.displaySymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px">
                 Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
@@ -805,12 +805,12 @@
                     :placeholder="sendRecipientPlaceholder" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only" />
                   <UiButton variant="secondary" @click="openQrScanner"
                     type="button"
-                    title="Scan QR Code" class="walletpage-input-action-btn absolute top-half">
+                    title="Scan QR Code" class="walletpage-input-action-btn absolute top-half translate-y-center right-12px">
                     <QrCode :size="16" />
                   </UiButton>
                   <button 
                     v-if="contacts.length > 0" 
-                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half" 
+                    class="walletpage-input-action-btn flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-12px"
                     @click="showContactPicker = !showContactPicker"
                     type="button"
                     title="Select from contacts"
@@ -851,7 +851,7 @@
                   v-model="sendForm.amount"
                   placeholder="0.000000"
                   @input="validateAmountInput" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only" />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half right-100">{{ sendAssetSymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-100">{{ sendAssetSymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px" v-if="sendAvailableLabel">
                 Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
@@ -923,7 +923,7 @@
               </div>
             </div>
 
-            <div class="walletpage-address-box border-radius-12px p-20px border-2 bg-secondary">
+            <div class="walletpage-address-box border-radius-12px p-20px border-2 bg-secondary mb-0px">
               <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">Your Wallet Address</div>
               <div class="walletpage-address-value mono text-13px p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-16">{{ address || '-' }}</div>
               <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="walletpage-btn-copy-address disabled-fade-50">
@@ -967,7 +967,7 @@
               <div class="walletpage-input-wrapper relative">
                 <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note" 
                   placeholder="Add a note about this contact"
-                  rows="3" class="walletpage-form-input walletpage-form-textarea mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only"></UiInput>
+                  rows="3" class="walletpage-form-input walletpage-form-textarea resize-vertical mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only"></UiInput>
               </div>
             </div>
 

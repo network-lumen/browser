@@ -36,7 +36,7 @@
         variant="icon"
         icon-radius-class="border-radius-8px"
         icon-padding-class=""
-        class="navbar-url-bar-action flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half"
+        class="navbar-url-bar-action flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half translate-y-center"
         :class="{ 'is-active': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
@@ -379,7 +379,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
@@ -389,7 +389,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -399,7 +399,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>

@@ -213,7 +213,7 @@
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Description</label>
-              <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="proposalForm.description" rows="6" placeholder="Describe your proposal in detail..." class="daopage-form-textarea focus-outline-none focus-ring focus-shadow background-bg-primary"></UiInput>
+              <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="proposalForm.description" rows="6" placeholder="Describe your proposal in detail..." class="daopage-form-textarea resize-vertical focus-outline-none focus-ring focus-shadow background-bg-primary"></UiInput>
             </div>
 
             <div class="daopage-form-group mb-20px">

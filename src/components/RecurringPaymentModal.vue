@@ -20,7 +20,7 @@
             <UiInput type="textarea" v-model="form.description"
               placeholder="Optional notes about this payment"
              
-              rows="2" class="recurpay-input"></UiInput>
+              rows="2" class="recurpay-input resize-vertical"></UiInput>
           </div>
 
           <div class="recurpay-group mb-16px">
@@ -66,7 +66,7 @@
                   step="0.000001"
                   min="0"
                   placeholder="0.000000" class="recurpay-input pr-48px" />
-                <span class="currency absolute top-half text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
+                <span class="currency absolute top-half translate-y-center text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
               </div>
             </div>
 
