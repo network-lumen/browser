@@ -11,7 +11,7 @@
         <p class="color-text-secondary txt-xs m-0px">Current version: {{ currentVersion || 'n/a' }}</p>
       </header>
 
-      <button v-if="hasNotes" class="release-prompt-notes-link bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link text-underline-offset-2px" type="button" @click="notesOpen = true">
+      <button v-if="hasNotes" class="hover-opacity-85 bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link text-underline-offset-2px" type="button" @click="notesOpen = true">
         Change notes
       </button>
 
@@ -22,7 +22,7 @@
         <li v-if="sizeLabel"><strong>Size:</strong> ~{{ sizeLabel }}</li>
         <li v-if="shaFull">
           <strong>SHA256:</strong>
-          <button type="button" class="release-prompt-sha-copy bg-transparent border-none cursor-pointer p-0px ml-4px" @click.stop="copySha" aria-label="Copy SHA-256">
+          <button type="button" class="hover-opacity-85 bg-transparent border-none cursor-pointer p-0px ml-4px" @click.stop="copySha" aria-label="Copy SHA-256">
             <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px mono py-0px px-8px">{{ shaShort }}</code>
           </button>
         </li>

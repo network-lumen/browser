@@ -79,7 +79,7 @@
             v-for="r in filteredReleases"
             :key="r.id"
             type="button"
-            class="relpage-row w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-16px border-1-transparent bg-transparent py-10px px-12px transition-bg-border-012"
+            class="hover-bg-hover w-full text-left flex-align-center flex-justify-space-between cursor-pointer border-radius-12px gap-16px border-1-transparent bg-transparent py-10px px-12px transition-bg-border-012"
             :class="{ 'row-state-active-primary': selectedRelease?.id === r.id }"
             @click="selectedRelease = r"
           >

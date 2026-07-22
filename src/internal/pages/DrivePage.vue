@@ -135,7 +135,7 @@
         </div>
         <div class="filter-info flex-align-center gap-12px">
           <span class="drivepage-file-count color-text-secondary text-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
-          <select v-model="itemsPerPage" class="drivepage-per-page-select color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-015 py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
+          <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-015 py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
             <option :value="10">10 per page</option>
             <option :value="20">20 per page</option>
             <option :value="50">50 per page</option>
@@ -1129,7 +1129,7 @@
 
                      <select
                        v-model="planRegion"
-                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
+                       class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
                        aria-label="Region filter"
                      >
                        <option value="">All regions</option>
@@ -1142,7 +1142,7 @@
                    <div class="drivepage-plans-search-group drivepage-plans-search-group-sort flex-align-center gap-12px ml-auto flex-wrap-nowrap">
                      <select
                        v-model="planSortBy"
-                       class="drivepage-plans-filter-select size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
+                       class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
                        aria-label="Sort by"
                      >
                        <option value="score-desc">Sort: Score (high-low)</option>
@@ -1343,7 +1343,7 @@
                  <select
                    v-model.number="planPageSize"
                    aria-label="Rows per page"
-                   class="drivepage-per-page-select color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-015 py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow"
+                   class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-015 py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow"
                  >
                    <option :value="8">8 / page</option>
                    <option :value="16">16 / page</option>

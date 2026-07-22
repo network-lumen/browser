@@ -217,35 +217,11 @@
 html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 #app { background-color: var(--bg-tertiary); }
 
-/* ========== INTERNAL SIDEBAR NAVIGATION (lsb-*) ========== */
-.lsb-item:hover:not(.active), .hover-fill-primary:hover,
-.domainpage-names-nav-item:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-.lsb-item.active svg, .navbar-profile-row:hover .navbar-profile-row-delete,
-.explorer-table-row:hover .explorer-copy-icon-btn, .explorer-td-hash:hover .explorer-copy-icon-btn,
-.explorer-tx-hash-link:hover svg,
-.searchpage-result-card:hover .searchpage-result-url {
-  opacity: 1;
-}
-
 /* ========== UTILITY CLASSES ========== */
 
 /* Button Styles */
 .homepage-action-card:active, .searchpage-help-icon-btn:active {
   transform: translateY(0);
-}
-
-/* UiButton.vue variant rules live in src/css/ui/button.css. These page-specific
- * hover selectors shared the same computed value (unrelated concept) and keep
- * their own declaration here. */
-.daopage-member-item:hover,
-.mygw-whitelist-table tbody tr:hover, .relpage-row:hover,
-.navbar-extensions-store-link:hover:not(:disabled), .navbar-profile-row:hover,
-.navbar-export-option:hover,
-.settingspage-profile-row:hover, .walletpage-picker-item:hover {
-  background: var(--hover-bg);
 }
 
 /* StartupScreen.vue */
@@ -285,27 +261,11 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   margin-bottom: 0;
 }
 
-/* PasswordPromptModal.vue */
-.pwd-modal-input:focus, .drivepage-per-page-select:hover,
-.drivepage-plans-filter-select:hover {
-  border-color: var(--accent-primary);
-}
-.release-prompt-notes-link:hover, .release-prompt-sha-copy:hover {
-  opacity: 0.85;
-}
 
 /* ReleaseUpdatePrompt.vue */
 .release-update .meta li + li { margin-top: 6px; }
 
 
-/* UiToast.vue rules live in src/css/ui/toast.css. Page-specific selectors that
- * used to be combined into those same rules (identical computed value,
- * unrelated concept) keep their own declaration here. */
-.walletonboard-btn-secondary:hover,
-.ipfspage-dir-row:hover, .explorer-table-row:hover,
-.explorer-blocks-view .explorer-table-row:hover {
-  background: var(--bg-secondary);
-}
 .newtab-shortcut-action--danger:hover {
   color: var(--ios-red);
   background: rgba(var(--ios-red-rgb), 0.12);
@@ -322,22 +282,8 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .searchpage-type-pdf { background: var(--fill-error); }
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
-.chaindetail-back-btn:hover { box-shadow: 0 4px 12px var(--primary-a30); }
 
 .mygw-whitelist-table tbody tr:last-child td { border-bottom: none; }
-
-.chaindetail-row:hover {
-  margin: 0 -0.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-.addrdetail-tx-hash:hover code {
-  text-decoration: underline;
-}
-/* BlockDetailPage.vue */
-.blockdetail-row:hover {
-  margin: 0 -1.5rem;
-}
 
 /* WebPage.vue */
 .webpage-fullscreen .webpage-webview, .sitepage-fullscreen .sitepage-main,
@@ -624,7 +570,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* IpfsPage.vue */
-.ipfspage-dir-row { grid-template-columns: minmax(200px, 1fr) 140px 180px; }
 .ipfspage-markdown-view {
   max-width: 980px;
   box-sizing: border-box;

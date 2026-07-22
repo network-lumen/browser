@@ -18,11 +18,11 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Browse</span>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
-            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="3" y1="9" x2="21" y2="9"/>
               <line x1="9" y1="21" x2="9" y2="9"/>
@@ -31,11 +31,11 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'blocks' }"
             @click="currentView = 'blocks'"
           >
-            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -45,11 +45,11 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
-            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
             </svg>
@@ -57,11 +57,11 @@
           </button>
           <button
             type="button"
-            class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'validators' }"
             @click="currentView = 'validators'"
           >
-            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row reveal-on-hover hover-bg-secondary last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -376,7 +376,7 @@
                     <span class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ block.proposer }}</span>
                   </div>
                 </div>
-                <div class="explorer-td explorer-td-hash flex-align-center gap-8px text-13px text-14px">
+                <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click.stop="navigateToBlock(block.height)" title="View block details">
                     <code class="explorer-hash-code color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ block.hash }}</code>
                     <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -452,8 +452,8 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row last-border-bottom-none flex-inline-align-center background-black-a04-active">
-                <div class="explorer-td explorer-td-hash flex-align-center gap-8px text-13px text-14px">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row reveal-on-hover hover-bg-secondary last-border-bottom-none flex-inline-align-center background-black-a04-active">
+                <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row hover-bg-secondary last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td td-rank flex-align-center text-13px text-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>
@@ -716,9 +716,9 @@
                     <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <UiButton variant="none" @click="viewTransaction(txHash)" class="explorer-tx-hash-link flex-align-center gap-8px cursor-pointer w-full">
+                      <UiButton variant="none" @click="viewTransaction(txHash)" class="explorer-tx-hash-link reveal-on-hover flex-align-center gap-8px cursor-pointer w-full">
                         <code class="explorer-tx-hash-link-code flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
-                        <svg class="explorer-tx-hash-link-svg flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg class="explorer-tx-hash-link-svg reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                           <polyline points="15 3 21 3 21 9"/>
                           <line x1="10" y1="14" x2="21" y2="3"/>

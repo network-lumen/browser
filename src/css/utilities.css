@@ -645,6 +645,15 @@
 .hover-shadow-md:hover { box-shadow: var(--shadow-md); }
 .hover-border-primary-a30:hover { border-color: var(--primary-a30); }
 .hover-bg-card:hover { background: var(--card-bg); }
+.hover-fill-primary:hover { background: var(--hover-bg); color: var(--text-primary); }
+.hover-fill-primary-not-active:hover:not(.active) { background: var(--hover-bg); color: var(--text-primary); }
+.reveal-on-hover:hover .reveal-target, .reveal-on-active.active .reveal-target { opacity: 1; }
+.hover-bg-hover-enabled:hover:not(:disabled) { background: var(--hover-bg); }
+.hover-opacity-85:hover { opacity: 0.85; }
+.hover-shadow-0-4-12-primary-a30:hover { box-shadow: 0 4px 12px var(--primary-a30); }
+.hover-mx-n05rem-px-05rem:hover { margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; }
+.underline-on-hover:hover .underline-target { text-decoration: underline; }
+.hover-mx-n15rem:hover { margin: 0 -1.5rem; }
 .hover-bg-primary-a08:hover { background: var(--primary-a08); }
 .hover-border-primary-a15:hover { border-color: var(--primary-a15); }
 .hover-border-ios-blue-a14:hover { border-color: rgba(var(--ios-blue-rgb), 0.14); }
