@@ -920,14 +920,12 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--primary-a08);
   border-color: var(--primary-a25);
 }
-.drivepage-hosting-main { grid-template-columns: 10px 1fr auto; }
 .drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
 .drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
 .drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
 
 /* Search & Filter Bar */
 .drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
-.drivepage-bulk-toolbar, .drivepage-hls-queue-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
 .drivepage-hls-queue-item.status-converting { border-color: var(--primary-a25); background: var(--primary-a06); }
 .drivepage-hls-queue-item.status-done {
   border-color: rgba(var(--ios-green-rgb), 0.25);
