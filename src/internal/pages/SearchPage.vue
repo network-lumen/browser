@@ -1,7 +1,7 @@
 <template>
   <main
     ref="scrollRoot"
-    class="searchpage-search-page flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px before-cursor-events-none before-rounded-full"
+    class="flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
@@ -28,7 +28,7 @@
           />
           <UiButton
             variant="primary"
-            class="searchpage-search-btn disabled-fade-50 before-absolute before-inset-0 before-fade-hover"
+            class="searchpage-search-btn disabled-fade-50"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -404,16 +404,16 @@
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
-                <ul class="searchpage-help-list p-0px color-text-secondary list-style-none line-height-145 m-0px mt-8px">
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
+                <ul class="list-style-disc pl-20px color-text-secondary line-height-145 m-0px mt-8px">
+                  <li class="m-0px mt-8px mb-8px">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
                   </li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
+                  <li class="m-0px mt-8px mb-8px">
                     Very short queries can behave like “Explore” (show recent content) instead of
                     strict keyword matching.
                   </li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full">
+                  <li class="m-0px mt-8px mb-8px">
                     Tabs switch mode: <strong>Sites</strong>, <strong>Images</strong>, or
                     <strong>Explore everything</strong>.
                   </li>
@@ -422,12 +422,12 @@
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
-                <ul class="searchpage-help-list p-0px color-text-secondary list-style-none line-height-145 m-0px mt-8px">
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Popularity</strong>: signals like views and saves.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
-                  <li class="searchpage-help-list-li relative pl-16px m-0px mt-8px mb-8px before-absolute before-rounded-full"><strong>Verified sites</strong>: linked domains can be boosted.</li>
+                <ul class="list-style-disc pl-20px color-text-secondary line-height-145 m-0px mt-8px">
+                  <li class="m-0px mt-8px mb-8px"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
+                  <li class="m-0px mt-8px mb-8px"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
+                  <li class="m-0px mt-8px mb-8px"><strong>Popularity</strong>: signals like views and saves.</li>
+                  <li class="m-0px mt-8px mb-8px"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
+                  <li class="m-0px mt-8px mb-8px"><strong>Verified sites</strong>: linked domains can be boosted.</li>
                 </ul>
               </section>
 
