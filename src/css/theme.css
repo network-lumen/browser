@@ -286,7 +286,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* PasswordPromptModal.vue */
-.pwd-modal-input:focus, .drivepage-per-page-select:hover, .drivepage-bulk-checkbox input:hover + span,
+.pwd-modal-input:focus, .drivepage-per-page-select:hover,
 .drivepage-plans-filter-select:hover {
   border-color: var(--accent-primary);
 }
@@ -965,20 +965,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* Search & Filter Bar */
 .drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
-.drivepage-bulk-checkbox input:checked + span {
-  border-color: var(--accent-primary);
-  background: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--primary-a10);
-}
-.drivepage-bulk-checkbox input:checked + span::after {
-  left: 5px;
-  top: 2px;
-  width: 4px;
-  height: 8px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
 .drivepage-bulk-toolbar, .drivepage-hls-queue-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
 .drivepage-hls-queue-item.status-converting { border-color: var(--primary-a25); background: var(--primary-a06); }
 .drivepage-hls-queue-item.status-done {

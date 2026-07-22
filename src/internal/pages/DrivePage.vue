@@ -145,14 +145,7 @@
       </div>
 
       <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar flex-align-center flex-wrap-wrap mb-16px gap-14px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'active border-color-primary-a30': selectedLocalCount > 0 }">
-        <label class="drivepage-bulk-checkbox drivepage-bulk-toolbar-checkbox flex-inline-align-justify-center ring-spinner-sm flex-shrink-0 relative" title="Select visible entries">
-          <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 m-0px cursor-pointer"
-            type="checkbox"
-            :checked="allVisibleLocalEntriesSelected"
-            @change="handleVisibleLocalSelectionChange"
-          />
-          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute shadow-inset-highlight"></span>
-        </label>
+        <UiCheckbox boxed title="Select visible entries" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
           <span class="drivepage-bulk-toolbar-copy-span text-12px color-text-secondary" v-if="canBulkConvertSelectedLocal">
@@ -391,14 +384,7 @@
         <!-- List Header -->
         <div class="sticky flex-align-center gap-12px txt-weight-light text-uppercase color-text-secondary py-12px px-16px bg-secondary border-bottom-1 text-11px letter-spacing-005em top-0 z-1">
           <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-header flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
-            <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative" title="Select visible entries">
-              <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 m-0px cursor-pointer"
-                type="checkbox"
-                :checked="allVisibleLocalEntriesSelected"
-                @change="handleVisibleLocalSelectionChange"
-              />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute shadow-inset-highlight"></span>
-            </label>
+            <UiCheckbox boxed title="Select visible entries" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
           </div>
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
           <span class="drivepage-list-name-header flex-1 min-w-0">Name</span>
@@ -415,14 +401,7 @@
           :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
           <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px" @click.stop>
-            <label class="drivepage-bulk-checkbox flex-inline-align-justify-center ring-spinner-sm relative">
-              <input class="drivepage-bulk-checkbox-input absolute inset-0 opacity-0 m-0px cursor-pointer"
-                type="checkbox"
-                :checked="isLocalFileSelected(file)"
-                @change.stop="handleLocalFileSelectionChange(file, $event)"
-              />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute shadow-inset-highlight"></span>
-            </label>
+            <UiCheckbox boxed :model-value="isLocalFileSelected(file)" @update:model-value="(checked: boolean) => setLocalFileSelected(file, checked)" />
           </div>
           <div class="drivepage-list-icon flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0" :class="getFileTypeClass(file)">
             <!-- Show small thumbnail for images -->
@@ -5659,16 +5638,6 @@ function toggleVisibleLocalSelection(checked: boolean) {
     else next.delete(cid);
   }
   selectedLocalCids.value = Array.from(next);
-}
-
-function handleVisibleLocalSelectionChange(event: Event) {
-  const checked = !!((event.target as HTMLInputElement | null)?.checked);
-  toggleVisibleLocalSelection(checked);
-}
-
-function handleLocalFileSelectionChange(file: DriveFile, event: Event) {
-  const checked = !!((event.target as HTMLInputElement | null)?.checked);
-  setLocalFileSelected(file, checked);
 }
 
 function nextHlsQueueItemId(): string {
