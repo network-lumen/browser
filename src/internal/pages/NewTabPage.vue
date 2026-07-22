@@ -159,7 +159,7 @@
               </UiButton>
               <UiButton variant="danger" type="button"
                 title="Remove shortcut"
-                @click.stop="removeFavouriteById(entry.id)" class="newtab-shortcut-action newtab-shortcut-action--danger transition-lift-015">
+                @click.stop="removeFavouriteById(entry.id)" class="newtab-shortcut-action transition-lift-015">
                 <Trash2 :size="14" />
               </UiButton>
             </div>

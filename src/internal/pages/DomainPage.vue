@@ -5,7 +5,7 @@
       <nav class="domainpage-names-nav flex flex-column gap-6px mb-14px">
         <button
           type="button"
-          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
+          class="hover-fill-primary flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
           :class="{ 'bg-hover color-text-primary': activeNameTab === 'lumen' }"
           @click="activeNameTab = 'lumen'"
         >
@@ -14,7 +14,7 @@
         </button>
         <button
           type="button"
-          class="domainpage-names-nav-item flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
+          class="hover-fill-primary flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
           :class="{ 'bg-hover color-text-primary': activeNameTab === 'stable' }"
           @click="activeNameTab = 'stable'"
         >

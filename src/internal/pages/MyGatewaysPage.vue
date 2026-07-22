@@ -110,7 +110,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="entry in whitelist" :key="entry.wallet_address">
+                <tr class="hover-bg-hover" v-for="entry in whitelist" :key="entry.wallet_address">
                   <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary border-bottom-1">
                     <div class="mygw-user-display-name fw-500 color-text-primary">
                       {{ getUserDisplayName(entry.wallet_address) }}

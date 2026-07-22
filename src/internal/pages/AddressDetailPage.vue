@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary p-32px">
     <div class="mb-32px">
-      <UiButton variant="ghost" @click="goBack" class="chaindetail-back-btn">
+      <UiButton variant="ghost" @click="goBack" class="hover-shadow-0-4-12-primary-a30">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -26,7 +26,7 @@
           <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
-          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-8px">
               <code class="bg-secondary color-text-primary chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ address.address }}</code>
@@ -38,11 +38,11 @@
               </UiButton>
             </div>
           </div>
-          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Account Number:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="chaindetail-row last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Sequence:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.sequence }}</span>
           </div>
@@ -114,8 +114,8 @@
                 </svg>
               </div>
               <div class="flex-1">
-                <div class="addrdetail-tx-hash cursor-pointer mb-4px" @click="navigateToTx(tx.hash)">
-                  <code class="color-primary addrdetail-tx-hash-code mono text-12px">{{ shortenHash(tx.hash) }}</code>
+                <div class="underline-on-hover cursor-pointer mb-4px" @click="navigateToTx(tx.hash)">
+                  <code class="underline-target color-primary mono text-12px">{{ shortenHash(tx.hash) }}</code>
                 </div>
                 <div class="addrdetail-tx-meta flex gap-16px color-text-tertiary text-12px">
                   <span class="addrdetail-tx-height hover-underline cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>

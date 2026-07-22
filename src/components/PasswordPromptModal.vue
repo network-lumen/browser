@@ -17,7 +17,7 @@
               placeholder="Enter password"
               :disabled="loading || busy"
               @keyup.enter="handleSubmit"
-              @keyup.escape="handleCancel" class="pwd-modal-input border-default disabled-fade-60 transition-colors-015 placeholder-tertiary" />
+              @keyup.escape="handleCancel" class="focus-border-accent border-default disabled-fade-60 transition-colors-015 placeholder-tertiary" />
 
             <div v-if="error" class="pwd-modal-error color-error text-14px mt-8px py-8px px-12px bg-fill-error border-radius-8px">
               {{ error }}

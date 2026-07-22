@@ -129,7 +129,7 @@
                 <p class="txt-sm color-gray-blue mt-8px m-0px">
                   {{ walletError }}
                 </p>
-                <UiButton variant="secondary" @click="createWallet" class="walletonboard-btn-secondary">
+                <UiButton variant="secondary" @click="createWallet" class="hover-bg-secondary">
                   Try Again
                 </UiButton>
               </div>
@@ -186,7 +186,7 @@
           </div>
     <template #footer>
       <UiButton variant="secondary" v-if="step === 'intro' && !requiresProfileCreation"
-        @click="handleSkip" class="walletonboard-btn-secondary">
+        @click="handleSkip" class="hover-bg-secondary">
         Skip for now
       </UiButton>
       <UiButton variant="primary" v-if="step === 'intro'"
@@ -195,7 +195,7 @@
       </UiButton>
 
       <UiButton variant="secondary" v-if="step === 'password'"
-        @click="step = 'intro'" class="walletonboard-btn-secondary">
+        @click="step = 'intro'" class="hover-bg-secondary">
         Back
       </UiButton>
       <UiButton variant="primary" v-if="step === 'password'"
@@ -211,7 +211,7 @@
       </UiButton>
 
       <UiButton variant="secondary" v-if="step === 'backup'"
-        @click="handleSkipBackup" class="walletonboard-btn-secondary">
+        @click="handleSkipBackup" class="hover-bg-secondary">
         Skip Backup
       </UiButton>
       <UiButton variant="primary" v-if="step === 'backup'"

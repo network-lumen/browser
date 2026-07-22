@@ -139,7 +139,7 @@
           <UiButton variant="primary" type="button"
            
             :disabled="extensionsBusy"
-            @click.stop="openChromeWebStore" class="navbar-extensions-store-link disabled-fade-40 transition-bg-015">
+            @click.stop="openChromeWebStore" class="hover-bg-hover-enabled disabled-fade-40 transition-bg-015">
             <span>Import from Chrome Web Store</span>
             <ExternalLink :size="13" />
           </UiButton>
@@ -175,7 +175,7 @@
             <li
               v-for="p in profiles"
               :key="p.id"
-              class="navbar-profile-row flex-align-center border-radius-sm gap-6px p-4px"
+              class="navbar-profile-row reveal-on-hover hover-bg-hover flex-align-center border-radius-sm gap-6px p-4px"
               :class="{ 'bg-primary-a08': p.id === activeProfileId }"
               role="menuitem"
             >
@@ -184,7 +184,7 @@
                 <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
-              <button type="button" class="navbar-profile-row-delete h-26px flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="navbar-profile-row-delete reveal-target h-26px flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
@@ -253,14 +253,14 @@
               />
             </div>
             
-            <div class="navbar-export-option mt-12px border-radius-sm py-8px px-10px transition-bg-015">
+            <div class="hover-bg-hover mt-12px border-radius-sm py-8px px-10px transition-bg-015">
               <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
             </div>
           </div>
           
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
-            <div class="navbar-export-option border-radius-sm py-8px px-10px transition-bg-015">
+            <div class="hover-bg-hover border-radius-sm py-8px px-10px transition-bg-015">
               <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
             </div>
             
