@@ -289,7 +289,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .lumen-sidebar {
   -webkit-backdrop-filter: var(--backdrop-blur);
 }
-.sidebar-fav-item, .walletpage-asset-item-rich, .walletpage-dex-top { align-items: stretch; }
 .sidebar-fav-avatar.tone-search, .history-item-avatar.tone-search, .newtab-shortcut-avatar.tone-search {
   background: rgba(var(--ios-blue-rgb), 0.12);
   color: var(--ios-blue);
@@ -628,39 +627,8 @@ select.recurpay-input { background-image: none; }
 .helppage-docs-grid { grid-template-columns: 1fr; }
 
 .helppage-hero-section { background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%); }
-.helppage-gradient-text {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 .helppage-action-icon-drive, .helppage-contact-icon-website, .drivepage-list-item.selected { background: var(--fill-blue); }
 .helppage-steps-grid { grid-template-columns: repeat(3, 1fr); }
-.helppage-step-card .helppage-step-number {
-  border-radius: 10px;
-  background: var(--gradient-primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-.helppage-step-card .helppage-step-content h4 {
-  margin: 0 0 0.25rem 0;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-.helppage-step-card .helppage-step-content p {
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.4;
-}
-.helppage-tutorial-step .helppage-step-number {
-  border-radius: 8px;
-  background: var(--gradient-primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
 .helppage-contact-grid { grid-template-columns: repeat(1, 1fr); }
 .helppage-contact-icon.github, .settingspage-status-disabled, .searchpage-icon-link, .searchpage-type-txt,
 .searchpage-type-link {
@@ -850,9 +818,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .domainpage-domain-part { flex: 1.2; }
 .domainpage-ext-part { flex: 0.8; }
-.domainpage-price-row.total {
-  font-weight: 600;
-}
 .domainpage-key-input { flex: 0.9; }
 .domainpage-value-input { flex: 1.6; }
 
@@ -913,11 +878,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .settingspage-theme-option.active { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); }
 
 /* Brightness Control */
-.settingspage-brightness-slider, .explorer-slider {
-  height: 6px;
-  -webkit-appearance: none;
-  appearance: none;
-}
 .settingspage-brightness-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -1038,9 +998,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* Stats Bar */
 .explorer-stat-value {
   background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 
@@ -1185,11 +1142,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   z-index: 0;
 }
 .hero { margin-top: 15vh; }
-.searchpage-brand {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 .searchpage-brand::after {
   content: "Search";
   bottom: -1.5rem;
@@ -1275,11 +1227,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-result-card:hover .searchpage-result-icon {
   transform: scale(1.05) rotate(5deg);
   box-shadow: 0 4px 12px var(--primary-a20);
-}
-.searchpage-result-card.searchpage-explore-image {
-  align-items: stretch;
-  min-height: 132px;
-  max-height: 132px;
 }
 .searchpage-result-card.searchpage-explore-image .searchpage-result-icon {
   width: 160px;
@@ -1372,12 +1319,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-image-save-btn:hover {
   transform: scale(1.06);
 }
-.searchpage-result-title--placeholder {
-  font-size: 0.95rem;
-  font-style: italic;
-  opacity: 0.65;
-  letter-spacing: 0;
-}
 .searchpage-site-domain svg { flex: 0 0 auto; }
 .searchpage-result-desc {
   line-height: 1.6;
@@ -1451,11 +1392,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-dex-item-degraded { border-color: rgba(var(--ios-orange-rgb), 0.35); }
 .walletpage-dex-item-error { border-color: rgba(var(--ios-red-rgb), 0.28); }
 .walletpage-dex-logo-dark { background: #111827; border-color: rgba(17, 24, 39, 0.65); }
-.walletpage-dex-logo-image {
-  height: 74%;
-  object-fit: contain;
-  object-position: center;
-}
+.walletpage-dex-logo-image { height: 74%; }
 .walletpage-dex-detail-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 /* Transaction List */
@@ -1480,7 +1417,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-color: rgba(var(--ios-orange-rgb), 0.3);
 }
 .walletpage-info-banner-ul { list-style-type: disc; }
-.walletpage-form-select { appearance: none; -webkit-appearance: none; }
 .walletpage-form-input:read-only { cursor: not-allowed; }
 .walletpage-summary-value.tax, .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
@@ -1492,16 +1428,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border: 2px solid var(--text-tertiary);
   border-top-color: var(--accent-primary);
   animation: spin 0.6s linear infinite;
-}
-.walletpage-address-box .walletpage-address-value {
-  font-family: var(--font-mono);
-  word-break: break-all;
-  margin-bottom: 1rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-primary);
-  line-height: 1.6;
 }
 
 /* Address Book Styles */

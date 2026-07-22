@@ -99,19 +99,19 @@
       <div class="explorer-stats-bar gap-16px mb-32px grid">
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Latest Block</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px">{{ formatNumber(latestBlock) }}</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(latestBlock) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px">{{ formatNumber(txHistoryTotal) }}</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(txHistoryTotal) }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Validators</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px">{{ validatorCount }}</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ validatorCount }}</span>
         </div>
         <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
           <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Avg Block Time</span>
-          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px">{{ avgBlockTimeLabel }}</span>
+          <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabel }}</span>
         </div>
       </div>
 
@@ -242,11 +242,11 @@
                     <div class="explorer-proposer-stat-group gap-8px w-full grid">
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
                         <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
-                        <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                        <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                       </div>
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
                         <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
-                        <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px">{{ avgBlockTimeLabelShort }}</span>
+                        <span class="explorer-stat-value txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                       </div>
                     </div>
                   </div>
@@ -657,7 +657,7 @@
                   v-model="stakePercentage" 
                   min="0" 
                   max="100" 
-                  class="explorer-slider w-full outline-none border-radius-4px bg-border"
+                  class="explorer-slider w-full outline-none border-radius-4px bg-border h-6px appearance-none"
                 />
                 <div class="explorer-slider-labels flex-justify-space-between color-text-tertiary text-11px">
                   <span>0%</span>

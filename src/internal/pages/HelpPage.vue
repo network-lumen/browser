@@ -69,7 +69,7 @@
           <!-- Hero Section -->
           <section class="helppage-hero-section p-32px border-radius-lg text-center border-default shadow-sm">
             <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="helppage-gradient-text bg-gradient-primary">Lumen</span></h2>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
             <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-32px">
@@ -149,24 +149,24 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">How Lumen Works</h3>
             <div class="helppage-steps-grid gap-16px grid">
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
-                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
+                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">1</div>
                 <div class="helppage-step-content">
-                  <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 text-16px m-0px mb-4px">Blockchain Names</h4>
-                  <p class="color-text-secondary text-14px m-0px">Domain names are stored on the blockchain - no central authority can take them away.</p>
+                  <h4 class="color-text-primary fw-700 helppage-step-content-h4 text-14px m-0px mb-4px">Blockchain Names</h4>
+                  <p class="color-text-secondary text-13px line-height-14 m-0px">Domain names are stored on the blockchain - no central authority can take them away.</p>
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
-                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
+                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">2</div>
                 <div class="helppage-step-content">
-                  <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 text-16px m-0px mb-4px">Distributed Storage</h4>
-                  <p class="color-text-secondary text-14px m-0px">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
+                  <h4 class="color-text-primary fw-700 helppage-step-content-h4 text-14px m-0px mb-4px">Distributed Storage</h4>
+                  <p class="color-text-secondary text-13px line-height-14 m-0px">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
-                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
+                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">3</div>
                 <div class="helppage-step-content">
-                  <h4 class="color-text-primary txt-weight-light helppage-step-content-h4 text-16px m-0px mb-4px">Verified Access</h4>
-                  <p class="color-text-secondary text-14px m-0px">Every piece of content is cryptographically verified for authenticity.</p>
+                  <h4 class="color-text-primary fw-700 helppage-step-content-h4 text-14px m-0px mb-4px">Verified Access</h4>
+                  <p class="color-text-secondary text-13px line-height-14 m-0px">Every piece of content is cryptographically verified for authenticity.</p>
                 </div>
               </UiCard>
             </div>
@@ -223,7 +223,7 @@
           <!-- Hero -->
           <section class="helppage-hero-section small border-radius-lg text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Publish Your <span class="helppage-gradient-text bg-gradient-primary">Website</span></h2>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Publish Your <span class="gradient-text-clip bg-gradient-primary">Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
             </div>
           </section>
@@ -232,7 +232,7 @@
           <div class="tutorial-steps flex flex-column gap-16px">
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">1</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Upload to Drive</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Go to Drive, upload a file or folder, then click <strong>Share</strong> to get a Lumen link.</p>
@@ -244,7 +244,7 @@
 
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">2</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Buy Your Domain</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Go to Domains, click <strong>Buy domain</strong>, choose a name like <code>yourname.lmn</code>.</p>
@@ -256,7 +256,7 @@
 
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">3</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Link Domain to Content</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">In Domain settings, add a record with <code>Key: cid</code> and <code>Value: your-content-hash</code>.</p>
@@ -264,7 +264,7 @@
 
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">4</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Visit Your Site</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Type <code>lumen://yourname.lmn</code> in the address bar to access your decentralized website!</p>
@@ -283,7 +283,7 @@
           <!-- Hero -->
           <section class="helppage-hero-section small border-radius-lg text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="helppage-gradient-text bg-gradient-primary">First Website</span></h2>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
             </div>
           </section>
@@ -292,7 +292,7 @@
           <div class="tutorial-steps flex flex-column gap-16px">
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">1</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">1</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Build Your Website</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.</p>
@@ -300,7 +300,7 @@
 
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">2</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">2</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Upload It to Drive</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Open Drive, upload that folder, then copy its Lumen link — that's your content's address.</p>
@@ -312,7 +312,7 @@
 
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">3</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">3</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Get a Domain</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.</p>
@@ -324,7 +324,7 @@
 
             <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
               <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0">4</div>
+                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">4</div>
                 <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Link Your Domain to Your Content</h4>
               </div>
               <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.</p>
@@ -345,7 +345,7 @@
           <!-- Hero -->
           <section class="helppage-hero-section small border-radius-lg text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="helppage-gradient-text bg-gradient-primary">Help</span></h2>
+              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
             </div>
           </section>

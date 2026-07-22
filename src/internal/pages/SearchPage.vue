@@ -13,7 +13,7 @@
         <HelpCircle :size="18" />
       </UiButton>
     <section class="hero flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
-      <div class="searchpage-brand bg-gradient-primary relative mb-8px letter-spacing-n002 fw-900 text-56px after-position-absolute">Lumen</div>
+      <div class="searchpage-brand bg-gradient-primary relative mb-8px letter-spacing-n002 fw-900 text-56px after-position-absolute gradient-text-clip">Lumen</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
         <div class="searchpage-search-box flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
@@ -239,7 +239,7 @@
         >
           <button 
             class="searchpage-result-card flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card before-absolute before-fade-hover"
-            :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px' : '' ]"
+            :class="[ `searchpage-result-${r.kind}`, r.media ? `media-${r.media}` : '', r.fileKind ? `searchpage-file-${r.fileKind}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
             type="button" 
             @click="openResult(r)"
           >
@@ -291,7 +291,7 @@
               <div
                 v-if="displayTitle(r)"
                 class="searchpage-result-title m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
-                :class="{ 'searchpage-result-title--placeholder': isNoTitlePlaceholder(r) }"
+                :class="{ 'text-15px italic opacity-70 letter-spacing-0': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
               </div>

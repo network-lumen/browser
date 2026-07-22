@@ -179,7 +179,7 @@
             <div
               v-for="asset in assetRows"
               :key="asset.id"
-              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-16px border-radius-14px bg-card border-1 py-14px px-16px"
+              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-16px border-radius-14px bg-card border-1 py-14px px-16px align-items-stretch"
             >
               <div class="walletpage-asset-main flex-align-start gap-12px flex-1 min-w-0">
                 <div class="walletpage-asset-icon flex-align-justify-center size-40px border-radius-full txt-weight-light text-14px color-white overflow-hidden flex-shrink-0" :class="asset.iconClass">
@@ -254,7 +254,7 @@
             class="walletpage-dex-item border-1 border-radius-16px bg-card overflow-hidden"
             :class="`walletpage-dex-item-${dex.status}`"
           >
-            <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px">
+            <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px align-items-stretch">
               <button
                 type="button"
                 class="color-inherit flex-align-start gap-14px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
@@ -265,7 +265,7 @@
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
                     :alt="`${dex.name} logo`"
-                    class="walletpage-dex-logo-image m-auto block bg-transparent w-74pct"
+                    class="walletpage-dex-logo-image m-auto block bg-transparent w-74pct object-fit-contain object-position-center"
                     @error="handleDexLogoError(dex)"
                   />
                   <span v-else>{{ dex.iconText }}</span>
@@ -644,7 +644,7 @@
               <div class="walletpage-form-group mb-20px">
                 <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">To chain</label>
                 <div class="walletpage-input-wrapper relative">
-                  <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-secondary-read-only" v-model="assetTransferForm.destinationKey">
+                  <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-secondary-read-only appearance-none" v-model="assetTransferForm.destinationKey">
                     <option
                       v-for="target in assetTransferContext.transferTargets"
                       :key="target.key"
@@ -760,7 +760,7 @@
             <div v-if="!sendAssetContext" class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Send to</label>
               <div class="walletpage-input-wrapper relative">
-                <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-secondary-read-only" v-model="sendTargetMode">
+                <select class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-secondary-read-only appearance-none" v-model="sendTargetMode">
                   <option value="lumen">On the current chain</option>
                   <option value="ibc">Across IBC to another chain</option>
                 </select>
@@ -771,7 +771,7 @@
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">IBC route <span class="walletpage-required color-error">*</span></label>
               <div class="walletpage-input-wrapper relative">
                 <select
-                  class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-secondary-read-only"
+                  class="walletpage-form-input walletpage-form-select w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-secondary-read-only appearance-none"
                   v-model="ibcForm.sourceChannel"
                   :disabled="ibcChannelsLoading || !ibcChannels.length"
                 >
@@ -925,7 +925,7 @@
 
             <div class="walletpage-address-box border-radius-12px p-20px border-2 bg-secondary">
               <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">Your Wallet Address</div>
-              <div class="walletpage-address-value mono text-13px color-text-secondary p-14px text-15px">{{ address || '-' }}</div>
+              <div class="walletpage-address-value mono text-13px p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-16">{{ address || '-' }}</div>
               <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="walletpage-btn-copy-address disabled-fade-50">
                 <Copy :size="16" />
                 <span>Copy Address</span>
