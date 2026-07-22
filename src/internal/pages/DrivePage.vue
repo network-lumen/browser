@@ -151,7 +151,7 @@
             :checked="allVisibleLocalEntriesSelected"
             @change="handleVisibleLocalSelectionChange"
           />
-          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute"></span>
+          <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute shadow-inset-highlight"></span>
         </label>
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
@@ -397,7 +397,7 @@
                 :checked="allVisibleLocalEntriesSelected"
                 @change="handleVisibleLocalSelectionChange"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute shadow-inset-highlight"></span>
             </label>
           </div>
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
@@ -421,7 +421,7 @@
                 :checked="isLocalFileSelected(file)"
                 @change.stop="handleLocalFileSelectionChange(file, $event)"
               />
-              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute"></span>
+              <span class="drivepage-bulk-checkbox-span border-radius-6px border-1 bg-primary relative transition-all-02 w-18px h-18px after-absolute shadow-inset-highlight"></span>
             </label>
           </div>
           <div class="drivepage-list-icon flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0" :class="getFileTypeClass(file)">
