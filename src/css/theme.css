@@ -388,9 +388,7 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 .searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
 
-/* Shared interactive-state helpers (disabled fade, hover fill) */
-.disabled-fade-40:disabled { cursor: not-allowed; opacity: 0.4; }
-.disabled-fade-45:disabled { cursor: not-allowed; opacity: 0.45; }
+/* disabled-fade-* utilities live in utilities.css alongside their -50/-60 siblings. */
 /* badge-success/error/warning/info/neutral rules live in src/css/ui/badge.css.
  * These search-page selectors shared the same computed background value
  * (unrelated concept) and keep their own declaration here. */
@@ -404,19 +402,14 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .chaindetail-card-header-h2 { letter-spacing: 0.025em; }
 .chaindetail-row { grid-template-columns: 180px 1fr; }
 
-.chaindetail-row:last-child, .blockdetail-row:last-child, .recurpay-summary-row:last-child,
-.mygw-whitelist-table tbody tr:last-child td, .ipfspage-dir-row:last-child, .explorer-table-row:last-child,
-.walletpage-activity-row:last-child, .walletpage-summary-row:last-child, .walletpage-picker-item:last-child,
-.drivepage-list-item:last-child {
-  border-bottom: none;
-}
+.mygw-whitelist-table tbody tr:last-child td { border-bottom: none; }
 
 .chaindetail-row:hover {
   margin: 0 -0.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
-.chaindetail-value-clickable, .addrdetail-tx-hash:hover code, .addrdetail-tx-height:hover, .settingspage-about-link:hover, .settingspage-info-box a:hover, .explorer-block-link.explorer-clickable:hover, .explorer-height-link:hover, .explorer-block-link:hover {
+.addrdetail-tx-hash:hover code {
   text-decoration: underline;
 }
 /* BlockDetailPage.vue */
@@ -450,18 +443,10 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* NetworkParamsPanel.vue */
-.netparams-btn:hover:enabled, .netparams-icon-btn:hover:enabled,
-.drivepage-hosting-details:hover {
-  border-color: var(--primary-a15);
-}
 .netparams-json-block { max-height: 420px; }
-.spinning { animation: spin 1s linear infinite; }
 
 /* HistoryPage.vue */
 .history-copy-h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
-.history-copy p, .helppage-hero-subtitle, .searchpage-help-p { margin: 0.5rem 0 0; }
-.history-group-head-span { height: 1.7rem; }
-.history-item-main, .walletpage-dex-summary-btn { color: inherit; }
 
 /* ExtensionPage.vue */
 

@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-45 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
+            class="history-clear-btn disabled-fade-40 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -53,12 +53,12 @@
         <section v-for="group in groupedEntries" :key="group.label" class="history-group p-16px border-default bg-card shadow-sm border-radius-24px">
           <div class="history-group-head flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
             <h2 class="color-text-primary m-0px history-group-head-h2 text-16px">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong history-group-head-span py-0px px-8px bg-fill-secondary text-12px min-w-27rem-badge">{{ group.entries.length }}</span>
+            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong h-28px py-0px px-8px bg-fill-secondary text-12px min-w-27rem-badge">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
-              <button class="history-item-main flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
+              <button class="color-inherit flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
                 <span class="history-item-avatar h-44px flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-270" :class="`tone-${entry.kind}`">
                   {{ entry.monogram }}
                 </span>

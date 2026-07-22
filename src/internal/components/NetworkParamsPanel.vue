@@ -12,12 +12,12 @@
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap text-12px">{{ restBase }}</span>
         </div>
 
-        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn disabled-fade-60">
+        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn hover-border-primary-a15 disabled-fade-60">
           <Copy :size="16" />
           Copy all
         </UiButton>
 
-        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="netparams-btn disabled-fade-60">
+        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="netparams-btn hover-border-primary-a15 disabled-fade-60">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </UiButton>
@@ -50,7 +50,7 @@
           <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-8px flex-0-0-auto">
             <button
               type="button"
-              class="netparams-icon-btn disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a08 hover-color-accent"
+              class="netparams-icon-btn hover-border-primary-a15 disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a08 hover-color-accent"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"

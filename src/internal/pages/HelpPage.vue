@@ -70,7 +70,7 @@
           <section class="helppage-hero-section p-32px border-radius-lg text-center border-default shadow-sm">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="helppage-gradient-text bg-gradient-primary">Lumen</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
             <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-32px">
               <div class="helppage-feature-point flex gap-12px text-left flex-align-start">
@@ -224,7 +224,7 @@
           <section class="helppage-hero-section small border-radius-lg text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Publish Your <span class="helppage-gradient-text bg-gradient-primary">Website</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary text-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
             </div>
           </section>
 
@@ -284,7 +284,7 @@
           <section class="helppage-hero-section small border-radius-lg text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="helppage-gradient-text bg-gradient-primary">First Website</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
             </div>
           </section>
 
@@ -346,7 +346,7 @@
           <section class="helppage-hero-section small border-radius-lg text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="helppage-gradient-text bg-gradient-primary">Help</span></h2>
-              <p class="helppage-hero-subtitle color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
             </div>
           </section>
 

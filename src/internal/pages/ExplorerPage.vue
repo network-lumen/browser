@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -452,7 +452,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row flex-inline-align-center background-black-a04-active">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row last-border-bottom-none flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td explorer-td-hash flex-align-center gap-8px text-13px text-14px">
                   <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="explorer-tx-icon color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -484,7 +484,7 @@
                   </span>
                 </div>
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
-                  <span class="explorer-block-link explorer-clickable color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                  <span class="explorer-block-link explorer-clickable hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
                 <div class="explorer-td td-fee flex-align-center text-13px text-14px">
                   <span class="explorer-fee-amount text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row validator-row flex-inline-align-center background-black-a04-active">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td td-rank flex-align-center text-13px text-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>

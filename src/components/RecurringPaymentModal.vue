@@ -141,19 +141,19 @@
         <!-- Payment Summary -->
         <div class="recurpay-summary border-radius-12px p-20px color-white bg-gradient-brand">
           <h4 class="m-0px text-16px txt-weight-light recurpay-summary-h4 mb-16px">Payment Summary</h4>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
+          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
             <span>Amount per payment:</span>
             <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
+          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
             <span>Frequency:</span>
             <strong class="txt-weight-light">{{ frequencyLabel }}</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="form.startDate">
+          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="form.startDate">
             <span>First payment:</span>
             <strong class="txt-weight-light">{{ formatDate(form.startDate) }}</strong>
           </div>
-          <div class="recurpay-summary-row flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="estimatedTotal">
+          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="estimatedTotal">
             <span>{{ estimatedTotalLabel }}:</span>
             <strong class="txt-weight-light">{{ estimatedTotal }} LMN</strong>
           </div>
