@@ -688,8 +688,6 @@ select.recurpay-input { background-image: none; }
 /* NewTabPage.vue */
 .newtab-page {
   background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary);
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 .newtab-glow {
   height: 28rem;
@@ -706,40 +704,21 @@ select.recurpay-input { background-image: none; }
 .newtab-hero, .newtab-shortcuts-panel, .newtab-onboarding-modal, .newtab-shortcut-modal {
   background: color-mix(in srgb, var(--card-bg) 94%, transparent);
   box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
-.newtab-hero { padding: 2.3rem 1.15rem; }
 .newtab-hero::before, .newtab-shortcuts-panel::before {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 25%);
 }
-.newtab-brand-logo {
-  --brand-logo-size: 46px;
-  --brand-logo-radius: 15px;
-  width: var(--brand-logo-size);
-  height: var(--brand-logo-size);
-}
-.newtab-section-kicker { letter-spacing: 0.11em; }
 .newtab-hero-copy-h1 {
   font-size: clamp(2.2rem, 7vw, 4.3rem);
   line-height: 0.95;
   letter-spacing: -0.06em;
 }
 .newtab-omnibox {
-  margin: 1.2rem auto 0;
   background: color-mix(in srgb, var(--card-bg) 90%, transparent);
 }
 .newtab-omnibox:focus-within {
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08), 0 0 0 4px var(--primary-a12);
 }
-.newtab-omnibox-submit, .newtab-shortcut-action {
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.2s ease;
-}
-.newtab-shortcuts-head h2, .newtab-shortcuts-empty h3 {
-  margin: 0.2rem 0 0;
-  letter-spacing: -0.03em;
-}
-.newtab-shortcuts-head p, .newtab-shortcuts-empty p, .newtab-onboarding-text p { margin: 0.4rem 0 0; line-height: 1.5; }
 .newtab-shortcut-grid { grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); }
 .newtab-shortcut-card {
   background: color-mix(in srgb, var(--card-bg) 92%, transparent);
@@ -756,14 +735,6 @@ select.recurpay-input { background-image: none; }
 .newtab-shortcut-title { font-weight: 760; }
 .newtab-history-preview-list { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .newtab-history-preview-item { transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
-.newtab-history-preview-item:hover {
-  border-color: rgba(var(--ios-blue-rgb), 0.14);
-}
-.searchpage-result-card.searchpage-explore-image .searchpage-badge {
-  white-space: nowrap;
-}
-.newtab-onboarding-modal, .newtab-shortcut-modal { width: min(34rem, 100%); }
-.newtab-shortcut-modal { width: min(32rem, 100%); }
 
 
 /* DaoPage.vue */
@@ -886,10 +857,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .domainpage-key-input { flex: 0.9; }
 .domainpage-value-input { flex: 1.6; }
 
-/* NavBar.vue */
-
-/* ===== NAVBAR LAYOUT ===== */
-
 /* ===== NAVIGATION CONTROLS ===== */
 .navbar-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .navbar-nav-btn.is-active, .navbar-url-bar-action.is-active { color: var(--ios-yellow); }
@@ -897,8 +864,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 /* ===== URL BAR ===== */
 .navbar-url-bar-icon { left: 12px; }
 .navbar-url-bar-action { right: 6px; transform: translateY(-50%); }
-
-/* ===== QUICK ACTIONS ===== */
 
 /* ===== EXTENSIONS ===== */
 .navbar-extensions-menu {
@@ -919,8 +884,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-result-open { opacity: 0.5; }
 
-/* ===== PROFILE SECTION ===== */
-
 /* ===== PROFILE MENU ===== */
 .navbar-profile-menu {
   top: calc(100% + 6px);
@@ -940,9 +903,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--ios-red);
 }
 .navbar-import-mode-btn.active { box-shadow: 0 0 0 1px var(--primary-a20) inset; }
-
-
-/* Main Content */
 
 /* Settings Section */
 .settingspage-setting-item { transition: all var(--transition-fast); }
@@ -985,12 +945,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
-
-/* About Card */
-
-
-
-/* Security Section Styles */
 
 /* Private Cloud - Simple Styles */
 .settingspage-setting-item-settingspage-featured { border-width: 2px; }
@@ -1082,12 +1036,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-markdown-view code { word-break: break-word; }
 .ipfspage-unsupported-content > p { color: var(--text-secondary); margin-bottom: 1.5rem; }
 
-/* ExplorerPage.vue */
-
-/* Main Content */
-
-/* Search Section */
-
 /* Stats Bar */
 .explorer-stat-value {
   background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
@@ -1096,9 +1044,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background-clip: text;
 }
 
-/* Loading State */
-
-/* Empty State */
 
 .explorer-refresh-indicator.active, .walletpage-amount-value.receive {
   color: var(--ios-green);

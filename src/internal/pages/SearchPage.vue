@@ -323,12 +323,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px"
+                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px"
+                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
