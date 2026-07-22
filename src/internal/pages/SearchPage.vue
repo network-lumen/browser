@@ -13,7 +13,8 @@
         <HelpCircle :size="18" />
       </UiButton>
     <section class="mt-15vh flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
-      <div class="searchpage-brand bg-gradient-primary relative mb-8px letter-spacing-n002 fw-900 text-56px after-position-absolute gradient-text-clip">Lumen</div>
+      <div class="bg-gradient-primary letter-spacing-n002 fw-900 text-56px gradient-text-clip">Lumen</div>
+      <div class="text-14px fw-600 letter-spacing-015em text-uppercase color-text-tertiary">Search</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
         <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
