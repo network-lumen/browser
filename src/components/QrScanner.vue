@@ -34,11 +34,11 @@
 
             <div class="qr-scanned-data text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
               <div class="qr-data-type mb-12px">
-                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-05px">Type:</span>
+                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Type:</span>
                 <span class="qr-value color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>
               <div class="qr-data-content">
-                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-05px">Content:</span>
+                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Content:</span>
                 <div class="qr-value-box bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono max-h-120px">{{ scannedData }}</div>
               </div>
             </div>

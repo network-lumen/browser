@@ -2,14 +2,14 @@
   <div class="bg-gradient-extensions-store w-full h-full min-h-0 flex flex-column">
     <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16 pt-20px px-24px pb-16px">
       <div class="extensions-store-copy">
-        <h1 class="extensions-store-copy-h1 color-hex-f8fafc">{{ headerTitle }}</h1>
+        <h1 class="extensions-store-copy-h1 color-store-heading">{{ headerTitle }}</h1>
         <p class="extensions-store-copy-p m-0px mt-6px max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px flex-1-1-420px">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-50 install-hero-btn cursor-pointer border-none py-12px px-16px color-white min-w-170px min-h-46px color-hex-e2e8f0 background-gradient-0f766e-0ea5e9 shadow-0-18-40-rgba-14-165-233-0-26"
+          class="extensions-store-btn disabled-fade-50 install-hero-btn cursor-pointer border-none py-12px px-16px color-white min-w-170px min-h-46px color-store-button background-gradient-0f766e-0ea5e9 shadow-0-18-40-rgba-14-165-233-0-26"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-14px color-hex-dbeafe background-rgba-37-99-235-0-18 mt-0px mx-24px mb-14px" :class="{ 'color-hex-fecaca background-rgba-185-28-28-0-2': statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-14px color-store-info background-rgba-37-99-235-0-18 mt-0px mx-24px mb-14px" :class="{ 'color-store-error background-rgba-185-28-28-0-2': statusError }">
       {{ statusMessage }}
     </div>
 
