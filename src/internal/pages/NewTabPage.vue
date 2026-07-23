@@ -1,6 +1,6 @@
 <template>
-  <div class="newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
-    <UiModal :model-value="showOnboarding" panel-class="newtab-onboarding-modal border-1-light border-radius-24px backdrop-blur-16 w-min-34rem-full" :closable="false" @update:model-value="dismissOnboarding">
+  <div class="newtab-page bg-gradient-newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
+    <UiModal :model-value="showOnboarding" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-34rem-full" :closable="false" @update:model-value="dismissOnboarding">
       <div class="flex-align-start gap-16px mb-16px">
         <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
           <Hexagon :size="22" />
@@ -24,7 +24,7 @@
       </template>
     </UiModal>
 
-    <UiModal :model-value="showShortcutModal" panel-class="newtab-shortcut-modal border-1-light border-radius-24px backdrop-blur-16 w-min-32rem-full" @update:model-value="closeShortcutModal">
+    <UiModal :model-value="showShortcutModal" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-32rem-full" @update:model-value="closeShortcutModal">
       <template #header>
         <div>
           <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
@@ -71,18 +71,18 @@
     </UiModal>
 
     <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
-      <div class="newtab-glow newtab-glow--left border-radius-full absolute opacity-55 bg-ios-blue-a18 w-2800"></div>
-      <div class="newtab-glow newtab-glow--right border-radius-full absolute opacity-55 bg-ios-indigo-a12 w-2800"></div>
+      <div class="h-28rem-blur-36px top-n14rem-left-n10rem border-radius-full absolute opacity-55 bg-ios-blue-a18 w-2800"></div>
+      <div class="h-28rem-blur-36px top-2rem-right-n12rem border-radius-full absolute opacity-55 bg-ios-indigo-a12 w-2800"></div>
     </div>
 
     <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
-      <section class="newtab-hero border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-28px backdrop-blur-16">
+      <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-28px backdrop-blur-16">
         <div class="newtab-hero-copy text-center my-0px mx-auto max-w-4000">
-          <h1 class="color-text-primary m-0px newtab-hero-copy-h1">Search Lumen</h1>
+          <h1 class="color-text-primary m-0px text-clamp-22-7vw-43rem-tight">Search Lumen</h1>
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-14px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="newtab-omnibox flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-14px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-20px mx-auto mb-0px" @submit.prevent="submitOmnibox">
+        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-14px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-20px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -106,7 +106,7 @@
         </div>
       </section>
 
-      <section class="newtab-shortcuts-panel border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px backdrop-blur-16">
+      <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px backdrop-blur-16">
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
             <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
@@ -124,7 +124,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="newtab-shortcut-card flex flex-column gap-12px relative p-14px border-1-light border-radius-22px min-h-150px shadow-0-12-24-rgba-15-23-42-0-05"
+            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-22px min-h-150px shadow-0-12-24-rgba-15-23-42-0-05"
             :class="{
               'card-state-pinned': entry.pinned,
               'card-state-dragging': draggingShortcutId === entry.id,
@@ -141,7 +141,7 @@
                 {{ entry.monogram }}
               </span>
               <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-4px">
-                <span class="newtab-shortcut-title block text-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
+                <span class="fw-760 block text-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
                 <span class="newtab-shortcut-subtitle block color-text-tertiary text-13px line-height-145 nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
             </UiButton>
@@ -180,7 +180,7 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="newtab-shortcuts-panel newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px backdrop-blur-16"
+        class="bg-card-a94-shadow-soft newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-28px backdrop-blur-16"
       >
         <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
@@ -199,7 +199,7 @@
           <UiButton variant="none" v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
-            @click="openTarget(entry.url, $event)" class="newtab-history-preview-item flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-ios-blue-a14">
+            @click="openTarget(entry.url, $event)" class="transition-transform-bg-border-015 flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-ios-blue-a14">
             <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :class="`tone-${entry.kind}`">
               {{ entry.monogram }}
             </span>
