@@ -443,6 +443,7 @@
 .hover-border-accent:hover { border-color: var(--accent-primary); }
 .hover-border-color:hover { border-color: var(--border-color); }
 .hover-border-color-accent-enabled:hover:not(:disabled) { border-color: var(--accent-primary); color: var(--accent-primary); }
+.hover-border-ios-blue:hover { border-color: var(--ios-blue); }
 .hover-border-ios-blue-a14:hover { border-color: rgba(var(--ios-blue-rgb), 0.14); }
 .hover-border-left-accent-primary:hover { border-left-color: var(--accent-primary); }
 .hover-border-primary-a15:hover { border-color: var(--primary-a15); }
@@ -712,6 +713,7 @@
 .shadow-shadow-focus-focus-within:focus-within { box-shadow: var(--shadow-focus); }
 .shadow-sm { box-shadow: var(--shadow-sm); }
 .shadow-stake-modal { box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.05); }
+.shadow-subtle { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02); }
 .shadow-xl { box-shadow: var(--shadow-xl); }
 .shadow-xs { box-shadow: var(--shadow-xs); }
 .size-16px { width: 16px; height: 16px; }
