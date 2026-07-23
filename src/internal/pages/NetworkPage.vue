@@ -130,7 +130,7 @@
           <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
           <div class="netpage-health-grid gap-14px grid grid-cols-2">
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
+              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
@@ -140,7 +140,7 @@
             </div>
 
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Validator Participation</div>
+              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Validator Participation</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="h-full border-radius-4px transition-width-03" :style="{ width: validatorPercent + '%', ...indicatorFillStyle(validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal') }"></div>
@@ -150,7 +150,7 @@
             </div>
 
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Block Production</div>
+              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Block Production</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
@@ -160,7 +160,7 @@
             </div>
 
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Peer Connections</div>
+              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Peer Connections</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>

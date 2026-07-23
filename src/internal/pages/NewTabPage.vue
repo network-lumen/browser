@@ -8,7 +8,7 @@
         <div class="newtab-onboarding-text">
           <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Welcome</div>
           <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
-          <p id="lumen-onboarding-desc" class="color-text-secondary mt-6px line-height-15">
+          <p id="lumen-onboarding-desc" class="color-text-secondary mt-8px line-height-15">
             Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
           </p>
         </div>
@@ -79,10 +79,10 @@
       <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-24px backdrop-blur-16">
         <div class="newtab-hero-copy text-center my-0px mx-auto max-w-4000">
           <h1 class="color-text-primary m-0px text-clamp-22-7vw-43rem-tight">Search Lumen</h1>
-          <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-14px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
+          <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-20px mx-auto mb-0px" @submit.prevent="submitOmnibox">
+        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -170,7 +170,7 @@
         <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty mt-16px border-radius-20px py-12px px-16px bg-black-a02 border-1-dashed-color">
           <div class="newtab-shortcuts-empty-copy">
             <h3 class="color-text-primary mt-4px letter-spacing-n002">No shortcuts yet</h3>
-            <p class="color-text-secondary mt-6px line-height-15">
+            <p class="color-text-secondary mt-8px line-height-15">
               Star a page from the address bar or create a custom shortcut here. Favourite
               shortcuts stay first.
             </p>
@@ -195,7 +195,7 @@
           </div>
         </div>
 
-        <div class="newtab-history-preview-list grid gap-10px mt-10px grid-cols-auto-fit-280">
+        <div class="newtab-history-preview-list grid gap-10px mt-8px grid-cols-auto-fit-280">
           <UiButton variant="none" v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"

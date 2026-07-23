@@ -8,7 +8,7 @@
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-4px border-radius-12px mb-14px p-14px border-05-light">
+    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-4px border-radius-12px mb-16px p-14px border-05-light">
       <span class="lumen-sidebar-no-profile-title color-text-primary text-13px txt-weight-light">No active profile</span>
       <span class="lumen-sidebar-no-profile-sub color-text-tertiary text-12px line-height-14">Create or import one from the navbar.</span>
     </div>

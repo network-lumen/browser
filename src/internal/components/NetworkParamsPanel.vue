@@ -3,7 +3,7 @@
     <header class="netparams-header flex mb-20px flex-wrap-wrap gap-16px flex-align-start flex-justify-space-between">
       <div>
         <h1 class="color-text-primary txt-weight-strong m-0px netparams-header-h1 text-24px">Params</h1>
-        <p class="color-text-secondary netparams-header-p text-14px m-0px mt-6px">Live view of the blockchain parameters (fetched from the REST API).</p>
+        <p class="color-text-secondary netparams-header-p text-14px m-0px mt-8px">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
       <div class="netparams-header-actions flex flex-wrap-wrap gap-12px flex-inline-align-center">
@@ -26,7 +26,7 @@
 
     <div v-if="fatalError" class="netparams-fatal-error color-text-primary p-20px border-radius-16px border-1-ios-red-a25 bg-ios-red-a08">
       <p class="netparams-fatal-title m-0px txt-weight-strong">Unable to fetch params</p>
-      <p class="netparams-fatal-desc color-text-secondary text-14px m-0px mt-6px">{{ fatalError }}</p>
+      <p class="netparams-fatal-desc color-text-secondary text-14px m-0px mt-8px">{{ fatalError }}</p>
     </div>
 
     <div v-else class="flex flex-column gap-12px">

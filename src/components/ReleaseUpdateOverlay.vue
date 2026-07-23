@@ -15,7 +15,7 @@
       <span v-if="percentKnown">{{ percent }}%</span>
     </div>
 
-    <div v-if="errorLabel" class="mt-14px p-12px border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-12px">
+    <div v-if="errorLabel" class="mt-16px p-12px border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-12px">
       {{ errorLabel }}
       <UiButton variant="secondary" type="button" @click="clearError">Close</UiButton>
     </div>

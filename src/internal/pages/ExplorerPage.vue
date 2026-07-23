@@ -238,7 +238,7 @@
                   </div>
                   <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
                   <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
-                  <div class="explorer-proposer-stats w-full mt-6px">
+                  <div class="explorer-proposer-stats w-full mt-8px">
                     <div class="explorer-proposer-stat-group gap-8px w-full grid grid-cols-1fr-1fr">
                       <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
                         <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>

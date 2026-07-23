@@ -131,7 +131,7 @@
           No extensions installed yet.
         </div>
 
-        <div class="navbar-extensions-menu-actions flex flex-column gap-8px mt-10px pt-8px border-top-05-border-light">
+        <div class="navbar-extensions-menu-actions flex flex-column gap-8px mt-8px pt-8px border-top-05-border-light">
           <UiMenuItem :disabled="extensionsBusy" @click.stop="loadUnpackedExtension">
             Load unpacked extension
           </UiMenuItem>
@@ -208,7 +208,7 @@
             Import profile…
           </UiMenuItem>
 
-          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column mt-6px pt-8px gap-6px border-top-05-border-light">
+          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column mt-8px pt-8px gap-6px border-top-05-border-light">
             <UiInput bg-class="bg-fill-primary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus placeholder-tertiary-a60" />
             <div class="navbar-profile-create-actions flex gap-6px">
               <UiButton variant="primary" class="flex-1" @click="confirmCreateProfile">
@@ -220,7 +220,7 @@
             </div>
           </div>
 
-          <div v-if="profileMessage" class="navbar-profile-menu-message mt-6px text-12px color-text-tertiary py-4px px-6px">
+          <div v-if="profileMessage" class="navbar-profile-menu-message mt-8px text-12px color-text-tertiary py-4px px-6px">
             {{ profileMessage }}
           </div>
         </div>
@@ -287,7 +287,7 @@
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error border-05-ios-red-a25">
+          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-ios-red-a10 color-error border-05-ios-red-a25">
             {{ exportError }}
           </div>
           
@@ -415,7 +415,7 @@
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error border-05-ios-red-a25">
+          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-ios-red-a10 color-error border-05-ios-red-a25">
             {{ importModalError }}
           </div>
 
@@ -454,7 +454,7 @@
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error border-05-ios-red-a25">
+          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-ios-red-a10 color-error border-05-ios-red-a25">
             {{ importError }}
           </div>
           

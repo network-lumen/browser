@@ -217,7 +217,7 @@
                 ({{ upload?.uploadingPercent }}%)
               </template>
             </span>
-            <div class="drivepage-progress-actions flex gap-8px mt-6px">
+            <div class="drivepage-progress-actions flex gap-8px mt-8px">
               <UiButton variant="secondary" type="button"
                 @click="cancelUpload(key)"
                 :disabled="upload?.uploadingCanceling" class="disabled-fade-50">
@@ -226,7 +226,7 @@
             </div>
           </div>
         </div>
-        <div v-if="upload?.uploadingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-10px">
+        <div v-if="upload?.uploadingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
           <div
             class="transition-width-018s h-full bg-accent w-0"
             :style="{ width: `${upload?.uploadingPercent}%` }"
@@ -265,7 +265,7 @@
             <span class="text-11px line-height-12 color-gray-blue">
               {{ convertingStatusText }}
             </span>
-            <div class="drivepage-progress-actions flex gap-8px mt-6px">
+            <div class="drivepage-progress-actions flex gap-8px mt-8px">
               <UiButton variant="secondary" type="button"
                 @click="pauseHlsQueue"
                 :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-50">
@@ -281,7 +281,7 @@
             </div>
           </div>
         </div>
-        <div v-if="convertingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-10px">
+        <div v-if="convertingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
           <div
             class="transition-width-018s h-full bg-accent w-0"
             :style="{ width: `${convertingPercent}%` }"
@@ -354,7 +354,7 @@
             <span class="text-11px line-height-12 color-gray-blue">
               {{ archiveDownloadStatusText }}
             </span>
-            <div class="drivepage-progress-actions flex gap-8px mt-6px">
+            <div class="drivepage-progress-actions flex gap-8px mt-8px">
               <UiButton variant="secondary" type="button"
                 @click="cancelHlsArchiveDownload"
                 :disabled="archiveDownloadCanceling" class="disabled-fade-50">
@@ -363,7 +363,7 @@
             </div>
           </div>
         </div>
-        <div v-if="archiveDownloadPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-10px">
+        <div v-if="archiveDownloadPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
           <div
             class="transition-width-018s h-full bg-accent w-0"
             :style="{ width: `${archiveDownloadPercent}%` }"
@@ -709,7 +709,7 @@
               </div>
             </div>
 
-            <div class="mt-20px">
+            <div class="mt-24px">
               <div class="flex-align-center-justify-space-between gap-8px mb-8px">
                 <h4 class="m-0px text-15px fw-500 color-text-primary">Backup</h4>
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
@@ -976,7 +976,7 @@
                 </div>
               </div>
 
-              <div class="mt-20px">
+              <div class="mt-24px">
                 <div class="flex-align-center-justify-space-between gap-8px mb-8px">
                   <h4 class="m-0px text-15px fw-500 color-text-primary">Usage</h4>
                 </div>

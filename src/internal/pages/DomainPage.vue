@@ -2,7 +2,7 @@
   <div class="domain-page internal-page">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
-      <nav class="domainpage-names-nav flex flex-column gap-6px mb-14px">
+      <nav class="domainpage-names-nav flex flex-column gap-6px mb-16px">
         <button
           type="button"
           class="hover-fill-primary flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
@@ -375,7 +375,7 @@
                   <span>Balance</span>
                   <span class="txt-weight-light">{{ settingsWalletBalanceLabel }}</span>
                 </div>
-                <p class="domainpage-owner-hint text-12px color-text-tertiary mt-6px" v-if="settingsInsufficientBalance">
+                <p class="domainpage-owner-hint text-12px color-text-tertiary mt-8px" v-if="settingsInsufficientBalance">
                   You need at least {{ settingsCostLabel }} available to keep your PQC link active.
                 </p>
               </UiCard>
@@ -415,7 +415,7 @@
                  
                   v-model="transferForm.newOwner"
                   placeholder="lumen1..." class="domainpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                <p class="domainpage-form-hint text-12px color-text-tertiary mt-6px">Enter the Lumen address of the new owner</p>
+                <p class="domainpage-form-hint text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
               </div>
 
               <div class="domainpage-warning-box flex border-radius-10px gap-12px p-14px bg-fill-error border-1-ios-red-a30 m-0px mt-16px mb-16px">

@@ -3,7 +3,7 @@
     <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16 pt-20px px-24px pb-16px">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1 color-store-heading">{{ headerTitle }}</h1>
-        <p class="extensions-store-copy-p m-0px mt-6px max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
+        <p class="extensions-store-copy-p m-0px mt-8px max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px flex-1-1-420px">
@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-16px color-store-info background-rgba-37-99-235-0-18 mt-0px mx-24px mb-14px" :class="{ 'color-store-error background-rgba-185-28-28-0-2': statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-16px color-store-info background-rgba-37-99-235-0-18 mt-0px mx-24px mb-16px" :class="{ 'color-store-error background-rgba-185-28-28-0-2': statusError }">
       {{ statusMessage }}
     </div>
 

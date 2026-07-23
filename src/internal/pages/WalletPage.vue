@@ -329,7 +329,7 @@
                 </div>
               </div>
 
-              <div v-if="dex.quickLinks.length" class="walletpage-dex-links flex flex-wrap-wrap mt-14px gap-8px">
+              <div v-if="dex.quickLinks.length" class="walletpage-dex-links flex flex-wrap-wrap mt-16px gap-8px">
                 <UiButton variant="secondary" v-for="link in dex.quickLinks"
                   :key="`${dex.key}:${link.label}:${link.url}`"
                   type="button"
@@ -574,7 +574,7 @@
                 </p>
               </div>
             </div>
-            <p class="walletpage-contact-note color-text-secondary mb-14px text-14px line-height-15" v-if="contact.note">{{ contact.note }}</p>
+            <p class="walletpage-contact-note color-text-secondary mb-16px text-14px line-height-15" v-if="contact.note">{{ contact.note }}</p>
             <div class="walletpage-contact-actions flex flex-wrap-wrap gap-8px">
               <UiButton variant="secondary" @click="sendToContact(contact)" class="walletpage-contact-btn send">
                 <Send :size="16" />
