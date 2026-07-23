@@ -171,7 +171,7 @@
                 min="50" 
                 max="100" 
                 v-model="brightness"
-                class="settingspage-brightness-slider flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
+                class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
               />
               <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-45px">{{ brightness }}%</span>
             </div>
@@ -1023,7 +1023,7 @@
                     max="30000"
                     step="1000"
                     v-model="gatewayTimeout"
-                    class="settingspage-brightness-slider flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
+                    class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
                   />
                   <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-45px">{{ gatewayTimeout / 1000 }}s</span>
                 </div>

@@ -135,7 +135,7 @@
         <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
          
-          :data-result-index="idx" class="searchpage-image-card hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
+          :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
             class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
@@ -158,7 +158,7 @@
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb w-full h-full relative overflow-hidden bg-secondary"
-                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
+                :class="{ 'is-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
@@ -240,7 +240,7 @@
         >
           <button
             class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
-            :class="[ r.media ? `media-${r.media}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
+            :class="[ r.media ? `media-${r.media}` : '', selectedType === 'all' && r.media === 'image' ? 'media-explore-compact p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
           >
@@ -249,7 +249,7 @@
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
-                :class="{ 'searchpage-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
+                :class="{ 'is-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
@@ -309,14 +309,14 @@
               <pre
                 v-if="displayTextPreviewList(r)"
                 class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"
-                :class="{ 'searchpage-result-desc--placeholder': isNoTextPreviewPlaceholder(r) }"
+                :class="{ 'is-placeholder-text': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
               ></pre>
               <div
                 v-else-if="displayDescription(r)"
                 class="line-clamp-2 color-text-secondary mt-8px text-14px overflow-hidden"
-                :class="{ 'searchpage-result-desc--placeholder': isNoDescriptionPlaceholder(r) }"
+                :class="{ 'is-placeholder-text': isNoDescriptionPlaceholder(r) }"
                 :title="displayDescription(r)"
               >
                 {{ displayDescription(r) }}

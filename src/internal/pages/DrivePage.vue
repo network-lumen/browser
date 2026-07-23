@@ -1180,8 +1180,8 @@
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
-                   class="drivepage-gateway-card flex flex-column border-radius-10px gap-12px border-1 bg-primary py-14px px-16px shadow-0-4-12-rgba-15-23-42-0-04"
-                   :class="{ offline: !group.gateway.active }"
+                   class="flex flex-column border-radius-10px gap-12px border-1 bg-primary py-14px px-16px shadow-0-4-12-rgba-15-23-42-0-04"
+                   :class="{ 'is-offline': !group.gateway.active }"
                  >
                   <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-8px">
                     <div class="drivepage-gateway-title flex-align-center gap-8px min-w-0">
