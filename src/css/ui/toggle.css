@@ -1,35 +1,14 @@
 /* ============================================================================
  * src/css/ui/toggle.css
- * Backs UiToggle.vue (iOS-style switch). Two legacy hand-rolled implementations
- * (NavBar extension toggle: 34x20, SettingsPage toggles: 48x26) are unified
- * here behind one CSS shape + a `size` prop.
+ * Backs UiToggle.vue (iOS-style switch). Base layout/spacing/color for the
+ * root label, hidden input, and slider track are all inline utility classes
+ * on the template now (relative, inline-block, flex-0-0-auto, cursor-pointer,
+ * absolute, opacity-0, w-0/h-0, inset-0, bg-border, border-radius-full,
+ * transition-bg-02) — ui-toggle-input/ui-toggle-slider stay as class names
+ * purely as selector hooks (the :checked+/:disabled+ sibling rules below
+ * target them by name; Vue can't attach a class to a ::before pseudo-element,
+ * so none of that, or the size-variant thumb geometry, can move out of CSS).
  * ========================================================================== */
-
-.ui-toggle {
-  position: relative;
-  display: inline-block;
-  flex: 0 0 auto;
-  cursor: pointer;
-}
-
-.ui-toggle-disabled {
-  cursor: not-allowed;
-}
-
-.ui-toggle-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.ui-toggle-slider {
-  position: absolute;
-  inset: 0;
-  background: var(--border-color);
-  border-radius: 999px;
-  transition: background 0.2s;
-}
 
 .ui-toggle-slider::before {
   content: '';
@@ -57,8 +36,7 @@
   bottom: 3px;
   width: 20px;
   height: 20px;
-  /* matches the pre-unification SettingsPage toggle thumb color exactly */
-  background: var(--text-primary);
+  background: var(--accent-primary);
 }
 .ui-toggle-md .ui-toggle-input:checked + .ui-toggle-slider::before {
   transform: translateX(22px);
