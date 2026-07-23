@@ -141,7 +141,7 @@
                 {{ entry.monogram }}
               </span>
               <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-4px">
-                <span class="fw-760 block text-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
+                <span class="txt-weight-strong block text-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
                 <span class="newtab-shortcut-subtitle block color-text-tertiary text-13px line-height-14 nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
             </UiButton>
