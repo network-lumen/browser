@@ -11,7 +11,7 @@
               <div class="qr-corner qr-corner-bottom-left absolute w-30px h-30px border-right-none border-top-none bottom-n3px left-n3px border-3-accent-primary rounded-bl-12px"></div>
               <div class="qr-corner qr-corner-bottom-right absolute w-30px h-30px border-left-none border-top-none bottom-n3px right-n3px border-3-accent-primary rounded-br-12px"></div>
             </div>
-            <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 background-rgba-0-0-0-0-6">Position QR code within the frame</p>
+            <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->

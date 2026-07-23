@@ -26,7 +26,7 @@
           <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Address Overview</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Address:</span>
             <div class="chaindetail-hash-value flex-align-center gap-8px">
               <code class="bg-secondary color-text-primary chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ address.address }}</code>
@@ -38,11 +38,11 @@
               </UiButton>
             </div>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Account Number:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.accountNumber }}</span>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Sequence:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ address.sequence }}</span>
           </div>

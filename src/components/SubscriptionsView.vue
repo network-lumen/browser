@@ -155,17 +155,17 @@
             <UiButton variant="secondary" v-if="payment.status === 'active'"
              
               @click="pausePayment(payment.id)"
-              title="Pause" class="subview-action-btn pause background-ios-orange-a15-hover">
+              title="Pause" class="subview-action-btn pause hover-bg-ios-orange-a15">
               <PauseCircle :size="16" />
             </UiButton>
             <UiButton variant="secondary" v-else-if="payment.status === 'paused'"
              
               @click="resumePayment(payment.id)"
-              title="Resume" class="subview-action-btn resume background-fill-success-hover">
+              title="Resume" class="subview-action-btn resume hover-bg-fill-success">
               <PlayCircle :size="16" />
             </UiButton>
             <UiButton variant="secondary" @click="confirmDelete(payment)"
-              title="Delete" class="subview-action-btn delete background-fill-error-hover">
+              title="Delete" class="subview-action-btn delete hover-bg-fill-error">
               <Trash2 :size="16" />
             </UiButton>
           </div>

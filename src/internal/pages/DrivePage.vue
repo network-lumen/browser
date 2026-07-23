@@ -30,7 +30,7 @@
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between mt-4px">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase text-11px letter-spacing-005em">Subscriptions</span>
           <UiButton variant="none" type="button"
-            @click="openPlansModal" class="drivepage-hosting-subheader-action bg-transparent border-none cursor-pointer color-primary text-11px fw-500 py-4px px-8px border-radius-10px background-primary-a15-hover">
+            @click="openPlansModal" class="drivepage-hosting-subheader-action bg-transparent border-none cursor-pointer color-primary text-11px fw-500 py-4px px-8px border-radius-10px hover-bg-primary-a15">
             Cloud
           </UiButton>
         </div>
@@ -467,7 +467,7 @@
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="active-scale-98 background-error-red-hover bg-ios-red-a08 color-error">
+              @click.stop="removeFile(file)" class="active-scale-98 hover-bg-error-red bg-ios-red-a08 color-error">
               <Trash2 :size="14" />
             </UiButton>
           </div>
@@ -640,7 +640,7 @@
     </aside>
 
     <!-- Drop Overlay
-    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-100 background-rgba-0-0-0-0-8">
+    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-100 bg-black-a80">
       <div class="drivepage-drop-content text-center color-white">
         <Upload :size="48" />
         <p class="text-15px line-height-12 txt-weight-strong mt-4px">

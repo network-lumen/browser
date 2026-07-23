@@ -42,7 +42,7 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -52,7 +52,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -62,7 +62,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -150,7 +150,7 @@
           </button>
           <button
             type="button"
-            class="searchpage-image-card-btn w-full p-0px cursor-pointer border-none block background-none"
+            class="searchpage-image-card-btn w-full p-0px cursor-pointer border-none block bg-transparent"
             @click="openResult(r)"
             :title="r.url"
           >
@@ -164,7 +164,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-6px left-8px right-auto z-1 flex-inline-align-justify-center h-32px border-radius-full cursor-pointer absolute border-none bg-black-a35 w-32px backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
+                  class="top-6px left-8px right-auto z-1 flex-inline-align-justify-center h-32px border-radius-full cursor-pointer absolute border-none bg-black-a35 w-32px backdrop-blur-8 color-white-a92 hover-bg-black-a50"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -185,7 +185,7 @@
                 />
                 <div v-if="shouldBlurThumb(r)" class="bg-gradient-thumb-overlay absolute py-8px px-10px left-0 right-0 bottom-0">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full text-12px txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 py-8px px-10px backdrop-blur-8 cursor-events-auto color-white-a92 background-rgba-0-0-0-0-45-hover"
+                    class="searchpage-safe-thumb-reveal w-full text-12px txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 py-8px px-10px backdrop-blur-8 cursor-events-auto color-white-a92 hover-bg-black-a50"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
@@ -241,7 +241,7 @@
         >
           <button
             class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-20px text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
-            :class="[ r.media ? `media-${r.media}` : '', isExploreCompact(r) ? 'media-explore-compact p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
+            :class="[ r.media ? `media-${r.media}` : '', isExploreCompact(r) ? 'media-explore-compact p-0px gap-0px flex-align-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
           >
@@ -256,7 +256,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-6px right-4px z-1 h-26px flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-26px background-rgba-0-0-0-0-5-hover"
+                  class="top-6px right-4px z-1 h-26px flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-26px hover-bg-black-a50"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
