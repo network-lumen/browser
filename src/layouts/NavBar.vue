@@ -90,7 +90,7 @@
                 </span>
                 <span v-if="ext.version" class="navbar-extension-version text-11px color-text-tertiary">v{{ ext.version }}</span>
               </div>
-              <div v-if="ext.lastError" class="color-error text-11px mt-4px break-word line-height-135">{{ ext.lastError }}</div>
+              <div v-if="ext.lastError" class="color-error text-11px mt-4px break-word line-height-14">{{ ext.lastError }}</div>
             </div>
 
             <div class="navbar-extension-actions flex-align-center gap-6px">
@@ -356,10 +356,10 @@
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
               class="navbar-import-source-summary flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-16px border-05-light"
             >
-              <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-145 break-word">
+              <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-14 break-word">
                 Profile source: {{ manualImportProfileSourceName }}
               </div>
-              <div v-if="manualImportPqcSourceName" class="navbar-import-source-line line-height-145 break-word">
+              <div v-if="manualImportPqcSourceName" class="navbar-import-source-line line-height-14 break-word">
                 Dilithium source: {{ manualImportPqcSourceName }}
               </div>
             </div>

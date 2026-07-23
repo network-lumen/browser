@@ -453,7 +453,7 @@
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
-                <div class="flex flex-column gap-2px min-w-0 line-height-11">
+                <div class="flex flex-column gap-2px min-w-0 line-height-12">
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
@@ -928,7 +928,7 @@
 
             <div class="walletpage-address-box border-radius-12px p-20px border-2 bg-secondary mb-0px">
               <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">Your Wallet Address</div>
-              <div class="walletpage-address-value mono text-13px p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-16">{{ address || '-' }}</div>
+              <div class="walletpage-address-value mono text-13px p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-15">{{ address || '-' }}</div>
               <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="border-2-solid-accent-primary disabled-fade-50">
                 <Copy :size="16" />
                 <span>Copy Address</span>
