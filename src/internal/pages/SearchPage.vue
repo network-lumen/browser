@@ -103,7 +103,7 @@
       <UiEmptyState v-else-if="!results.length" class="border-radius-20px bg-card border-2-dashed-color" icon-size="80px" title="No results found">
         <Search :size="48" />
         <template #description>
-          <p class="ui-empty-state-description">
+          <p class="m-0px max-w-520px text-14px line-height-15">
             <template v-if="q.trim()">
               We couldn't find anything matching "<strong>{{ q }}</strong>"
             </template>

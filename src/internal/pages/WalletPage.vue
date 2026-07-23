@@ -386,7 +386,7 @@
         <UiEmptyState v-else-if="activitiesError" class="mt-32px" title="Unable to load transactions">
           <ArrowLeftRight :size="32" />
           <template #description>
-            <p class="ui-empty-state-description">{{ activitiesError }}</p>
+            <p class="m-0px max-w-520px text-14px line-height-15">{{ activitiesError }}</p>
             <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 background-ios-orange-a10">
               <span>
                 💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
@@ -399,7 +399,7 @@
         <UiEmptyState v-else-if="!activities.length" class="mt-32px" title="No recent transactions">
           <ArrowLeftRight :size="32" />
           <template #description>
-            <p class="ui-empty-state-description">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
+            <p class="m-0px max-w-520px text-14px line-height-15">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
             <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 background-ios-orange-a10">
               <div class="mb-12px">
                 <strong>💡 Why can't I see my transactions?</strong>

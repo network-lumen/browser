@@ -11,7 +11,6 @@
   background: var(--hover-bg);
   color: var(--text-primary);
 }
-.button-ghost, .button-cta { border: 1px solid var(--border-color); }
 .button-ghost:where(:hover, :focus-visible) { background: var(--hover-bg); }
 .button-cta:where(:hover, :focus-visible) { background: var(--fill-secondary); }
 

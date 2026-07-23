@@ -39,11 +39,11 @@ const props = withDefaults(defineProps<{
 defineEmits<{ (e: 'click', ev: MouseEvent): void }>();
 
 const variantClass: Record<Exclude<Variant, 'icon'>, string> = {
-  ghost: 'button-ghost bg-transparent color-text-primary cursor-pointer border-radius-10px',
+  ghost: 'button-ghost bg-transparent color-text-primary cursor-pointer border-radius-10px border-1-border-color',
   primary: 'button-primary-rich color-white cursor-pointer border-radius-10px border-none bg-gradient-primary shadow-0-4-15-ios-blue-a4 shadow-0-8-25-ios-blue-a5-hover',
   secondary: 'button-secondary cursor-pointer border-radius-10px border-1 bg-secondary color-text-primary hover-bg-hover',
   danger: 'button-danger cursor-pointer border-radius-10px border-none color-white bg-gradient-danger shadow-danger-a30 hover-bg-gradient-danger-deep hover-shadow-danger-a40',
-  cta: 'button-cta bg-fill-tertiary color-text-primary cursor-pointer border-radius-10px',
+  cta: 'button-cta bg-fill-tertiary color-text-primary cursor-pointer border-radius-10px border-1-border-color',
   tag: 'button-tag color-text-secondary cursor-pointer flex-inline-align-center gap-8px py-10px px-20px border-radius-full txt-weight-light bg-card text-14px border-15 transition-all-02 shadow-0-1-4-rgba-0-0-0-0-05',
   none: ''
 };
