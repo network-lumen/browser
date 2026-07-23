@@ -7,7 +7,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">General</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'content' }"
             @click="currentView = 'content'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'network' }"
             @click="currentView = 'network'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'security' }"
             @click="currentView = 'security'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privatecloud' }"
             @click="currentView = 'privatecloud'"
           >
@@ -74,7 +74,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Advanced</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'troubleshooting' }"
             @click="currentView = 'troubleshooting'"
           >
@@ -83,7 +83,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
@@ -92,7 +92,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'about' }"
             @click="currentView = 'about'"
           >

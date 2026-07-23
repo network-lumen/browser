@@ -139,7 +139,7 @@
           <UiButton variant="primary" type="button"
            
             :disabled="extensionsBusy"
-            @click.stop="openChromeWebStore" class="hover-bg-hover-enabled disabled-fade-50 transition-bg-015">
+            @click.stop="openChromeWebStore" class="hover-bg-hover-enabled disabled-fade-50 transition-bg-fast">
             <span>Import from Chrome Web Store</span>
             <ExternalLink :size="13" />
           </UiButton>
@@ -179,12 +179,12 @@
               :class="{ 'bg-primary-a08': p.id === activeProfileId }"
               role="menuitem"
             >
-              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-015 text-left w-full min-w-0">
+              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-fast text-left w-full min-w-0">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
                 <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
-              <button type="button" class="reveal-target hover-bg-ios-red-a10-color-error h-26px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="reveal-target hover-bg-ios-red-a10-color-error h-26px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
@@ -253,14 +253,14 @@
               />
             </div>
             
-            <div class="hover-bg-hover mt-12px border-radius-10px py-8px px-10px transition-bg-015">
+            <div class="hover-bg-hover mt-12px border-radius-10px py-8px px-10px transition-bg-fast">
               <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
             </div>
           </div>
           
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
-            <div class="hover-bg-hover border-radius-10px py-8px px-10px transition-bg-015">
+            <div class="hover-bg-hover border-radius-10px py-8px px-10px transition-bg-fast">
               <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
             </div>
             
@@ -310,7 +310,7 @@
           <div class="navbar-import-mode-switch gap-8px mb-16px grid grid-cols-2-minmax0">
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
               :class="{ 'bg-primary-a08 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
               @click="setImportMode('file')"
             >
@@ -318,7 +318,7 @@
             </button>
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
               :class="{ 'bg-primary-a08 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >

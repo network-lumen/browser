@@ -99,7 +99,7 @@
   --border-radius-2xl: 24px;
   --border-radius-full: 9999px;
   --transition-fast: 0.15s ease-in-out;
-  --transition-base: 0.25s ease-in-out;
+  --transition-base: 0.2s ease-in-out;
   --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   --backdrop-blur: saturate(180%) blur(20px);
