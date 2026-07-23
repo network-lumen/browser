@@ -307,7 +307,7 @@
                     </div>
                   </div>
                   <div class="explorer-activity-side flex-align-end flex-column gap-4px">
-                    <div class="explorer-activity-status text-12px txt-weight-light border-radius-12px py-0px px-8px" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
+                    <div class="explorer-activity-status text-12px txt-weight-light border-radius-12px py-0px px-8px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
                       {{ tx.success ? 'Success' : 'Failed' }}
                     </div>
                     <div class="explorer-activity-time text-12px color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
@@ -392,7 +392,7 @@
                   </UiButton>
                 </div>
                 <div class="explorer-td td-txs flex-align-center text-13px text-14px">
-                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px py-4px px-6px text-12px" :class="{ 'has-txs': block.txCount > 0, 'badge-success': block.txCount > 0 }">
+                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px py-4px px-6px text-12px" :class="{ 'has-txs': block.txCount > 0, 'bg-fill-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
@@ -475,7 +475,7 @@
                   <span class="explorer-tx-type-badge text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
                 </div>
                 <div class="explorer-td td-result flex-align-center text-13px text-14px">
-                  <span class="explorer-tx-status flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success badge-success' : 'failed badge-error'">
+                  <span class="explorer-tx-status flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
                     <svg class="explorer-tx-status-svg w-14px h-14px" v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>

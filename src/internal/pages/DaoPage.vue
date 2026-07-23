@@ -269,7 +269,7 @@
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'for' }">
                 <input type="radio" name="vote" value="for" v-model="voteChoice" class="hidden" />
                 <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'for' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
-                  <div class="daopage-vote-icon flex-align-justify-center flex-0-0-auto badge-success color-success size-40px border-radius-10px">
+                  <div class="daopage-vote-icon flex-align-justify-center flex-0-0-auto bg-fill-success color-success size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/>
                     </svg>
@@ -483,8 +483,8 @@ function formatNumber(num: number): string {
 function getProposalStatusClass(status: string): string {
   switch (status) {
     case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'active';
-    case 'PROPOSAL_STATUS_PASSED': return 'passed badge-success';
-    case 'PROPOSAL_STATUS_REJECTED': return 'rejected badge-error';
+    case 'PROPOSAL_STATUS_PASSED': return 'passed bg-fill-success';
+    case 'PROPOSAL_STATUS_REJECTED': return 'rejected bg-fill-error';
     default: return '';
   }
 }

@@ -29,7 +29,7 @@
     <!-- Filter and Stats -->
     <div class="subview-stats-section mb-32px grid gap-16px grid-cols-auto-fit-200">
       <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
-        <div class="subview-stat-icon active badge-success color-success flex-align-justify-center size-48px border-radius-12px">
+        <div class="subview-stat-icon active bg-fill-success color-success flex-align-justify-center size-48px border-radius-12px">
           <PlayCircle :size="20" />
         </div>
         <div>
@@ -38,7 +38,7 @@
         </div>
       </UiCard>
       <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
-        <div class="subview-stat-icon paused badge-warning color-warning flex-align-justify-center size-48px border-radius-12px bg-ios-orange-a15">
+        <div class="subview-stat-icon paused bg-ios-orange-a15 color-warning flex-align-justify-center size-48px border-radius-12px">
           <PauseCircle :size="20" />
         </div>
         <div>
@@ -111,7 +111,7 @@
             </div>
             <div
               class="border-radius-12px text-12px txt-weight-light text-uppercase py-4px px-12px"
-              :class="{ 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }"
+              :class="{ 'bg-fill-success': payment.status === 'active', 'bg-ios-orange-a15': payment.status === 'paused' }"
               :style="paymentStatusStyle(payment.status)"
             >
               {{ payment.status }}
@@ -200,7 +200,7 @@
               >
                 <div
                   class="subview-history-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-32px"
-                  :class="[record.status, { 'badge-success': record.status === 'success', 'badge-error': record.status === 'failed', 'badge-warning': record.status === 'pending' }]"
+                  :class="[record.status, { 'bg-fill-success': record.status === 'success', 'bg-fill-error': record.status === 'failed', 'bg-ios-orange-a15': record.status === 'pending' }]"
                 >
                   <Check v-if="record.status === 'success'" :size="16" />
                   <X v-else-if="record.status === 'failed'" :size="16" />

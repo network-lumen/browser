@@ -12,7 +12,7 @@
           <button
             type="button"
             class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
-            :class="{ active: historyEnabled, 'badge-success': historyEnabled }"
+            :class="{ active: historyEnabled, 'bg-fill-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
             <component :is="historyEnabled ? Power : ShieldOff" :size="15" />
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-50 badge-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
+            class="history-clear-btn disabled-fade-50 bg-fill-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -95,7 +95,7 @@
             <template #actions>
               <UiButton variant="secondary" v-if="!historyEnabled"
                 type="button"
-                @click="setHistoryEnabled(true)" class="active badge-success">
+                @click="setHistoryEnabled(true)" class="active bg-fill-success">
                 <Power :size="15" />
                 <span>Turn on history</span>
               </UiButton>

@@ -31,7 +31,7 @@
           <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover background-bg-hover-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Status:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">
-              <span class="py-4px px-12px border-radius-full text-12px" :class="transaction.success ? 'badge-success' : 'badge-error'">
+              <span class="py-4px px-12px border-radius-full text-12px" :class="transaction.success ? 'bg-fill-success' : 'bg-fill-error'">
                 {{ transaction.success ? '✓ Success' : '✗ Failed' }}
               </span>
             </span>

@@ -530,7 +530,7 @@
             </div>
 
             <div class="col-status min-w-0">
-              <span class="walletpage-status-badge flex-inline-align-center text-12px txt-weight-light border-radius-6px nowrap py-8px px-10px" :class="(tx.code === undefined || tx.code === 0) ? 'success badge-success' : 'failed badge-error'">
+              <span class="walletpage-status-badge flex-inline-align-center text-12px txt-weight-light border-radius-6px nowrap py-8px px-10px" :class="(tx.code === undefined || tx.code === 0) ? 'success bg-fill-success' : 'failed bg-fill-error'">
                 {{ (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed' }}
               </span>
             </div>
@@ -2887,10 +2887,10 @@ function dexItemStyle(status: DexStatus): Record<string, string> {
 }
 
 function getDexStatusBadgeClass(status: DexStatus): string {
-  if (status === 'online') return 'badge-success color-success';
-  if (status === 'degraded') return 'badge-warning color-warning';
-  if (status === 'error') return 'badge-error color-error';
-  return 'badge-info color-primary';
+  if (status === 'online') return 'bg-fill-success color-success';
+  if (status === 'degraded') return 'bg-ios-orange-a15 color-warning';
+  if (status === 'error') return 'bg-fill-error color-error';
+  return 'bg-fill-blue color-primary';
 }
 
 function formatDexCount(value: number | null): string {

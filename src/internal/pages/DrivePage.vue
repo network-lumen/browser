@@ -3578,8 +3578,8 @@ function planStatus(plan: PlanView): string {
 
 function planStatusBadgeClass(plan: PlanView): string {
   const status = planStatus(plan);
-  if (status === "active") return "badge-success color-success";
-  if (status === "pending") return "badge-warning color-warning";
+  if (status === "active") return "bg-fill-success color-success";
+  if (status === "pending") return "bg-ios-orange-a15 color-warning";
   return "";
 }
 

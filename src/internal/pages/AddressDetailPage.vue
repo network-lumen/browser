@@ -123,7 +123,7 @@
                 </div>
               </div>
               <div class="flex-align-center">
-                <span :class="['text-12px flex-inline-align-justify-center', tx.success ? 'badge-success' : 'badge-error']">
+                <span :class="['text-12px flex-inline-align-justify-center', tx.success ? 'bg-fill-success' : 'bg-fill-error']">
                   {{ tx.success ? '✓' : '✗' }}
                 </span>
               </div>
