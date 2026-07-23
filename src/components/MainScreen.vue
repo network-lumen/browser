@@ -185,7 +185,7 @@ const GAP = 1;
 function tabClasses(t: Tab) {
   return {
     'active': t.id === activeId.value,
-    'dragging z-2 cursor-events-none': draggingId.value === t.id
+    'dragging z-1 cursor-events-none': draggingId.value === t.id
   };
 }
 

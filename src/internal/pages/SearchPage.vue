@@ -256,7 +256,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-40 right-25 z-3 h-165 flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-165 background-rgba-0-0-0-0-5-hover"
+                  class="top-40 right-25 z-1 h-165 flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-165 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
