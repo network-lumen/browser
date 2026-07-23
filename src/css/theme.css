@@ -464,56 +464,15 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--ios-green);
 }
 
-/* Tables — Blocks/Transactions/Validators views share one row/header recipe;
-   only the grid-template-columns differ per view's data shape. */
-.explorer-blocks-view .explorer-table-header, .explorer-blocks-view .explorer-table-row,
-.explorer-transactions-table .explorer-table-header, .explorer-transactions-table .explorer-table-row,
-.explorer-validators-table .explorer-table-header, .explorer-validators-table .explorer-table-row {
-  display: grid;
-  gap: 0.75rem;
-  padding: 0.625rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-.explorer-blocks-view .explorer-table-header,
-.explorer-transactions-table .explorer-table-header,
-.explorer-validators-table .explorer-table-header {
-  background: var(--bg-secondary);
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.explorer-blocks-view .explorer-table-row,
-.explorer-transactions-table .explorer-table-row,
-.explorer-validators-table .explorer-table-row {
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-.explorer-transactions-table .explorer-table-header, .explorer-transactions-table .explorer-table-row {
-  grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr;
-}
-.explorer-table-body { max-height: 600px; }
-.explorer-transactions-table .explorer-table-row { grid-template-columns: 180px 120px 100px 100px 100px 120px; }
-.explorer-link-icon { opacity: 0.4; }
 .drivepage-hls-queue-item.status-paused .drivepage-hls-queue-item-status {
   color: var(--accent-primary);
 }
 
-/* Blocks View - Compact Layout */
-.explorer-blocks-view .explorer-table-header, .explorer-blocks-view .explorer-table-row {
-  grid-template-columns: 90px 320px 2.2fr 130px 140px;
-}
-.explorer-blocks-view .explorer-table-body { max-height: none; }
 .explorer-chart-donut-wrapper canvas { width: 100px !important; height: 100px !important; }
 .drivepage-gateway-card.offline {
   opacity: 0.7;
 }
 
-/* Validators Table Styles */
-.explorer-validators-table .explorer-table-header, .explorer-validators-table .explorer-table-row {
-  grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
-}
-.explorer-table-row:active { transform: scale(0.998); }
 .drivepage-action-btn:active {
   transform: scale(0.98);
 }

@@ -319,7 +319,7 @@
         </div>
 
         <!-- Blocks View -->
-        <div v-else-if="currentView === 'blocks'" class="explorer-content-area explorer-blocks-view text-12px border-radius-12px bg-transparent bg-card overflow-visible">
+        <div v-else-if="currentView === 'blocks'" class="explorer-content-area text-12px border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-16px relative bg-card border-bottom-1 flex-justify-space-between p-0px pt-16px pr-24px pb-12px pl-24px">
             <div class="explorer-header-content flex-1 min-w-200px">
               <h2 class="explorer-blocks-header-h2 text-20px txt-weight-medium color-text-primary m-0px mb-4px">Blocks</h2>
@@ -348,7 +348,7 @@
           </div>
 
           <div class="explorer-blocks-table w-full">
-            <div class="explorer-table-header">
+            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-90-320-22fr-130-140">
               <div class="th th-height">HEIGHT</div>
               <div class="th th-proposer">PROPOSER</div>
               <div class="th th-hash">HASH</div>
@@ -356,8 +356,8 @@
               <div class="th th-time">TIME</div>
             </div>
             
-            <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
+            <div class="max-h-none flex flex-column overflow-y-auto">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-recipe explorer-table-row-recipe grid-cols-90-320-22fr-130-140 active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -379,7 +379,7 @@
                 <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click.stop="navigateToBlock(block.height)" title="View block details">
                     <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ block.hash }}</code>
-                    <svg class="explorer-link-icon reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -441,8 +441,8 @@
             <p>No recent transactions</p>
           </div>
 
-          <div v-else class="explorer-transactions-table w-full">
-            <div class="explorer-table-header">
+          <div v-else class="w-full">
+            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
               <div class="th th-hash">Transaction Hash</div>
               <div class="th th-type">Type</div>
               <div class="th th-result">Result</div>
@@ -451,15 +451,15 @@
               <div class="th th-time">Time</div>
             </div>
             
-            <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center background-black-a04-active">
+            <div class="max-h-600px flex flex-column overflow-y-auto">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-recipe explorer-table-row-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
                     <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
-                    <svg class="explorer-link-icon reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -504,8 +504,8 @@
             <p class="explorer-validators-subtitle color-text-tertiary text-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
-          <UiCard padding="none" :shadow="false" class="explorer-validators-table overflow-hidden shadow-subtle backdrop-blur">
-            <div class="explorer-table-header">
+          <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-subtle backdrop-blur">
+            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
               <div class="th th-voting-power">VOTING POWER %</div>
@@ -516,8 +516,8 @@
               <div class="th th-actions">ACTIONS</div>
             </div>
             
-            <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row hover-bg-secondary hover-cursor-default last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
+            <div class="max-h-600px flex flex-column overflow-y-auto">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-120-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td td-rank flex-align-center text-13px text-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>

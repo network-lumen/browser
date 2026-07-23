@@ -762,6 +762,16 @@
 .disabled-opacity-35-not-allowed:disabled { opacity: 0.35; cursor: not-allowed; }
 .active-not-disabled-y0-scale-98:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .disabled-transform-none:disabled { transform: none; }
+.explorer-table-recipe { display: grid; gap: 0.75rem; padding: 0.625rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+.explorer-table-header-recipe { background: var(--bg-secondary); font-size: 0.625rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+.explorer-table-row-recipe { transition: background 0.2s ease, transform 0.15s ease; }
+.grid-cols-90-320-22fr-130-140 { grid-template-columns: 90px 320px 2.2fr 130px 140px; }
+.grid-cols-15fr-08fr-08fr-08fr-09fr-1fr { grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr; }
+.grid-cols-50-220-200-120-160-100-110-120 { grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px; }
+.max-h-600px { max-height: 600px; }
+.max-h-none { max-height: none; }
+.opacity-40 { opacity: 0.4; }
+.active-scale-998:active { transform: scale(0.998); }
 .hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary); }
 .h-28rem-blur-36px { height: 28rem; filter: blur(36px); }
