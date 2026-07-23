@@ -219,7 +219,7 @@
 
       <!-- Create/Edit Modal -->
       <UiModal :model-value="showModal" :title="editingGateway ? 'Edit External Gateway' : 'Add External Gateway'" panel-class="max-w-500px w-90pct" @update:model-value="closeModal">
-              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-ios-blue-a20">
+              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-ios-blue-a25">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
@@ -248,7 +248,7 @@
                   placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div v-if="modalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a10 border-1-ios-red-a20">
+              <div v-if="modalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a08 border-1-ios-red-a25">
                 {{ modalError }}
               </div>
         <template #footer>
@@ -302,7 +302,7 @@
                   placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
               </div>
 
-              <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a10 border-1-ios-red-a20">
+              <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a08 border-1-ios-red-a25">
                 {{ whitelistModalError }}
               </div>
         <template #footer>

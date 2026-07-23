@@ -147,7 +147,7 @@
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-100 bg-ios-red-a12 border-1-ios-red-a35 left-16px bottom-16px backdrop-blur-6">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-100 bg-ios-red-a15 border-1-ios-red-a30 left-16px bottom-16px backdrop-blur-6">
               {{ hlsError }}
             </div>
           </template>
@@ -232,7 +232,7 @@
               {{ saveModalError }}
             </div>
 
-            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px mt-16px py-12px px-16px bg-primary-a08 border-1-ios-blue-a18">
+            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px mt-16px py-12px px-16px bg-primary-a08 border-1-ios-blue-a15">
               <div class="ipfspage-pin-progress-head flex-align-center-justify-space-between gap-12px mb-8px">
                 <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase text-12px letter-spacing-004em">{{ savePinStatusLabel }}</span>
                 <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary text-12px">{{ savePinProgressCounter }}</span>
