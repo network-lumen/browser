@@ -45,7 +45,7 @@
         <div v-if="privateGateways.length > 0" class="gwpage-private-gateways-section">
           <div class="gwpage-section-header flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px gwpage-section-header-h2 text-20px">Private Gateways</h2>
-            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="gwpage-manage-link color-ios-blue text-14px transition-opacity-02 hover-underline">
+            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-ios-blue text-14px transition-opacity-02 hover-underline">
               Manage Private Gateways →
             </a>
           </div>

@@ -654,6 +654,20 @@
 .hover-mx-n05rem-px-05rem:hover { margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; }
 .underline-on-hover:hover .underline-target { text-decoration: underline; }
 .hover-mx-n15rem:hover { margin: 0 -1.5rem; }
+.hover-bg-accent-color-white:hover { background: var(--accent-primary); color: #fff; }
+.hover-opacity-80:hover { opacity: 0.8; }
+.hover-translate-x-2px:hover { transform: translateX(2px); }
+.reveal-on-hover:hover .reveal-actions-target,
+.reveal-on-hover.selected .reveal-actions-target,
+.reveal-on-hover.checked .reveal-actions-target { opacity: 1; pointer-events: auto; }
+.reveal-on-hover:hover .reveal-scale-target { transform: scale(1.03); }
+.reveal-on-hover:hover .reveal-accent-shift-target { color: var(--accent-primary); transform: translateX(2px); }
+.reveal-on-active.active .reveal-color-target { color: var(--text-primary); }
+.hover-focus-bg-fill-primary:where(:hover, :focus-visible) { background: var(--fill-primary); }
+.hover-border-left-accent-primary:hover { border-left-color: var(--accent-primary); }
+.hover-translate-x-4px:hover { transform: translateX(4px); }
+.reveal-on-hover:hover .reveal-border-bg-target { border-color: var(--border-color); background: var(--bg-secondary); }
+.hover-bg-border-color-error:hover { background: var(--error-red); border-color: var(--error-red); color: #fff; }
 .hover-bg-primary-a08:hover { background: var(--primary-a08); }
 .hover-border-primary-a15:hover { border-color: var(--primary-a15); }
 .hover-border-ios-blue-a14:hover { border-color: rgba(var(--ios-blue-rgb), 0.14); }
@@ -714,6 +728,28 @@
 .hover-shadow-sm:hover { box-shadow: var(--shadow-sm); }
 .shadow-ios-green-lg { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
 .hover-shadow-ios-green-lg:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
+.hover-shadow-ios-red-lg:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(var(--ios-red-rgb), 0.4); }
+.hover-lift-4:hover { transform: translateY(-4px); }
+.hover-focus-bg-card-border-outline-none:hover, .hover-focus-bg-card-border-outline-none:focus { background: var(--card-bg); border-color: var(--border-color); outline: none; }
+.hover-bg-ios-red-a10-color-error:hover { background: rgba(var(--ios-red-rgb), 0.1); color: var(--error-red); }
+.reveal-on-hover:hover .reveal-hash-code-target { text-decoration: underline; background: var(--primary-a10); color: var(--accent-primary); }
+.reveal-on-hover:hover .reveal-opacity-color-accent-target { opacity: 1; color: var(--accent-primary); }
+.reveal-on-hover:hover .reveal-color-accent-target { color: var(--accent-primary); }
+.hover-cursor-default:hover { cursor: default; }
+.hover-border-color-accent-enabled:hover:not(:disabled) { border-color: var(--accent-primary); color: var(--accent-primary); }
+.hover-lift-2-scale-102-enabled:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); }
+.hover-lift-2-enabled-not-active:hover:not(:disabled):not(.active) { transform: translateY(-2px); }
+.hover-lift-2-enabled-not-active:hover:not(:disabled) svg { transform: scale(1.1); }
+.hover-translate-y4-x4:hover { transform: translateY(-4px) translateX(4px); }
+.reveal-on-hover:hover .reveal-icon-target { transform: scale(1.05) rotate(5deg); box-shadow: 0 4px 12px var(--primary-a20); }
+.reveal-on-hover.searchpage-explore-image:hover .reveal-icon-target { transform: none; box-shadow: 0 10px 30px var(--primary-a18); }
+.reveal-on-hover:hover .reveal-open-target { color: var(--accent-primary); transform: translate(4px, -4px) scale(1.1); opacity: 1; }
+.reveal-on-hover:hover .reveal-badge-target { background: var(--primary-a10); border-color: var(--primary-a30); transform: translateY(-1px); }
+.hover-lift-6-scale-102:hover { transform: translateY(-6px) scale(1.02); }
+.hover-scale-106:hover { transform: scale(1.06); }
+.hover-lift-6-border-ios-blue-a50:not(:disabled):hover { transform: translateY(-6px); border-color: rgba(var(--ios-blue-rgb), 0.5); }
+.hover-active-bg-primary-a08-border-a25:hover, .hover-active-bg-primary-a08-border-a25.active { background: var(--primary-a08); border-color: var(--primary-a25); }
+.hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .hover-shadow-primary-a15:hover { box-shadow: 0 4px 12px var(--primary-a15); }
 .spinner-white { border-top-color: rgba(255, 255, 255, 0.95); animation: spin 0.85s linear infinite; }
 .spinning { animation: spin 1s linear infinite; }

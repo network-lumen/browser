@@ -128,7 +128,7 @@
             <div class="domain-main flex flex-column gap-2px min-w-0">
               <div class="domainpage-stable-link-label-row flex-align-center gap-6px min-w-0">
                 <input
-                  class="domainpage-stable-link-label-input color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent text-14px min-w-120px py-4px px-6px w-min-260px-full"
+                  class="hover-focus-bg-card-border-outline-none color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent text-14px min-w-120px py-4px px-6px w-min-260px-full"
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"

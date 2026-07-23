@@ -9,7 +9,7 @@
         <div
           v-for="(t, i) in tabs"
           :key="t.id"
-          class="mainscreen-tab relative h-200 min-w-1500 max-w-3000 flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
+          class="mainscreen-tab reveal-on-active relative h-200 min-w-1500 max-w-3000 flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
           :data-id="t.id"
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
@@ -29,12 +29,13 @@
               />
               <Earth v-else :size="16" class="color-gray-blue" />
             </div>
-          <div class="mainscreen-tab-label txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
+          <div class="mainscreen-tab-label reveal-color-target txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
             {{ currentTitle(t) }}
           </div>
 
           <UiButton
             variant="icon"
+            class="reveal-color-target"
             title="Close"
             @pointerdown.stop
             @click.stop.prevent="closeTab(t.id)"
@@ -47,7 +48,7 @@
           ref="addBtn"
           variant="none"
           title="New tab"
-          class="add-tab-btn ml-4px border-radius-circle p-4px border-none cursor-pointer color-text-primary bg-fill-secondary"
+          class="hover-focus-bg-fill-primary ml-4px border-radius-circle p-4px border-none cursor-pointer color-text-primary bg-fill-secondary"
           @click="addTab"
         >
           <Plus :size="16" />

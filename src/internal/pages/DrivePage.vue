@@ -9,7 +9,7 @@
           <span>Storage</span>
         </div>
 
-        <div class="drivepage-hosting-row transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
+        <div class="hover-active-bg-primary-a08-border-a25 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
           <UiButton variant="none" type="button"
             @click="selectHosting('local')" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
             <span
@@ -42,7 +42,7 @@
         <div
           v-for="sub in subscriptionRows"
           :key="sub.gatewayId"
-          class="drivepage-hosting-row transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
+          class="hover-active-bg-primary-a08-border-a25 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
           <UiButton variant="none" type="button"
@@ -84,7 +84,7 @@
           </UiButton>
 
           <div class="drivepage-upload-menu flex-inline relative" @click.stop>
-            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn shadow-0-4-12-primary-a30">
+            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn hover-bg-gradient-accent-secondary-lift shadow-0-4-12-primary-a30">
               <Plus :size="18" />
               <span>Upload</span>
             </UiButton>
@@ -181,16 +181,16 @@
           Back
         </UiButton>
         <div class="drivepage-browse-crumbs flex-align-center flex-wrap-wrap gap-6px min-w-0">
-          <UiButton variant="ghost" type="button" @click="exitBrowse" class="drivepage-crumb nowrap">
+          <UiButton variant="ghost" type="button" @click="exitBrowse" class="hover-color-accent nowrap">
             {{ browseHostingLabel }}
           </UiButton>
           <span class="drivepage-sep color-text-secondary">/</span>
-          <UiButton variant="ghost" type="button" @click="openBrowseAt('')" class="drivepage-crumb nowrap">
+          <UiButton variant="ghost" type="button" @click="openBrowseAt('')" class="hover-color-accent nowrap">
             {{ browseRootLabel }}
           </UiButton>
           <template v-for="c in browseCrumbs" :key="c.path">
             <span class="drivepage-sep color-text-secondary">/</span>
-            <UiButton variant="ghost" type="button" @click="openBrowseAt(c.path)" class="drivepage-crumb nowrap">
+            <UiButton variant="ghost" type="button" @click="openBrowseAt(c.path)" class="hover-color-accent nowrap">
               {{ c.label }}
             </UiButton>
           </template>
@@ -300,20 +300,20 @@
              
               type="button"
               @click="pauseHlsQueue"
-              :disabled="convertingPauseRequested" class="drivepage-hls-queue-action-btn disabled-fade-40">
+              :disabled="convertingPauseRequested" class="hover-border-color-accent-enabled disabled-fade-40">
               <Pause :size="14" />
               <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
             </UiButton>
             <UiButton variant="secondary" v-if="hlsQueueCanResume"
              
               type="button"
-              @click="resumeHlsQueue" class="drivepage-hls-queue-action-btn disabled-fade-40">
+              @click="resumeHlsQueue" class="hover-border-color-accent-enabled disabled-fade-40">
               <Play :size="14" />
               <span>Resume</span>
             </UiButton>
             <UiButton variant="secondary" type="button"
               @click="clearHlsQueue"
-              :disabled="!hlsQueue.length" class="drivepage-hls-queue-clear-btn disabled-fade-40">
+              :disabled="!hlsQueue.length" class="hover-border-color-accent-enabled disabled-fade-40">
               {{ converting ? "Clear finished" : "Clear queue" }}
             </UiButton>
           </div>
@@ -396,7 +396,7 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="drivepage-list-item content-visibility-auto-920-56 last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="drivepage-list-item reveal-on-hover hover-bg-primary-a08 content-visibility-auto-920-56 last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
           :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
         >
@@ -446,7 +446,7 @@
           <span class="drivepage-list-date color-text-secondary text-right text-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="drivepage-list-actions divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
+          <div class="drivepage-list-actions reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
               @click.stop="openEntryDetails(file)" class="drivepage-action-btn">
@@ -535,7 +535,7 @@
       >
         <Cloud :size="64" stroke-width="1" />
         <template #actions>
-          <UiButton variant="primary" type="button" @click="openFilePicker" class="drivepage-upload-btn-large shadow-0-4-12-primary-a30">
+          <UiButton variant="primary" type="button" @click="openFilePicker" class="drivepage-upload-btn-large hover-bg-gradient-accent-secondary-lift shadow-0-4-12-primary-a30">
             <Upload :size="20" />
             <span>Choose files to upload</span>
           </UiButton>
