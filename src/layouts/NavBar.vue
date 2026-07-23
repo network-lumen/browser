@@ -354,7 +354,7 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="navbar-import-source-summary flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-14px border-05-light"
+              class="navbar-import-source-summary flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-16px border-05-light"
             >
               <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-145 break-word">
                 Profile source: {{ manualImportProfileSourceName }}

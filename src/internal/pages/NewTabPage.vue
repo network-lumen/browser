@@ -36,7 +36,7 @@
           <div class="newtab-shortcut-form flex flex-column gap-14px">
             <label class="newtab-shortcut-field flex flex-column gap-6px">
               <span class="newtab-shortcut-field-span color-text-secondary text-14px txt-weight-light">Name</span>
-              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-14px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"
+              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"
                
                
                 placeholder="Optional custom title"
@@ -46,7 +46,7 @@
 
             <label class="newtab-shortcut-field flex flex-column gap-6px">
               <span class="newtab-shortcut-field-span color-text-secondary text-14px txt-weight-light">URL or Lumen page</span>
-              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-14px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.url"
+              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.url"
                
                
                 placeholder="lumen://home or example.lmn"
@@ -82,7 +82,7 @@
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-14px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-14px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-20px mx-auto mb-0px" @submit.prevent="submitOmnibox">
+        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-20px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -100,7 +100,7 @@
           </UiButton>
         </form>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-145 py-14px px-16px w-min-760 bg-ios-orange-a08 border-1-ios-orange-a14 m-0px mx-auto mt-16px">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-145 py-12px px-16px w-min-760 bg-ios-orange-a08 border-1-ios-orange-a14 m-0px mx-auto mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
@@ -167,7 +167,7 @@
           </article>
         </div>
 
-        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty mt-16px border-radius-20px py-14px px-16px bg-black-a02 border-1-dashed-color">
+        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty mt-16px border-radius-20px py-12px px-16px bg-black-a02 border-1-dashed-color">
           <div class="newtab-shortcuts-empty-copy">
             <h3 class="color-text-primary mt-4px letter-spacing-n002">No shortcuts yet</h3>
             <p class="color-text-secondary mt-6px line-height-15">
@@ -473,4 +473,4 @@ onMounted(() => {
     showOnboarding.value = true;
   }
 });
-</script>
+</script>

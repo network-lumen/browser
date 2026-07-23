@@ -4,7 +4,7 @@
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="toast bg-primary flex-align-start border-radius-12px gap-10px py-12px px-14px border-default shadow-md cursor-events-auto min-w-280px"
+        class="toast bg-primary flex-align-start border-radius-12px gap-10px py-12px px-16px border-default shadow-md cursor-events-auto min-w-280px"
         :class="[`toast-${toast.type}`, { 'toast-dismissible cursor-pointer': toast.dismissible }]"
         @click="toast.dismissible && removeToast(toast.id)"
       >

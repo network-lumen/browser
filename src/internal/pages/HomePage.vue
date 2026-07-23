@@ -47,7 +47,7 @@
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
+            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-015 py-12px px-16px border-15-dashed-color min-h-100px grid-col-full"
             :class="{ 'is-drag-over-zone': dragOverMySpace }"
             @click="showAllPages = true"
           >
@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-015 shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'is-drag-over-target': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -98,7 +98,7 @@
         >
           <div
             v-if="lumenCards.length === 0"
-            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
+            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-015 py-12px px-16px border-15-dashed-color min-h-100px grid-col-full"
             :class="{ 'is-drag-over-zone': dragOverLumen }"
             @click="showAllPages = true"
           >
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-015 shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'is-drag-over-target': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"

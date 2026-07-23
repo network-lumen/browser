@@ -331,7 +331,7 @@
             </UiCard>
           </div>
 
-          <div class="helppage-discover-note color-text-primary mt-14px border-radius-14px text-14px py-12px px-14px bg-fill-blue line-height-135 border-1-ios-blue-a14">
+          <div class="helppage-discover-note color-text-primary mt-14px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-135 border-1-ios-blue-a14">
             <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
             If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
             uploaded folder, and give it a minute to propagate.

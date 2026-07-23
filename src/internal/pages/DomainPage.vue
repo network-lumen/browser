@@ -216,7 +216,7 @@
       <UiModal :model-value="showStableSettingsModal" title="Stable link records" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
               <p class="domainpage-modal-desc text-14px color-text-tertiary m-0px mb-12px">Publish resolver records for this stable link.</p>
-              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-14px">
+              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
                 <div class="domainpage-info-name txt-weight-light text-15px">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
                 <div class="domainpage-info-expiry mono text-13px mt-4px">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
               </div>
@@ -328,7 +328,7 @@
       <!-- Settings Modal -->
       <UiModal :model-value="showSettingsModal" title="Domain settings" panel-class="max-w-500px" @update:model-value="closeSettingsModal">
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-14px">
+              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
                 <div class="domainpage-info-name txt-weight-light text-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
                 <div class="domainpage-info-expiry text-13px mt-4px">
                   {{ selectedDomain ? expiryText(selectedDomain) : 'Expires: unknown' }}
@@ -402,7 +402,7 @@
             <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
               <p class="domainpage-modal-desc text-14px color-text-tertiary m-0px mb-12px">Transfer ownership of this domain to another address.</p>
               
-              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-14px">
+              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
                 <div class="domainpage-info-name txt-weight-light text-15px">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
                 <div class="domainpage-info-expiry text-13px mt-4px">
                   {{ transferDomain ? expiryText(transferDomain) : 'Expires: unknown' }}

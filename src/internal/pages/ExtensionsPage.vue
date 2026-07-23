@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-14px color-store-info background-rgba-37-99-235-0-18 mt-0px mx-24px mb-14px" :class="{ 'color-store-error background-rgba-185-28-28-0-2': statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-16px color-store-info background-rgba-37-99-235-0-18 mt-0px mx-24px mb-14px" :class="{ 'color-store-error background-rgba-185-28-28-0-2': statusError }">
       {{ statusMessage }}
     </div>
 
