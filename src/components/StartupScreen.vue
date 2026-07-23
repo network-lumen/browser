@@ -17,7 +17,7 @@
           <div class="startup-msg-subtitle color-text-secondary text-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="startup-btn startup-btn-primary transition-lift-015">
+          <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="active-not-disabled-lift-1px disabled-opacity-60-cursor-default startup-btn-primary transition-lift-015">
             Retry
           </UiButton>
         </div>

@@ -753,6 +753,15 @@
 .text-clamp-18-4vw-28rem { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
 .bg-gradient-extensions-store { background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%), linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1)); }
 .divide-y-mt6px > * + * { margin-top: 6px; }
+.active-not-disabled-lift-1px:active:not(:disabled) { transform: translateY(1px); }
+.disabled-opacity-60-cursor-default:disabled { opacity: 0.6; cursor: default; }
+.disabled-opacity-55-cursor-not-allowed:disabled { opacity: 0.55; cursor: not-allowed; }
+.disabled-opacity-60-not-allowed-no-transform:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.disabled-opacity-50-not-allowed-no-transform-important:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.active-not-disabled-scale-95:active:not(:disabled) { transform: scale(0.95); }
+.disabled-opacity-35-not-allowed:disabled { opacity: 0.35; cursor: not-allowed; }
+.active-not-disabled-y0-scale-98:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.disabled-transform-none:disabled { transform: none; }
 .hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary); }
 .h-28rem-blur-36px { height: 28rem; filter: blur(36px); }
