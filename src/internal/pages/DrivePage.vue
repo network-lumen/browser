@@ -1433,7 +1433,7 @@
               </div>
               <p
                 v-if="hasInsufficientFunds"
-                class="text-11px line-height-12 color-red-base mt-8px"
+                class="text-11px line-height-12 color-error mt-8px"
               >
                 You can't subscribe because your wallet balance is too low.
               </p>

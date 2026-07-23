@@ -219,7 +219,7 @@
               padding-class="py-12px px-16px"
               :shadow="false"
               hoverable
-              hover-class="transition-all-02 hover-bg-tertiary border-color-accent-color-hover shadow-0-4-12-rgba-0-0-0-0-1-hover"
+              hover-class="transition-all-02 hover-bg-tertiary hover-border-accent shadow-0-4-12-rgba-0-0-0-0-1-hover"
               v-for="block in recentBlocks"
               :key="block.height"
             >

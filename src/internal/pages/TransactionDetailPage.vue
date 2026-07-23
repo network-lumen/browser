@@ -16,7 +16,7 @@
           <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px letter-spacing-0025em">Transaction Overview</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Transaction Hash:</span>
             <div class="chaindetail-hash-value flex-align-center gap-8px">
               <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ transaction.hash }}</code>
@@ -28,7 +28,7 @@
               </UiButton>
             </div>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Status:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">
               <span class="py-4px px-12px border-radius-full text-12px" :class="transaction.success ? 'bg-fill-success' : 'bg-fill-error'">
@@ -36,25 +36,25 @@
               </span>
             </span>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Block Height:</span>
             <span class="chaindetail-value underline cursor-pointer color-primary text-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Time:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ transaction.time }}</span>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Gas Used:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ formatNumber(transaction.gasUsed) }}</span>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Gas Wanted:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ formatNumber(transaction.gasWanted) }}</span>
           </div>
-          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px border-radius-37-hover hover-bg-hover grid-cols-180-1fr">
+          <div class="hover-mx-n05rem-px-05rem last-border-bottom-none gap-16px grid border-bottom-1-light py-14px px-0px hover-border-radius-6px hover-bg-hover grid-cols-180-1fr">
             <span class="chaindetail-label color-text-secondary fw-500 text-14px">Fee:</span>
             <span class="chaindetail-value color-text-primary text-14px break-all">{{ transaction.fee }}</span>
           </div>
