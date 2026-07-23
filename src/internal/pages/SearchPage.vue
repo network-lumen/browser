@@ -376,7 +376,7 @@
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="searchpage-help-callout flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-ios-indigo-a08 border-1-ios-indigo-a18">
+                <div class="searchpage-help-callout flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-ios-indigo-a08 border-1-ios-indigo-a15">
                   <Sparkles :size="16" class="mt-0px color-text-primary flex-0-0-auto opacity-85" />
                   <div class="searchpage-help-callout-text color-text-secondary line-height-145 text-14px">
                     Local-only content on your machine stays private and won’t appear in network

@@ -340,7 +340,7 @@
                   class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
-              <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a10 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
+              <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a08 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
                 <span class="animate-pulse-live border-radius-circle w-8px h-8px background-current"></span>
                 Live
               </span>

@@ -509,7 +509,7 @@
           </UiCard>
 
           <!-- Remove Password Confirmation -->
-          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-12px border-radius-12px py-16px px-20px bg-fill-error mt-12px border-1-ios-red-a20">
+          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-12px border-radius-12px py-16px px-20px bg-fill-error mt-12px border-1-ios-red-a25">
             <p class="settingspage-security-confirm-box-p m-0px text-14px color-text-primary">Enter your current password to disable protection:</p>
             <UiInput
               type="password"
@@ -569,7 +569,7 @@
               v-for="p in profiles"
               :key="p.id"
               class="hover-bg-hover transition-bg-fast flex-align-center gap-12px border-radius-12px cursor-pointer py-12px px-16px cursor-select-none"
-              :class="{ 'bg-ios-blue-a12': p.id === activeProfileId }"
+              :class="{ 'bg-ios-blue-a15': p.id === activeProfileId }"
             >
               <input
                 class="settingspage-profile-checkbox w-16px h-16px"
@@ -581,7 +581,7 @@
               <div class="settingspage-profile-row-main flex flex-column gap-4px min-w-0">
                 <div class="settingspage-profile-row-title flex-align-center gap-8px min-w-0">
                   <span class="settingspage-profile-title txt-weight-light color-text-primary text-14px overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary text-11px py-0px px-8px bg-ios-blue-a18 border-1-ios-blue-a25">Active</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary text-11px py-0px px-8px bg-ios-blue-a15 border-1-ios-blue-a25">Active</span>
                 </div>
                 <span class="settingspage-profile-id text-12px color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
               </div>

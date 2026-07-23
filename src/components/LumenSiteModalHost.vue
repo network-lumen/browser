@@ -135,7 +135,7 @@
             </div>
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-ios-blue-a06 border-width-ios-blue-a18">
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-ios-blue-a08 border-width-ios-blue-a18">
             <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-12px mb-8px">
               <span class="sitemodal-pin-progress-status text-12px text-uppercase txt-weight-medium color-ios-blue letter-spacing-004em">{{ pinStatusLabel }}</span>
               <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter text-12px color-text-secondary">{{ pinProgressCounter }}</span>

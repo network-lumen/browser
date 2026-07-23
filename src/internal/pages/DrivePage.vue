@@ -467,7 +467,7 @@
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="active-scale-98 background-error-red-hover bg-ios-red-a10 color-error">
+              @click.stop="removeFile(file)" class="active-scale-98 background-error-red-hover bg-ios-red-a08 color-error">
               <Trash2 :size="14" />
             </UiButton>
           </div>
@@ -721,7 +721,7 @@
                 (only references). Keep the file + password safe.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -800,7 +800,7 @@
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -857,7 +857,7 @@
 
               <UiCheckbox v-model="driveBackupImportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -891,7 +891,7 @@
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06"
+                class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08"
               >
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Different wallet</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">
@@ -900,7 +900,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Older snapshot</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">
                   This snapshot looks older than your current local version (seq
@@ -908,7 +908,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -982,7 +982,7 @@
                 </div>
                 <div
                   v-if="gatewayDetailsUsageError === 'password_required'"
-                  class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06"
+                  class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08"
                 >
                   <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Wallet locked</div>
                   <div class="drivepage-plans-error-text color-text-secondary text-13px">
@@ -993,7 +993,7 @@
                     Unlock
                   </UiButton>
                 </div>
-                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
+                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="flex flex-column">
