@@ -190,7 +190,7 @@
         Skip for now
       </UiButton>
       <UiButton variant="primary" v-if="step === 'intro'"
-        @click="step = 'password'" class="walletonboard-btn-primary disabled-fade-60">
+        @click="step = 'password'" class="walletonboard-btn-primary disabled-fade-50">
         Get Started
       </UiButton>
 
@@ -200,13 +200,13 @@
       </UiButton>
       <UiButton variant="primary" v-if="step === 'password'"
         :disabled="settingPassword"
-        @click="handlePasswordSubmit" class="walletonboard-btn-primary disabled-fade-60">
+        @click="handlePasswordSubmit" class="walletonboard-btn-primary disabled-fade-50">
         <UiSpinner v-if="settingPassword" size="sm" />
         <span>{{ settingPassword ? 'Setting Password...' : 'Set Password' }}</span>
       </UiButton>
 
       <UiButton variant="primary" v-if="step === 'profile-name'"
-        @click="handleProfileNameSubmit" class="walletonboard-btn-primary disabled-fade-60">
+        @click="handleProfileNameSubmit" class="walletonboard-btn-primary disabled-fade-50">
         Continue
       </UiButton>
 
@@ -216,13 +216,13 @@
       </UiButton>
       <UiButton variant="primary" v-if="step === 'backup'"
         :disabled="exportingBackup"
-        @click="handleExportBackup" class="walletonboard-btn-primary disabled-fade-60">
+        @click="handleExportBackup" class="walletonboard-btn-primary disabled-fade-50">
         <UiSpinner v-if="exportingBackup" size="sm" />
         <span>{{ exportingBackup ? 'Exporting...' : 'Export Backup' }}</span>
       </UiButton>
 
       <UiButton variant="primary" v-if="step === 'complete'"
-        @click="handleComplete" class="walletonboard-btn-primary disabled-fade-60">
+        @click="handleComplete" class="walletonboard-btn-primary disabled-fade-50">
         Start Using Lumen
       </UiButton>
     </template>

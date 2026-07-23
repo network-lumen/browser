@@ -42,7 +42,7 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 txt-sm disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -52,7 +52,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -62,7 +62,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -83,7 +83,7 @@
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center p-0px pb-16px">
         <UiButton variant="primary" type="button"
           :disabled="loadingPrevious"
-          @click="loadPrevious" class="disabled-fade-60">
+          @click="loadPrevious" class="disabled-fade-50">
           <template v-if="loadingPrevious">Loading previous…</template>
           <template v-else>Previous results</template>
         </UiButton>
@@ -346,7 +346,7 @@
       <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center pt-20px pr-0px pb-8px pl-0px">
         <UiButton variant="primary" type="button"
           :disabled="loadingMore || loadingPrevious"
-          @click="loadMore" class="disabled-fade-60">
+          @click="loadMore" class="disabled-fade-50">
           <template v-if="loadingMore">Loading…</template>
           <template v-else>More results</template>
         </UiButton>

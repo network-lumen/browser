@@ -79,14 +79,14 @@
           <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
             <UiButton variant="primary" type="button"
               @click="openDirRoot"
-              :disabled="!navigate" class="ipfspage-crumb disabled-fade-60">
+              :disabled="!navigate" class="ipfspage-crumb disabled-fade-50">
               /
             </UiButton>
             <template v-for="(c, idx) in crumbs" :key="c.path">
               <span v-if="idx > 0" class="ipfspage-sep color-text-secondary">/</span>
               <UiButton variant="primary" type="button"
                 @click="openDirCrumb(idx)"
-                :disabled="!navigate" class="ipfspage-crumb disabled-fade-60">
+                :disabled="!navigate" class="ipfspage-crumb disabled-fade-50">
                 {{ c.label }}
               </UiButton>
             </template>
@@ -251,21 +251,21 @@
           </div>
 
           <template #footer>
-            <UiButton variant="secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning" class="disabled-fade-60">
+            <UiButton variant="secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning" class="disabled-fade-50">
               Cancel
             </UiButton>
-            <UiButton variant="secondary" v-if="savePinCanPause" type="button" @click="pauseSavePinJob" class="disabled-fade-60">
+            <UiButton variant="secondary" v-if="savePinCanPause" type="button" @click="pauseSavePinJob" class="disabled-fade-50">
               Pause
             </UiButton>
-            <UiButton variant="secondary" v-if="savePinCanResume" type="button" @click="resumeSavePinJob" class="disabled-fade-60">
+            <UiButton variant="secondary" v-if="savePinCanResume" type="button" @click="resumeSavePinJob" class="disabled-fade-50">
               Resume
             </UiButton>
-            <UiButton variant="danger" v-if="savePinCanStop" type="button" @click="cancelSavePinJob" class="disabled-fade-60">
+            <UiButton variant="danger" v-if="savePinCanStop" type="button" @click="cancelSavePinJob" class="disabled-fade-50">
               Stop
             </UiButton>
             <UiButton variant="primary" type="button"
               :disabled="savePreparing || savePinIsRunning"
-              @click="confirmSaveToDrive" class="disabled-fade-60">
+              @click="confirmSaveToDrive" class="disabled-fade-50">
               {{ savePinJobId ? (savePinCanResume ? "Resume save" : (savePinIsRunning ? "Saving..." : "Save")) : (saving ? "Saving..." : "Save") }}
             </UiButton>
           </template>
