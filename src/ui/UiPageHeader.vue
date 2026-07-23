@@ -1,12 +1,12 @@
 <template>
-  <header class="ui-page-header" :class="{ 'ui-page-header-actions-only': !hasText && !!$slots.actions }">
-    <div v-if="hasText" class="ui-page-header-text">
-      <h1 v-if="title" class="ui-page-header-title" :class="[`text-${titleSize}`, `txt-weight-${titleWeight}`]">{{ title }}</h1>
+  <header class="ui-page-header flex-align-start flex-wrap-wrap gap-16px mb-24px" :class="hasText ? 'flex-justify-space-between' : 'flex-justify-end'">
+    <div v-if="hasText">
+      <h1 v-if="title" class="m-0px color-text-primary" :class="[`text-${titleSize}`, `txt-weight-${titleWeight}`]">{{ title }}</h1>
       <slot>
-        <p v-if="subtitle" class="ui-page-header-subtitle">{{ subtitle }}</p>
+        <p v-if="subtitle" class="mt-4px mb-0px color-text-secondary text-14px">{{ subtitle }}</p>
       </slot>
     </div>
-    <div v-if="$slots.actions" class="ui-page-header-actions">
+    <div v-if="$slots.actions" class="ui-page-header-actions flex-align-center flex-wrap-wrap gap-12px">
       <slot name="actions" />
     </div>
   </header>
