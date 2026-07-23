@@ -264,11 +264,8 @@
 .ml-64px { margin-left: 4rem; }
 .ml-80px { margin-left: 5rem; }
 
-.mt-n2px { margin-top: -0.125rem; }
 .ml-n2px { margin-left: -0.125rem; }
-.mt-n8px { margin-top: -0.5rem; }
 .ml-n8px { margin-left: -0.5rem; }
-.margin-auto { margin: auto; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 .mt-auto { margin-top: auto; }
 
@@ -284,7 +281,6 @@
 .gap-20px { gap: 1.25rem; }
 .gap-24px { gap: 1.5rem; }
 
-.gap-x-0px { column-gap: 0rem; }
 .gap-x-10px { column-gap: 0.625rem; }
 .gap-x-12px { column-gap: 0.75rem; }
 .gap-x-16px { column-gap: 1rem; }
@@ -304,33 +300,14 @@
 .text-20px { font-size: 1.25rem; }
 .text-24px { font-size: 1.5rem; }
 .text-28px { font-size: 1.75rem; }
-.text-32px { font-size: 2rem; }
 .text-36px { font-size: 2.25rem; }
 .text-48px { font-size: 3rem; }
 .text-56px { font-size: 3.5rem; }
-
-/* ---- Border-radius (named steps already exist as --border-radius-xs/sm/md/lg/xl/2xl/full
-   in theme.css :root -- these just fill in the pixel values in between) ---- */
-.rounded-4px { border-radius: 4px; }
-.rounded-8px { border-radius: 8px; }
-.rounded-14px { border-radius: 14px; }
-.rounded-18px { border-radius: 18px; }
-.rounded-22px { border-radius: 22px; }
-.rounded-26px { border-radius: 26px; }
-.rounded-28px { border-radius: 28px; }
-.rounded-xs { border-radius: var(--border-radius-xs); }
-.rounded-sm { border-radius: var(--border-radius-sm); }
-.rounded-md { border-radius: var(--border-radius-md); }
-.rounded-lg { border-radius: var(--border-radius-lg); }
-.rounded-xl { border-radius: var(--border-radius-xl); }
-.rounded-2xl { border-radius: var(--border-radius-2xl); }
-.rounded-full { border-radius: var(--border-radius-full); }
 
 /* ---- Grid placement ---- */
 .grid-col-1 { grid-column: 1; }
 .grid-col-2 { grid-column: 2; }
 .grid-col-3 { grid-column: 3; }
-.grid-col-1-end { grid-column: 1 / -1; }
 .grid-col-2-end { grid-column: 2 / -1; }
 .grid-row-1 { grid-row: 1; }
 .grid-row-2 { grid-row: 2; }
