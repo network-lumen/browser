@@ -124,7 +124,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-22px min-h-150px shadow-0-12-24-rgba-15-23-42-0-05"
+            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-22px min-h-150px shadow-0-14-30-rgba-15-23-42-0-08"
             :class="{
               'card-state-pinned': entry.pinned,
               'card-state-dragging': draggingShortcutId === entry.id,
@@ -169,7 +169,7 @@
 
         <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty mt-16px border-radius-20px py-14px px-16px bg-black-a02 border-1-dashed-color">
           <div class="newtab-shortcuts-empty-copy">
-            <h3 class="color-text-primary mt-4px letter-spacing-n003">No shortcuts yet</h3>
+            <h3 class="color-text-primary mt-4px letter-spacing-n002">No shortcuts yet</h3>
             <p class="color-text-secondary mt-6px line-height-15">
               Star a page from the address bar or create a custom shortcut here. Favourite
               shortcuts stay first.

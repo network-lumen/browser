@@ -173,7 +173,7 @@
                 v-model="brightness"
                 class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
               />
-              <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-45px">{{ brightness }}%</span>
+              <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-50px">{{ brightness }}%</span>
             </div>
           </UiCard>
         </div>
@@ -1025,7 +1025,7 @@
                     v-model="gatewayTimeout"
                     class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
                   />
-                  <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-45px">{{ gatewayTimeout / 1000 }}s</span>
+                  <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-50px">{{ gatewayTimeout / 1000 }}s</span>
                 </div>
               </UiCard>
 

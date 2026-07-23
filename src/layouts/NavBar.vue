@@ -97,7 +97,7 @@
               <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
-                @click.stop="openExtension(ext)" class="flex-inline-align-justify-center disabled-fade-40 size-28px">
+                @click.stop="openExtension(ext)" class="flex-inline-align-justify-center disabled-fade-50 size-28px">
                 <ExternalLink :size="14" />
               </UiButton>
 
@@ -112,7 +112,7 @@
               <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
-                @click.stop="reloadExtension(ext.id)" class="flex-inline-align-justify-center disabled-fade-40 size-28px">
+                @click.stop="reloadExtension(ext.id)" class="flex-inline-align-justify-center disabled-fade-50 size-28px">
                 <RefreshCw :size="14" />
               </UiButton>
 
@@ -120,7 +120,7 @@
                
                 title="Remove extension"
                 :disabled="extensionsBusy"
-                @click.stop="removeExtension(ext.id)" class="disabled-fade-40 size-28px">
+                @click.stop="removeExtension(ext.id)" class="disabled-fade-50 size-28px">
                 <Trash2 :size="14" />
               </UiButton>
             </div>
@@ -139,7 +139,7 @@
           <UiButton variant="primary" type="button"
            
             :disabled="extensionsBusy"
-            @click.stop="openChromeWebStore" class="hover-bg-hover-enabled disabled-fade-40 transition-bg-015">
+            @click.stop="openChromeWebStore" class="hover-bg-hover-enabled disabled-fade-50 transition-bg-015">
             <span>Import from Chrome Web Store</span>
             <ExternalLink :size="13" />
           </UiButton>

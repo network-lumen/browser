@@ -818,7 +818,7 @@
                     <Users :size="16" />
                   </button>
                 </div>
-                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-0-8-24-rgba-0-0-0-0-15">
+                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-0-8-24-rgba-0-0-0-0-12">
                   <div class="walletpage-picker-header flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
                     <span>Select Contact</span>
                     <UiButton variant="icon" @click="showContactPicker = false" class="walletpage-picker-close">
@@ -910,7 +910,7 @@
             </div>
 
             <div class="walletpage-qr-section flex-justify-center m-0px mt-24px mb-24px">
-              <div class="walletpage-qr-wrapper p-20px bg-card border-2 border-radius-16px shadow-0-4-12-rgba-0-0-0-0-05">
+              <div class="walletpage-qr-wrapper p-20px bg-card border-2 border-radius-16px shadow-0-4-12-rgba-15-23-42-0-04">
                 <img 
                   v-if="qrCodeDataUrl" 
                   :src="qrCodeDataUrl"

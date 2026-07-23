@@ -12,12 +12,12 @@
           <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap text-12px">{{ restBase }}</span>
         </div>
 
-        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn hover-border-primary-a15 disabled-fade-60">
+        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
           Copy all
         </UiButton>
 
-        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="netparams-btn hover-border-primary-a15 disabled-fade-60">
+        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="netparams-btn hover-border-primary-a15 disabled-fade-50">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </UiButton>
