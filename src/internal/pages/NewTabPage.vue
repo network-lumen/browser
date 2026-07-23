@@ -79,7 +79,7 @@
       <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-24px backdrop-blur-16">
         <div class="newtab-hero-copy text-center my-0px mx-auto max-w-4000">
           <h1 class="color-text-primary m-0px text-clamp-22-7vw-43rem-tight">Search Lumen</h1>
-          <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-155 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
+          <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-15 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
         <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
@@ -100,7 +100,7 @@
           </UiButton>
         </form>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-145 py-12px px-16px w-min-760 bg-ios-orange-a08 border-1-ios-orange-a15 m-0px mx-auto mt-16px">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760 bg-ios-orange-a08 border-1-ios-orange-a15 m-0px mx-auto mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
@@ -142,7 +142,7 @@
               </span>
               <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-4px">
                 <span class="fw-760 block text-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
-                <span class="newtab-shortcut-subtitle block color-text-tertiary text-13px line-height-145 nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
+                <span class="newtab-shortcut-subtitle block color-text-tertiary text-13px line-height-14 nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
             </UiButton>
 

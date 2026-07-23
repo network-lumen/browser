@@ -122,7 +122,7 @@
           </p>
           <div class="text-left border-radius-12px py-16px px-20px bg-secondary">
             <span class="txt-weight-light color-text-secondary text-13px block mb-8px">Try:</span>
-            <ul class="line-height-17 m-0px color-text-secondary text-14px pl-20px">
+            <ul class="line-height-15 m-0px color-text-secondary text-14px pl-20px">
               <li>Using different keywords</li>
               <li>Searching for a domain (e.g., <code class="text-13px bg-primary-a08 border-radius-4px color-primary py-4px px-6px">example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
@@ -310,7 +310,7 @@
               <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-8px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"
+                class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"
                 :class="{ 'is-placeholder-text': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -371,14 +371,14 @@
             <div class="searchpage-help-grid grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
-                <p class="m-0px mt-8px color-text-secondary line-height-145">
+                <p class="m-0px mt-8px color-text-secondary line-height-14">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
                 <div class="searchpage-help-callout flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-ios-indigo-a08 border-1-ios-indigo-a15">
                   <Sparkles :size="16" class="mt-0px color-text-primary flex-0-0-auto opacity-85" />
-                  <div class="searchpage-help-callout-text color-text-secondary line-height-145 text-14px">
+                  <div class="searchpage-help-callout-text color-text-secondary line-height-14 text-14px">
                     Local-only content on your machine stays private and won’t appear in network
                     search.
                   </div>
@@ -387,7 +387,7 @@
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
-                <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-145 m-0px mt-8px">
+                <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-14 m-0px mt-8px">
                   <li class="flex gap-10px">
                     <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">1</span>
                     <span class="searchpage-help-step-text min-w-0">
@@ -411,7 +411,7 @@
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
-                <ul class="list-style-disc pl-20px color-text-secondary line-height-145 m-0px mt-8px">
+                <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
                   <li class="m-0px mt-8px mb-8px">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
                     matches efficiently.
@@ -429,7 +429,7 @@
 
               <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
-                <ul class="list-style-disc pl-20px color-text-secondary line-height-145 m-0px mt-8px">
+                <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
                   <li class="m-0px mt-8px mb-8px"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
                   <li class="m-0px mt-8px mb-8px"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
                   <li class="m-0px mt-8px mb-8px"><strong>Popularity</strong>: signals like views and saves.</li>

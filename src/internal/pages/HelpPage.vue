@@ -331,7 +331,7 @@
             </UiCard>
           </div>
 
-          <div class="helppage-discover-note color-text-primary mt-16px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-135 border-1-ios-blue-a15">
+          <div class="helppage-discover-note color-text-primary mt-16px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-14 border-1-ios-blue-a15">
             <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
             If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
             uploaded folder, and give it a minute to propagate.
@@ -407,17 +407,17 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">What is Lumen Browser?</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
                   nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
                   nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
                   nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
@@ -432,7 +432,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Secure your Wallet</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in
                   reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
                   Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -447,7 +447,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Upload</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel sem nec arcu
                   tincidunt tristique. Mauris posuere, nisl non hendrerit varius, risus neque blandit
                   massa, vitae fermentum velit quam a odio.
@@ -462,7 +462,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Cloud</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed viverra, arcu in tincidunt
                   gravida, metus ante accumsan justo, sit amet consequat libero dolor sed ligula.
                   Praesent faucibus, elit vitae fermentum viverra, odio tellus laoreet purus.
@@ -477,7 +477,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">How to Manage Domain</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque porro quisquam est,
                   qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit. Quis autem vel eum iure
                   reprehenderit qui in ea voluptate velit esse.
@@ -492,7 +492,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Domain Setting</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras id tortor vitae justo
                   vulputate aliquet. Nulla facilisi. Vestibulum ante ipsum primis in faucibus orci luctus
                   et ultrices posuere cubilia curae.
@@ -507,7 +507,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">How to Linked Domain</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minima veniam,
                   quis nostrum exercitationem ullam corporis suscipit laboriosam. Nisi ut aliquid ex ea commodi
                   consequatur.
@@ -522,7 +522,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Publish Website with .lmn</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ultricies, est vitae
                   fermentum malesuada, elit sapien ullamcorper justo, at ultricies mi tortor vitae ex.
                   Integer vitae lectus sed magna ultricies cursus.
@@ -537,7 +537,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Theme</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed consequat elit nec neque
                   gravida, a vestibulum est feugiat. Maecenas tincidunt nisl in enim tincidunt, sit amet
                   convallis libero viverra.
@@ -552,7 +552,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Font Size</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sit amet lectus et
                   metus dapibus fermentum. Integer dictum mi at orci pellentesque, eget consequat nibh
                   auctor.
@@ -567,7 +567,7 @@
               </div>
               <div>
                 <h4 class="color-text-primary m-0px txt-weight-strong helppage-discover-card-h4 text-15px">Brightness</h4>
-                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-135 m-0px mt-4px">
+                <p class="color-text-secondary helppage-discover-card-p text-14px line-height-14 m-0px mt-4px">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce lacinia volutpat eros,
                   ac laoreet purus euismod vitae. Etiam in sem nec turpis iaculis pellentesque.
                   Quisque feugiat tellus at malesuada suscipit.
