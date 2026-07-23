@@ -489,11 +489,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
-.settingspage-brightness-slider::-webkit-slider-thumb:hover,
-.settingspage-brightness-slider::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(var(--ios-blue-rgb), 0.4);
-}
 .settingspage-brightness-slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
@@ -631,7 +626,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.explorer-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .explorer-slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
