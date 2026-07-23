@@ -15,6 +15,7 @@
 @import "./ui/empty-state.css";
 @import "./ui/tag.css";
 @import "./ui/menu-item.css";
+@import "./lib/github-markdown.css";
 @import "./theme.css";
 @import "./responsive.css";
 

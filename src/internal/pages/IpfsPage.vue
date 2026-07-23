@@ -197,7 +197,7 @@
 
           <article
             v-else-if="viewKind === 'markdown'"
-            class="markdown-body ipfspage-markdown-view w-full my-0px mx-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
+            class="markdown-body markdown-body-theme w-full my-0px mx-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
             data-color-mode="auto"
             v-html="markdownHtml"
             @click="onMarkdownClick"
