@@ -1,5 +1,5 @@
 <template>
-  <div class="home-page internal-page">
+  <div class="home-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
       <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="homepage-toggle-pages flex-justify-space-between">

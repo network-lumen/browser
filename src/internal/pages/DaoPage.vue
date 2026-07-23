@@ -1,5 +1,5 @@
 <template>
-  <div class="dao-page internal-page">
+  <div class="dao-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="DAO" :icon="Users" activeKey="dao">
       <nav class="lsb-nav flex flex-column gap-12px">

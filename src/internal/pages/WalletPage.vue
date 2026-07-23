@@ -1,5 +1,5 @@
 <template>
-  <div class="wallet-page internal-page">
+  <div class="wallet-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Wallet" :icon="Wallet" activeKey="wallet">
       <nav class="lsb-nav flex flex-column gap-12px">
@@ -444,7 +444,7 @@
             class="grid-cols-170-1fr-12fr-12fr-15fr-100-120 hover-pl-calc-125rem-3px last-border-bottom-none gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
           >
             <div class="col-type min-w-0">
-              <div class="walletpage-type-badge flex-inline text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :style="getActivityBadgeStyle(tx)">
+              <div class="walletpage-type-badge inline-flex text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :style="getActivityBadgeStyle(tx)">
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
                 <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
                 <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />

@@ -1,5 +1,5 @@
 <template>
-  <div class="domain-page internal-page">
+  <div class="domain-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
       <nav class="domainpage-names-nav flex flex-column gap-6px mb-16px">

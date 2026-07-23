@@ -1,5 +1,5 @@
 <template>
-  <div class="network-page internal-page">
+  <div class="network-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
       <nav class="lsb-nav flex flex-column gap-12px">

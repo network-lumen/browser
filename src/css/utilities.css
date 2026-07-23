@@ -23,7 +23,6 @@
 .animate-walletonboard-fade-in { animation: walletonboard-fade-in 0.3s ease-in-out; }
 .app-shell {
   min-height: 100vh;
-  display: flex;
   align-items: center;
   justify-content: center;
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
@@ -346,15 +345,6 @@
 }
 .filter-none { filter: none; }
 .fixed { position: fixed; }
-.flex-0-0-180px { flex: 0 0 180px; }
-.flex-0-0-auto { flex: 0 0 auto; }
-.flex-0-1-auto { flex: 0 1 auto; }
-.flex-1 { flex: 1; }
-.flex-1-1-0 { flex: 1 1 0; }
-.flex-1-1-320px { flex: 1 1 320px; }
-.flex-1-1-420px { flex: 1 1 420px; }
-.flex-1-1-auto { flex: 1 1 auto; }
-.flex-shrink-0 { flex-shrink: 0; }
 .focus-bg-primary:focus { background: var(--bg-primary); }
 .focus-border-accent:focus { border-color: var(--accent-primary); }
 .focus-border-ios-blue:focus { border-color: var(--ios-blue); }
@@ -498,11 +488,8 @@
 .hover-translate-x-4px:hover { transform: translateX(4px); }
 .hover-translate-y4-x4:hover { transform: translateY(-4px) translateX(4px); }
 .hover-underline { text-decoration: none; }
-.inline-block { display: inline-block; }
-.inline-flex { display: inline-flex; }
 .inset-0 { inset: 0; }
 .internal-page {
-  display: flex;
   width: 100%;
   height: 100%;
   min-height: 0;

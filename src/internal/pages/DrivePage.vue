@@ -1,5 +1,5 @@
 <template>
-  <div class="drive-page internal-page">
+  <div class="drive-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Drive" :icon="Cloud" activeKey="drive">
       <!-- Hosting -->
@@ -58,7 +58,7 @@
               >
                 {{ sub.regionLabel }}
               </span>
-              <span class="grid-col-2-end grid-row-2 justify-self-start flex-inline flex-wrap-wrap gap-6px" v-if="sub.planTags.length">
+              <span class="grid-col-2-end grid-row-2 justify-self-start inline-flex flex-wrap-wrap gap-6px" v-if="sub.planTags.length">
                 <UiTag v-for="p in sub.planTags" :key="p" variant="accent">{{
                   p
                 }}</UiTag>
@@ -83,7 +83,7 @@
             <span>Cloud</span>
           </UiButton>
 
-          <div class="drivepage-upload-menu flex-inline relative" @click.stop>
+          <div class="drivepage-upload-menu inline-flex relative" @click.stop>
             <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn hover-bg-gradient-accent-secondary-lift shadow-0-4-12-primary-a30">
               <Plus :size="18" />
               <span>Upload</span>

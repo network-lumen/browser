@@ -1,5 +1,5 @@
 <template>
-  <div class="release-page internal-page">
+  <div class="release-page internal-page flex">
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
       <nav class="lsb-nav flex flex-column gap-12px">
         <div class="lsb-section flex flex-column gap-2px">

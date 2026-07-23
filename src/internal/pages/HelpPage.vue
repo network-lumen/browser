@@ -1,5 +1,5 @@
 <template>
-  <div class="help-page internal-page">
+  <div class="help-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
       <nav class="lsb-nav flex flex-column gap-12px">
