@@ -56,6 +56,7 @@
 .avatar-hue-9  { background: hsl(270deg 62% 56%); color: #f8fafc; }
 .backdrop-blur { backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); }
 .backdrop-blur-10 { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.backdrop-blur-12 { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .backdrop-blur-16 { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .backdrop-blur-4 { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .backdrop-blur-6 { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
@@ -318,6 +319,7 @@
 .cursor-not-allowed { cursor: not-allowed!important; }
 .cursor-pointer { cursor: pointer; }
 .cursor-select-none { user-select: none; }
+.cursor-select-text { user-select: text; }
 .date-input-icon-filter[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
 .disabled-fade-50:disabled { cursor: not-allowed; opacity: 0.5; }
 .disabled-opacity-35-not-allowed:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -670,6 +672,7 @@
 .right-0 { right: 0; }
 .right-12px { right: 12px; }
 .right-16px { right: 1rem; }
+.right-20px { right: 20px; }
 .right-24px { right: 24px; }
 .right-2rem { right: 2rem; }
 .right-3-5rem { right: 3.5rem; }
@@ -873,6 +876,7 @@
 .z-1400 { z-index: 1400; }
 .z-9998 { z-index: 9998; }
 .z-9999 { z-index: 9999; }
+.z-99999 { z-index: 99999; }
 .z-max { z-index: 2147483647; }
 
 /* UiCheckbox.vue's `boxed` variant: the box/wrap/input are all plain utility
@@ -928,3 +932,16 @@
 }
 .button-ghost:where(:hover, :focus-visible) { background: var(--hover-bg); }
 .button-cta:where(:hover, :focus-visible) { background: var(--fill-secondary); }
+
+/* UiToast.vue: layout/color/icon-variant styling is all inline utility
+   classes + a toastIconStyle() :style binding on the template now (the
+   icon color used to depend on a `toast-${type}` ancestor class via a
+   descendant selector - converted to the same JS-computed-style pattern
+   used elsewhere this session instead). These 2 are what's left: the
+   action button's precise negative-margin nudge (no utility matches an
+   asymmetric -2px/-4px/-2px/0 margin), and the enter/leave-active hooks
+   Vue's <TransitionGroup name="toast"> generates automatically, tied to
+   the toast-in/toast-out keyframes in animation.css. */
+.toast-action { margin: -2px -4px -2px 0; }
+.toast-enter-active { animation: toast-in 0.3s ease-out; }
+.toast-leave-active { animation: toast-out 0.2s ease-in forwards; }
