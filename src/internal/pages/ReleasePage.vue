@@ -14,10 +14,10 @@
 
     <main class="relpage-main flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
       <UiPageHeader title="Releases" title-weight="strong">
-        <p class="color-text-secondary text-14px m-0px mt-6px" v-if="allowed">Publisher access enabled for the active profile.</p>
-        <p class="color-text-secondary text-14px m-0px mt-6px" v-else-if="loading">Checking publisher permissions…</p>
-        <p class="color-text-secondary text-14px m-0px mt-6px" v-else>Publisher access required.</p>
-        <p v-if="pendingTtlSeconds" class="color-text-tertiary text-13px m-0px mt-6px">
+        <p class="color-text-secondary text-14px m-0px mt-8px" v-if="allowed">Publisher access enabled for the active profile.</p>
+        <p class="color-text-secondary text-14px m-0px mt-8px" v-else-if="loading">Checking publisher permissions…</p>
+        <p class="color-text-secondary text-14px m-0px mt-8px" v-else>Publisher access required.</p>
+        <p v-if="pendingTtlSeconds" class="color-text-tertiary text-13px m-0px mt-8px">
           Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
         </p>
         <template #actions>

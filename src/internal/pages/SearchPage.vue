@@ -94,8 +94,8 @@
           <div class="bg-shimmer border-radius-16px flex-shrink-0 w-52px h-52px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
             <div class="bg-shimmer h-18px border-radius-6px w-60pct"></div>
-            <div class="bg-shimmer h-14px border-radius-6px mt-10px w-40pct"></div>
-            <div class="bg-shimmer h-40px border-radius-6px mt-10px w-85pct"></div>
+            <div class="bg-shimmer h-14px border-radius-6px mt-8px w-40pct"></div>
+            <div class="bg-shimmer h-40px border-radius-6px mt-8px w-85pct"></div>
           </div>
         </li>
       </ul>
@@ -301,13 +301,13 @@
               </div>
               <div
                 v-if="r.kind === 'site' && r.site?.domain"
-                class="searchpage-site-domain mono flex-inline-align-center mt-6px gap-6px color-primary txt-weight-light text-13px opacity-85"
+                class="searchpage-site-domain mono flex-inline-align-center mt-8px gap-6px color-primary txt-weight-light text-13px opacity-85"
                 :title="r.site.domain"
               >
                 <Globe :size="14" class="flex-0-0-auto" />
                 {{ r.site.domain }}
               </div>
-              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-6px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
+              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-8px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
                 class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-145 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"

@@ -1,11 +1,11 @@
 <template>
-  <div class="mt-14px pt-12px border-top-light">
+  <div class="mt-16px pt-12px border-top-light">
     <UiButton variant="none" type="button" @click="open = !open" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center-justify-space-between gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015">
       <span class="txt-weight-light">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </UiButton>
 
-    <div v-if="open" class="mt-6px flex flex-column gap-2px">
+    <div v-if="open" class="mt-8px flex flex-column gap-2px">
       <button
         v-for="r in routes"
         :key="r.key"

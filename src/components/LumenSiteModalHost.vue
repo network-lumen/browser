@@ -72,13 +72,13 @@
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
               <span class="sitemodal-input-suffix text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
             </div>
-            <div class="sitemodal-balance-hint text-12px color-text-secondary mt-6px" v-if="balanceUlmn !== null">
+            <div class="sitemodal-balance-hint text-12px color-text-secondary mt-8px" v-if="balanceUlmn !== null">
               Available: {{ balanceLmnDisplay }} LMN
             </div>
-            <div class="sitemodal-balance-hint color-error text-12px mt-6px" v-else>
+            <div class="sitemodal-balance-hint color-error text-12px mt-8px" v-else>
               Balance unavailable
             </div>
-            <div class="sitemodal-balance-hint color-error text-12px mt-6px" v-if="insufficientFunds">
+            <div class="sitemodal-balance-hint color-error text-12px mt-8px" v-if="insufficientFunds">
               not enough funds
             </div>
           </div>
@@ -249,7 +249,7 @@
             </div>
           </div>
 
-          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-6px">
+          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-8px">
             The stable link URL will be copied after it is attached to this live.
           </p>
     <template #footer>
@@ -289,7 +289,7 @@
               </select>
             </div>
           </div>
-          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-6px">
+          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-8px">
             Previous live settings will be loaded from this link if records are available.
           </p>
     <template #footer>

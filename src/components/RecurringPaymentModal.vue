@@ -111,7 +111,7 @@
              
               min="1"
               placeholder="Leave empty for unlimited" class="recurpay-input placeholder-tertiary" />
-            <p class="recurpay-hint color-text-secondary text-12px m-0px mt-6px">Payment will stop after this many successful transactions</p>
+            <p class="recurpay-hint color-text-secondary text-12px m-0px mt-8px">Payment will stop after this many successful transactions</p>
           </div>
         </div>
 

@@ -22,7 +22,7 @@
       <div class="pt-2px flex-1 min-h-0 overflow-y-auto">
         <!-- Embedded Server Card -->
         <UiCard
-          class="mygw-server-card transition-all-03 mb-40px"
+          class="mygw-server-card transition-all-03 mb-32px"
           :class="{ 'card-state-active-green': embeddedServerRunning }"
           border-class="border-2"
           radius="16px"
@@ -84,7 +84,7 @@
         </UiCard>
 
         <!-- Whitelist Management Section (only show when embedded server is running) -->
-        <div v-if="embeddedServerRunning" class="mb-40px border-top-1 pt-32px">
+        <div v-if="embeddedServerRunning" class="mb-32px border-top-1 pt-32px">
           <div class="mygw-section-header flex-align-center flex-justify-space-between mb-24px">
             <h2 class="txt-weight-light color-text-primary m-0px mygw-section-header-h2 text-20px">Whitelist Management</h2>
             <UiButton variant="primary" type="button" @click="openWhitelistModal">

@@ -22,7 +22,7 @@
       <!-- Header -->
       <UiPageHeader title="My gateways">
         <p class="ui-page-header-subtitle">Register and update on-chain gateway settings.</p>
-        <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-6px">
+        <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-8px">
           Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
         </p>
         <template #actions>
