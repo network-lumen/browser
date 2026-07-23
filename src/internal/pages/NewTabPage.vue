@@ -71,13 +71,13 @@
     </UiModal>
 
     <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
-      <div class="h-28rem-blur-36px top-n14rem-left-n10rem border-radius-full absolute opacity-55 bg-ios-blue-a15 w-2800"></div>
-      <div class="h-28rem-blur-36px top-2rem-right-n12rem border-radius-full absolute opacity-55 bg-ios-indigo-a15 w-2800"></div>
+      <div class="h-448px-blur-36px top-n14rem-left-n10rem border-radius-full absolute opacity-55 bg-ios-blue-a15 w-448px"></div>
+      <div class="h-448px-blur-36px top-2rem-right-n12rem border-radius-full absolute opacity-55 bg-ios-indigo-a15 w-448px"></div>
     </div>
 
     <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
       <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-24px backdrop-blur-16">
-        <div class="newtab-hero-copy text-center my-0px mx-auto max-w-4000">
+        <div class="newtab-hero-copy text-center my-0px mx-auto max-w-640px">
           <h1 class="color-text-primary m-0px text-clamp-22-7vw-43rem-tight">Search Lumen</h1>
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-15 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
@@ -137,7 +137,7 @@
             @dragend="onShortcutDragEnd"
           >
             <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" class="newtab-shortcut-card-main flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
-              <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :style="avatarToneStyle(entry.kind)">
+              <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-48px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-4px">
@@ -200,7 +200,7 @@
             :key="entry.id"
             type="button"
             @click="openTarget(entry.url, $event)" class="transition-transform-bg-border-015 flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-ios-blue-a14">
-            <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-300" :style="avatarToneStyle(entry.kind)">
+            <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-48px" :style="avatarToneStyle(entry.kind)">
               {{ entry.monogram }}
             </span>
             <span class="newtab-history-preview-copy flex flex-column flex-1 min-w-0 gap-2px">

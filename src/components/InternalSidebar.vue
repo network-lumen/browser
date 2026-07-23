@@ -25,7 +25,7 @@
       <div v-if="renderedFavouriteEntries.length" class="sidebar-section mt-16px pt-12px border-top-05-border-light">
         <div class="sidebar-section-header flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
           <div class="sidebar-section-title color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
-          <div class="h-24px bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full text-11px txt-weight-medium py-0px px-8px min-w-24rem-badge">{{ renderedFavouriteEntries.length }}</div>
+          <div class="h-24px bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full text-11px txt-weight-medium py-0px px-8px min-w-24px">{{ renderedFavouriteEntries.length }}</div>
         </div>
         <div class="sidebar-favs flex flex-column gap-6px">
           <div

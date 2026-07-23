@@ -6,7 +6,7 @@
       </div>
 
       <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary p-32px">
-        <UiCard padding="none" :shadow="false" class="shadow-md max-w-2400">
+        <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
           <UiEmptyState title="This domain belongs to no one">
             <Tag :size="26" />
             <template #description>
@@ -22,7 +22,7 @@
       </div>
 
       <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary p-32px">
-        <UiCard padding="none" :shadow="false" class="shadow-md max-w-2400">
+        <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
           <UiEmptyState title="This content isn't available right now">
             <FileQuestion :size="26" />
             <template #description>
@@ -45,7 +45,7 @@
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="sitepage-hls-error absolute text-14px cursor-events-none py-12px px-16px right-100 bg-ios-red-a15 border-1-ios-red-a30 left-16px bottom-16px backdrop-blur-6">
+          <div v-if="hlsError" class="sitepage-hls-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-ios-red-a15 border-1-ios-red-a30 left-16px bottom-16px backdrop-blur-6">
             {{ hlsError }}
           </div>
         </template>

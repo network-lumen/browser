@@ -138,7 +138,7 @@
           :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
-            class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-50 hover-color-accent hover-border-primary-a30"
+            class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"
             :class="{ 'bg-accent border-color-accent color-white hover-bg-border-color-error': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -164,7 +164,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-40 left-50 right-auto z-1 flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
+                  class="top-6px left-8px right-auto z-1 flex-inline-align-justify-center h-32px border-radius-full cursor-pointer absolute border-none bg-black-a35 w-32px backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -256,7 +256,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-40 right-25 z-1 h-165 flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-165 background-rgba-0-0-0-0-5-hover"
+                  class="top-6px right-4px z-1 h-26px flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-26px background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >

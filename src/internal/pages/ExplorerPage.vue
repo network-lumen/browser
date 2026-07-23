@@ -591,7 +591,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-ios-green z-9999 bottom-200 shadow-ios-green-lg">
+    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-ios-green z-9999 bottom-32px shadow-ios-green-lg">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -649,7 +649,7 @@
                  
                   step="0.000001"
                   min="0" class="explorer-stake-input text-15px focus-outline-none focus-ring focus-shadow" />
-                <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute text-14px right-100">LMN</span>
+                <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute text-14px right-16px">LMN</span>
               </div>
               <div class="explorer-amount-slider flex flex-column gap-8px p-0px pt-8px pb-8px">
                 <input 
