@@ -13,8 +13,8 @@
           <UiButton variant="none" type="button"
             @click="selectHosting('local')" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
             <span
-              class="drivepage-hosting-dot grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
-              :class="ipfsConnected ? 'ok' : 'off'"
+              class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
+              :class="ipfsConnected ? 'status-dot-ok' : 'status-dot-off'"
             ></span>
             <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
           </UiButton>
@@ -47,7 +47,7 @@
         >
           <UiButton variant="none" type="button"
               @click="selectGateway(sub.gatewayId)" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
-              <span class="drivepage-hosting-dot grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
+              <span class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
               <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
@@ -144,7 +144,7 @@
         </div>
       </div>
 
-      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="drivepage-bulk-toolbar bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-14px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'active border-color-primary-a30': selectedLocalCount > 0 }">
+      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-14px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a08 border-color-primary-a30': selectedLocalCount > 0 }">
         <UiCheckbox boxed title="Select visible entries" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
@@ -323,16 +323,16 @@
           <div
             v-for="item in visibleHlsQueueItems"
             :key="item.id"
-            class="drivepage-hls-queue-item flex-align-center-justify-space-between gap-12px border-radius-12px bg-primary border-1-light py-12px px-14px"
-            :class="`status-${item.status}`"
+            class="flex-align-center-justify-space-between gap-12px border-radius-12px bg-primary border-1-light py-12px px-14px"
+            :style="hlsQueueItemStyle(item.status)"
           >
-            <div class="drivepage-hls-queue-item-copy flex flex-column gap-2px min-w-0">
-              <span class="drivepage-hls-queue-item-name txt-weight-light color-text-primary text-13px overflow-hidden txt-overflow-ellipsis nowrap">{{ item.file.name }}</span>
-              <span v-if="item.error && item.status === 'failed'" class="drivepage-hls-queue-item-error text-12px">
+            <div class="flex flex-column gap-2px min-w-0">
+              <span class="txt-weight-light color-text-primary text-13px overflow-hidden txt-overflow-ellipsis nowrap">{{ item.file.name }}</span>
+              <span v-if="item.error && item.status === 'failed'" class="color-error-red text-12px">
                 {{ compactError(item.error) }}
               </span>
             </div>
-            <span class="drivepage-hls-queue-item-status flex-inline-align-center txt-weight-medium color-text-secondary gap-8px flex-shrink-0 text-12px">
+            <span class="flex-inline-align-center txt-weight-medium color-text-secondary gap-8px flex-shrink-0 text-12px" :style="hlsQueueStatusTextStyle(item.status)">
               <UiSpinner v-if="item.status === 'converting'" size="sm" />
               <span>{{ hlsQueueStatusLabel(item) }}</span>
             </span>
@@ -396,9 +396,9 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="drivepage-list-item reveal-on-hover hover-bg-primary-a08 content-visibility-auto-920-56 last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="reveal-on-hover hover-bg-primary-a08 content-visibility-auto-920-56 last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
-          :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, checked: isLocalFileSelected(file), }"
+          :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, 'bg-primary-a05-selected': isLocalFileSelected(file), }"
         >
           <div v-if="canUseLocalMultiSelect" class="drivepage-list-select-cell flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px" @click.stop>
             <UiCheckbox boxed :model-value="isLocalFileSelected(file)" @update:model-value="(checked: boolean) => setLocalFileSelected(file, checked)" />
@@ -449,25 +449,25 @@
           <div class="drivepage-list-actions reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
-              @click.stop="openEntryDetails(file)" class="drivepage-action-btn">
+              @click.stop="openEntryDetails(file)" class="active-scale-98">
               <TableProperties :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Download"
-              @click.stop="downloadFile(file)" class="drivepage-action-btn">
+              @click.stop="downloadFile(file)" class="active-scale-98">
               <Download :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isDirEntry(file) && isVideoFile(file.name)"
               title="Convert to HLS"
               :disabled="converting || uploading"
-              @click.stop="convertToHls(file)" class="drivepage-action-btn">
+              @click.stop="convertToHls(file)" class="active-scale-98">
               <Clapperboard :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Share"
-              @click.stop="copyLumenLinkFor(file)" class="drivepage-action-btn">
+              @click.stop="copyLumenLinkFor(file)" class="active-scale-98">
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="drivepage-action-btn danger background-error-red-hover bg-ios-red-a10 color-error">
+              @click.stop="removeFile(file)" class="active-scale-98 background-error-red-hover bg-ios-red-a10 color-error">
               <Trash2 :size="14" />
             </UiButton>
           </div>
@@ -496,8 +496,8 @@
             <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary text-14px p-0px pr-4px pl-4px">...</span>
             <button 
               v-else
-              class="drivepage-page-num flex-align-justify-center size-32px color-text-primary text-14px fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px py-0px px-8px hover-bg-hover hover-border-accent" 
-              :class="{ active: currentPage === page }"
+              class="flex-align-justify-center size-32px color-text-primary text-14px fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px py-0px px-8px hover-bg-hover hover-border-accent"
+              :class="{ 'pill-selected-gradient-primary': currentPage === page }"
               @click="currentPage = page as number"
             >
               {{ page }}
@@ -688,7 +688,7 @@
                 <span class="details-label">Status</span>
                 <span
                   class="details-value"
-                  :class="ipfsConnected ? 'ok' : 'off'"
+                  :class="ipfsConnected ? 'status-text-ok' : 'status-text-off'"
                 >
                   {{ ipfsConnected ? "Online" : "Offline" }}
                 </span>
@@ -2629,12 +2629,12 @@ const subscriptionRows = computed(() => {
     const onlineCached = isSubscribedGatewayOnlineCached(gatewayId);
     const isOffline = onlineCached === false;
     const statusDot = isOffline
-      ? "off"
+      ? "status-dot-off"
       : status === "active"
-        ? "ok"
+        ? "status-dot-ok"
         : status === "pending"
-          ? "pending"
-          : "off";
+          ? "status-dot-pending"
+          : "status-dot-off";
     const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : "";
     const labelBase =
       endpoint ||
@@ -2708,12 +2708,12 @@ const gatewayDetailsStatusLabel = computed(() => {
 
 const gatewayDetailsStatusClass = computed(() => {
   const row = gatewayDetailsSubscriptionRow.value;
-  if (!row) return "off";
+  if (!row) return "status-text-off";
   return row.status === "active"
-    ? "ok"
+    ? "status-text-ok"
     : row.status === "pending"
       ? "pending"
-      : "off";
+      : "status-text-off";
 });
 
 
@@ -5675,6 +5675,22 @@ function clearHlsQueue() {
     return;
   }
   hlsQueue.value = [];
+}
+
+function hlsQueueItemStyle(status: string): Record<string, string> {
+  if (status === "converting") return { borderColor: "var(--primary-a25)", background: "var(--primary-a06)" };
+  if (status === "done") return { borderColor: "rgba(var(--ios-green-rgb), 0.25)", background: "rgba(var(--ios-green-rgb), 0.06)" };
+  if (status === "paused") return { borderColor: "rgba(var(--ios-blue-rgb), 0.25)", background: "rgba(var(--ios-blue-rgb), 0.06)" };
+  if (status === "failed") return { borderColor: "rgba(var(--ios-red-rgb), 0.25)", background: "rgba(var(--ios-red-rgb), 0.06)" };
+  if (status === "cancelled") return { borderColor: "rgba(var(--ios-orange-rgb), 0.25)", background: "rgba(var(--ios-orange-rgb), 0.06)" };
+  return {};
+}
+
+function hlsQueueStatusTextStyle(status: string): Record<string, string> {
+  if (status === "failed") return { color: "var(--error-red)" };
+  if (status === "paused") return { color: "var(--accent-primary)" };
+  if (status === "cancelled") return { color: "var(--ios-orange)" };
+  return {};
 }
 
 function hlsQueueStatusLabel(item: HlsQueueItem): string {

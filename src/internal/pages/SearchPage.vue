@@ -9,7 +9,7 @@
        
         title="How search works"
         aria-label="How search works"
-        @click="openHowSearchWorks" class="searchpage-help-icon-btn size-36px">
+        @click="openHowSearchWorks" class="active-translate-y-0 size-36px">
         <HelpCircle :size="18" />
       </UiButton>
     <section class="mt-15vh flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
@@ -42,32 +42,32 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="searchpage-pill disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
         >
-          <Globe :size="16" />
+          <Globe :size="16" class="flex-shrink-0 transition-transform-02" />
           Sites
         </UiButton>
         <UiButton
           variant="tag"
-          class="searchpage-pill disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
         >
-          <Image :size="16" />
+          <Image :size="16" class="flex-shrink-0 transition-transform-02" />
           Images
         </UiButton>
         <UiButton
           variant="tag"
-          class="searchpage-pill disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
         >
-          <Compass :size="16" />
+          <Compass :size="16" class="flex-shrink-0 transition-transform-02" />
           Explore everything
         </UiButton>
       </div>
@@ -245,7 +245,7 @@
             @click="openResult(r)"
           >
             <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
-            <div class="searchpage-result-icon reveal-icon-target flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :class="`searchpage-icon-${r.kind}`">
+            <div class="searchpage-result-icon reveal-icon-target flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -285,7 +285,7 @@
                 <span
                   v-if="r.kind !== 'site'"
                   class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase text-11px letter-spacing-004em border-radius-4px py-4px px-6px"
-                  :class="typeBadgeClass(r)"
+                  :style="typeBadgeStyle(r)"
                 >
                   {{ typeBadgeLabel(r) }}
                 </span>
@@ -1602,13 +1602,41 @@ function resultAccentGradient(r: ResultItem): string {
   return "var(--gradient-brand)";
 }
 
-function typeBadgeClass(r: ResultItem): string {
-  if (!r) return "searchpage-type-ipfs";
-  if (r.kind === "ipfs") {
-    const fk = r.fileKind || "unknown";
-    if (fk && fk !== "unknown") return `searchpage-type-${fk}`;
+function resultIconStyle(r: ResultItem): Record<string, string> {
+  switch (r?.kind) {
+    case "site":
+      return { background: "linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%)", color: "var(--ios-blue)" };
+    case "tx":
+      return { background: "rgba(var(--ios-orange-rgb), 0.12)" };
+    case "block":
+      return { background: "linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" };
+    case "address":
+      return { background: "linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%)", color: "var(--ios-teal)" };
+    case "link":
+      return { background: "var(--fill-tertiary)" };
+    default:
+      return { background: "var(--fill-success)" };
   }
-  return `searchpage-type-${r.kind}`;
+}
+
+function typeBadgeStyle(r: ResultItem): Record<string, string> {
+  if (r && r.kind === "ipfs") {
+    switch (r.fileKind || "unknown") {
+      case "epub": return { background: "rgba(var(--ios-purple-rgb), 0.12)", color: "var(--ios-purple)" };
+      case "docx": return { background: "rgba(var(--ios-teal-rgb), 0.12)", color: "var(--ios-teal)" };
+      case "html": return { background: "rgba(var(--ios-blue-rgb), 0.12)", color: "var(--ios-blue)" };
+      case "pdf": return { background: "var(--fill-error)" };
+      case "txt": return { background: "var(--fill-tertiary)" };
+      default: return { background: "var(--fill-success)" };
+    }
+  }
+  switch (r?.kind) {
+    case "tx": return { background: "rgba(var(--ios-orange-rgb), 0.12)" };
+    case "block": return { background: "rgba(var(--ios-indigo-rgb), 0.12)", color: "var(--ios-purple)" };
+    case "address": return { background: "rgba(var(--ios-teal-rgb), 0.12)", color: "var(--ios-teal)" };
+    case "link": return { background: "var(--fill-tertiary)" };
+    default: return {};
+  }
 }
 
 function iconFor(r: ResultItem) {

@@ -772,6 +772,7 @@
 .max-h-none { max-height: none; }
 .opacity-40 { opacity: 0.4; }
 .active-scale-998:active { transform: scale(0.998); }
+.active-scale-98:active { transform: scale(0.98); }
 .hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary); }
 .h-28rem-blur-36px { height: 28rem; filter: blur(36px); }
@@ -962,6 +963,28 @@
 .background-rgba-0-0-0-0-8 { background: rgba(0, 0, 0, 0.8); }
 .shadow-0-8-24-rgba-0-0-0-0-12 { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
 .shadow-0-0-0-3-ios-blue-a25-focus-visible:focus-visible { box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.25); }
+.active-translate-y-0:active { transform: translateY(0); }
+.active-cursor-grabbing:active { cursor: grabbing; }
+.is-dragging { opacity: 0.4; cursor: grabbing; }
+.is-drag-over-target { background: var(--accent-primary); color: #fff; transform: translateX(4px); }
+.is-drag-over-zone { border-color: var(--accent-primary); background: var(--primary-a08); }
+.status-text-ok { color: var(--ios-green); }
+.status-text-off { color: var(--ios-red); }
+.status-dot-ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
+.status-dot-pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
+.status-dot-off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
+.ring-primary-a08 { box-shadow: 0 0 0 3px var(--primary-a08); }
+.pill-selected-gradient-primary { background: var(--gradient-primary); border-color: var(--accent-primary); color: #fff; font-weight: 600; }
+.bg-primary-a05-selected { background: var(--primary-a05); }
+.right-3-5rem { right: 3.5rem; }
+.pill-tone-primary-indigo.active {
+  background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.3);
+}
+.pill-tone-primary-indigo.active svg { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); }
 .shadow-0-20-55-rgba-0-0-0-0-18 { box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18); }
 .shadow-0-1-3-rgba-0-0-0-0-1 { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
 .shadow-0-4-6-rgba-0-0-0-0-07-hover { transition: box-shadow 0.2s; }
