@@ -970,7 +970,7 @@
             <div class="settingspage-settings-subsection mt-16px">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-ios-blue border-radius-10px h-22px py-0px px-8px bg-ios-blue-a15 min-w-22px">{{ gatewayIds.length }}</span>
+                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-ios-blue border-radius-10px h-22px py-0px px-8px bg-ios-blue-a15 min-w-24px">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc text-14px color-text-secondary m-0px mb-16px">Add gateway IDs to use for private content delivery</p>
 
