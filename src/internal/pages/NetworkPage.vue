@@ -7,7 +7,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Monitoring</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': activeView === 'status' }"
             @click="activeView = 'status'"
           >
@@ -19,7 +19,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': activeView === 'params' }"
             @click="activeView = 'params'"
           >
@@ -29,7 +29,7 @@
           <UiButton variant="none" v-if="activeView === 'status'"
             type="button"
             @click="refreshData"
-            :disabled="refreshing" class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015">
+            :disabled="refreshing" class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015">
             <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
@@ -176,9 +176,9 @@
           <div class="netpage-section-header flex-align-center-justify-space-between mb-24px">
             <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Activity</h2>
             <div class="netpage-chart-tabs flex gap-8px">
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue fw-600': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue fw-600': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue fw-600': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue txt-weight-light': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue txt-weight-light': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a20 border-color-ios-blue color-ios-blue txt-weight-light': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
             </div>
           </div>
           <div class="netpage-activity-chart p-24px bg-secondary border-radius-12px">

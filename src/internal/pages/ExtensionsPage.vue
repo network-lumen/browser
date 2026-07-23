@@ -25,7 +25,7 @@
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-22px background-hex-ffffff mt-12px mx-24px mb-24px"
+      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-20px background-hex-ffffff mt-12px mx-24px mb-24px"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"

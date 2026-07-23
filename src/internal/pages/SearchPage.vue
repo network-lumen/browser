@@ -14,7 +14,7 @@
       </UiButton>
     <section class="mt-15vh flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
       <div class="bg-gradient-primary letter-spacing-n002 fw-900 text-56px gradient-text-clip">Lumen</div>
-      <div class="text-14px fw-600 letter-spacing-015em text-uppercase color-text-tertiary">Search</div>
+      <div class="text-14px txt-weight-light letter-spacing-015em text-uppercase color-text-tertiary">Search</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
         <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
@@ -90,8 +90,8 @@
       </div>
 
       <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-14px p-0px m-0px list-style-none gap-16px">
-        <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-16px border-radius-xl border-default bg-card py-20px px-24px">
-          <div class="bg-shimmer border-radius-lg flex-shrink-0 w-52px h-52px"></div>
+        <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-16px border-radius-20px border-default bg-card py-20px px-24px">
+          <div class="bg-shimmer border-radius-16px flex-shrink-0 w-52px h-52px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
             <div class="bg-shimmer h-18px border-radius-6px w-60pct"></div>
             <div class="bg-shimmer h-14px border-radius-6px mt-10px w-40pct"></div>
@@ -100,7 +100,7 @@
         </li>
       </ul>
 
-      <UiEmptyState v-else-if="!results.length" class="border-radius-xl bg-card border-2-dashed-color" icon-size="80px" title="No results found">
+      <UiEmptyState v-else-if="!results.length" class="border-radius-20px bg-card border-2-dashed-color" icon-size="80px" title="No results found">
         <Search :size="48" />
         <template #description>
           <p class="ui-empty-state-description">
@@ -120,7 +120,7 @@
               We couldn't find anything.
             </template>
           </p>
-          <div class="text-left border-radius-md py-16px px-20px bg-secondary">
+          <div class="text-left border-radius-12px py-16px px-20px bg-secondary">
             <span class="txt-weight-light color-text-secondary text-13px block mb-8px">Try:</span>
             <ul class="line-height-17 m-0px color-text-secondary text-14px pl-20px">
               <li>Using different keywords</li>
@@ -138,7 +138,7 @@
           :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
-            class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
+            class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-50 hover-color-accent hover-border-primary-a30"
             :class="{ 'bg-accent border-color-accent color-white hover-bg-border-color-error': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -164,7 +164,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-40 left-50 right-auto z-3 flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
+                  class="top-40 left-50 right-auto z-1 flex-inline-align-justify-center h-200 border-radius-full cursor-pointer absolute border-none bg-black-a35 w-200 backdrop-blur-8 color-white-a92 background-rgba-0-0-0-0-5-hover"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -240,13 +240,13 @@
           :data-result-index="idx"
         >
           <button
-            class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
+            class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-20px text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
             :class="[ r.media ? `media-${r.media}` : '', isExploreCompact(r) ? 'media-explore-compact p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
           >
             <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
-            <div class="reveal-icon-target flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
+            <div class="reveal-icon-target flex-align-justify-center border-radius-16px flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -301,7 +301,7 @@
               </div>
               <div
                 v-if="r.kind === 'site' && r.site?.domain"
-                class="searchpage-site-domain mono flex-inline-align-center mt-6px gap-6px color-primary txt-weight-light text-13px opacity-90"
+                class="searchpage-site-domain mono flex-inline-align-center mt-6px gap-6px color-primary txt-weight-light text-13px opacity-85"
                 :title="r.site.domain"
               >
                 <Globe :size="14" class="flex-0-0-auto" />
@@ -338,7 +338,7 @@
                 >
               </div>
             </div>
-            <ArrowUpRight :size="18" class="reveal-open-target color-text-secondary flex-0-0-auto mt-4px transition-all-03 opacity-50" />
+            <ArrowUpRight :size="18" class="reveal-open-target color-text-secondary flex-0-0-auto mt-4px transition-all-03 opacity-55" />
           </button>
         </li>
       </ul>
@@ -389,19 +389,19 @@
                 <h3 class="fw-850 m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
                 <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-145 m-0px mt-8px">
                   <li class="flex gap-10px">
-                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary fw-800 text-12px mt-005rem">1</span>
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">1</span>
                     <span class="searchpage-help-step-text min-w-0">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
                   <li class="flex gap-10px">
-                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary fw-800 text-12px mt-005rem">2</span>
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">2</span>
                     <span class="searchpage-help-step-text min-w-0">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
                   <li class="flex gap-10px">
-                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary fw-800 text-12px mt-005rem">3</span>
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">3</span>
                     <span class="searchpage-help-step-text min-w-0">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>

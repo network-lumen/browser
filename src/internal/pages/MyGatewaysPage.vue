@@ -4,7 +4,7 @@
       <nav class="lsb-nav flex flex-column gap-12px">
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Manage</span>
-          <UiButton variant="none" type="button" class="lsb-item active bg-gradient-primary color-white shadow-primary border-none cursor-pointer flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015">
+          <UiButton variant="none" type="button" class="lsb-item active bg-gradient-primary color-white shadow-primary border-none cursor-pointer flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015">
             <List :size="18" />
             <span>Gateway List</span>
           </UiButton>

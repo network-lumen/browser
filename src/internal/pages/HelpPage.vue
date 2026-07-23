@@ -7,7 +7,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Resources</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'discover' }"
             @click="setView('discover')"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'domains' }"
             @click="setView('domains')"
           >
@@ -29,7 +29,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Support</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'publish' }"
             @click="setView('publish')"
           >
@@ -38,7 +38,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'contact' }"
             @click="setView('contact')"
           >
@@ -47,7 +47,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'docs' }"
             @click="setView('docs')"
           >
@@ -67,7 +67,7 @@
       <div v-if="currentView === 'discover'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero Section -->
-          <section class="bg-gradient-primary-a12-card p-32px border-radius-lg text-center border-default shadow-sm">
+          <section class="bg-gradient-primary-a12-card p-32px border-radius-16px text-center border-default shadow-sm">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
@@ -101,7 +101,7 @@
           <section class="quick-actions flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
             <div class="helppage-actions-grid gap-12px grid grid-cols-2">
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-lg text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
                 <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 color-ios-blue bg-fill-blue">
                   <FolderOpen :size="24" />
                 </div>
@@ -111,7 +111,7 @@
                 </div>
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-lg text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
                 <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain color-ios-purple background-ios-purple-a15">
                   <Link2 :size="24" />
                 </div>
@@ -121,7 +121,7 @@
                 </div>
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-lg text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://wallet')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://wallet')">
                 <div class="helppage-action-icon wallet badge-success color-success flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Wallet :size="24" />
                 </div>
@@ -131,7 +131,7 @@
                 </div>
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-lg text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://search')">
+              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://search')">
                 <div class="helppage-action-icon search badge-warning color-warning flex-align-justify-center size-48px border-radius-14px flex-shrink-0 bg-ios-orange-a15">
                   <Search :size="24" />
                 </div>
@@ -151,21 +151,21 @@
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">1</div>
                 <div class="helppage-step-content">
-                  <h4 class="color-text-primary fw-700 helppage-step-content-h4 text-14px m-0px mb-4px">Blockchain Names</h4>
+                  <h4 class="color-text-primary txt-weight-medium helppage-step-content-h4 text-14px m-0px mb-4px">Blockchain Names</h4>
                   <p class="color-text-secondary text-13px line-height-14 m-0px">Domain names are stored on the blockchain - no central authority can take them away.</p>
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">2</div>
                 <div class="helppage-step-content">
-                  <h4 class="color-text-primary fw-700 helppage-step-content-h4 text-14px m-0px mb-4px">Distributed Storage</h4>
+                  <h4 class="color-text-primary txt-weight-medium helppage-step-content-h4 text-14px m-0px mb-4px">Distributed Storage</h4>
                   <p class="color-text-secondary text-13px line-height-14 m-0px">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
                 <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">3</div>
                 <div class="helppage-step-content">
-                  <h4 class="color-text-primary fw-700 helppage-step-content-h4 text-14px m-0px mb-4px">Verified Access</h4>
+                  <h4 class="color-text-primary txt-weight-medium helppage-step-content-h4 text-14px m-0px mb-4px">Verified Access</h4>
                   <p class="color-text-secondary text-13px line-height-14 m-0px">Every piece of content is cryptographically verified for authenticity.</p>
                 </div>
               </UiCard>
@@ -221,7 +221,7 @@
       <div v-else-if="currentView === 'domains'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a12-card small border-radius-lg text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a12-card small border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Publish Your <span class="gradient-text-clip bg-gradient-primary">Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
@@ -281,7 +281,7 @@
       <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a12-card small border-radius-lg text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a12-card small border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
@@ -343,7 +343,7 @@
       <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a12-card small border-radius-lg text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a12-card small border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
@@ -352,7 +352,7 @@
 
           <!-- Contact Cards -->
           <div class="helppage-contact-grid gap-16px grid grid-cols-1">
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-16px text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
               <div class="helppage-contact-icon discord flex-align-justify-center size-56px border-radius-14px flex-shrink-0 helppage-contact-icon-discord color-ios-purple background-ios-purple-a15">
                 <MessageCircle :size="28" />
               </div>
@@ -363,7 +363,7 @@
               <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-16px text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
               <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-56px border-radius-14px flex-shrink-0 bg-fill-tertiary">
                 <Github :size="28" />
               </div>
@@ -374,7 +374,7 @@
               <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
             </button>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-lg text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
+            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-16px text-left border-default bg-card transition-all-015 hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
               <div class="helppage-contact-icon website flex-align-justify-center size-56px border-radius-14px flex-shrink-0 color-ios-blue bg-fill-blue">
                 <Globe :size="28" />
               </div>
@@ -392,7 +392,7 @@
       <div v-else-if="currentView === 'docs'" class="helppage-content-area helppage-docs-content-area flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover helppage-docs-discover flex flex-column gap-20px flex-1 min-h-0">
           <iframe
-            class="helppage-doc-frame w-full h-full border-radius-lg block border-default shadow-sm bg-card min-h-520px"
+            class="helppage-doc-frame w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
             title="window.lumen API Reference"
             loading="lazy"

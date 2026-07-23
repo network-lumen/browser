@@ -54,7 +54,7 @@
         <UiSpinner size="md" />
       </UiCard>
 
-      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-lg color-error bg-fill-error border-width-ios-red-a35">
+      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-width-ios-red-a35">
         {{ error }}
       </div>
 
@@ -94,7 +94,7 @@
 
           <UiCard padding="none" :shadow="false" v-if="!entries.length" class="ipfspage-empty-dir p-16px color-text-secondary">Empty folder.</UiCard>
 
-          <div v-else class="ipfspage-dir-table border-radius-lg border-default overflow-hidden">
+          <div v-else class="ipfspage-dir-table border-radius-16px border-default overflow-hidden">
             <div
               v-for="it in entries"
               :key="it.key"

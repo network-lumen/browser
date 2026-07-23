@@ -1,14 +1,14 @@
 <template>
   <aside class="lumen-sidebar color-text-primary flex flex-column p-16px flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg min-w-240px max-w-240px border-right-05-border-color">
     <div class="lumen-sidebar-header flex gap-10px mb-16px flex-inline-align-center py-8px px-10px">
-      <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-sm shadow-primary">
+      <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-10px shadow-primary">
         <component :is="icon" :size="20" />
       </div>
       <span class="lumen-sidebar-title color-text-primary txt-weight-medium text-18px letter-spacing-n002">{{ title }}</span>
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-4px border-radius-md mb-14px p-14px border-05-light">
+    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-4px border-radius-12px mb-14px p-14px border-05-light">
       <span class="lumen-sidebar-no-profile-title color-text-primary text-13px txt-weight-light">No active profile</span>
       <span class="lumen-sidebar-no-profile-sub color-text-tertiary text-12px line-height-14">Create or import one from the navbar.</span>
     </div>

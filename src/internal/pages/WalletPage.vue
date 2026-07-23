@@ -7,7 +7,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Activity</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'overview' }"
             @click="currentView = 'overview'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'assets' }"
             @click="currentView = 'assets'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'dex' }"
             @click="currentView = 'dex'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'transactions' }"
             @click="currentView = 'transactions'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'recurring' }"
             @click="currentView = 'recurring'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'addressbook' }"
             @click="currentView = 'addressbook'"
           >
@@ -127,13 +127,13 @@
             <span>Receive</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-ios-blue-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-60 shadow-0-8-20-ios-blue-a30">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-ios-blue-a30">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-ios-blue-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-60 shadow-0-8-20-ios-blue-a30">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-ios-blue-a30">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -487,7 +487,7 @@
                   <span class="walletpage-text-muted color-text-tertiary italic">-</span>
                 </template>
               </span>
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.from"
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" v-if="tx.from"
                 @click.stop="copyToClipboard(tx.from, 'Address copied!')"
                 title="Copy address"
                 aria-label="Copy from address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
@@ -507,7 +507,7 @@
                   <span class="walletpage-text-muted color-text-tertiary italic">-</span>
                 </template>
               </span>
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.to"
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" v-if="tx.to"
                 @click.stop="copyToClipboard(tx.to, 'Address copied!')"
                 title="Copy address"
                 aria-label="Copy to address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
@@ -519,12 +519,12 @@
               <span class="walletpage-hash-value color-text-secondary text-13px mono" :title="tx.txhash">
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="openTransactionTab(tx.txhash)"
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="openTransactionTab(tx.txhash)"
                 title="Open in explorer"
                 aria-label="Open transaction in new tab" class="disabled-opacity-60-not-allowed-no-transform walletpage-explorer-btn background-card-bg-disabled-hover">
                 <ExternalLink :size="14" />
               </UiButton>
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>

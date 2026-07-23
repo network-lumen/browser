@@ -90,14 +90,14 @@
         <div class="chaindetail-card-body p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover">
-              <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-md color-ios-blue min-w-32px bg-gradient-secondary">
+              <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-12px color-ios-blue min-w-32px bg-gradient-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
                 <div class="blockdetail-tx-hash flex-align-center gap-8px mb-8px">
-                  <code class="flex-1 border-radius-sm blockdetail-tx-hash-code py-8px px-10px bg-card border-default text-12px mono break-all">{{ tx.hash }}</code>
+                  <code class="flex-1 border-radius-10px blockdetail-tx-hash-code py-8px px-10px bg-card border-default text-12px mono break-all">{{ tx.hash }}</code>
                   <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>

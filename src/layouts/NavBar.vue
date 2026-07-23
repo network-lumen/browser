@@ -2,17 +2,17 @@
   <header class="navbar flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-52px">
     <!-- Navigation Controls -->
     <div class="navbar-nav-controls flex-align-center gap-4px">
-      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoBack"
+      <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :disabled="!canGoBack"
         title="Back"
         @click="previous" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <ArrowLeft :size="16" />
       </UiButton>
-      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoForward"
+      <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :disabled="!canGoForward"
         title="Forward"
         @click="next" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <ArrowRight :size="16" />
       </UiButton>
-      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" v-if="!isExtensionTab"
+      <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" v-if="!isExtensionTab"
 
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
@@ -26,7 +26,7 @@
     <!-- URL Bar -->
     <div class="navbar-url-bar-container appregion-no-drag flex-align-center flex-1 relative min-w-0">
       <Search :size="15" stroke-width="2" class="navbar-url-bar-icon color-text-tertiary absolute cursor-events-none left-12px" />
-      <UiInput bg-class="bg-secondary" radius-class="border-radius-sm" font-size-class="text-13px" padding-class="pt-8px pr-48px pb-8px pl-40px" :focus-ring="false" :value="urlField"
+      <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="pt-8px pr-48px pb-8px pl-40px" :focus-ring="false" :value="urlField"
         @input="onInput"
        
        
@@ -50,11 +50,11 @@
 
     <!-- Quick Actions -->
     <div class="navbar-quick-actions flex-align-center gap-4px">
-      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Home"
+      <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" title="Home"
         @click="$emit('goto', 'lumen://home')" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <House :size="16" />
       </UiButton>
-      <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Drive"
+      <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" title="Drive"
         @click="$emit('goto', 'lumen://drive')" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <Cloud :size="16" />
       </UiButton>
@@ -63,7 +63,7 @@
     <div class="navbar-extensions-section appregion-no-drag relative ml-n8px">
       <UiButton
         variant="icon"
-        icon-radius-class="border-radius-sm"
+        icon-radius-class="border-radius-10px"
         icon-padding-class=""
         class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed extensions-trigger flex-inline-align-justify-center size-32px"
         :class="{ 'color-ios-yellow-override': showExtensionsMenu }"
@@ -80,7 +80,7 @@
           <div
             v-for="ext in extensions"
             :key="ext.id"
-            class="navbar-extension-row flex-align-start gap-10px p-10px border-radius-md bg-secondary border-05-light"
+            class="navbar-extension-row flex-align-start gap-10px p-10px border-radius-12px bg-secondary border-05-light"
           >
             <div class="navbar-extension-main flex-1 min-w-0">
               <div class="navbar-extension-name text-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ ext.name }}</div>
@@ -94,7 +94,7 @@
             </div>
 
             <div class="navbar-extension-actions flex-align-center gap-6px">
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" type="button"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
                 @click.stop="openExtension(ext)" class="flex-inline-align-justify-center disabled-fade-50 size-28px">
@@ -109,7 +109,7 @@
                 @update:model-value="toggleExtensionEnabled(ext)"
               />
 
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" type="button"
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" type="button"
                 title="Reload extension"
                 :disabled="extensionsBusy || !ext.enabled"
                 @click.stop="reloadExtension(ext.id)" class="flex-inline-align-justify-center disabled-fade-50 size-28px">
@@ -175,16 +175,16 @@
             <li
               v-for="p in profiles"
               :key="p.id"
-              class="navbar-profile-row reveal-on-hover hover-bg-hover flex-align-center border-radius-sm gap-6px p-4px"
+              class="navbar-profile-row reveal-on-hover hover-bg-hover flex-align-center border-radius-10px gap-6px p-4px"
               :class="{ 'bg-primary-a08': p.id === activeProfileId }"
               role="menuitem"
             >
-              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-sm py-4px px-8px transition-all-015 text-left w-full min-w-0">
+              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-015 text-left w-full min-w-0">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
                 <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
-              <button type="button" class="reveal-target hover-bg-ios-red-a10-color-error h-26px flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="reveal-target hover-bg-ios-red-a10-color-error h-26px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
@@ -209,7 +209,7 @@
           </UiMenuItem>
 
           <div v-if="creatingProfile" class="navbar-profile-create flex flex-column mt-6px pt-8px gap-6px border-top-05-border-light">
-            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-sm" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus placeholder-tertiary-a60" />
+            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus placeholder-tertiary-a60" />
             <div class="navbar-profile-create-actions flex gap-6px">
               <UiButton variant="primary" class="flex-1" @click="confirmCreateProfile">
                 Create
@@ -241,37 +241,37 @@
           </p>
           
           <!-- Password required for decryption notice -->
-          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
             <div class="navbar-export-field flex flex-column gap-4px">
               <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Wallet Password</label>
               <input 
                 type="password" 
                 v-model="exportPassword" 
                 placeholder="Enter your wallet password"
-                class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
             </div>
             
-            <div class="hover-bg-hover mt-12px border-radius-sm py-8px px-10px transition-bg-015">
+            <div class="hover-bg-hover mt-12px border-radius-10px py-8px px-10px transition-bg-015">
               <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
             </div>
           </div>
           
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!exportRequiresPassword">
-            <div class="hover-bg-hover border-radius-sm py-8px px-10px transition-bg-015">
+            <div class="hover-bg-hover border-radius-10px py-8px px-10px transition-bg-015">
               <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
             </div>
             
-            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
               <div class="navbar-export-field flex flex-column gap-4px">
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Password</label>
                 <input 
                   type="password" 
                   v-model="exportPassword" 
                   placeholder="Enter password (min 6 characters)"
-                  class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 />
               </div>
               <div class="navbar-export-field flex flex-column gap-4px">
@@ -280,14 +280,14 @@
                   type="password" 
                   v-model="exportPasswordConfirm" 
                   placeholder="Confirm password"
-                  class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
               </div>
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-sm text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ exportError }}
           </div>
           
@@ -310,7 +310,7 @@
           <div class="navbar-import-mode-switch gap-8px mb-16px grid grid-cols-2-minmax0">
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
               :class="{ 'bg-primary-a08 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
               @click="setImportMode('file')"
             >
@@ -318,7 +318,7 @@
             </button>
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-md color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
+              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-015 py-10px px-12px"
               :class="{ 'bg-primary-a08 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
@@ -327,7 +327,7 @@
           </div>
 
           <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-12px">
-            <p class="navbar-import-mode-copy m-0px border-radius-md color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
+            <p class="navbar-import-mode-copy m-0px border-radius-12px color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
               Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
@@ -354,7 +354,7 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="navbar-import-source-summary flex flex-column border-radius-md color-text-secondary text-12px gap-4px bg-secondary py-12px px-14px border-05-light"
+              class="navbar-import-source-summary flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-14px border-05-light"
             >
               <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-145 break-word">
                 Profile source: {{ manualImportProfileSourceName }}
@@ -364,13 +364,13 @@
               </div>
             </div>
 
-            <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+            <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
               <div class="navbar-export-field flex flex-column gap-4px">
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Profile Name</label>
                 <input
                   v-model="manualImportName"
                   type="text"
-                  class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                   placeholder="Enter profile name"
                 />
               </div>
@@ -379,7 +379,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
@@ -389,7 +389,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -399,7 +399,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -415,7 +415,7 @@
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-sm text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ importModalError }}
           </div>
 
@@ -441,20 +441,20 @@
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
           
-          <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-md mt-12px p-14px bg-secondary border-05-light">
+          <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
             <div class="navbar-export-field flex flex-column gap-4px">
               <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Backup Password</label>
               <input 
                 type="password" 
                 v-model="importPassword" 
                 placeholder="Enter backup password"
-                class="navbar-export-input border-radius-sm color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-sm text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
             {{ importError }}
           </div>
           

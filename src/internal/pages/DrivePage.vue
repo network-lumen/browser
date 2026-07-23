@@ -18,7 +18,7 @@
             ></span>
             <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
           </UiButton>
-          <UiButton variant="icon" icon-radius-class="border-radius-sm"
+          <UiButton variant="icon" icon-radius-class="border-radius-10px"
             @click.stop="openLocalDetails"
             title="Local details" class="drivepage-hosting-details hover-border-primary-a15 flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
@@ -30,7 +30,7 @@
         <div class="drivepage-hosting-subheader flex-align-center-justify-space-between mt-4px">
           <span class="drivepage-hosting-subheader-title txt-weight-medium color-text-tertiary text-uppercase text-11px letter-spacing-005em">Subscriptions</span>
           <UiButton variant="none" type="button"
-            @click="openPlansModal" class="drivepage-hosting-subheader-action bg-transparent border-none cursor-pointer color-primary text-11px fw-500 py-4px px-8px border-radius-sm background-primary-a15-hover">
+            @click="openPlansModal" class="drivepage-hosting-subheader-action bg-transparent border-none cursor-pointer color-primary text-11px fw-500 py-4px px-8px border-radius-10px background-primary-a15-hover">
             Cloud
           </UiButton>
         </div>
@@ -64,7 +64,7 @@
                 }}</UiTag>
               </span>
           </UiButton>
-          <UiButton variant="icon" icon-radius-class="border-radius-sm"
+          <UiButton variant="icon" icon-radius-class="border-radius-10px"
             @click.stop="openGatewayDetails(sub.gatewayId)"
             title="Subscription details" class="drivepage-hosting-details hover-border-primary-a15 flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
@@ -447,26 +447,26 @@
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
           <div class="drivepage-list-actions reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
-            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
+            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
               @click.stop="openEntryDetails(file)" class="active-scale-98">
               <TableProperties :size="14" />
             </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Download"
+            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Download"
               @click.stop="downloadFile(file)" class="active-scale-98">
               <Download :size="14" />
             </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" v-if="!isDirEntry(file) && isVideoFile(file.name)"
+            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" v-if="!isDirEntry(file) && isVideoFile(file.name)"
               title="Convert to HLS"
               :disabled="converting || uploading"
               @click.stop="convertToHls(file)" class="active-scale-98">
               <Clapperboard :size="14" />
             </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Share"
+            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Share"
               @click.stop="copyLumenLinkFor(file)" class="active-scale-98">
               <Share2 :size="14" />
             </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="p-4px" title="Remove"
+            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Remove"
               @click.stop="removeFile(file)" class="active-scale-98 background-error-red-hover bg-ios-red-a10 color-error">
               <Trash2 :size="14" />
             </UiButton>

@@ -7,7 +7,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">General</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'appearance' }"
             @click="currentView = 'appearance'"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'content' }"
             @click="currentView = 'content'"
           >
@@ -25,7 +25,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'network' }"
             @click="currentView = 'network'"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privacy' }"
             @click="currentView = 'privacy'"
           >
@@ -43,7 +43,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'security' }"
             @click="currentView = 'security'"
           >
@@ -52,7 +52,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'profiles' }"
             @click="currentView = 'profiles'"
           >
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privatecloud' }"
             @click="currentView = 'privatecloud'"
           >
@@ -74,7 +74,7 @@
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Advanced</span>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'troubleshooting' }"
             @click="currentView = 'troubleshooting'"
           >
@@ -83,7 +83,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'advanced' }"
             @click="currentView = 'advanced'"
           >
@@ -92,7 +92,7 @@
           </button>
           <button
             type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-sm w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
+            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-015"
             :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'about' }"
             @click="currentView = 'about'"
           >
@@ -568,7 +568,7 @@
             <label
               v-for="p in profiles"
               :key="p.id"
-              class="hover-bg-hover transition-bg-fast flex-align-center gap-12px border-radius-md cursor-pointer py-12px px-16px cursor-select-none"
+              class="hover-bg-hover transition-bg-fast flex-align-center gap-12px border-radius-12px cursor-pointer py-12px px-16px cursor-select-none"
               :class="{ 'bg-ios-blue-a12': p.id === activeProfileId }"
             >
               <input
@@ -911,10 +911,10 @@
           <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
             The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
           </p>
-          <p v-if="troubleshootingDir" class="settingspage-troubleshooting-path border-radius-md color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
+          <p v-if="troubleshootingDir" class="settingspage-troubleshooting-path border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
             Logs folder: {{ troubleshootingDir }}
           </p>
-          <p v-if="troubleshootingReportPath" class="settingspage-troubleshooting-path border-radius-md color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
+          <p v-if="troubleshootingReportPath" class="settingspage-troubleshooting-path border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
             Debug report: {{ troubleshootingReportPath }}
           </p>
         </div>
@@ -984,7 +984,7 @@
                   </div>
                 </div>
                 <UiEmptyState v-else title="No gateway IDs configured" description="Add your first gateway ID below">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-30">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-40">
                     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                     <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
                     <line x1="6" y1="6" x2="6.01" y2="6"></line>
@@ -1066,7 +1066,7 @@
       <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card p-48px border-1-border-color">
           <div class="settingspage-about-logo mb-24px">
-            <div class="flex-align-justify-center size-64px border-radius-xl bg-gradient-primary color-white shadow-primary">
+            <div class="flex-align-justify-center size-64px border-radius-20px bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />
             </div>
           </div>
