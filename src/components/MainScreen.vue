@@ -3,13 +3,13 @@
     <UiToast />
     <div class="app overflow-hidden">
       <div
-        class="h-200 pr-24px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        class="h-32px pr-24px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
         ref="hdr"
       >
         <div
           v-for="(t, i) in tabs"
           :key="t.id"
-          class="mainscreen-tab tone-tab-active reveal-on-active relative h-200 min-w-1500 max-w-3000 flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
+          class="mainscreen-tab tone-tab-active reveal-on-active relative h-32px min-w-240px max-w-480px flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
           :data-id="t.id"
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
@@ -54,11 +54,11 @@
           <Plus :size="16" />
         </UiButton>
 
-        <div class="w-full appregion-drag h-200"></div>
+        <div class="w-full appregion-drag h-32px"></div>
 
         <div
           v-if="isDragging"
-          class="drop-indicator cursor-events-none bg-blue-sky absolute bottom-0 top-25 w-25"
+          class="drop-indicator cursor-events-none bg-blue-sky absolute bottom-0 top-4px w-4px"
           :style="{ left: dropLeft + 'px' }"
         ></div>
       </div>

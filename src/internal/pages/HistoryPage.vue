@@ -53,13 +53,13 @@
         <section v-for="group in groupedEntries" :key="group.label" class="history-group p-16px border-default bg-card shadow-sm border-radius-24px">
           <div class="history-group-head flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
             <h2 class="color-text-primary m-0px history-group-head-h2 text-16px">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong h-28px py-0px px-8px bg-fill-secondary text-12px min-w-24rem-badge">{{ group.entries.length }}</span>
+            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong h-28px py-0px px-8px bg-fill-secondary text-12px min-w-24px">{{ group.entries.length }}</span>
           </div>
 
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
               <button class="color-inherit flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar h-44px flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-270" :style="avatarToneStyle(entry.kind)">
+                <span class="history-item-avatar h-44px flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-44px" :style="avatarToneStyle(entry.kind)">
                   {{ entry.monogram }}
                 </span>
 
@@ -76,7 +76,7 @@
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px transition-all-fast w-200 hover-color-error background-fill-error-hover"
+                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-32px border-radius-10px transition-all-fast w-32px hover-color-error background-fill-error-hover"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >

@@ -15,13 +15,16 @@
  * as single classes here -- use the axis classes below instead (e.g. `py-10px
  * px-12px` instead of a bespoke `.padding-62-75`), which is the actual Tailwind
  * idiom: composable single-axis utilities instead of one class per pair.
+ *
+ * Each axis only lists the steps actually consumed somewhere in src/ (trimmed
+ * from the full 17-step ladder down to real usage, same treatment already
+ * applied to gap-x-/gap-y- below) -- if a template needs a step that's
+ * missing, add it back rather than reaching for a bespoke one-off class.
  * ========================================================================== */
 
 /* ---- Spacing: padding ---- */
 .p-0px { padding: 0rem; }
-.p-2px { padding: 0.125rem; }
 .p-4px { padding: 0.25rem; }
-.p-6px { padding: 0.375rem; }
 .p-8px { padding: 0.5rem; }
 .p-10px { padding: 0.625rem; }
 .p-12px { padding: 0.75rem; }
@@ -31,28 +34,19 @@
 .p-24px { padding: 1.5rem; }
 .p-28px { padding: 1.75rem; }
 .p-32px { padding: 2rem; }
-.p-40px { padding: 2.5rem; }
 .p-48px { padding: 3rem; }
-.p-64px { padding: 4rem; }
-.p-80px { padding: 5rem; }
 
 .px-0px { padding-left: 0rem; padding-right: 0rem; }
 .px-2px { padding-left: 0.125rem; padding-right: 0.125rem; }
-.px-4px { padding-left: 0.25rem; padding-right: 0.25rem; }
 .px-6px { padding-left: 0.375rem; padding-right: 0.375rem; }
 .px-8px { padding-left: 0.5rem; padding-right: 0.5rem; }
 .px-10px { padding-left: 0.625rem; padding-right: 0.625rem; }
 .px-12px { padding-left: 0.75rem; padding-right: 0.75rem; }
-.px-14px { padding-left: 0.875rem; padding-right: 0.875rem; }
 .px-16px { padding-left: 1rem; padding-right: 1rem; }
 .px-20px { padding-left: 1.25rem; padding-right: 1.25rem; }
 .px-24px { padding-left: 1.5rem; padding-right: 1.5rem; }
-.px-28px { padding-left: 1.75rem; padding-right: 1.75rem; }
 .px-32px { padding-left: 2rem; padding-right: 2rem; }
 .px-40px { padding-left: 2.5rem; padding-right: 2.5rem; }
-.px-48px { padding-left: 3rem; padding-right: 3rem; }
-.px-64px { padding-left: 4rem; padding-right: 4rem; }
-.px-80px { padding-left: 5rem; padding-right: 5rem; }
 
 .py-0px { padding-top: 0rem; padding-bottom: 0rem; }
 .py-2px { padding-top: 0.125rem; padding-bottom: 0.125rem; }
@@ -70,169 +64,72 @@
 .py-40px { padding-top: 2.5rem; padding-bottom: 2.5rem; }
 .py-48px { padding-top: 3rem; padding-bottom: 3rem; }
 .py-64px { padding-top: 4rem; padding-bottom: 4rem; }
-.py-80px { padding-top: 5rem; padding-bottom: 5rem; }
 
 .pt-0px { padding-top: 0rem; }
 .pt-2px { padding-top: 0.125rem; }
 .pt-4px { padding-top: 0.25rem; }
 .pt-6px { padding-top: 0.375rem; }
 .pt-8px { padding-top: 0.5rem; }
-.pt-10px { padding-top: 0.625rem; }
 .pt-12px { padding-top: 0.75rem; }
 .pt-14px { padding-top: 0.875rem; }
 .pt-16px { padding-top: 1rem; }
 .pt-20px { padding-top: 1.25rem; }
 .pt-24px { padding-top: 1.5rem; }
-.pt-28px { padding-top: 1.75rem; }
 .pt-32px { padding-top: 2rem; }
-.pt-40px { padding-top: 2.5rem; }
-.pt-48px { padding-top: 3rem; }
-.pt-64px { padding-top: 4rem; }
-.pt-80px { padding-top: 5rem; }
 
 .pr-0px { padding-right: 0rem; }
 .pr-2px { padding-right: 0.125rem; }
 .pr-4px { padding-right: 0.25rem; }
-.pr-6px { padding-right: 0.375rem; }
 .pr-8px { padding-right: 0.5rem; }
-.pr-10px { padding-right: 0.625rem; }
 .pr-12px { padding-right: 0.75rem; }
 .pr-14px { padding-right: 0.875rem; }
 .pr-16px { padding-right: 1rem; }
 .pr-20px { padding-right: 1.25rem; }
 .pr-24px { padding-right: 1.5rem; }
-.pr-28px { padding-right: 1.75rem; }
-.pr-32px { padding-right: 2rem; }
-.pr-40px { padding-right: 2.5rem; }
 .pr-48px { padding-right: 3rem; }
 .pr-64px { padding-right: 4rem; }
-.pr-80px { padding-right: 5rem; }
 
-.pb-0px { padding-bottom: 0rem; }
-.pb-2px { padding-bottom: 0.125rem; }
 .pb-4px { padding-bottom: 0.25rem; }
-.pb-6px { padding-bottom: 0.375rem; }
 .pb-8px { padding-bottom: 0.5rem; }
-.pb-10px { padding-bottom: 0.625rem; }
 .pb-12px { padding-bottom: 0.75rem; }
 .pb-14px { padding-bottom: 0.875rem; }
 .pb-16px { padding-bottom: 1rem; }
 .pb-20px { padding-bottom: 1.25rem; }
 .pb-24px { padding-bottom: 1.5rem; }
-.pb-28px { padding-bottom: 1.75rem; }
 .pb-32px { padding-bottom: 2rem; }
-.pb-40px { padding-bottom: 2.5rem; }
-.pb-48px { padding-bottom: 3rem; }
-.pb-64px { padding-bottom: 4rem; }
 .pb-80px { padding-bottom: 5rem; }
 
 .pl-0px { padding-left: 0rem; }
 .pl-2px { padding-left: 0.125rem; }
 .pl-4px { padding-left: 0.25rem; }
-.pl-6px { padding-left: 0.375rem; }
 .pl-8px { padding-left: 0.5rem; }
-.pl-10px { padding-left: 0.625rem; }
 .pl-12px { padding-left: 0.75rem; }
 .pl-14px { padding-left: 0.875rem; }
 .pl-16px { padding-left: 1rem; }
 .pl-20px { padding-left: 1.25rem; }
 .pl-24px { padding-left: 1.5rem; }
-.pl-28px { padding-left: 1.75rem; }
-.pl-32px { padding-left: 2rem; }
 .pl-40px { padding-left: 2.5rem; }
-.pl-48px { padding-left: 3rem; }
-.pl-64px { padding-left: 4rem; }
-.pl-80px { padding-left: 5rem; }
 
 /* ---- Spacing: margin ---- */
 .m-0px { margin: 0rem; }
-.m-2px { margin: 0.125rem; }
 .m-4px { margin: 0.25rem; }
-.m-6px { margin: 0.375rem; }
-.m-8px { margin: 0.5rem; }
-.m-10px { margin: 0.625rem; }
-.m-12px { margin: 0.75rem; }
-.m-14px { margin: 0.875rem; }
-.m-16px { margin: 1rem; }
-.m-20px { margin: 1.25rem; }
-.m-24px { margin: 1.5rem; }
-.m-28px { margin: 1.75rem; }
-.m-32px { margin: 2rem; }
-.m-40px { margin: 2.5rem; }
-.m-48px { margin: 3rem; }
-.m-64px { margin: 4rem; }
-.m-80px { margin: 5rem; }
 
-.mx-0px { margin-left: 0rem; margin-right: 0rem; }
-.mx-2px { margin-left: 0.125rem; margin-right: 0.125rem; }
-.mx-4px { margin-left: 0.25rem; margin-right: 0.25rem; }
-.mx-6px { margin-left: 0.375rem; margin-right: 0.375rem; }
-.mx-8px { margin-left: 0.5rem; margin-right: 0.5rem; }
-.mx-10px { margin-left: 0.625rem; margin-right: 0.625rem; }
-.mx-12px { margin-left: 0.75rem; margin-right: 0.75rem; }
-.mx-14px { margin-left: 0.875rem; margin-right: 0.875rem; }
-.mx-16px { margin-left: 1rem; margin-right: 1rem; }
-.mx-20px { margin-left: 1.25rem; margin-right: 1.25rem; }
 .mx-24px { margin-left: 1.5rem; margin-right: 1.5rem; }
-.mx-28px { margin-left: 1.75rem; margin-right: 1.75rem; }
-.mx-32px { margin-left: 2rem; margin-right: 2rem; }
-.mx-40px { margin-left: 2.5rem; margin-right: 2.5rem; }
-.mx-48px { margin-left: 3rem; margin-right: 3rem; }
-.mx-64px { margin-left: 4rem; margin-right: 4rem; }
-.mx-80px { margin-left: 5rem; margin-right: 5rem; }
 
 .my-0px { margin-top: 0rem; margin-bottom: 0rem; }
-.my-2px { margin-top: 0.125rem; margin-bottom: 0.125rem; }
-.my-4px { margin-top: 0.25rem; margin-bottom: 0.25rem; }
-.my-6px { margin-top: 0.375rem; margin-bottom: 0.375rem; }
-.my-8px { margin-top: 0.5rem; margin-bottom: 0.5rem; }
-.my-10px { margin-top: 0.625rem; margin-bottom: 0.625rem; }
-.my-12px { margin-top: 0.75rem; margin-bottom: 0.75rem; }
-.my-14px { margin-top: 0.875rem; margin-bottom: 0.875rem; }
-.my-16px { margin-top: 1rem; margin-bottom: 1rem; }
-.my-20px { margin-top: 1.25rem; margin-bottom: 1.25rem; }
-.my-24px { margin-top: 1.5rem; margin-bottom: 1.5rem; }
-.my-28px { margin-top: 1.75rem; margin-bottom: 1.75rem; }
-.my-32px { margin-top: 2rem; margin-bottom: 2rem; }
-.my-40px { margin-top: 2.5rem; margin-bottom: 2.5rem; }
-.my-48px { margin-top: 3rem; margin-bottom: 3rem; }
-.my-64px { margin-top: 4rem; margin-bottom: 4rem; }
-.my-80px { margin-top: 5rem; margin-bottom: 5rem; }
 
 .mt-0px { margin-top: 0rem; }
-.mt-2px { margin-top: 0.125rem; }
 .mt-4px { margin-top: 0.25rem; }
 .mt-8px { margin-top: 0.5rem; }
 .mt-12px { margin-top: 0.75rem; }
 .mt-16px { margin-top: 1rem; }
 .mt-24px { margin-top: 1.5rem; }
-.mt-28px { margin-top: 1.75rem; }
 .mt-32px { margin-top: 2rem; }
-.mt-40px { margin-top: 2.5rem; }
-.mt-48px { margin-top: 3rem; }
-.mt-64px { margin-top: 4rem; }
-.mt-80px { margin-top: 5rem; }
 
-.mr-0px { margin-right: 0rem; }
-.mr-2px { margin-right: 0.125rem; }
 .mr-4px { margin-right: 0.25rem; }
-.mr-6px { margin-right: 0.375rem; }
 .mr-8px { margin-right: 0.5rem; }
-.mr-10px { margin-right: 0.625rem; }
-.mr-12px { margin-right: 0.75rem; }
-.mr-14px { margin-right: 0.875rem; }
-.mr-16px { margin-right: 1rem; }
-.mr-20px { margin-right: 1.25rem; }
-.mr-24px { margin-right: 1.5rem; }
-.mr-28px { margin-right: 1.75rem; }
-.mr-32px { margin-right: 2rem; }
-.mr-40px { margin-right: 2.5rem; }
-.mr-48px { margin-right: 3rem; }
-.mr-64px { margin-right: 4rem; }
-.mr-80px { margin-right: 5rem; }
 
 .mb-0px { margin-bottom: 0rem; }
-.mb-2px { margin-bottom: 0.125rem; }
 .mb-4px { margin-bottom: 0.25rem; }
 .mb-8px { margin-bottom: 0.5rem; }
 .mb-12px { margin-bottom: 0.75rem; }
@@ -240,29 +137,11 @@
 .mb-18px { margin-bottom: 1.125rem; }
 .mb-20px { margin-bottom: 1.25rem; }
 .mb-24px { margin-bottom: 1.5rem; }
-.mb-28px { margin-bottom: 1.75rem; }
 .mb-32px { margin-bottom: 2rem; }
-.mb-48px { margin-bottom: 3rem; }
-.mb-64px { margin-bottom: 4rem; }
-.mb-80px { margin-bottom: 5rem; }
 
-.ml-0px { margin-left: 0rem; }
-.ml-2px { margin-left: 0.125rem; }
 .ml-4px { margin-left: 0.25rem; }
-.ml-6px { margin-left: 0.375rem; }
 .ml-8px { margin-left: 0.5rem; }
-.ml-10px { margin-left: 0.625rem; }
-.ml-12px { margin-left: 0.75rem; }
-.ml-14px { margin-left: 0.875rem; }
-.ml-16px { margin-left: 1rem; }
-.ml-20px { margin-left: 1.25rem; }
 .ml-24px { margin-left: 1.5rem; }
-.ml-28px { margin-left: 1.75rem; }
-.ml-32px { margin-left: 2rem; }
-.ml-40px { margin-left: 2.5rem; }
-.ml-48px { margin-left: 3rem; }
-.ml-64px { margin-left: 4rem; }
-.ml-80px { margin-left: 5rem; }
 
 .ml-n2px { margin-left: -0.125rem; }
 .ml-n8px { margin-left: -0.5rem; }

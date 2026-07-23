@@ -684,7 +684,7 @@
                   v-model="assetTransferForm.amount"
                   placeholder="0.000000"
                   @input="validateAssetTransferAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only placeholder-tertiary" />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-100">{{ assetTransferContext.displaySymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetTransferContext.displaySymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px">
                 Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
@@ -851,7 +851,7 @@
                   v-model="sendForm.amount"
                   placeholder="0.000000"
                   @input="validateAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px background-bg-secondary-read-only placeholder-tertiary" />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-100">{{ sendAssetSymbol }}</span>
+                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ sendAssetSymbol }}</span>
               </div>
               <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px" v-if="sendAvailableLabel">
                 Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
