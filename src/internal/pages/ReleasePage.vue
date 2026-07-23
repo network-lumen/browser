@@ -184,30 +184,30 @@
           <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Action</span>
-              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-12px color-text-primary txt-md border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
             </label>
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Deposit (LMN)</span>
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="relpage-input focus-outline-none focus-ring focus-shadow" />
             </label>
           </div>
 
           <label class="relpage-field flex flex-column gap-6px">
             <span class="relpage-label text-12px color-text-tertiary">Title</span>
-            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.title" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.title" class="relpage-input focus-outline-none focus-ring focus-shadow" />
           </label>
 
           <label class="relpage-field flex flex-column gap-6px">
             <span class="relpage-label text-12px color-text-tertiary">Summary</span>
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.summary" rows="3" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.summary" rows="3" class="relpage-input focus-outline-none focus-ring focus-shadow" />
           </label>
 
           <label v-if="daoForm.kind === 'reject'" class="relpage-field flex flex-column gap-6px">
             <span class="relpage-label text-12px color-text-tertiary">Reason (optional)</span>
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="relpage-input focus-outline-none focus-ring focus-shadow" />
           </label>
         </div>
 
@@ -235,7 +235,7 @@
 
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">GitHub release URL</span>
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="githubReleaseUrl"
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="githubReleaseUrl"
                
                 placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
               <span class="relpage-muted text-12px color-text-tertiary fw-500">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
@@ -245,17 +245,17 @@
           <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Version</span>
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="relpage-input focus-outline-none focus-ring focus-shadow" />
             </label>
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Channel</span>
-              <select v-model="draft.channel" class="relpage-input w-full border-radius-12px color-text-primary txt-md border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="draft.channel" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </label>
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Supersedes (IDs)</span>
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="relpage-input focus-outline-none focus-ring focus-shadow" />
             </label>
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Emergency flag</span>
@@ -265,7 +265,7 @@
 
           <label class="relpage-field flex flex-column gap-6px">
             <span class="relpage-label text-12px color-text-tertiary">Release notes</span>
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="relpage-input focus-outline-none focus-ring focus-shadow" />
             <span class="relpage-muted text-12px color-text-tertiary fw-500">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
           </label>
 
@@ -292,32 +292,32 @@
               <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">Platform</span>
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">Kind</span>
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
               </div>
 
               <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">CID</span>
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">SHA-256</span>
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
                 <label class="relpage-field flex flex-column gap-6px">
                   <span class="relpage-label text-12px color-text-tertiary">Size (bytes)</span>
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="relpage-input focus-outline-none focus-ring focus-shadow" />
                 </label>
               </div>
 
               <label class="relpage-field flex flex-column gap-6px">
                 <span class="relpage-label text-12px color-text-tertiary">URLs (one per line)</span>
-                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="txt-md" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
+                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
               </label>
             </div>
           </div>
