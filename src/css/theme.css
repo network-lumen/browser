@@ -378,16 +378,3 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transition: filter 180ms ease, transform 180ms ease;
 }
 
-/* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
-.details-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.625rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-.details-row:last-child { border-bottom: none; }
-.details-label { color: var(--text-secondary); font-size: 0.875rem; }
-.details-value { color: var(--text-primary); font-size: 0.9375rem; font-weight: 500; }
-.details-section-header h4 { margin: 0; font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); }
