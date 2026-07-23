@@ -211,6 +211,11 @@
   --shadow-primary-lg: 0 8px 20px rgba(10, 132, 255, 0.45);
   --shadow-focus: 0 0 0 4px rgba(10, 132, 255, 0.2);
   --backdrop-blur: saturate(180%) blur(20px);
+  --scrollbar-size: 6px;
+  --scrollbar-radius: var(--border-radius-full);
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--fill-secondary);
+  --scrollbar-thumb-hover: var(--fill-primary);
 }
 
 
