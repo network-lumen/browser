@@ -1,5 +1,5 @@
 <template>
-  <section class="max-w-800px my-0px mx-auto bg-white border-radius-20px box-shadow-default p-16px w-full" aria-labelledby="wallet-title">
+  <section class="max-w-800px my-0px mx-auto bg-white border-radius-20px shadow-0-6-20-black-a06 p-16px w-full" aria-labelledby="wallet-title">
     <header class="flex-align-start flex-justify-space-between mb-8px">
       <div class="m-4px flex-align-center gap-8px">
         <div class="flex flex-column gap-0px">
@@ -12,7 +12,7 @@
     <div class="flex flex-column gap-8px">
       <!-- Address -->
       <div
-        class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
+        class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1 flex-align-center"
       >
         <div class="flex flex-align-center gap-8px">
           <div class="text-11px line-height-12 color-gray-blue">Address</div>
@@ -36,7 +36,7 @@
 
       <!-- Balance -->
       <div
-        class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
+        class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1 flex-align-center"
       >
         <div class="flex flex-align-center gap-8px">
           <div class="text-11px line-height-12 color-gray-blue">Balance</div>

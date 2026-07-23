@@ -1,5 +1,5 @@
 <template>
-  <span class="flex-inline-align-center gap-6px py-4px px-10px border-radius-full text-12px border-1-border-color" :class="variantClass[props.variant]"><slot /></span>
+  <span class="flex-inline-align-center gap-6px py-4px px-10px border-radius-full text-12px border-1" :class="variantClass[props.variant]"><slot /></span>
 </template>
 
 <script setup lang="ts">

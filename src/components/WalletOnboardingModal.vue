@@ -70,7 +70,7 @@
                 @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
-            <div v-if="passwordError" class="walletonboard-error-message block text-11px line-height-12 color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="passwordError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ passwordError }}
             </div>
           </div>
@@ -95,7 +95,7 @@
                 @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
-            <div v-if="profileNameError" class="walletonboard-error-message block text-11px line-height-12 color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="profileNameError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ profileNameError }}
             </div>
           </div>
@@ -124,7 +124,7 @@
               </div>
 
               <div v-else-if="walletError" class="text-center">
-                <AlertCircle :size="48" class="color-red-base" />
+                <AlertCircle :size="48" class="color-error" />
                 <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Wallet Creation Failed</h3>
                 <p class="text-12px line-height-12 color-gray-blue mt-8px m-0px">
                   {{ walletError }}
@@ -156,7 +156,7 @@
               </div>
             </div>
 
-            <div v-if="backupError" class="walletonboard-error-message block text-11px line-height-12 color-red-base mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="backupError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
               {{ backupError }}
             </div>
 

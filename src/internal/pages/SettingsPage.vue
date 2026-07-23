@@ -320,7 +320,7 @@
             Current idle connection target:
             <span class="settingspage-mono-path break-all mono">{{ networkModeSummary }}</span>
           </p>
-          <p v-if="networkSettingsError" class="settingspage-setting-hint color-red-base text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="networkSettingsError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ networkSettingsError }}
           </p>
         </div>
@@ -627,7 +627,7 @@
               </UiButton>
             </div>
           </UiCard>
-          <p v-if="profileRenameError" class="settingspage-setting-hint color-red-base text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="profileRenameError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ profileRenameError }}
           </p>
 
@@ -668,7 +668,7 @@
               </UiButton>
             </div>
           </UiCard>
-          <p v-if="profileAvatarError" class="settingspage-setting-hint color-red-base text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="profileAvatarError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ profileAvatarError }}
           </p>
           <p v-if="profiles.length" class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
@@ -765,7 +765,7 @@
             </div>
           </UiCard>
 
-          <div v-if="devSettingsError" class="settingspage-setting-hint color-red-base text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <div v-if="devSettingsError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ devSettingsError }}
           </div>
 
@@ -836,7 +836,7 @@
           </div>
           <div
             v-if="lumenDataFolderError"
-            class="settingspage-setting-hint color-red-base text-12px color-text-tertiary mt-8px text-13px mt-4px"
+            class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px"
           >
             {{ lumenDataFolderError }}
           </div>
@@ -1064,7 +1064,7 @@
 
       <!-- About View -->
       <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
-        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card p-48px border-1-border-color">
+        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card p-48px border-1">
           <div class="settingspage-about-logo mb-24px">
             <div class="flex-align-justify-center size-64px border-radius-20px bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />
