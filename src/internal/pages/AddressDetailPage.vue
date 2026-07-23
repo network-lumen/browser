@@ -11,7 +11,7 @@
     </div>
 
     <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-16px min-h-300px">
-      <div class="ring-spinner ring-spinner-lg"></div>
+      <div class="border-radius-full w-40px h-40px border-3-fill-secondary spinner-accent"></div>
       <p>Loading address data...</p>
     </div>
 
