@@ -10,7 +10,7 @@
           <UiEmptyState title="This domain belongs to no one">
             <Tag :size="26" />
             <template #description>
-              <p class="ui-empty-state-description"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+              <p class="m-0px max-w-520px text-14px line-height-15"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
             </template>
             <template #actions>
               <UiButton variant="primary" type="button" @click="goToBuyDomain">
@@ -26,8 +26,8 @@
           <UiEmptyState title="This content isn't available right now">
             <FileQuestion :size="26" />
             <template #description>
-              <p class="ui-empty-state-description">The content couldn't be found. Please try again later.</p>
-              <p class="ui-empty-state-description">
+              <p class="m-0px max-w-520px text-14px line-height-15">The content couldn't be found. Please try again later.</p>
+              <p class="m-0px max-w-520px text-14px line-height-15">
                 If this is your site,
                 <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="underline color-primary cursor-pointer">read the setup guide</UiButton>.
               </p>

@@ -1,8 +1,0 @@
-/* ============================================================================
- * src/css/ui/card.css
- * Backs UiCard.vue. Its whole look (background, border, radius, hover fill,
- * hover border/shadow, transition) comes from generic scale.css/utilities.css
- * classes shared far beyond cards (bg-card, border-default, hover-bg-hover,
- * hover-border-ios-blue, hover-lift-1, shadow-subtle, border-radius-*,
- * transition-all-02) — nothing card-exclusive to keep here.
- * ========================================================================== */

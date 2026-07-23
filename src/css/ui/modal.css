@@ -1,12 +1,12 @@
 /* ============================================================================
  * src/css/ui/modal.css
  * Backs UiModal.vue. Generic shared classes (z-9999, bg-card, border-radius-
- * 16px, max-h-90vh, overflow-hidden, w-min-520px-92vw) stay in utilities.css
- * since other components reuse them too (LumenSiteModalHost, IpfsPage,
- * ReleaseUpdateOverlay all pass their own panel-class using the same w-min-*
- * family) — these three are only ever used in UiModal.vue's own markup.
+ * 16px, max-h-90vh, overflow-hidden, w-min-520px-92vw, backdrop-blur-4) stay
+ * in utilities.css since other components reuse them too (LumenSiteModalHost,
+ * IpfsPage, ReleaseUpdateOverlay all pass their own panel-class using the
+ * same w-min-* family) — these two are only ever used in UiModal.vue's own
+ * markup and don't correspond to any existing utility.
  * ========================================================================== */
 
 .overlay-scrim { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
-.backdrop-blur-4px { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .shadow-modal { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }

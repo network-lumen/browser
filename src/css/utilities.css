@@ -57,6 +57,7 @@
 .backdrop-blur { backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); }
 .backdrop-blur-10 { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .backdrop-blur-16 { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.backdrop-blur-4 { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .backdrop-blur-6 { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .backdrop-blur-8 { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .background-bg-hover-hover:hover { background: var(--bg-hover); }
@@ -214,6 +215,7 @@
 .border-color-ios-blue-focus-within:focus-within { border-color: var(--ios-blue); }
 .border-color-ios-green { border-color: var(--ios-green); }
 .border-color-ios-green-a30 { border-color: rgba(var(--ios-green-rgb), 0.3); }
+.border-color-primary-a15 { border-color: var(--primary-a15); }
 .border-color-primary-a30 { border-color: var(--primary-a30); }
 .border-color-primary-a40-hover:hover { border-color: var(--primary-a40); }
 .border-color-primary-a40-hover-not-disabled-not-active:hover:not(:disabled):not(.active) { border-color: var(--primary-a40); }
@@ -727,6 +729,7 @@
 .size-48px { width: 48px; height: 48px; }
 .size-56px { width: 56px; height: 56px; }
 .size-64px { width: 64px; height: 64px; }
+.size-80px { width: 80px; height: 80px; }
 .slider-thumb-accent::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;

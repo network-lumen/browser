@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="modelValue"
-      class="overlay-scrim backdrop-blur-4px z-9999"
+      class="overlay-scrim backdrop-blur-4 z-9999"
       @click.self="close"
     >
       <div class="bg-card border-radius-16px shadow-modal overflow-hidden flex flex-column max-h-90vh" :class="panelClass" @click.stop>
