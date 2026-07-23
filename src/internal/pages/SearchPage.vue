@@ -29,7 +29,7 @@
           />
           <UiButton
             variant="primary"
-            class="searchpage-search-btn disabled-fade-50"
+            class="searchpage-search-btn hover-lift-2-scale-102-enabled disabled-fade-50"
             type="button"
             @click="submit"
             :disabled="loading"
@@ -42,7 +42,7 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="searchpage-pill pill-sites fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="searchpage-pill hover-lift-2-enabled-not-active pill-sites fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -52,7 +52,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="searchpage-pill fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="searchpage-pill hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -62,7 +62,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="searchpage-pill fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="searchpage-pill hover-lift-2-enabled-not-active fw-500 txt-sm disabled-fade-40 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active background-bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -135,11 +135,11 @@
         <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
          
-          :data-result-index="idx" class="searchpage-image-card overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
+          :data-result-index="idx" class="searchpage-image-card hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
-            class="searchpage-image-save-btn top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
-            :class="{ 'searchpage-saved bg-accent border-color-accent color-white': isPinnedImage(r) }"
+            class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-2 right-50 hover-color-accent hover-border-primary-a30"
+            :class="{ 'bg-accent border-color-accent color-white hover-bg-border-color-error': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
           >
@@ -239,13 +239,13 @@
           :data-result-index="idx"
         >
           <button
-            class="searchpage-result-card reveal-on-hover flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
+            class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
             :class="[ r.media ? `media-${r.media}` : '', selectedType === 'all' && r.media === 'image' ? 'searchpage-explore-image p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
           >
             <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
-            <div class="searchpage-result-icon flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :class="`searchpage-icon-${r.kind}`">
+            <div class="searchpage-result-icon reveal-icon-target flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :class="`searchpage-icon-${r.kind}`">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -292,7 +292,7 @@
               </div>
               <div
                 v-if="displayTitle(r)"
-                class="searchpage-result-title transition-color-02 m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
+                class="searchpage-result-title reveal-color-accent-target transition-color-02 m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
                 :class="{ 'text-15px italic opacity-70 letter-spacing-0': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
@@ -325,18 +325,18 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
+                  class="searchpage-badge reveal-badge-target txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap opacity-85"
+                  class="searchpage-badge reveal-badge-target searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap opacity-85"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
               </div>
             </div>
-            <ArrowUpRight :size="18" class="searchpage-result-open color-text-secondary flex-0-0-auto mt-4px transition-all-03 opacity-50" />
+            <ArrowUpRight :size="18" class="reveal-open-target color-text-secondary flex-0-0-auto mt-4px transition-all-03 opacity-50" />
           </button>
         </li>
       </ul>

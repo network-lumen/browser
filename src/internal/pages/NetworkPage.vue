@@ -67,23 +67,23 @@
 
         <div class="lsb-section flex flex-column gap-2px">
           <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Node Info</span>
-          <div class="netpage-node-detail flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
+          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Chain ID</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">lumen-1</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
+          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Network</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">Mainnet</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
+          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">SDK</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">v0.47.0</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
+          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Peers</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">{{ peers }}</span>
           </div>
-          <div class="netpage-node-detail flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
+          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Uptime</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">{{ uptime }}</span>
           </div>
@@ -212,7 +212,7 @@
           <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Recent Blocks</h2>
           <div class="netpage-blocks-list flex flex-column gap-8px mt-16px flex-1">
             <UiCard
-              class="netpage-block-card flex-align-center-justify-space-between cursor-pointer min-h-64px"
+              class="hover-translate-x-4px flex-align-center-justify-space-between cursor-pointer min-h-64px"
               bg-class="bg-secondary"
               border-class="border-1"
               radius="10px"

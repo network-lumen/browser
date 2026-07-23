@@ -184,7 +184,7 @@
                 <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
-              <button type="button" class="navbar-profile-row-delete reveal-target h-26px flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="reveal-target hover-bg-ios-red-a10-color-error h-26px flex-inline-align-justify-center border-radius-sm cursor-pointer color-text-tertiary border-none bg-transparent transition-all-015 opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>

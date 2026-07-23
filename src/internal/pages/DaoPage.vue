@@ -266,9 +266,9 @@
             </div>
 
             <div class="daopage-vote-options flex flex-column gap-12px mb-24px">
-              <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'for' }">
+              <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'for' }">
                 <input type="radio" name="vote" value="for" v-model="voteChoice" />
-                <UiCard class="daopage-vote-option-content flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'for' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'for' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon flex-align-justify-center flex-0-0-auto badge-success color-success size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/>
@@ -281,9 +281,9 @@
                 </UiCard>
               </label>
 
-              <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
+              <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
                 <input type="radio" name="vote" value="against" v-model="voteChoice" />
-                <UiCard class="daopage-vote-option-content flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'against' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'against' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-against color-error bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM15 13.59L13.59 15L10 11.41L6.41 15L5 13.59L8.59 10L5 6.41L6.41 5L10 8.59L13.59 5L15 6.41L11.41 10L15 13.59Z"/>
@@ -296,9 +296,9 @@
                 </UiCard>
               </label>
 
-              <label class="daopage-vote-option block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
+              <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
                 <input type="radio" name="vote" value="abstain" v-model="voteChoice" />
-                <UiCard class="daopage-vote-option-content flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'abstain' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'abstain' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-abstain color-text-tertiary bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>

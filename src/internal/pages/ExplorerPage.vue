@@ -263,7 +263,7 @@
                 <UiButton variant="primary" @click="currentView = 'blocks'">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-12px">
-                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="explorer-activity-item cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
+                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a08 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
                   <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -293,7 +293,7 @@
                 <UiButton variant="primary" @click="currentView = 'transactions'">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-12px">
-                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="explorer-activity-item cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
+                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a08 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
                   <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
@@ -327,7 +327,7 @@
             </div>
             <div class="explorer-header-actions flex flex-inline-align-center gap-12px flex-wrap-wrap">
               <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-8px">
-                <select v-model="blockFilter" class="explorer-filter-select cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
+                <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
                   <option value="all">All Blocks</option>
                   <option value="recent">Recent (Last 100)</option>
                   <option value="with-txs">With Transactions</option>
@@ -337,7 +337,7 @@
                   v-model="blockHeightFilter"
                   type="number"
                   placeholder="Filter by height..."
-                  class="explorer-height-filter-input py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
+                  class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
               <span class="explorer-refresh-indicator flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a10 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
@@ -357,7 +357,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row reveal-on-hover hover-bg-secondary last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
+              <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-row reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none cursor-pointer flex-inline-align-center background-black-a04-active" @click="navigateToBlock(block.height)">
                 <div class="explorer-td td-height flex-align-center text-13px text-14px">
                   <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
                     <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -377,9 +377,9 @@
                   </div>
                 </div>
                 <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
-                  <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click.stop="navigateToBlock(block.height)" title="View block details">
-                    <code class="explorer-hash-code color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ block.hash }}</code>
-                    <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click.stop="navigateToBlock(block.height)" title="View block details">
+                    <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ block.hash }}</code>
+                    <svg class="explorer-link-icon reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -412,14 +412,14 @@
               <p class="explorer-transactions-subtitle color-text-tertiary m-0px text-14px">Latest transactions on the lumen-mainnet</p>
             </div>
             <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-8px">
-              <select v-model="txTypeFilter" class="explorer-filter-select cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
                 <option value="delegate">Delegate</option>
                 <option value="vote">Vote</option>
                 <option value="other">Other</option>
               </select>
-              <select v-model="txStatusFilter" class="explorer-filter-select cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="txStatusFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
@@ -428,7 +428,7 @@
                 v-model="txHashFilter"
                 type="text"
                 placeholder="Filter by hash..."
-                class="explorer-hash-filter-input py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
+                class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
           </div>
@@ -452,14 +452,14 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row reveal-on-hover hover-bg-secondary last-border-bottom-none flex-inline-align-center background-black-a04-active">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-row reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
-                  <div class="explorer-hash-container explorer-clickable flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
+                  <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    <code class="explorer-hash-code color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
-                    <svg class="explorer-link-icon color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
+                    <svg class="explorer-link-icon reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
@@ -517,7 +517,7 @@
             </div>
             
             <div class="explorer-table-body flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row hover-bg-secondary last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-row hover-bg-secondary hover-cursor-default last-border-bottom-none validator-row flex-inline-align-center background-black-a04-active">
                 <div class="explorer-td td-rank flex-align-center text-13px text-14px">
                   <span class="explorer-rank-number txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>
@@ -615,7 +615,7 @@
             <button 
               v-for="action in stakeActions" 
               :key="action"
-              class="explorer-tab-btn flex-1 txt-weight-light color-text-secondary cursor-pointer py-8px px-12px bg-transparent border-none border-radius-6px text-13px transition-all-02"
+              class="color-text-primary-hover-not-disabled-not-active flex-1 txt-weight-light color-text-secondary cursor-pointer py-8px px-12px bg-transparent border-none border-radius-6px text-13px transition-all-02"
               :class="{ 'active bg-accent color-white': currentStakeAction === action }"
               @click="currentStakeAction = action as 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'"
             >
@@ -666,10 +666,10 @@
                 </div>
               </div>
               <div class="grid-cols-4-1fr gap-8px grid">
-                <UiButton variant="secondary" @click="setStakePercentage(25)" class="explorer-quick-btn">25%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(50)" class="explorer-quick-btn">50%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(75)" class="explorer-quick-btn">75%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(100)" class="explorer-quick-btn">Max</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(25)" class="hover-bg-primary-a08">25%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(50)" class="hover-bg-primary-a08">50%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(75)" class="hover-bg-primary-a08">75%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(100)" class="hover-bg-primary-a08">Max</UiButton>
               </div>
             </div>
 
@@ -684,7 +684,7 @@
             </div>
 
             <div class="advanced-options" v-if="showAdvancedOptions">
-              <UiButton variant="secondary" @click="showAdvancedOptions = !showAdvancedOptions" class="explorer-advanced-toggle">
+              <UiButton variant="secondary" @click="showAdvancedOptions = !showAdvancedOptions" class="hover-border-accent hover-color-accent">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"/>
                   <path d="M12 1v6m0 6v6"/>
@@ -716,7 +716,7 @@
                     <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
                     <div v-if="txHash" class="explorer-tx-hash-display w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
                       <small class="explorer-tx-hash-display-small block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <UiButton variant="none" @click="viewTransaction(txHash)" class="explorer-tx-hash-link reveal-on-hover flex-align-center gap-8px cursor-pointer w-full">
+                      <UiButton variant="none" @click="viewTransaction(txHash)" class="explorer-tx-hash-link reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
                         <code class="explorer-tx-hash-link-code flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
                         <svg class="explorer-tx-hash-link-svg reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>

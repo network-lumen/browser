@@ -266,10 +266,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .release-update .meta li + li { margin-top: 6px; }
 
 
-.newtab-shortcut-action--danger:hover {
-  color: var(--ios-red);
-  background: rgba(var(--ios-red-rgb), 0.12);
-}
 .searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
 
 /* disabled-fade-* utilities live in utilities.css alongside their -50/-60 siblings. */
@@ -300,11 +296,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 /* RecurringPaymentModal.vue */
 .recurpay-input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
-.walletpage-input-action-btn:hover {
-  background: var(--accent-primary);
-  color: #fff;
-}
-
 
 
 /* ExtensionsPage.vue (Chrome Web Store host — always-dark, theme-independent) */
@@ -313,7 +304,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 }
 
 /* SitePage.vue */
-.gwpage-manage-link:hover { opacity: 0.8; }
 
 /* SubscriptionsView.vue — .paused/.completed are dynamic (:class="payment.status") */
 .subview-payment-card.paused { opacity: 0.7; background: var(--bg-secondary); }
@@ -332,25 +322,11 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   color: #fff;
   transform: translateX(4px);
 }
-.homepage-page-item:hover, .explorer-tx-hash-link:hover {
-  transform: translateX(2px);
-}
 .homepage-action-card:disabled { opacity: 0.55; cursor: not-allowed; }
 .homepage-empty-grid.is-drag-over {
   border-color: var(--accent-primary);
   background: var(--primary-a08);
 }
-.homepage-action-card:hover .homepage-remove-card-btn, .drivepage-list-item:hover .drivepage-list-actions,
-.drivepage-list-item.selected .drivepage-list-actions, .drivepage-list-item.checked .drivepage-list-actions {
-  opacity: 1;
-  pointer-events: auto;
-}
-.homepage-remove-card-btn:hover, .searchpage-image-save-btn.searchpage-saved:hover {
-  background: var(--error-red);
-  border-color: var(--error-red);
-  color: #fff;
-}
-.homepage-action-card:hover .homepage-action-icon { transform: scale(1.03); }
 .homepage-action-icon.drive {
   background: linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%);
   color: #fff;
@@ -380,34 +356,17 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
   color: var(--ios-purple);
 }
-.homepage-action-card:hover .homepage-action-arrow { color: var(--accent-primary); transform: translateX(2px); }
-
 /* MainScreen.vue */
 .main-shell {
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%), linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
 }
 .tab-spinner { --spinner-size: 14px; --spinner-stroke: 1.5px; }
 .tabs-header .mainscreen-tab.active { background: var(--tab-active-bg); z-index: 2; }
-.tabs-header .mainscreen-tab.active .mainscreen-tab-label,
-.explorer-tab-btn:hover:not(.active) {
-  color: var(--text-primary);
-}
-/* Contextual override: an active .button-icon rendered here also becomes
- * text-primary — the base .button-icon rule lives in src/css/ui/button.css. */
-.tabs-header .mainscreen-tab.active .button-icon { color: var(--text-primary); }
-.add-tab-btn:where(:hover, :focus-visible) {
-  background: var(--fill-primary);
-  color: var(--text-primary);
-}
 
 /* NetworkPage.vue — .excellent/.good/.normal are a dynamic 3-way ternary
    (validatorPercent/blockTimeStatus thresholds), left as CSS. */
-.netpage-node-detail:hover { border-left-color: var(--accent-color); }
 .netpage-indicator-fill.excellent { background: var(--ios-green); }
 .netpage-indicator-fill.normal { background: var(--ios-orange); }
-.netpage-block-card:hover {
-  transform: translateX(4px);
-}
 
 /* HelpPage.vue — .searchpage-icon-link/.searchpage-type-* are the dynamic
    SearchPage type/icon enum (bound via computed class helpers), left as CSS. */
@@ -473,10 +432,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 .daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input {
   display: none;
 }
-.daopage-vote-option:hover .daopage-vote-option-content {
-  border-color: var(--border-color);
-  background: var(--bg-secondary);
-}
 
 .error, .walletpage-amount-value.send {
   color: var(--ios-red);
@@ -492,17 +447,10 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
   box-shadow: 0 2px 8px rgba(var(--ios-red-rgb), 0.3);
 }
-.mygw-btn-stop:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--ios-red-rgb), 0.4);
-}
 .mygw-btn-start:disabled, .mygw-btn-stop:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
-}
-.mygw-gateway-card:hover {
-  transform: translateY(-4px);
 }
 .navbar-nav-btn:active:not(:disabled) {
   transform: scale(0.95);
@@ -513,11 +461,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* DomainPage.vue */
-.domainpage-stable-link-label-input:hover, .domainpage-stable-link-label-input:focus {
-  background: var(--card-bg);
-  border-color: var(--border-color);
-  outline: none;
-}
 .domainpage-domain-part { flex: 1.2; }
 .domainpage-ext-part { flex: 0.8; }
 .domainpage-key-input { flex: 0.9; }
@@ -531,15 +474,8 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .drivepage-hls-queue-item.status-failed .drivepage-hls-queue-item-status {
   color: var(--error-red);
 }
-.navbar-profile-row-delete:hover {
-  background: rgba(var(--ios-red-rgb), 0.1);
-  color: var(--error-red);
-}
 
 /* ===== PROFILE MENU ===== */
-.explorer-activity-item:hover, .drivepage-list-item:hover, .explorer-quick-btn:hover {
-  background: var(--primary-a08);
-}
 
 /* Brightness Control */
 .settingspage-brightness-slider::-webkit-slider-thumb {
@@ -660,22 +596,12 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .explorer-table-body { max-height: 600px; }
 .explorer-transactions-table .explorer-table-row { grid-template-columns: 180px 120px 100px 100px 100px 120px; }
-.explorer-hash-container.explorer-clickable:hover .explorer-hash-code {
-  text-decoration: underline;
-}
-.explorer-hash-container:hover .explorer-hash-code { background: var(--primary-a10); color: var(--accent-primary); }
 .explorer-link-icon { opacity: 0.4; }
-.explorer-hash-container:hover .explorer-link-icon { opacity: 1; color: var(--accent-primary); }
-.explorer-clickable:hover, .searchpage-result-card:hover .searchpage-result-title,
-.drivepage-hls-queue-item.status-paused .drivepage-hls-queue-item-status,
-.drivepage-browse-crumbs .drivepage-crumb:hover {
+.drivepage-hls-queue-item.status-paused .drivepage-hls-queue-item-status {
   color: var(--accent-primary);
 }
 
 /* Blocks View - Compact Layout */
-.explorer-filter-select:hover, .explorer-height-filter-input:hover, .explorer-hash-filter-input:hover, .walletpage-filter-select:hover, .walletpage-search-input:hover, .walletpage-filter-select:focus, .walletpage-search-input:focus {
-  border-color: var(--primary, var(--accent-primary));
-}
 .explorer-blocks-view .explorer-table-header, .explorer-blocks-view .explorer-table-row {
   grid-template-columns: 90px 320px 2.2fr 130px 140px;
 }
@@ -689,7 +615,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-validators-table .explorer-table-header, .explorer-validators-table .explorer-table-row {
   grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px;
 }
-.explorer-table-row:hover { cursor: default; }
 .explorer-table-row:active { transform: scale(0.998); }
 .drivepage-action-btn:active {
   transform: scale(0.98);
@@ -715,12 +640,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   cursor: pointer;
   border: none;
 }
-.explorer-advanced-toggle:hover, .walletpage-action-icon.walletpage-asset-refresh-btn:hover,
-.walletpage-action-icon.walletpage-copy-btn:hover, .drivepage-hls-queue-action-btn:hover:not(:disabled),
-.drivepage-hls-queue-clear-btn:hover:not(:disabled) {
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
 /* Transaction Status Popup */
 .explorer-tx-status-popup.processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
 .explorer-tx-status-popup.success { border: 2px solid rgba(var(--ios-green-rgb), 0.5); }
@@ -728,18 +647,11 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 
 /* SearchPage.vue */
-.searchpage-search-btn:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.02);
-}
 .searchpage-search-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .searchpage-pill svg { flex-shrink: 0; transition: transform 0.2s ease; }
 .searchpage-pill:disabled {
   transform: none;
 }
-.searchpage-pill:hover:not(:disabled):not(.active) {
-  transform: translateY(-2px);
-}
-.searchpage-pill:hover:not(:disabled) svg { transform: scale(1.1); }
 .searchpage-pill.active {
   background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
   border-color: transparent;
@@ -749,13 +661,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 .searchpage-pill.active svg { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); }
 
-.searchpage-result-card:hover {
-  transform: translateY(-4px) translateX(4px);
-}
-.searchpage-result-card:hover .searchpage-result-icon {
-  transform: scale(1.05) rotate(5deg);
-  box-shadow: 0 4px 12px var(--primary-a20);
-}
 .searchpage-result-card.searchpage-explore-image .searchpage-result-icon {
   width: 160px;
   height: auto;
@@ -767,10 +672,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-result-card.searchpage-explore-image .searchpage-safe-thumb--compact { border-radius: 0; }
 .searchpage-result-card.searchpage-explore-image .searchpage-result-body { overflow: hidden; }
 .searchpage-result-card.searchpage-explore-image .searchpage-badges { flex-wrap: nowrap; overflow: hidden; }
-.searchpage-result-card.searchpage-explore-image:hover .searchpage-result-icon {
-  transform: none;
-  box-shadow: 0 10px 30px var(--primary-a18);
-}
 
 /* Result type-specific icon colors */
 .searchpage-icon-site {
@@ -803,29 +704,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   transition: filter 180ms ease, transform 180ms ease;
 }
 .searchpage-image-card { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
-.searchpage-image-card:hover {
-  transform: translateY(-6px) scale(1.02);
-}
-.searchpage-image-save-btn:hover {
-  transform: scale(1.06);
-}
 .searchpage-result-desc--placeholder { font-style: italic; opacity: 0.6; }
-.searchpage-result-card:hover .searchpage-result-open {
-  color: var(--accent-primary);
-  transform: translate(4px, -4px) scale(1.1);
-  opacity: 1;
-}
-.searchpage-result-card:hover .searchpage-badge {
-  background: var(--primary-a10);
-  border-color: var(--primary-a30);
-  transform: translateY(-1px);
-}
 
 /* WalletPage.vue */
-.walletpage-quick-btn:not(:disabled):hover {
-  transform: translateY(-6px);
-  border-color: rgba(var(--ios-blue-rgb), 0.5);
-}
 .walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
 .walletpage-dex-item-online { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); }
 .walletpage-dex-item-degraded { border-color: rgba(var(--ios-orange-rgb), 0.35); }
@@ -839,7 +720,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .walletpage-type-badge.publish-release { background: rgba(var(--ios-indigo-rgb), 0.1); color: var(--ios-indigo); }
 .walletpage-type-badge.send { background: rgba(var(--ios-red-rgb), 0.1); color: var(--ios-red); }
 .walletpage-type-badge.receive { background: rgba(var(--ios-green-rgb), 0.1); color: var(--ios-green); }
-.walletpage-action-icon:disabled:hover { transform: none; }
 .walletpage-form-input[readonly] { cursor: not-allowed; }
 .drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
   color: var(--ios-orange);
@@ -861,10 +741,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .details-value.ok { color: var(--ios-green); }
 .details-value.off { color: var(--ios-red); }
 .details-section-header h4 { margin: 0; font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); }
-.drivepage-hosting-row.active, .drivepage-hosting-row:hover {
-  background: var(--primary-a08);
-  border-color: var(--primary-a25);
-}
 .drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
 .drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
 .drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
@@ -897,10 +773,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   font-weight: 600;
 }
 /* Gateway plans modal */
-.drivepage-upload-btn:hover, .drivepage-upload-btn-large:hover {
-  background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%);
-  transform: translateY(-1px);
-}
 
 /* List View */
 .drivepage-list-item.checked { background: var(--primary-a05); }
