@@ -2,25 +2,19 @@
  * src/css/ui/menu-item.css
  * Backs UiMenuItem.vue — a single action row inside a dropdown/context menu
  * panel (the panel itself is a plain UiCard with role="menu"; see NavBar's
- * profile/extensions menus and DrivePage's upload menu).
+ * profile/extensions menus and DrivePage's upload menu). Everything but the
+ * three rules below is composed inline from generic utility classes on the
+ * template (flex-align-center, gap-8px, w-full, py-8px/px-10px, border-none,
+ * bg-transparent, color-text-primary, text-13px, fw-500, text-left, cursor-
+ * pointer, transition-bg-fast). border-radius stays here since utilities.css
+ * has no class wired to --border-radius-sm; the hover/focus-visible/disabled
+ * states stay here since there's no utility for a combined
+ * :where(:hover, :focus-visible) state (the plain hover-*:hover utilities
+ * only fire on mouse hover, which would drop keyboard-focus styling here).
  * ========================================================================== */
 
 .ui-menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 10px;
-  border: none;
   border-radius: var(--border-radius-sm);
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.15s ease;
 }
 
 .ui-menu-item:where(:hover, :focus-visible) {

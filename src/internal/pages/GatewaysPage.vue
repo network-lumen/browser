@@ -21,7 +21,7 @@
     <main class="gwpage-main flex-1 flex flex-column overflow-hidden min-w-0 py-32px px-40px bg-secondary">
       <!-- Header -->
       <UiPageHeader title="My gateways">
-        <p class="ui-page-header-subtitle">Register and update on-chain gateway settings.</p>
+        <p class="mt-4px mb-0px color-text-secondary text-14px">Register and update on-chain gateway settings.</p>
         <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-8px">
           Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
         </p>
