@@ -2,20 +2,20 @@
   <transition name="fade-slide">
     <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-16px fixed p-16px w-min-380px-92vw shadow-0-20-55-rgba-0-0-0-0-18 z-9998 bottom-24px right-24px">
       <header class="flex flex-column gap-2px">
-        <p class="color-primary txt-xs txt-weight-medium text-uppercase letter-spacing-01em m-0px">
+        <p class="color-primary text-11px line-height-12 txt-weight-medium text-uppercase letter-spacing-01em m-0px">
           Update available
         </p>
-        <h4 class="m-0px txt-md txt-weight-light">
+        <h4 class="m-0px text-15px line-height-12 txt-weight-light">
           {{ (latest.release && latest.release.version) || latest.version }}
         </h4>
-        <p class="color-text-secondary txt-xs m-0px">Current version: {{ currentVersion || 'n/a' }}</p>
+        <p class="color-text-secondary text-11px line-height-12 m-0px">Current version: {{ currentVersion || 'n/a' }}</p>
       </header>
 
       <button v-if="hasNotes" class="hover-opacity-85 bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link text-underline-offset-2px" type="button" @click="notesOpen = true">
         Change notes
       </button>
 
-      <ul class="divide-y-mt6px list-style-none m-0px color-text-secondary txt-xs p-0px">
+      <ul class="divide-y-mt6px list-style-none m-0px color-text-secondary text-11px line-height-12 p-0px">
         <li><strong>Platform:</strong> {{ latest.platform }}</li>
         <li><strong>Channel:</strong> {{ latest.channel }}</li>
         <li><strong>Artifact:</strong> {{ latest.artifact.kind }}</li>
@@ -30,7 +30,7 @@
 
       <div class="gap-4px flex flex-wrap-wrap mt-4px">
         <UiButton
-          class="flex-align-justify-center gap-8px p-8px border-radius-10px txt-xs flex-1-1-auto"
+          class="flex-align-justify-center gap-8px p-8px border-radius-10px text-11px line-height-12 flex-1-1-auto"
           :variant="downloadDisabled ? 'ghost' : 'primary'"
           :disabled="downloadDisabled || busy"
           @click="onUpdate"
@@ -44,7 +44,7 @@
           </template>
         </UiButton>
         <UiButton
-          class="flex-align-justify-center gap-8px p-8px border-radius-10px txt-xs flex-1-1-auto"
+          class="flex-align-justify-center gap-8px p-8px border-radius-10px text-11px line-height-12 flex-1-1-auto"
           variant="ghost"
           @click="remindLater"
         >

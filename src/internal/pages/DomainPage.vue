@@ -74,7 +74,7 @@
             <div class="domainpage-domain-right flex-align-center gap-6px">
               <span
                 v-if="d.expireAtSeconds"
-                class="border-radius-full fw-500 txt-sm cursor-pointer text-11px py-4px px-10px"
+                class="border-radius-full fw-500 text-12px line-height-12 cursor-pointer text-11px py-4px px-10px"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >

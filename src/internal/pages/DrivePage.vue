@@ -201,7 +201,7 @@
         <UiSpinner size="lg" />
       </div>
 
-      <div v-else-if="browseError" class="drivepage-fetch-error txt-xs mt-4px color-error mt-16px">
+      <div v-else-if="browseError" class="drivepage-fetch-error text-11px line-height-12 mt-4px color-error mt-16px">
         {{ browseError }}
       </div>
 
@@ -211,8 +211,8 @@
         <div class="drivepage-progress-content flex-align-center gap-16px" >
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-4px">
-            <span class="txt-sm txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
-            <span class="txt-xs color-gray-blue">
+            <span class="text-12px line-height-12 txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
+            <span class="text-11px line-height-12 color-gray-blue">
               <template v-if="upload?.uploadingPercent != null">
                 ({{ upload?.uploadingPercent }}%)
               </template>
@@ -256,13 +256,13 @@
         <div class="drivepage-progress-content flex-align-center gap-16px">
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-4px">
-            <span class="txt-sm txt-weight-strong"
+            <span class="text-12px line-height-12 txt-weight-strong"
               >Converting {{ convertingFile }}</span
             >
-            <span class="txt-xs color-gray-blue"
+            <span class="text-11px line-height-12 color-gray-blue"
               >Warning: this can take a while.</span
             >
-            <span class="txt-xs color-gray-blue">
+            <span class="text-11px line-height-12 color-gray-blue">
               {{ convertingStatusText }}
             </span>
             <div class="drivepage-progress-actions flex gap-8px mt-6px">
@@ -348,10 +348,10 @@
         <div class="drivepage-progress-content flex-align-center gap-16px">
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-4px">
-            <span class="txt-sm txt-weight-strong">
+            <span class="text-12px line-height-12 txt-weight-strong">
               Downloading {{ archiveDownloadFile }}
             </span>
-            <span class="txt-xs color-gray-blue">
+            <span class="text-11px line-height-12 color-gray-blue">
               {{ archiveDownloadStatusText }}
             </span>
             <div class="drivepage-progress-actions flex gap-8px mt-6px">
@@ -546,7 +546,7 @@
     <!-- File Detail Panel -->
     <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px w-280px max-w-280px border-left-1-border-color">
       <div class="drivepage-detail-header flex-align-center-justify-space-between mb-20px">
-        <h3 class="txt-sm txt-weight-strong">
+        <h3 class="text-12px line-height-12 txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}
         </h3>
         <UiButton variant="icon" @click="selectedFile = null">
@@ -643,7 +643,7 @@
     <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-50 background-rgba-0-0-0-0-8">
       <div class="drivepage-drop-content text-center color-white">
         <Upload :size="48" />
-        <p class="txt-md txt-weight-strong mt-4px">
+        <p class="text-15px line-height-12 txt-weight-strong mt-4px">
           Drop files to upload
         </p>
       </div>
@@ -715,7 +715,7 @@
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
               </div>
 
-              <p class="txt-xs color-gray-blue m-0px mb-12px">
+              <p class="text-11px line-height-12 color-gray-blue m-0px mb-12px">
                 Export/import your drive metadata (CIDs, names, favourites). The snapshot is
                 encrypted with a password you choose. It doesn't include the data behind CIDs
                 (only references). Keep the file + password safe.
@@ -796,7 +796,7 @@
 
               <UiCheckbox v-model="driveBackupExportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
-              <p class="txt-xs color-gray-blue m-0px mt-12px">
+              <p class="text-11px line-height-12 color-gray-blue m-0px mt-12px">
                 If you lose the password, this backup cannot be recovered.
               </p>
 
@@ -1433,17 +1433,17 @@
               </div>
               <p
                 v-if="hasInsufficientFunds"
-                class="txt-xs color-red-base mt-8px"
+                class="text-11px line-height-12 color-red-base mt-8px"
               >
                 You can't subscribe because your wallet balance is too low.
               </p>
             </div>
 
-            <div v-if="subscribeError" class="drivepage-fetch-error txt-xs mt-4px color-error mt-16px">
+            <div v-if="subscribeError" class="drivepage-fetch-error text-11px line-height-12 mt-4px color-error mt-16px">
               {{ subscribeError }}
             </div>
 
-            <p v-if="subscribeBusy" class="txt-xs color-gray-blue mt-4px">
+            <p v-if="subscribeBusy" class="text-11px line-height-12 color-gray-blue mt-4px">
               Submitting on-chain transaction… This can take ~1–2 minutes the
               first time (PQC setup + block confirmation).
             </p>

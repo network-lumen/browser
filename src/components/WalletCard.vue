@@ -3,7 +3,7 @@
     <header class="flex-align-start flex-justify-space-between mb-8px">
       <div class="m-4px flex-align-center gap-8px">
         <div class="flex flex-column gap-0px">
-          <h3 id="wallet-title" class="txt-lg txt-weight-strong m-0px">Wallet</h3>
+          <h3 id="wallet-title" class="text-20px line-height-12 txt-weight-strong m-0px">Wallet</h3>
           <p class="m-0px color-gray-blue">Your Lumen balance and address.</p>
         </div>
       </div>
@@ -15,8 +15,8 @@
         class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
       >
         <div class="flex flex-align-center gap-8px">
-          <div class="txt-xs color-gray-blue">Address</div>
-          <div class="txt-xs txt-weight-medium" :title="address || '--'">
+          <div class="text-11px line-height-12 color-gray-blue">Address</div>
+          <div class="text-11px line-height-12 txt-weight-medium" :title="address || '--'">
             <span v-if="address">{{ shortAddress }}</span>
             <span v-else class="color-gray-blue-light">-</span>
           </div>
@@ -39,8 +39,8 @@
         class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1px-solid border-color-default flex-align-center"
       >
         <div class="flex flex-align-center gap-8px">
-          <div class="txt-xs color-gray-blue">Balance</div>
-          <div class="txt-xs txt-weight-medium">
+          <div class="text-11px line-height-12 color-gray-blue">Balance</div>
+          <div class="text-11px line-height-12 txt-weight-medium">
             <span class="color-gray-blue-light">Coming soon</span>
           </div>
         </div>

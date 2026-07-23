@@ -829,15 +829,11 @@
 .translate-x-center { transform: translateX(-50%); }
 .translate-y-05px { transform: translateY(0.5px); }
 .translate-y-center { transform: translateY(-50%); }
-.txt-lg  { font-size: var(--fs-lg); line-height: 1.2; }
-.txt-md  { font-size: var(--fs-md); line-height: 1.2; }
 .txt-overflow-ellipsis { text-overflow: ellipsis; }
-.txt-sm  { font-size: var(--fs-sm); line-height: 1.2; }
 .txt-weight-light { font-weight: 600; }
 .txt-weight-medium { font-weight: 700; }
 .txt-weight-normal { font-weight: 400; }
 .txt-weight-strong { font-weight: 800; }
-.txt-xs  { font-size: var(--fs-xs); line-height: 1.2; }
 .underline { text-decoration: underline; }
 .underline-on-hover:hover .underline-target { text-decoration: underline; }
 .w-0 { width: 0; }

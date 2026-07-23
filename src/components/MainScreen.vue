@@ -3,7 +3,7 @@
     <UiToast />
     <div class="app overflow-hidden">
       <div
-        class="h-200 pr-24px txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        class="h-200 pr-24px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
         ref="hdr"
       >
         <div
