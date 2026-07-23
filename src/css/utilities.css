@@ -290,11 +290,11 @@
 .color-error-red { color: var(--error-red); }
 .color-gray-blue { color: var(--gray-blue) }
 .color-gray-blue-light { color: var(--gray-blue-light) }
-.color-hex-dbeafe { color: #dbeafe; }
-.color-hex-e2e8f0 { color: #e2e8f0; }
-.color-hex-f8fafc { color: #f8fafc; }
-.color-hex-fecaca { color: #fecaca; }
-.color-hex-ffb4b4 { color: #ffb4b4; }
+.color-extension-error { color: var(--extension-error-text); }
+.color-store-button { color: var(--store-button-text); }
+.color-store-error { color: var(--store-error-text); }
+.color-store-heading { color: var(--store-heading-text); }
+.color-store-info { color: var(--store-info-text); }
 .color-inherit { color: inherit; }
 .color-ios-blue { color: var(--ios-blue); }
 .color-ios-green-override { color: var(--ios-green); }
@@ -536,7 +536,6 @@
 .left-n3px { left: -3px; }
 .letter-spacing-0 { letter-spacing: 0; }
 .letter-spacing-0025em { letter-spacing: 0.025em; }
-.letter-spacing-002em { letter-spacing: 0.02em; }
 .letter-spacing-003em { letter-spacing: 0.03em; }
 .letter-spacing-004em { letter-spacing: 0.04em; }
 .letter-spacing-005em { letter-spacing: 0.05em; }
@@ -544,7 +543,6 @@
 .letter-spacing-008em { letter-spacing: 0.08em; }
 .letter-spacing-015em { letter-spacing: 0.15em; }
 .letter-spacing-01em { letter-spacing: 0.1em; }
-.letter-spacing-05px { letter-spacing: 0.5px; }
 .letter-spacing-n001 { letter-spacing: -0.01em; }
 .letter-spacing-n002 { letter-spacing: -0.02em; }
 .line-clamp-2 { line-height: 1.6; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }

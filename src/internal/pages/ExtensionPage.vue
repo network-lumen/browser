@@ -1,6 +1,6 @@
 <template>
   <div class="extension-page absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
-    <div v-if="error" class="extension-status extension-status-error w-full text-14px text-center flex-align-justify-center p-24px color-white-a82 color-hex-ffb4b4">
+    <div v-if="error" class="extension-status extension-status-error w-full text-14px text-center flex-align-justify-center p-24px color-white-a82 color-extension-error">
       {{ error }}
     </div>
     <div
@@ -11,7 +11,7 @@
     </div>
     <div
       v-else-if="!extensionGuestPreloadUrl"
-      class="extension-status extension-status-error w-full text-14px text-center flex-align-justify-center p-24px color-white-a82 color-hex-ffb4b4"
+      class="extension-status extension-status-error w-full text-14px text-center flex-align-justify-center p-24px color-white-a82 color-extension-error"
     >
       Extension guest preload is unavailable.
     </div>
