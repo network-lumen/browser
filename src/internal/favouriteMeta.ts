@@ -169,6 +169,23 @@ function describeFileUrl(rawUrl: string, preferredTitle?: string): FavouriteMeta
   };
 }
 
+const AVATAR_TONE_VARS: Partial<Record<FavouriteKind, string>> = {
+  search: "--ios-blue",
+  internal: "--ios-indigo",
+  web: "--ios-green",
+  file: "--ios-orange",
+};
+
+export function avatarToneStyle(kind: FavouriteKind): Record<string, string> {
+  const cssVar = AVATAR_TONE_VARS[kind];
+  if (!cssVar) return {};
+  return {
+    background: `rgba(var(${cssVar}-rgb), 0.12)`,
+    color: `var(${cssVar})`,
+    borderColor: `rgba(var(${cssVar}-rgb), 0.18)`,
+  };
+}
+
 export function describeFavouriteUrl(rawUrl: string, preferredTitle?: string): FavouriteMeta {
   const url = String(rawUrl || "").trim();
   const chosenTitle = normalizePreferredTitle(preferredTitle);

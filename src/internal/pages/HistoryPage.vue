@@ -59,7 +59,7 @@
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
               <button class="color-inherit flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar h-44px flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-270" :class="`tone-${entry.kind}`">
+                <span class="history-item-avatar h-44px flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-270" :style="avatarToneStyle(entry.kind)">
                   {{ entry.monogram }}
                 </span>
 
@@ -125,7 +125,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import InternalSidebar from "../../components/InternalSidebar.vue";
-import { describeFavouriteUrl } from "../favouriteMeta";
+import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
 import { useHistory } from "../historyStore";
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);

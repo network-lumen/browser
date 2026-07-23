@@ -223,26 +223,6 @@
 /* StartupScreen.vue */
 
 /* InternalSidebar.vue */
-.sidebar-fav-avatar.tone-search, .history-item-avatar.tone-search, .newtab-shortcut-avatar.tone-search {
-  background: rgba(var(--ios-blue-rgb), 0.12);
-  color: var(--ios-blue);
-  border-color: rgba(var(--ios-blue-rgb), 0.18);
-}
-.sidebar-fav-avatar.tone-internal, .history-item-avatar.tone-internal, .newtab-shortcut-avatar.tone-internal {
-  background: rgba(var(--ios-indigo-rgb), 0.12);
-  color: var(--ios-indigo);
-  border-color: rgba(var(--ios-indigo-rgb), 0.18);
-}
-.sidebar-fav-avatar.tone-web, .history-item-avatar.tone-web, .newtab-shortcut-avatar.tone-web {
-  background: rgba(var(--ios-green-rgb), 0.12);
-  color: var(--ios-green);
-  border-color: rgba(var(--ios-green-rgb), 0.18);
-}
-.sidebar-fav-avatar.tone-file, .history-item-avatar.tone-file, .newtab-shortcut-avatar.tone-file {
-  background: rgba(var(--ios-orange-rgb), 0.12);
-  color: var(--ios-orange);
-  border-color: rgba(var(--ios-orange-rgb), 0.18);
-}
 
 /* FindBar.vue */
 /* QrScanner.vue */
