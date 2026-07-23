@@ -93,6 +93,7 @@
 .bg-black { background: #000; }
 .bg-black-a02 { background: var(--black-a02); }
 .bg-black-a35 { background: rgba(0, 0, 0, 0.35); }
+.bg-black-a50 { background: rgba(0, 0, 0, 0.5); }
 .bg-blue-sky { background-color: var(--blue-sky); }
 .bg-border { background: var(--border-color); }
 .bg-card { background: var(--card-bg); }
@@ -693,6 +694,7 @@
 .shadow-0-2-8-primary-a15-hover:hover { box-shadow: 0 2px 8px var(--primary-a15); }
 .shadow-0-2-8-rgba-0-0-0-0-2 { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
 .shadow-0-20-55-rgba-0-0-0-0-18 { box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18); }
+.shadow-0-20-60-rgba-0-0-0-0-3 { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
 .shadow-0-24-60-rgba-0-0-0-0-35 { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); }
 .shadow-0-4-12-ios-blue-a10-hover:hover { box-shadow: 0 4px 12px rgba(var(--ios-blue-rgb), 0.1); }
 .shadow-0-4-12-ios-indigo-a30-hover:hover { box-shadow: 0 4px 12px rgba(var(--ios-indigo-rgb), 0.3); }
